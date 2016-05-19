@@ -1,0 +1,42 @@
+---
+- hosts: all
+  vars:
+    - oneview_host: 172.16.102.149
+    - username: administrator
+    - password: serveradmin
+  tasks:
+    - name: Create FC Network
+      fc_network:
+        oneview_host: "{{ oneview_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: 'present'
+        template:
+          name: 'New FC Network 2'
+          connectionTemplateUri: null
+          autoLoginRedistribution: True
+          fabricType: 'FabricAttach'
+      delegate_to: localhost
+
+    - name: Should not create FC Network again
+      fc_network:
+        oneview_host: "{{ oneview_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: 'present'
+        template:
+          name: 'New FC Network 2'
+          connectionTemplateUri: null
+          autoLoginRedistribution: True
+          fabricType: 'FabricAttach'
+      delegate_to: localhost
+
+    - name: Should raise exception when try create FC Network without type
+      fc_network:
+        oneview_host: "{{ oneview_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        state: 'present'
+        template:
+          name: 'New FC Network 3'
+      delegate_to: localhost
