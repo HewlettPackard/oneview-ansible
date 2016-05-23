@@ -30,13 +30,3 @@
           autoLoginRedistribution: True
           fabricType: 'FabricAttach'
       delegate_to: localhost
-
-    - name: Should raise exception when try create FC Network without type
-      fc_network:
-        oneview_host: "{{ oneview_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        state: 'present'
-        template:
-          name: 'New FC Network 3'
-      delegate_to: localhost

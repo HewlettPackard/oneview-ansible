@@ -8,32 +8,24 @@ FC_NETWORK_ALREADY_EXIST = 'FC Network already exists.'
 
 
 def create(oneview_client, template):
-    new_fc_network = None
-    try:
-        new_fc_network = oneview_client.fc_networks.create(template)
-        msg = FC_NETWORK_CREATED
-        failed = False
-    except Exception as e:
-        msg = e.message
-        failed = True
-
-    return msg, new_fc_network, failed
+    new_fc_network = oneview_client.fc_networks.create(template)
+    return FC_NETWORK_CREATED, new_fc_network
 
 
 def present(oneview_client, template):
-    changed = False
-    failed = False
     result = get_by_name(oneview_client, template)
 
     if not result:
-        msg, fc_network, failed = create(oneview_client, template)
-        changed = not failed
+        msg, fc_network = create(oneview_client, template)
+        changed = True
     else:
         msg = FC_NETWORK_ALREADY_EXIST
         fc_network = result[0]
+        changed = False
 
     facts = dict(fc_network=fc_network)
-    return changed, msg, facts, failed
+
+    return changed, msg, facts
 
 
 def get_by_name(oneview_client, template):
@@ -77,9 +69,11 @@ def main():
     if (state != 'present'):
         module.exit_json(changed=False)
     else:
-        changed, message, facts, failed = present(oneview_client, template)
-        module.exit_json(changed=changed, msg=message, ansible_facts=facts,
-            failed=failed)
+        try:
+            changed, message, facts = present(oneview_client, template)
+            module.exit_json(changed=changed, msg=message, ansible_facts=facts)
+        except Exception as e:
+            module.fail_json(msg=e.message)
 
 
 if __name__ == '__main__':
