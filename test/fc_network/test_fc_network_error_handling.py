@@ -3,22 +3,30 @@ import mock
 from fc_network import main
 
 
-class FakeModule(object):
+def create_fc_network_will_raise(message):
+    mock_client = mock.Mock()
+    mock_client.fc_networks.create.side_effect = Exception(message)
+    return mock_client
 
-    def __init__(self):
-        self.called = False
-        self.msg = ''
 
-    def fail_json(self, msg):
-        self.msg = msg
-        self.called = True
+def create_ansible_mock(params):
+    mock_params = mock.Mock()
+    mock_params.__getitem__ = mock.Mock(side_effect=lambda name: params[name])
 
-    def fail_msg(self):
-        return self.msg
+    mock_ansible = mock.Mock()
+    mock_ansible.params = mock_params
+    return mock_ansible
 
-    def was_called(self):
-        return self.called
 
+ERROR_MESSAGE = 'mocked error'
+
+PARAMS = dict(
+    oneview_host="oneview_host",
+    username="username",
+    password="password",
+    state='present',
+    template=dict(name='New FC Network 2')
+)
 
 class FcNetworkErrorHandlingSpec(unittest.TestCase):
 
@@ -27,27 +35,13 @@ class FcNetworkErrorHandlingSpec(unittest.TestCase):
     @mock.patch('fc_network.get_by_name')
     def test_should_not_update_when_create_raises_exception(self, mock_get_by_name, mock_ansible_module, mock_ov_client):
         mock_get_by_name.return_value = []
-        error_message = 'mocked error'
-
-        mock_client = mock.Mock()
-        mock_client.fc_networks.create.side_effect = Exception(error_message)
-        mock_ov_client.return_value = mock_client
-
-        fakeModule = FakeModule()
-        fakeModule.params = dict(
-            oneview_host="oneview_host",
-            username="username",
-            password="password",
-            state='present',
-            template=dict(name= 'New FC Network 2')
-        )
-
-        mock_ansible_module.return_value = fakeModule
+        mock_ov_client.return_value = create_fc_network_will_raise(ERROR_MESSAGE)
+        mock_ansible_instance = create_ansible_mock(PARAMS)
+        mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, main())
-        self.assertTrue(fakeModule.was_called())
-        self.assertEquals(error_message, fakeModule.fail_msg())
+        mock_ansible_instance.fail_json.assert_called_once_with(msg=ERROR_MESSAGE)
 
 
 if __name__ == '__main__':
-  unittest.main()
+    unittest.main()

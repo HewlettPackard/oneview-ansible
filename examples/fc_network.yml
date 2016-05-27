@@ -10,7 +10,7 @@
         oneview_host: "{{ oneview_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
-        state: 'present'
+        state: present
         template:
           name: 'New FC Network 2'
           connectionTemplateUri: null
@@ -23,7 +23,7 @@
         oneview_host: "{{ oneview_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
-        state: 'present'
+        state: present
         template:
           name: 'New FC Network 2'
           connectionTemplateUri: null
