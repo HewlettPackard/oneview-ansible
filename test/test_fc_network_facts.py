@@ -91,7 +91,7 @@ class FcNetworkFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(fc_network=(PRESENT_NETWORKS))
+            ansible_facts=dict(fc_networks=(PRESENT_NETWORKS))
         )
 
     @mock.patch('fc_network_facts.OneViewClient')

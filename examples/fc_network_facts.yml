@@ -5,15 +5,15 @@
     - username: administrator
     - password:
   tasks:
-    - name: Get all FC Networks
+    - name: Gather facts about all fc-networks
       fc_network_facts:
         oneview_host: "{{ oneview_host }}"
         username: "{{ username }}"
         password: "{{ password }}"
       register: result
     - debug: var=result
-    
-    - name: Get FC Networks by name
+
+    - name: Gather facts about a fc-network by name
       fc_network_facts:
         oneview_host: "{{ oneview_host }}"
         username: "{{ username }}"

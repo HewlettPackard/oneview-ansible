@@ -26,6 +26,64 @@ from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
 
 
+DOCUMENTATION = '''
+---
+module: fc_network_facts
+short_description: Retrieve facts about one or more One View Fibre Channel
+    Networks.
+description:
+    - Retrieve facts about one or more Fibre Channel Networks from One View.
+requirements:
+    - "python >= 2.6"
+    - "hpOneView"
+author: "Mariana Kreisig (@marikrg)"
+options:
+    oneview_host:
+      description:
+        - Appliance IP address
+      required: true
+    username:
+      description:
+        - OneView username
+      required: true
+    password:
+      description:
+        - OneView password
+      required: true
+    name:
+      description:
+        - Fibre Channel Network name
+      required: false
+
+'''
+
+EXAMPLES = '''
+# Gather facts about all Fibre Channel networks
+- fc_network_facts:
+    oneview_host: hostname
+    username: username
+    password: password
+  register: result
+- debug: var=result
+
+# Gather facts about a Fibre Channel by name
+- fc_network_facts:
+    oneview_host: hostname
+    username: username
+    password: password
+    name: network name
+  register: result
+- debug: var=result
+'''
+
+RETURN = '''
+fc_networks:
+    description: Has all the One View facts about the Fibre Channel Networks.
+    returned: always, but can be null
+    type: complex
+'''
+
+
 class FcNetworkFactsModule(object):
 
     argument_spec = dict(
@@ -63,7 +121,7 @@ class FcNetworkFactsModule(object):
         fc_network = self.oneview_client.fc_networks.get_by('name', name)
 
         self.module.exit_json(changed=False,
-                              ansible_facts=dict(fc_network=fc_network))
+                              ansible_facts=dict(fc_networks=fc_network))
 
     def __get_all(self):
         fc_networks = self.oneview_client.fc_networks.get_all()
