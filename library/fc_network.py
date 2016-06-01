@@ -21,83 +21,78 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 ###
-
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
 
+
 FC_NETWORK_CREATED = 'FC Network created sucessfully.'
+FC_NETWORK_DELETED = 'FC Network deleted sucessfully.'
 FC_NETWORK_ALREADY_EXIST = 'FC Network already exists.'
+FC_NETWORK_ALREADY_ABSENT = 'Nothing to do.'
 
 
 class FcNetworkModule(object):
 
     argument_spec = dict(
-        oneview_host=dict(required=True, type='str'),
-        username=dict(required=True, type='str'),
-        password=dict(required=True, type='str'),
+        config=dict(required=True, type='str'),
         state=dict(
             required=True,
             choices=['present', 'absent']
         ),
-        template=dict(required=True, type='dict')
+        data=dict(required=True, type='dict')
     )
 
-
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec,
-                                    supports_check_mode=False)
-        self.oneview_client = OneViewClient(self.__get_config())
-
-
-    def __get_config(self):
-        return dict(
-            ip=self.module.params['oneview_host'],
-            credentials=dict(
-                userName=self.module.params['username'],
-                password=self.module.params['password']
-            )
-        )
-
+        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        self.oneview_client = OneViewClient.from_json(self.module.params['config'])
 
     def run(self):
         state = self.module.params['state']
-        template = self.module.params['template']
+        data = self.module.params['data']
 
-        if state != 'present':
-            self.module.exit_json(changed=False)
+        try:
+            if state == 'present':
+                self.__present(data)
+            elif state == 'absent':
+                self.__absent(data)
+
+        except Exception as exception:
+            self.module.fail_json(msg=exception.message)
+
+    def __present(self, data):
+        resource = self.__get_by_name(data)
+
+        if not resource:
+            self.__create(data)
         else:
-            try:
-                changed, message, facts = self.__present(template)
-                self.module.exit_json(changed=changed,
-                                      msg=message,
-                                      ansible_facts=facts)
-            except Exception as exception:
-                self.module.fail_json(msg=exception.message)
+            self.__update(resource)
 
+    def __absent(self, data):
+        resource = self.__get_by_name(data)
 
-    def __present(self, template):
-        result = self.__get_by_name(template)
-
-        if not result:
-            msg, fc_network = self.__create(template)
-            changed = True
+        if resource:
+            task = self.oneview_client.fc_networks.delete(resource)
+            self.module.exit_json(changed=True,
+                                  msg=FC_NETWORK_DELETED,
+                                  ansible_facts=task)
         else:
-            msg = FC_NETWORK_ALREADY_EXIST
-            fc_network = result[0]
-            changed = False
-
-        facts = dict(fc_network=fc_network)
-
-        return changed, msg, facts
-
+            self.module.exit_json(changed=False, msg=FC_NETWORK_ALREADY_ABSENT)
 
     def __create(self, template):
         new_fc_network = self.oneview_client.fc_networks.create(template)
-        return FC_NETWORK_CREATED, new_fc_network
 
+        self.module.exit_json(changed=True,
+                              msg=FC_NETWORK_CREATED,
+                              ansible_facts=dict(fc_network=new_fc_network))
 
-    def __get_by_name(self, template):
-        return self.oneview_client.fc_networks.get_by('name', template['name'])
+    def __update(self, resource):
+        self.module.exit_json(changed=False,
+                              msg=FC_NETWORK_ALREADY_EXIST,
+                              ansible_facts=dict(fc_network=resource))
+
+    def __get_by_name(self, data):
+        result = self.oneview_client.fc_networks.get_by('name', data['name'])
+        return result[0] if result else None
 
 
 def main():

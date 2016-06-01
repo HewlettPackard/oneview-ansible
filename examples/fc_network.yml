@@ -1,32 +1,45 @@
 ---
 - hosts: all
   vars:
-    - oneview_host: 172.16.102.149
-    - username: administrator
-    - password: serveradmin
+    config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
     - name: Create FC Network
       fc_network:
-        oneview_host: "{{ oneview_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
+        config: "{{ config }}"
         state: present
-        template:
-          name: 'New FC Network 2'
+        data:
+          name: 'New FC Network'
+          connectionTemplateUri: null
+          autoLoginRedistribution: True
+          fabricType: 'FabricAttach'
+      delegate_to: localhost
+      register: fc_network_1
+
+    - name: Should not create FC Network again
+      fc_network:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'New FC Network'
           connectionTemplateUri: null
           autoLoginRedistribution: True
           fabricType: 'FabricAttach'
       delegate_to: localhost
 
-    - name: Should not create FC Network again
+    - name: Delete FC Network
       fc_network:
-        oneview_host: "{{ oneview_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        state: present
-        template:
-          name: 'New FC Network 2'
-          connectionTemplateUri: null
-          autoLoginRedistribution: True
-          fabricType: 'FabricAttach'
+        config: "{{ config }}"
+        state: absent
+        data: "{{ fc_network_1.ansible_facts.fc_network }}"
       delegate_to: localhost
+      register: deleted
+
+    - debug: var=deleted
+
+    - name: Do nothing when FC Network is absent
+      fc_network:
+        config: "{{ config }}"
+        state: absent
+        data: "{{ fc_network_1.ansible_facts.fc_network }}"
+      delegate_to: localhost
+      register: deleted
