@@ -3,30 +3,34 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
-    - name: Create FC Network
+    - name: Create a Fibre Channel Network
       fc_network:
         config: "{{ config }}"
         state: present
         data:
-          name: 'New FC Network'
-          connectionTemplateUri: null
-          autoLoginRedistribution: True
-          fabricType: 'FabricAttach'
+          name: 'Test FC Network'
       delegate_to: localhost
       register: fc_network_1
 
-    - name: Should not create FC Network again
+    - name: Should not create or update the Fibre Channel Network with no changes provided
       fc_network:
         config: "{{ config }}"
         state: present
         data:
-          name: 'New FC Network'
-          connectionTemplateUri: null
-          autoLoginRedistribution: True
+          name: 'Test FC Network'
           fabricType: 'FabricAttach'
       delegate_to: localhost
 
-    - name: Delete FC Network
+    - name: Should update the Fibre Channel Network changing the attribute autoLoginRedistribution to True
+      fc_network:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test FC Network'
+          autoLoginRedistribution: True
+      delegate_to: localhost
+
+    - name: Delete the Fibre Channel Network
       fc_network:
         config: "{{ config }}"
         state: absent
@@ -36,7 +40,7 @@
 
     - debug: var=deleted
 
-    - name: Do nothing when FC Network is absent
+    - name: Do nothing when Fibre Channel Network is absent
       fc_network:
         config: "{{ config }}"
         state: absent

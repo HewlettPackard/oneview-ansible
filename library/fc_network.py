@@ -26,6 +26,7 @@ from hpOneView.oneview_client import OneViewClient
 
 
 FC_NETWORK_CREATED = 'FC Network created sucessfully.'
+FC_NETWORK_UPDATED = 'FC Network updated sucessfully.'
 FC_NETWORK_DELETED = 'FC Network deleted sucessfully.'
 FC_NETWORK_ALREADY_EXIST = 'FC Network already exists.'
 FC_NETWORK_ALREADY_ABSENT = 'Nothing to do.'
@@ -65,7 +66,7 @@ class FcNetworkModule(object):
         if not resource:
             self.__create(data)
         else:
-            self.__update(resource)
+            self.__update(data, resource)
 
     def __absent(self, data):
         resource = self.__get_by_name(data)
@@ -78,17 +79,29 @@ class FcNetworkModule(object):
         else:
             self.module.exit_json(changed=False, msg=FC_NETWORK_ALREADY_ABSENT)
 
-    def __create(self, template):
-        new_fc_network = self.oneview_client.fc_networks.create(template)
+    def __create(self, data):
+        new_fc_network = self.oneview_client.fc_networks.create(data)
 
         self.module.exit_json(changed=True,
                               msg=FC_NETWORK_CREATED,
                               ansible_facts=dict(fc_network=new_fc_network))
 
-    def __update(self, resource):
-        self.module.exit_json(changed=False,
-                              msg=FC_NETWORK_ALREADY_EXIST,
-                              ansible_facts=dict(fc_network=resource))
+    def __update(self, data, resource):
+        merged_data = resource.copy()
+        merged_data.update(data)
+
+        if cmp(resource, merged_data) == 0:
+
+            self.module.exit_json(changed=False,
+                                  msg=FC_NETWORK_ALREADY_EXIST,
+                                  ansible_facts=dict(fc_network=resource))
+
+        else:
+            updated_fc_network = self.oneview_client.fc_networks.update(merged_data)
+
+            self.module.exit_json(changed=True,
+                                  msg=FC_NETWORK_UPDATED,
+                                  ansible_facts=dict(fc_network=updated_fc_network))
 
     def __get_by_name(self, data):
         result = self.oneview_client.fc_networks.get_by('name', data['name'])
