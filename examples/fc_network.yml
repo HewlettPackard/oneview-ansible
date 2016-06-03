@@ -1,32 +1,66 @@
+###
+# (C) Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+###
 ---
 - hosts: all
   vars:
-    - oneview_host: 172.16.102.149
-    - username: administrator
-    - password: serveradmin
+    config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
     - name: Create FC Network
       fc_network:
-        oneview_host: "{{ oneview_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
+        config: "{{ config }}"
         state: present
-        template:
-          name: 'New FC Network 2'
+        data:
+          name: 'New FC Network'
+          connectionTemplateUri: null
+          autoLoginRedistribution: True
+          fabricType: 'FabricAttach'
+      delegate_to: localhost
+      register: fc_network_1
+
+    - name: Should not create FC Network again
+      fc_network:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'New FC Network'
           connectionTemplateUri: null
           autoLoginRedistribution: True
           fabricType: 'FabricAttach'
       delegate_to: localhost
 
-    - name: Should not create FC Network again
+    - name: Delete FC Network
       fc_network:
-        oneview_host: "{{ oneview_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        state: present
-        template:
-          name: 'New FC Network 2'
-          connectionTemplateUri: null
-          autoLoginRedistribution: True
-          fabricType: 'FabricAttach'
+        config: "{{ config }}"
+        state: absent
+        data: "{{ fc_network_1.ansible_facts.fc_network }}"
       delegate_to: localhost
+      register: deleted
+
+    - debug: var=deleted
+
+    - name: Do nothing when FC Network is absent
+      fc_network:
+        config: "{{ config }}"
+        state: absent
+        data: "{{ fc_network_1.ansible_facts.fc_network }}"
+      delegate_to: localhost
+      register: deleted
