@@ -34,21 +34,20 @@ short_description: Retrieve facts about one or more One View Fibre Channel
 description:
     - Retrieve facts about one or more Fibre Channel Networks from One View.
 requirements:
-    - "python >= 2.6"
+    - "python >= 2.7.11"
     - "hpOneView"
 author: "Mariana Kreisig (@marikrg)"
 options:
-    oneview_host:
+    config:
       description:
-        - Appliance IP address
-      required: true
-    username:
-      description:
-        - OneView username
-      required: true
-    password:
-      description:
-        - OneView password
+        - Path to a .json configuration file. The file must contains a OneView client configuration like:
+            {
+              "ip": "your_oneview_ip",
+              "credentials": {
+                "config": "/path/config.json",
+                "password": "your_oneview_password"
+              }
+            }
       required: true
     name:
       description:
@@ -87,16 +86,14 @@ fc_networks:
 class FcNetworkFactsModule(object):
 
     argument_spec = dict(
-        oneview_host=dict(required=True, type='str'),
-        username=dict(required=True, type='str'),
-        password=dict(required=True, type='str'),
+        config=dict(required=True, type='str'),
         name=dict(required=False, type='str')
     )
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec,
                                     supports_check_mode=False)
-        self.oneview_client = OneViewClient(self.__get_config())
+        self.oneview_client = OneViewClient.from_json(self.module.params['config'])
 
     def __get_config(self):
         return dict(

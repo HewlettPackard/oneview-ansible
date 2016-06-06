@@ -1,6 +1,7 @@
 import unittest
 import mock
 
+from hpOneView.oneview_client import OneViewClient
 from fc_network_facts import FcNetworkFactsModule
 
 
@@ -8,17 +9,13 @@ ERROR_MSG = 'Fake message error'
 
 
 PARAMS_GET_ALL = dict(
-    oneview_host="oneview_host",
-    username="username",
-    password="password",
+    config='config.json',
     name=None
 )
 
 
 PARAMS_GET_BY_NAME = dict(
-    oneview_host="oneview_host",
-    username="username",
-    password="password",
+    config='config.json',
     name="Test FC Network"
 )
 
@@ -39,14 +36,14 @@ def create_ansible_mock(params):
 
 class FcNetworkFactsSpec(unittest.TestCase):
 
-    @mock.patch('fc_network_facts.OneViewClient')
+    @mock.patch.object(OneViewClient, 'from_json')
     @mock.patch('fc_network_facts.AnsibleModule')
     def test_should_get_all_fc_networks(self, mock_ansible_module,
-                                        mock_ov_client):
+                                        mock_ov_client_from_json):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.fc_networks.get_all.return_value = PRESENT_NETWORKS
 
-        mock_ov_client.return_value = mock_ov_instance
+        mock_ov_client_from_json.return_value = mock_ov_instance
 
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
         mock_ansible_module.return_value = mock_ansible_instance
@@ -58,15 +55,15 @@ class FcNetworkFactsSpec(unittest.TestCase):
             ansible_facts=dict(fc_networks=(PRESENT_NETWORKS))
         )
 
-    @mock.patch('fc_network_facts.OneViewClient')
+    @mock.patch.object(OneViewClient, 'from_json')
     @mock.patch('fc_network_facts.AnsibleModule')
     def test_should_fail_when_get_all_raises_error(self, mock_ansible_module,
-                                                   mock_ov_client):
+                                                   mock_ov_client_from_json):
 
         mock_ov_instance = mock.Mock()
         mock_ov_instance.fc_networks.get_all.side_effect = Exception(ERROR_MSG)
 
-        mock_ov_client.return_value = mock_ov_instance
+        mock_ov_client_from_json.return_value = mock_ov_instance
 
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
         mock_ansible_module.return_value = mock_ansible_instance
@@ -75,14 +72,14 @@ class FcNetworkFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.fail_json.assert_called_once()
 
-    @mock.patch('fc_network_facts.OneViewClient')
+    @mock.patch.object(OneViewClient, 'from_json')
     @mock.patch('fc_network_facts.AnsibleModule')
     def test_should_get_fc_network_by_name(self, mock_ansible_module,
-                                           mock_ov_client):
+                                           mock_ov_client_from_json):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.fc_networks.get_by.return_value = PRESENT_NETWORKS
 
-        mock_ov_client.return_value = mock_ov_instance
+        mock_ov_client_from_json.return_value = mock_ov_instance
 
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
         mock_ansible_module.return_value = mock_ansible_instance
@@ -94,16 +91,16 @@ class FcNetworkFactsSpec(unittest.TestCase):
             ansible_facts=dict(fc_networks=(PRESENT_NETWORKS))
         )
 
-    @mock.patch('fc_network_facts.OneViewClient')
+    @mock.patch.object(OneViewClient, 'from_json')
     @mock.patch('fc_network_facts.AnsibleModule')
     def test_should_fail_when_get_by_name_raises_error(self,
                                                        mock_ansible_module,
-                                                       mock_ov_client):
+                                                       mock_ov_client_from_json):
 
         mock_ov_instance = mock.Mock()
         mock_ov_instance.fc_networks.get_by.side_effect = Exception(ERROR_MSG)
 
-        mock_ov_client.return_value = mock_ov_instance
+        mock_ov_client_from_json.return_value = mock_ov_instance
 
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
         mock_ansible_module.return_value = mock_ansible_instance

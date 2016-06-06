@@ -1,23 +1,17 @@
 ---
 - hosts: all
   vars:
-    - oneview_host: 172.16.102.82
-    - username: administrator
-    - password:
+    - config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
     - name: Gather facts about all fc-networks
       fc_network_facts:
-        oneview_host: "{{ oneview_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
+        config: "{{ config }}"
       register: result
     - debug: var=result
 
     - name: Gather facts about a fc-network by name
       fc_network_facts:
-        oneview_host: "{{ oneview_host }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        name: "New FC Network 2"
+        config: "{{ config }}"
+        name: "Test FC Network"
       register: result
     - debug: var=result
