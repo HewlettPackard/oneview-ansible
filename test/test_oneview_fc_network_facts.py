@@ -2,7 +2,7 @@ import unittest
 import mock
 
 from hpOneView.oneview_client import OneViewClient
-from fc_network_facts import FcNetworkFactsModule
+from oneview_fc_network_facts import FcNetworkFactsModule
 
 
 ERROR_MSG = 'Fake message error'
@@ -37,7 +37,7 @@ def create_ansible_mock(params):
 class FcNetworkFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json')
-    @mock.patch('fc_network_facts.AnsibleModule')
+    @mock.patch('oneview_fc_network_facts.AnsibleModule')
     def test_should_get_all_fc_networks(self, mock_ansible_module,
                                         mock_ov_client_from_json):
         mock_ov_instance = mock.Mock()
@@ -56,7 +56,7 @@ class FcNetworkFactsSpec(unittest.TestCase):
         )
 
     @mock.patch.object(OneViewClient, 'from_json')
-    @mock.patch('fc_network_facts.AnsibleModule')
+    @mock.patch('oneview_fc_network_facts.AnsibleModule')
     def test_should_fail_when_get_all_raises_error(self, mock_ansible_module,
                                                    mock_ov_client_from_json):
 
@@ -73,7 +73,7 @@ class FcNetworkFactsSpec(unittest.TestCase):
         mock_ansible_instance.fail_json.assert_called_once()
 
     @mock.patch.object(OneViewClient, 'from_json')
-    @mock.patch('fc_network_facts.AnsibleModule')
+    @mock.patch('oneview_fc_network_facts.AnsibleModule')
     def test_should_get_fc_network_by_name(self, mock_ansible_module,
                                            mock_ov_client_from_json):
         mock_ov_instance = mock.Mock()
@@ -92,7 +92,7 @@ class FcNetworkFactsSpec(unittest.TestCase):
         )
 
     @mock.patch.object(OneViewClient, 'from_json')
-    @mock.patch('fc_network_facts.AnsibleModule')
+    @mock.patch('oneview_fc_network_facts.AnsibleModule')
     def test_should_fail_when_get_by_name_raises_error(self,
                                                        mock_ansible_module,
                                                        mock_ov_client_from_json):

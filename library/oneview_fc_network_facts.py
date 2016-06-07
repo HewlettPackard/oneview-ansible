@@ -58,7 +58,7 @@ options:
 
 EXAMPLES = '''
 # Gather facts about all Fibre Channel networks
-- fc_network_facts:
+- oneview_fc_network_facts:
     oneview_host: hostname
     username: username
     password: password
@@ -66,7 +66,7 @@ EXAMPLES = '''
 - debug: var=result
 
 # Gather facts about a Fibre Channel by name
-- fc_network_facts:
+- oneview_fc_network_facts:
     oneview_host: hostname
     username: username
     password: password

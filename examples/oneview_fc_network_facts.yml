@@ -3,14 +3,14 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
-    - name: Gather facts about all fc-networks
-      fc_network_facts:
+    - name: Gather facts about all Fibre Channel Networks
+      oneview_fc_network_facts:
         config: "{{ config }}"
       register: result
     - debug: var=result
 
-    - name: Gather facts about a fc-network by name
-      fc_network_facts:
+    - name: Gather facts about a Fibre Channel Network by name
+      oneview_fc_network_facts:
         config: "{{ config }}"
         name: "Test FC Network"
       register: result
