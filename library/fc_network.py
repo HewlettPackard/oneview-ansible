@@ -25,6 +25,65 @@ from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
 
 
+DOCUMENTATION = '''
+---
+module: fc_network
+short_description: Manage OneView Fibre Channel Networks resources.
+description:
+    - Provides an interface to manage FC Network resources. Can create, update or delete.
+requirements:
+    - "python 2.7.11"
+    - "hpOneView"
+author: "Bruno Souza (@bsouza)"
+options:
+    config:
+      description:
+        - Path to a .json configuration file. The file must contains a OneView client configuration like:
+            {
+              "ip": "your_oneview_ip",
+              "credentials": {
+                "userName": "your_oneview_username",
+                "password": "your_oneview_password"
+              }
+            }
+      required: true
+    state:
+        description:
+            - Indicates the desired state for the FC Network resource. 'present' will
+            ensure data properties are compliant to OneView.
+        choices: ['present', 'absent']
+    data:
+      description:
+        - List with FC Network properties
+      required: true
+
+'''
+
+EXAMPLES = '''
+- name: Ensure that FC Network is present with default configuration
+  fc_network_facts:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'New FC Network'
+
+- name: Ensure that FC Network is present with fabricType 'DirectAttach'
+  fc_network_facts:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'New FC Network'
+      fabricType: 'DirectAttach'
+
+- name: Ensure that FC Network is absent
+  fc_network_facts:
+    config: "{{ config_file_path }}"
+    state: absent
+    data:
+      name: 'New FC Network'
+'''
+
+
 FC_NETWORK_CREATED = 'FC Network created sucessfully.'
 FC_NETWORK_DELETED = 'FC Network deleted sucessfully.'
 FC_NETWORK_ALREADY_EXIST = 'FC Network already exists.'
