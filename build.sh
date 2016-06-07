@@ -79,7 +79,7 @@ python -m unittest discover
 exit_code_tests=$?
 
 echo -e "\n${COLOR_START}Running flake8${COLOR_END}"
-if hash ansible-validate-modules 2>/dev/null; then
+if hash flake8 2>/dev/null; then
   flake8 library test --max-line-length=120 --ignore=F403
   exit_code_flake8=$?
 else
