@@ -61,14 +61,14 @@ options:
 
 EXAMPLES = '''
 - name: Ensure that FC Network is present with default configuration
-  fc_network_facts:
+  oneview_fc_network_facts:
     config: "{{ config_file_path }}"
     state: present
     data:
       name: 'New FC Network'
 
 - name: Ensure that FC Network is present with fabricType 'DirectAttach'
-  fc_network_facts:
+  oneview_fc_network_facts:
     config: "{{ config_file_path }}"
     state: present
     data:
@@ -76,7 +76,7 @@ EXAMPLES = '''
       fabricType: 'DirectAttach'
 
 - name: Ensure that FC Network is absent
-  fc_network_facts:
+  oneview_fc_network_facts:
     config: "{{ config_file_path }}"
     state: absent
     data:

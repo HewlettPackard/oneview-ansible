@@ -23,9 +23,9 @@ import unittest
 import mock
 
 from hpOneView.oneview_client import OneViewClient
-from fc_network import FcNetworkModule
-from fc_network import FC_NETWORK_CREATED, FC_NETWORK_ALREADY_EXIST, FC_NETWORK_UPDATED
-from fc_network import FC_NETWORK_DELETED, FC_NETWORK_ALREADY_ABSENT
+from oneview_fc_network import FcNetworkModule
+from oneview_fc_network import FC_NETWORK_CREATED, FC_NETWORK_ALREADY_EXIST, FC_NETWORK_UPDATED
+from oneview_fc_network import FC_NETWORK_DELETED, FC_NETWORK_ALREADY_ABSENT
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -86,7 +86,7 @@ def create_ansible_mock(params):
 class FcNetworkPresentStateSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json')
-    @mock.patch('fc_network.AnsibleModule')
+    @mock.patch('oneview_fc_network.AnsibleModule')
     def test_should_create_new_fc_network(self, mock_ansible_module, mock_ov_client_from_json):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.fc_networks.get_by.return_value = []
@@ -105,7 +105,7 @@ class FcNetworkPresentStateSpec(unittest.TestCase):
         )
 
     @mock.patch.object(OneViewClient, 'from_json')
-    @mock.patch('fc_network.AnsibleModule')
+    @mock.patch('oneview_fc_network.AnsibleModule')
     def test_should_not_update_when_data_is_equals(self, mock_ansible_module, mock_ov_client_from_json):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.fc_networks.get_by.return_value = [DEFAULT_FC_NETWORK_TEMPLATE]
@@ -123,7 +123,7 @@ class FcNetworkPresentStateSpec(unittest.TestCase):
         )
 
     @mock.patch.object(OneViewClient, 'from_json')
-    @mock.patch('fc_network.AnsibleModule')
+    @mock.patch('oneview_fc_network.AnsibleModule')
     def test_update_when_data_has_modified_attributes(self, mock_ansible_module, mock_ov_client_from_json):
         data_merged = DEFAULT_FC_NETWORK_TEMPLATE.copy()
         data_merged['fabricType'] = 'DirectAttach'
@@ -148,7 +148,7 @@ class FcNetworkPresentStateSpec(unittest.TestCase):
 class FcNetworkAbsentStateSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json')
-    @mock.patch('fc_network.AnsibleModule')
+    @mock.patch('oneview_fc_network.AnsibleModule')
     def test_should_remove_fc_network(self, mock_ansible_module, mock_ov_client_from_json):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.fc_networks.get_by.return_value = [DEFAULT_FC_NETWORK_TEMPLATE]
@@ -167,7 +167,7 @@ class FcNetworkAbsentStateSpec(unittest.TestCase):
         )
 
     @mock.patch.object(OneViewClient, 'from_json')
-    @mock.patch('fc_network.AnsibleModule')
+    @mock.patch('oneview_fc_network.AnsibleModule')
     def test_should_do_nothing_when_fc_network_not_exist(self, mock_ansible_module, mock_ov_client_from_json):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.fc_networks.get_by.return_value = []
@@ -187,7 +187,7 @@ class FcNetworkAbsentStateSpec(unittest.TestCase):
 class FcNetworkErrorHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json')
-    @mock.patch('fc_network.AnsibleModule')
+    @mock.patch('oneview_fc_network.AnsibleModule')
     def test_should_not_update_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.fc_networks.get_by.return_value = []
@@ -204,7 +204,7 @@ class FcNetworkErrorHandlingSpec(unittest.TestCase):
         )
 
     @mock.patch.object(OneViewClient, 'from_json')
-    @mock.patch('fc_network.AnsibleModule')
+    @mock.patch('oneview_fc_network.AnsibleModule')
     def test_should_not_delete_when_oneview_exception(self, mock_ansible_module, mock_ov_client_from_json):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.fc_networks.get_by.return_value = [DEFAULT_FC_NETWORK_TEMPLATE]
