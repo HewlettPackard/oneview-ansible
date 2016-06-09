@@ -93,7 +93,7 @@ class FcNetworkFactsModule(object):
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec,
                                     supports_check_mode=False)
-        self.oneview_client = OneViewClient.from_json(self.module.params['config'])
+        self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def __get_config(self):
         return dict(

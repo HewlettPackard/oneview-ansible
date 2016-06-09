@@ -104,7 +104,7 @@ class FcNetworkModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        self.oneview_client = OneViewClient.from_json(self.module.params['config'])
+        self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
         state = self.module.params['state']
@@ -131,10 +131,9 @@ class FcNetworkModule(object):
         resource = self.__get_by_name(data)
 
         if resource:
-            task = self.oneview_client.fc_networks.delete(resource)
+            result = self.oneview_client.fc_networks.delete(resource)
             self.module.exit_json(changed=True,
-                                  msg=FC_NETWORK_DELETED,
-                                  ansible_facts=task)
+                                  msg=FC_NETWORK_DELETED)
         else:
             self.module.exit_json(changed=False, msg=FC_NETWORK_ALREADY_ABSENT)
 
