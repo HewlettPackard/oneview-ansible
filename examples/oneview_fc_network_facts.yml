@@ -7,6 +7,8 @@
       oneview_fc_network_facts:
         config: "{{ config }}"
       register: result
+      delegate_to: localhost
+
     - debug: var=result
 
     - name: Gather facts about a Fibre Channel Network by name
@@ -14,4 +16,6 @@
         config: "{{ config }}"
         name: "Test FC Network"
       register: result
+      delegate_to: localhost
+
     - debug: var=result

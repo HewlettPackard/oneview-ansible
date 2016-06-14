@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
 # (C) Copyright (2016) Hewlett Packard Enterprise Development LP
 #
@@ -25,17 +25,16 @@ from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
 from hpOneView.common import resource_compare
 
-
 DOCUMENTATION = '''
 ---
-module: fc_network
-short_description: Manage OneView Fibre Channel Networks resources.
+module: oneview_fcoe_network
+short_description: Manage OneView FCoE Network resources.
 description:
-    - Provides an interface to manage FC Network resources. Can create, update or delete.
+    - Provides an interface to manage FCoE Network resources. Can create, update or delete.
 requirements:
     - "python 2.7.11"
     - "hpOneView"
-author: "Bruno Souza (@bsouza)"
+author: "Gustavo Hennig (@GustavoHennig)"
 options:
     config:
       description: >
@@ -50,51 +49,48 @@ options:
       required: true
     state:
         description: >
-            - Indicates the desired state for the FC Network resource. 'present' will
-              ensure data properties are compliant to OneView.
-        choices:
-            ['present', 'absent']
+            - Indicates the desired state for the FCoE Network resource. 'present' will
+            ensure data properties are compliant to OneView.
+        choices: ['present', 'absent']
     data:
-        description:
-            - List with FC Network properties
-        required: true
+      description:
+        - List with FCoE Network properties
+      required: true
 
 '''
 
 EXAMPLES = '''
-- name: Ensure that FC Network is present with default configuration
-  oneview_fc_network_facts:
+- name: Ensure that FCoE Network is present with default configuration
+  oneview_fcoe_network_facts:
     config: "{{ config_file_path }}"
     state: present
     data:
-      name: 'New FC Network'
+      name: 'New FCoE Network'
 
-- name: Ensure that FC Network is present with fabricType 'DirectAttach'
-  oneview_fc_network_facts:
+- name: Ensure that FCoE Network is present with fabricType 'DirectAttach'
+  oneview_fcoe_network_facts:
     config: "{{ config_file_path }}"
     state: present
     data:
-      name: 'New FC Network'
+      name: 'New FCoE Network'
       fabricType: 'DirectAttach'
 
-- name: Ensure that FC Network is absent
-  oneview_fc_network_facts:
+- name: Ensure that FCoE Network is absent
+  oneview_fcoe_network_facts:
     config: "{{ config_file_path }}"
     state: absent
     data:
-      name: 'New FC Network'
+      name: 'New FCoE Network'
 '''
 
+FCOE_NETWORK_CREATED = 'FCoE Network created sucessfully.'
+FCOE_NETWORK_UPDATED = 'FCoE Network updated sucessfully.'
+FCOE_NETWORK_DELETED = 'FCoE Network deleted sucessfully.'
+FCOE_NETWORK_ALREADY_EXIST = 'FCoE Network already exists.'
+FCOE_NETWORK_ALREADY_ABSENT = 'Nothing to do.'
 
-FC_NETWORK_CREATED = 'FC Network created sucessfully.'
-FC_NETWORK_UPDATED = 'FC Network updated sucessfully.'
-FC_NETWORK_DELETED = 'FC Network deleted sucessfully.'
-FC_NETWORK_ALREADY_EXIST = 'FC Network already exists.'
-FC_NETWORK_ALREADY_ABSENT = 'Nothing to do.'
 
-
-class FcNetworkModule(object):
-
+class FcoeNetworkModule(object):
     argument_spec = dict(
         config=dict(required=True, type='str'),
         state=dict(
@@ -133,43 +129,43 @@ class FcNetworkModule(object):
         resource = self.__get_by_name(data)
 
         if resource:
-            self.oneview_client.fc_networks.delete(resource)
+            self.oneview_client.fcoe_networks.delete(resource)
             self.module.exit_json(changed=True,
-                                  msg=FC_NETWORK_DELETED)
+                                  msg=FCOE_NETWORK_DELETED)
         else:
-            self.module.exit_json(changed=False, msg=FC_NETWORK_ALREADY_ABSENT)
+            self.module.exit_json(changed=False, msg=FCOE_NETWORK_ALREADY_ABSENT)
 
     def __create(self, data):
-        new_fc_network = self.oneview_client.fc_networks.create(data)
+        new_fcoe_network = self.oneview_client.fcoe_networks.create(data)
 
         self.module.exit_json(changed=True,
-                              msg=FC_NETWORK_CREATED,
-                              ansible_facts=dict(fc_network=new_fc_network))
+                              msg=FCOE_NETWORK_CREATED,
+                              ansible_facts=dict(fcoe_network=new_fcoe_network))
 
-    def __update(self, data, resource):
-        merged_data = resource.copy()
-        merged_data.update(data)
+    def __update(self, new_data, existent_resource):
+        merged_data = existent_resource.copy()
+        merged_data.update(new_data)
 
-        if resource_compare(resource, merged_data):
+        if resource_compare(existent_resource, merged_data):
 
             self.module.exit_json(changed=False,
-                                  msg=FC_NETWORK_ALREADY_EXIST,
-                                  ansible_facts=dict(fc_network=resource))
+                                  msg=FCOE_NETWORK_ALREADY_EXIST,
+                                  ansible_facts=dict(fcoe_network=existent_resource))
 
         else:
-            updated_fc_network = self.oneview_client.fc_networks.update(merged_data)
+            updated_fcoe_network = self.oneview_client.fcoe_networks.update(merged_data)
 
             self.module.exit_json(changed=True,
-                                  msg=FC_NETWORK_UPDATED,
-                                  ansible_facts=dict(fc_network=updated_fc_network))
+                                  msg=FCOE_NETWORK_UPDATED,
+                                  ansible_facts=dict(fcoe_network=updated_fcoe_network))
 
     def __get_by_name(self, data):
-        result = self.oneview_client.fc_networks.get_by('name', data['name'])
+        result = self.oneview_client.fcoe_networks.get_by('name', data['name'])
         return result[0] if result else None
 
 
 def main():
-    FcNetworkModule().run()
+    FcoeNetworkModule().run()
 
 
 if __name__ == '__main__':
