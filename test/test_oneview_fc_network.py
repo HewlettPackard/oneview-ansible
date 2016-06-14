@@ -54,25 +54,6 @@ PARAMS_FOR_ABSENT = dict(
     data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'])
 )
 
-DELETE_TASK_RESULT = dict(
-    associatedResource=dict(
-        associationType="MANAGED_BY",
-        resourceCategory="fc-networks",
-        resourceName="New FC Network 2",
-        resourceUri="/rest/fc-networks/0da350eb-2206-408f-900d-7c3f4d075421"
-    ),
-    category="tasks",
-    name="Delete",
-    owner="administrator",
-    stateReason="Configuring interconnects",
-    taskErrors=[],
-    taskOutput=[],
-    taskState="Completed",
-    type="TaskResourceV2",
-    uri="/rest/tasks/F49AF5C4-CF8F-4239-8334-3F3CFB527463",
-    userInitiated=True
-)
-
 
 def create_ansible_mock(params):
     mock_params = mock.Mock()
@@ -84,7 +65,6 @@ def create_ansible_mock(params):
 
 
 class FcNetworkPresentStateSpec(unittest.TestCase):
-
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_fc_network.AnsibleModule')
     def test_should_create_new_fc_network(self, mock_ansible_module, mock_ov_client_from_json_file):
@@ -146,13 +126,11 @@ class FcNetworkPresentStateSpec(unittest.TestCase):
 
 
 class FcNetworkAbsentStateSpec(unittest.TestCase):
-
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_fc_network.AnsibleModule')
     def test_should_remove_fc_network(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.fc_networks.get_by.return_value = [DEFAULT_FC_NETWORK_TEMPLATE]
-        mock_ov_instance.fc_networks.delete.return_value = DELETE_TASK_RESULT
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
@@ -162,8 +140,7 @@ class FcNetworkAbsentStateSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
-            msg=FC_NETWORK_DELETED,
-            ansible_facts=DELETE_TASK_RESULT
+            msg=FC_NETWORK_DELETED
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -185,10 +162,10 @@ class FcNetworkAbsentStateSpec(unittest.TestCase):
 
 
 class FcNetworkErrorHandlingSpec(unittest.TestCase):
-
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_fc_network.AnsibleModule')
-    def test_should_not_update_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_not_update_when_create_raises_exception(self, mock_ansible_module,
+                                                            mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.fc_networks.get_by.return_value = []
         mock_ov_instance.fc_networks.create.side_effect = Exception(FAKE_MSG_ERROR)

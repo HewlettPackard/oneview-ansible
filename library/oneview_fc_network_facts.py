@@ -39,7 +39,7 @@ requirements:
 author: "Mariana Kreisig (@marikrg)"
 options:
     config:
-      description:
+      description: >
         - Path to a .json configuration file. The file must contains a OneView client configuration like:
             {
               "ip": "your_oneview_ip",

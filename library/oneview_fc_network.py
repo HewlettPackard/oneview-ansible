@@ -37,7 +37,7 @@ requirements:
 author: "Bruno Souza (@bsouza)"
 options:
     config:
-      description:
+      description: >
         - Path to a .json configuration file. The file must contains a OneView client configuration like:
             {
               "ip": "your_oneview_ip",
@@ -48,7 +48,7 @@ options:
             }
       required: true
     state:
-        description:
+        description: >
             - Indicates the desired state for the FC Network resource. 'present' will
             ensure data properties are compliant to OneView.
         choices: ['present', 'absent']
@@ -131,7 +131,7 @@ class FcNetworkModule(object):
         resource = self.__get_by_name(data)
 
         if resource:
-            result = self.oneview_client.fc_networks.delete(resource)
+            self.oneview_client.fc_networks.delete(resource)
             self.module.exit_json(changed=True,
                                   msg=FC_NETWORK_DELETED)
         else:
