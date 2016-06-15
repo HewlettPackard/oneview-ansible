@@ -29,57 +29,52 @@ from hpOneView.common import resource_compare
 
 DOCUMENTATION = '''
 ---
-module: fc_network
-short_description: Manage OneView Fibre Channel Networks resources.
+module: oneview_fc_network
+short_description: Manage OneView Fibre Channel Network resources.
 description:
-    - Provides an interface to manage FC Network resources. Can create, update or delete.
+    - Provides an interface to manage Fibre Channel Network resources. Can create, update or delete.
 requirements:
-    - "python 2.7.11"
+    - "python >= 2.7.11"
     - "hpOneView"
 author: "Bruno Souza (@bsouza)"
 options:
     config:
-      description: >
-        - Path to a .json configuration file. The file must contains a OneView client configuration like:
-            {
-              "ip": "your_oneview_ip",
-              "credentials": {
-                "userName": "your_oneview_username",
-                "password": "your_oneview_password"
-              }
-            }
+      description:
+        - Path to a .json configuration file containing the OneView client configuration.
       required: true
     state:
-        description: >
-            - Indicates the desired state for the FC Network resource. 'present' will
-              ensure data properties are compliant to OneView.
-        choices:
-            ['present', 'absent']
-    data:
         description:
-            - List with FC Network properties
-        required: true
-
+            - Indicates the desired state for the FC Network resource.
+              'present' will ensure data properties are compliant to OneView.
+              'absent' will remove the resource from OneView, if it exists.
+        choices: ['present', 'absent']
+    data:
+      description:
+        - List with the Fibre Channel Network properties.
+      required: true
+notes:
+    - A sample configuration file for the config parameter can be found at
+      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
 '''
 
 EXAMPLES = '''
-- name: Ensure that FC Network is present with default configuration
-  oneview_fc_network_facts:
+- name: Ensure that a Fibre Channel Network is present using the default configuration
+  oneview_fc_network:
     config: "{{ config_file_path }}"
     state: present
     data:
       name: 'New FC Network'
 
-- name: Ensure that FC Network is present with fabricType 'DirectAttach'
-  oneview_fc_network_facts:
+- name: Ensure that the Fibre Channel Network is present with fabricType 'DirectAttach'
+  oneview_fc_network:
     config: "{{ config_file_path }}"
     state: present
     data:
       name: 'New FC Network'
       fabricType: 'DirectAttach'
 
-- name: Ensure that FC Network is absent
-  oneview_fc_network_facts:
+- name: Ensure that Fibre Channel Network is absent
+  oneview_fc_network:
     config: "{{ config_file_path }}"
     state: absent
     data:

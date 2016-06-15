@@ -28,56 +28,46 @@ from hpOneView.oneview_client import OneViewClient
 
 DOCUMENTATION = '''
 ---
-module: fc_network_facts
-short_description: Retrieve facts about one or more One View Fibre Channel
-    Networks.
+module: oneview_fc_network_facts
+short_description: Retrieve facts about one or more OneView Fibre Channel Network.
 description:
-    - Retrieve facts about one or more Fibre Channel Networks from One View.
+    - Retrieve facts about one or more Fibre Channel Networks from OneView.
 requirements:
     - "python >= 2.7.11"
     - "hpOneView"
 author: "Mariana Kreisig (@marikrg)"
 options:
     config:
-      description: >
-        - Path to a .json configuration file. The file must contains a OneView client configuration like:
-            {
-              "ip": "your_oneview_ip",
-              "credentials": {
-                "config": "/path/config.json",
-                "password": "your_oneview_password"
-              }
-            }
+      description:
+        - Path to a .json configuration file containing the OneView client configuration.
       required: true
     name:
       description:
         - Fibre Channel Network name
       required: false
-
+notes:
+    - A sample configuration file for the config parameter can be found at
+      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
 '''
 
 EXAMPLES = '''
-# Gather facts about all Fibre Channel networks
-- oneview_fc_network_facts:
-    oneview_host: hostname
-    username: username
-    password: password
-  register: result
-- debug: var=result
+- name: Gather facts about all Fibre Channel Networks
+  oneview_fc_network_facts:
+    config: "{{ config_file_path }}"
 
-# Gather facts about a Fibre Channel by name
-- oneview_fc_network_facts:
-    oneview_host: hostname
-    username: username
-    password: password
+- debug: var=fc_networks
+
+- name: Gather facts about a Fibre Channel Network by name
+  oneview_fc_network_facts:
+    config: "{{ config_file_path }}"
     name: network name
-  register: result
-- debug: var=result
+
+- debug: var=fc_networks
 '''
 
 RETURN = '''
 fc_networks:
-    description: Has all the One View facts about the Fibre Channel Networks.
+    description: Has all the OneView facts about the Fibre Channel Networks.
     returned: always, but can be null
     type: complex
 '''
