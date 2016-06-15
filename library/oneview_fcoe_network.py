@@ -21,6 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 ###
+
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
 from hpOneView.common import resource_compare
