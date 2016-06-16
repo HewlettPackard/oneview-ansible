@@ -28,15 +28,14 @@ from hpOneView.oneview_client import OneViewClient
 
 DOCUMENTATION = '''
 ---
-module: fc_network_facts
-short_description: Retrieve facts about one or more One View Fibre Channel
-    Networks.
+module: oneview_fcoe_network_facts
+short_description: Retrieve facts about one or more OneView FCoE Network.
 description:
-    - Retrieve facts about one or more Fibre Channel Networks from One View.
+    - Retrieve facts about one or more FCoE Network from OneView.
 requirements:
     - "python >= 2.7.11"
     - "hpOneView"
-author: "Mariana Kreisig (@marikrg)"
+author: "Gustavo Hennig (@GustavoHennig)"
 options:
     config:
       description: >
@@ -51,22 +50,22 @@ options:
       required: true
     name:
       description:
-        - Fibre Channel Network name
+        - FCoE Network name
       required: false
 
 '''
 
 EXAMPLES = '''
-# Gather facts about all Fibre Channel networks
-- oneview_fc_network_facts:
+# Gather facts about all FCoE Networks
+- oneview_s_facts:
     oneview_host: hostname
     username: username
     password: password
   register: result
 - debug: var=result
 
-# Gather facts about a Fibre Channel by name
-- oneview_fc_network_facts:
+# Gather facts about a FCoE Network by name
+- oneview_s_facts:
     oneview_host: hostname
     username: username
     password: password
@@ -76,14 +75,14 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-fc_networks:
-    description: Has all the One View facts about the Fibre Channel Networks.
+s:
+    description: Has all the OneView facts about the FCoE Networks.
     returned: always, but can be null
     type: complex
 '''
 
 
-class FcNetworkFactsModule(object):
+class FcoeNetworkFactsModule(object):
 
     argument_spec = dict(
         config=dict(required=True, type='str'),
@@ -106,20 +105,20 @@ class FcNetworkFactsModule(object):
             self.module.fail_json(msg=exception.message)
 
     def __get_by_name(self, name):
-        fc_network = self.oneview_client.fc_networks.get_by('name', name)
+        fcoe_network = self.oneview_client.fcoe_networks.get_by('name', name)
 
         self.module.exit_json(changed=False,
-                              ansible_facts=dict(fc_networks=fc_network))
+                              ansible_facts=dict(fcoe_network=fcoe_network))
 
     def __get_all(self):
-        fc_networks = self.oneview_client.fc_networks.get_all()
+        fcoe_network = self.oneview_client.fcoe_networks.get_all()
 
         self.module.exit_json(changed=False,
-                              ansible_facts=dict(fc_networks=fc_networks))
+                              ansible_facts=dict(fcoe_network=fcoe_network))
 
 
 def main():
-    FcNetworkFactsModule().run()
+    FcoeNetworkFactsModule().run()
 
 
 if __name__ == '__main__':

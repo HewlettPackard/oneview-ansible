@@ -22,21 +22,49 @@
 ---
 - hosts: all
   vars:
-    - config: "{{ playbook_dir }}/oneview_config.json"
+    config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
-    - name: Gather facts about all Fibre Channel Networks
-      oneview_fc_network_facts:
+    - name: Create a FCoE Network
+      oneview_fcoe_network:
         config: "{{ config }}"
-      register: result
+        state: present
+        data:
+          name: 'Test FCoE Network'
+          vlanId: '201'
       delegate_to: localhost
+      register: fcoe_network_1
 
+    - name: Should not create or update the FCoE Network with no changes provided
+      oneview_fcoe_network:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test FCoE Network'
+          vlanId: 201
+      delegate_to: localhost
     - debug: var=result
 
-    - name: Gather facts about a Fibre Channel Network by name
-      oneview_fc_network_facts:
+    - name: Should update the FCoE Network changing the attribute name
+      oneview_fcoe_network:
         config: "{{ config }}"
-        name: "Test FC Network"
-      register: result
+        state: present
+        data:
+          name: 'Test FCoE Network - Changed'
+          vlanId: 201
       delegate_to: localhost
 
-    - debug: var=result
+    - name: Delete the FCoE Network
+      oneview_fcoe_network:
+        config: "{{ config }}"
+        state: absent
+        data: "{{ fcoe_network_1.ansible_facts.fcoe_network }}"
+      delegate_to: localhost
+      register: deleted
+
+    - name: Do nothing when FCoE Network is absent
+      oneview_fcoe_network:
+        config: "{{ config }}"
+        state: absent
+        data: "{{ fcoe_network_1.ansible_facts.fcoe_network }}"
+      delegate_to: localhost
+      register: deleted

@@ -24,7 +24,7 @@ import unittest
 import mock
 
 from hpOneView.oneview_client import OneViewClient
-from oneview_fc_network_facts import FcNetworkFactsModule
+from oneview_fcoe_network_facts import FcoeNetworkFactsModule
 
 ERROR_MSG = 'Fake message error'
 
@@ -35,12 +35,12 @@ PARAMS_GET_ALL = dict(
 
 PARAMS_GET_BY_NAME = dict(
     config='config.json',
-    name="Test FC Network"
+    name="Test FCoE Networks"
 )
 
 PRESENT_NETWORKS = [{
-    "name": "Test FC Network",
-    "uri": "/rest/fc-networks/c6bf9af9-48e7-4236-b08a-77684dc258a5"
+    "name": "Test FCoE Networks",
+    "uri": "/rest/fcoe-networks/c6bf9af9-48e7-4236-b08a-77684dc258a5"
 }]
 
 
@@ -55,73 +55,73 @@ def create_ansible_mock(params):
 
 class FcNetworkFactsSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_fc_network_facts.AnsibleModule')
-    def test_should_get_all_fc_networks(self, mock_ansible_module,
-                                        mock_ov_client_from_json_file):
+    @mock.patch('oneview_fcoe_network_facts.AnsibleModule')
+    def test_should_get_all_fcoe_network(self, mock_ansible_module,
+                                         mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.fc_networks.get_all.return_value = PRESENT_NETWORKS
+        mock_ov_instance.fcoe_networks.get_all.return_value = PRESENT_NETWORKS
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
         mock_ansible_module.return_value = mock_ansible_instance
 
-        FcNetworkFactsModule().run()
+        FcoeNetworkFactsModule().run()
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(fc_networks=(PRESENT_NETWORKS))
+            ansible_facts=dict(fcoe_network=(PRESENT_NETWORKS))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_fc_network_facts.AnsibleModule')
+    @mock.patch('oneview_fcoe_network_facts.AnsibleModule')
     def test_should_fail_when_get_all_raises_error(self, mock_ansible_module,
                                                    mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.fc_networks.get_all.side_effect = Exception(ERROR_MSG)
+        mock_ov_instance.fcoe_networks.get_all.side_effect = Exception(ERROR_MSG)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
         mock_ansible_module.return_value = mock_ansible_instance
 
-        FcNetworkFactsModule().run()
+        FcoeNetworkFactsModule().run()
 
         mock_ansible_instance.fail_json.assert_called_once()
 
     @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_fc_network_facts.AnsibleModule')
-    def test_should_get_fc_network_by_name(self, mock_ansible_module,
-                                           mock_ov_client_from_json_file):
+    @mock.patch('oneview_fcoe_network_facts.AnsibleModule')
+    def test_should_get_fcoe_network_by_name(self, mock_ansible_module,
+                                             mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.fc_networks.get_by.return_value = PRESENT_NETWORKS
+        mock_ov_instance.fcoe_networks.get_by.return_value = PRESENT_NETWORKS
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
         mock_ansible_module.return_value = mock_ansible_instance
 
-        FcNetworkFactsModule().run()
+        FcoeNetworkFactsModule().run()
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(fc_networks=(PRESENT_NETWORKS))
+            ansible_facts=dict(fcoe_network=(PRESENT_NETWORKS))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_fc_network_facts.AnsibleModule')
+    @mock.patch('oneview_fcoe_network_facts.AnsibleModule')
     def test_should_fail_when_get_by_name_raises_error(self,
                                                        mock_ansible_module,
                                                        mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.fc_networks.get_by.side_effect = Exception(ERROR_MSG)
+        mock_ov_instance.fcoe_networks.get_by.side_effect = Exception(ERROR_MSG)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
         mock_ansible_module.return_value = mock_ansible_instance
 
-        FcNetworkFactsModule().run()
+        FcoeNetworkFactsModule().run()
 
         mock_ansible_instance.fail_json.assert_called_once()
 

@@ -1,7 +1,7 @@
 {
-  "ip": "172.16.102.149",
+  "ip": "172.16.102.xx",
   "credentials": {
     "userName": "administrator",
-    "password": "serveradmin"
+    "password": ""
   }
 }

@@ -1,3 +1,6 @@
 inventory
 **/*.retry
 *.pyc
+oneview_config.json
+.idea/
+*~

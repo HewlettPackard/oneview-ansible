@@ -59,8 +59,6 @@
       delegate_to: localhost
       register: deleted
 
-    - debug: var=deleted
-
     - name: Do nothing when Fibre Channel Network is absent
       oneview_fc_network:
         config: "{{ config }}"
