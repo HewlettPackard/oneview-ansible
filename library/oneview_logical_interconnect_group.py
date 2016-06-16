@@ -30,7 +30,7 @@ DOCUMENTATION = '''
 module: oneview_logical_interconnect_group
 short_description: Manage OneView Logical Interconnect Group resources.
 description:
-    - Provides an interface to manage Logical Interconnect Group resources. Can create, update or delete.
+    - Provides an interface to manage Logical Interconnect Group resources. Can create, update, or delete.
 requirements:
     - "python >= 2.7.11"
     - "hpOneView"
@@ -51,7 +51,7 @@ options:
         - List with the Logical Interconnect Group properties.
       required: true
 notes:
-    - A sample configuration file for the config parameter can be found at
+    - A sample configuration file for the config parameter can be found at&colon;
       https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
 '''
 
