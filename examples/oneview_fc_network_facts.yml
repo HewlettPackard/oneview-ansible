@@ -27,16 +27,16 @@
     - name: Gather facts about all Fibre Channel Networks
       oneview_fc_network_facts:
         config: "{{ config }}"
-      register: result
       delegate_to: localhost
 
-    - debug: var=result
+    - debug: var=fc_networks
 
     - name: Gather facts about a Fibre Channel Network by name
       oneview_fc_network_facts:
         config: "{{ config }}"
         name: "Test FC Network"
-      register: result
       delegate_to: localhost
 
-    - debug: var=result
+    - debug: var=fc_networks
+
+    - debug: var=fc_networks
