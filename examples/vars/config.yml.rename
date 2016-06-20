@@ -20,7 +20,7 @@
 # THE SOFTWARE.
 ###
 ---
-enclosure_hostname: '172.18.1.11'
-enclosure_username: 'dcs'
-enclosure_password: 'dcs'
-enclosure_group_uri: '/enclosure-groups/3b1d4340-9ebc-4a0f-8079-2f07708a35e7'
+enclosure_hostname: ''
+enclosure_username: ''
+enclosure_password: ''
+enclosure_group_uri: ''

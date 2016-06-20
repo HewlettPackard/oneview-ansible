@@ -1,0 +1,83 @@
+###
+# (C) Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+  vars_files:
+    - "{{ playbook_dir }}/vars/config.yml"
+  tasks:
+    - name: Add an Enclosure
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: present
+        data:
+          enclosureGroupUri: '{{ enclosure_group_uri }}'
+          hostname: '{{ enclosure_hostname }}'
+          username: '{{ enclosure_username }}'
+          password: '{{ enclosure_password }}'
+          name: 'Test-Enclosure'
+          licensingIntent : 'OneView'
+          rackName: 'Rack-Name'
+      delegate_to: localhost
+
+    - name: Do nothing with the Enclosure when no changes are provided
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test-Enclosure'
+      delegate_to: localhost
+
+    - name: Update the enclosure to have a name of "Test-Enclosure-Renamed".
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test-Enclosure'
+          newName: 'Test-Enclosure-Renamed'
+      delegate_to: localhost
+
+    - name: Update the name of the rack to "Rack-Renamed"
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test-Enclosure-Renamed'
+          rackName: 'Rack-Renamed'
+      delegate_to: localhost
+
+    - name: Remove the Enclosure
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: 'Test-Enclosure-Renamed'
+      delegate_to: localhost
+
+    - name: Do nothing when Enclosure is absent
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: 'Test-Enclosure-Renamed'
+      delegate_to: localhost
