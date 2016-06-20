@@ -32,9 +32,9 @@ DOCUMENTATION = '''
 module: oneview_fc_network
 short_description: Manage OneView Fibre Channel Network resources.
 description:
-    - Provides an interface to manage Fibre Channel Network resources. Can create, update or delete.
+    - Provides an interface to manage Fibre Channel Network resources. Can create, update, delete.
 requirements:
-    - "python >= 2.7.11"
+    - "python 2.7.11"
     - "hpOneView"
 author: "Bruno Souza (@bsouza)"
 options:
@@ -44,7 +44,7 @@ options:
       required: true
     state:
         description:
-            - Indicates the desired state for the FC Network resource.
+            - Indicates the desired state for the Fibre Channel Network resource.
               'present' will ensure data properties are compliant to OneView.
               'absent' will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
@@ -53,7 +53,7 @@ options:
         - List with the Fibre Channel Network properties.
       required: true
 notes:
-    - A sample configuration file for the config parameter can be found at
+    - A sample configuration file for the config parameter can be found at&colon;
       https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
 '''
 

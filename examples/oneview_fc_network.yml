@@ -33,7 +33,7 @@
       delegate_to: localhost
       register: fc_network_1
 
-    - name: Should not create or update the Fibre Channel Network with no changes provided
+    - name: Do nothing with the Fibre Channel Network when no changes are provided
       oneview_fc_network:
         config: "{{ config }}"
         state: present
@@ -42,7 +42,7 @@
           fabricType: 'FabricAttach'
       delegate_to: localhost
 
-    - name: Should update the Fibre Channel Network changing the attribute autoLoginRedistribution to True
+    - name: Update the Fibre Channel Network changing the attribute autoLoginRedistribution to True
       oneview_fc_network:
         config: "{{ config }}"
         state: present
