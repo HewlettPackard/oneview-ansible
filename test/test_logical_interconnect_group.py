@@ -29,9 +29,12 @@ from oneview_logical_interconnect_group import LIG_CREATED, LIG_ALREADY_EXIST, L
 
 FAKE_MSG_ERROR = 'Fake message error'
 
+DEFAULT_LIG_NAME = 'Test Logical Interconnect Group'
+RENAMED_LIG = 'Renamed Logical Interconnect Group'
+
 DEFAULT_LIG_TEMPLATE = dict(
     type='logical-interconnect-groupV3',
-    name='Test Logical Interconnect Group',
+    name=DEFAULT_LIG_NAME,
     uplinkSets=[],
     enclosureType='C7000',
     interconnectMapTemplate=dict(
@@ -42,20 +45,27 @@ DEFAULT_LIG_TEMPLATE = dict(
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
-    data=dict(name=DEFAULT_LIG_TEMPLATE['name'])
+    data=dict(name=DEFAULT_LIG_NAME)
+)
+
+PARAMS_TO_RENAME = dict(
+    config='config.json',
+    state='present',
+    data=dict(name=DEFAULT_LIG_NAME,
+              newName=RENAMED_LIG)
 )
 
 PARAMS_WITH_CHANGES = dict(
     config='config.json',
     state='present',
-    data=dict(name=DEFAULT_LIG_TEMPLATE['name'],
+    data=dict(name=DEFAULT_LIG_NAME,
               description='It is an example')
 )
 
 PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
-    data=dict(name=DEFAULT_LIG_TEMPLATE['name'])
+    data=dict(name=DEFAULT_LIG_NAME)
 )
 
 
@@ -127,6 +137,44 @@ class LogicalInterconnectGroupPresentStateSpec(unittest.TestCase):
             msg=LIG_UPDATED,
             ansible_facts=dict(logical_interconnect_group=data_merged)
         )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
+    def test_rename_when_resource_exists(self, mock_ansible_module, mock_ov_client_from_json_file):
+        data_merged = DEFAULT_LIG_TEMPLATE.copy()
+        data_merged['name'] = RENAMED_LIG
+        params_to_rename = PARAMS_TO_RENAME.copy()
+
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnect_groups.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
+        mock_ov_instance.logical_interconnect_groups.update.return_value = data_merged
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(params_to_rename)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectGroupModule().run()
+
+        mock_ov_instance.logical_interconnect_groups.update.assert_called_once_with(data_merged)
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
+    def test_create_with_newName_when_resource_not_exists(self, mock_ansible_module, mock_ov_client_from_json_file):
+        data_merged = DEFAULT_LIG_TEMPLATE.copy()
+        data_merged['name'] = RENAMED_LIG
+        params_to_rename = PARAMS_TO_RENAME.copy()
+
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnect_groups.get_by.return_value = []
+        mock_ov_instance.logical_interconnect_groups.create.return_value = DEFAULT_LIG_TEMPLATE
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(params_to_rename)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectGroupModule().run()
+
+        mock_ov_instance.logical_interconnect_groups.create.assert_called_once_with(PARAMS_TO_RENAME['data'])
 
 
 class LogicalInterconnectGroupAbsentStateSpec(unittest.TestCase):

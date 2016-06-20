@@ -32,9 +32,9 @@ short_description: Retrieve facts about one or more of the OneView Logical Inter
 description:
     - Retrieve facts about one or more of the Logical Interconnect Groups from OneView.
 requirements:
-    - "python >= 2.7.11"
+    - "python 2.7.11"
     - "hpOneView"
-author: "Camila Balestrin"
+author: "Camila Balestrin (@balestrinc)"
 options:
     config:
       description:
@@ -82,15 +82,6 @@ class LogicalInterconnectGroupFactsModule(object):
         self.module = AnsibleModule(argument_spec=self.argument_spec,
                                     supports_check_mode=False)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
-
-    def __get_config(self):
-        return dict(
-            ip=self.module.params['oneview_host'],
-            credentials=dict(
-                userName=self.module.params['username'],
-                password=self.module.params['password']
-            )
-        )
 
     def run(self):
         try:

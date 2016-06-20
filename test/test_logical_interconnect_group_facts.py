@@ -53,7 +53,7 @@ def create_ansible_mock(params):
     return mock_ansible
 
 
-class FcNetworkFactsSpec(unittest.TestCase):
+class LogicalInterconnectGroupFactsSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_logical_interconnect_group_facts.AnsibleModule')
     def test_should_get_all_ligs(self, mock_ansible_module,

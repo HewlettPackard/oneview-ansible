@@ -36,7 +36,6 @@
           interconnectMapTemplate:
             interconnectMapEntryTemplates: []
       delegate_to: localhost
-      register: lig
 
     - name: Do nothing with the Logical Interconnect Group when no changes are provided
       oneview_logical_interconnect_group:
@@ -56,11 +55,21 @@
           description: 'New Description'
       delegate_to: localhost
 
+    - name: Rename the Logical Interconnect Group to 'Updated Logical Interconnect Group'
+      oneview_logical_interconnect_group:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test Logical Interconnect Group'
+          newName: 'Updated Logical Interconnect Group'
+      delegate_to: localhost
+
     - name: Delete the Logical Interconnect Group
       oneview_logical_interconnect_group:
         config: "{{ config }}"
         state: absent
-        data: "{{ lig.ansible_facts.logical_interconnect_group }}"
+        data:
+          name: 'Updated Logical Interconnect Group'
       delegate_to: localhost
       register: deleted
 
@@ -68,6 +77,7 @@
       oneview_logical_interconnect_group:
         config: "{{ config }}"
         state: absent
-        data: "{{ lig.ansible_facts.logical_interconnect_group }}"
+        data:
+          name: 'Updated Logical Interconnect Group'
       delegate_to: localhost
       register: deleted

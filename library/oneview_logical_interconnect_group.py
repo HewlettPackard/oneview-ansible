@@ -24,6 +24,7 @@
 
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
+from hpOneView.common import resource_compare
 
 DOCUMENTATION = '''
 ---
@@ -32,9 +33,9 @@ short_description: Manage OneView Logical Interconnect Group resources.
 description:
     - Provides an interface to manage Logical Interconnect Group resources. Can create, update, or delete.
 requirements:
-    - "python >= 2.7.11"
+    - "python 2.7.11"
     - "hpOneView"
-author: "Camila Balestrin"
+author: "Camila Balestrin (@balestrinc)"
 options:
     config:
       description:
@@ -67,6 +68,14 @@ EXAMPLES = '''
       enclosureType: 'C7000'
       interconnectMapTemplate:
         interconnectMapEntryTemplates: []
+
+- name: Ensure that the Logical Interconnect Group is present with name 'Test'
+  oneview_logical_interconnect_group:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'New Logical Interconnect Group'
+      newName: 'Test'
 
 - name: Ensure that the Logical Interconnect Group is absent
   oneview_logical_interconnect_group:
@@ -113,6 +122,10 @@ class LogicalInterconnectGroupModule(object):
     def __present(self, data):
         resource = self.__get_by_name(data)
 
+        if "newName" in data:
+            data["name"] = data["newName"]
+            del data["newName"]
+
         if not resource:
             self.__create(data)
         else:
@@ -139,7 +152,7 @@ class LogicalInterconnectGroupModule(object):
         merged_data = resource.copy()
         merged_data.update(data)
 
-        if cmp(resource, merged_data) == 0:
+        if resource_compare(resource, merged_data):
 
             self.module.exit_json(changed=False,
                                   msg=LIG_ALREADY_EXIST,
