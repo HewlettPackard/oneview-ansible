@@ -32,9 +32,8 @@
           name: 'Test FCoE Network'
           vlanId: '201'
       delegate_to: localhost
-      register: fcoe_network_1
 
-    - name: Should not create or update the FCoE Network with no changes provided
+    - name: Do nothing with the FCoE Network when no changes are provided
       oneview_fcoe_network:
         config: "{{ config }}"
         state: present
@@ -42,14 +41,14 @@
           name: 'Test FCoE Network'
           vlanId: 201
       delegate_to: localhost
-    - debug: var=result
 
-    - name: Should update the FCoE Network changing the attribute name
+    - name: Update the FCoE Network changing the name attribute
       oneview_fcoe_network:
         config: "{{ config }}"
         state: present
         data:
-          name: 'Test FCoE Network - Changed'
+          name: 'Test FCoE Network'
+          newName: 'Test FCoE Network - Changed'
           vlanId: 201
       delegate_to: localhost
 
@@ -57,14 +56,14 @@
       oneview_fcoe_network:
         config: "{{ config }}"
         state: absent
-        data: "{{ fcoe_network_1.ansible_facts.fcoe_network }}"
+        data:
+          name: 'Test FCoE Network - Changed'
       delegate_to: localhost
-      register: deleted
 
     - name: Do nothing when FCoE Network is absent
       oneview_fcoe_network:
         config: "{{ config }}"
         state: absent
-        data: "{{ fcoe_network_1.ansible_facts.fcoe_network }}"
+        data:
+          name: 'Test FCoE Network - Changed'
       delegate_to: localhost
-      register: deleted

@@ -21,7 +21,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 ###
-
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
 from hpOneView.common import resource_compare
@@ -31,53 +30,42 @@ DOCUMENTATION = '''
 module: oneview_fcoe_network
 short_description: Manage OneView FCoE Network resources.
 description:
-    - Provides an interface to manage FCoE Network resources. Can create, update or delete.
+    - Provides an interface to manage FCoE Network resources. Can create, update, or delete.
 requirements:
     - "python 2.7.11"
     - "hpOneView"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     config:
-      description: >
-        - Path to a .json configuration file. The file must contains a OneView client configuration like:
-            {
-              "ip": "your_oneview_ip",
-              "credentials": {
-                "userName": "your_oneview_username",
-                "password": "your_oneview_password"
-              }
-            }
+      description:
+        - Path to a .json configuration file containing the OneView client configuration.
       required: true
     state:
-        description: >
-            - Indicates the desired state for the FCoE Network resource. 'present' will
-            ensure data properties are compliant to OneView.
+        description:
+            - Indicates the desired state for the FCoE Network resource.
+              'present' will ensure data properties are compliant to OneView.
+              'absent' will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
     data:
       description:
         - List with FCoE Network properties
       required: true
-
+notes:
+    - A sample configuration file for the config parameter can be found at&colon;
+      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
 '''
 
 EXAMPLES = '''
-- name: Ensure that FCoE Network is present with default configuration
-  oneview_fcoe_network_facts:
+- name: Ensure that FCoE Network is present using the default configuration
+  oneview_fcoe_network:
     config: "{{ config_file_path }}"
     state: present
     data:
-      name: 'New FCoE Network'
-
-- name: Ensure that FCoE Network is present with fabricType 'DirectAttach'
-  oneview_fcoe_network_facts:
-    config: "{{ config_file_path }}"
-    state: present
-    data:
-      name: 'New FCoE Network'
-      fabricType: 'DirectAttach'
+      name: 'Test FCoE Network'
+      vlanId: '201'
 
 - name: Ensure that FCoE Network is absent
-  oneview_fcoe_network_facts:
+  oneview_fcoe_network:
     config: "{{ config_file_path }}"
     state: absent
     data:
@@ -120,6 +108,10 @@ class FcoeNetworkModule(object):
 
     def __present(self, data):
         resource = self.__get_by_name(data)
+
+        if "newName" in data:
+            data["name"] = data["newName"]
+            del data["newName"]
 
         if not resource:
             self.__create(data)

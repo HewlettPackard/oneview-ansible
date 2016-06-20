@@ -38,5 +38,3 @@
       delegate_to: localhost
 
     - debug: var=fc_networks
-
-    - debug: var=fc_networks

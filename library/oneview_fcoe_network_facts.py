@@ -29,53 +29,44 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_fcoe_network_facts
-short_description: Retrieve facts about one or more OneView FCoE Network.
+short_description: Retrieve facts about one or more of the OneView FCoE Networks.
 description:
-    - Retrieve facts about one or more FCoE Network from OneView.
+    - Retrieve facts about one or more of the FCoE Networks from OneView.
 requirements:
-    - "python >= 2.7.11"
+    - "python 2.7.11"
     - "hpOneView"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     config:
-      description: >
-        - Path to a .json configuration file. The file must contains a OneView client configuration like:
-            {
-              "ip": "your_oneview_ip",
-              "credentials": {
-                "config": "/path/config.json",
-                "password": "your_oneview_password"
-              }
-            }
+      description:
+        - Path to a .json configuration file containing the OneView client configuration.
       required: true
     name:
       description:
-        - FCoE Network name
+        - FCoE Network name.
       required: false
-
+notes:
+    - A sample configuration file for the config parameter can be found at&colon;
+      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
 '''
 
 EXAMPLES = '''
-# Gather facts about all FCoE Networks
-- oneview_s_facts:
-    oneview_host: hostname
-    username: username
-    password: password
-  register: result
-- debug: var=result
+- name: Gather facts about all FCoE Networks
+  oneview_fcoe_network_facts:
+    config: "{{ config_file_path }}"
 
-# Gather facts about a FCoE Network by name
-- oneview_s_facts:
-    oneview_host: hostname
-    username: username
-    password: password
-    name: network name
-  register: result
-- debug: var=result
+- debug: var=fcoe_network
+
+- name: Gather facts about a FCoE Network by name
+  oneview_fcoe_network_facts:
+    config: "{{ config_file_path }}"
+    name: "Test FCoE Network Facts"
+
+- debug: var=fcoe_network
 '''
 
 RETURN = '''
-s:
+oneview_fcoe_network_facts:
     description: Has all the OneView facts about the FCoE Networks.
     returned: always, but can be null
     type: complex

@@ -28,7 +28,6 @@ from ansible.module_utils.basic import *
 
 __author__ = 'ChakruHP'
 
-
 DOCUMENTATION = '''
 ---
 module: oneview_server_profile
@@ -255,7 +254,7 @@ def main():
                 facts = gather_facts(con, server_profile)
                 facts['created'] = True
                 module.exit_json(
-                   changed=True, msg='Created profile', ansible_facts=facts
+                    changed=True, msg='Created profile', ansible_facts=facts
                 )
     except Exception, e:
         module.fail_json(msg=e.message)
