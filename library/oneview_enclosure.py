@@ -24,7 +24,6 @@
 
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
-from hpOneView.exceptions import HPOneViewException
 
 
 DOCUMENTATION = '''
@@ -119,7 +118,7 @@ class EnclosureModule(object):
             elif state == 'absent':
                 self.__absent(data)
 
-        except HPOneViewException as e:
+        except Exception as e:
             self.module.fail_json(msg=e.message)
 
     def __present(self, data):

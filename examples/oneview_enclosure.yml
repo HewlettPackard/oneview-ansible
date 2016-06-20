@@ -48,7 +48,7 @@
           name: 'Test-Enclosure'
       delegate_to: localhost
 
-    - name: Update the enclosure to have a name of "Test-Enclosure-Renamed".
+    - name: Update the name of the enclosure to "Test-Enclosure-Renamed"
       oneview_enclosure:
         config: "{{ config }}"
         state: present

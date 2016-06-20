@@ -22,7 +22,6 @@
 import unittest
 import mock
 
-from hpOneView.exceptions import HPOneViewException
 from hpOneView.oneview_client import OneViewClient
 from oneview_enclosure import EnclosureModule
 from oneview_enclosure import ENCLOSURE_ADDED, ENCLOSURE_ALREADY_EXIST, ENCLOSURE_UPDATED
@@ -267,13 +266,13 @@ class EnclosureErrorHandlingSpec(unittest.TestCase):
     def test_should_not_add_when_oneview_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.enclosures.get_by.return_value = []
-        mock_ov_instance.enclosures.add.side_effect = HPOneViewException(FAKE_MSG_ERROR)
+        mock_ov_instance.enclosures.add.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
-        self.assertRaises(HPOneViewException, EnclosureModule().run())
+        self.assertRaises(Exception, EnclosureModule().run())
 
         mock_ansible_instance.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
@@ -284,13 +283,13 @@ class EnclosureErrorHandlingSpec(unittest.TestCase):
     def test_should_not_update_when_oneview_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
-        mock_ov_instance.enclosures.patch.side_effect = HPOneViewException(FAKE_MSG_ERROR)
+        mock_ov_instance.enclosures.patch.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_WITH_NEW_NAME)
         mock_ansible_module.return_value = mock_ansible_instance
 
-        self.assertRaises(HPOneViewException, EnclosureModule().run())
+        self.assertRaises(Exception, EnclosureModule().run())
 
         mock_ansible_instance.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
@@ -301,13 +300,13 @@ class EnclosureErrorHandlingSpec(unittest.TestCase):
     def test_should_not_remove_when_oneview_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
-        mock_ov_instance.enclosures.remove.side_effect = HPOneViewException(FAKE_MSG_ERROR)
+        mock_ov_instance.enclosures.remove.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
-        self.assertRaises(HPOneViewException, EnclosureModule().run())
+        self.assertRaises(Exception, EnclosureModule().run())
 
         mock_ansible_instance.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
