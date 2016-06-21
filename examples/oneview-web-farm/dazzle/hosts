@@ -1,0 +1,13 @@
+[webservers]
+demo-web1 ansible_ssh_host=192.168.101.100
+demo-web2 ansible_ssh_host=192.168.101.101
+
+
+[lbservers]
+demo-lb ansible_ssh_host=192.168.101.102
+
+[all-servers:children]
+webservers
+lbservers
+
+

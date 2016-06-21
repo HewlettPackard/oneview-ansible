@@ -1,0 +1,40 @@
+---
+# Variables here are applicable to all host groups
+
+httpd_port: 80
+ntpserver: 192.168.1.2
+
+oneview: 16.125.74.205
+ov_username: Administrator
+ov_password: hpvse123
+
+icsp: icsp.vse.rdlabs.hpecorp.net
+icsp_username: Administrator
+icsp_password: hpvse123
+
+subnet_mask: 255.255.255.0
+gateway: 192.168.101.1
+
+ov_template: "Web Server"
+
+os_build_plan : "RHEL 7.0 x64"
+osbp_custom_attributes:
+  - SSH_CERT: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+network_config:
+  hostName: "{{ inventory_hostname}}"
+  displayName: "{{ inventory_hostname}}"
+  domainName: "mgmt.local"
+  nics:
+  - dhcp: true
+    macAddress: "{{ server_profile.connections[2].mac }}"
+  - mask: 255.255.255.0
+    dhcp: false
+    macAddress: "{{ server_profile.connections[1].mac }}"
+    ip4Address: "{{ ansible_ssh_host }}"
+    gateway: "{{ gateway }}"
+    dns: 15.203.224.210
+
+
+
+
+

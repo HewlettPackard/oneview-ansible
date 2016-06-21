@@ -1,0 +1,23 @@
+---
+# This playbook deploys the whole application stack in this site.  
+#- include: make_inventory.yml
+
+- hosts: all-servers
+  gather_facts: no
+  roles:
+    - hp-oneview-server
+
+# Configure and deploy the web servers. Note that we include two roles here,
+# the 'base-apache' role which simply sets up Apache, and 'web' which includes
+# our example web application.
+- hosts: webservers
+  remote_user: root
+  roles:
+  - base-apache
+  - web
+
+# Configure and deploy the load balancer(s).
+- hosts: lbservers
+  remote_user: root
+  roles:
+  - haproxy

@@ -1,0 +1,39 @@
+---
+# Variables here are applicable to all host groups
+
+httpd_port: 80
+ntpserver: 192.168.1.2
+
+oneview: 192.168.19.53
+ov_username: Administrator
+ov_password: hpinvent
+
+icsp: 192.168.19.19
+icsp_username: Administrator
+icsp_password: hpinvent
+
+ip_address_pool:
+  - 192.168.19.82
+  - 192.168.19.83
+  - 192.168.19.84
+
+subnet_mask: 255.255.254.0
+gateway: 192.168.19.1
+
+ov_template: webserver-template
+os_build_plan : 'Chef RHEL 7.1 x64 with HPSUT'
+osbp_custom_attributes:
+  - SSH_CERT: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+network_config:
+  hostName: "{{ inventory_hostname}}"
+  displayName: "{{ inventory_hostname}}"
+  domainName: "mgmt.local"
+  nics:
+  - mask: "{{subnet_mask}}"
+    dhcp: false
+    macAddress: "{{ server_profile.connections[0].mac }}"
+    ip4Address: "{{ ansible_ssh_host }}"
+    gateway: "{{ gateway }}"
+    dns: 15.203.224.210
+
+

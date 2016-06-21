@@ -1,0 +1,12 @@
+[webservers]
+demo-web[1:2]
+
+
+[lbservers]
+demo-lb
+
+[all-servers:children]
+webservers
+lbservers
+
+

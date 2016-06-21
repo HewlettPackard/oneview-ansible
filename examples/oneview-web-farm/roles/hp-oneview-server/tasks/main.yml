@@ -1,0 +1,9 @@
+
+ # Create server profiles, Deploy OS
+ - include: deploy.yml
+
+ # Ensure servers are compliant to templates.
+ - include: make_compliant.yml
+   delegate_to: localhost
+
+

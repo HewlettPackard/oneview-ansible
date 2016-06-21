@@ -1,0 +1,13 @@
+#optional, if you want to assign SH and IPs from a specific pool defined (see group_vars/all for examples)
+- hosts: localhost
+  tasks:
+  - name: Assign IPs, Server HW to inventory
+    add_host: name="{{ item.0 }}"
+              ansible_ssh_host="{{ item.1}}"
+              ansible_ssh_user=root
+              server_hardware="{{ item.2 }}"
+    with_together:
+      - "{{ groups['all-servers'] }}"
+      - "{{ ip_address_pool }}"
+      - "{{ server_hardware_pool }}"
+

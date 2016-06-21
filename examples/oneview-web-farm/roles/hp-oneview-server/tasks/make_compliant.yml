@@ -1,0 +1,40 @@
+
+ - debug: msg="Server compliance state = {{ server_profile.templateCompliance }}"
+
+ - debug: msg="summary of compliance issues  {{ compliance_preview }} "
+   when: server_profile.templateCompliance != 'Compliant'
+
+ - name : Power off server to fix offline remediation
+   oneview_server_profile:
+     oneview_host: "{{ oneview }}"
+     username: "{{ ov_username }}"
+     password: "{{ ov_password }}"
+     name: "{{ inventory_hostname }}"
+     state: "powered_off"
+   when: server_profile.templateCompliance != "Compliant" and compliance_preview.isOnlineUpdate == False
+   delegate_to: localhost
+
+
+ - name : Remediate compliance issues
+   oneview_server_profile:
+      oneview_host: "{{ oneview }}"
+      username: "{{ ov_username }}"
+      password: "{{ ov_password }}"
+      name: "{{ inventory_hostname }}"
+      state: "compliant"
+   when: server_profile.templateCompliance != 'Compliant'
+   delegate_to: localhost
+
+ - name : Power on server
+   oneview_server_profile:
+      oneview_host: "{{ oneview }}"
+      username: "{{ ov_username }}"
+      password: "{{ ov_password }}"
+      name: "{{ inventory_hostname }}"
+      state: "powered_on"
+   when: server_hardware.powerState == "Off"
+   delegate_to: localhost
+
+ - name: Wait for server to boot
+   wait_for: 'host={{ inventory_hostname }} port=22 state=started timeout=600'
+   delegate_to: localhost

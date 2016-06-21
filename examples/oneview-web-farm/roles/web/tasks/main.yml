@@ -1,0 +1,16 @@
+---
+
+# httpd is handled by the base-apache role upstream
+- name: Install php and git 
+  yum: name={{ item }} state=present
+  with_items:
+   - php
+   - php-mysql
+
+- name: Restart httpd
+  service: name=httpd state=restarted
+
+#- name: Copy the code from repository
+#  git: repo={{ repository }} version={{ webapp_version }} dest=/var/www/html/
+- name: Copy web-page
+  copy: src=index.php dest=/var/www/html/index.php
