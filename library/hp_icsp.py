@@ -30,18 +30,56 @@ __author__ = 'ChakruHP'
 DOCUMENTATION = '''
 ---
 module: hp_icsp
-short_description: Manage servers lifecycle using OneView Server profiles using a server profile template.
+short_description: Manage servers lifecycle.
+description: Manage servers lifecycle with OneView Server profiles using a server profile template.
+requirements:
+    - "python 2.7.11"
+    - "hpICsp"
+options:
+  icsp_host:
+    description:
+      - ICsp hostname.
+    required: true
+  username:
+    description:
+      - ICsp username.
+    required: true
+  password:
+    description:
+      - ICsp password.
+    required: true
+  server_id:
+    description:
+      - Server ID.
+    required: true
+  os_build_plan:
+    description:
+      - OS Build plan.
+    required: true
+  custom_attributes:
+    description:
+      - Custom Attributes.
+    required: false
+    default: null
+  personality_data:
+    description:
+      - Personality Data.
+    required: false
+    default: null
+'''
 
-Example :
-
-   hp_icsp:
-     icsp_host:
-     icsp_user:
-     icsp_pass:
-     server_id: serial_number
-     os_build_plan: build_plan
-     custom_arguments: "{{ args }}"
-
+EXAMPLES = '''
+- name : Deploy OS
+  hp_icsp:
+    icsp_host: "{{ icsp }}"
+    username: "{{ icsp_username }}"
+    password: "{{ icsp_password }}"
+    server_id: "{{ server_profile.serialNumber }}"
+    os_build_plan: "{{ os_build_plan }}"
+    custom_attributes: "{{ osbp_custom_attributes }}"
+    personality_data: "{{ network_config }}"
+    when: created
+  delegate_to: localhost
 '''
 
 

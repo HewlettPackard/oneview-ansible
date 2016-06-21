@@ -42,28 +42,22 @@ options:
     description:
       - OneView appliance IP or hostname.
     required: true
-    default: null
-    aliases: []
   username:
     description:
       - Username that will be used to authenticate on the provided OneView appliance.
-    default: null
     required: true
   password:
     description:
       - Password that will be used to authenticate on the provided OneView appliance.
     required: true
-    default: null
   server_template:
     description:
       - Name of the server profile template that will be used to provision the server profiles.
     required: true
-    default: null
   name:
     description:
       - Name of the server profile that will be created or updated.
     required : true
-    default : null
   state:
     description:
       - Desired state for the server profile by the end of the playbook execution.
