@@ -27,12 +27,12 @@ httpd_port: 80
 ntpserver: 192.168.1.2
 
 oneview: 192.168.19.53
-ov_username: Administrator
-ov_password: hpinvent
+ov_username: username
+ov_password: password
 
 icsp: 192.168.19.19
-icsp_username: Administrator
-icsp_password: hpinvent
+icsp_username: username
+icsp_password: password
 
 ip_address_pool:
   - 192.168.19.82
@@ -57,5 +57,3 @@ network_config:
     ip4Address: "{{ ansible_ssh_host }}"
     gateway: "{{ gateway }}"
     dns: 15.203.224.210
-
-

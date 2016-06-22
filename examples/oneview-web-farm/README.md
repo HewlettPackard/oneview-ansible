@@ -31,7 +31,10 @@ Update `demo/hosts` and provide the names of the servers you want to deploy – 
 Update `demo/group_vars/all` and update the variables that match your test environment. Specify the HPE OneView hostname and credentials, ICSP hostname and credentials (if you are using ICSP).
 Feel free to customize any custom arguments – or remove them if using defaults.
 
+:lock: Tip: Check the file permissions of the files inside the directory `demo/group_vars` because the passwords are stored in clear-text.
+
 This example passes the SSH keys from the current system to ICSP build plan, so Ansible can do a ssh login into the newly deployed nodes.
 
 To execute the playbook, run:
+
 ```$ ansible-playbook -i demo/hosts ov_site.yml```
