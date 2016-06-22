@@ -31,42 +31,42 @@ __author__ = 'ChakruHP'
 DOCUMENTATION = '''
 ---
 module: oneview_server_profile
-short_description: Selects a Server Hardware automatically based on Server Hardware Template.
+short_description: Selects a server hardware automatically based on the server hardware template.
 description:
-    - Manage servers lifecycle with OneView Server Profiles using an existing Server Profile Template.
+    - Manage servers lifecycle with OneView Server Profiles using an existing server profile template.
 requirements:
-    - "python >= 2.7.11"
+    - "python 2.7.11"
     - "hpOneView"
 options:
   oneview_host:
     description:
-      - OneView appliance IP or hostname
+      - OneView appliance IP or hostname.
     required: true
     default: null
     aliases: []
   username:
     description:
-      - Username that will be used to authenticate on the provided OneView appliance
+      - Username that will be used to authenticate on the provided OneView appliance.
     default: null
     required: true
   password:
     description:
-      - Password that will be used to authenticate on the provided OneView appliance
+      - Password that will be used to authenticate on the provided OneView appliance.
     required: true
     default: null
   server_template:
     description:
-      - Name of the server profile template that will be used to provision the server profiles
+      - Name of the server profile template that will be used to provision the server profiles.
     required: true
     default: null
   name:
     description:
-      - Name of the server profile that will be created or updated
+      - Name of the server profile that will be created or updated.
     required : true
     default : null
   state:
     description:
-      - Desired state for the server profile by the end of the playbook execution
+      - Desired state for the server profile by the end of the playbook execution.
     default: present
     choices: ['present', 'powered_off', 'absent', 'powered_on', 'restarted']
 '''
