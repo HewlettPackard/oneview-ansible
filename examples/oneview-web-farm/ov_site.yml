@@ -21,13 +21,13 @@
 ###
 
 ---
-# This playbook deploys the whole application stack in this site.  
+# This playbook deploys the whole application stack in this site.
 #- include: make_inventory.yml
 
 - hosts: all-servers
   gather_facts: no
   roles:
-    - hp-oneview-server
+    - hpe-oneview-server
 
 # Configure and deploy the web servers. Note that we include two roles here,
 # the 'base-apache' role which simply sets up Apache, and 'web' which includes

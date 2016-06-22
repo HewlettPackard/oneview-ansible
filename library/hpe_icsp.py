@@ -29,7 +29,7 @@ __author__ = 'ChakruHP'
 
 DOCUMENTATION = '''
 ---
-module: hp_icsp
+module: hpe_icsp
 short_description: Manage servers lifecycle.
 description: Manage servers lifecycle with OneView Server profiles using a server profile template.
 requirements:
@@ -70,7 +70,7 @@ options:
 
 EXAMPLES = '''
 - name : Deploy OS
-  hp_icsp:
+  hpe_icsp:
     icsp_host: "{{ icsp }}"
     username: "{{ icsp_username }}"
     password: "{{ icsp_password }}"

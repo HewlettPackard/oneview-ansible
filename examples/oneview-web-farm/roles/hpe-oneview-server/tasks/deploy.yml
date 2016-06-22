@@ -20,28 +20,34 @@
 # THE SOFTWARE.
 ###
 
----
-# Variables for the HAproxy configuration
+ - name : Create Server Profiles
+   oneview_server_profile:
+      oneview_host: "{{ oneview }}"
+      username: "{{ ov_username }}"
+      password: "{{ ov_password }}"
+      server_template: "{{ ov_template }}"
+      name: "{{ inventory_hostname }}"
+      #server_hardware: "{{ server_hardware }}"  Optional - if ommited, select automatically
+   delegate_to: localhost
 
-# HAProxy supports "http" and "tcp". For SSL, SMTP, etc, use "tcp".
-mode: http
+ - name : Power on servers
+   oneview_server_profile:
+      oneview_host: "{{ oneview }}"
+      username: "{{ ov_username }}"
+      password: "{{ ov_password }}"
+      name: "{{ inventory_hostname }}"
+      state: "powered_on"
+   when: server_hardware.powerState == "Off"
+   delegate_to: localhost
 
-# Port on which HAProxy should listen
-listenport: 8888
-
-# A name for the proxy daemon, this wil be the suffix in the logs.
-daemonname: myapplb
-
-# Balancing Algorithm. Available options:
-# roundrobin, source, leastconn, source, uri
-# (if persistance is required use, "source")
-balance: roundrobin 
-
-# Ethernet interface on which the load balancer should listen
-# Defaults to the first interface. Change this to:
-#
-#  iface: eth1
-#
-# ...to override.
-#
-iface: '{{ ansible_default_ipv4.interface }}'
+ - name : Deploy OS
+   hpe_icsp:
+     icsp_host: "{{ icsp }}"
+     username: "{{ icsp_username }}"
+     password: "{{ icsp_password }}"
+     server_id: "{{ server_profile.serialNumber }}"
+     os_build_plan: "{{ os_build_plan }}"
+     custom_attributes: "{{ osbp_custom_attributes }}"
+     personality_data: "{{ network_config }}"
+   when: created  #only if we just created the server. No re-deployment
+   delegate_to: localhost
