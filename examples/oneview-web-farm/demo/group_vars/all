@@ -24,28 +24,36 @@
 # Variables here are applicable to all host groups
 
 httpd_port: 80
-ntpserver: 192.168.1.2
+ntpserver: # NTP server IP address
 
-oneview: 192.168.19.53
-ov_username: username
-ov_password: password
 
-icsp: 192.168.19.19
-icsp_username: username
-icsp_password: password
+# OneView Settings
 
-ip_address_pool:
-  - 192.168.19.82
-  - 192.168.19.83
-  - 192.168.19.84
+oneview: # OneView appliance IP or hostname
+ov_username: # Username that will be used to authenticate on the provided OneView appliance
+ov_password: # Password that will be used to authenticate on the provided OneView appliance
+ov_template: # Name of the server profile template that will be used to provision the server profiles
 
-subnet_mask: 255.255.254.0
-gateway: 192.168.19.1
+# ICSP Settings
 
-ov_template: webserver-template
-os_build_plan : 'Chef RHEL 7.1 x64 with HPSUT'
+icsp: # ICsp IP or hostname
+icsp_username: # ICsp username
+icsp_password: # ICsp password
+
+os_build_plan : # OS Build plan
 osbp_custom_attributes:
   - SSH_CERT: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+# Server Settings
+
+ip_address_pool:
+  - # Server profile 1 IP address
+  - # Server profile 2 IP address
+  - # Server profile 3 IP address
+
+subnet_mask: # Subnet mask
+gateway: # Gateway IP address
+
 network_config:
   hostName: "{{ inventory_hostname}}"
   displayName: "{{ inventory_hostname}}"
@@ -56,4 +64,4 @@ network_config:
     macAddress: "{{ server_profile.connections[0].mac }}"
     ip4Address: "{{ ansible_ssh_host }}"
     gateway: "{{ gateway }}"
-    dns: 15.203.224.210
+    dns: # DNS Server IP
