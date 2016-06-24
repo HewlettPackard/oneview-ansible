@@ -33,7 +33,7 @@ short_description: Retrieve facts about one or more of the OneView FCoE Networks
 description:
     - Retrieve facts about one or more of the FCoE Networks from OneView.
 requirements:
-    - "python 2.7.11"
+    - "python >= 2.7.9"
     - "hpOneView"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:

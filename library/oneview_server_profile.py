@@ -35,7 +35,7 @@ short_description: Selects a server hardware automatically based on the server h
 description:
     - Manage servers lifecycle with OneView Server Profiles using an existing server profile template.
 requirements:
-    - "python 2.7.11"
+    - "python >= 2.7.9"
     - "hpOneView"
 options:
   oneview_host:

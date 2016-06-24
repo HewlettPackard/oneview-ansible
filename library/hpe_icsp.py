@@ -30,10 +30,11 @@ __author__ = 'ChakruHP'
 DOCUMENTATION = '''
 ---
 module: hpe_icsp
-short_description: Manage servers lifecycle.
-description: Manage servers lifecycle with OneView Server profiles using a server profile template.
+short_description: Deploy the operating system on a server using HPE ICsp.
+description:
+    - Deploy the operating system on a server, based on an available ICsp OS build plan.
 requirements:
-    - "python 2.7.11"
+    - "python >= 2.7.9"
     - "hpICsp"
 options:
   icsp_host:

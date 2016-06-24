@@ -34,7 +34,7 @@ short_description: Manage OneView Fibre Channel Network resources.
 description:
     - Provides an interface to manage Fibre Channel Network resources. Can create, update, delete.
 requirements:
-    - "python 2.7.11"
+    - "python >= 2.7.9"
     - "hpOneView"
 author: "Bruno Souza (@bsouza)"
 options:

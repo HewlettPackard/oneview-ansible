@@ -33,7 +33,7 @@ short_description: Manage OneView Logical Interconnect Group resources.
 description:
     - Provides an interface to manage Logical Interconnect Group resources. Can create, update, or delete.
 requirements:
-    - "python 2.7.11"
+    - "python >= 2.7.9"
     - "hpOneView"
 author: "Camila Balestrin (@balestrinc)"
 options:

@@ -1,24 +1,27 @@
 # Ansible Modules for HPE OneView
 
-Ansible modules that provide resources for managing OneView.
+Modules to manage HPE OneView using Ansible playbooks.
 
-**NOTE:** This is an early version that provides some specific Ansible resources. This version does not fully support the OneView yet.
+**NOTE:** This is an early version that provides a few specific Ansible modules. Additional Ansible modules will be added in future releases.
 
 ## Requirements
 
- - Ansible 2.0.2
- - Python 2.7.11
+ - Ansible >= 2.0.2
+ - Python >= 2.7.9
  - python-OneView SDK ([Install python-OneView SDK](https://github.com/HewlettPackard/python-hpOneView#installation))
 
 ## Modules
-Each OneView resource is exposed over a module that allow ensure that a resource is `present` or `absent`. It is provided a module to gather the facts about that resource too.
 
-### Example of playbook using Ansible OneView modules
+Each OneView resource's operations are exposed through an Ansible module. We also provide specific modules to gather the facts about the resources.
+
+The detailed documentation for each module is available at [HPE OneView Ansible Modules Documentation](oneview-ansible.md)
+
+### Example of a playbook using Ansible OneView modules
 
 ```yml
 - hosts: all
   tasks:
-  
+
     - name: Ensure that the Fibre Channel Network is present with fabricType 'DirectAttach'
       oneview_fc_network:
         config: "/path/to/config.json"
@@ -26,36 +29,41 @@ Each OneView resource is exposed over a module that allow ensure that a resource
         data:
           name: 'New FC Network'
           fabricType: 'DirectAttach'
-          
+
     - name: Ensure that Fibre Channel Network is absent
       oneview_fc_network:
         config: "/path/to/config.json"
         state: absent
         data:
           name: 'New FC Network'
-          
+
     - name: Gather facts about the FCoE Network with name 'Test FCoE Network Facts'
       oneview_fcoe_network_facts:
         config: "/path/to/config.json"
         name: "Test FCoE Network Facts"
 ```
 
-## Ansible OneView configuration
+Sample playbooks and instructions on how to run the modules can be found in the [`examples` directory](/examples).
+
+An end-to-end DevOps example, using OneView for the bare metal server provisioning, HPE ICsp for OS deployment and Ansible modules for software setup is provided at the link [Accelerating DevOps with HPE OneView and Ansible sample](/examples/oneview-web-farm).
+
+## Ansible OneView SDK setup
+
+To run the Ansible modules provided in this project, you should execute the following steps:
 
 Clone the project:
 ```bash
 $ git clone https://github.com/HewlettPackard/oneview-ansible.git
 ```
 
-Configure `ANSIBLE_LIBRARY` environment variable specifying the full path to the cloned project:
+Set the `ANSIBLE_LIBRARY` path, specifying the full path for the cloned project:
 ```bash
 $ export ANSIBLE_LIBRARY=/path/to/oneview-ansible
 ```
 
-
 **Configuration File**
 
-To use the Ansible OneView modules you need create a configuration file. A configuration file is used to define client configuration (json format). Here's an example json file:
+To use the Ansible OneView modules, you need to create an OneView Python SDK json configuration file. This file is used to define the settings which will be used on the OneView appliance connection, like hostname, username, and password. Here's an example:
 
 ```json
 # config.json
@@ -68,9 +76,9 @@ To use the Ansible OneView modules you need create a configuration file. A confi
 }
 ```
 
-:lock: Tip: Check the file permissions because the password is stored in clear-text.
+:lock: Tip: Check the file permissions since the password is stored in clear-text.
 
-The configuration file path must be provided for playbook `config` argument:
+The configuration file path must be provided for all of the playbooks `config` argument. For example:
 
 ```
 - name: Gather facts about the FCoE Network with name 'Test FCoE Network Facts'
@@ -78,3 +86,18 @@ The configuration file path must be provided for playbook `config` argument:
     config: "/path/to/config.json"
     name: "Test FCoE Network Facts"
 ```
+
+## License
+
+This project is licensed under the Apache 2.0 license. Please see [LICENSE](LICENSE) for more info.
+
+## Contributing and feature requests
+
+**Contributing:** You know the drill. Fork it, branch it, change it, commit it, and pull-request it.
+We are passionate about improving this project, and glad to accept help to make it better. However, keep the following in mind:
+
+ - You must sign a Contributor License Agreement first. Contact one of the authors (from Hewlett Packard Enterprise) for details and the CLA.
+ - We reserve the right to reject changes that we feel do not fit the scope of this project, so for feature additions, please open an issue to discuss your ideas before doing the work.
+
+**Feature Requests:** If you have a need that is not met by the current implementation, please let us know (via a new issue).
+This feedback is crucial for us to deliver a useful product. Do not assume we have already thought of everything, because we assure you that is not the case.

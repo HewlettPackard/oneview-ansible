@@ -32,7 +32,7 @@ short_description: Retrieve facts about one or more of the OneView Logical Inter
 description:
     - Retrieve facts about one or more of the Logical Interconnect Groups from OneView.
 requirements:
-    - "python 2.7.11"
+    - "python >= 2.7.9"
     - "hpOneView"
 author: "Camila Balestrin (@balestrinc)"
 options:

@@ -33,7 +33,7 @@ short_description: Manage OneView Enclosure resources.
 description:
     - Provides an interface to manage Enclosure resources. Can add, update, or remove.
 requirements:
-    - "python 2.7.11"
+    - "python >= 2.7.9"
     - "hpOneView"
 author: "Mariana Kreisig (@marikrg)"
 options:

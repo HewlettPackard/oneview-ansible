@@ -34,7 +34,7 @@ ov_username: # Username that will be used to authenticate on the provided OneVie
 ov_password: # Password that will be used to authenticate on the provided OneView appliance
 ov_template: # Name of the server profile template that will be used to provision the server profiles
 
-# ICSP Settings
+# ICsp Settings
 
 icsp: # ICsp IP or hostname
 icsp_username: # ICsp username

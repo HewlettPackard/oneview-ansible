@@ -33,7 +33,7 @@ short_description: Retrieve facts about one or more Enclosures.
 description:
     - Retrieve facts about one or more of the Enclosures from OneView.
 requirements:
-    - "python 2.7.11"
+    - "python >= 2.7.9"
     - "hpOneView"
 author: "Mariana Kreisig (@marikrg)"
 options:
