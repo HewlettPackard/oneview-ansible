@@ -1,25 +1,17 @@
-#!/usr/bin/python
-
 ###
-# (C) Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016) Hewlett Packard Enterprise Development LP 
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
+# http://www.apache.org/licenses/LICENSE-2.0
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# Unless required by applicable law or agreed to in writing, software 
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License. 
 ###
 
 import hpOneView as hpov
@@ -35,35 +27,29 @@ short_description: Selects a server hardware automatically based on the server h
 description:
     - Manage servers lifecycle with OneView Server Profiles using an existing server profile template.
 requirements:
-    - "python 2.7.11"
+    - "python >= 2.7.9"
     - "hpOneView"
 options:
   oneview_host:
     description:
       - OneView appliance IP or hostname.
     required: true
-    default: null
-    aliases: []
   username:
     description:
       - Username that will be used to authenticate on the provided OneView appliance.
-    default: null
     required: true
   password:
     description:
       - Password that will be used to authenticate on the provided OneView appliance.
     required: true
-    default: null
   server_template:
     description:
       - Name of the server profile template that will be used to provision the server profiles.
     required: true
-    default: null
   name:
     description:
       - Name of the server profile that will be created or updated.
     required : true
-    default : null
   state:
     description:
       - Desired state for the server profile by the end of the playbook execution.
