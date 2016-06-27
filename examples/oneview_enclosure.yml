@@ -60,6 +60,14 @@
           rackName: 'Rack-Renamed'
       delegate_to: localhost
 
+    - name: Reconfigure the enclosure "Test-Enclosure-Renamed"
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: reconfigured
+        data:
+          name: 'Test-Enclosure-Renamed'
+      delegate_to: localhost
+
     - name: Remove the Enclosure
       oneview_enclosure:
         config: "{{ config }}"
