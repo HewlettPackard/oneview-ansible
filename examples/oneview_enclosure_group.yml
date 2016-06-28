@@ -1,0 +1,96 @@
+###
+# (C) Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+  tasks:
+    - name: Create a Enclosure Group
+      oneview_enclosure_group:
+        config: "{{ config }}"
+        state: present
+        data:
+            name: "Enclosure Group 1"
+            stackingMode: "Enclosure"
+            interconnectBayMappings:
+                - interconnectBay: 1
+                - interconnectBay: 2
+                - interconnectBay: 3
+                - interconnectBay: 4
+                - interconnectBay: 5
+                - interconnectBay: 6
+                - interconnectBay: 7
+                - interconnectBay: 8
+      delegate_to: localhost
+
+    - name: Do nothing with the Enclosure Group when no changes are provided
+      oneview_enclosure_group:
+        config: "{{ config }}"
+        state: present
+        data:
+            name: "Enclosure Group 1"
+            stackingMode: "Enclosure"
+            interconnectBayMappings:
+                - interconnectBay: 1
+                - interconnectBay: 2
+                - interconnectBay: 3
+                - interconnectBay: 4
+                - interconnectBay: 5
+                - interconnectBay: 6
+                - interconnectBay: 7
+                - interconnectBay: 8
+      delegate_to: localhost
+
+    - name: Update the Enclosure Group changing the name attribute
+      oneview_enclosure_group:
+        config: "{{ config }}"
+        state: present
+        data:
+            name: "Enclosure Group 1"
+            newName: "Enclosure Group 1 (renamed)"
+            stackingMode: "Enclosure"
+            interconnectBayMappings:
+                - interconnectBay: 1
+                - interconnectBay: 2
+                - interconnectBay: 3
+                - interconnectBay: 4
+                - interconnectBay: 5
+                - interconnectBay: 6
+                - interconnectBay: 7
+                - interconnectBay: 8
+      delegate_to: localhost
+
+    - name: Delete the Enclosure Group
+      oneview_enclosure_group:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: "Enclosure Group 1 (renamed)"
+      delegate_to: localhost
+
+    - name: Do nothing when Enclosure Group is absent
+      oneview_enclosure_group:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: "Enclosure Group 1 (renamed)"
+      delegate_to: localhost
