@@ -1,23 +1,17 @@
 ###
-# (C) Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016) Hewlett Packard Enterprise Development LP
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
+# http://www.apache.org/licenses/LICENSE-2.0
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 ###
 import unittest
 import mock
@@ -40,59 +34,151 @@ def create_ansible_mock(params):
 
     mock_ansible = mock.Mock()
     mock_ansible.params = mock_params
+
     return mock_ansible
+
+
+def mock_oneview_instance(mock_ov_client):
+    mock_ov_instance = mock.Mock()
+    mock_ov_instance.interconnects.patch.return_value = dict()
+    mock_ov_client.return_value = mock_ov_instance
+
+    return mock_ov_instance
+
+
+def mock_ansible_module_instance(ansible_arguments, mock_ansible_module):
+    mock_ansible_instance = create_ansible_mock(ansible_arguments)
+    mock_ansible_module.return_value = mock_ansible_instance
+
+    return mock_ansible_instance
 
 
 class InterconnectPowerStateSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_ensure_powered_on_state(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.interconnects.patch.return_value = dict()
+    def test_should_ensure_powered_on_state(self, mock_ansible_module, mock_ov_from_file):
+        ansible_arguments = create_params_for('powered_on')
+        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
+        mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
 
-        params_for_powered_on = create_params_for('powered_on')
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(params_for_powered_on)
-        mock_ansible_module.return_value = mock_ansible_instance
+        mock_ov_instance.interconnects.get.return_value = dict(powerState='Off')
 
         InterconnectModule().run()
 
         mock_ov_instance.interconnects.patch.assert_called_with(
-            id_or_uri=params_for_powered_on['id'],
+            id_or_uri=ansible_arguments['id'],
             operation='replace',
             path='/powerState',
             value='On'
         )
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts=dict(resource=dict())
+            ansible_facts=dict(interconnect=dict())
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_ensure_powered_off_state(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.interconnects.patch.return_value = dict()
+    def test_should_return_changed_false_when_interconnect_is_already_powered_on(self,
+                                                                                 mock_ansible_module,
+                                                                                 mock_ov_from_file):
+        ansible_arguments = create_params_for('powered_on')
+        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
+        mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
 
-        params_for_power_off = create_params_for('powered_off')
+        fake_interconnect = dict(powerState='On')
+        mock_ov_instance.interconnects.get.return_value = fake_interconnect
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(params_for_power_off)
-        mock_ansible_module.return_value = mock_ansible_instance
+        InterconnectModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(interconnect=fake_interconnect)
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_interconnect.AnsibleModule')
+    def test_should_ensure_powered_off_state(self, mock_ansible_module, mock_ov_from_file):
+        ansible_arguments = create_params_for('powered_off')
+        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
+        mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
+
+        mock_ov_instance.interconnects.get.return_value = dict(powerState='On')
 
         InterconnectModule().run()
 
         mock_ov_instance.interconnects.patch.assert_called_with(
-            id_or_uri=params_for_power_off['id'],
+            id_or_uri=ansible_arguments['id'],
             operation='replace',
             path='/powerState',
             value='Off'
         )
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts=dict(resource=dict())
+            ansible_facts=dict(interconnect=dict())
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_interconnect.AnsibleModule')
+    def test_should_ensure_uid_on_state(self, mock_ansible_module, mock_ov_from_file):
+        ansible_arguments = create_params_for('uid_on')
+        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
+        mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
+
+        mock_ov_instance.interconnects.get.return_value = dict(uidState='Off')
+
+        InterconnectModule().run()
+
+        mock_ov_instance.interconnects.patch.assert_called_with(
+            id_or_uri=ansible_arguments['id'],
+            operation='replace',
+            path='/uidState',
+            value='On'
+        )
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(interconnect=dict())
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_interconnect.AnsibleModule')
+    def test_should_return_changed_false_when_uid_is_already_on(self,
+                                                                mock_ansible_module,
+                                                                mock_ov_from_file):
+        ansible_arguments = create_params_for('uid_on')
+        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
+        mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
+
+        fake_interconnect = dict(uidState='On')
+        mock_ov_instance.interconnects.get.return_value = fake_interconnect
+
+        InterconnectModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(interconnect=fake_interconnect)
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_interconnect.AnsibleModule')
+    def test_should_ensure_uid_off_state(self, mock_ansible_module, mock_ov_from_file):
+        ansible_arguments = create_params_for('uid_off')
+        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
+        mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
+
+        mock_ov_instance.interconnects.get.return_value = dict(uidState='On')
+
+        InterconnectModule().run()
+
+        mock_ov_instance.interconnects.patch.assert_called_with(
+            id_or_uri=ansible_arguments['id'],
+            operation='replace',
+            path='/uidState',
+            value='Off'
+        )
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(interconnect=dict())
         )
 
 
