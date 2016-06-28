@@ -12,9 +12,9 @@ Modules to manage HPE OneView using Ansible playbooks.
 
 ## Modules
 
-Each OneView resource's operations are exposed through an Ansible module. We also provide specific modules to gather the facts about the resources.
+Each OneView resource operation is exposed through an Ansible module. We also provide a specific module to gather facts about the resource.
 
-The detailed documentation for each module is available at [HPE OneView Ansible Modules Documentation](oneview-ansible.md)
+The detailed documentation for each module is available at: [HPE OneView Ansible Modules Documentation](oneview-ansible.md)
 
 ### Example of a playbook using Ansible OneView modules
 
@@ -45,7 +45,7 @@ The detailed documentation for each module is available at [HPE OneView Ansible 
 
 Sample playbooks and instructions on how to run the modules can be found in the [`examples` directory](/examples).
 
-An end-to-end DevOps example, using OneView for the bare metal server provisioning, HPE ICsp for OS deployment and Ansible modules for software setup is provided at the link [Accelerating DevOps with HPE OneView and Ansible sample](/examples/oneview-web-farm).
+An end-to-end DevOps example using OneView for the bare metal server provisioning, HPE ICsp for OS deployment, and Ansible modules for software setup is provided at: [Accelerating DevOps with HPE OneView and Ansible sample](/examples/oneview-web-farm).
 
 ## Ansible OneView SDK setup
 
@@ -61,9 +61,9 @@ Set the `ANSIBLE_LIBRARY` path, specifying the full path for the cloned project:
 $ export ANSIBLE_LIBRARY=/path/to/oneview-ansible
 ```
 
-**Configuration File**
+**Configuration file**
 
-To use the Ansible OneView modules, you need to create an OneView Python SDK json configuration file. This file is used to define the settings which will be used on the OneView appliance connection, like hostname, username, and password. Here's an example:
+To use the Ansible OneView modules, you need to create OneView Python SDK json configuration file. This file is used to define the settings, which will be used on the OneView appliance connection, like hostname, username, and password. Here's an example:
 
 ```json
 # config.json
@@ -78,7 +78,7 @@ To use the Ansible OneView modules, you need to create an OneView Python SDK jso
 
 :lock: Tip: Check the file permissions since the password is stored in clear-text.
 
-The configuration file path must be provided for all of the playbooks `config` argument. For example:
+The configuration file path must be provided for all of the playbooks `config` arguments. For example:
 
 ```
 - name: Gather facts about the FCoE Network with name 'Test FCoE Network Facts'
@@ -89,7 +89,7 @@ The configuration file path must be provided for all of the playbooks `config` a
 
 ## License
 
-This project is licensed under the Apache 2.0 license. Please see [LICENSE](LICENSE) for more info.
+This project is licensed under the Apache 2.0 license. Please see the [LICENSE](LICENSE) for more information.
 
 ## Contributing and feature requests
 
@@ -100,4 +100,4 @@ We are passionate about improving this project, and glad to accept help to make 
  - We reserve the right to reject changes that we feel do not fit the scope of this project, so for feature additions, please open an issue to discuss your ideas before doing the work.
 
 **Feature Requests:** If you have a need that is not met by the current implementation, please let us know (via a new issue).
-This feedback is crucial for us to deliver a useful product. Do not assume we have already thought of everything, because we assure you that is not the case.
+This feedback is crucial for us to deliver a useful product. Do not assume that we have already thought of everything, because we assure you that is not the case.
