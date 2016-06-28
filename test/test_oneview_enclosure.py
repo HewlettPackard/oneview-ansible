@@ -51,6 +51,13 @@ PARAMS_WITH_NEW_RACK_NAME = dict(
               rackName='Another-Rack-Name')
 )
 
+PARAMS_WITH_CALIBRATED_MAX_POWER = dict(
+    config='config.json',
+    state='present',
+    data=dict(name='Encl1',
+              calibratedMaxPower=1750)
+)
+
 PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
@@ -228,6 +235,23 @@ class EnclosurePresentStateSpec(unittest.TestCase):
 
         mock_ov_instance.enclosures.patch.assert_called_once_with(
             "/a/path", "replace", "/rackName", "Another-Rack-Name")
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_enclosure.AnsibleModule')
+    def test_update_calibrated_max_power_for_existent_enclosure(self, mock_ansible_module,
+                                                                mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        mock_ov_instance.enclosures.patch.return_value = []
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_WITH_CALIBRATED_MAX_POWER)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        EnclosureModule().run()
+
+        mock_ov_instance.enclosures.update_environmental_configuration.assert_called_once_with(
+            "/a/path", {"calibratedMaxPower": 1750})
 
 
 class EnclosureAbsentStateSpec(unittest.TestCase):
