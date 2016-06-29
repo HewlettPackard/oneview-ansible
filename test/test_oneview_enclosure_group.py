@@ -58,6 +58,14 @@ YAML_ENCLOSURE_GROUP_CHANGES = """
             - interconnectBay: 8
       """
 
+YAML_ENCLOSURE_GROUP_CHANGE_SCRIPT = """
+    config: "{{ config }}"
+    state: present
+    data:
+        name: "Enclosure Group 1"
+        configurationScript: "# test script "
+      """
+
 YAML_ENCLOSURE_GROUP_ABSENT = """
         config: "{{ config }}"
         state: absent
@@ -124,6 +132,30 @@ class EnclosureGroupPresentStateSpec(unittest.TestCase):
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(YAML_ENCLOSURE_GROUP_CHANGES)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        EnclosureGroupModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ENCLOSURE_GROUP_UPDATED,
+            ansible_facts=dict(enclosure_group=data_merged)
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_enclosure_group.AnsibleModule')
+    def test_update_when_script_attribute_was_modified(self, mock_ansible_module, mock_ov_client_from_json_file):
+        data_merged = DICT_DEFAULT_ENCLOSURE_GROUP.copy()
+        data_merged['newName'] = 'New Name'
+        data_merged['uri'] = '/rest/uri'
+
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.enclosure_groups.get_by.return_value = [data_merged]
+        mock_ov_instance.enclosure_groups.update_script.return_value = ""
+        mock_ov_instance.enclosure_groups.get_by.get_script = "# test script"
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(YAML_ENCLOSURE_GROUP_CHANGE_SCRIPT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         EnclosureGroupModule().run()

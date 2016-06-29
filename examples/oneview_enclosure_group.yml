@@ -34,6 +34,7 @@
                 - interconnectBay: 6
                 - interconnectBay: 7
                 - interconnectBay: 8
+            configurationScript: "# example script"
       delegate_to: localhost
 
     - name: Do nothing with the Enclosure Group when no changes are provided
@@ -61,6 +62,15 @@
         data:
             name: "Enclosure Group 1"
             newName: "Enclosure Group 1 (renamed)"
+      delegate_to: localhost
+
+    - name: Update the Enclosure Group configuration script
+      oneview_enclosure_group:
+        config: "{{ config }}"
+        state: present
+        data:
+            name: "Enclosure Group 1 (renamed)"
+            configurationScript: "# script (updated)"
       delegate_to: localhost
 
     - name: Delete the Enclosure Group

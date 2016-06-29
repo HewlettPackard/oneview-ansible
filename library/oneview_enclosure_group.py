@@ -153,18 +153,29 @@ class EnclosureGroupModule(object):
         merged_data = existent_resource.copy()
         merged_data.update(new_data)
 
-        if resource_compare(existent_resource, merged_data):
+        changed = False
+        if "configurationScript" in merged_data:
+            changed = self.__update_script(merged_data)
 
-            self.module.exit_json(changed=False,
-                                  msg=ENCLOSURE_GROUP_ALREADY_EXIST,
-                                  ansible_facts=dict(enclosure_group=existent_resource))
+        if not resource_compare(existent_resource, merged_data):
+            # update resource
+            changed = True
+            existent_resource = self.oneview_client.enclosure_groups.update(merged_data)
 
-        else:
-            updated_enclosure_group = self.oneview_client.enclosure_groups.update(merged_data)
+        self.module.exit_json(changed=changed,
+                              msg=ENCLOSURE_GROUP_UPDATED if changed else ENCLOSURE_GROUP_ALREADY_EXIST,
+                              ansible_facts=dict(enclosure_group=existent_resource))
 
-            self.module.exit_json(changed=True,
-                                  msg=ENCLOSURE_GROUP_UPDATED,
-                                  ansible_facts=dict(enclosure_group=updated_enclosure_group))
+    def __update_script(self, merged_data):
+        script = merged_data.pop("configurationScript")
+        existent_script = self.oneview_client.enclosure_groups.get_script(merged_data["uri"])
+
+        if script != existent_script:
+            # update configuration script
+            self.oneview_client.enclosure_groups.update_script(merged_data["uri"], script)
+            return True
+
+        return False
 
     def __get_by_name(self, data):
         result = self.oneview_client.enclosure_groups.get_by('name', data['name'])

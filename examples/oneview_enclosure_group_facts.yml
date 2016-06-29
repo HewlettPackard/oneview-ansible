@@ -25,7 +25,7 @@
 
     - debug: var=enclosure_group
 
-    - name: Gather facts about a Enclosure Group by name
+    - name: Gather facts about an Enclosure Group by name
       oneview_enclosure_group_facts:
         config: "{{ config }}"
         name: "Enclosure Group (For Demo)"
