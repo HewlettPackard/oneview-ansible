@@ -18,9 +18,9 @@ import mock
 
 from hpOneView.oneview_client import OneViewClient
 from oneview_enclosure import EnclosureModule
-from oneview_enclosure import ENCLOSURE_ADDED, ENCLOSURE_ALREADY_EXIST, ENCLOSURE_UPDATED
-from oneview_enclosure import ENCLOSURE_REMOVED, ENCLOSURE_ALREADY_ABSENT
-from oneview_enclosure import ENCLOSURE_RECONFIGURED, ENCLOSURE_NOT_FOUND
+from oneview_enclosure import ENCLOSURE_ADDED, ENCLOSURE_ALREADY_EXIST, ENCLOSURE_UPDATED, \
+    ENCLOSURE_REMOVED, ENCLOSURE_ALREADY_ABSENT, ENCLOSURE_RECONFIGURED, ENCLOSURE_REFRESHED, \
+    ENCLOSURE_NOT_FOUND
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -61,6 +61,13 @@ PARAMS_FOR_RECONFIGURED = dict(
     config='config.json',
     state='reconfigured',
     data=dict(name=DEFAULT_ENCLOSURE_NAME)
+)
+
+PARAMS_FOR_REFRESH = dict(
+    config='config.json',
+    state='refreshed',
+    data=dict(name=DEFAULT_ENCLOSURE_NAME,
+              refreshState='Refreshing')
 )
 
 
@@ -289,6 +296,45 @@ class EnclosureReconfiguredStateSpec(unittest.TestCase):
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_FOR_RECONFIGURED)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        EnclosureModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ENCLOSURE_NOT_FOUND
+        )
+
+
+class EnclosureRefreshedStateSpec(unittest.TestCase):
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_enclosure.AnsibleModule')
+    def test_should_refresh_enclosure(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        mock_ov_instance.enclosures.get.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_REFRESH)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        EnclosureModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=ENCLOSURE_REFRESHED
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_enclosure.AnsibleModule')
+    def test_should_do_nothing_when_enclosure_not_exist(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.enclosures.get_by.return_value = []
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_REFRESH)
         mock_ansible_module.return_value = mock_ansible_instance
 
         EnclosureModule().run()

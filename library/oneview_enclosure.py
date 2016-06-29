@@ -42,7 +42,10 @@ options:
               'absent' will remove the resource from OneView, if it exists.
               'reconfigured' will reapply the appliance's configuration on the enclosure. This includes
               running the same configure steps that were performed as part of the enclosure add.
-        choices: ['present', 'absent', 'reconfigured']
+              'refreshed' will refreshes the enclosure along with all of its components, including interconnects and
+              servers. Any new hardware is added and any hardware that is no longer present within the enclosure is
+              removed.
+        choices: ['present', 'absent', 'reconfigured', 'refreshed']
     data:
       description:
         - List with the Enclosure properties.
@@ -86,6 +89,14 @@ EXAMPLES = '''
     state: absent
     data:
       name: 'Test-Enclosure'
+
+- name: Ensure that an enclosure is refreshed
+  oneview_enclosure:
+    config: "{{ config_file_path }}"
+    state: refreshed
+    data:
+      name: 'Test-Enclosure'
+      refreshState: Refreshing
 '''
 
 
@@ -95,6 +106,7 @@ ENCLOSURE_UPDATED = 'Enclosure updated sucessfully.'
 ENCLOSURE_ALREADY_EXIST = 'Enclosure already exists.'
 ENCLOSURE_ALREADY_ABSENT = 'Nothing to do.'
 ENCLOSURE_RECONFIGURED = 'Enclosure reconfigured sucessfully.'
+ENCLOSURE_REFRESHED = 'Enclosure refreshed sucessfully.'
 ENCLOSURE_NOT_FOUND = 'Enclosure not found.'
 
 
@@ -104,7 +116,7 @@ class EnclosureModule(object):
         config=dict(required=True, type='str'),
         state=dict(
             required=True,
-            choices=['present', 'absent', 'reconfigured']
+            choices=['present', 'absent', 'reconfigured', 'refreshed']
         ),
         data=dict(required=True, type='dict')
     )
@@ -118,31 +130,33 @@ class EnclosureModule(object):
         data = self.module.params['data']
 
         try:
+            resource = self.__get_by_name(data)
+
             if state == 'present':
-                self.__present(data)
+                self.__present(resource, data)
             elif state == 'absent':
-                self.__absent(data)
+                self.__absent(resource, data)
             elif state == 'reconfigured':
-                self.__reconfigure(data)
+                self.__reconfigure(resource, data)
+            elif state == 'refreshed':
+                self.__refresh(resource, data)
 
         except Exception as e:
             self.module.fail_json(msg=e.message)
 
-    def __present(self, data):
-        resource = self.__get_by_name(data)
-
+    def __present(self, resource, data):
         resource_added = False
         resource_updated = False
 
-        data_without_names = data.copy()
+        configuration_data = data.copy()
 
-        name = data_without_names.pop('newName', None)
-        rack_name = data_without_names.pop('rackName', None)
+        name = configuration_data.pop('newName', None)
+        rack_name = configuration_data.pop('rackName', None)
 
         if not resource:
             if not name:
-                name = data_without_names.pop('name', None)
-            resource = self.__add(data_without_names)
+                name = configuration_data.pop('name', None)
+            resource = self.__add(configuration_data)
             resource_added = True
 
         if self.__name_has_changes(resource, name):
@@ -154,9 +168,7 @@ class EnclosureModule(object):
 
         self.__exit_status_present(resource, added=resource_added, updated=resource_updated)
 
-    def __absent(self, data):
-        resource = self.__get_by_name(data)
-
+    def __absent(self, resource, data):
         if resource:
             self.oneview_client.enclosures.remove(resource)
             self.module.exit_json(changed=True,
@@ -164,7 +176,7 @@ class EnclosureModule(object):
         else:
             self.module.exit_json(changed=False, msg=ENCLOSURE_ALREADY_ABSENT)
 
-    def __reconfigure(self, data):
+    def __reconfigure(self, resource, data):
         resource = self.__get_by_name(data)
 
         if resource:
@@ -172,6 +184,20 @@ class EnclosureModule(object):
             self.module.exit_json(changed=True,
                                   msg=ENCLOSURE_RECONFIGURED,
                                   ansible_facts=dict(enclosure=reconfigured_enclosure))
+        else:
+            self.module.exit_json(changed=False, msg=ENCLOSURE_NOT_FOUND)
+
+    def __refresh(self, resource, data):
+        refresh_config = data.copy()
+        refresh_config.pop('name', None)
+
+        if resource:
+            self.oneview_client.enclosures.refresh_state(resource['uri'], refresh_config)
+            enclosure = self.oneview_client.enclosures.get(resource['uri'])
+
+            self.module.exit_json(changed=True,
+                                  ansible_facts=dict(enclosure=enclosure),
+                                  msg=ENCLOSURE_REFRESHED)
         else:
             self.module.exit_json(changed=False, msg=ENCLOSURE_NOT_FOUND)
 

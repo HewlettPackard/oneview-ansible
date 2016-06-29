@@ -68,6 +68,15 @@
           name: 'Test-Enclosure-Renamed'
       delegate_to: localhost
 
+    - name: Refresh the enclosure along with all of its components
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: refreshed
+        data:
+          name: 'Test-Enclosure-Renamed'
+          refreshState: 'RefreshPending'
+      delegate_to: localhost
+
     - name: Remove the Enclosure
       oneview_enclosure:
         config: "{{ config }}"
