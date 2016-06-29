@@ -67,7 +67,7 @@
       delegate_to: localhost
       register: deleted
 
-    - name: Do nothing when Logical Interconnect Group is absent
+    - name: Do nothing when the Logical Interconnect Group is absent
       oneview_logical_interconnect_group:
         config: "{{ config }}"
         state: absent
