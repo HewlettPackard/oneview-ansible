@@ -25,7 +25,7 @@ DOCUMENTATION = '''
 module: oneview_enclosure
 short_description: Manage OneView Enclosure resources.
 description:
-    - Provides an interface to manage Enclosure resources. Can add, update, or remove.
+    - Provides an interface to manage Enclosure resources. Can add, update, remove, or reconfigure.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -40,7 +40,9 @@ options:
             - Indicates the desired state for the Enclosure resource.
               'present' will ensure data properties are compliant to OneView.
               'absent' will remove the resource from OneView, if it exists.
-        choices: ['present', 'absent']
+              'reconfigured' will reapply the appliance's configuration on the enclosure. This includes
+              running the same configure steps that were performed as part of the enclosure add.
+        choices: ['present', 'absent', 'reconfigured']
     data:
       description:
         - List with the Enclosure properties.
@@ -71,6 +73,13 @@ EXAMPLES = '''
       name: 'Test-Enclosure'
       newName : "Test-Enclosure-Renamed
 
+- name: Reconfigure the enclosure "Test-Enclosure"
+  oneview_enclosure:
+    config: "{{ config_file_path }}"
+    state: reconfigured
+    data:
+      name: 'Test-Enclosure'
+
 - name: Ensure that enclosure is absent
   oneview_enclosure:
     config: "{{ config_file_path }}"
@@ -85,6 +94,8 @@ ENCLOSURE_REMOVED = 'Enclosure removed sucessfully.'
 ENCLOSURE_UPDATED = 'Enclosure updated sucessfully.'
 ENCLOSURE_ALREADY_EXIST = 'Enclosure already exists.'
 ENCLOSURE_ALREADY_ABSENT = 'Nothing to do.'
+ENCLOSURE_RECONFIGURED = 'Enclosure reconfigured sucessfully.'
+ENCLOSURE_NOT_FOUND = 'Enclosure not found.'
 
 
 class EnclosureModule(object):
@@ -93,7 +104,7 @@ class EnclosureModule(object):
         config=dict(required=True, type='str'),
         state=dict(
             required=True,
-            choices=['present', 'absent']
+            choices=['present', 'absent', 'reconfigured']
         ),
         data=dict(required=True, type='dict')
     )
@@ -111,6 +122,8 @@ class EnclosureModule(object):
                 self.__present(data)
             elif state == 'absent':
                 self.__absent(data)
+            elif state == 'reconfigured':
+                self.__reconfigure(data)
 
         except Exception as e:
             self.module.fail_json(msg=e.message)
@@ -150,6 +163,17 @@ class EnclosureModule(object):
                                   msg=ENCLOSURE_REMOVED)
         else:
             self.module.exit_json(changed=False, msg=ENCLOSURE_ALREADY_ABSENT)
+
+    def __reconfigure(self, data):
+        resource = self.__get_by_name(data)
+
+        if resource:
+            reconfigured_enclosure = self.oneview_client.enclosures.update_configuration(resource['uri'])
+            self.module.exit_json(changed=True,
+                                  msg=ENCLOSURE_RECONFIGURED,
+                                  ansible_facts=dict(enclosure=reconfigured_enclosure))
+        else:
+            self.module.exit_json(changed=False, msg=ENCLOSURE_NOT_FOUND)
 
     def __add(self, data):
         new_enclosure = self.oneview_client.enclosures.add(data)

@@ -20,6 +20,7 @@ from hpOneView.oneview_client import OneViewClient
 from oneview_enclosure import EnclosureModule
 from oneview_enclosure import ENCLOSURE_ADDED, ENCLOSURE_ALREADY_EXIST, ENCLOSURE_UPDATED
 from oneview_enclosure import ENCLOSURE_REMOVED, ENCLOSURE_ALREADY_ABSENT
+from oneview_enclosure import ENCLOSURE_RECONFIGURED, ENCLOSURE_NOT_FOUND
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -53,6 +54,12 @@ PARAMS_WITH_NEW_RACK_NAME = dict(
 PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
+    data=dict(name=DEFAULT_ENCLOSURE_NAME)
+)
+
+PARAMS_FOR_RECONFIGURED = dict(
+    config='config.json',
+    state='reconfigured',
     data=dict(name=DEFAULT_ENCLOSURE_NAME)
 )
 
@@ -250,6 +257,45 @@ class EnclosureAbsentStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
             msg=ENCLOSURE_ALREADY_ABSENT
+        )
+
+
+class EnclosureReconfiguredStateSpec(unittest.TestCase):
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_enclosure.AnsibleModule')
+    def test_should_reconfigure_enclosure(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        mock_ov_instance.enclosures.update_configuration.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_RECONFIGURED)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        EnclosureModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ENCLOSURE_RECONFIGURED,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW)
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_enclosure.AnsibleModule')
+    def test_should_do_nothing_when_enclosure_not_exist(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.enclosures.get_by.return_value = []
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_RECONFIGURED)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        EnclosureModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ENCLOSURE_NOT_FOUND
         )
 
 
