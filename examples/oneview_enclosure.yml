@@ -59,7 +59,6 @@
           name: 'Test-Enclosure-Renamed'
           rackName: 'Rack-Renamed'
       delegate_to: localhost
-
     - name: Reconfigure the enclosure "Test-Enclosure-Renamed"
       oneview_enclosure:
         config: "{{ config }}"
