@@ -25,8 +25,8 @@ DOCUMENTATION = '''
 module: oneview_interconnect
 short_description: Manage the OneView Interconnects resources.
 description:
-    - Provides an interface to manage the Interconnects power state and the UID light state. Can change power state and
-    UID light state.
+    - Provides an interface to manage the Interconnects power state and the UID light state. Can change power state,
+    UID light state and perform device reset.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -43,6 +43,7 @@ options:
               'powered_off' turns the power off.
               'uid_on' turns the UID light on.
               'uid_off' turns the UID light off.
+              'device_reset' perform a device reset.
         choices: ['powered_on', 'powered_off']
     id:
       description:
@@ -60,7 +61,7 @@ EXAMPLES = '''
     state: 'powered_off'
     id: 'd9583219-2f06-4908-979f-66bde4b51294'
 
-- name: Turn the UID light to 'On' for interconnect d9583219-2f06-4908-979f-66bde4b51294'
+- name: Turn the UID light to 'On' for interconnect d9583219-2f06-4908-979f-66bde4b51294
   oneview_interconnect:
     config: "{{ config_file_path }}"
     state: 'uid_on'
@@ -74,7 +75,13 @@ class InterconnectModule(object):
         config=dict(required=True, type='str'),
         state=dict(
             required=True,
-            choices=['powered_on', 'powered_off', 'uid_on', 'uid_off']
+            choices=[
+                'powered_on',
+                'powered_off',
+                'uid_on',
+                'uid_off',
+                'device_reset'
+            ]
         ),
         id=dict(required=True, type='str')
     )
@@ -83,7 +90,8 @@ class InterconnectModule(object):
         powered_on=dict(path='/powerState', value='On'),
         powered_off=dict(path='/powerState', value='Off'),
         uid_on=dict(path='/uidState', value='On'),
-        uid_off=dict(path='/uidState', value='Off')
+        uid_off=dict(path='/uidState', value='Off'),
+        device_reset=dict(path='/deviceResetState', value='Reset'),
     )
 
     def __init__(self):
@@ -91,24 +99,14 @@ class InterconnectModule(object):
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
-        interconnect_id = self.module.params['id']
         state_name = self.module.params['state']
         state = self.states[state_name]
 
         try:
-            resource = self.oneview_client.interconnects.get(interconnect_id)
-            changed = False
-
-            property_name = state['path'][1:]
-
-            if resource[property_name] != state['value']:
-                resource = self.oneview_client.interconnects.patch(
-                    id_or_uri=interconnect_id,
-                    operation='replace',
-                    path=state['path'],
-                    value=state['value']
-                )
-                changed = True
+            if state_name == 'device_reset':
+                changed, resource = self.device_reset(state)
+            else:
+                changed, resource = self.change_state(state)
 
             self.module.exit_json(
                 changed=changed,
@@ -116,6 +114,33 @@ class InterconnectModule(object):
             )
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
+
+    def change_state(self, state):
+        interconnect_id = self.module.params['id']
+        resource = self.oneview_client.interconnects.get(interconnect_id)
+        changed = False
+
+        property_name = state['path'][1:]
+
+        if resource[property_name] != state['value']:
+            resource = self.execute_operation(state['path'], state['value'])
+            changed = True
+
+        return changed, resource
+
+    def device_reset(self, state):
+        resource = self.execute_operation(state['path'], state['value'])
+        return True, resource
+
+    def execute_operation(self, path, value, operation="replace"):
+        interconnect_id = self.module.params['id']
+
+        return self.oneview_client.interconnects.patch(
+            id_or_uri=interconnect_id,
+            operation=operation,
+            path=path,
+            value=value
+        )
 
 
 def main():

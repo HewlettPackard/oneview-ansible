@@ -25,9 +25,16 @@
         id: 'd9583219-2f06-4908-979f-66bde4b51294'
       delegate_to: localhost
 
-    - name: Turn the UID light to 'On' for Interconnect 0f6f4937-6801-4494-a528-5dc01368c043?'
+    - name: Turn the UID light to 'On' for Interconnect 0f6f4937-6801-4494-a528-5dc01368c043
       oneview_interconnect:
         config: "{{ config }}"
         state: 'uid_on'
-        id: '0f6f4937-6801-4494-a528-5dc01368c043?'
+        id: '0f6f4937-6801-4494-a528-5dc01368c043'
+      delegate_to: localhost
+
+    - name: Perform a device reset for interconnect 3bdf79e3-8ca5-4a4e-9d4c-e2f217e68ce1
+      oneview_interconnect:
+        config: "{{ config }}"
+        state: 'device_reset'
+        id: '3bdf79e3-8ca5-4a4e-9d4c-e2f217e68ce1'
       delegate_to: localhost
