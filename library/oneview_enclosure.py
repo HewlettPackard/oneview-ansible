@@ -97,6 +97,14 @@ EXAMPLES = '''
     data:
       name: 'Test-Enclosure'
       refreshState: Refreshing
+
+- name: Set the calibrated max power of an unmanaged or unsupported enclosure
+  config: "{{ config }}"
+  state: present
+  data:
+    name: 'Test-Enclosure'
+    calibratedMaxPower: 1700
+  delegate_to: localhost
 '''
 
 
@@ -152,6 +160,7 @@ class EnclosureModule(object):
 
         name = configuration_data.pop('newName', None)
         rack_name = configuration_data.pop('rackName', None)
+        calibrated_max_power = configuration_data.pop('calibratedMaxPower', None)
 
         if not resource:
             if not name:
@@ -164,6 +173,9 @@ class EnclosureModule(object):
             resource_updated = True
         if self.__rack_name_has_changes(resource, rack_name):
             resource = self.__replace_enclosure_rack_name(resource, rack_name)
+            resource_updated = True
+        if calibrated_max_power:
+            self.__set_calibrated_max_power(resource, calibrated_max_power)
             resource_updated = True
 
         self.__exit_status_present(resource, added=resource_added, updated=resource_updated)
@@ -218,6 +230,10 @@ class EnclosureModule(object):
     def __replace_enclosure_rack_name(self, resource, rack_name):
         updated_resource = self.oneview_client.enclosures.patch(resource['uri'], 'replace', '/rackName', rack_name)
         return updated_resource
+
+    def __set_calibrated_max_power(self, resource, calibrated_max_power):
+        body = {"calibratedMaxPower": calibrated_max_power}
+        self.oneview_client.enclosures.update_environmental_configuration(resource['uri'], body)
 
     def __exit_status_present(self, resource, added, updated):
         if added:
