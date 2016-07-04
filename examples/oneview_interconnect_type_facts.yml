@@ -18,17 +18,15 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
-    - name: Gather facts about all Logical Interconnect Groups
-      oneview_logical_interconnect_group_facts:
+    - name: Gather facts about all Interconnect Types
+      oneview_interconnect_type_facts:
         config: "{{ config }}"
       delegate_to: localhost
+    - debug: msg="{{interconnect_types | map(attribute='name') | list }}"
 
-    - debug: var=logical_interconnect_groups
-
-    - name: Gather facts about a Logical Interconnect Group by name
-      oneview_logical_interconnect_group_facts:
+    - name: Gather facts about a Interconnect Type by name
+      oneview_interconnect_type_facts:
         config: "{{ config }}"
-        name: "Demo Logical Interconnect Group"
+        name: "HP VC Flex-10 Enet Module"
       delegate_to: localhost
-
-    - debug: var=logical_interconnect_groups
+    - debug: msg="Found an interconnect type named [{{interconnect_types[0].name}}] and with uri [{{interconnect_types[0].uri}}]"
