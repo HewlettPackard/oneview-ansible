@@ -25,8 +25,8 @@ DOCUMENTATION = '''
 module: oneview_interconnect
 short_description: Manage the OneView Interconnects resources.
 description:
-    - Provides an interface to manage the Interconnects power state and the UID light state. Can change power state,
-    UID light state and perform device reset.
+    - Provides an interface to manage the Interconnects power state and the UID light state. Can change power state and
+      UID light state and perform device reset.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
