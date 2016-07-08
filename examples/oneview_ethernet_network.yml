@@ -77,3 +77,19 @@
           name: 'Updated Ethernet Network'
       delegate_to: localhost
       register: deleted
+
+    - name: Create Ethernet Networks in bulk
+      oneview_ethernet_network:
+        config: "{{ config }}"
+        state: bulk_created
+        data:
+          vlanIdRange: '1-3,5,7'
+          purpose: General
+          namePrefix: TestNetwork
+          smartLink: false
+          privateNetwork: false
+          bandwidth:
+              maximumBandwidth: 10000
+              typicalBandwidth: 2000
+      delegate_to: localhost
+    - debug: msg="{{oneview_enet_bulk | map(attribute='name') | list }}"
