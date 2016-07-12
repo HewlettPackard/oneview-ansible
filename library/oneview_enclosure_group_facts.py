@@ -39,8 +39,8 @@ options:
         - Enclosure Group name.
       required: false
 notes:
-    - A sample configuration file for the config parameter can be found at&colon;
-      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+    - "A sample configuration file for the config parameter can be found at:
+      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
 '''
 
 EXAMPLES = '''
@@ -85,7 +85,7 @@ class EnclosureGroupFactsModule(object):
 
     def run(self):
         try:
-            if 'name' in self.module.params and self.module.params['name']:
+            if self.module.params.get('name'):
                 enclosure_group = self.oneview_client.enclosure_groups.get_by('name', self.module.params['name'])
             else:
                 enclosure_group = self.oneview_client.enclosure_groups.get_all()

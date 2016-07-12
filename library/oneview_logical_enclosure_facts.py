@@ -39,8 +39,8 @@ options:
         - Logical Enclosure name.
       required: false
 notes:
-    - A sample configuration file for the config parameter can be found at&colon;
-      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+    - "A sample configuration file for the config parameter can be found at:
+      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
 '''
 
 EXAMPLES = '''
@@ -85,7 +85,7 @@ class LogicalEnclosureFactsModule(object):
 
     def run(self):
         try:
-            if 'name' in self.module.params and self.module.params['name']:
+            if self.module.params.get('name'):
                 logical_enclosure = self.oneview_client.logical_enclosures.get_by('name', self.module.params['name'])
             else:
                 logical_enclosure = self.oneview_client.logical_enclosures.get_all()

@@ -39,11 +39,8 @@ PRESENT_NETWORKS = [{
 
 
 def create_ansible_mock(params):
-    mock_params = mock.Mock()
-    mock_params.__getitem__ = mock.Mock(side_effect=lambda name: params[name])
-
     mock_ansible = mock.Mock()
-    mock_ansible.params = mock_params
+    mock_ansible.params = params
     return mock_ansible
 
 

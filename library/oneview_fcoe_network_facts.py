@@ -40,8 +40,8 @@ options:
         - FCoE Network name.
       required: false
 notes:
-    - A sample configuration file for the config parameter can be found at&colon;
-      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+    - "A sample configuration file for the config parameter can be found at:
+      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
 '''
 
 EXAMPLES = '''
@@ -81,7 +81,7 @@ class FcoeNetworkFactsModule(object):
 
     def run(self):
         try:
-            if self.module.params['name']:
+            if self.module.params.get('name'):
                 self.__get_by_name(self.module.params['name'])
             else:
                 self.__get_all()

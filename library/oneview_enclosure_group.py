@@ -45,8 +45,8 @@ options:
         - List with Enclosure Group properties
       required: true
 notes:
-    - A sample configuration file for the config parameter can be found at&colon;
-      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+    - "A sample configuration file for the config parameter can be found at:
+      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
 '''
 
 EXAMPLES = '''
