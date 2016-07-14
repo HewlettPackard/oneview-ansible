@@ -44,10 +44,10 @@ options:
               'uid_on' turns the UID light on.
               'uid_off' turns the UID light off.
               'device_reset' perform a device reset.
-        choices: ['powered_on', 'powered_off']
-    id:
+        choices: ['powered_on', 'powered_off', 'uid_on', 'uid_off', 'device_reset']
+    name:
       description:
-        - Interconnect ID.
+        - Interconnect name
       required: true
 notes:
     - A sample configuration file for the config parameter can be found at&colon;
@@ -55,17 +55,17 @@ notes:
 '''
 
 EXAMPLES = '''
-- name: Turn the power off for Interconnect d9583219-2f06-4908-979f-66bde4b51294
+- name: Turn the power off for Interconnect named '0000A66102, interconnect 2'
   oneview_interconnect:
     config: "{{ config_file_path }}"
     state: 'powered_off'
-    id: 'd9583219-2f06-4908-979f-66bde4b51294'
+    name: '0000A66102, interconnect 2'
 
-- name: Turn the UID light to 'On' for interconnect d9583219-2f06-4908-979f-66bde4b51294
+- name: Turn the UID light to 'On' for interconnect named '0000A66102, interconnect 2'
   oneview_interconnect:
     config: "{{ config_file_path }}"
     state: 'uid_on'
-    id: 'd9583219-2f06-4908-979f-66bde4b51294'
+    name: '0000A66102, interconnect 2'
 '''
 
 
@@ -83,7 +83,7 @@ class InterconnectModule(object):
                 'device_reset'
             ]
         ),
-        id=dict(required=True, type='str')
+        name=dict(required=True, type='str')
     )
 
     states = dict(
@@ -99,14 +99,15 @@ class InterconnectModule(object):
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
-        state_name = self.module.params['state']
-        state = self.states[state_name]
-
         try:
+            interconnect = self.__get_interconnect()
+            state_name = self.module.params['state']
+            state = self.states[state_name]
+
             if state_name == 'device_reset':
-                changed, resource = self.device_reset(state)
+                changed, resource = self.device_reset(state, interconnect)
             else:
-                changed, resource = self.change_state(state)
+                changed, resource = self.change_state(state, interconnect)
 
             self.module.exit_json(
                 changed=changed,
@@ -115,28 +116,37 @@ class InterconnectModule(object):
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
 
-    def change_state(self, state):
-        interconnect_id = self.module.params['id']
-        resource = self.oneview_client.interconnects.get(interconnect_id)
+    def __get_interconnect(self):
+        interconnect_name = self.module.params['name']
+        interconnects = self.oneview_client.interconnects.get_by('name', interconnect_name) or []
+
+        if not interconnects:
+            self.module.exit_json(
+                changed=False,
+                msg="There is no interconnect named '{}'".format(interconnect_name)
+            )
+
+        return interconnects[0]
+
+    def change_state(self, state, resource):
         changed = False
 
         property_name = state['path'][1:]
 
         if resource[property_name] != state['value']:
-            resource = self.execute_operation(state['path'], state['value'])
+            resource = self.execute_operation(resource, state['path'], state['value'])
             changed = True
 
         return changed, resource
 
-    def device_reset(self, state):
-        resource = self.execute_operation(state['path'], state['value'])
-        return True, resource
+    def device_reset(self, state, resource):
+        updated_resource = self.execute_operation(resource, state['path'], state['value'])
+        return True, updated_resource
 
-    def execute_operation(self, path, value, operation="replace"):
-        interconnect_id = self.module.params['id']
+    def execute_operation(self, resource, path, value, operation="replace"):
 
         return self.oneview_client.interconnects.patch(
-            id_or_uri=interconnect_id,
+            id_or_uri=resource["uri"],
             operation=operation,
             path=path,
             value=value
