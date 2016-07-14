@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
 # Copyright (2016) Hewlett Packard Enterprise Development LP
 #
@@ -21,10 +21,10 @@ from hpOneView.oneview_client import OneViewClient
 
 DOCUMENTATION = '''
 ---
-module: oneview_enclosure_group_facts
-short_description: Retrieve facts about one or more of the OneView Enclosure Groups.
+module: oneview_logical_enclosure_script_facts
+short_description: Retrieve the configuration script associated to an OneView Logical Enclosure.
 description:
-    - Retrieve facts about one or more of the Enclosure Groups from OneView.
+    - Retrieve the configuration script associated to an OneView Logical Enclosure.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -36,69 +36,61 @@ options:
       required: true
     name:
       description:
-        - Enclosure Group name.
-      required: false
+        - Logical Enclosure name.
+      required: true
 notes:
     - "A sample configuration file for the config parameter can be found at:
       https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
 '''
 
 EXAMPLES = '''
-- name: Gather facts about all Enclosure Groups
-  oneview_enclosure_group_facts:
-    config: "{{ config_file_path }}"
+- name: Get Logical Enclosure Script by Logical Enclosure name
+  oneview_logical_enclosure_script_facts:
+    config: "{{ config }}"
+    name: "Encl1"
   delegate_to: localhost
 
-- debug: var=enclosure_group
-
-- name: Gather facts about a Enclosure Group by name
-  oneview_enclosure_group_facts:
-    config: "{{ config_file_path }}"
-    name: "Test Enclosure Group Facts"
-  delegate_to: localhost
-
-- debug: var=enclosure_group
+- debug: var=oneview_logical_enclosure
 '''
 
 RETURN = '''
-oneview_enclosure_group_facts:
-    description: Has all the OneView facts about the Enclosure Groups.
+oneview_logical_enclosure_script_facts:
+    description: Gets the Logical Enclosure script by Logical Enclosure name.
     returned: always, but can be null
     type: complex
 '''
 
 
-class EnclosureGroupFactsModule(object):
+class LogicalEnclosureScriptFactsModule(object):
     argument_spec = {
         "config": {
             "required": True,
             "type": 'str'},
         "name": {
-            "required": False,
+            "required": True,
             "type": 'str'
         }}
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec,
-                                    supports_check_mode=False)
+        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
         try:
-            if self.module.params.get('name'):
-                enclosure_group = self.oneview_client.enclosure_groups.get_by('name', self.module.params['name'])
-            else:
-                enclosure_group = self.oneview_client.enclosure_groups.get_all()
+            logical_enclosure = self.oneview_client.logical_enclosures.get_by_name(self.module.params['name'])
+            script = ''
 
-            self.module.exit_json(changed=False,
-                                  ansible_facts=dict(enclosure_group=enclosure_group))
+            if logical_enclosure:
+                script = self.oneview_client.logical_enclosures.get_script(logical_enclosure['uri'])
+
+            self.module.exit_json(changed=False, ansible_facts=dict(oneview_logical_enclosure_script=script))
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
 
 
 def main():
-    EnclosureGroupFactsModule().run()
+    LogicalEnclosureScriptFactsModule().run()
 
 
 if __name__ == '__main__':

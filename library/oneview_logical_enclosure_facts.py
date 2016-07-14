@@ -19,13 +19,12 @@
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
 
-
 DOCUMENTATION = '''
 ---
-module: oneview_fcoe_network_facts
-short_description: Retrieve facts about one or more of the OneView FCoE Networks.
+module: oneview_logical_enclosure_facts
+short_description: Retrieve facts about one or more of the OneView Logical Enclosures.
 description:
-    - Retrieve facts about one or more of the FCoE Networks from OneView.
+    - Retrieve facts about one or more of the Logical Enclosures from OneView.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -37,7 +36,7 @@ options:
       required: true
     name:
       description:
-        - FCoE Network name.
+        - Logical Enclosure name.
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -45,34 +44,39 @@ notes:
 '''
 
 EXAMPLES = '''
-- name: Gather facts about all FCoE Networks
-  oneview_fcoe_network_facts:
+- name: Gather facts about all Logical Enclosures
+  oneview_logical_enclosure_facts:
     config: "{{ config_file_path }}"
+  delegate_to: localhost
 
-- debug: var=fcoe_network
+- debug: var=oneview_logical_enclosure
 
-- name: Gather facts about a FCoE Network by name
-  oneview_fcoe_network_facts:
+- name: Gather facts about a Logical Enclosure by name
+  oneview_logical_enclosure_facts:
     config: "{{ config_file_path }}"
-    name: "Test FCoE Network Facts"
+    name: "Encl1"
+  delegate_to: localhost
 
-- debug: var=fcoe_network
+- debug: var=oneview_logical_enclosure
 '''
 
 RETURN = '''
-oneview_fcoe_network_facts:
-    description: Has all the OneView facts about the FCoE Networks.
+oneview_logical_enclosure_facts:
+    description: Has all the OneView facts about the Logical Enclosures.
     returned: always, but can be null
     type: complex
 '''
 
 
-class FcoeNetworkFactsModule(object):
-
-    argument_spec = dict(
-        config=dict(required=True, type='str'),
-        name=dict(required=False, type='str')
-    )
+class LogicalEnclosureFactsModule(object):
+    argument_spec = {
+        "config": {
+            "required": True,
+            "type": 'str'},
+        "name": {
+            "required": False,
+            "type": 'str'
+        }}
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec,
@@ -82,28 +86,19 @@ class FcoeNetworkFactsModule(object):
     def run(self):
         try:
             if self.module.params.get('name'):
-                self.__get_by_name(self.module.params['name'])
+                logical_enclosure = self.oneview_client.logical_enclosures.get_by('name', self.module.params['name'])
             else:
-                self.__get_all()
+                logical_enclosure = self.oneview_client.logical_enclosures.get_all()
+
+            self.module.exit_json(changed=False,
+                                  ansible_facts=dict(onveview_logical_enclosure=logical_enclosure))
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
 
-    def __get_by_name(self, name):
-        fcoe_network = self.oneview_client.fcoe_networks.get_by('name', name)
-
-        self.module.exit_json(changed=False,
-                              ansible_facts=dict(fcoe_network=fcoe_network))
-
-    def __get_all(self):
-        fcoe_network = self.oneview_client.fcoe_networks.get_all()
-
-        self.module.exit_json(changed=False,
-                              ansible_facts=dict(fcoe_network=fcoe_network))
-
 
 def main():
-    FcoeNetworkFactsModule().run()
+    LogicalEnclosureFactsModule().run()
 
 
 if __name__ == '__main__':
