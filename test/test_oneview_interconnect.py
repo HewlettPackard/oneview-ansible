@@ -52,7 +52,6 @@ def mock_ansible_module_instance(ansible_arguments, mock_ansible_module):
 
 
 class InterconnectPowerStateSpec(unittest.TestCase):
-
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_interconnect.AnsibleModule')
     def test_should_ensure_powered_on_state(self, mock_ansible_module, mock_ov_from_file):
@@ -165,7 +164,6 @@ class InterconnectPowerStateSpec(unittest.TestCase):
             changed=False,
             ansible_facts=dict(interconnect=fake_interconnect)
         )
-
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_interconnect.AnsibleModule')

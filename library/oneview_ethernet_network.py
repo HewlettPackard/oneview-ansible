@@ -72,6 +72,20 @@ EXAMPLES = '''
     state: absent
     data:
       name: 'New Ethernet Network'
+
+- name: Create Ethernet networks in bulk
+  oneview_ethernet_network:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      vlanIdRange: '1-10,15,17'
+      purpose: General
+      namePrefix: TestNetwork
+      smartLink: false
+      privateNetwork: false
+      bandwidth:
+        maximumBandwidth: 10000
+        typicalBandwidth: 2000
 '''
 
 ETHERNET_NETWORK_CREATED = 'Ethernet Network created sucessfully.'
@@ -79,6 +93,9 @@ ETHERNET_NETWORK_UPDATED = 'Ethernet Network updated sucessfully.'
 ETHERNET_NETWORK_DELETED = 'Ethernet Network deleted sucessfully.'
 ETHERNET_NETWORK_ALREADY_EXIST = 'Ethernet Network already exists.'
 ETHERNET_NETWORK_ALREADY_ABSENT = 'Nothing to do.'
+ETHERNET_NETWORKS_CREATED = 'Ethernet Networks created sucessfully.'
+MISSING_ETHERNET_NETWORKS_CREATED = 'Some missing Ethernet Networks were created sucessfully.'
+ETHERNET_NETWORKS_ALREADY_EXIST = 'The specified Ethernet Networks already exist.'
 
 
 class EthernetNetworkModule(object):
@@ -101,7 +118,10 @@ class EthernetNetworkModule(object):
 
         try:
             if state == 'present':
-                self.__present(data)
+                if data.get('vlanIdRange'):
+                    self.__bulk_present(data)
+                else:
+                    self.__present(data)
             elif state == 'absent':
                 self.__absent(data)
 
@@ -129,6 +149,33 @@ class EthernetNetworkModule(object):
                                   msg=ETHERNET_NETWORK_DELETED)
         else:
             self.module.exit_json(changed=False, msg=ETHERNET_NETWORK_ALREADY_ABSENT)
+
+    def __bulk_present(self, data):
+        existent_enets = self.oneview_client.ethernet_networks.get_range(data['namePrefix'], data['vlanIdRange'])
+        vlan_id_range = data['vlanIdRange']
+
+        if not existent_enets:
+            new_ethernet_networks = self.oneview_client.ethernet_networks.create_bulk(data)
+            self.module.exit_json(changed=True, msg=ETHERNET_NETWORKS_CREATED,
+                                  ansible_facts=dict(oneview_enet_bulk=new_ethernet_networks))
+        else:
+            vlan_ids = self.oneview_client.ethernet_networks.dissociate_values_or_ranges(vlan_id_range)
+            for net in existent_enets[:]:
+                vlan_ids.remove(net['vlanId'])
+
+            if len(vlan_ids) == 0:
+                self.module.exit_json(changed=False, msg=ETHERNET_NETWORKS_ALREADY_EXIST,
+                                      ansible_facts=dict(oneview_enet_bulk=existent_enets))
+            else:
+                if len(vlan_ids) == 1:
+                    data['vlanIdRange'] = '{0}-{1}'.format(vlan_ids[0], vlan_ids[0])
+                else:
+                    data['vlanIdRange'] = ','.join(map(str, vlan_ids))
+
+                self.oneview_client.ethernet_networks.create_bulk(data)
+                enets = self.oneview_client.ethernet_networks.get_range(data['namePrefix'], vlan_id_range)
+                self.module.exit_json(changed=True, msg=MISSING_ETHERNET_NETWORKS_CREATED,
+                                      ansible_facts=dict(oneview_enet_bulk=enets))
 
     def __create(self, data):
         new_ethernet_network = self.oneview_client.ethernet_networks.create(data)
