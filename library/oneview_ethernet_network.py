@@ -39,9 +39,7 @@ options:
             - Indicates the desired state for the Ethernet Network resource.
               'present' will ensure data properties are compliant to OneView.
               'absent' will remove the resource from OneView, if it exists.
-              'bulk_created' will create Ethernet networks in bulk with the given VLAN ID specified as a combination
-              of values or ranges
-        choices: ['present', 'absent', 'bulk_created']
+        choices: ['present', 'absent']
     data:
       description:
         - List with Ethernet Network properties
@@ -78,7 +76,7 @@ EXAMPLES = '''
 - name: Create Ethernet networks in bulk
   oneview_ethernet_network:
     config: "{{ config_file_path }}"
-    state: bulk_created
+    state: present
     data:
       vlanIdRange: '1-10,15,17'
       purpose: General
@@ -105,7 +103,7 @@ class EthernetNetworkModule(object):
         config=dict(required=True, type='str'),
         state=dict(
             required=True,
-            choices=['present', 'absent', 'bulk_created']
+            choices=['present', 'absent']
         ),
         data=dict(required=True, type='dict')
     )
@@ -119,10 +117,11 @@ class EthernetNetworkModule(object):
         data = self.module.params['data']
 
         try:
-            if state == 'bulk_created':
-                self.__bulk_present(data)
-            elif state == 'present':
-                self.__present(data)
+            if state == 'present':
+                if data.get('vlanIdRange'):
+                    self.__bulk_present(data)
+                else:
+                    self.__present(data)
             elif state == 'absent':
                 self.__absent(data)
 
@@ -168,7 +167,11 @@ class EthernetNetworkModule(object):
                 self.module.exit_json(changed=False, msg=ETHERNET_NETWORKS_ALREADY_EXIST,
                                       ansible_facts=dict(oneview_enet_bulk=existent_enets))
             else:
-                data['vlanIdRange'] = ','.join(map(str, vlan_ids))
+                if len(vlan_ids) == 1:
+                    data['vlanIdRange'] = '{0}-{1}'.format(vlan_ids[0], vlan_ids[0])
+                else:
+                    data['vlanIdRange'] = ','.join(map(str, vlan_ids))
+
                 self.oneview_client.ethernet_networks.create_bulk(data)
                 enets = self.oneview_client.ethernet_networks.get_range(data['namePrefix'], vlan_id_range)
                 self.module.exit_json(changed=True, msg=MISSING_ETHERNET_NETWORKS_CREATED,

@@ -64,7 +64,7 @@ PARAMS_FOR_ABSENT = dict(
 
 PARAMS_FOR_BULK_CREATED = dict(
     config='config.json',
-    state='bulk_created',
+    state='present',
     data=dict(namePrefix="TestNetwork", vlanIdRange="1-2,5,9-10")
 )
 
@@ -259,7 +259,7 @@ class EthernetNetworkErrorHandlingSpec(unittest.TestCase):
         )
 
 
-class EthernetNetworkBulkCreatedStateSpec(unittest.TestCase):
+class EthernetNetworkStateBulkSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_ethernet_network.AnsibleModule')
     def test_should_create_all_ethernet_networks(self, mock_ansible_module, mock_ov_client_from_json_file):
