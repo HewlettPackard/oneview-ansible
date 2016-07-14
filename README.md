@@ -58,7 +58,7 @@ $ git clone https://github.com/HewlettPackard/oneview-ansible.git
 
 Set the `ANSIBLE_LIBRARY` path, specifying the full path for the cloned project:
 ```bash
-$ export ANSIBLE_LIBRARY=/path/to/oneview-ansible
+$ export ANSIBLE_LIBRARY=/path/to/oneview-ansible/library
 ```
 
 **Configuration file**
