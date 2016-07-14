@@ -74,7 +74,7 @@ exit_code_tests=$?
 
 echo -e "\n${COLOR_START}Running flake8${COLOR_END}"
 if hash flake8 2>/dev/null; then
-  flake8 library test --max-line-length=120 --ignore=F403
+  flake8 library test --max-line-length=120 --ignore=F403,F405
   exit_code_flake8=$?
 else
   echo "ERROR:flake8 is not installed."
