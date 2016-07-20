@@ -14,10 +14,14 @@
 # limitations under the License.
 ###
 ---
-enclosure_hostname: ''
-enclosure_username: ''
-enclosure_password: ''
-enclosure_group_uri: ''
-storage_system_ip_hostname: ''
-storage_system_username: ''
-storage_system_password: ''
+- hosts: all
+  vars:
+    - config: "{{ playbook_dir }}/oneview_config.json"
+  tasks:
+    - name: Gather facts about Storage System - Host Types
+      oneview_storage_system_host_types_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=oneview_storage_host_types_facts
+
