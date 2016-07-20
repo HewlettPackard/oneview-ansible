@@ -17,11 +17,27 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
+    - interconnect_name: 'Encl1, interconnect 1' # provide your interconnect name here
+    - port_name: '' # provide your interconnect port_name
   tasks:
-    - name: Gather facts about statistics for the Interconnect named 'Encl1, interconnect 1'
+    - name: Fail if interconnect_name is undefined
+      fail: msg="To run this example you must define the vars first"
+      when: not interconnect_name
+
+    - name: Gather facts about statistics for the Interconnect that matches the specified name
       oneview_interconnect_statistics_facts:
         config: "{{ config }}"
-        name: 'Encl1, interconnect 1'
+        name: "{{ interconnect_name }}"
       delegate_to: localhost
 
     - debug: var=interconnect_statistics
+
+    - name: Get the port statistics for the specified interconnect name and port name
+      oneview_interconnect_statistics_facts:
+        config: "{{ config }}"
+        name: "{{ interconnect_name }}"
+        port_name: "{{ port_name }}"
+      when: port_name
+      delegate_to: localhost
+
+    - debug: var=port_statistics

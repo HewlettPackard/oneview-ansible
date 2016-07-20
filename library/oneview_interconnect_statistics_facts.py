@@ -38,6 +38,10 @@ options:
       description:
         - Interconnect name
       required: True
+    port_name:
+      description:
+        - Interconnect name
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
       https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
@@ -56,15 +60,21 @@ EXAMPLES = '''
 RETURN = '''
 interconnect_statistics:
     description: Has all the OneView facts about the Interconnect Statistics.
-    returned: always, but can be null
-    type: complex
+    returned: if port_name is undefined
+    type: dict
+
+port_statistics:
+    description: Has all the OneView facts about the Interconnect Statistics.
+    returned: if port name is defined
+    type: dict
 '''
 
 
 class InterconnectStatisticsFactsModule(object):
     argument_spec = dict(
         config=dict(required=True, type='str'),
-        name=dict(required=True, type='str')
+        name=dict(required=True, type='str'),
+        port_name=dict(required=False, type='str')
     )
 
     def __init__(self):
@@ -73,24 +83,37 @@ class InterconnectStatisticsFactsModule(object):
 
     def run(self):
         try:
-            interconnect = self.__get_interconnect()
-            interconnect_statistics = self.oneview_client.interconnects.get_statistics(interconnect["uri"])
+            interconnect_statistics = None
+            port_statistics = None
+
+            interconnect_uri = self.__get_interconnect_uri()
+            port_name = self.module.params['port_name']
+
+            if port_name:
+                port_statistics = self.oneview_client.interconnects.get_statistics(
+                    id_or_uri=interconnect_uri, port_name=port_name
+                )
+            else:
+                interconnect_statistics = self.oneview_client.interconnects.get_statistics(id_or_uri=interconnect_uri)
 
             self.module.exit_json(
                 changed=False,
-                ansible_facts=dict(interconnect_statistics=interconnect_statistics)
+                ansible_facts=dict(
+                    interconnect_statistics=interconnect_statistics,
+                    port_statistics=port_statistics
+                )
             )
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
 
-    def __get_interconnect(self):
+    def __get_interconnect_uri(self):
         name = self.module.params["name"]
         interconnect = self.oneview_client.interconnects.get_by_name(name)
 
         if not interconnect:
             raise Exception("There is no interconnect named {}".format(name))
 
-        return interconnect
+        return interconnect["uri"]
 
 
 def main():
