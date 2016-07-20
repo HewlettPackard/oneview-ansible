@@ -18,7 +18,6 @@
 
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
-import os
 
 DOCUMENTATION = '''
 ---
@@ -26,6 +25,8 @@ module: oneview_firmware_bundle
 short_description: Upload OneView Firmware Bundles resources.
 description:
     - Upload an SPP ISO image file or a hotfix file to the appliance.
+notes:
+   - "This module is non-idempotent"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -59,7 +60,6 @@ EXAMPLES = '''
 '''
 
 FIRMWARE_BUNDLE_UPLOADED = 'Firmware Bundle uploaded sucessfully.'
-FIRMWARE_BUNDLE_ALREADY_EXIST = 'Firmware Driver already exists.'
 
 
 class FirmwareBundleModule(object):
@@ -77,31 +77,13 @@ class FirmwareBundleModule(object):
         file_path = self.module.params['file_path']
 
         try:
-            self.__present(file_path)
+            new_firmware = self.oneview_client.firmware_bundles.upload(file_path)
+            self.module.exit_json(changed=True,
+                                  msg=FIRMWARE_BUNDLE_UPLOADED,
+                                  ansible_facts=dict(oneview_firmware_bundle=new_firmware))
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
-
-    def __present(self, file_path):
-        file_name = os.path.basename(file_path)
-        resource = self.__get_by_name_file_name(file_name)
-
-        if not resource:
-            self.__upload(file_path)
-        else:
-            self.module.exit_json(changed=False,
-                                  msg=FIRMWARE_BUNDLE_ALREADY_EXIST,
-                                  ansible_facts=dict(oneview_firmware_bundle=resource))
-
-    def __upload(self, file_path):
-        new_firmware = self.oneview_client.firmware_bundles.upload(file_path)
-
-        self.module.exit_json(changed=True,
-                              msg=FIRMWARE_BUNDLE_UPLOADED,
-                              ansible_facts=dict(oneview_firmware_bundle=new_firmware))
-
-    def __get_by_name_file_name(self, file_name):
-        return self.oneview_client.firmware_drivers.get_by_file_name(file_name)
 
 
 def main():

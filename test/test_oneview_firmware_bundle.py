@@ -18,7 +18,7 @@ import mock
 
 from hpOneView.oneview_client import OneViewClient
 from oneview_firmware_bundle import FirmwareBundleModule
-from oneview_firmware_bundle import FIRMWARE_BUNDLE_UPLOADED, FIRMWARE_BUNDLE_ALREADY_EXIST
+from oneview_firmware_bundle import FIRMWARE_BUNDLE_UPLOADED
 
 FAKE_MSG_ERROR = 'Fake message error'
 DEFAULT_FIRMWARE_FILE_PATH = '/path/to/file.rpm'
@@ -70,42 +70,8 @@ class FirmwareBundlePresentStateSpec(unittest.TestCase):
             ansible_facts=dict(oneview_firmware_bundle=DEFAULT_FIRMWARE_TEMPLATE)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_firmware_bundle.AnsibleModule')
-    def test_should_not_upload(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.firmware_drivers.get_by_file_name.return_value = DEFAULT_FIRMWARE_TEMPLATE
-
-        mock_from_json.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        FirmwareBundleModule().run()
-
-        mock_ansible_instance.exit_json.assert_called_once_with(
-            changed=False,
-            msg=FIRMWARE_BUNDLE_ALREADY_EXIST,
-            ansible_facts=dict(oneview_firmware_bundle=DEFAULT_FIRMWARE_TEMPLATE)
-        )
-
 
 class FirmwareBundleErrorHandlingSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_firmware_bundle.AnsibleModule')
-    def test_should_call_fail_json_when_get_by_raises_exception(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.firmware_drivers.get_by_file_name.side_effect = Exception(FAKE_MSG_ERROR)
-
-        mock_from_json.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        self.assertRaises(Exception, FirmwareBundleModule().run())
-
-        mock_ansible_instance.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_firmware_bundle.AnsibleModule')
     def test_should_call_fail_json_when_upload_raises_exception(self, mock_ansible_module, mock_from_json):
