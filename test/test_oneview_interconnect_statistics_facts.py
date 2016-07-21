@@ -27,16 +27,27 @@ INTERCONNECT_URI = "/rest/interconnects/53fa7d35-1cc8-46c1-abf0-6af091a1aed3"
 
 PORT_NAME = "d1"
 
+SUBPORT_NUMBER = 1
+
 PARAMS = dict(
     config='config.json',
     name=INTERCONNECT_NAME,
-    port_name=None
+    port_name=None,
+    subport_number=None
 )
 
 PARAMS_FOR_PORT_STATISTICS = dict(
     config='config.json',
     name=INTERCONNECT_NAME,
-    port_name=PORT_NAME
+    port_name=PORT_NAME,
+    subport_number=None
+)
+
+PARAMS_FOR_SUBPORT_STATISTICS = dict(
+    config='config.json',
+    name=INTERCONNECT_NAME,
+    port_name=PORT_NAME,
+    subport_number=SUBPORT_NUMBER
 )
 
 
@@ -46,6 +57,7 @@ def create_ansible_mock(params):
 
     mock_ansible = mock.Mock()
     mock_ansible.params = mock_params
+
     return mock_ansible
 
 
@@ -82,7 +94,8 @@ class InterconnectStatisticsFactsSpec(unittest.TestCase):
             changed=False,
             ansible_facts=dict(
                 interconnect_statistics=fake_statistics,
-                port_statistics=None
+                port_statistics=None,
+                subport_statistics=None
             )
         )
 
@@ -127,7 +140,39 @@ class InterconnectStatisticsFactsSpec(unittest.TestCase):
             changed=False,
             ansible_facts=dict(
                 interconnect_statistics=None,
-                port_statistics=fake_statistics
+                port_statistics=fake_statistics,
+                subport_statistics=None
+            )
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_interconnect_statistics_facts.AnsibleModule')
+    def test_should_gather_facts_about_interconnect_subport_statistics(self, mock_ansible_module, mock_ov_from_file):
+        fake_statistics = dict(name='test')
+        fake_interconnect = dict(uidState='On', uri=INTERCONNECT_URI)
+
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.interconnects.get_by_name.return_value = fake_interconnect
+        mock_ov_instance.interconnects.get_subport_statistics.return_value = fake_statistics
+
+        mock_ov_from_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_SUBPORT_STATISTICS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        InterconnectStatisticsFactsModule().run()
+
+        mock_ov_instance.interconnects.get_subport_statistics.assert_called_once_with(
+            id_or_uri=INTERCONNECT_URI,
+            port_name=PORT_NAME,
+            subport_number=SUBPORT_NUMBER
+        )
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                interconnect_statistics=None,
+                port_statistics=None,
+                subport_statistics=fake_statistics
             )
         )
 

@@ -37,7 +37,7 @@ options:
     name:
       description:
         - Interconnect name
-      required: True
+      required: true
     port_name:
       description:
         - Interconnect name
@@ -60,21 +60,28 @@ EXAMPLES = '''
 RETURN = '''
 interconnect_statistics:
     description: Has all the OneView facts about the Interconnect Statistics.
-    returned: if port_name is undefined
+    returned: If port_name is undefined
     type: dict
 
 port_statistics:
-    description: Has all the OneView facts about the Interconnect Statistics.
-    returned: if port name is defined
+    description: Statistics for the specified port name on an interconnect.
+    returned: If port name is defined
+    type: dict
+
+subport_statistics:
+    description: The subport statistics on an interconnect
+    returned: If subport_number is defined
     type: dict
 '''
 
 
 class InterconnectStatisticsFactsModule(object):
+
     argument_spec = dict(
         config=dict(required=True, type='str'),
         name=dict(required=True, type='str'),
-        port_name=dict(required=False, type='str')
+        port_name=dict(required=False, type='str'),
+        subport_number=dict(required=False, type='int')
     )
 
     def __init__(self):
@@ -85,13 +92,22 @@ class InterconnectStatisticsFactsModule(object):
         try:
             interconnect_statistics = None
             port_statistics = None
+            subport_statistics = None
 
             interconnect_uri = self.__get_interconnect_uri()
             port_name = self.module.params['port_name']
+            subport_number = self.module.params['subport_number']
 
-            if port_name:
+            if subport_number:
+                subport_statistics = self.oneview_client.interconnects.get_subport_statistics(
+                    id_or_uri=interconnect_uri,
+                    port_name=port_name,
+                    subport_number=subport_number
+                )
+            elif port_name:
                 port_statistics = self.oneview_client.interconnects.get_statistics(
-                    id_or_uri=interconnect_uri, port_name=port_name
+                    id_or_uri=interconnect_uri,
+                    port_name=port_name
                 )
             else:
                 interconnect_statistics = self.oneview_client.interconnects.get_statistics(id_or_uri=interconnect_uri)
@@ -100,7 +116,8 @@ class InterconnectStatisticsFactsModule(object):
                 changed=False,
                 ansible_facts=dict(
                     interconnect_statistics=interconnect_statistics,
-                    port_statistics=port_statistics
+                    port_statistics=port_statistics,
+                    subport_statistics=subport_statistics
                 )
             )
         except Exception as exception:

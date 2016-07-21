@@ -19,6 +19,7 @@
     - config: "{{ playbook_dir }}/oneview_config.json"
     - interconnect_name: 'Encl1, interconnect 1' # provide your interconnect name here
     - port_name: '' # provide your interconnect port_name
+    # provide a subport_number
   tasks:
     - name: Fail if interconnect_name is undefined
       fail: msg="To run this example you must define the vars first"
@@ -37,7 +38,20 @@
         config: "{{ config }}"
         name: "{{ interconnect_name }}"
         port_name: "{{ port_name }}"
-      when: port_name
+      when: port_name is defined
       delegate_to: localhost
 
     - debug: var=port_statistics
+      when: port_name is defined
+
+    - name: Get the subport statistics
+      oneview_interconnect_statistics_facts:
+        config: "{{ config }}"
+        name: "{{ interconnect_name }}"
+        port_name: "{{ port_name }}"
+        subport_number: "{{ subport_number }}"
+      when: port_name is defined and subport_number is defined
+      delegate_to: localhost
+
+    - debug: var=subport_statistics
+      when: port_name is defined and subport_number is defined
