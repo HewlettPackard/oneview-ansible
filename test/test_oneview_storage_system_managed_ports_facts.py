@@ -18,7 +18,8 @@ import unittest
 import mock
 
 from hpOneView.oneview_client import OneViewClient
-from oneview_storage_system_pools_facts import StorageSystemPoolsFactsModule, STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING, \
+from oneview_storage_system_managed_ports_facts import StorageSystemManagedPortsFactsModule, \
+    STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING, \
     STORAGE_SYSTEM_NOT_FOUND
 
 ERROR_MSG = 'Fake message error'
@@ -44,30 +45,34 @@ def create_ansible_mock(dict_params):
     return mock_ansible
 
 
-class StorageSystemPoolsFactsSpec(unittest.TestCase):
+class StorageSystemManagedPortsFactsSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_pools_facts.AnsibleModule')
-    def test_should_get_storage_pools_system_by_name(self, mock_ansible_module,
-                                                     mock_ov_client_from_json_file):
+    @mock.patch('oneview_storage_system_managed_ports_facts.AnsibleModule')
+    def test_should_get_storage_system_man_ports_by_name(self, mock_ansible_module,
+                                                         mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_systems.get_by_name.return_value = {"name": "Storage System Name",
-                                                                     "uri": "uri"}
-        mock_ov_instance.storage_systems.get_storage_pools.return_value = {"name": "Storage Pool"}
+                                                                     "uri": "uri",
+                                                                     "managedPorts": [
+                                                                         {"name": "port1"}
+                                                                     ]}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
         mock_ansible_module.return_value = mock_ansible_instance
 
-        StorageSystemPoolsFactsModule().run()
+        StorageSystemManagedPortsFactsModule().run()
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_storage_pools_facts=({"name": "Storage Pool"}))
+            ansible_facts=dict(oneview_storage_system_managed_ports_facts=([
+                {"name": "port1"}
+            ]))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_pools_facts.AnsibleModule')
+    @mock.patch('oneview_storage_system_managed_ports_facts.AnsibleModule')
     def test_should_fail_when_get_by_name_raises_error(self,
                                                        mock_ansible_module,
                                                        mock_ov_client_from_json_file):
@@ -79,68 +84,73 @@ class StorageSystemPoolsFactsSpec(unittest.TestCase):
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
         mock_ansible_module.return_value = mock_ansible_instance
 
-        StorageSystemPoolsFactsModule().run()
+        StorageSystemManagedPortsFactsModule().run()
 
         mock_ansible_instance.fail_json.assert_called_once()
 
     @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_pools_facts.AnsibleModule')
-    def test_should_get_storage_system_pools_by_ip_hostname(self, mock_ansible_module,
-                                                            mock_ov_client_from_json_file):
+    @mock.patch('oneview_storage_system_managed_ports_facts.AnsibleModule')
+    def test_should_get_storage_system_man_ports_by_ip_hostname(self, mock_ansible_module,
+                                                                mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_systems.get_by_ip_hostname.return_value = {"ip_hostname": "10.0.0.0",
-                                                                            "uri": "uri"}
-        mock_ov_instance.storage_systems.get_storage_pools.return_value = {"name": "Storage Pool"}
+                                                                            "uri": "uri",
+                                                                            "managedPorts": [
+                                                                                {"name": "port1"}
+                                                                            ]}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_IP_HOSTNAME)
         mock_ansible_module.return_value = mock_ansible_instance
 
-        StorageSystemPoolsFactsModule().run()
+        StorageSystemManagedPortsFactsModule().run()
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_storage_pools_facts=({"name": "Storage Pool"}))
+            ansible_facts=dict(oneview_storage_system_managed_ports_facts=([
+                {"name": "port1"}
+            ]))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_pools_facts.AnsibleModule')
-    def test_get_storage_system_pool_by_ip_hostname_mandatory_missing(self, mock_ansible_module,
-                                                                      mock_ov_client_from_json_file):
+    @mock.patch('oneview_storage_system_managed_ports_facts.AnsibleModule')
+    def test_should_fail_when_storage_system_managed_ports_by_ip_hostname_mandatory_missing(
+            self,
+            mock_ansible_module,
+            mock_ov_client_from_json_file):
+
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_systems.get_by_ip_hostname.return_value = {"ip_hostname": "10.0.0.0",
                                                                             "uri": "uri"}
-        mock_ov_instance.storage_systems.get_storage_pools.return_value = {"name": "Storage Pool"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         mock_ansible_instance = create_ansible_mock(PARAMS_MANDATORY_MISSING)
         mock_ansible_module.return_value = mock_ansible_instance
 
-        StorageSystemPoolsFactsModule().run()
+        StorageSystemManagedPortsFactsModule().run()
 
         mock_ansible_instance.fail_json.assert_called_once_with(msg=STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING)
 
     @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_pools_facts.AnsibleModule')
-    def test_get_storage_system_pool_by_ip_hostname_pool_not_found(self, mock_ansible_module,
-                                                                   mock_ov_client_from_json_file):
+    @mock.patch('oneview_storage_system_managed_ports_facts.AnsibleModule')
+    def test_should_fail_when_storage_system_managed_ports_by_ip_hostname_pool_not_found(self, mock_ansible_module,
+                                                                                         mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_systems.get_by_ip_hostname.return_value = {}
-        mock_ov_instance.storage_systems.get_storage_pools.return_value = {"name": "Storage Pool"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_IP_HOSTNAME)
         mock_ansible_module.return_value = mock_ansible_instance
 
-        StorageSystemPoolsFactsModule().run()
+        StorageSystemManagedPortsFactsModule().run()
 
         mock_ansible_instance.fail_json.assert_called_once_with(msg=STORAGE_SYSTEM_NOT_FOUND)
 
     @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_pools_facts.AnsibleModule')
+    @mock.patch('oneview_storage_system_managed_ports_facts.AnsibleModule')
     def test_should_fail_when_get_by_ip_hostname_raises_error(self,
                                                               mock_ansible_module,
                                                               mock_ov_client_from_json_file):
@@ -152,7 +162,7 @@ class StorageSystemPoolsFactsSpec(unittest.TestCase):
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_IP_HOSTNAME)
         mock_ansible_module.return_value = mock_ansible_instance
 
-        StorageSystemPoolsFactsModule().run()
+        StorageSystemManagedPortsFactsModule().run()
 
         mock_ansible_instance.fail_json.assert_called_once()
 

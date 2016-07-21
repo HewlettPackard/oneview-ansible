@@ -21,9 +21,9 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_storage_system_pools_facts
-short_description: Retrieve facts about Storage Pools of the OneView Storage System.
+short_description: Retrieve facts about Managed Ports of the OneView Storage System.
 description:
-    - Retrieve facts about Storage Pools of the Storage Systems from OneView.
+    - Retrieve facts about Managed Ports of the Storage Systems from OneView.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -47,26 +47,27 @@ notes:
 '''
 
 EXAMPLES = '''
-- name: Gather facts about Storage Pools of a Storage System by IP
-  oneview_storage_system_pools_facts:
+- name: Gather facts about managed ports by Storage System IP
+  oneview_storage_system_managed_ports_facts:
     config: "{{ config }}"
     ip_hostname: "172.18.11.12"
   delegate_to: localhost
 
-- debug: var=oneview_storage_pools_facts
+- debug: var=oneview_storage_system_managed_ports_facts
 
-- name: Gather facts about Storage Pools of a Storage System by name
-  oneview_storage_system_pools_facts:
+
+- name: Gather facts about managed ports by Storage System Name
+  oneview_storage_system_managed_ports_facts:
     config: "{{ config }}"
     name: "ThreePAR7200-4555"
   delegate_to: localhost
 
-- debug: var=oneview_storage_pools_facts
+- debug: var=oneview_storage_system_managed_ports_facts
 '''
 
 RETURN = '''
-oneview_storage_system_pools_facts:
-    description: Has all the OneView facts about the Storage Systems - Storage Pools.
+oneview_storage_system_managed_ports_facts:
+    description: Has all Managed Ports facts about the OneView Storage Systems.
     returned: always, but can be null
     type: complex
 '''
@@ -75,7 +76,7 @@ STORAGE_SYSTEM_NOT_FOUND = 'Storage System was not found.'
 STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING = 'At least one mandatory field must be provided: name or ip_hostname.'
 
 
-class StorageSystemPoolsFactsModule(object):
+class StorageSystemManagedPortsFactsModule(object):
     argument_spec = {
         "config": {
             "required": True,
@@ -107,17 +108,17 @@ class StorageSystemPoolsFactsModule(object):
             if not storage_system:
                 raise Exception(STORAGE_SYSTEM_NOT_FOUND)
 
-            storage_pools = self.oneview_client.storage_systems.get_storage_pools(storage_system['uri'])
-
             self.module.exit_json(changed=False,
-                                  ansible_facts=dict(oneview_storage_pools_facts=storage_pools))
+                                  ansible_facts={
+                                      "oneview_storage_system_managed_ports_facts": storage_system.get('managedPorts')
+                                  })
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
 
 
 def main():
-    StorageSystemPoolsFactsModule().run()
+    StorageSystemManagedPortsFactsModule().run()
 
 
 if __name__ == '__main__':
