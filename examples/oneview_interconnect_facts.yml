@@ -33,3 +33,11 @@
       delegate_to: localhost
 
     - debug: var=interconnects
+
+    - name: Gather facts about the interconnect that matches the specified name and its name servers
+      oneview_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ interconnect_name }}"
+        gather_name_servers: true
+
+    - debug: var=name_servers

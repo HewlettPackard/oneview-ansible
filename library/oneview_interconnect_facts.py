@@ -38,6 +38,11 @@ options:
       description:
         - Interconnect name
       required: false
+    gather_name_servers:
+      description:
+        - If true facts about the name servers will also be gathered.
+      required: false
+      default: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
       https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
@@ -52,12 +57,22 @@ EXAMPLES = '''
   oneview_interconnect_facts:
     config: "{{ config }}"
     name: "{{ interconnect_name }}"
+
+- name: Gather facts about the interconnect that matches the specified name and its name servers
+  oneview_interconnect_facts:
+    config: "{{ config }}"
+    name: "{{ interconnect_name }}"
+    gather_name_servers: true
 '''
 
 RETURN = '''
 interconnects:
     description: The list of interconnects.
     returned: always, but can be null
+    type: list
+name_servers:
+    description: The named servers for an interconnect.
+    returned: When the gather_name_servers is true
     type: list
 '''
 
@@ -66,7 +81,8 @@ class InterconnectFactsModule(object):
 
     argument_spec = dict(
         config=dict(required=True, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        gather_name_servers=dict(required=False, type='bool', default=False)
     )
 
     def __init__(self):
@@ -76,15 +92,22 @@ class InterconnectFactsModule(object):
     def run(self):
         try:
             interconnect_name = self.module.params['name']
+            facts = dict()
 
             if interconnect_name:
                 interconnects = self.oneview_client.interconnects.get_by('name', interconnect_name)
+                facts['interconnects'] = interconnects
+
+                if interconnects and self.module.params['gather_name_servers']:
+                    interconnect_uri = interconnects[0]['uri']
+                    name_servers = self.oneview_client.interconnects.get_name_servers(interconnect_uri)
+                    facts['name_servers'] = name_servers
             else:
-                interconnects = self.oneview_client.interconnects.get_all()
+                facts['interconnects'] = self.oneview_client.interconnects.get_all()
 
             self.module.exit_json(
                 changed=False,
-                ansible_facts=dict(interconnects=interconnects)
+                ansible_facts=facts
             )
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
