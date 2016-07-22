@@ -17,17 +17,27 @@ import unittest
 import mock
 
 from hpOneView.oneview_client import OneViewClient
-from oneview_interconnect import InterconnectModule
+from oneview_interconnect import InterconnectModule, MISSING_KEY_MSG
 
 
 FAKE_URI = "/rest/interconnects/748d4699-62ff-454e-8ec8-773815c4aa2f"
+
+INTERCONNECT_IP = '172.18.1.114'
+
+PARAMS_FOR_RESET_DEVICE_BY_IP = dict(
+    config='config.json',
+    state='device_reset',
+    name=None,
+    ip=INTERCONNECT_IP
+)
 
 
 def create_params_for(power_state):
     return dict(
         config='config.json',
         state=power_state,
-        name='Encl1, interconnect 1'
+        name='Encl1, interconnect 1',
+        ip=None
     )
 
 
@@ -238,6 +248,39 @@ class InterconnectPowerStateSpec(unittest.TestCase):
             changed=False,
             msg=AnyStringWith("There is no interconnect named")
         )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_interconnect.AnsibleModule')
+    def test_should_ensure_device_reset_by_ip_address(self, mock_ansible_module, mock_ov_from_file):
+        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
+        mock_ansible_instance = mock_ansible_module_instance(PARAMS_FOR_RESET_DEVICE_BY_IP, mock_ansible_module)
+
+        mock_ov_instance.interconnects.get_by.return_value = [dict(uri=FAKE_URI)]
+
+        fake_interconnect = dict()
+        mock_ov_instance.interconnects.patch.return_value = fake_interconnect
+
+        InterconnectModule().run()
+
+        mock_ov_instance.interconnects.get_by.assert_called_with('interconnectIP', INTERCONNECT_IP)
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(interconnect=fake_interconnect)
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_interconnect.AnsibleModule')
+    def test_should_fail_when_no_key_is_provided(self, mock_ansible_module, mock_ov_from_file):
+        params = PARAMS_FOR_RESET_DEVICE_BY_IP.copy()
+        params['ip'] = None
+
+        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
+        mock_ansible_instance = mock_ansible_module_instance(params, mock_ansible_module)
+
+        InterconnectModule().run()
+
+        mock_ansible_instance.fail_json.assert_called_once_with(msg=MISSING_KEY_MSG)
 
 
 if __name__ == '__main__':

@@ -48,7 +48,11 @@ options:
     name:
       description:
         - Interconnect name
-      required: true
+      required: false
+    ip:
+      description:
+        - Interconnect IP add
+      required: false
 notes:
     - A sample configuration file for the config parameter can be found at&colon;
       https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
@@ -66,7 +70,15 @@ EXAMPLES = '''
     config: "{{ config_file_path }}"
     state: 'uid_on'
     name: '0000A66102, interconnect 2'
+
+- name: Turn the UID light to 'Off' for interconnect that matches the ip 172.18.1.114
+  oneview_interconnect:
+    config: "{{ config_file_path }}"
+    state: 'uid_on'
+    ip: '172.18.1.114'
 '''
+
+MISSING_KEY_MSG = "You must provide the interconnect name or the interconnect ip address"
 
 
 class InterconnectModule(object):
@@ -83,7 +95,8 @@ class InterconnectModule(object):
                 'device_reset'
             ]
         ),
-        name=dict(required=True, type='str')
+        name=dict(required=False, type='str'),
+        ip=dict(required=False, type='str')
     )
 
     states = dict(
@@ -117,8 +130,15 @@ class InterconnectModule(object):
             self.module.fail_json(msg=exception.message)
 
     def __get_interconnect(self):
+        interconnect_ip = self.module.params['ip']
         interconnect_name = self.module.params['name']
-        interconnects = self.oneview_client.interconnects.get_by('name', interconnect_name) or []
+
+        if interconnect_ip:
+            interconnects = self.oneview_client.interconnects.get_by('interconnectIP', interconnect_ip) or []
+        elif interconnect_name:
+            interconnects = self.oneview_client.interconnects.get_by('name', interconnect_name) or []
+        else:
+            raise Exception(MISSING_KEY_MSG)
 
         if not interconnects:
             self.module.exit_json(
