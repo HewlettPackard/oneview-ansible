@@ -57,6 +57,13 @@ PARAMS_FOR_UPDATE_PORTS = dict(
     ports=PORTS_FOR_UPDATE
 )
 
+PARAMS_FOR_RESET_PORT_PROTECTION = dict(
+    config='config.json',
+    state='reset_port_protection',
+    name=None,
+    ip=INTERCONNECT_IP
+)
+
 
 def create_params_for(power_state):
     return dict(
@@ -299,7 +306,7 @@ class InterconnectPowerStateSpec(unittest.TestCase):
         params = PARAMS_FOR_RESET_DEVICE_BY_IP.copy()
         params['ip'] = None
 
-        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
+        mock_oneview_instance(mock_ov_from_file)
         mock_ansible_instance = mock_ansible_module_instance(params, mock_ansible_module)
 
         InterconnectModule().run()
@@ -320,6 +327,26 @@ class InterconnectPowerStateSpec(unittest.TestCase):
 
         mock_ov_instance.interconnects.get_by.assert_called_with('interconnectIP', INTERCONNECT_IP)
         mock_ov_instance.interconnects.update_ports.assert_called_with(ports=PORTS_FOR_UPDATE, id_or_uri=FAKE_URI)
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(interconnect=fake_interconnect)
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_interconnect.AnsibleModule')
+    def test_should_reset_port_protection(self, mock_ansible_module, mock_ov_from_file):
+        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
+        mock_ansible_instance = mock_ansible_module_instance(PARAMS_FOR_RESET_PORT_PROTECTION, mock_ansible_module)
+
+        fake_interconnect = dict(uri=FAKE_URI)
+        mock_ov_instance.interconnects.get_by.return_value = [fake_interconnect]
+        mock_ov_instance.interconnects.reset_port_protection.return_value = fake_interconnect
+
+        InterconnectModule().run()
+
+        mock_ov_instance.interconnects.get_by.assert_called_with('interconnectIP', INTERCONNECT_IP)
+        mock_ov_instance.interconnects.reset_port_protection.assert_called_with(id_or_uri=FAKE_URI)
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,

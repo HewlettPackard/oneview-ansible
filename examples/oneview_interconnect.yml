@@ -65,3 +65,10 @@
           }
         ]
       delegate_to: localhost
+
+    - name: Triggers a reset of port protection.
+      oneview_interconnect:
+        config: "{{ config }}"
+        state: 'reset_port_protection'
+        ip: '{{ interconnect_ip_for_update }}'
+      delegate_to: localhost
