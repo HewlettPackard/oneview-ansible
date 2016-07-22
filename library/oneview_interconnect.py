@@ -26,7 +26,7 @@ module: oneview_interconnect
 short_description: Manage the OneView Interconnects resources.
 description:
     - Provides an interface to manage the Interconnects power state and the UID light state. Can change power state,
-      UID light state and perform device reset.
+      UID light state, perform device reset, and update the interconnect ports.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -44,6 +44,7 @@ options:
               'uid_on' turns the UID light on.
               'uid_off' turns the UID light off.
               'device_reset' perform a device reset.
+              'update_ports' updates the interconnect ports.
         choices: ['powered_on', 'powered_off', 'uid_on', 'uid_off', 'device_reset']
     name:
       description:
@@ -52,6 +53,10 @@ options:
     ip:
       description:
         - Interconnect IP add
+      required: false
+    ports:
+      description:
+        - List with ports to update. This option should be used together with 'update_ports' state.
       required: false
 notes:
     - A sample configuration file for the config parameter can be found at&colon;
@@ -92,11 +97,13 @@ class InterconnectModule(object):
                 'powered_off',
                 'uid_on',
                 'uid_off',
-                'device_reset'
+                'device_reset',
+                'update_ports'
             ]
         ),
         name=dict(required=False, type='str'),
-        ip=dict(required=False, type='str')
+        ip=dict(required=False, type='str'),
+        ports=dict(required=False, type='list')
     )
 
     states = dict(
@@ -115,12 +122,16 @@ class InterconnectModule(object):
         try:
             interconnect = self.__get_interconnect()
             state_name = self.module.params['state']
-            state = self.states[state_name]
 
-            if state_name == 'device_reset':
-                changed, resource = self.device_reset(state, interconnect)
+            if state_name == 'update_ports':
+                changed, resource = self.update_ports(interconnect)
             else:
-                changed, resource = self.change_state(state, interconnect)
+                state = self.states[state_name]
+
+                if state_name == 'device_reset':
+                    changed, resource = self.device_reset(state, interconnect)
+                else:
+                    changed, resource = self.change_state(state, interconnect)
 
             self.module.exit_json(
                 changed=changed,
@@ -171,6 +182,19 @@ class InterconnectModule(object):
             path=path,
             value=value
         )
+
+    def update_ports(self, resource):
+        ports = self.module.params['ports']
+
+        if not ports:
+            return False, resource
+
+        updated_resource = self.oneview_client.interconnects.update_ports(
+            id_or_uri=resource["uri"],
+            ports=ports
+        )
+
+        return True, updated_resource
 
 
 def main():
