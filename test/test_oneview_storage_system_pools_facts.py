@@ -63,7 +63,7 @@ class StorageSystemPoolsFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_storage_pools_facts=({"name": "Storage Pool"}))
+            ansible_facts=dict(oneview_storage_pools=({"name": "Storage Pool"}))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -101,7 +101,7 @@ class StorageSystemPoolsFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_storage_pools_facts=({"name": "Storage Pool"}))
+            ansible_facts=dict(oneview_storage_pools=({"name": "Storage Pool"}))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')

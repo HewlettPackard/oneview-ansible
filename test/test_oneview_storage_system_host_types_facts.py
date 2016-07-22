@@ -55,7 +55,7 @@ class StorageSystemHostTypesFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_storage_host_types_facts=(HOST_TYPES))
+            ansible_facts=dict(oneview_storage_host_types=(HOST_TYPES))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')

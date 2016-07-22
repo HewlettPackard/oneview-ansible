@@ -61,7 +61,7 @@ class StorageSystemFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_storage_system_facts=({"name": "Storage System Name"}))
+            ansible_facts=dict(oneview_storage_system=({"name": "Storage System Name"}))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -96,7 +96,7 @@ class StorageSystemFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_storage_system_facts=({"name": "Storage System Name"}))
+            ansible_facts=dict(oneview_storage_system=({"name": "Storage System Name"}))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -132,7 +132,7 @@ class StorageSystemFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_storage_system_facts=({"ip_hostname": "10.0.0.0"}))
+            ansible_facts=dict(oneview_storage_system=({"ip_hostname": "10.0.0.0"}))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')

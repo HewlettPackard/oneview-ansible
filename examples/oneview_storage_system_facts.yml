@@ -23,7 +23,7 @@
         config: "{{ config }}"
       delegate_to: localhost
 
-    - debug: var=oneview_storage_system_facts
+    - debug: var=oneview_storage_system
 
 
     - name: Gather facts about a Storage System by IP
@@ -32,7 +32,7 @@
         ip_hostname: "172.18.11.12"
       delegate_to: localhost
 
-    - debug: var=oneview_storage_system_facts
+    - debug: var=oneview_storage_system
 
 
     - name: Gather facts about a Storage System by name
@@ -41,4 +41,4 @@
         name: "ThreePAR7200-4555"
       delegate_to: localhost
 
-    - debug: var=oneview_storage_system_facts
+    - debug: var=oneview_storage_system

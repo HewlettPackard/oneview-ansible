@@ -53,7 +53,7 @@ EXAMPLES = '''
     ip_hostname: "172.18.11.12"
   delegate_to: localhost
 
-- debug: var=oneview_storage_pools_facts
+- debug: var=oneview_storage_pools
 
 - name: Gather facts about Storage Pools of a Storage System by name
   oneview_storage_system_pools_facts:
@@ -61,11 +61,11 @@ EXAMPLES = '''
     name: "ThreePAR7200-4555"
   delegate_to: localhost
 
-- debug: var=oneview_storage_pools_facts
+- debug: var=oneview_storage_pools
 '''
 
 RETURN = '''
-oneview_storage_system_pools_facts:
+oneview_storage_system_pools:
     description: Has all the OneView facts about the Storage Systems - Storage Pools.
     returned: always, but can be null
     type: complex
@@ -110,7 +110,7 @@ class StorageSystemPoolsFactsModule(object):
             storage_pools = self.oneview_client.storage_systems.get_storage_pools(storage_system['uri'])
 
             self.module.exit_json(changed=False,
-                                  ansible_facts=dict(oneview_storage_pools_facts=storage_pools))
+                                  ansible_facts=dict(oneview_storage_pools=storage_pools))
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
