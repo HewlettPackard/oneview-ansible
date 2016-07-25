@@ -17,24 +17,58 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    interconnect_name: "0000A66101, interconnect 2" # change for your interconnect name
+    interconnect_ip: "fe80::5265:f3ff:fedf:248" # change for your interconnect ip address
+    interconnect_ip_for_update: "172.18.1.111" # change for your interconnect ip address with ports to update
+    port_id: "748d4699-62ff-454e-8ec8-773815c4aa2f:d1" # change for your port id
   tasks:
-    - name: Turn the power on for Interconnect named '0000A66102, interconnect 2'
+    - name: Turn the power on for interconnect that matches the specified name
       oneview_interconnect:
         config: "{{ config }}"
         state: 'powered_on'
-        name: '0000A66102, interconnect 2'
+        name: '{{ interconnect_name }}'
       delegate_to: localhost
 
-    - name: Turn the UID light to 'On' for Interconnect named '0000A66102, interconnect 2'
+    - name: Turn the UID light to 'On' for interconnect that matches the specified name
       oneview_interconnect:
         config: "{{ config }}"
         state: 'uid_on'
-        name: '0000A66102, interconnect 2'
+        name: '{{ interconnect_name }}'
       delegate_to: localhost
 
-    - name: Perform a device reset for interconnect named '0000A66102, interconnect 2'
+    - name: Perform a device reset for interconnect that matches the specified name
       oneview_interconnect:
         config: "{{ config }}"
         state: 'device_reset'
-        name: '0000A66102, interconnect 2'
+        name: '{{ interconnect_name }}'
+      delegate_to: localhost
+
+    - name: Turn the power off for interconnect that matches the specified ip
+      oneview_interconnect:
+        config: "{{ config }}"
+        state: 'powered_off'
+        ip: '{{ interconnect_ip }}'
+      delegate_to: localhost
+
+    - name: Updates the interconnect ports
+      oneview_interconnect:
+        config: "{{ config }}"
+        state: 'update_ports'
+        ip: '{{ interconnect_ip_for_update }}'
+        ports: [
+          {
+              "type": "port",
+              "portName": "d1",
+              "bayNumber": 1,
+              "enabled": False,
+              "portId": '{{ port_id }}'
+          }
+        ]
+      delegate_to: localhost
+
+    - name: Triggers a reset of port protection.
+      oneview_interconnect:
+        config: "{{ config }}"
+        state: 'reset_port_protection'
+        ip: '{{ interconnect_ip_for_update }}'
       delegate_to: localhost

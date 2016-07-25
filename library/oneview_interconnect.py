@@ -26,7 +26,7 @@ module: oneview_interconnect
 short_description: Manage the OneView Interconnects resources.
 description:
     - Provides an interface to manage the Interconnects power state and the UID light state. Can change power state,
-      UID light state and perform device reset.
+      UID light state, perform device reset, reset port protection, and update the interconnect ports.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -44,14 +44,32 @@ options:
               'uid_on' turns the UID light on.
               'uid_off' turns the UID light off.
               'device_reset' perform a device reset.
-        choices: ['powered_on', 'powered_off', 'uid_on', 'uid_off', 'device_reset']
+              'update_ports' updates the interconnect ports.
+              'reset_port_protection' triggers a reset of port protection.
+        choices: [
+            'powered_on',
+            'powered_off',
+            'uid_on',
+            'uid_off',
+            'device_reset',
+            'update_ports',
+            'reset_port_protection'
+        ]
     name:
       description:
         - Interconnect name
-      required: true
+      required: false
+    ip:
+      description:
+        - Interconnect IP add
+      required: false
+    ports:
+      description:
+        - List with ports to update. This option should be used together with 'update_ports' state.
+      required: false
 notes:
-    - A sample configuration file for the config parameter can be found at&colon;
-      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+    - "A sample configuration file for the config parameter can be found at:
+      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
 '''
 
 EXAMPLES = '''
@@ -66,7 +84,15 @@ EXAMPLES = '''
     config: "{{ config_file_path }}"
     state: 'uid_on'
     name: '0000A66102, interconnect 2'
+
+- name: Turn the UID light to 'Off' for interconnect that matches the ip 172.18.1.114
+  oneview_interconnect:
+    config: "{{ config_file_path }}"
+    state: 'uid_on'
+    ip: '172.18.1.114'
 '''
+
+MISSING_KEY_MSG = "You must provide the interconnect name or the interconnect ip address"
 
 
 class InterconnectModule(object):
@@ -80,10 +106,14 @@ class InterconnectModule(object):
                 'powered_off',
                 'uid_on',
                 'uid_off',
-                'device_reset'
+                'device_reset',
+                'update_ports',
+                'reset_port_protection'
             ]
         ),
-        name=dict(required=True, type='str')
+        name=dict(required=False, type='str'),
+        ip=dict(required=False, type='str'),
+        ports=dict(required=False, type='list')
     )
 
     states = dict(
@@ -102,12 +132,18 @@ class InterconnectModule(object):
         try:
             interconnect = self.__get_interconnect()
             state_name = self.module.params['state']
-            state = self.states[state_name]
 
-            if state_name == 'device_reset':
-                changed, resource = self.device_reset(state, interconnect)
+            if state_name == 'update_ports':
+                changed, resource = self.update_ports(interconnect)
+            elif state_name == 'reset_port_protection':
+                changed, resource = self.reset_port_protection(interconnect)
             else:
-                changed, resource = self.change_state(state, interconnect)
+                state = self.states[state_name]
+
+                if state_name == 'device_reset':
+                    changed, resource = self.device_reset(state, interconnect)
+                else:
+                    changed, resource = self.change_state(state, interconnect)
 
             self.module.exit_json(
                 changed=changed,
@@ -117,8 +153,15 @@ class InterconnectModule(object):
             self.module.fail_json(msg=exception.message)
 
     def __get_interconnect(self):
+        interconnect_ip = self.module.params['ip']
         interconnect_name = self.module.params['name']
-        interconnects = self.oneview_client.interconnects.get_by('name', interconnect_name) or []
+
+        if interconnect_ip:
+            interconnects = self.oneview_client.interconnects.get_by('interconnectIP', interconnect_ip) or []
+        elif interconnect_name:
+            interconnects = self.oneview_client.interconnects.get_by('name', interconnect_name) or []
+        else:
+            raise Exception(MISSING_KEY_MSG)
 
         if not interconnects:
             self.module.exit_json(
@@ -151,6 +194,23 @@ class InterconnectModule(object):
             path=path,
             value=value
         )
+
+    def update_ports(self, resource):
+        ports = self.module.params['ports']
+
+        if not ports:
+            return False, resource
+
+        updated_resource = self.oneview_client.interconnects.update_ports(
+            id_or_uri=resource["uri"],
+            ports=ports
+        )
+
+        return True, updated_resource
+
+    def reset_port_protection(self, resource):
+        updated_resource = self.oneview_client.interconnects.reset_port_protection(id_or_uri=resource['uri'])
+        return True, updated_resource
 
 
 def main():
