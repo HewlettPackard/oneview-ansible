@@ -19,7 +19,6 @@
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
 
-
 DOCUMENTATION = '''
 ---
 module: oneview_enclosure_script_facts
@@ -60,9 +59,10 @@ enclosure_script:
     type: complex
 '''
 
+ENCLOSURE_NOT_FOUND = 'Enclosure was not found.'
+
 
 class EnclosureScriptFactsModule(object):
-
     argument_spec = dict(
         config=dict(required=True, type='str'),
         name=dict(required=True, type='str')

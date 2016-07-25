@@ -14,10 +14,22 @@
 # limitations under the License.
 ###
 ---
-enclosure_hostname: ''
-enclosure_username: ''
-enclosure_password: ''
-enclosure_group_uri: ''
-storage_system_ip_hostname: ''
-storage_system_username: ''
-storage_system_password: ''
+- hosts: all
+  vars:
+    - config: "{{ playbook_dir }}/oneview_config.json"
+  tasks:
+    - name: Gather facts about Storage Pools of a Storage System by IP
+      oneview_storage_system_pools_facts:
+        config: "{{ config }}"
+        ip_hostname: "172.18.11.12"
+      delegate_to: localhost
+
+    - debug: var=oneview_storage_pools
+
+    - name: Gather facts about Storage Pools of a Storage System by name
+      oneview_storage_system_pools_facts:
+        config: "{{ config }}"
+        name: "ThreePAR7200-4555"
+      delegate_to: localhost
+
+    - debug: var=oneview_storage_pools
