@@ -88,13 +88,13 @@ EXAMPLES = '''
         typicalBandwidth: 2000
 '''
 
-ETHERNET_NETWORK_CREATED = 'Ethernet Network created sucessfully.'
-ETHERNET_NETWORK_UPDATED = 'Ethernet Network updated sucessfully.'
-ETHERNET_NETWORK_DELETED = 'Ethernet Network deleted sucessfully.'
+ETHERNET_NETWORK_CREATED = 'Ethernet Network created successfully.'
+ETHERNET_NETWORK_UPDATED = 'Ethernet Network updated successfully.'
+ETHERNET_NETWORK_DELETED = 'Ethernet Network deleted successfully.'
 ETHERNET_NETWORK_ALREADY_EXIST = 'Ethernet Network already exists.'
 ETHERNET_NETWORK_ALREADY_ABSENT = 'Nothing to do.'
-ETHERNET_NETWORKS_CREATED = 'Ethernet Networks created sucessfully.'
-MISSING_ETHERNET_NETWORKS_CREATED = 'Some missing Ethernet Networks were created sucessfully.'
+ETHERNET_NETWORKS_CREATED = 'Ethernet Networks created successfully.'
+MISSING_ETHERNET_NETWORKS_CREATED = 'Some missing Ethernet Networks were created successfully.'
 ETHERNET_NETWORKS_ALREADY_EXIST = 'The specified Ethernet Networks already exist.'
 
 

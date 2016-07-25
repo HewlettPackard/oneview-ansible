@@ -66,9 +66,9 @@ EXAMPLES = '''
       name: 'New FCoE Network'
 '''
 
-FCOE_NETWORK_CREATED = 'FCoE Network created sucessfully.'
-FCOE_NETWORK_UPDATED = 'FCoE Network updated sucessfully.'
-FCOE_NETWORK_DELETED = 'FCoE Network deleted sucessfully.'
+FCOE_NETWORK_CREATED = 'FCoE Network created successfully.'
+FCOE_NETWORK_UPDATED = 'FCoE Network updated successfully.'
+FCOE_NETWORK_DELETED = 'FCoE Network deleted successfully.'
 FCOE_NETWORK_ALREADY_EXIST = 'FCoE Network already exists.'
 FCOE_NETWORK_ALREADY_ABSENT = 'Nothing to do.'
 

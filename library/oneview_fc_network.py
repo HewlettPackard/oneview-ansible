@@ -76,9 +76,9 @@ EXAMPLES = '''
 '''
 
 
-FC_NETWORK_CREATED = 'FC Network created sucessfully.'
-FC_NETWORK_UPDATED = 'FC Network updated sucessfully.'
-FC_NETWORK_DELETED = 'FC Network deleted sucessfully.'
+FC_NETWORK_CREATED = 'FC Network created successfully.'
+FC_NETWORK_UPDATED = 'FC Network updated successfully.'
+FC_NETWORK_DELETED = 'FC Network deleted successfully.'
 FC_NETWORK_ALREADY_EXIST = 'FC Network already exists.'
 FC_NETWORK_ALREADY_ABSENT = 'Nothing to do.'
 

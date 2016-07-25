@@ -108,13 +108,13 @@ EXAMPLES = '''
 '''
 
 
-ENCLOSURE_ADDED = 'Enclosure added sucessfully.'
-ENCLOSURE_REMOVED = 'Enclosure removed sucessfully.'
-ENCLOSURE_UPDATED = 'Enclosure updated sucessfully.'
+ENCLOSURE_ADDED = 'Enclosure added successfully.'
+ENCLOSURE_REMOVED = 'Enclosure removed successfully.'
+ENCLOSURE_UPDATED = 'Enclosure updated successfully.'
 ENCLOSURE_ALREADY_EXIST = 'Enclosure already exists.'
 ENCLOSURE_ALREADY_ABSENT = 'Nothing to do.'
-ENCLOSURE_RECONFIGURED = 'Enclosure reconfigured sucessfully.'
-ENCLOSURE_REFRESHED = 'Enclosure refreshed sucessfully.'
+ENCLOSURE_RECONFIGURED = 'Enclosure reconfigured successfully.'
+ENCLOSURE_REFRESHED = 'Enclosure refreshed successfully.'
 ENCLOSURE_NOT_FOUND = 'Enclosure not found.'
 
 
