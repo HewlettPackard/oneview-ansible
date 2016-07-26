@@ -18,15 +18,15 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
-    - name: Gather facts about all Interconnect Types
-      oneview_interconnect_type_facts:
+    - name: Gather facts about all Fabrics
+      oneview_fabric_facts:
         config: "{{ config }}"
       delegate_to: localhost
-    - debug: msg="{{interconnect_types | map(attribute='name') | list }}"
+    - debug: var=oneview_fabrics
 
-    - name: Gather facts about an Interconnect Type by name
-      oneview_interconnect_type_facts:
+    - name: Gather facts about a Fabric by name
+      oneview_fabric_facts:
         config: "{{ config }}"
-        name: "HP VC Flex-10 Enet Module"
+        name: "DefaultFabric"
       delegate_to: localhost
-    - debug: msg="Found an interconnect type named [{{interconnect_types[0].name}}] and with uri [{{interconnect_types[0].uri}}]"
+    - debug: var=oneview_fabrics
