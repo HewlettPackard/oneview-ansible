@@ -116,10 +116,10 @@ EXAMPLES = '''
   delegate_to: localhost
 '''
 
-LOGICAL_ENCLOSURE_UPDATED = 'Logical Enclosure updated sucessfully.'
+LOGICAL_ENCLOSURE_UPDATED = 'Logical Enclosure updated successfully.'
 LOGICAL_ENCLOSURE_ALREADY_UPDATED = 'Logical Enclosure already updated.'
 LOGICAL_ENCLOSURE_REQUIRED = "An existing Logical Enclosure is required."
-LOGICAL_ENCLOSURE_UPDATED_FROM_GROUP = 'Logical Enclosure updated from group sucessfully.'
+LOGICAL_ENCLOSURE_UPDATED_FROM_GROUP = 'Logical Enclosure updated from group successfully.'
 LOGICAL_ENCLOSURE_FIRMWARE_UPDATED = 'Logical Enclosure firmware updated.'
 LOGICAL_ENCLOSURE_CONFIGURATION_SCRIPT_UPDATED = 'Logical Enclosure configuration script updated.'
 LOGICAL_ENCLOSURE_DUMP_GENERATED = 'Logical Enclosure support dump generated.'

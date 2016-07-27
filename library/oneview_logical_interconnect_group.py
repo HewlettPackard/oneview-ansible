@@ -79,9 +79,9 @@ EXAMPLES = '''
       name: 'New Logical Interconnect Group'
 '''
 
-LIG_CREATED = 'Logical Interconnect Group created sucessfully.'
-LIG_UPDATED = 'Logical Interconnect Group updated sucessfully.'
-LIG_DELETED = 'Logical Interconnect Group deleted sucessfully.'
+LIG_CREATED = 'Logical Interconnect Group created successfully.'
+LIG_UPDATED = 'Logical Interconnect Group updated successfully.'
+LIG_DELETED = 'Logical Interconnect Group deleted successfully.'
 LIG_ALREADY_EXIST = 'Logical Interconnect Group already exists.'
 LIG_ALREADY_ABSENT = 'Nothing to do.'
 

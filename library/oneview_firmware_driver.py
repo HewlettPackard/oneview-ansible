@@ -56,7 +56,7 @@ EXAMPLES = '''
     name: "Service Pack for ProLiant.iso"
 '''
 
-FIRMWARE_DRIVER_DELETED = 'Firmware driver deleted sucessfully.'
+FIRMWARE_DRIVER_DELETED = 'Firmware driver deleted successfully.'
 FIRMWARE_DRIVER_ALREADY_ABSENT = 'Nothing to do.'
 
 

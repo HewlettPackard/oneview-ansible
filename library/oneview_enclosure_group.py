@@ -86,9 +86,9 @@ EXAMPLES = '''
   delegate_to: localhost
 '''
 
-ENCLOSURE_GROUP_CREATED = 'Enclosure Group created sucessfully.'
-ENCLOSURE_GROUP_UPDATED = 'Enclosure Group updated sucessfully.'
-ENCLOSURE_GROUP_DELETED = 'Enclosure Group deleted sucessfully.'
+ENCLOSURE_GROUP_CREATED = 'Enclosure Group created successfully.'
+ENCLOSURE_GROUP_UPDATED = 'Enclosure Group updated successfully.'
+ENCLOSURE_GROUP_DELETED = 'Enclosure Group deleted successfully.'
 ENCLOSURE_GROUP_ALREADY_EXIST = 'Enclosure Group already exists.'
 ENCLOSURE_GROUP_ALREADY_ABSENT = 'Nothing to do.'
 

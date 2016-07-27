@@ -79,10 +79,10 @@ EXAMPLES = '''
   delegate_to: localhost
 '''
 
-STORAGE_SYSTEM_ADDED = 'Storage System added sucessfully.'
-STORAGE_SYSTEM_UPDATED = 'Storage System updated sucessfully.'
+STORAGE_SYSTEM_ADDED = 'Storage System added successfully.'
+STORAGE_SYSTEM_UPDATED = 'Storage System updated successfully.'
 STORAGE_SYSTEM_ALREADY_UPDATED = 'Storage System is already updated.'
-STORAGE_SYSTEM_DELETED = 'Storage System deleted sucessfully.'
+STORAGE_SYSTEM_DELETED = 'Storage System deleted successfully.'
 STORAGE_SYSTEM_ALREADY_ABSENT = 'Storage System is already absent.'
 STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING = \
     'At least one mandatory field must be provided: name or credentials.ip_hostname.'
