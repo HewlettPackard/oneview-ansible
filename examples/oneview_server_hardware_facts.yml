@@ -29,7 +29,8 @@
     - name: Gather facts about a Server Hardware by name
       oneview_server_hardware_facts:
         config: "{{ config }}"
-        name: "172.18.6.15"
+        # name examples: "172.18.6.15", "Encl1, bay 1"
+        name: ""
       delegate_to: localhost
 
     - debug: var=oneview_server_hardware
