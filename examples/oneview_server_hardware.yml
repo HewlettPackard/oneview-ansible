@@ -85,6 +85,15 @@
       delegate_to: localhost
 
 
+    - name: Update the Server Hardware iLO firmware version
+      oneview_server_hardware:
+        config: "{{ config }}"
+        state: ilo_firmware_version_updated
+        data:
+            hostname : '{{ server_hardware_hostname }}'
+      delegate_to: localhost
+
+
     - name: Remove the server hardware by its IP
       oneview_server_hardware:
         config: "{{ config }}"
