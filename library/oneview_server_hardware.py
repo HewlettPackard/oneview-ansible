@@ -23,7 +23,8 @@ DOCUMENTATION = '''
 module: oneview_server_hardware
 short_description: Manage OneView Server Hardware resources.
 description:
-    - Provides an interface to manage Server Hardware resources. Can add, update, remove and change power state.
+    - "Provides an interface to manage Server Hardware resources. Can add, update, remove, change power state and
+      refresh state."
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -38,8 +39,9 @@ options:
             - Indicates the desired state for the Server Hardware resource.
               'present' will ensure data properties are compliant to OneView.
               'absent' will remove the resource from OneView, if it exists.
-              'set_power_state' will set the power state of the Server Hardware.
-        choices: ['present', 'absent', 'set_power_state']
+              'power_state_set' will set the power state of the Server Hardware.
+              'refresh_state_set will set the refresh state of the Server Hardware.
+        choices: ['present', 'absent', 'set_power_state', 'set_refresh_state']
         required: true
     data:
         description:
@@ -57,8 +59,8 @@ EXAMPLES = '''
     state: present
     data:
          hostname : "172.18.6.15"
-         username : "dcs"
-         password : "dcs"
+         username : ""
+         password : ""
          force : false
          licensingIntent: "OneView"
          configurationState: "Managed"
@@ -73,6 +75,16 @@ EXAMPLES = '''
         powerStateData:
             powerState: "Off"
             powerControl: "MomentaryPress"
+  delegate_to: localhost
+
+- name: Refresh the server hardware
+  oneview_server_hardware:
+    config: "{{ config }}"
+    state: refresh_state_set
+    data:
+        hostname : "172.18.6.15"
+        refreshStateData:
+            refreshState : "RefreshPending"
   delegate_to: localhost
 
 - name: Remove the server hardware by its IP
@@ -90,6 +102,7 @@ SERVER_HARDWARE_DELETED = 'Server Hardware deleted successfully.'
 SERVER_HARDWARE_ALREADY_ABSENT = 'Server Hardware is already absent.'
 SERVER_HARDWARE_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: data.hostname"
 SERVER_HARDWARE_POWER_STATE_UPDATED = 'Server Hardware power state changed successfully.'
+SERVER_HARDWARE_REFRESH_STATE_UPDATED = 'Server Hardware refresh state changed successfully.'
 SERVER_HARDWARE_NOT_FOUND = 'Server Hardware is required for this operation.'
 
 
@@ -98,7 +111,7 @@ class ServerHardwareModule(object):
         config=dict(required=True, type='str'),
         state=dict(
             required=True,
-            choices=['present', 'absent', 'set_power_state']
+            choices=['present', 'absent', 'power_state_set', 'refresh_state_set']
         ),
         data=dict(required=True, type='dict')
     )
@@ -122,8 +135,10 @@ class ServerHardwareModule(object):
                 changed, msg, ansible_facts = self.__present(data, resource)
             elif state == 'absent':
                 changed, msg, ansible_facts = self.__absent(resource)
-            elif state == 'set_power_state':
+            elif state == 'power_state_set':
                 changed, msg, ansible_facts = self.__set_power_state(data, resource)
+            elif state == 'refresh_state_set':
+                changed, msg, ansible_facts = self.__set_refresh_state(data, resource)
 
             self.module.exit_json(changed=changed,
                                   msg=msg,
@@ -160,6 +175,14 @@ class ServerHardwareModule(object):
         resource = self.oneview_client.server_hardware.update_power_state(data['powerStateData'], resource['uri'])
 
         return True, SERVER_HARDWARE_POWER_STATE_UPDATED, dict(oneview_server_hardware=resource)
+
+    def __set_refresh_state(self, data, resource):
+        if not resource:
+            raise Exception(SERVER_HARDWARE_NOT_FOUND)
+
+        resource = self.oneview_client.server_hardware.refresh_state(data['refreshStateData'], resource['uri'])
+
+        return True, SERVER_HARDWARE_REFRESH_STATE_UPDATED, dict(oneview_server_hardware=resource)
 
 
 def main():
