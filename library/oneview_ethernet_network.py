@@ -58,7 +58,7 @@ EXAMPLES = '''
       name: 'Test Ethernet Network'
       vlanId: '201'
 
-- name: Ensure that the Logical Interconnect Group is present with name 'Renamed Ethernet Network'
+- name: Ensure that the Ethernet Network is present with name 'Renamed Ethernet Network'
   oneview_ethernet_network:
     config: "{{ config_file_path }}"
     state: present

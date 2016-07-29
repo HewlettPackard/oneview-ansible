@@ -1,0 +1,84 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+  tasks:
+    - name: Ensure that the Uplink Set is present
+      oneview_uplink_set:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test Uplink Set'
+          status: "OK"
+          logicalInterconnectUri: "/rest/logical-interconnects/0de81de6-6652-4861-94f9-9c24b2fd0d66"
+          networkUris: [
+             '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
+             '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'
+          ]
+          fcNetworkUris: []
+          fcoeNetworkUris: []
+          portConfigInfos: []
+          connectionMode: "Auto"
+          networkType: "Ethernet"
+          manualLoginRedistributionState: "NotSupported"
+      delegate_to: localhost
+
+    - name: Do nothing with the Uplink Set when no changes are provided
+      oneview_uplink_set:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test Uplink Set'
+          networkType: "Ethernet"
+      delegate_to: localhost
+
+    - name: Update the Uplink Set changing the attribute description to 'New Description'
+      oneview_uplink_set:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test Uplink Set'
+          description: 'New Description'
+      delegate_to: localhost
+
+    - name: Rename the Uplink Set to 'Updated Uplink Set'
+      oneview_uplink_set:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test Uplink Set'
+          newName: 'Updated Uplink Set'
+      delegate_to: localhost
+
+    - name: Delete the Uplink Set
+      oneview_uplink_set:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: 'Updated Uplink Set'
+      delegate_to: localhost
+      register: deleted
+
+    - name: Do nothing when the Uplink Set is absent
+      oneview_uplink_set:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: 'Updated Uplink Set'
+      delegate_to: localhost
+      register: deleted
