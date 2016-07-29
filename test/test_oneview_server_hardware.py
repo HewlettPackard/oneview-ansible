@@ -21,7 +21,7 @@ from hpOneView.oneview_client import OneViewClient
 from oneview_server_hardware import ServerHardwareModule, SERVER_HARDWARE_ADDED, SERVER_HARDWARE_ALREADY_ADDED, \
     SERVER_HARDWARE_DELETED, SERVER_HARDWARE_ALREADY_ABSENT, SERVER_HARDWARE_MANDATORY_FIELD_MISSING, \
     SERVER_HARDWARE_POWER_STATE_UPDATED, SERVER_HARDWARE_NOT_FOUND, SERVER_HARDWARE_REFRESH_STATE_UPDATED, \
-    SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED
+    SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED, SERVER_HARDWARE_ENV_CONFIG_UPDATED
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -70,6 +70,14 @@ YAML_SERVER_HARDWARE_ILO_FIRMWARE = """
             hostname : '{{ server_hardware_hostname }}'
 """
 
+YAML_SERVER_HARDWARE_SET_CALIBRATED_MAX_POWER = """
+        config: "{{ config }}"
+        state: present
+        data:
+            hostname : 'server_hardware_hostname'
+            calibratedMaxPower: 2500
+"""
+
 DICT_DEFAULT_SERVER_HARDWARE = yaml.load(YAML_SERVER_HARDWARE)["data"]
 
 
@@ -114,6 +122,27 @@ class ServerHardwarePresentStateSpec(unittest.TestCase):
             changed=False,
             msg=SERVER_HARDWARE_ALREADY_ADDED,
             ansible_facts=dict(oneview_server_hardware={"name": "name"})
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_server_hardware.AnsibleModule')
+    def test_should_calibrate_max_power_server_hardware(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.server_hardware.get_by.return_value = [{"name": "name",
+                                                                 "uri": "uri"}]
+
+        mock_ov_instance.server_hardware.update_environmental_configuration.return_value = {"name": "name"}
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(YAML_SERVER_HARDWARE_SET_CALIBRATED_MAX_POWER)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ServerHardwareModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            msg=SERVER_HARDWARE_ENV_CONFIG_UPDATED,
+            ansible_facts=dict(oneview_server_hardware={"name": "name",
+                                                        "uri": "uri"})
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')

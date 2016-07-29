@@ -31,7 +31,6 @@
              force : false
              licensingIntent: "OneView"
              configurationState: "Managed"
-
       delegate_to: localhost
 
 
@@ -46,7 +45,6 @@
              force : false
              licensingIntent: "OneView"
              configurationState: "Managed"
-
       delegate_to: localhost
 
 
