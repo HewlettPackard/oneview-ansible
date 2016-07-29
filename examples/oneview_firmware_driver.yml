@@ -17,17 +17,18 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    firmware_name: "" # provide your firwmare name here
   tasks:
     - name: Delete the Firmware Driver
       oneview_firmware_driver:
         config: "{{ config }}"
         state: absent
-        name: "Service Pack for ProLiant.iso"
+        name: "{{ firmware_name }}"
       delegate_to: localhost
 
     - name: Do nothing when Firmware Driver is absent
       oneview_firmware_driver:
         config: "{{ config }}"
         state: absent
-        name: "Service Pack for ProLiant.iso"
+        name: "{{ firmware_name }}"
       delegate_to: localhost
