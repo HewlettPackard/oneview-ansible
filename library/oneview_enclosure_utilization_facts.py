@@ -23,9 +23,9 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_enclosure_utilization_facts
-short_description: Retrieve facts about the utilization of one enclosure.
+short_description: Retrieve the facts about the utilization of one enclosure.
 description:
-    - Retrieve facts about the historical utilization data, metrics, and time span of the enclosure resource.
+    - Retrieve the facts about the historical utilization data, metrics, and time span of the enclosure resource.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"

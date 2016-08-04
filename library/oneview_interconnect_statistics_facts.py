@@ -22,9 +22,9 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_interconnect_statistics_facts
-short_description: Retrieve statistics facts about one interconnect from OneView.
+short_description: Retrieve the statistics facts about one interconnect from OneView.
 description:
-    - Retrieve statistics facts about one interconnect from OneView.
+    - Retrieve the statistics facts about one interconnect from OneView.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"

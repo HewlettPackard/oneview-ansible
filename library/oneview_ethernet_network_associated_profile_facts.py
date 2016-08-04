@@ -23,9 +23,9 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_ethernet_network_associated_profile_facts
-short_description: Retrieve facts about the profiles which are using an Ethernet network.
+short_description: Retrieve the facts about the profiles which are using an Ethernet network.
 description:
-    - Retrieve facts about the profiles which are using an Ethernet network.
+    - Retrieve the facts about the profiles which are using an Ethernet network.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"

@@ -22,9 +22,9 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_enclosure_group_script_facts
-short_description: Retrieve the configuration script associated to an OneView Enclosure Group.
+short_description: Retrieve the configuration script associated with a OneView Enclosure Group.
 description:
-    - Retrieve the configuration script associated to an OneView Enclosure Group.
+    - Retrieve the configuration script associated with a OneView Enclosure Group.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"

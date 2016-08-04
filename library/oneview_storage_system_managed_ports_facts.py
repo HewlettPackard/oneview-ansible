@@ -20,7 +20,7 @@ from hpOneView.oneview_client import OneViewClient
 
 DOCUMENTATION = '''
 ---
-module: oneview_storage_system_pools_facts
+module: oneview_storage_system_managed_ports_facts
 short_description: Retrieve facts about Managed Ports of the OneView Storage System.
 description:
     - Retrieve facts about Managed Ports of the Storage Systems from OneView.

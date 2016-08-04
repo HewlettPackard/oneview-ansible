@@ -23,9 +23,9 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_fcoe_network_facts
-short_description: Retrieve facts about one or more of the OneView FCoE Networks.
+short_description: Retrieve the facts about one or more of the OneView FCoE Networks.
 description:
-    - Retrieve facts about one or more of the FCoE Networks from OneView.
+    - Retrieve the facts about one or more of the FCoE Networks from OneView.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"

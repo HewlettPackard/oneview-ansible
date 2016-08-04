@@ -41,9 +41,9 @@ options:
               'present' will ensure data properties are compliant to OneView.
               'absent' will remove the resource from OneView, if it exists.
               'reconfigured' will reapply the appliance's configuration on the enclosure. This includes
-              running the same configure steps that were performed as part of the enclosure add.
-              'refreshed' will refreshes the enclosure along with all of its components, including interconnects and
-              servers. Any new hardware is added and any hardware that is no longer present within the enclosure is
+              running the same configuration steps that were performed as part of the enclosure add.
+              'refreshed' will refresh the enclosure along with all of its components, including interconnects and
+              servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is
               removed.
         choices: ['present', 'absent', 'reconfigured', 'refreshed']
     data:
@@ -74,7 +74,7 @@ EXAMPLES = '''
     state: present
     data:
       name: 'Test-Enclosure'
-      newName : "Test-Enclosure-Renamed
+      newName : 'Test-Enclosure-Renamed'
 
 - name: Reconfigure the enclosure "Test-Enclosure"
   oneview_enclosure:

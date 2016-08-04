@@ -22,7 +22,7 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_firmware_bundle
-short_description: Upload OneView Firmware Bundles resources.
+short_description: Upload OneView Firmware Bundle resources.
 description:
     - Upload an SPP ISO image file or a hotfix file to the appliance.
 notes:

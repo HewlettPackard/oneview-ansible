@@ -22,9 +22,9 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_ethernet_network_facts
-short_description: Retrieve facts about one or more of the OneView Ethernet Networks.
+short_description: Retrieve the facts about one or more of the OneView Ethernet Networks.
 description:
-    - Retrieve facts about one or more of the Ethernet Networks from OneView.
+    - Retrieve the facts about one or more of the Ethernet Networks from OneView.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"

@@ -23,9 +23,9 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_interconnect
-short_description: Manage the OneView Interconnects resources.
+short_description: Manage the OneView Interconnect resources.
 description:
-    - Provides an interface to manage the Interconnects power state and the UID light state. Can change power state,
+    - Provides an interface to manage the Interconnect power state and the UID light state. Can change the power state,
       UID light state, perform device reset, reset port protection, and update the interconnect ports.
 requirements:
     - "python >= 2.7.9"

@@ -22,9 +22,9 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_fabric_facts
-short_description: Retrieve facts about one or more of the OneView Fabrics.
+short_description: Retrieve the facts about one or more of the OneView Fabrics.
 description:
-    - Retrieve facts about one or more of the Fabrics from OneView.
+    - Retrieve the facts about one or more of the Fabrics from OneView.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"

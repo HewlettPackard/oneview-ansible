@@ -23,10 +23,10 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_enclosure_env_config_facts
-short_description: Retrieve facts about the environmental configuration of one enclosure.
+short_description: Retrieve the facts about the environmental configuration of one enclosure.
 description:
-    - Retrieve facts about the settings that describe the environmental configuration (supported
-      feature set, calibrated minimum & maximum power, location & dimensions, ...) of the enclosure resource.
+    - Retrieve the facts about the settings that describe the environmental configuration (supported
+      feature set, calibrated minimum and maximum power, location and dimensions, ...) of the enclosure resource.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"

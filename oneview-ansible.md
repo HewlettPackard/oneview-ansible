@@ -4,32 +4,32 @@
 
   * [hpe_icsp - Deploy the operating system on a server using HPE ICsp.](#hpe_icsp)
   * [oneview_enclosure - Manage OneView Enclosure resources.](#oneview_enclosure)
-  * [oneview_enclosure_env_config_facts - Retrieve facts about the environmental configuration of one enclosure.](#oneview_enclosure_env_config_facts)
+  * [oneview_enclosure_env_config_facts - Retrieve the facts about the environmental configuration of one enclosure.](#oneview_enclosure_env_config_facts)
   * [oneview_enclosure_facts - Retrieve facts about one or more Enclosures.](#oneview_enclosure_facts)
   * [oneview_enclosure_group - Manage OneView Enclosure Group resources.](#oneview_enclosure_group)
   * [oneview_enclosure_group_facts - Retrieve facts about one or more of the OneView Enclosure Groups.](#oneview_enclosure_group_facts)
-  * [oneview_enclosure_group_script_facts - Retrieve the configuration script associated to an OneView Enclosure Group.](#oneview_enclosure_group_script_facts)
+  * [oneview_enclosure_group_script_facts - Retrieve the configuration script associated with a OneView Enclosure Group.](#oneview_enclosure_group_script_facts)
   * [oneview_enclosure_script_facts - Retrieve facts about the script of one enclosure.](#oneview_enclosure_script_facts)
-  * [oneview_enclosure_utilization_facts - Retrieve facts about the utilization of one enclosure.](#oneview_enclosure_utilization_facts)
+  * [oneview_enclosure_utilization_facts - Retrieve the facts about the utilization of one enclosure.](#oneview_enclosure_utilization_facts)
   * [oneview_ethernet_network - Manage OneView Ethernet Network resources.](#oneview_ethernet_network)
-  * [oneview_ethernet_network_associated_profile_facts - Retrieve facts about the profiles which are using an Ethernet network.](#oneview_ethernet_network_associated_profile_facts)
+  * [oneview_ethernet_network_associated_profile_facts - Retrieve the facts about the profiles which are using an Ethernet network.](#oneview_ethernet_network_associated_profile_facts)
   * [oneview_ethernet_network_associated_uplink_group_facts - Gather facts about the uplink sets which are using an Ethernet network.](#oneview_ethernet_network_associated_uplink_group_facts)
-  * [oneview_ethernet_network_facts - Retrieve facts about one or more of the OneView Ethernet Networks.](#oneview_ethernet_network_facts)
-  * [oneview_fabric_facts - Retrieve facts about one or more of the OneView Fabrics.](#oneview_fabric_facts)
+  * [oneview_ethernet_network_facts - Retrieve the facts about one or more of the OneView Ethernet Networks.](#oneview_ethernet_network_facts)
+  * [oneview_fabric_facts - Retrieve the facts about one or more of the OneView Fabrics.](#oneview_fabric_facts)
   * [oneview_fc_network - Manage OneView Fibre Channel Network resources.](#oneview_fc_network)
-  * [oneview_fc_network_facts - Retrieve facts about one or more of the OneView Fibre Channel Networks.](#oneview_fc_network_facts)
+  * [oneview_fc_network_facts - Retrieve the facts about one or more of the OneView Fibre Channel Networks.](#oneview_fc_network_facts)
   * [oneview_fcoe_network - Manage OneView FCoE Network resources.](#oneview_fcoe_network)
-  * [oneview_fcoe_network_facts - Retrieve facts about one or more of the OneView FCoE Networks.](#oneview_fcoe_network_facts)
-  * [oneview_firmware_bundle - Upload OneView Firmware Bundles resources.](#oneview_firmware_bundle)
-  * [oneview_firmware_driver - Provides an interface to remove Firmware Drivers resources.](#oneview_firmware_driver)
-  * [oneview_firmware_driver_facts - Retrieve facts about one or more of the OneView Firmware Drivers.](#oneview_firmware_driver_facts)
-  * [oneview_interconnect - Manage the OneView Interconnects resources.](#oneview_interconnect)
+  * [oneview_fcoe_network_facts - Retrieve the facts about one or more of the OneView FCoE Networks.](#oneview_fcoe_network_facts)
+  * [oneview_firmware_bundle - Upload OneView Firmware Bundle resources.](#oneview_firmware_bundle)
+  * [oneview_firmware_driver - Provides an interface to remove Firmware Driver resources.](#oneview_firmware_driver)
+  * [oneview_firmware_driver_facts - Retrieve the facts about one or more of the OneView Firmware Drivers.](#oneview_firmware_driver_facts)
+  * [oneview_interconnect - Manage the OneView Interconnect resources.](#oneview_interconnect)
   * [oneview_interconnect_facts - Retrieve facts about one or more of the OneView Interconnects.](#oneview_interconnect_facts)
-  * [oneview_interconnect_statistics_facts - Retrieve statistics facts about one interconnect from OneView.](#oneview_interconnect_statistics_facts)
+  * [oneview_interconnect_statistics_facts - Retrieve the statistics facts about one interconnect from OneView.](#oneview_interconnect_statistics_facts)
   * [oneview_interconnect_type_facts - Retrieve facts about one or more of the OneView Interconnect Types.](#oneview_interconnect_type_facts)
   * [oneview_logical_enclosure - Manage OneView Logical Enclosure resources.](#oneview_logical_enclosure)
   * [oneview_logical_enclosure_facts - Retrieve facts about one or more of the OneView Logical Enclosures.](#oneview_logical_enclosure_facts)
-  * [oneview_logical_enclosure_script_facts - Retrieve the configuration script associated to an OneView Logical Enclosure.](#oneview_logical_enclosure_script_facts)
+  * [oneview_logical_enclosure_script_facts - Retrieve the configuration script associated with the OneView Logical Enclosure.](#oneview_logical_enclosure_script_facts)
   * [oneview_logical_interconnect_group - Manage OneView Logical Interconnect Group resources.](#oneview_logical_interconnect_group)
   * [oneview_logical_interconnect_group_facts - Retrieve facts about one or more of the OneView Logical Interconnect Groups.](#oneview_logical_interconnect_group_facts)
   * [oneview_server_hardware - Manage OneView Server Hardware resources.](#oneview_server_hardware)
@@ -38,7 +38,7 @@
   * [oneview_storage_system - Manage OneView Storage System resources.](#oneview_storage_system)
   * [oneview_storage_system_facts - Retrieve facts about the OneView Storage Systems.](#oneview_storage_system_facts)
   * [oneview_storage_system_host_types_facts - Retrieve facts about Host Types of the OneView Storage Systems.](#oneview_storage_system_host_types_facts)
-  * [oneview_storage_system_pools_facts - Retrieve facts about Managed Ports of the OneView Storage System.](#oneview_storage_system_pools_facts)
+  * [oneview_storage_system_managed_ports_facts - Retrieve facts about Managed Ports of the OneView Storage System.](#oneview_storage_system_managed_ports_facts)
   * [oneview_storage_system_pools_facts - Retrieve facts about Storage Pools of the OneView Storage System.](#oneview_storage_system_pools_facts)
 
 ---
@@ -47,7 +47,7 @@
 Deploy the operating system on a server using HPE ICsp.
 
 #### Synopsis
- Deploy the operating system on a server, based on an available ICsp OS build plan.
+ Deploy the operating system on a server based on the available ICsp OS build plan.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -66,11 +66,11 @@ Deploy the operating system on a server using HPE ICsp.
 | password  |   yes  |  | |  ICsp password.  |
 
 
- 
+
 #### Examples
 
 ```
-- name : Deploy OS
+- name: Deploy OS
   hpe_icsp:
     icsp_host: "{{ icsp }}"
     username: "{{ icsp_username }}"
@@ -104,11 +104,11 @@ Manage OneView Enclosure resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | data  |   yes  |  | |  List with the Enclosure properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Enclosure resource. 'present' will ensure data properties are compliant to OneView. 'absent' will remove the resource from OneView, if it exists. 'reconfigured' will reapply the appliance's configuration on the enclosure. This includes running the same configure steps that were performed as part of the enclosure add. 'refreshed' will refreshes the enclosure along with all of its components, including interconnects and servers. Any new hardware is added and any hardware that is no longer present within the enclosure is removed.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Enclosure resource. 'present' will ensure data properties are compliant to OneView. 'absent' will remove the resource from OneView, if it exists. 'reconfigured' will reapply the appliance's configuration on the enclosure. This includes running the same configuration steps that were performed as part of the enclosure add. 'refreshed' will refresh the enclosure along with all of its components, including interconnects and servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is removed.  |
 | config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -130,7 +130,7 @@ Manage OneView Enclosure resources.
     state: present
     data:
       name: 'Test-Enclosure'
-      newName : "Test-Enclosure-Renamed
+      newName : 'Test-Enclosure-Renamed'
 
 - name: Reconfigure the enclosure "Test-Enclosure"
   oneview_enclosure:
@@ -174,10 +174,10 @@ Manage OneView Enclosure resources.
 
 
 ## oneview_enclosure_env_config_facts
-Retrieve facts about the environmental configuration of one enclosure.
+Retrieve the facts about the environmental configuration of one enclosure.
 
 #### Synopsis
- Retrieve facts about the settings that describe the environmental configuration (supported feature set, calibrated minimum & maximum power, location & dimensions, ...) of the enclosure resource.
+ Retrieve the facts about the settings that describe the environmental configuration (supported feature set, calibrated minimum and maximum power, location and dimensions, ...) of the enclosure resource.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -191,7 +191,7 @@ Retrieve facts about the environmental configuration of one enclosure.
 | name  |   yes  |  | |  Enclosure name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -231,7 +231,7 @@ Retrieve facts about one or more Enclosures.
 | name  |   no  |  | |  Enclosure name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -278,7 +278,7 @@ Manage OneView Enclosure Group resources.
 | config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -346,7 +346,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 | name  |   no  |  | |  Enclosure Group name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -377,10 +377,10 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 
 
 ## oneview_enclosure_group_script_facts
-Retrieve the configuration script associated to an OneView Enclosure Group.
+Retrieve the configuration script associated with a OneView Enclosure Group.
 
 #### Synopsis
- Retrieve the configuration script associated to an OneView Enclosure Group.
+ Retrieve the configuration script associated with a OneView Enclosure Group.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -394,7 +394,7 @@ Retrieve the configuration script associated to an OneView Enclosure Group.
 | name  |   yes  |  | |  Enclosure Group name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -435,7 +435,7 @@ Retrieve facts about the script of one enclosure.
 | name  |   yes  |  | |  Enclosure name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -458,10 +458,10 @@ Retrieve facts about the script of one enclosure.
 
 
 ## oneview_enclosure_utilization_facts
-Retrieve facts about the utilization of one enclosure.
+Retrieve the facts about the utilization of one enclosure.
 
 #### Synopsis
- Retrieve facts about the historical utilization data, metrics, and time span of the enclosure resource.
+ Retrieve the facts about the historical utilization data, metrics, and time span of the enclosure resource.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -480,7 +480,7 @@ Retrieve facts about the utilization of one enclosure.
 | view  |   no  |  | <ul> <li>native</li>  <li>hour</li>  <li>day</li> </ul> |  Specifies the resolution interval length of the samples to be retrieved.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -537,7 +537,7 @@ Manage OneView Ethernet Network resources.
 | config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -590,10 +590,10 @@ Manage OneView Ethernet Network resources.
 
 
 ## oneview_ethernet_network_associated_profile_facts
-Retrieve facts about the profiles which are using an Ethernet network.
+Retrieve the facts about the profiles which are using an Ethernet network.
 
 #### Synopsis
- Retrieve facts about the profiles which are using an Ethernet network.
+ Retrieve the facts about the profiles which are using an Ethernet network.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -607,7 +607,7 @@ Retrieve facts about the profiles which are using an Ethernet network.
 | name  |   yes  |  | |  Ethernet Network name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -647,7 +647,7 @@ Gather facts about the uplink sets which are using an Ethernet network.
 | name  |   yes  |  | |  Ethernet Network name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -670,10 +670,10 @@ Gather facts about the uplink sets which are using an Ethernet network.
 
 
 ## oneview_ethernet_network_facts
-Retrieve facts about one or more of the OneView Ethernet Networks.
+Retrieve the facts about one or more of the OneView Ethernet Networks.
 
 #### Synopsis
- Retrieve facts about one or more of the Ethernet Networks from OneView.
+ Retrieve the facts about one or more of the Ethernet Networks from OneView.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -687,7 +687,7 @@ Retrieve facts about one or more of the OneView Ethernet Networks.
 | name  |   no  |  | |  Ethernet Network name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -716,10 +716,10 @@ Retrieve facts about one or more of the OneView Ethernet Networks.
 
 
 ## oneview_fabric_facts
-Retrieve facts about one or more of the OneView Fabrics.
+Retrieve the facts about one or more of the OneView Fabrics.
 
 #### Synopsis
- Retrieve facts about one or more of the Fabrics from OneView.
+ Retrieve the facts about one or more of the Fabrics from OneView.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -733,7 +733,7 @@ Retrieve facts about one or more of the OneView Fabrics.
 | name  |   no  |  | |  Fabric name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -780,7 +780,7 @@ Manage OneView Fibre Channel Network resources.
 | config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -818,10 +818,10 @@ Manage OneView Fibre Channel Network resources.
 
 
 ## oneview_fc_network_facts
-Retrieve facts about one or more of the OneView Fibre Channel Networks.
+Retrieve the facts about one or more of the OneView Fibre Channel Networks.
 
 #### Synopsis
- Retrieve facts about one or more of the Fibre Channel Networks from OneView.
+ Retrieve the facts about one or more of the Fibre Channel Networks from OneView.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -835,7 +835,7 @@ Retrieve facts about one or more of the OneView Fibre Channel Networks.
 | name  |   no  |  | |  Fibre Channel Network name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -882,7 +882,7 @@ Manage OneView FCoE Network resources.
 | config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -913,10 +913,10 @@ Manage OneView FCoE Network resources.
 
 
 ## oneview_fcoe_network_facts
-Retrieve facts about one or more of the OneView FCoE Networks.
+Retrieve the facts about one or more of the OneView FCoE Networks.
 
 #### Synopsis
- Retrieve facts about one or more of the FCoE Networks from OneView.
+ Retrieve the facts about one or more of the FCoE Networks from OneView.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -930,7 +930,7 @@ Retrieve facts about one or more of the OneView FCoE Networks.
 | name  |   no  |  | |  FCoE Network name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -959,7 +959,7 @@ Retrieve facts about one or more of the OneView FCoE Networks.
 
 
 ## oneview_firmware_bundle
-Upload OneView Firmware Bundles resources.
+Upload OneView Firmware Bundle resources.
 
 #### Synopsis
  Upload an SPP ISO image file or a hotfix file to the appliance.
@@ -977,7 +977,7 @@ Upload OneView Firmware Bundles resources.
 | file_path  |   yes  |  | |  The full path of a local file to be loaded.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1000,10 +1000,10 @@ Upload OneView Firmware Bundles resources.
 
 
 ## oneview_firmware_driver
-Provides an interface to remove Firmware Drivers resources.
+Provides an interface to remove Firmware Driver resources.
 
 #### Synopsis
- Provides an interface to remove Firmware Drivers resources.
+ Provides an interface to remove Firmware Driver resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -1018,7 +1018,7 @@ Provides an interface to remove Firmware Drivers resources.
 | name  |   yes  |  | |  Firmware driver name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1040,10 +1040,10 @@ Provides an interface to remove Firmware Drivers resources.
 
 
 ## oneview_firmware_driver_facts
-Retrieve facts about one or more of the OneView Firmware Drivers.
+Retrieve the facts about one or more of the OneView Firmware Drivers.
 
 #### Synopsis
- Retrieve facts about one or more of the Firmware Drivers from OneView.
+ Retrieve the facts about one or more of the Firmware Drivers from OneView.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -1057,7 +1057,7 @@ Retrieve facts about one or more of the OneView Firmware Drivers.
 | name  |   no  |  | |  Firmware driver name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1086,10 +1086,10 @@ Retrieve facts about one or more of the OneView Firmware Drivers.
 
 
 ## oneview_interconnect
-Manage the OneView Interconnects resources.
+Manage the OneView Interconnect resources.
 
 #### Synopsis
- Provides an interface to manage the Interconnects power state and the UID light state. Can change power state, UID light state, perform device reset, reset port protection, and update the interconnect ports.
+ Provides an interface to manage the Interconnect power state and the UID light state. Can change the power state, UID light state, perform device reset, reset port protection, and update the interconnect ports.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -1106,7 +1106,7 @@ Manage the OneView Interconnects resources.
 | ports  |   no  |  | |  List with ports to update. This option should be used together with 'update_ports' state.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1158,7 +1158,7 @@ Retrieve facts about one or more of the OneView Interconnects.
 | gather_name_servers  |   no  |  False  | |  If true facts about the name servers will also be gathered.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1189,10 +1189,10 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 
 ## oneview_interconnect_statistics_facts
-Retrieve statistics facts about one interconnect from OneView.
+Retrieve the statistics facts about one interconnect from OneView.
 
 #### Synopsis
- Retrieve statistics facts about one interconnect from OneView.
+ Retrieve the statistics facts about one interconnect from OneView.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -1207,7 +1207,7 @@ Retrieve statistics facts about one interconnect from OneView.
 | name  |   yes  |  | |  Interconnect name  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1248,7 +1248,7 @@ Retrieve facts about one or more of the OneView Interconnect Types.
 | name  |   no  |  | |  Interconnect Type name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1295,7 +1295,7 @@ Manage OneView Logical Enclosure resources.
 | config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1387,7 +1387,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 | name  |   no  |  | |  Logical Enclosure name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1418,10 +1418,10 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 
 
 ## oneview_logical_enclosure_script_facts
-Retrieve the configuration script associated to an OneView Logical Enclosure.
+Retrieve the configuration script associated with the OneView Logical Enclosure.
 
 #### Synopsis
- Retrieve the configuration script associated to an OneView Logical Enclosure.
+ Retrieve the configuration script associated with the OneView Logical Enclosure.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -1435,7 +1435,7 @@ Retrieve the configuration script associated to an OneView Logical Enclosure.
 | name  |   yes  |  | |  Logical Enclosure name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1477,7 +1477,7 @@ Manage OneView Logical Interconnect Group resources.
 | config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1537,7 +1537,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups.
 | name  |   no  |  | |  Logical Interconnect Group name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1584,7 +1584,7 @@ Manage OneView Server Hardware resources.
 | config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1649,7 +1649,7 @@ Retrieve facts about the OneView Server Hardwares.
 | name  |   no  |  | |  Server Hardware name.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1684,7 +1684,7 @@ Retrieve facts about the OneView Server Hardwares.
 Selects a server hardware automatically based on the server hardware template.
 
 #### Synopsis
- Manage servers lifecycle with OneView Server Profiles using an existing server profile template.
+ Manage the servers lifecycle with OneView Server Profiles using an existing server profile template.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -1702,7 +1702,7 @@ Selects a server hardware automatically based on the server hardware template.
 | password  |   yes  |  | |  Password that will be used to authenticate on the provided OneView appliance.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1739,7 +1739,7 @@ Manage OneView Storage System resources.
 | config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1800,7 +1800,7 @@ Retrieve facts about the OneView Storage Systems.
 | ip_hostname  |   no  |  | |  Storage System IP or hostname.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1857,7 +1857,7 @@ Retrieve facts about Host Types of the OneView Storage Systems.
 | config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1879,7 +1879,7 @@ Retrieve facts about Host Types of the OneView Storage Systems.
 ---
 
 
-## oneview_storage_system_pools_facts
+## oneview_storage_system_managed_ports_facts
 Retrieve facts about Managed Ports of the OneView Storage System.
 
 #### Synopsis
@@ -1898,7 +1898,7 @@ Retrieve facts about Managed Ports of the OneView Storage System.
 | ip_hostname  |   no  |  | |  Storage System IP or hostname.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1949,7 +1949,7 @@ Retrieve facts about Storage Pools of the OneView Storage System.
 | ip_hostname  |   no  |  | |  Storage System IP or hostname.  |
 
 
- 
+
 #### Examples
 
 ```
@@ -1978,4 +1978,3 @@ Retrieve facts about Storage Pools of the OneView Storage System.
 
 
 ---
-
