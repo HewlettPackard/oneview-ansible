@@ -23,9 +23,9 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_fc_network_facts
-short_description: Retrieve facts about one or more of the OneView Fibre Channel Networks.
+short_description: Retrieve the facts about one or more of the OneView Fibre Channel Networks.
 description:
-    - Retrieve facts about one or more of the Fibre Channel Networks from OneView.
+    - Retrieve the facts about one or more of the Fibre Channel Networks from OneView.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -40,8 +40,8 @@ options:
         - Fibre Channel Network name.
       required: false
 notes:
-    - A sample configuration file for the config parameter can be found at&colon;
-      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+    - "A sample configuration file for the config parameter can be found at:
+       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
 '''
 
 EXAMPLES = '''

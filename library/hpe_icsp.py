@@ -26,7 +26,7 @@ DOCUMENTATION = '''
 module: hpe_icsp
 short_description: Deploy the operating system on a server using HPE ICsp.
 description:
-    - Deploy the operating system on a server, based on an available ICsp OS build plan.
+    - Deploy the operating system on a server based on the available ICsp OS build plan.
 requirements:
     - "python >= 2.7.9"
     - "hpICsp"
@@ -64,7 +64,7 @@ options:
 '''
 
 EXAMPLES = '''
-- name : Deploy OS
+- name: Deploy OS
   hpe_icsp:
     icsp_host: "{{ icsp }}"
     username: "{{ icsp_username }}"

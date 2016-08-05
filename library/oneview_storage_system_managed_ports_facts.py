@@ -20,7 +20,7 @@ from hpOneView.oneview_client import OneViewClient
 
 DOCUMENTATION = '''
 ---
-module: oneview_storage_system_pools_facts
+module: oneview_storage_system_managed_ports_facts
 short_description: Retrieve facts about Managed Ports of the OneView Storage System.
 description:
     - Retrieve facts about Managed Ports of the Storage Systems from OneView.
@@ -43,7 +43,7 @@ options:
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
-      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
+       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
 '''
 
 EXAMPLES = '''

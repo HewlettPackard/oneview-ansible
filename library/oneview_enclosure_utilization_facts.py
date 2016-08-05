@@ -23,9 +23,9 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_enclosure_utilization_facts
-short_description: Retrieve facts about the utilization of one enclosure.
+short_description: Retrieve the facts about the utilization of one enclosure.
 description:
-    - Retrieve facts about the historical utilization data, metrics, and time span of the enclosure resource.
+    - Retrieve the facts about the historical utilization data, metrics, and time span of the enclosure resource.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -67,7 +67,7 @@ options:
 
 notes:
     - "A sample configuration file for the config parameter can be found at:
-       https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
+       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
 '''
 
 EXAMPLES = '''

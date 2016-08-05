@@ -22,9 +22,9 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_enclosure_group_script_facts
-short_description: Retrieve the configuration script associated to an OneView Enclosure Group.
+short_description: Retrieve the configuration script associated with a OneView Enclosure Group.
 description:
-    - Retrieve the configuration script associated to an OneView Enclosure Group.
+    - Retrieve the configuration script associated with a OneView Enclosure Group.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -40,7 +40,7 @@ options:
       required: true
 notes:
     - "A sample configuration file for the config parameter can be found at:
-      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
+       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
 '''
 
 EXAMPLES = '''

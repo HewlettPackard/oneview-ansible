@@ -22,9 +22,9 @@ from hpOneView.oneview_client import OneViewClient
 DOCUMENTATION = '''
 ---
 module: oneview_firmware_driver
-short_description: Provides an interface to remove Firmware Drivers resources.
+short_description: Provides an interface to remove Firmware Driver resources.
 description:
-    - Provides an interface to remove Firmware Drivers resources.
+    - Provides an interface to remove Firmware Driver resources.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -44,8 +44,8 @@ options:
         - Firmware driver name.
       required: True
 notes:
-    - A sample configuration file for the config parameter can be found at&colon;
-      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+    - "A sample configuration file for the config parameter can be found at:
+       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
 '''
 
 EXAMPLES = '''

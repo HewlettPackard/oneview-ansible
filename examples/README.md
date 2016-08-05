@@ -4,7 +4,7 @@ This directory contains everything you need to start provisioning with OneView a
 
 ## Running the sample playbooks
 
-**Requirements:** To run these examples you need to execute the [Ansible OneView configuration.](https://github.hpe.com/Rainforest/oneview-ansible/tree/readme#ansible-oneview-configuration)
+**Requirements:** To run these examples you need to execute the [Ansible OneView Setup.](https://github.com/HewlettPackard/oneview-ansible/#ansible-oneview-sdk-setup)
 
 **NOTE:** A sample configuration file is provided within the examples directory. To use it, execute the following steps:
 
