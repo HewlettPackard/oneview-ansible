@@ -71,7 +71,7 @@ EXAMPLES = '''
 RETURN = '''
 storage_pool:
     description: Has the OneView facts about the Storage Pool.
-    returned: always, but can be null
+    returned: on 'present' state, but can be null
     type: complex
 '''
 
