@@ -39,6 +39,11 @@ options:
       description:
         - Server Hardware name.
       required: false
+    options:
+      description:
+        - "List with options to gather additional facts about Server Hardware related resources.
+          Options allowed: bios, javaRemoteConsoleUrl, environmentalConfig, iloSsoUrl, remoteConsoleUrl, utilization"
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -50,7 +55,7 @@ EXAMPLES = '''
     config: "{{ config }}"
   delegate_to: localhost
 
-- debug: var=server_hardware
+- debug: var=server_hardwares
 
 
 - name: Gather facts about a Server Hardware by name
@@ -59,7 +64,7 @@ EXAMPLES = '''
     name: "172.18.6.15"
   delegate_to: localhost
 
-- debug: var=server_hardware
+- debug: var=server_hardwares
 
 
 - name: Gather BIOS facts about a Server Hardware
@@ -70,7 +75,7 @@ EXAMPLES = '''
       - bios
   delegate_to: localhost
 
-- debug: var=server_hardware
+- debug: var=server_hardwares
 - debug: var=server_hardware_bios
 
 
@@ -90,7 +95,7 @@ EXAMPLES = '''
                 view : 'day'
   delegate_to: localhost
 
-- debug: var=server_hardware
+- debug: var=server_hardwares
 - debug: var=server_hardware_bios
 - debug: var=server_hardware_env_config
 - debug: var=server_hardware_java_remote_console_url
@@ -100,7 +105,7 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-server_hardware:
+server_hardwares:
     description: Has all the OneView facts about the Server Hardware.
     returned: always, but can be null
     type: complex
@@ -171,7 +176,7 @@ class ServerHardwareFactsModule(object):
             else:
                 server_hardwares = self.oneview_client.server_hardware.get_all()
 
-            ansible_facts["server_hardware"] = server_hardwares
+            ansible_facts["server_hardwares"] = server_hardwares
 
             self.module.exit_json(changed=False,
                                   ansible_facts=ansible_facts)

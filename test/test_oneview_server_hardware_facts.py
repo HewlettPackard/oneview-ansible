@@ -29,6 +29,11 @@ PARAMS_GET_ALL = dict(
 
 PARAMS_GET_BY_NAME = dict(
     config='config.json',
+    name="Test Server Hardware"
+)
+
+PARAMS_WITH_OPTIONS = dict(
+    config='config.json',
     name="Test Server Hardware",
     options=[
         'bios', 'javaRemoteConsoleUrl', 'environmentalConfig', 'iloSsoUrl', 'remoteConsoleUrl',
@@ -61,7 +66,7 @@ class ServerHardwareFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(server_hardware=({"name": "Server Hardware Name"}))
+            ansible_facts=dict(server_hardwares=({"name": "Server Hardware Name"}))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -85,13 +90,7 @@ class ServerHardwareFactsSpec(unittest.TestCase):
     def test_should_get_server_hardware_by_name(self, mock_ansible_module,
                                                 mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_hardware.get_by.return_value = [{"name": "Server Hardware Name", "uri": "resuri"}]
-        mock_ov_instance.server_hardware.get_bios.return_value = {'subresource': 'value'}
-        mock_ov_instance.server_hardware.get_environmental_configuration.return_value = {'subresource': 'value'}
-        mock_ov_instance.server_hardware.get_java_remote_console_url.return_value = {'subresource': 'value'}
-        mock_ov_instance.server_hardware.get_ilo_sso_url.return_value = {'subresource': 'value'}
-        mock_ov_instance.server_hardware.get_remote_console_url.return_value = {'subresource': 'value'}
-        mock_ov_instance.server_hardware.get_utilization.return_value = {'subresource': 'value'}
+        mock_ov_instance.server_hardware.get_by.return_value = {"name": "Server Hardware Name"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
@@ -102,7 +101,32 @@ class ServerHardwareFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts={'server_hardware': [{'name': 'Server Hardware Name', 'uri': 'resuri'}],
+            ansible_facts=dict(server_hardwares=({"name": "Server Hardware Name"}))
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_server_hardware_facts.AnsibleModule')
+    def test_should_get_server_hardware_by_name_with_options(self, mock_ansible_module,
+                                                             mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.server_hardware.get_by.return_value = [{"name": "Server Hardware Name", "uri": "resuri"}]
+        mock_ov_instance.server_hardware.get_bios.return_value = {'subresource': 'value'}
+        mock_ov_instance.server_hardware.get_environmental_configuration.return_value = {'subresource': 'value'}
+        mock_ov_instance.server_hardware.get_java_remote_console_url.return_value = {'subresource': 'value'}
+        mock_ov_instance.server_hardware.get_ilo_sso_url.return_value = {'subresource': 'value'}
+        mock_ov_instance.server_hardware.get_remote_console_url.return_value = {'subresource': 'value'}
+        mock_ov_instance.server_hardware.get_utilization.return_value = {'subresource': 'value'}
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_WITH_OPTIONS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ServerHardwareFactsModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts={'server_hardwares': [{'name': 'Server Hardware Name', 'uri': 'resuri'}],
                            'server_hardware_remote_console_url': {'subresource': 'value'},
                            'server_hardware_utilization': {'subresource': 'value'},
                            'server_hardware_ilo_sso_url': {'subresource': 'value'},

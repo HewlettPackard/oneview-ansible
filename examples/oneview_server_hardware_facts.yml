@@ -25,7 +25,7 @@
         config: "{{ config }}"
       delegate_to: localhost
 
-    - debug: var=server_hardware
+    - debug: var=server_hardwares
 
 
     - name: Gather facts about a Server Hardware by name
@@ -34,7 +34,7 @@
         name: "{{ server_hardware_name }}"
       delegate_to: localhost
 
-    - debug: var=server_hardware
+    - debug: var=server_hardwares
 
 
     - name: Gather BIOS facts about a Server Hardware
@@ -45,7 +45,7 @@
           - bios
       delegate_to: localhost
 
-    - debug: var=server_hardware
+    - debug: var=server_hardwares
     - debug: var=server_hardware_bios
 
 
@@ -65,7 +65,7 @@
                     view : 'day'
       delegate_to: localhost
 
-    - debug: var=server_hardware
+    - debug: var=server_hardwares
     - debug: var=server_hardware_bios
     - debug: var=server_hardware_env_config
     - debug: var=server_hardware_java_remote_console_url
