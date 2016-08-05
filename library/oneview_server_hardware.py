@@ -88,6 +88,23 @@ EXAMPLES = '''
             refreshState : "RefreshPending"
   delegate_to: localhost
 
+- name: Update the Server Hardware iLO firmware version
+  oneview_server_hardware:
+    config: "{{ config }}"
+    state: ilo_firmware_version_updated
+    data:
+        hostname : "172.18.6.15"
+  delegate_to: localhost
+
+- name: Set the calibrated max power of a server hardware
+  oneview_server_hardware:
+    config: "{{ config }}"
+    state: present
+    data:
+        hostname : "172.18.6.15"
+        calibratedMaxPower: 2500
+  delegate_to: localhost
+
 - name: Remove the server hardware by its IP
   oneview_server_hardware:
     config: "{{ config }}"
@@ -105,6 +122,7 @@ SERVER_HARDWARE_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: dat
 SERVER_HARDWARE_POWER_STATE_UPDATED = 'Server Hardware power state changed successfully.'
 SERVER_HARDWARE_REFRESH_STATE_UPDATED = 'Server Hardware refresh state changed successfully.'
 SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED = 'Server Hardware iLO firmware version updated successfully.'
+SERVER_HARDWARE_ENV_CONFIG_UPDATED = 'Server Hardware calibrated max power updated successfully.'
 SERVER_HARDWARE_NOT_FOUND = 'Server Hardware is required for this operation.'
 
 
@@ -156,12 +174,23 @@ class ServerHardwareModule(object):
         changed = False
         msg = ''
 
+        calibrated_max_power = data.pop('calibratedMaxPower', None)
+
         if not resource:
             resource = self.oneview_client.server_hardware.add(data)
             changed = True
             msg = SERVER_HARDWARE_ADDED
         else:
             msg = SERVER_HARDWARE_ALREADY_ADDED
+
+        if calibrated_max_power:
+            self.oneview_client.server_hardware.update_environmental_configuration(
+                {"calibratedMaxPower": calibrated_max_power},
+                resource['uri'])
+
+            if not changed:
+                changed = True
+                msg = SERVER_HARDWARE_ENV_CONFIG_UPDATED
 
         return changed, msg, dict(oneview_server_hardware=resource)
 
