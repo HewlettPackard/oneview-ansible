@@ -41,7 +41,8 @@ options:
               'absent' will remove the resource from OneView, if it exists.
               'power_state_set' will set the power state of the Server Hardware.
               'refresh_state_set will set the refresh state of the Server Hardware.
-        choices: ['present', 'absent', 'set_power_state', 'set_refresh_state']
+              'ilo_firmware_version_updated' will update the iLO firmware version of the Server Hardware.
+        choices: ['present', 'absent', 'set_power_state', 'set_refresh_state', 'ilo_firmware_version_updated']
         required: true
     data:
         description:
@@ -59,8 +60,8 @@ EXAMPLES = '''
     state: present
     data:
          hostname : "172.18.6.15"
-         username : ""
-         password : ""
+         username : "username"
+         password : "password"
          force : false
          licensingIntent: "OneView"
          configurationState: "Managed"
@@ -103,6 +104,7 @@ SERVER_HARDWARE_ALREADY_ABSENT = 'Server Hardware is already absent.'
 SERVER_HARDWARE_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: data.hostname"
 SERVER_HARDWARE_POWER_STATE_UPDATED = 'Server Hardware power state changed successfully.'
 SERVER_HARDWARE_REFRESH_STATE_UPDATED = 'Server Hardware refresh state changed successfully.'
+SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED = 'Server Hardware iLO firmware version updated successfully.'
 SERVER_HARDWARE_NOT_FOUND = 'Server Hardware is required for this operation.'
 
 
@@ -111,7 +113,7 @@ class ServerHardwareModule(object):
         config=dict(required=True, type='str'),
         state=dict(
             required=True,
-            choices=['present', 'absent', 'power_state_set', 'refresh_state_set']
+            choices=['present', 'absent', 'power_state_set', 'refresh_state_set', 'ilo_firmware_version_updated']
         ),
         data=dict(required=True, type='dict')
     )
@@ -139,6 +141,8 @@ class ServerHardwareModule(object):
                 changed, msg, ansible_facts = self.__set_power_state(data, resource)
             elif state == 'refresh_state_set':
                 changed, msg, ansible_facts = self.__set_refresh_state(data, resource)
+            elif state == 'ilo_firmware_version_updated':
+                changed, msg, ansible_facts = self.__update_mp_firware_version(resource)
 
             self.module.exit_json(changed=changed,
                                   msg=msg,
@@ -183,6 +187,14 @@ class ServerHardwareModule(object):
         resource = self.oneview_client.server_hardware.refresh_state(data['refreshStateData'], resource['uri'])
 
         return True, SERVER_HARDWARE_REFRESH_STATE_UPDATED, dict(oneview_server_hardware=resource)
+
+    def __update_mp_firware_version(self, resource):
+        if not resource:
+            raise Exception(SERVER_HARDWARE_NOT_FOUND)
+
+        resource = self.oneview_client.server_hardware.update_mp_firware_version(resource['uri'])
+
+        return True, SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED, dict(oneview_server_hardware=resource)
 
 
 def main():
