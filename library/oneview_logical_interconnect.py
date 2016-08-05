@@ -27,8 +27,6 @@ module: oneview_logical_interconnect
 short_description: Manage OneView Logical Interconnect resources.
 description:
     - Provides an interface to manage Logical Interconnect resources.
-      Have support to return logical interconnects to a consistent state and update the Ethernet interconnect settings
-      for the logical interconnect.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -43,7 +41,9 @@ options:
             - Indicates the desired state for the Logical Interconnect resource.
               'compliant' brings the logical interconnect back to a consistent state.
               'ethernet_settings_updated' updates the Ethernet interconnect settings for the logical interconnect.
-        choices: ['compliant', 'ethernet_settings_updated']
+              'internal_networks_updated' updates the internal networks on the logical interconnect. This operation is
+              non-idempotent.
+        choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated']
     data:
       description:
         - List with the options.
@@ -60,11 +60,33 @@ EXAMPLES = '''
     state: compliant
     data:
       name: 'Name of the Logical Interconnect'
+
+ - name: Update the Ethernet interconnect settings for the logical interconnect
+   oneview_logical_interconnect:
+     config: "{{ config }}"
+     state: ethernet_settings_updated
+     data:
+       name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+       ethernetSettings:
+         macRefreshInterval: 10
+
+- name: Update the internal networks on the logical interconnect
+  oneview_logical_interconnect:
+    config: "{{ config }}"
+    state: internal_networks_updated
+    data:
+      name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+      internalNetworks:
+        - name: "Name of the Ethernet Network 1"
+        - name: "Name of the Ethernet Network 2"
+        - uri: "/rest/ethernet-networks/8a58cf7c-d49d-43b1-94ce-da5621be490c"
 '''
 
 LOGICAL_INTERCONNECT_CONSISTENT = 'logical interconnect returned to a consistent state.'
 LOGICAL_INTERCONNECT_ETH_SETTINGS_UPDATED = 'Ethernet settings updated successfully.'
+LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED = 'Internal networks updated successfully.'
 LOGICAL_INTERCONNECT_NOT_FOUND = 'Logical Interconnect not found.'
+LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND = 'Ethernet network not found: '
 LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED = 'Nothing to do.'
 
 
@@ -74,7 +96,7 @@ class LogicalInterconnectModule(object):
         config=dict(required=True, type='str'),
         state=dict(
             required=True,
-            choices=['compliant', 'ethernet_settings_updated']
+            choices=['compliant', 'ethernet_settings_updated', 'internal_networks_updated']
         ),
         data=dict(required=True, type='dict')
     )
@@ -84,7 +106,6 @@ class LogicalInterconnectModule(object):
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
-
         state = self.module.params['state']
         data = self.module.params['data']
 
@@ -94,6 +115,8 @@ class LogicalInterconnectModule(object):
                 self.__compliance(resource)
             if state == 'ethernet_settings_updated':
                 self.__update_ethernet_settings(resource, data)
+            if state == 'internal_networks_updated':
+                self.__update_internal_networks(resource, data)
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
@@ -124,8 +147,32 @@ class LogicalInterconnectModule(object):
         else:
             raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
 
+    def __update_internal_networks(self, resource, data):
+        if resource:
+            networks = []
+            for network_uri_or_name in data['internalNetworks']:
+                if 'name' in network_uri_or_name:
+                    ethernet_network = self.__get_ethernet_network_by_name(network_uri_or_name['name'])
+                    if not ethernet_network:
+                        raise Exception(LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND + network_uri_or_name['name'])
+                    networks.append(ethernet_network['uri'])
+                elif 'uri' in network_uri_or_name:
+                    networks.append(network_uri_or_name['uri'])
+
+            li = self.oneview_client.logical_interconnects.update_internal_networks(resource['uri'], networks)
+
+            self.module.exit_json(changed=True,
+                                  ansible_facts=dict(logical_interconnect=li),
+                                  msg=LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED)
+        else:
+            raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
+
     def __get_by_name(self, data):
         return self.oneview_client.logical_interconnects.get_by_name(data['name'])
+
+    def __get_ethernet_network_by_name(self, name):
+        result = self.oneview_client.ethernet_networks.get_by('name', name)
+        return result[0] if result else None
 
 
 def main():

@@ -17,8 +17,8 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    networkName: ~  # Set the name of an existent Ethernet Network to update the internal networks
   tasks:
-
     - name: Update the Ethernet interconnect settings for the logical interconnect
       oneview_logical_interconnect:
         config: "{{ config }}"
@@ -27,6 +27,17 @@
           name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
           ethernetSettings:
             macRefreshInterval: 11
+      delegate_to: localhost
+
+    - name: Update the internal networks on the logical interconnect
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: internal_networks_updated
+        data:
+          name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+          internalNetworks:
+            - name: "{{ networkName }}"  # could also be an uri. e.g: - uri: '/rest/ethernet-network/<id>'
+      when: networkName
       delegate_to: localhost
 
     - name: Return the logical interconnect to a consistent state
