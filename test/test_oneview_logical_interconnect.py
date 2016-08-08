@@ -21,7 +21,7 @@ from oneview_logical_interconnect import LogicalInterconnectModule
 from oneview_logical_interconnect import LOGICAL_INTERCONNECT_CONSISTENT, LOGICAL_INTERCONNECT_NOT_FOUND, \
     LOGICAL_INTERCONNECT_ETH_SETTINGS_UPDATED, LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED, \
     LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED, LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND, \
-    LOGICAL_INTERCONNECT_SETTINGS_UPDATED
+    LOGICAL_INTERCONNECT_SETTINGS_UPDATED, LOGICAL_INTERCONNECT_QOS_UPDATED
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -33,6 +33,19 @@ LOGICAL_INTERCONNECT = {'uri': '/rest/logical-interconnect/id',
                         'fcoeSettings': {
                             'fcoeMode': 'Unknown'
                         }}
+
+QOS_AGGREGATED_CONFIG = {
+    'inactiveFCoEQosConfig': None,
+    'inactiveNonFCoEQosConfig': None,
+    'activeQosConfig': {
+        'category': 'qos-aggregated-configuration',
+        'configType': 'CustomNoFCoE',
+        'downlinkClassificationType': 'DSCP',
+        'uplinkClassificationType': None,
+        'qosTrafficClassifiers': ['a', 'list', 'with', 'classifiers'],
+        'type': 'QosConfiguration'
+    }
+}
 
 
 PARAMS_COMPLIANCE = dict(
@@ -88,6 +101,30 @@ PARAMS_GENERATE_FIB = dict(
     data=dict(name='Name of the Logical Interconnect')
 )
 
+PARAMS_UPDATE_QOS_AGGREG_CONFIG = dict(
+    config='config.json',
+    state='qos_aggregated_configuration_updated',
+    data=dict(name='Name of the Logical Interconnect',
+              activeQosConfig=dict(category='qos-aggregated-configuration',
+                                   configType='Passthrough',
+                                   downlinkClassificationType=None,
+                                   uplinkClassificationType=None,
+                                   qosTrafficClassifiers=[],
+                                   type='QosConfiguration'))
+)
+
+PARAMS_UPDATE_QOS_AGGREG_NO_CHANGES = dict(
+    config='config.json',
+    state='qos_aggregated_configuration_updated',
+    data=dict(name='Name of the Logical Interconnect',
+              activeQosConfig=dict(category='qos-aggregated-configuration',
+                                   configType='CustomNoFCoE',
+                                   downlinkClassificationType='DSCP',
+                                   uplinkClassificationType=None,
+                                   qosTrafficClassifiers=['a', 'list', 'with', 'classifiers'],
+                                   type='QosConfiguration'))
+)
+
 
 def create_ansible_mock(params):
     mock_params = mock.Mock()
@@ -123,7 +160,6 @@ class LogicalInterconnectCompliantStateSpec(unittest.TestCase):
     def test_should_fail_when_logical_interconnect_not_found(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.logical_interconnects.get_by_name.return_value = None
-        mock_ov_instance.logical_interconnects.update_compliance.return_value = {}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_COMPLIANCE)
@@ -196,7 +232,6 @@ class LogicalInterconnectEthernetSettingsUpdatedStateSpec(unittest.TestCase):
     def test_should_fail_when_logical_interconnect_not_found(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.logical_interconnects.get_by_name.return_value = None
-        mock_ov_instance.logical_interconnects.update_ethernet_settings.return_value = {}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_ETHERNET_SETTINGS)
@@ -254,7 +289,6 @@ class LogicalInterconnectInternalNetworksUpdatedStateSpec(unittest.TestCase):
     def test_should_fail_when_logical_interconnect_not_found(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.logical_interconnects.get_by_name.return_value = None
-        mock_ov_instance.logical_interconnects.update_internal_networks.return_value = {}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_INTERNAL_NETWORKS)
@@ -360,7 +394,6 @@ class LogicalInterconnectSettingsUpdatedStateSpec(unittest.TestCase):
     def test_should_fail_when_logical_interconnect_not_found(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.logical_interconnects.get_by_name.return_value = None
-        mock_ov_instance.logical_interconnects.update_settings.return_value = {}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_SETTTINGS)
@@ -406,10 +439,64 @@ class LogicalInterconnectForwardingInformationBaseGeneratedStateSpec(unittest.Te
     def test_should_fail_when_logical_interconnect_not_found(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.logical_interconnects.get_by_name.return_value = None
-        mock_ov_instance.logical_interconnects.create_forwarding_information_base.return_value = {}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_GENERATE_FIB)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectModule().run()
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=LOGICAL_INTERCONNECT_NOT_FOUND
+        )
+
+
+class LogicalInterconnectQosAggregatedConfigurationUpdatedStateSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_update_qos_aggreg_config(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.get_qos_aggregated_configuration.return_value = QOS_AGGREGATED_CONFIG
+        mock_ov_instance.logical_interconnects.update_qos_aggregated_configuration.return_value = QOS_AGGREGATED_CONFIG
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_UPDATE_QOS_AGGREG_CONFIG)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LOGICAL_INTERCONNECT_QOS_UPDATED,
+            ansible_facts=dict(qos_aggregated_configuration=QOS_AGGREGATED_CONFIG)
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_do_nothing_when_no_changes(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.get_qos_aggregated_configuration.return_value = QOS_AGGREGATED_CONFIG
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_UPDATE_QOS_AGGREG_NO_CHANGES)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_fail_when_logical_interconnect_not_found(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = None
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_UPDATE_QOS_AGGREG_CONFIG)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalInterconnectModule().run()
@@ -504,6 +591,26 @@ class LogicalInterconnectHandlingSpec(unittest.TestCase):
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_GENERATE_FIB)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        self.assertRaises(Exception, LogicalInterconnectModule().run())
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=FAKE_MSG_ERROR
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_fail_when_update_qos_raises_exception(self, mock_ansible_module,
+                                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.get_qos_aggregated_configuration.return_value = QOS_AGGREGATED_CONFIG
+        mock_ov_instance.logical_interconnects.update_qos_aggregated_configuration.side_effect = \
+            Exception(FAKE_MSG_ERROR)
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_UPDATE_QOS_AGGREG_CONFIG)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, LogicalInterconnectModule().run())

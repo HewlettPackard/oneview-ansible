@@ -44,10 +44,13 @@ options:
               'internal_networks_updated' updates the internal networks on the logical interconnect. This operation is
               non-idempotent.
               'settings_updated' updates the Logical Interconnect settings.
-              'forwarding_information_base_generated' Generate the forwarding information base dump file for the logical
-              interconnect. This operation is non-idempotent and does not ensure that the operation is completed.
+              'forwarding_information_base_generated' generates the forwarding information base dump file for the
+              logical interconnect. This operation is non-idempotent and does not ensure that the operation is
+              completed.
+              'qos_aggregated_configuration_updated' updates the QoS aggregated configuration for the logical
+              interconnect.
         choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
-                  'forwarding_information_base_generated']
+                  'forwarding_information_base_generated', 'qos_aggregated_configuration_updated']
     data:
       description:
         - List with the options.
@@ -100,12 +103,25 @@ EXAMPLES = '''
   data:
     name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
 
+- name: Update the QoS aggregated configuration for the logical interconnect
+  config: "{{ config }}"
+  state: qos_aggregated_configuration_updated
+  data:
+    name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+    activeQosConfig:
+      category: 'qos-aggregated-configuration'
+      configType: 'Passthrough'
+      downlinkClassificationType: ~
+      uplinkClassificationType: ~
+      qosTrafficClassifiers: []
+      type: 'QosConfiguration'
 '''
 
 LOGICAL_INTERCONNECT_CONSISTENT = 'logical interconnect returned to a consistent state.'
 LOGICAL_INTERCONNECT_ETH_SETTINGS_UPDATED = 'Ethernet settings updated successfully.'
 LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED = 'Internal networks updated successfully.'
 LOGICAL_INTERCONNECT_SETTINGS_UPDATED = 'Logical Interconnect setttings updated successfully.'
+LOGICAL_INTERCONNECT_QOS_UPDATED = 'QoS aggregated configuration updated successfully.'
 LOGICAL_INTERCONNECT_NOT_FOUND = 'Logical Interconnect not found.'
 LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND = 'Ethernet network not found: '
 LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED = 'Nothing to do.'
@@ -118,7 +134,7 @@ class LogicalInterconnectModule(object):
         state=dict(
             required=True,
             choices=['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
-                     'forwarding_information_base_generated']
+                     'forwarding_information_base_generated', 'qos_aggregated_configuration_updated']
         ),
         data=dict(required=True, type='dict')
     )
@@ -143,6 +159,8 @@ class LogicalInterconnectModule(object):
                 self.__update_settings(resource, data)
             if state == 'forwarding_information_base_generated':
                 self.__generate_forwarding_information_base(resource)
+            if state == 'qos_aggregated_configuration_updated':
+                self.__update_qos_configuration(resource, data)
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
@@ -231,12 +249,40 @@ class LogicalInterconnectModule(object):
         else:
             raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
 
+    def __update_qos_configuration(self, resource, data):
+        if resource:
+            qos_config = self.__get_qos_aggregated_configuration(resource)
+
+            qos_config_merged = qos_config.copy()
+            qos_config_merged.update(data)
+
+            if 'name' in qos_config_merged:
+                qos_config_merged.pop('name')
+
+            if resource_compare(qos_config_merged, qos_config):
+
+                self.module.exit_json(changed=False,
+                                      msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
+            else:
+                qos_config_updated = self.oneview_client.logical_interconnects.update_qos_aggregated_configuration(
+                    resource['uri'], qos_config_merged)
+
+                self.module.exit_json(changed=True,
+                                      msg=LOGICAL_INTERCONNECT_QOS_UPDATED,
+                                      ansible_facts=dict(qos_aggregated_configuration=qos_config_updated))
+        else:
+            raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
+
     def __get_by_name(self, data):
         return self.oneview_client.logical_interconnects.get_by_name(data['name'])
 
     def __get_ethernet_network_by_name(self, name):
         result = self.oneview_client.ethernet_networks.get_by('name', name)
         return result[0] if result else None
+
+    def __get_qos_aggregated_configuration(self, resource):
+        return \
+            self.oneview_client.logical_interconnects.get_qos_aggregated_configuration(resource['uri'])
 
 
 def main():

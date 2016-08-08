@@ -61,6 +61,22 @@
 
     - debug: msg="{{ result.msg }}"
 
+    - name: Update the QoS aggregated configuration for the logical interconnect
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: qos_aggregated_configuration_updated
+        data:
+          name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+          activeQosConfig:
+            category: 'qos-aggregated-configuration'
+            configType: 'Passthrough'
+            downlinkClassificationType: ~
+            uplinkClassificationType: ~
+            qosTrafficClassifiers: []
+            type: 'QosConfiguration'
+      delegate_to: localhost
+      register: result
+
     - name: Return the Logical Interconnect to a consistent state
       oneview_logical_interconnect:
         config: "{{ config }}"
