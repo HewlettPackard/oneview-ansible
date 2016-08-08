@@ -103,7 +103,7 @@ class ServerHardwarePresentStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_HARDWARE_ADDED,
-            ansible_facts=dict(oneview_server_hardware={"name": "name"})
+            ansible_facts=dict(server_hardware={"name": "name"})
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -121,7 +121,7 @@ class ServerHardwarePresentStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
             msg=SERVER_HARDWARE_ALREADY_ADDED,
-            ansible_facts=dict(oneview_server_hardware={"name": "name"})
+            ansible_facts=dict(server_hardware={"name": "name"})
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -141,7 +141,7 @@ class ServerHardwarePresentStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_HARDWARE_ENV_CONFIG_UPDATED,
-            ansible_facts=dict(oneview_server_hardware={"name": "name",
+            ansible_facts=dict(server_hardware={"name": "name",
                                                         "uri": "uri"})
         )
 
@@ -255,7 +255,7 @@ class ServerHardwarePowerStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_HARDWARE_POWER_STATE_UPDATED,
-            ansible_facts=dict(oneview_server_hardware={"name": "name"})
+            ansible_facts=dict(server_hardware={"name": "name"})
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -293,7 +293,7 @@ class ServerHardwareRefreshStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_HARDWARE_REFRESH_STATE_UPDATED,
-            ansible_facts=dict(oneview_server_hardware={"name": "name"})
+            ansible_facts=dict(server_hardware={"name": "name"})
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -331,7 +331,7 @@ class ServerHardwareIloFirmwareUpdateStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED,
-            ansible_facts=dict(oneview_server_hardware={"name": "name"})
+            ansible_facts=dict(server_hardware={"name": "name"})
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')

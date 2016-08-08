@@ -42,7 +42,7 @@ options:
               'power_state_set' will set the power state of the Server Hardware.
               'refresh_state_set will set the refresh state of the Server Hardware.
               'ilo_firmware_version_updated' will update the iLO firmware version of the Server Hardware.
-        choices: ['present', 'absent', 'set_power_state', 'set_refresh_state', 'ilo_firmware_version_updated']
+        choices: ['present', 'absent', 'power_state_set', 'refresh_state_set', 'ilo_firmware_version_updated']
         required: true
     data:
         description:
@@ -70,7 +70,7 @@ EXAMPLES = '''
 - name: Power Off the server hardware
   oneview_server_hardware:
     config: "{{ config }}"
-    state: set_power_state
+    state: power_state_set
     data:
         hostname : "172.18.6.15"
         powerStateData:
@@ -112,6 +112,14 @@ EXAMPLES = '''
     data:
         hostname : "172.18.6.15"
   delegate_to: localhost
+'''
+
+
+RETURN = '''
+server_hardware:
+    description: Has the OneView facts about the Server Hardware.
+    returned: always, but can be null
+    type: complex
 '''
 
 SERVER_HARDWARE_ADDED = 'Server Hardware added successfully.'
@@ -192,7 +200,7 @@ class ServerHardwareModule(object):
                 changed = True
                 msg = SERVER_HARDWARE_ENV_CONFIG_UPDATED
 
-        return changed, msg, dict(oneview_server_hardware=resource)
+        return changed, msg, dict(server_hardware=resource)
 
     def __absent(self, resource):
         if resource:
@@ -207,7 +215,7 @@ class ServerHardwareModule(object):
 
         resource = self.oneview_client.server_hardware.update_power_state(data['powerStateData'], resource['uri'])
 
-        return True, SERVER_HARDWARE_POWER_STATE_UPDATED, dict(oneview_server_hardware=resource)
+        return True, SERVER_HARDWARE_POWER_STATE_UPDATED, dict(server_hardware=resource)
 
     def __set_refresh_state(self, data, resource):
         if not resource:
@@ -215,7 +223,7 @@ class ServerHardwareModule(object):
 
         resource = self.oneview_client.server_hardware.refresh_state(data['refreshStateData'], resource['uri'])
 
-        return True, SERVER_HARDWARE_REFRESH_STATE_UPDATED, dict(oneview_server_hardware=resource)
+        return True, SERVER_HARDWARE_REFRESH_STATE_UPDATED, dict(server_hardware=resource)
 
     def __update_mp_firware_version(self, resource):
         if not resource:
@@ -223,7 +231,7 @@ class ServerHardwareModule(object):
 
         resource = self.oneview_client.server_hardware.update_mp_firware_version(resource['uri'])
 
-        return True, SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED, dict(oneview_server_hardware=resource)
+        return True, SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED, dict(server_hardware=resource)
 
 
 def main():
