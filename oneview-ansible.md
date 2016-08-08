@@ -1580,7 +1580,7 @@ Manage OneView Server Hardware resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | data  |   yes  |  | |  List with Server Hardware properties and its associated states  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>set_power_state</li> </ul> |  Indicates the desired state for the Server Hardware resource. 'present' will ensure data properties are compliant to OneView. 'absent' will remove the resource from OneView, if it exists. 'set_power_state' will set the power state of the Server Hardware.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>power_state_set</li> <li>refresh_state_set</li> <li>ilo_firmware_version_updated</li> </ul> |  Indicates the desired state for the Server Hardware resource. 'present' will ensure data properties are compliant to OneView. 'absent' will remove the resource from OneView, if it exists. 'power_state_set' will set the power state of the Server Hardware. 'refresh_state_set will set the refresh state of the Server Hardware. 'ilo_firmware_version_updated' will update the iLO firmware version of the Server Hardware.  |
 | config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
 
 
@@ -1594,24 +1594,51 @@ Manage OneView Server Hardware resources.
     state: present
     data:
          hostname : "172.18.6.15"
-         username : "dcs"
-         password : "dcs"
+         username : "username"
+         password : "password"
          force : false
          licensingIntent: "OneView"
          configurationState: "Managed"
   delegate_to: localhost
-
+  
 - name: Power Off the server hardware
   oneview_server_hardware:
     config: "{{ config }}"
-    state: set_power_state
+    state: power_state_set
     data:
         hostname : "172.18.6.15"
         powerStateData:
             powerState: "Off"
             powerControl: "MomentaryPress"
   delegate_to: localhost
-
+  
+- name: Refresh the server hardware
+  oneview_server_hardware:
+    config: "{{ config }}"
+    state: refresh_state_set
+    data:
+        hostname : "172.18.6.15"
+        refreshStateData:
+            refreshState : "RefreshPending"
+  delegate_to: localhost
+  
+- name: Update the Server Hardware iLO firmware version
+  oneview_server_hardware:
+    config: "{{ config }}"
+    state: ilo_firmware_version_updated
+    data:
+        hostname : "172.18.6.15"
+  delegate_to: localhost
+  
+- name: Set the calibrated max power of a server hardware
+  oneview_server_hardware:
+    config: "{{ config }}"
+    state: present
+    data:
+        hostname : "172.18.6.15"
+        calibratedMaxPower: 2500
+  delegate_to: localhost
+  
 - name: Remove the server hardware by its IP
   oneview_server_hardware:
     config: "{{ config }}"
@@ -1619,7 +1646,6 @@ Manage OneView Server Hardware resources.
     data:
         hostname : "172.18.6.15"
   delegate_to: localhost
-
 ```
 
 
