@@ -44,7 +44,10 @@ options:
               'internal_networks_updated' updates the internal networks on the logical interconnect. This operation is
               non-idempotent.
               'settings_updated' updates the Logical Interconnect settings.
-        choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated']
+              'forwarding_information_base_generated' Generate the forwarding information base dump file for the logical
+              interconnect. This operation is non-idempotent and does not ensure that the operation is completed.
+        choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
+                  'forwarding_information_base_generated']
     data:
       description:
         - List with the options.
@@ -90,6 +93,13 @@ EXAMPLES = '''
       name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
       ethernetSettings:
         macRefreshInterval: 10
+
+- name: Generate the forwarding information base dump file for the logical interconnect
+  config: "{{ config }}"
+  state: forwarding_information_base_generated
+  data:
+    name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+
 '''
 
 LOGICAL_INTERCONNECT_CONSISTENT = 'logical interconnect returned to a consistent state.'
@@ -107,7 +117,8 @@ class LogicalInterconnectModule(object):
         config=dict(required=True, type='str'),
         state=dict(
             required=True,
-            choices=['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated']
+            choices=['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
+                     'forwarding_information_base_generated']
         ),
         data=dict(required=True, type='dict')
     )
@@ -130,6 +141,8 @@ class LogicalInterconnectModule(object):
                 self.__update_internal_networks(resource, data)
             if state == 'settings_updated':
                 self.__update_settings(resource, data)
+            if state == 'forwarding_information_base_generated':
+                self.__generate_forwarding_information_base(resource)
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
@@ -205,6 +218,16 @@ class LogicalInterconnectModule(object):
                 self.module.exit_json(changed=True,
                                       msg=LOGICAL_INTERCONNECT_SETTINGS_UPDATED,
                                       ansible_facts=dict(logical_interconnect=li))
+        else:
+            raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
+
+    def __generate_forwarding_information_base(self, resource):
+        if resource:
+            result = self.oneview_client.logical_interconnects.create_forwarding_information_base(resource['uri'])
+
+            self.module.exit_json(changed=True,
+                                  msg=result.get('status'),
+                                  ansible_facts=dict(interconnect_fib=result))
         else:
             raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
 

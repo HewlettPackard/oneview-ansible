@@ -50,6 +50,17 @@
             macRefreshInterval: 12
       delegate_to: localhost
 
+    - name: Generate the forwarding information base dump file for the logical interconnect
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: forwarding_information_base_generated
+        data:
+          name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+      delegate_to: localhost
+      register: result
+
+    - debug: msg="{{ result.msg }}"
+
     - name: Return the Logical Interconnect to a consistent state
       oneview_logical_interconnect:
         config: "{{ config }}"
