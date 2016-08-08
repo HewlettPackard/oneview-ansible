@@ -20,7 +20,8 @@ from hpOneView.oneview_client import OneViewClient
 from oneview_logical_interconnect import LogicalInterconnectModule
 from oneview_logical_interconnect import LOGICAL_INTERCONNECT_CONSISTENT, LOGICAL_INTERCONNECT_NOT_FOUND, \
     LOGICAL_INTERCONNECT_ETH_SETTINGS_UPDATED, LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED, \
-    LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED, LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND
+    LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED, LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND, \
+    LOGICAL_INTERCONNECT_SETTINGS_UPDATED
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -28,7 +29,11 @@ LOGICAL_INTERCONNECT = {'uri': '/rest/logical-interconnect/id',
                         'ethernetSettings': {
                             'enableIgmpSnooping': True,
                             'macRefreshInterval': 10
+                        },
+                        'fcoeSettings': {
+                            'fcoeMode': 'Unknown'
                         }}
+
 
 PARAMS_COMPLIANCE = dict(
     config='config.json',
@@ -53,6 +58,28 @@ PARAMS_INTERNAL_NETWORKS = dict(
     state='internal_networks_updated',
     data=dict(name='Name of the Logical Interconnect',
               internalNetworks=[dict(name='Network Name 1'), dict(name='Network Name 2'), dict(uri='/path/3')])
+)
+
+PARAMS_SETTTINGS = dict(
+    config='config.json',
+    state='settings_updated',
+    data=dict(name='Name of the Logical Interconnect',
+              ethernetSettings=dict(macRefreshInterval=12),
+              fcoeSettings=dict(fcoeMode='NotApplicable'))
+)
+
+PARAMS_SETTTINGS_ETHERNET = dict(
+    config='config.json',
+    state='settings_updated',
+    data=dict(name='Name of the Logical Interconnect',
+              ethernetSettings=dict(macRefreshInterval=12))
+)
+
+PARAMS_SETTTINGS_FCOE = dict(
+    config='config.json',
+    state='settings_updated',
+    data=dict(name='Name of the Logical Interconnect',
+              fcoeSettings=dict(fcoeMode='NotApplicable'))
 )
 
 
@@ -250,6 +277,77 @@ class LogicalInterconnectInternalNetworksUpdatedStateSpec(unittest.TestCase):
         mock_ansible_instance.fail_json.assert_called_once_with(
             msg=LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND + "Network Name 2"
         )
+
+
+class LogicalInterconnectSettingsUpdatedStateSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_update_settings(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.update_settings.return_value = LOGICAL_INTERCONNECT
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_SETTTINGS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LOGICAL_INTERCONNECT_SETTINGS_UPDATED,
+            ansible_facts=dict(logical_interconnect=LOGICAL_INTERCONNECT)
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_update_ethernet_settings(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.update_settings.return_value = LOGICAL_INTERCONNECT
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_SETTTINGS_ETHERNET)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectModule().run()
+
+        expected_uri = '/rest/logical-interconnect/id'
+        expected_settings = {
+            'ethernetSettings': {
+                'enableIgmpSnooping': True,
+                'macRefreshInterval': 12
+            },
+            'fcoeSettings': {
+                'fcoeMode': 'Unknown'
+            }
+        }
+        mock_ov_instance.logical_interconnects.update_settings.assert_called_once_with(expected_uri, expected_settings)
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_update_fcoe_settings(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.update_settings.return_value = LOGICAL_INTERCONNECT
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_SETTTINGS_FCOE)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectModule().run()
+
+        expected_uri = '/rest/logical-interconnect/id'
+        expected_settings = {
+            'ethernetSettings': {
+                'enableIgmpSnooping': True,
+                'macRefreshInterval': 10
+            },
+            'fcoeSettings': {
+                'fcoeMode': 'NotApplicable'
+            }
+        }
+        mock_ov_instance.logical_interconnects.update_settings.assert_called_once_with(expected_uri, expected_settings)
 
 
 class LogicalInterconnectHandlingSpec(unittest.TestCase):

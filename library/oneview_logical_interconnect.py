@@ -43,7 +43,8 @@ options:
               'ethernet_settings_updated' updates the Ethernet interconnect settings for the logical interconnect.
               'internal_networks_updated' updates the internal networks on the logical interconnect. This operation is
               non-idempotent.
-        choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated']
+              'settings_updated' updates the Logical Interconnect settings.
+        choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated']
     data:
       description:
         - List with the options.
@@ -80,11 +81,21 @@ EXAMPLES = '''
         - name: "Name of the Ethernet Network 1"
         - name: "Name of the Ethernet Network 2"
         - uri: "/rest/ethernet-networks/8a58cf7c-d49d-43b1-94ce-da5621be490c"
+
+- name: Update the interconnect settings
+  oneview_logical_interconnect:
+    config: "{{ config }}"
+    state: settings_updated
+    data:
+      name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+      ethernetSettings:
+        macRefreshInterval: 10
 '''
 
 LOGICAL_INTERCONNECT_CONSISTENT = 'logical interconnect returned to a consistent state.'
 LOGICAL_INTERCONNECT_ETH_SETTINGS_UPDATED = 'Ethernet settings updated successfully.'
 LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED = 'Internal networks updated successfully.'
+LOGICAL_INTERCONNECT_SETTINGS_UPDATED = 'Logical Interconnect setttings updated successfully.'
 LOGICAL_INTERCONNECT_NOT_FOUND = 'Logical Interconnect not found.'
 LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND = 'Ethernet network not found: '
 LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED = 'Nothing to do.'
@@ -96,7 +107,7 @@ class LogicalInterconnectModule(object):
         config=dict(required=True, type='str'),
         state=dict(
             required=True,
-            choices=['compliant', 'ethernet_settings_updated', 'internal_networks_updated']
+            choices=['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated']
         ),
         data=dict(required=True, type='dict')
     )
@@ -117,6 +128,8 @@ class LogicalInterconnectModule(object):
                 self.__update_ethernet_settings(resource, data)
             if state == 'internal_networks_updated':
                 self.__update_internal_networks(resource, data)
+            if state == 'settings_updated':
+                self.__update_settings(resource, data)
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
@@ -164,6 +177,34 @@ class LogicalInterconnectModule(object):
             self.module.exit_json(changed=True,
                                   ansible_facts=dict(logical_interconnect=li),
                                   msg=LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED)
+        else:
+            raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
+
+    def __update_settings(self, resource, data):
+        if resource:
+            ethernet_settings_merged = resource['ethernetSettings'].copy()
+            fcoe_settings_merged = resource['fcoeSettings'].copy()
+
+            if 'ethernetSettings' in data:
+                ethernet_settings_merged.update(data['ethernetSettings'])
+
+            if 'fcoeSettings' in data:
+                fcoe_settings_merged.update(data['fcoeSettings'])
+
+            if resource_compare(resource['ethernetSettings'], ethernet_settings_merged) and \
+               resource_compare(resource['fcoeSettings'], fcoe_settings_merged):
+
+                self.module.exit_json(changed=False,
+                                      msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
+            else:
+                settings = {
+                    'ethernetSettings': ethernet_settings_merged,
+                    'fcoeSettings': fcoe_settings_merged
+                }
+                li = self.oneview_client.logical_interconnects.update_settings(resource['uri'], settings)
+                self.module.exit_json(changed=True,
+                                      msg=LOGICAL_INTERCONNECT_SETTINGS_UPDATED,
+                                      ansible_facts=dict(logical_interconnect=li))
         else:
             raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
 

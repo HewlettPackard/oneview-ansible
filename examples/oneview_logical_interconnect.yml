@@ -29,7 +29,7 @@
             macRefreshInterval: 11
       delegate_to: localhost
 
-    - name: Update the internal networks on the logical interconnect
+    - name: Update the Internal Networks on the logical interconnect
       oneview_logical_interconnect:
         config: "{{ config }}"
         state: internal_networks_updated
@@ -40,7 +40,17 @@
       when: networkName
       delegate_to: localhost
 
-    - name: Return the logical interconnect to a consistent state
+    - name: Update the Interconnect Settings
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: settings_updated
+        data:
+          name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+          ethernetSettings:
+            macRefreshInterval: 12
+      delegate_to: localhost
+
+    - name: Return the Logical Interconnect to a consistent state
       oneview_logical_interconnect:
         config: "{{ config }}"
         state: compliant
