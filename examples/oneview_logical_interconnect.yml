@@ -77,6 +77,15 @@
       delegate_to: localhost
       register: result
 
+    - name: Update the SNMP configuration for the logical interconnect
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: snmp_configuration_updated
+        data:
+          name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+          enabled: True
+      delegate_to: localhost
+
     - name: Return the Logical Interconnect to a consistent state
       oneview_logical_interconnect:
         config: "{{ config }}"

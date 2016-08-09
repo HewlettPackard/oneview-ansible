@@ -49,8 +49,10 @@ options:
               completed.
               'qos_aggregated_configuration_updated' updates the QoS aggregated configuration for the logical
               interconnect.
+              'snmp_configuration_updated' updates the SNMP configuration for the logical interconnect.
         choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
-                  'forwarding_information_base_generated', 'qos_aggregated_configuration_updated']
+                  'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
+                  'snmp_configuration_updated']
     data:
       description:
         - List with the options.
@@ -115,6 +117,15 @@ EXAMPLES = '''
       uplinkClassificationType: ~
       qosTrafficClassifiers: []
       type: 'QosConfiguration'
+
+- name: Update the SNMP configuration for the logical interconnect
+  oneview_logical_interconnect:
+    config: "{{ config }}"
+    state: snmp_configuration_updated
+    data:
+      name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+      enabled: True
+    delegate_to: localhost
 '''
 
 LOGICAL_INTERCONNECT_CONSISTENT = 'logical interconnect returned to a consistent state.'
@@ -122,6 +133,7 @@ LOGICAL_INTERCONNECT_ETH_SETTINGS_UPDATED = 'Ethernet settings updated successfu
 LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED = 'Internal networks updated successfully.'
 LOGICAL_INTERCONNECT_SETTINGS_UPDATED = 'Logical Interconnect setttings updated successfully.'
 LOGICAL_INTERCONNECT_QOS_UPDATED = 'QoS aggregated configuration updated successfully.'
+LOGICAL_INTERCONNECT_SNMP_UPDATED = 'SNMP configuration updated successfully.'
 LOGICAL_INTERCONNECT_NOT_FOUND = 'Logical Interconnect not found.'
 LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND = 'Ethernet network not found: '
 LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED = 'Nothing to do.'
@@ -134,7 +146,8 @@ class LogicalInterconnectModule(object):
         state=dict(
             required=True,
             choices=['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
-                     'forwarding_information_base_generated', 'qos_aggregated_configuration_updated']
+                     'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
+                     'snmp_configuration_updated']
         ),
         data=dict(required=True, type='dict')
     )
@@ -161,6 +174,8 @@ class LogicalInterconnectModule(object):
                 self.__generate_forwarding_information_base(resource)
             if state == 'qos_aggregated_configuration_updated':
                 self.__update_qos_configuration(resource, data)
+            if state == 'snmp_configuration_updated':
+                self.__update_snmp_configuration(resource, data)
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
@@ -256,8 +271,7 @@ class LogicalInterconnectModule(object):
             qos_config_merged = qos_config.copy()
             qos_config_merged.update(data)
 
-            if 'name' in qos_config_merged:
-                qos_config_merged.pop('name')
+            qos_config_merged.pop('name')
 
             if resource_compare(qos_config_merged, qos_config):
 
@@ -273,6 +287,29 @@ class LogicalInterconnectModule(object):
         else:
             raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
 
+    def __update_snmp_configuration(self, resource, data):
+        if resource:
+            snmp_config = self.__get_snmp_configuration(resource)
+
+            snmp_config_merged = snmp_config.copy()
+            snmp_config_merged.update(data)
+
+            snmp_config_merged.pop('name')
+
+            if resource_compare(snmp_config_merged, snmp_config):
+
+                self.module.exit_json(changed=False,
+                                      msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
+            else:
+                snmp_config_updated = self.oneview_client.logical_interconnects.update_snmp_configuration(
+                    resource['uri'], snmp_config_merged)
+
+                self.module.exit_json(changed=True,
+                                      msg=LOGICAL_INTERCONNECT_SNMP_UPDATED,
+                                      ansible_facts=dict(snmp_configuration=snmp_config_updated))
+        else:
+            raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
+
     def __get_by_name(self, data):
         return self.oneview_client.logical_interconnects.get_by_name(data['name'])
 
@@ -281,8 +318,10 @@ class LogicalInterconnectModule(object):
         return result[0] if result else None
 
     def __get_qos_aggregated_configuration(self, resource):
-        return \
-            self.oneview_client.logical_interconnects.get_qos_aggregated_configuration(resource['uri'])
+        return self.oneview_client.logical_interconnects.get_qos_aggregated_configuration(resource['uri'])
+
+    def __get_snmp_configuration(self, resource):
+        return self.oneview_client.logical_interconnects.get_snmp_configuration(resource['uri'])
 
 
 def main():
