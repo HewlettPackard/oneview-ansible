@@ -86,6 +86,15 @@
           enabled: True
       delegate_to: localhost
 
+    - name: Update the port monitor configuration of the logical interconnect
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: port_monitor_updated
+        data:
+          name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+          enablePortMonitor: False
+      delegate_to: localhost
+
     - name: Return the Logical Interconnect to a consistent state
       oneview_logical_interconnect:
         config: "{{ config }}"

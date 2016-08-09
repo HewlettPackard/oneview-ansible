@@ -21,7 +21,8 @@ from oneview_logical_interconnect import LogicalInterconnectModule
 from oneview_logical_interconnect import LOGICAL_INTERCONNECT_CONSISTENT, LOGICAL_INTERCONNECT_NOT_FOUND, \
     LOGICAL_INTERCONNECT_ETH_SETTINGS_UPDATED, LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED, \
     LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED, LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND, \
-    LOGICAL_INTERCONNECT_SETTINGS_UPDATED, LOGICAL_INTERCONNECT_QOS_UPDATED, LOGICAL_INTERCONNECT_SNMP_UPDATED
+    LOGICAL_INTERCONNECT_SETTINGS_UPDATED, LOGICAL_INTERCONNECT_QOS_UPDATED, LOGICAL_INTERCONNECT_SNMP_UPDATED, \
+    LOGICAL_INTERCONNECT_PORT_MONITOR_UPDATED
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -48,6 +49,8 @@ QOS_AGGREGATED_CONFIG = {
 }
 
 SNMP_CONFIG = {'enabled': False}
+
+PORT_MONITOR_CONFIG = {'enablePortMonitor': True}
 
 
 PARAMS_COMPLIANCE = dict(
@@ -137,6 +140,18 @@ PARAMS_UPDATE_SNMP_CONFIG_NO_CHANGES = dict(
     config='config.json',
     state='snmp_configuration_updated',
     data=dict(name='Name of the Logical Interconnect', enabled=False)
+)
+
+PARAMS_UPDATE_PORT_MONITOR_CONFIG = dict(
+    config='config.json',
+    state='port_monitor_updated',
+    data=dict(name='Name of the Logical Interconnect', enablePortMonitor=False)
+)
+
+PARAMS_UPDATE_PORT_MONITOR_CONFIG_NO_CHANGES = dict(
+    config='config.json',
+    state='port_monitor_updated',
+    data=dict(name='Name of the Logical Interconnect', enablePortMonitor=True)
 )
 
 
@@ -576,6 +591,62 @@ class LogicalInterconnectSnmpConfigurationUpdatedStateSpec(unittest.TestCase):
         )
 
 
+class LogicalInterconnectPortMonitorUpdatedStateSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_update_port_monitor_configuration(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.get_port_monitor.return_value = PORT_MONITOR_CONFIG
+        mock_ov_instance.logical_interconnects.update_port_monitor.return_value = PORT_MONITOR_CONFIG
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_UPDATE_PORT_MONITOR_CONFIG)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LOGICAL_INTERCONNECT_PORT_MONITOR_UPDATED,
+            ansible_facts=dict(port_monitor_configuration=PORT_MONITOR_CONFIG)
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_do_nothing_when_no_changes(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.get_port_monitor.return_value = PORT_MONITOR_CONFIG
+        mock_ov_instance.logical_interconnects.update_port_monitor.return_value = PORT_MONITOR_CONFIG
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_UPDATE_PORT_MONITOR_CONFIG_NO_CHANGES)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_fail_when_logical_interconnect_not_found(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = None
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_UPDATE_PORT_MONITOR_CONFIG)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectModule().run()
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=LOGICAL_INTERCONNECT_NOT_FOUND
+        )
+
+
 class LogicalInterconnectHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -701,6 +772,26 @@ class LogicalInterconnectHandlingSpec(unittest.TestCase):
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_UPDATE_SNMP_CONFIG)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        self.assertRaises(Exception, LogicalInterconnectModule().run())
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=FAKE_MSG_ERROR
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_fail_when_update_port_monitor_raises_exception(self, mock_ansible_module,
+                                                                   mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.get_port_monitor.return_value = PORT_MONITOR_CONFIG
+        mock_ov_instance.logical_interconnects.update_port_monitor.side_effect = \
+            Exception(FAKE_MSG_ERROR)
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_UPDATE_PORT_MONITOR_CONFIG)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, LogicalInterconnectModule().run())
