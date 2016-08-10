@@ -17,14 +17,15 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    networkName: ~  # Set the name of an existent Ethernet Network to update the internal networks
+    logical_interconnect_name:  # Set the name of a Logical interconnect to run the examples
+    # network_name: set the name of an existent Ethernet Network to update the internal networks
   tasks:
     - name: Update the Ethernet interconnect settings for the logical interconnect
       oneview_logical_interconnect:
         config: "{{ config }}"
         state: ethernet_settings_updated
         data:
-          name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+          name: "{{ logical_interconnect_name }}"
           ethernetSettings:
             macRefreshInterval: 11
       delegate_to: localhost
@@ -34,10 +35,10 @@
         config: "{{ config }}"
         state: internal_networks_updated
         data:
-          name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+          name: "{{ logical_interconnect_name }}"
           internalNetworks:
-            - name: "{{ networkName }}"  # could also be an uri. e.g: - uri: '/rest/ethernet-network/<id>'
-      when: networkName
+            - name: "{{ network_name }}"  # could also be an uri. e.g: - uri: '/rest/ethernet-network/<id>'
+      when: network_name is defined
       delegate_to: localhost
 
     - name: Update the Interconnect Settings
@@ -45,7 +46,7 @@
         config: "{{ config }}"
         state: settings_updated
         data:
-          name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+          name: "{{ logical_interconnect_name }}"
           ethernetSettings:
             macRefreshInterval: 12
       delegate_to: localhost
@@ -55,7 +56,7 @@
         config: "{{ config }}"
         state: forwarding_information_base_generated
         data:
-          name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+          name: "{{ logical_interconnect_name }}"
       delegate_to: localhost
       register: result
 
@@ -66,14 +67,15 @@
         config: "{{ config }}"
         state: qos_aggregated_configuration_updated
         data:
-          name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
-          activeQosConfig:
-            category: 'qos-aggregated-configuration'
-            configType: 'Passthrough'
-            downlinkClassificationType: ~
-            uplinkClassificationType: ~
-            qosTrafficClassifiers: []
-            type: 'QosConfiguration'
+          name: "{{ logical_interconnect_name }}"
+          qosAggregatedConfiguration:
+            activeQosConfig:
+              category: 'qos-aggregated-configuration'
+              configType: 'Passthrough'
+              downlinkClassificationType: ~
+              uplinkClassificationType: ~
+              qosTrafficClassifiers: []
+              type: 'QosConfiguration'
       delegate_to: localhost
       register: result
 
@@ -82,8 +84,9 @@
         config: "{{ config }}"
         state: snmp_configuration_updated
         data:
-          name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
-          enabled: True
+          name: "{{ logical_interconnect_name }}"
+          snmpConfiguration:
+            enabled: True
       delegate_to: localhost
 
     - name: Update the port monitor configuration of the logical interconnect
@@ -91,8 +94,17 @@
         config: "{{ config }}"
         state: port_monitor_updated
         data:
-          name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
-          enablePortMonitor: False
+          name: "{{ logical_interconnect_name }}"
+          portMonitor:
+            enablePortMonitor: False
+      delegate_to: localhost
+
+    - name: Update the configuration on the logical interconnect
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: configuration_updated
+        data:
+          name: "{{ logical_interconnect_name }}"
       delegate_to: localhost
 
     - name: Return the Logical Interconnect to a consistent state
@@ -100,5 +112,5 @@
         config: "{{ config }}"
         state: compliant
         data:
-          name: "Test-Enclosure-Renamed-Updated-Enclosure Group 1 logical interconnect group"
+          name: "{{ logical_interconnect_name }}"
       delegate_to: localhost
