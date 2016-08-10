@@ -17,8 +17,9 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    logical_interconnect_name:  # Set the name of a Logical interconnect to run the examples
+    logical_interconnect_name: # Set the name of a Logical interconnect to run the examples
     # network_name: set the name of an existent Ethernet Network to update the internal networks
+    # firmware_driver: set the SPP filename to install it
   tasks:
     - name: Update the Ethernet interconnect settings for the logical interconnect
       oneview_logical_interconnect:
@@ -37,7 +38,7 @@
         data:
           name: "{{ logical_interconnect_name }}"
           internalNetworks:
-            - name: "{{ network_name }}"  # could also be an uri. e.g: - uri: '/rest/ethernet-network/<id>'
+            - name: "{{ network_name }}"  # could also be an URI. e.g: - uri: '/rest/ethernet-network/<id>'
       when: network_name is defined
       delegate_to: localhost
 
@@ -105,6 +106,18 @@
         state: configuration_updated
         data:
           name: "{{ logical_interconnect_name }}"
+      delegate_to: localhost
+
+    - name: Install a firmware to the logical interconnect, running the stage operation to upload the firmware
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: firmware_installed
+        data:
+          name: "{{ logical_interconnect_name }}"
+          firmware:
+            command: Stage
+            spp: "{{ firmware_driver }}"  # could also be a sppUri. e.g: - sppUri: '/rest/firmware-drivers/<filename>'
+      when: firmware_driver is defined
       delegate_to: localhost
 
     - name: Return the Logical Interconnect to a consistent state

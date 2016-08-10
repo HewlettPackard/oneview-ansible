@@ -53,9 +53,13 @@ options:
               'port_monitor_updated' updates the port monitor configuration of a logical interconnect.
               'configuration_updated' asynchronously applies or re-applies the logical interconnect configuration
               to all managed interconnects. This operation is non-idempotent.
+              'firmware_installed' installs firmware to a logical interconnect. The three operations that are supported
+              for the firmware update are Stage (uploads firmware to the interconnect), Activate (installs firmware on
+              the interconnect) and Update (which does a Stage and Activate in a sequential manner). All of them are
+              non-idempotent.
         choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
                   'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
-                  'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated']
+                  'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated', 'firmware_installed']
     data:
       description:
         - List with the options.
@@ -146,6 +150,16 @@ EXAMPLES = '''
       state: configuration_updated
       data:
         name: "{{ logical_interconnect_name }}"
+
+- name: Install a firmware to the logical interconnect
+  oneview_logical_interconnect:
+  config: "{{ config_file_path }}"
+  state: firmware_installed
+  data:
+    name: "Name of the Logical Interconnect"
+    firmware:
+      - command: Update
+      - spp: spp-filename
 '''
 
 LOGICAL_INTERCONNECT_CONSISTENT = 'logical interconnect returned to a consistent state.'
@@ -156,6 +170,7 @@ LOGICAL_INTERCONNECT_QOS_UPDATED = 'QoS aggregated configuration updated success
 LOGICAL_INTERCONNECT_SNMP_UPDATED = 'SNMP configuration updated successfully.'
 LOGICAL_INTERCONNECT_PORT_MONITOR_UPDATED = 'Port Monitor configuration updated successfully.'
 LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED = 'configuration on the logical interconnect updated successfully.'
+LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED = 'Firmware updated successfully.'
 LOGICAL_INTERCONNECT_NOT_FOUND = 'Logical Interconnect not found.'
 LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND = 'Ethernet network not found: '
 LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED = 'Nothing to do.'
@@ -170,7 +185,8 @@ class LogicalInterconnectModule(object):
             required=True,
             choices=['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
                      'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
-                     'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated']
+                     'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated',
+                     'firmware_installed']
         ),
         data=dict(required=True, type='dict')
     )
@@ -207,6 +223,8 @@ class LogicalInterconnectModule(object):
                     self.__update_port_monitor(uri, data)
                 if state == 'configuration_updated':
                     self.__update_configuration(uri)
+                if state == 'firmware_installed':
+                    self.__install_firmware(uri, data)
             else:
                 raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
 
@@ -346,6 +364,20 @@ class LogicalInterconnectModule(object):
                 self.module.exit_json(changed=True,
                                       msg=LOGICAL_INTERCONNECT_PORT_MONITOR_UPDATED,
                                       ansible_facts=dict(port_monitor_configuration=monitor_config_updated))
+        else:
+            raise Exception(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
+
+    def __install_firmware(self, uri, data):
+        if 'firmware' in data:
+            options = data['firmware'].copy()
+            if 'spp' in options:
+                options['sppUri'] = '/rest/firmware-drivers/' + options.pop('spp')
+
+            firmware = self.oneview_client.logical_interconnects.install_firmware(options, uri)
+
+            self.module.exit_json(changed=True,
+                                  ansible_facts=dict(firmware=firmware),
+                                  msg=LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED)
         else:
             raise Exception(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
 

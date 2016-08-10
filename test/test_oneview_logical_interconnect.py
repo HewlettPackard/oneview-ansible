@@ -22,7 +22,8 @@ from oneview_logical_interconnect import LOGICAL_INTERCONNECT_CONSISTENT, LOGICA
     LOGICAL_INTERCONNECT_ETH_SETTINGS_UPDATED, LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED, \
     LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED, LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND, \
     LOGICAL_INTERCONNECT_SETTINGS_UPDATED, LOGICAL_INTERCONNECT_QOS_UPDATED, LOGICAL_INTERCONNECT_SNMP_UPDATED, \
-    LOGICAL_INTERCONNECT_PORT_MONITOR_UPDATED, LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED
+    LOGICAL_INTERCONNECT_PORT_MONITOR_UPDATED, LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED, \
+    LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -163,6 +164,20 @@ PARAMS_CONFIGURATION = dict(
     state='configuration_updated',
     data=dict(name='Name of the Logical Interconnect', enabled=True)
 )
+
+PARAMS_FIRMWARE_WITH_SPP_NAME = dict(
+    config='config.json',
+    state='firmware_installed',
+    data=dict(name='Name of the Logical Interconnect',
+              firmware=dict(command='Update',
+                            spp='filename-of-the-firmware-to-install')))
+
+PARAMS_FIRMWARE_WITH_SPP_URI = dict(
+    config='config.json',
+    state='firmware_installed',
+    data=dict(name='Name of the Logical Interconnect',
+              firmware=dict(command='Update',
+                            sppUri='/rest/firmware-drivers/filename-of-the-firmware-to-install')))
 
 
 def create_ansible_mock(params):
@@ -695,6 +710,82 @@ class LogicalInterconnectConfigurationUpdatedStateSpec(unittest.TestCase):
         )
 
 
+class LogicalInterconnectFirmwareUpdatedStateSpec(unittest.TestCase):
+
+    expected_data = {
+        'command': 'Update',
+        'sppUri': '/rest/firmware-drivers/filename-of-the-firmware-to-install'
+    }
+    response = {
+        "response": "data"
+    }
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_install_firmware(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.install_firmware.return_value = self.response
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FIRMWARE_WITH_SPP_NAME)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED,
+            ansible_facts=dict(firmware=self.response)
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_install_firmware_when_spp_name_set(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.install_firmware.return_value = self.response
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FIRMWARE_WITH_SPP_NAME)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectModule().run()
+
+        mock_ov_instance.logical_interconnects.install_firmware.assert_called_once_with(self.expected_data, mock.ANY)
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_update_firmware_when_spp_uri_set(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.install_firmware.return_value = self.response
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FIRMWARE_WITH_SPP_URI)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectModule().run()
+
+        mock_ov_instance.logical_interconnects.install_firmware.assert_called_once_with(self.expected_data, mock.ANY)
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_fail_when_logical_interconnect_not_found(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = None
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FIRMWARE_WITH_SPP_URI)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectModule().run()
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=LOGICAL_INTERCONNECT_NOT_FOUND
+        )
+
+
 class LogicalInterconnectHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -859,6 +950,25 @@ class LogicalInterconnectHandlingSpec(unittest.TestCase):
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_CONFIGURATION)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        self.assertRaises(Exception, LogicalInterconnectModule().run())
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=FAKE_MSG_ERROR
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect.AnsibleModule')
+    def test_should_fail_when_install_firmware_raises_exception(self, mock_ansible_module,
+                                                                mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.install_firmware.side_effect = \
+            Exception(FAKE_MSG_ERROR)
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FIRMWARE_WITH_SPP_URI)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, LogicalInterconnectModule().run())
