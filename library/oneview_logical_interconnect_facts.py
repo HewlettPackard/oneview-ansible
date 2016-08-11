@@ -49,12 +49,15 @@ EXAMPLES = '''
 
 - debug: var=logical_interconnects
 
-- name: Gather facts about all Logical Interconnects
+- name: Gather facts about a Logical Interconnect by name with QOS Configuration
   oneview_logical_interconnect_facts:
-  config: "{{ config }}"
-  name: "Encl1-VC FlexFabric Production"
+    config: "{{ config }}"
+    name: "{{ name }}"
+    options:
+      - qos_aggregated_configuration
 
 - debug: var=logical_interconnects
+- debug: var=qos_aggregated_configuration
 '''
 
 RETURN = '''
@@ -63,7 +66,7 @@ logical_interconnects:
     returned: always, but can be null
     type: list
 
-qos_configuration:
+qos_aggregated_configuration:
     description: The QoS aggregated configuration for the logical interconnect.
     returned: when request, but can be null
     type: complex
@@ -111,8 +114,8 @@ class LogicalInterconnectFactsModule(object):
 
         options = self.module.params["options"]
 
-        if options and "qos_configuration" in options:
-            facts["qos_configuration"] = self.resource_client.get_qos_aggregated_configuration(id_or_uri=uri)
+        if options and "qos_aggregated_configuration" in options:
+            facts["qos_aggregated_configuration"] = self.resource_client.get_qos_aggregated_configuration(id_or_uri=uri)
 
         return facts
 

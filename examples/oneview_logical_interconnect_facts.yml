@@ -39,8 +39,7 @@
         config: "{{ config }}"
         name: "{{ name }}"
         options:
-          - qos_configuration
-
+          - qos_aggregated_configuration
       delegate_to: localhost
 
-    - debug: var=qos_configuration
+    - debug: var=qos_aggregated_configuration
