@@ -87,12 +87,12 @@ storage_volume_template:
     type: complex
 '''
 
-STORAGE_VOLUME_TEMPLATE_ADDED = 'Storage Volume Template added successfully.'
+STORAGE_VOLUME_TEMPLATE_CREATED = 'Storage Volume Template created successfully.'
 STORAGE_VOLUME_TEMPLATE_UPDATED = 'Storage Volume Template updated successfully.'
 STORAGE_VOLUME_TEMPLATE_ALREADY_UPDATED = 'Storage Volume Template is already updated.'
 STORAGE_VOLUME_TEMPLATE_DELETED = 'Storage Volume Template deleted successfully.'
 STORAGE_VOLUME_TEMPLATE_ALREADY_ABSENT = 'Storage Volume Template is already absent.'
-STORAGE_VOLUME_TEMPLATE_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: data.poolName"
+STORAGE_VOLUME_TEMPLATE_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: data.name"
 
 
 class StorageVolumeTemplateModule(object):
@@ -140,7 +140,7 @@ class StorageVolumeTemplateModule(object):
         if not resource:
             resource = self.oneview_client.storage_volume_templates.create(data)
             changed = True
-            msg = STORAGE_VOLUME_TEMPLATE_ADDED
+            msg = STORAGE_VOLUME_TEMPLATE_CREATED
         else:
 
             merged_data = resource.copy()

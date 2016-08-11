@@ -18,7 +18,7 @@ import mock
 import yaml
 
 from hpOneView.oneview_client import OneViewClient
-from oneview_storage_volume_template import StorageVolumeTemplateModule, STORAGE_VOLUME_TEMPLATE_ADDED, \
+from oneview_storage_volume_template import StorageVolumeTemplateModule, STORAGE_VOLUME_TEMPLATE_CREATED, \
     STORAGE_VOLUME_TEMPLATE_DELETED, STORAGE_VOLUME_TEMPLATE_ALREADY_ABSENT, \
     STORAGE_VOLUME_TEMPLATE_MANDATORY_FIELD_MISSING, \
     STORAGE_VOLUME_TEMPLATE_ALREADY_UPDATED, STORAGE_VOLUME_TEMPLATE_UPDATED
@@ -101,7 +101,7 @@ class StorageVolumeTemplatePresentStateSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
-            msg=STORAGE_VOLUME_TEMPLATE_ADDED,
+            msg=STORAGE_VOLUME_TEMPLATE_CREATED,
             ansible_facts=dict(storage_volume_template={"name": "name"})
         )
 
