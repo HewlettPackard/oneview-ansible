@@ -24,6 +24,8 @@ ERROR_MSG = 'Fake message error'
 
 LOGICAL_INTERCONNECT_NAME = "test"
 
+LOGICAL_INTERCONNECT_URI = "/rest/logical-interconnects/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0"
+
 PARAMS_GET_ALL = dict(
     config='config.json',
     name=None
@@ -31,10 +33,31 @@ PARAMS_GET_ALL = dict(
 
 PARAMS_GET_BY_NAME = dict(
     config='config.json',
-    name=LOGICAL_INTERCONNECT_NAME
+    name=LOGICAL_INTERCONNECT_NAME,
+    options=None
 )
 
-LOGICAL_INTERCONNECT = dict(name=LOGICAL_INTERCONNECT_NAME)
+PARAMS_GET_BY_NAME_WITH_QOS = dict(
+    config='config.json',
+    name=LOGICAL_INTERCONNECT_NAME,
+    options=['qos_configuration']
+)
+
+QOS_CONFIGURATION = dict(
+    activeQosConfig=dict(
+        category="qos-aggregated-configuration",
+        configType="Passthrough",
+        type="QosConfiguration"
+    ),
+    category="qos-aggregated-configuration",
+    type="qos-aggregated-configuration",
+    uri=None
+)
+
+LOGICAL_INTERCONNECT = dict(
+    name=LOGICAL_INTERCONNECT_NAME,
+    uri=LOGICAL_INTERCONNECT_URI
+)
 
 ALL_INTERCONNECTS = [LOGICAL_INTERCONNECT]
 
@@ -83,6 +106,35 @@ class LogicalInterconnectFactsSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(logical_interconnects=LOGICAL_INTERCONNECT)
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
+    def test_should_get_a_logical_interconnects_by_name_with_qos_configuration(self, mock_ansible_module, mock_ov_from_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.get_qos_aggregated_configuration.return_value = QOS_CONFIGURATION
+        mock_ov_from_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_QOS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectFactsModule().run()
+
+        mock_ov_instance.logical_interconnects.get_by_name.assert_called_once_with(
+            name=LOGICAL_INTERCONNECT_NAME
+        )
+
+        mock_ov_instance.logical_interconnects.get_qos_aggregated_configuration.assert_called_once_with(
+            id_or_uri=LOGICAL_INTERCONNECT_URI
+        )
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                logical_interconnects=LOGICAL_INTERCONNECT,
+                qos_configuration=QOS_CONFIGURATION
+            )
         )
 
 

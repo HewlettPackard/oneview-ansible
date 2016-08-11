@@ -62,6 +62,11 @@ logical_interconnects:
     description: The list of logical interconnects.
     returned: always, but can be null
     type: list
+
+qos_configuration:
+    description: The QoS aggregated configuration for the logical interconnect.
+    returned: when request, but can be null
+    type: complex
 '''
 
 
@@ -69,7 +74,8 @@ class LogicalInterconnectFactsModule(object):
 
     argument_spec = dict(
         config=dict(required=True, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        options=dict(required=False, type='list')
     )
 
     def __init__(self):
@@ -82,16 +88,33 @@ class LogicalInterconnectFactsModule(object):
             name = self.module.params["name"]
 
             if name:
-                logical_interconnects = self.resource_client.get_by_name(name=name)
+                facts = self.__get_by_name(name)
             else:
                 logical_interconnects = self.resource_client.get_all()
+                facts = dict(logical_interconnects=logical_interconnects)
 
-            self.module.exit_json(
-                changed=False,
-                ansible_facts=dict(logical_interconnects=logical_interconnects)
-            )
+            self.module.exit_json(changed=False, ansible_facts=facts)
         except Exception as exception:
             self.module.fail_json(msg=exception.args[0])
+
+    def __get_by_name(self, name):
+        logical_interconnect = self.resource_client.get_by_name(name=name)
+
+        facts = self.__get_options(logical_interconnect)
+        facts["logical_interconnects"] = logical_interconnect
+
+        return facts
+
+    def __get_options(self, logical_interconnect):
+        facts = dict()
+        uri = logical_interconnect["uri"]
+
+        options = self.module.params["options"]
+
+        if options and "qos_configuration" in options:
+            facts["qos_configuration"] = self.resource_client.get_qos_aggregated_configuration(id_or_uri=uri)
+
+        return facts
 
 
 def main():

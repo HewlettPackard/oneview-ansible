@@ -33,3 +33,14 @@
       delegate_to: localhost
 
     - debug: var=logical_interconnects
+
+    - name: Gather facts about a Logical Interconnect by name with QOS Configuration
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - qos_configuration
+
+      delegate_to: localhost
+
+    - debug: var=qos_configuration
