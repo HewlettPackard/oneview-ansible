@@ -45,8 +45,7 @@ options:
               non-idempotent.
               'settings_updated' updates the Logical Interconnect settings.
               'forwarding_information_base_generated' generates the forwarding information base dump file for the
-              logical interconnect. This operation is non-idempotent and does not ensure that the operation is
-              completed.
+              logical interconnect. This operation is non-idempotent and asynchronous.
               'qos_aggregated_configuration_updated' updates the QoS aggregated configuration for the logical
               interconnect.
               'snmp_configuration_updated' updates the SNMP configuration for the logical interconnect.
@@ -70,20 +69,20 @@ notes:
 '''
 
 EXAMPLES = '''
-- name: Return the logical interconnect to a consistent state
+- name: Return the Logical Interconnect to a consistent state
   oneview_logical_interconnect:
-    config: "{{ config_file_path }}"
-    state: compliant
-    data:
-      name: 'Name of the Logical Interconnect'
+  config: "{{ config_file_path }}"
+  state: compliant
+  data:
+    name: "Name of the Logical Interconnect"
 
 - name: Update the Ethernet interconnect settings for the logical interconnect
   oneview_logical_interconnect:
-    config: "{{ config_file_path }}"
-    state: ethernet_settings_updated
-    data:
-      name: "Name of the Logical Interconnect"
-      ethernetSettings:
+  config: "{{ config_file_path }}"
+  state: ethernet_settings_updated
+  data:
+    name: "Name of the Logical Interconnect"
+    ethernetSettings:
       macRefreshInterval: 10
 
 - name: Update the internal networks on the logical interconnect
@@ -107,18 +106,19 @@ EXAMPLES = '''
         macRefreshInterval: 10
 
 - name: Generate the forwarding information base dump file for the logical interconnect
-  oneview_logical_interconnect
+  oneview_logical_interconnect:
     config: "{{ config_file_path }}"
     state: forwarding_information_base_generated
     data:
-      name: "Name of the Logical Interconnect"
+      name: "{{ logical_interconnect_name }}"  # could also be 'uri'
 
 - name: Update the QoS aggregated configuration for the logical interconnect
-  oneview_logical_interconnect
+  oneview_logical_interconnect:
     config: "{{ config_file_path }}"
     state: qos_aggregated_configuration_updated
     data:
       name: "Name of the Logical Interconnect"
+      qosConfiguration:
       activeQosConfig:
         category: 'qos-aggregated-configuration'
         configType: 'Passthrough'
@@ -129,12 +129,12 @@ EXAMPLES = '''
 
 - name: Update the SNMP configuration for the logical interconnect
   oneview_logical_interconnect:
-    config: "{{ config_file_path }}"
-    state: snmp_configuration_updated
-    data:
-      name: "Name of the Logical Interconnect"
+  config: "{{ config_file_path }}"
+  state: snmp_configuration_updated
+  data:
+    name: "Name of the Logical Interconnect"
+    snmpConfiguration:
       enabled: True
-    delegate_to: localhost
 
 - name: Update the port monitor configuration of the logical interconnect
   oneview_logical_interconnect:
@@ -142,24 +142,58 @@ EXAMPLES = '''
     state: port_monitor_updated
     data:
       name: "Name of the Logical Interconnect"
-      enablePortMonitor: False
+      portMonitor:
+        enablePortMonitor: False
 
-  - name: Update the configuration on the logical interconnect
-    oneview_logical_interconnect:
-      config: "{{ config_file_path }}"
-      state: configuration_updated
-      data:
-        name: "{{ logical_interconnect_name }}"
+- name: Update the configuration on the logical interconnect
+  oneview_logical_interconnect:
+  config: "{{ config_file_path }}"
+  state: configuration_updated
+  data:
+    name: "Name of the Logical Interconnect"
 
-- name: Install a firmware to the logical interconnect
+- name: Install a firmware to the logical interconnect, running the stage operation to upload the firmware
   oneview_logical_interconnect:
   config: "{{ config_file_path }}"
   state: firmware_installed
   data:
     name: "Name of the Logical Interconnect"
     firmware:
-      - command: Update
-      - spp: spp-filename
+      command: Stage
+      spp: "filename"  # could also be sppUri: '/rest/firmware-drivers/<filename>'
+'''
+
+RETURN = '''
+storage_volume_template:
+    description: Has the OneView facts about the Logical Interconnect.
+    returned: on 'compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated', \
+              and 'configuration_updated' states, but can be null.
+    type: complex
+
+interconnect_fib:
+    description: Has the OneView facts about the Forwarding information Base.
+    returned: on 'forwarding_information_base_generated' state, but can be null.
+    type: complex
+
+qos_configuration:
+    description: Has the OneView facts about the QoS Configuration.
+    returned: on 'qos_aggregated_configuration_updated' state, but can be null.
+    type: complex
+
+snmp_configuration:
+    description: Has the OneView facts about the SNMP Configuration.
+    returned: on 'snmp_configuration_updated' state, but can be null.
+    type: complex
+
+port_monitor:
+    description: Has the OneView facts about the Port Monitor Configuration.
+    returned: on 'port_monitor_updated' state, but can be null.
+    type: complex
+
+li_firmware:
+    description: Has the OneView facts about the installed Firmware.
+    returned: on 'firmware_installed' state, but can be null.
+    type: complex
 '''
 
 LOGICAL_INTERCONNECT_CONSISTENT = 'logical interconnect returned to a consistent state.'
@@ -169,7 +203,7 @@ LOGICAL_INTERCONNECT_SETTINGS_UPDATED = 'Logical Interconnect setttings updated 
 LOGICAL_INTERCONNECT_QOS_UPDATED = 'QoS aggregated configuration updated successfully.'
 LOGICAL_INTERCONNECT_SNMP_UPDATED = 'SNMP configuration updated successfully.'
 LOGICAL_INTERCONNECT_PORT_MONITOR_UPDATED = 'Port Monitor configuration updated successfully.'
-LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED = 'configuration on the logical interconnect updated successfully.'
+LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED = 'Configuration on the logical interconnect updated successfully.'
 LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED = 'Firmware updated successfully.'
 LOGICAL_INTERCONNECT_NOT_FOUND = 'Logical Interconnect not found.'
 LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND = 'Ethernet network not found: '
@@ -202,191 +236,158 @@ class LogicalInterconnectModule(object):
         try:
             resource = self.__get_by_name(data)
 
-            if resource:
-                uri = resource['uri']
-
-                if state == 'compliant':
-                    self.__compliance(uri)
-                if state == 'ethernet_settings_updated':
-                    self.__update_ethernet_settings(resource, data)
-                if state == 'internal_networks_updated':
-                    self.__update_internal_networks(uri, data)
-                if state == 'settings_updated':
-                    self.__update_settings(resource, data)
-                if state == 'forwarding_information_base_generated':
-                    self.__generate_forwarding_information_base(uri)
-                if state == 'qos_aggregated_configuration_updated':
-                    self.__update_qos_configuration(uri, data)
-                if state == 'snmp_configuration_updated':
-                    self.__update_snmp_configuration(uri, data)
-                if state == 'port_monitor_updated':
-                    self.__update_port_monitor(uri, data)
-                if state == 'configuration_updated':
-                    self.__update_configuration(uri)
-                if state == 'firmware_installed':
-                    self.__install_firmware(uri, data)
-            else:
+            if not resource:
                 raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
+
+            uri = resource['uri']
+
+            if state == 'compliant':
+                changed, msg, ansible_facts = self.__compliance(uri)
+            elif state == 'ethernet_settings_updated':
+                changed, msg, ansible_facts = self.__update_ethernet_settings(resource, data)
+            elif state == 'internal_networks_updated':
+                changed, msg, ansible_facts = self.__update_internal_networks(uri, data)
+            elif state == 'settings_updated':
+                changed, msg, ansible_facts = self.__update_settings(resource, data)
+            elif state == 'forwarding_information_base_generated':
+                changed, msg, ansible_facts = self.__generate_forwarding_information_base(uri)
+            elif state == 'qos_aggregated_configuration_updated':
+                changed, msg, ansible_facts = self.__update_qos_configuration(uri, data)
+            elif state == 'snmp_configuration_updated':
+                changed, msg, ansible_facts = self.__update_snmp_configuration(uri, data)
+            elif state == 'port_monitor_updated':
+                changed, msg, ansible_facts = self.__update_port_monitor(uri, data)
+            elif state == 'configuration_updated':
+                changed, msg, ansible_facts = self.__update_configuration(uri)
+            elif state == 'firmware_installed':
+                changed, msg, ansible_facts = self.__install_firmware(uri, data)
+
+            if ansible_facts:
+                self.module.exit_json(changed=changed, msg=msg, ansible_facts=ansible_facts)
+            else:
+                self.module.exit_json(changed=changed, msg=msg)
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
 
     def __compliance(self, uri):
         li = self.oneview_client.logical_interconnects.update_compliance(uri)
-
-        self.module.exit_json(changed=True,
-                              msg=LOGICAL_INTERCONNECT_CONSISTENT,
-                              ansible_facts=dict(logical_interconnect=li))
+        return True, LOGICAL_INTERCONNECT_CONSISTENT, dict(logical_interconnect=li)
 
     def __update_ethernet_settings(self, resource, data):
-        if 'ethernetSettings' in data:
-            ethernet_settings_merged = resource['ethernetSettings'].copy()
-            ethernet_settings_merged.update(data['ethernetSettings'])
+        self.__validate_options('ethernetSettings', data)
 
-            if resource_compare(resource['ethernetSettings'], ethernet_settings_merged):
-                self.module.exit_json(changed=False,
-                                      msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
-            else:
-                li = self.oneview_client.logical_interconnects.update_ethernet_settings(resource['uri'],
-                                                                                        ethernet_settings_merged)
-                self.module.exit_json(changed=True,
-                                      msg=LOGICAL_INTERCONNECT_ETH_SETTINGS_UPDATED,
-                                      ansible_facts=dict(logical_interconnect=li))
+        ethernet_settings_merged = resource['ethernetSettings'].copy()
+        ethernet_settings_merged.update(data['ethernetSettings'])
 
+        if resource_compare(resource['ethernetSettings'], ethernet_settings_merged):
+            self.module.exit_json(changed=False,
+                                  msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
         else:
-            raise Exception(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
+            li = self.oneview_client.logical_interconnects.update_ethernet_settings(resource['uri'],
+                                                                                    ethernet_settings_merged)
+            return True, LOGICAL_INTERCONNECT_ETH_SETTINGS_UPDATED, dict(logical_interconnect=li)
 
     def __update_internal_networks(self, uri, data):
-        if 'internalNetworks' in data:
-            networks = []
-            for network_uri_or_name in data['internalNetworks']:
-                if 'name' in network_uri_or_name:
-                    ethernet_network = self.__get_ethernet_network_by_name(network_uri_or_name['name'])
-                    if not ethernet_network:
-                        raise Exception(LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND + network_uri_or_name['name'])
-                    networks.append(ethernet_network['uri'])
-                elif 'uri' in network_uri_or_name:
-                    networks.append(network_uri_or_name['uri'])
+        self.__validate_options('internalNetworks', data)
 
-            li = self.oneview_client.logical_interconnects.update_internal_networks(uri, networks)
+        networks = []
+        for network_uri_or_name in data['internalNetworks']:
+            if 'name' in network_uri_or_name:
+                ethernet_network = self.__get_ethernet_network_by_name(network_uri_or_name['name'])
+                if not ethernet_network:
+                    raise Exception(LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND + network_uri_or_name['name'])
+                networks.append(ethernet_network['uri'])
+            elif 'uri' in network_uri_or_name:
+                networks.append(network_uri_or_name['uri'])
 
-            self.module.exit_json(changed=True,
-                                  ansible_facts=dict(logical_interconnect=li),
-                                  msg=LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED)
-        else:
-            raise Exception(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
+        li = self.oneview_client.logical_interconnects.update_internal_networks(uri, networks)
+
+        return True, LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED, dict(logical_interconnect=li)
 
     def __update_settings(self, resource, data):
-        if 'ethernetSettings' in data or 'fcoeSettings' in data:
-            ethernet_settings_merged = resource['ethernetSettings'].copy()
-            fcoe_settings_merged = resource['fcoeSettings'].copy()
+        self.__validate_settings(data)
 
-            if 'ethernetSettings' in data:
-                ethernet_settings_merged.update(data['ethernetSettings'])
+        ethernet_settings_merged = self.__merge_network_settings('ethernetSettings', resource, data)
+        fcoe_settings_merged = self.__merge_network_settings('fcoeSettings', resource, data)
 
-            if 'fcoeSettings' in data:
-                fcoe_settings_merged.update(data['fcoeSettings'])
+        if resource_compare(resource['ethernetSettings'], ethernet_settings_merged) and \
+           resource_compare(resource['fcoeSettings'], fcoe_settings_merged):
 
-            if resource_compare(resource['ethernetSettings'], ethernet_settings_merged) and \
-               resource_compare(resource['fcoeSettings'], fcoe_settings_merged):
-
-                self.module.exit_json(changed=False,
-                                      msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
-            else:
-                settings = {
-                    'ethernetSettings': ethernet_settings_merged,
-                    'fcoeSettings': fcoe_settings_merged
-                }
-                li = self.oneview_client.logical_interconnects.update_settings(resource['uri'], settings)
-                self.module.exit_json(changed=True,
-                                      msg=LOGICAL_INTERCONNECT_SETTINGS_UPDATED,
-                                      ansible_facts=dict(logical_interconnect=li))
+            self.module.exit_json(changed=False,
+                                  msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
         else:
-            raise Exception(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
+            settings = {
+                'ethernetSettings': ethernet_settings_merged,
+                'fcoeSettings': fcoe_settings_merged
+            }
+            li = self.oneview_client.logical_interconnects.update_settings(resource['uri'], settings)
+            return True, LOGICAL_INTERCONNECT_SETTINGS_UPDATED, dict(logical_interconnect=li)
 
     def __generate_forwarding_information_base(self, uri):
         result = self.oneview_client.logical_interconnects.create_forwarding_information_base(uri)
-
-        self.module.exit_json(changed=True,
-                              msg=result.get('status'),
-                              ansible_facts=dict(interconnect_fib=result))
+        return True, result.get('status'), dict(interconnect_fib=result)
 
     def __update_qos_configuration(self, uri, data):
-        if 'qosAggregatedConfiguration' in data:
-            qos_config = self.__get_qos_aggregated_configuration(uri)
-            qos_config_merged = self.__merge_options_with_subresource(data['qosAggregatedConfiguration'], qos_config)
+        self.__validate_options('qosConfiguration', data)
 
-            if resource_compare(qos_config_merged, qos_config):
+        qos_config = self.__get_qos_aggregated_configuration(uri)
+        qos_config_merged = self.__merge_options(data['qosConfiguration'], qos_config)
 
-                self.module.exit_json(changed=False,
-                                      msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
-            else:
-                qos_config_updated = self.oneview_client.logical_interconnects.update_qos_aggregated_configuration(
-                    uri, qos_config_merged)
+        if resource_compare(qos_config_merged, qos_config):
 
-                self.module.exit_json(changed=True,
-                                      msg=LOGICAL_INTERCONNECT_QOS_UPDATED,
-                                      ansible_facts=dict(qos_aggregated_configuration=qos_config_updated))
+            self.module.exit_json(changed=False,
+                                  msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
         else:
-            raise Exception(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
+            qos_config_updated = self.oneview_client.logical_interconnects.update_qos_aggregated_configuration(
+                uri, qos_config_merged)
+
+            return True, LOGICAL_INTERCONNECT_QOS_UPDATED, dict(qos_configuration=qos_config_updated)
 
     def __update_snmp_configuration(self, uri, data):
-        if 'snmpConfiguration' in data:
-            snmp_config = self.__get_snmp_configuration(uri)
-            snmp_config_merged = self.__merge_options_with_subresource(data['snmpConfiguration'], snmp_config)
+        self.__validate_options('snmpConfiguration', data)
 
-            if resource_compare(snmp_config_merged, snmp_config):
+        snmp_config = self.__get_snmp_configuration(uri)
+        snmp_config_merged = self.__merge_options(data['snmpConfiguration'], snmp_config)
 
-                self.module.exit_json(changed=False,
-                                      msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
-            else:
-                snmp_config_updated = self.oneview_client.logical_interconnects.update_snmp_configuration(
-                    uri, snmp_config_merged)
+        if resource_compare(snmp_config_merged, snmp_config):
 
-                self.module.exit_json(changed=True,
-                                      msg=LOGICAL_INTERCONNECT_SNMP_UPDATED,
-                                      ansible_facts=dict(snmp_configuration=snmp_config_updated))
+            return False, LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED, None
         else:
-            raise Exception(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
+            snmp_config_updated = self.oneview_client.logical_interconnects.update_snmp_configuration(
+                uri, snmp_config_merged)
+
+            return True, LOGICAL_INTERCONNECT_SNMP_UPDATED, dict(snmp_configuration=snmp_config_updated)
 
     def __update_port_monitor(self, uri, data):
-        if 'portMonitor' in data:
-            monitor_config = self.__get_port_monitor_configuration(uri)
-            monitor_config_merged = self.__merge_options_with_subresource(data['portMonitor'], monitor_config)
+        self.__validate_options('portMonitor', data)
 
-            if resource_compare(monitor_config_merged, monitor_config):
-                self.module.exit_json(changed=False,
-                                      msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
-            else:
-                monitor_config_updated = self.oneview_client.logical_interconnects.update_port_monitor(
-                    uri, monitor_config_merged)
+        monitor_config = self.__get_port_monitor_configuration(uri)
+        monitor_config_merged = self.__merge_options(data['portMonitor'], monitor_config)
 
-                self.module.exit_json(changed=True,
-                                      msg=LOGICAL_INTERCONNECT_PORT_MONITOR_UPDATED,
-                                      ansible_facts=dict(port_monitor_configuration=monitor_config_updated))
+        if resource_compare(monitor_config_merged, monitor_config):
+            return False, LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED, None
         else:
-            raise Exception(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
+            monitor_config_updated = self.oneview_client.logical_interconnects.update_port_monitor(
+                uri, monitor_config_merged)
+            result = dict(port_monitor=monitor_config_updated)
+            return True, LOGICAL_INTERCONNECT_PORT_MONITOR_UPDATED, result
 
     def __install_firmware(self, uri, data):
-        if 'firmware' in data:
-            options = data['firmware'].copy()
-            if 'spp' in options:
-                options['sppUri'] = '/rest/firmware-drivers/' + options.pop('spp')
+        self.__validate_options('firmware', data)
 
-            firmware = self.oneview_client.logical_interconnects.install_firmware(options, uri)
+        options = data['firmware'].copy()
+        if 'spp' in options:
+            options['sppUri'] = self.__build_firmware_uri(options.pop('spp'))
 
-            self.module.exit_json(changed=True,
-                                  ansible_facts=dict(firmware=firmware),
-                                  msg=LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED)
-        else:
-            raise Exception(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
+        firmware = self.oneview_client.logical_interconnects.install_firmware(options, uri)
+
+        return True, LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED, dict(li_firmware=firmware)
 
     def __update_configuration(self, uri):
         result = self.oneview_client.logical_interconnects.update_configuration(uri)
 
-        self.module.exit_json(changed=True,
-                              msg=LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED,
-                              ansible_facts=dict(logical_interconnect=result))
+        return True, LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED, dict(logical_interconnect=result)
 
     def __get_by_name(self, data):
         return self.oneview_client.logical_interconnects.get_by_name(data['name'])
@@ -404,13 +405,32 @@ class LogicalInterconnectModule(object):
     def __get_port_monitor_configuration(self, uri):
         return self.oneview_client.logical_interconnects.get_port_monitor(uri)
 
-    def __merge_options_with_subresource(self, data, subresource):
+    def __merge_network_settings(self, settings_type, resource, data):
+        settings_merged = resource[settings_type].copy()
+
+        if settings_type in data:
+            settings_merged.update(data[settings_type])
+
+        return settings_merged
+
+    def __merge_options(self, data, subresource):
         options = data.copy()
 
         options_merged = subresource.copy()
         options_merged.update(options)
 
         return options_merged
+
+    def __validate_options(self, subresource_type, data):
+        if subresource_type not in data:
+            raise Exception(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
+
+    def __validate_settings(self, data):
+        if 'ethernetSettings' not in data and 'fcoeSettings' not in data:
+            raise Exception(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
+
+    def __build_firmware_uri(self, filename):
+        return '/rest/firmware-drivers/' + filename
 
 
 def main():

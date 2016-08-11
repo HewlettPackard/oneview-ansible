@@ -17,7 +17,7 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    logical_interconnect_name: # Set the name of a Logical interconnect to run the examples
+    logical_interconnect_name: # Set the name of a Logical interconnect to run the playbook
     # network_name: set the name of an existent Ethernet Network to update the internal networks
     # firmware_driver: set the SPP filename to install it
   tasks:
@@ -38,7 +38,7 @@
         data:
           name: "{{ logical_interconnect_name }}"
           internalNetworks:
-            - name: "{{ network_name }}"  # could also be an URI. e.g: - uri: '/rest/ethernet-network/<id>'
+            - name: "{{ network_name }}"  # could also be a URI. e.g.: - uri: '/rest/ethernet-network/<id>'
       when: network_name is defined
       delegate_to: localhost
 
@@ -69,7 +69,7 @@
         state: qos_aggregated_configuration_updated
         data:
           name: "{{ logical_interconnect_name }}"
-          qosAggregatedConfiguration:
+          qosConfiguration:
             activeQosConfig:
               category: 'qos-aggregated-configuration'
               configType: 'Passthrough'
@@ -116,7 +116,7 @@
           name: "{{ logical_interconnect_name }}"
           firmware:
             command: Stage
-            spp: "{{ firmware_driver }}"  # could also be a sppUri. e.g: - sppUri: '/rest/firmware-drivers/<filename>'
+            spp: "{{ firmware_driver }}"  # could also be a sppUri. e.g.: - sppUri: '/rest/firmware-drivers/<filename>'
       when: firmware_driver is defined
       delegate_to: localhost
 
