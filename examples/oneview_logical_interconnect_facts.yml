@@ -53,3 +53,14 @@
       delegate_to: localhost
 
     - debug: var=snmp_configuration
+
+    - name: "Gather facts about the port monitor configuration on the logical interconnect that matches the
+      specified name"
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - port_monitor
+      delegate_to: localhost
+
+    - debug: var=port_monitor

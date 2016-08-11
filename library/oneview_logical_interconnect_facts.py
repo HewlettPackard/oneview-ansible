@@ -40,7 +40,7 @@ options:
     options:
       description:
         - "List with options to gather additional facts about Logical Interconnect related resources.
-          Options allowed: qos_aggregated_configuration, snmp_configuration"
+          Options allowed: qos_aggregated_configuration, snmp_configuration, port_monitor"
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -93,7 +93,8 @@ class LogicalInterconnectFactsModule(object):
         self.resource_client = logical_interconnects
         self.options = dict(
             qos_aggregated_configuration=logical_interconnects.get_qos_aggregated_configuration,
-            snmp_configuration=logical_interconnects.get_snmp_configuration
+            snmp_configuration=logical_interconnects.get_snmp_configuration,
+            port_monitor=logical_interconnects.get_port_monitor
         )
 
     def run(self):

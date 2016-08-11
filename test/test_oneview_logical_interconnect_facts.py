@@ -49,6 +49,22 @@ PARAMS_GET_BY_NAME_WITH_SNMP = dict(
     options=['snmp_configuration']
 )
 
+PARAMS_GET_BY_NAME_WITH_PORT_MONITOR = dict(
+    config='config.json',
+    name=LOGICAL_INTERCONNECT_NAME,
+    options=['port_monitor']
+)
+
+PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
+    config='config.json',
+    name=LOGICAL_INTERCONNECT_NAME,
+    options=[
+        'qos_aggregated_configuration',
+        'snmp_configuration',
+        'port_monitor'
+    ]
+)
+
 QOS_CONFIGURATION = dict(
     activeQosConfig=dict(
         category="qos-aggregated-configuration",
@@ -64,6 +80,14 @@ SNMP_CONFIGURATION = dict(
     category="snmp-configuration",
     type="snmp-configuration",
     uri=None
+)
+
+PORT_MONITOR = dict(
+    category="port-monitor",
+    enablePortMonitor=False,
+    name="name-2081994975-1467759087361",
+    type="port-monitor",
+    uri="/rest/logical-interconnects/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0/port-monitor"
 )
 
 LOGICAL_INTERCONNECT = dict(
@@ -179,6 +203,80 @@ class LogicalInterconnectFactsSpec(unittest.TestCase):
             ansible_facts=dict(
                 logical_interconnects=LOGICAL_INTERCONNECT,
                 snmp_configuration=SNMP_CONFIGURATION
+            )
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
+    def test_should_get_a_logical_interconnects_by_name_with_port_monitor(self,
+                                                                          mock_ansible_module,
+                                                                          mock_ov_from_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.get_port_monitor.return_value = PORT_MONITOR
+        mock_ov_from_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_PORT_MONITOR)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectFactsModule().run()
+
+        mock_ov_instance.logical_interconnects.get_by_name.assert_called_once_with(
+            name=LOGICAL_INTERCONNECT_NAME
+        )
+
+        mock_ov_instance.logical_interconnects.get_port_monitor.assert_called_once_with(
+            id_or_uri=LOGICAL_INTERCONNECT_URI
+        )
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                logical_interconnects=LOGICAL_INTERCONNECT,
+                port_monitor=PORT_MONITOR
+            )
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
+    def test_should_get_a_logical_interconnects_by_name_with_multiple_options(self,
+                                                                              mock_ansible_module,
+                                                                              mock_ov_from_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        mock_ov_instance.logical_interconnects.get_qos_aggregated_configuration.return_value = QOS_CONFIGURATION
+        mock_ov_instance.logical_interconnects.get_snmp_configuration.return_value = SNMP_CONFIGURATION
+        mock_ov_instance.logical_interconnects.get_port_monitor.return_value = PORT_MONITOR
+        mock_ov_from_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectFactsModule().run()
+
+        mock_ov_instance.logical_interconnects.get_by_name.assert_called_once_with(
+            name=LOGICAL_INTERCONNECT_NAME
+        )
+
+        mock_ov_instance.logical_interconnects.get_qos_aggregated_configuration.assert_called_once_with(
+            id_or_uri=LOGICAL_INTERCONNECT_URI
+        )
+
+        mock_ov_instance.logical_interconnects.get_snmp_configuration.assert_called_once_with(
+            id_or_uri=LOGICAL_INTERCONNECT_URI
+        )
+
+        mock_ov_instance.logical_interconnects.get_port_monitor.assert_called_once_with(
+            id_or_uri=LOGICAL_INTERCONNECT_URI
+        )
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                logical_interconnects=LOGICAL_INTERCONNECT,
+                qos_aggregated_configuration=QOS_CONFIGURATION,
+                snmp_configuration=SNMP_CONFIGURATION,
+                port_monitor=PORT_MONITOR
             )
         )
 
