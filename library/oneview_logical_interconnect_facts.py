@@ -37,6 +37,11 @@ options:
       description:
         - Logical Interconnect name.
       required: false
+    options:
+      description:
+        - "List with options to gather additional facts about Logical Interconnect related resources.
+          Options allowed: qos_aggregated_configuration, snmp_configuration"
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -83,8 +88,13 @@ class LogicalInterconnectFactsModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        oneview_client = OneViewClient.from_json_file(self.module.params['config'])
-        self.resource_client = oneview_client.logical_interconnects
+        logical_interconnects = OneViewClient.from_json_file(self.module.params['config']).logical_interconnects
+
+        self.resource_client = logical_interconnects
+        self.options = dict(
+            qos_aggregated_configuration=logical_interconnects.get_qos_aggregated_configuration,
+            snmp_configuration=logical_interconnects.get_snmp_configuration
+        )
 
     def run(self):
         try:
@@ -102,20 +112,22 @@ class LogicalInterconnectFactsModule(object):
 
     def __get_by_name(self, name):
         logical_interconnect = self.resource_client.get_by_name(name=name)
-
-        facts = self.__get_options(logical_interconnect)
-        facts["logical_interconnects"] = logical_interconnect
-
-        return facts
-
-    def __get_options(self, logical_interconnect):
-        facts = dict()
-        uri = logical_interconnect["uri"]
+        facts = dict(logical_interconnects=logical_interconnect)
 
         options = self.module.params["options"]
 
-        if options and "qos_aggregated_configuration" in options:
-            facts["qos_aggregated_configuration"] = self.resource_client.get_qos_aggregated_configuration(id_or_uri=uri)
+        if options:
+            options_facts = self.__get_options(logical_interconnect, options)
+            facts.update(options_facts)
+
+        return facts
+
+    def __get_options(self, logical_interconnect, options):
+        facts = dict()
+        uri = logical_interconnect["uri"]
+
+        for option in options:
+            facts[option] = self.options[option](id_or_uri=uri)
 
         return facts
 

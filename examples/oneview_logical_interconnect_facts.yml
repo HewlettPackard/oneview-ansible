@@ -43,3 +43,13 @@
       delegate_to: localhost
 
     - debug: var=qos_aggregated_configuration
+
+    - name: Gather facts about the SNMP configuration on the logical interconnect that matches the specified name
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - snmp_configuration
+      delegate_to: localhost
+
+    - debug: var=snmp_configuration
