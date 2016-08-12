@@ -1,0 +1,98 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    - config: "{{ playbook_dir }}/oneview_config.json"
+    - name: "Encl1-VC FlexFabric Production" # change for your logical interconnect name
+  tasks:
+    - name: Gather facts about all Logical Interconnects
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=logical_interconnects
+
+    - name: Gather facts about a Logical Interconnect by name
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+      delegate_to: localhost
+
+    - debug: var=logical_interconnects
+
+    - name: Gather facts about a Logical Interconnect by name with QOS Configuration
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - qos_aggregated_configuration
+      delegate_to: localhost
+
+    - debug: var=qos_aggregated_configuration
+
+    - name: Gather facts about the SNMP configuration on the logical interconnect that matches the specified name
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - snmp_configuration
+      delegate_to: localhost
+
+    - debug: var=snmp_configuration
+
+    - name: "Gather facts about the port monitor configuration on the logical interconnect that matches the
+      specified name"
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - port_monitor
+      delegate_to: localhost
+
+    - debug: var=port_monitor
+
+    - name: "Gather facts about an internal VLAN IDs for the provisioned networks on a logical interconnect that matches
+      the specified name"
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - internal_vlans
+      delegate_to: localhost
+
+    - debug: var=internal_vlans
+
+    - name: "Gather facts about a forwarding information base data for a logical interconnect that matches the
+      specified name"
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - forwarding_information_base
+      delegate_to: localhost
+
+    - debug: var=forwarding_information_base
+
+    - name: "Gather facts about an installed firmware for a logical interconnect that matches the specified name"
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - firmware
+      delegate_to: localhost
+
+    - debug: var=firmware
