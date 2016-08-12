@@ -75,6 +75,31 @@ qos_aggregated_configuration:
     description: The QoS aggregated configuration for the logical interconnect.
     returned: when request, but can be null
     type: complex
+
+snmp_configuration:
+    description: The SNMP configuration for a logical interconnect.
+    returned: when request, but can be null
+    type: complex
+
+port_monitor:
+    description: The port monitor configuration of a logical interconnect.
+    returned: when request, but can be null
+    type: complex
+
+internal_vlans:
+    description: The internal VLAN IDs for the provisioned networks on a logical interconnect.
+    returned: when request, but can be null
+    type: complex
+
+forwarding_information_base:
+    description: The forwarding information base data for a logical interconnect.
+    returned: when request, but can be null
+    type: complex
+
+firmware:
+    description: The installed firmware for a logical interconnect.
+    returned: when request, but can be null
+    type: complex
 '''
 
 
@@ -94,7 +119,10 @@ class LogicalInterconnectFactsModule(object):
         self.options = dict(
             qos_aggregated_configuration=logical_interconnects.get_qos_aggregated_configuration,
             snmp_configuration=logical_interconnects.get_snmp_configuration,
-            port_monitor=logical_interconnects.get_port_monitor
+            port_monitor=logical_interconnects.get_port_monitor,
+            internal_vlans=logical_interconnects.get_internal_vlans,
+            forwarding_information_base=logical_interconnects.get_forwarding_information_base,
+            firmware=logical_interconnects.get_firmware
         )
 
     def run(self):

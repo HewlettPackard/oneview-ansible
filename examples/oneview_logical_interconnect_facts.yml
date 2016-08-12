@@ -64,3 +64,35 @@
       delegate_to: localhost
 
     - debug: var=port_monitor
+
+    - name: "Gather facts about an internal VLAN IDs for the provisioned networks on a logical interconnect that matches
+      the specified name"
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - internal_vlans
+      delegate_to: localhost
+
+    - debug: var=internal_vlans
+
+    - name: "Gather facts about a forwarding information base data for a logical interconnect that matches the
+      specified name"
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - forwarding_information_base
+      delegate_to: localhost
+
+    - debug: var=forwarding_information_base
+
+    - name: "Gather facts about an installed firmware for a logical interconnect that matches the specified name"
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - firmware
+      delegate_to: localhost
+
+    - debug: var=firmware
