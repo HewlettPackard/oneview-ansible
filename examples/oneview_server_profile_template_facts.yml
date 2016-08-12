@@ -1,0 +1,46 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    server_profile_name: "BL460c Gen9 1"
+  tasks:
+    - name: Gather facts about all Server Profile Templates
+      oneview_server_profile_template_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=server_profile_templates
+
+    - name: Gather facts about a Server Profile Template by name
+      oneview_server_profile_template_facts:
+        config: "{{ config }}"
+        name: "{{ server_profile_name }}"
+      delegate_to: localhost
+
+    - debug: var=server_profile_templates
+
+    - name: Gather facts about a template and a profile with the configuration based on this template
+      oneview_server_profile_template_facts:
+        config: "{{ config }}"
+        name: "{{ server_profile_name }}"
+        options:
+          - new_profile
+      delegate_to: localhost
+
+    - debug: var=server_profile_templates
+    - debug: var=new_profile
