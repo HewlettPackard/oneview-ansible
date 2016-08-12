@@ -39,8 +39,15 @@ options:
       required: false
     options:
       description:
-        - "List with options to gather additional facts about Logical Interconnect related resources.
-          Options allowed: qos_aggregated_configuration, snmp_configuration, port_monitor"
+        - "List with options to gather additional facts about Logical Interconnect.
+          Options allowed:
+          'qos_aggregated_configuration' get the QoS aggregated configuration for the logical interconnect.
+          'snmp_configuration' get the SNMP configuration for a logical interconnect.
+          'port_monitor' get the port monitor configuration of a logical interconnect.
+          'internal_vlans' get the internal VLAN IDs for the provisioned networks on a logical interconnect.
+          'forwarding_information_base' get the forwarding information base data for a logical interconnect.
+          'firmware' get the installed firmware for a logical interconnect."
+        - These options are valid just when a 'name' is provided. Otherwise it will be ignored.
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -63,42 +70,62 @@ EXAMPLES = '''
 
 - debug: var=logical_interconnects
 - debug: var=qos_aggregated_configuration
+
+- name: Gather facts about a Logical Interconnect by name with all options
+  oneview_logical_interconnect_facts:
+    config: "{{ config }}"
+    name: "{{ name }}"
+    options:
+      - qos_aggregated_configuration
+      - snmp_configuration
+      - port_monitor
+      - internal_vlans
+      - forwarding_information_base
+      - firmware
+
+- debug: var=logical_interconnects
+- debug: var=qos_aggregated_configuration
+- debug: var=snmp_configuration
+- debug: var=port_monitor
+- debug: var=internal_vlans
+- debug: var=forwarding_information_base
+- debug: var=firmware
 '''
 
 RETURN = '''
 logical_interconnects:
     description: The list of logical interconnects.
-    returned: always, but can be null
+    returned: Always, but can be null.
     type: list
 
 qos_aggregated_configuration:
     description: The QoS aggregated configuration for the logical interconnect.
-    returned: when request, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 snmp_configuration:
     description: The SNMP configuration for a logical interconnect.
-    returned: when request, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 port_monitor:
     description: The port monitor configuration of a logical interconnect.
-    returned: when request, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 internal_vlans:
     description: The internal VLAN IDs for the provisioned networks on a logical interconnect.
-    returned: when request, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 forwarding_information_base:
     description: The forwarding information base data for a logical interconnect.
-    returned: when request, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 firmware:
     description: The installed firmware for a logical interconnect.
-    returned: when request, but can be null
+    returned: When requested, but can be null.
     type: complex
 '''
 
