@@ -17,7 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - name: "Encl1-VC FlexFabric Production" # change for your logical interconnect name
+    - name: "Encl1-VC FlexFabric Production" # change for the desired logical interconnect name
   tasks:
     - name: Gather facts about all Logical Interconnects
       oneview_logical_interconnect_facts:
@@ -96,3 +96,24 @@
       delegate_to: localhost
 
     - debug: var=firmware
+
+    - name: "Gather facts about the collection of uplink ports from the member interconnects which are eligible for
+             assignment to an analyzer port on the logical interconnect"
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - unassigned_uplink_ports
+      delegate_to: localhost
+
+    - debug: var=unassigned_uplink_ports
+
+    - name: "Gather facts about the telemetry configuration of the logical interconnect"
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - telemetry_configuration
+      delegate_to: localhost
+
+    - debug: var=telemetry_configuration

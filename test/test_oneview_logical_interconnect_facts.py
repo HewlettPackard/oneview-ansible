@@ -19,12 +19,15 @@ import mock
 
 from hpOneView.oneview_client import OneViewClient
 from oneview_logical_interconnect_facts import LogicalInterconnectFactsModule
+from oneview_logical_interconnect_facts import LOGICAL_INTERCONNECT_NOT_FOUND
 
 ERROR_MSG = 'Fake message error'
 
 LOGICAL_INTERCONNECT_NAME = "test"
 
 LOGICAL_INTERCONNECT_URI = "/rest/logical-interconnects/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0"
+
+TELEMETRY_CONF_URI = LOGICAL_INTERCONNECT_URI + "/telemetry-configurations/33845548-eae0-4f8e-b166-38680c2b81e7"
 
 PARAMS_GET_ALL = dict(
     config='config.json',
@@ -69,9 +72,29 @@ FIRMWARE = dict(
 
 )
 
+UNASSIGNED_UPLINK_PORTS = [
+    {
+        "interconnectName": "Test-Enclosure-Renamed-Updated, interconnect 2",
+        "portName": "X1",
+        "uri": "/rest/interconnects/a848f968-b51f-4a7f-b071-3a56a0aa0488/ports/a848f968-b51f-4a7f-b071-3a56a0aa0488:X1"
+    },
+    {
+        "interconnectName": "Test-Enclosure-Renamed-Updated, interconnect 2",
+        "portName": "X2",
+        "uri": "/rest/interconnects/a848f968-b51f-4a7f-b071-3a56a0aa0488/ports/a848f968-b51f-4a7f-b071-3a56a0aa0488:X2"
+    }
+]
+
+TELEMETRY_CONFIGURATION = {
+    "enableTelemetry": True,
+    "sampleCount": 12,
+    "sampleInterval": 300
+}
+
 LOGICAL_INTERCONNECT = dict(
     name=LOGICAL_INTERCONNECT_NAME,
-    uri=LOGICAL_INTERCONNECT_URI
+    uri=LOGICAL_INTERCONNECT_URI,
+    telemetryConfiguration=dict(uri=TELEMETRY_CONF_URI)
 )
 
 ALL_INTERCONNECTS = [LOGICAL_INTERCONNECT]
@@ -305,10 +328,69 @@ class LogicalInterconnectFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
+    def test_should_get_a_logical_interconnects_by_name_with_unassigned_uplink_ports(self,
+                                                                                     mock_ansible_module,
+                                                                                     mock_ov_from_file):
+        params = create_params(['unassigned_uplink_ports'])
+
+        mock_ov_instance, mock_ansible_instance = define_mocks_for_get_by_name(
+            mock_ov_from_file,
+            mock_ansible_module,
+            params
+        )
+
+        mock_ov_instance.logical_interconnects.get_unassigned_uplink_ports.return_value = UNASSIGNED_UPLINK_PORTS
+
+        LogicalInterconnectFactsModule().run()
+
+        mock_ov_instance.logical_interconnects.get_unassigned_uplink_ports.assert_called_once_with(
+            id_or_uri=LOGICAL_INTERCONNECT_URI
+        )
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                logical_interconnects=LOGICAL_INTERCONNECT,
+                unassigned_uplink_ports=UNASSIGNED_UPLINK_PORTS
+            )
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
+    def test_should_get_a_logical_interconnects_by_name_with_telemetry_configuration(self,
+                                                                                     mock_ansible_module,
+                                                                                     mock_ov_from_file):
+        params = create_params(['telemetry_configuration'])
+
+        mock_ov_instance, mock_ansible_instance = define_mocks_for_get_by_name(
+            mock_ov_from_file,
+            mock_ansible_module,
+            params
+        )
+
+        mock_ov_instance.logical_interconnects.get_telemetry_configuration.return_value = TELEMETRY_CONFIGURATION
+
+        LogicalInterconnectFactsModule().run()
+
+        mock_ov_instance.logical_interconnects.get_telemetry_configuration.assert_called_once_with(
+            telemetry_configuration_uri=TELEMETRY_CONF_URI
+        )
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                logical_interconnects=LOGICAL_INTERCONNECT,
+                telemetry_configuration=TELEMETRY_CONFIGURATION
+            )
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
     def test_should_get_a_logical_interconnects_by_name_with_multiple_options(self,
                                                                               mock_ansible_module,
                                                                               mock_ov_from_file):
-        params = create_params(['qos_aggregated_configuration', 'snmp_configuration', 'port_monitor'])
+        params = create_params(['qos_aggregated_configuration', 'snmp_configuration', 'port_monitor',
+                                'unassigned_uplink_ports', 'telemetry_configuration'])
 
         mock_ov_instance, mock_ansible_instance = define_mocks_for_get_by_name(
             mock_ov_from_file,
@@ -319,23 +401,32 @@ class LogicalInterconnectFactsSpec(unittest.TestCase):
         mock_ov_instance.logical_interconnects.get_qos_aggregated_configuration.return_value = QOS_CONFIGURATION
         mock_ov_instance.logical_interconnects.get_snmp_configuration.return_value = SNMP_CONFIGURATION
         mock_ov_instance.logical_interconnects.get_port_monitor.return_value = PORT_MONITOR
+        mock_ov_instance.logical_interconnects.get_unassigned_uplink_ports.return_value = UNASSIGNED_UPLINK_PORTS
+        mock_ov_instance.logical_interconnects.get_telemetry_configuration.return_value = TELEMETRY_CONFIGURATION
 
         LogicalInterconnectFactsModule().run()
 
         expected_uri = dict(id_or_uri=LOGICAL_INTERCONNECT_URI)
+        telemetry_uri = dict(telemetry_configuration_uri=TELEMETRY_CONF_URI)
 
+        # validate the calls to the OneView SDK
         mock_ov_instance.logical_interconnects.get_by_name.assert_called_once_with(name=LOGICAL_INTERCONNECT_NAME)
         mock_ov_instance.logical_interconnects.get_qos_aggregated_configuration.assert_called_once_with(**expected_uri)
         mock_ov_instance.logical_interconnects.get_snmp_configuration.assert_called_once_with(**expected_uri)
         mock_ov_instance.logical_interconnects.get_port_monitor.assert_called_once_with(**expected_uri)
+        mock_ov_instance.logical_interconnects.get_unassigned_uplink_ports.assert_called_once_with(**expected_uri)
+        mock_ov_instance.logical_interconnects.get_telemetry_configuration.assert_called_once_with(**telemetry_uri)
 
+        # Validate the result data
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 logical_interconnects=LOGICAL_INTERCONNECT,
                 qos_aggregated_configuration=QOS_CONFIGURATION,
                 snmp_configuration=SNMP_CONFIGURATION,
-                port_monitor=PORT_MONITOR
+                port_monitor=PORT_MONITOR,
+                unassigned_uplink_ports=UNASSIGNED_UPLINK_PORTS,
+                telemetry_configuration=TELEMETRY_CONFIGURATION
             )
         )
 
@@ -354,6 +445,24 @@ class LogicalInterconnectFactsErrorHandlingSpec(unittest.TestCase):
 
         LogicalInterconnectFactsModule().run()
         mock_ansible_instance.fail_json.assert_called_once_with(msg=ERROR_MSG)
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
+    def test_should_fail_when_logical_interconnect_not_exist(self,
+                                                             mock_ansible_module,
+                                                             mock_ov_from_file):
+        params = create_params(['unassigned_uplink_ports'])
+
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = None
+        mock_ov_from_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(params)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectFactsModule().run()
+
+        mock_ansible_instance.fail_json.assert_called_once_with(msg=LOGICAL_INTERCONNECT_NOT_FOUND)
 
 
 if __name__ == '__main__':
