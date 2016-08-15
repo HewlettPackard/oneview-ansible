@@ -68,7 +68,7 @@ EXAMPLES = '''
 RETURN = '''
 interconnects:
     description: The list of interconnects.
-    returned: always, but can be null
+    returned: Always, but can be null
     type: list
 name_servers:
     description: The named servers for an interconnect.

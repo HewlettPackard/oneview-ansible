@@ -120,7 +120,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
             msg=LOGICAL_ENCLOSURE_ALREADY_UPDATED,
-            ansible_facts=dict(oneview_logical_enclosure=DICT_DEFAULT_LOGICAL_ENCLOSURE)
+            ansible_facts=dict(logical_enclosure=DICT_DEFAULT_LOGICAL_ENCLOSURE)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -160,7 +160,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=LOGICAL_ENCLOSURE_UPDATED,
-            ansible_facts=dict(oneview_logical_enclosure=data_merged)
+            ansible_facts=dict(logical_enclosure=data_merged)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -181,7 +181,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=LOGICAL_ENCLOSURE_FIRMWARE_UPDATED,
-            ansible_facts=dict(oneview_logical_enclosure={'PATCH', 'EXECUTED'})
+            ansible_facts=dict(logical_enclosure={'PATCH', 'EXECUTED'})
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -201,7 +201,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=LOGICAL_ENCLOSURE_CONFIGURATION_SCRIPT_UPDATED,
-            ansible_facts=dict(oneview_configuration_script='# script (updated)')
+            ansible_facts=dict(configuration_script='# script (updated)')
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -222,7 +222,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=LOGICAL_ENCLOSURE_DUMP_GENERATED,
-            ansible_facts=dict(oneview_generated_dump_uri='/rest/appliance/dumpedfile')
+            ansible_facts=dict(generated_dump_uri='/rest/appliance/dumpedfile')
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -243,7 +243,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=LOGICAL_ENCLOSURE_RECONFIGURED,
-            ansible_facts=dict(oneview_logical_enclosure={'Configuration', 'Updated'})
+            ansible_facts=dict(logical_enclosure={'Configuration', 'Updated'})
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -264,7 +264,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=LOGICAL_ENCLOSURE_UPDATED_FROM_GROUP,
-            ansible_facts=dict(oneview_logical_enclosure={'Updated from group'})
+            ansible_facts=dict(logical_enclosure={'Updated from group'})
         )
 
 

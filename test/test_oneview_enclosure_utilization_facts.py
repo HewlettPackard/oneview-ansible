@@ -75,7 +75,7 @@ class EnclosureUtiilizationFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_enclosure_utilization=UTILIZATION)
+            ansible_facts=dict(enclosure_utilization=UTILIZATION)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -286,7 +286,7 @@ class EnclosureUtiilizationFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_enclosure_utilization=None),
+            ansible_facts=dict(enclosure_utilization=None),
             msg=ENCLOSURE_NOT_FOUND)
 
 

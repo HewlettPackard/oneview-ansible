@@ -24,4 +24,4 @@
         name: 'Demo Ethernet Network'
       delegate_to: localhost
 
-    - debug: var=oneview_enet_associated_profiles
+    - debug: var=enet_associated_profiles

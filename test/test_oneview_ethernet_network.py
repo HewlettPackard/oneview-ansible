@@ -278,7 +278,7 @@ class EthernetNetworkStateBulkSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=ETHERNET_NETWORKS_CREATED,
-            ansible_facts=dict(oneview_enet_bulk=DEFAULT_BULK_ENET_TEMPLATE))
+            ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_ethernet_network.AnsibleModule')
@@ -310,7 +310,7 @@ class EthernetNetworkStateBulkSpec(unittest.TestCase):
             dict(namePrefix="TestNetwork", vlanIdRange="5,9,10"))
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True, msg=MISSING_ETHERNET_NETWORKS_CREATED,
-            ansible_facts=dict(oneview_enet_bulk=DEFAULT_BULK_ENET_TEMPLATE))
+            ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_ethernet_network.AnsibleModule')
@@ -327,6 +327,6 @@ class EthernetNetworkStateBulkSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False, msg=ETHERNET_NETWORKS_ALREADY_EXIST,
-            ansible_facts=dict(oneview_enet_bulk=DEFAULT_BULK_ENET_TEMPLATE))
+            ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
         if __name__ == '__main__':
             unittest.main()

@@ -23,7 +23,7 @@
         config: "{{ config }}"
       delegate_to: localhost
 
-    - debug: var=onveview_logical_enclosure
+    - debug: var=logical_enclosures
 
     - name: Gather facts about a Logical Enclosure by name
       oneview_logical_enclosure_facts:
@@ -31,4 +31,4 @@
         name: "Encl1"
       delegate_to: localhost
 
-    - debug: var=onveview_logical_enclosure
+    - debug: var=logical_enclosures

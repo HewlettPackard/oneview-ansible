@@ -59,7 +59,7 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-ligs:
+logical_interconnect_groups:
     description: Has all the OneView facts about the Logical Interconnect Groups.
     returned: always, but can be null
     type: complex

@@ -49,7 +49,7 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-oneview_storage_system_host_types:
+storage_host_types:
     description: Has all the OneView facts about the Storage Systems - Host Types.
     returned: always, but can be null
     type: complex
@@ -73,7 +73,7 @@ class StorageSystemHostTypesFactsModule(object):
             host_types = self.oneview_client.storage_systems.get_host_types()
 
             self.module.exit_json(changed=False,
-                                  ansible_facts=dict(oneview_storage_host_types=host_types))
+                                  ansible_facts=dict(storage_host_types=host_types))
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)

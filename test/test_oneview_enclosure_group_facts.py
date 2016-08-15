@@ -56,7 +56,7 @@ class EnclosureGroupFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(enclosure_group=({"name": "Enclosure Group Name"}))
+            ansible_facts=dict(enclosure_groups=({"name": "Enclosure Group Name"}))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -91,7 +91,7 @@ class EnclosureGroupFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(enclosure_group=({"name": "Enclosure Group Name"}))
+            ansible_facts=dict(enclosure_groups=({"name": "Enclosure Group Name"}))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')

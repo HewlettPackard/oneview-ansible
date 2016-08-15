@@ -23,7 +23,7 @@
         config: "{{ config }}"
       delegate_to: localhost
 
-    - debug: var=fcoe_network
+    - debug: var=fcoe_networks
 
     - name: Gather facts about a FCoE Network by name
       oneview_fcoe_network_facts:
@@ -31,4 +31,4 @@
         name: "Test FCoE Network Facts"
       delegate_to: localhost
 
-    - debug: var=fcoe_network
+    - debug: var=fcoe_networks

@@ -48,18 +48,18 @@ EXAMPLES = '''
   oneview_fabric_facts:
     config: "{{ config_file_path }}"
 
-- debug: var=oneview_fabrics
+- debug: var=fabrics
 
 - name: Gather facts about a Fabric by name
   oneview_fabric_facts:
     config: "{{ config_file_path }}"
     name: DefaultFabric
 
-- debug: var=oneview_fabrics
+- debug: var=fabrics
 '''
 
 RETURN = '''
-oneview_fabrics:
+fabrics:
     description: Has all the OneView facts about the Fabrics.
     returned: always, but can be null
     type: complex
@@ -86,7 +86,7 @@ class FabricFactsModule(object):
                 fabrics = self.oneview_client.fabrics.get_all()
 
             self.module.exit_json(changed=False,
-                                  ansible_facts=dict(oneview_fabrics=fabrics))
+                                  ansible_facts=dict(fabrics=fabrics))
 
         except Exception as exception:
             self.module.fail_json(msg=exception.args[0])

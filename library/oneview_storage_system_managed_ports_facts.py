@@ -53,7 +53,7 @@ EXAMPLES = '''
     ip_hostname: "172.18.11.12"
   delegate_to: localhost
 
-- debug: var=oneview_storage_system_managed_ports
+- debug: var=storage_system_managed_ports
 
 
 - name: Gather facts about managed ports by Storage System Name
@@ -62,11 +62,11 @@ EXAMPLES = '''
     name: "ThreePAR7200-4555"
   delegate_to: localhost
 
-- debug: var=oneview_storage_system_managed_ports
+- debug: var=storage_system_managed_ports
 '''
 
 RETURN = '''
-oneview_storage_system_managed_ports:
+storage_system_managed_ports:
     description: Has all Managed Ports facts about the OneView Storage Systems.
     returned: always, but can be null
     type: complex
@@ -110,7 +110,7 @@ class StorageSystemManagedPortsFactsModule(object):
 
             self.module.exit_json(changed=False,
                                   ansible_facts={
-                                      "oneview_storage_system_managed_ports": storage_system.get('managedPorts')
+                                      "storage_system_managed_ports": storage_system.get('managedPorts')
                                   })
 
         except Exception as exception:

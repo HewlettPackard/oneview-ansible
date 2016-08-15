@@ -48,18 +48,18 @@ EXAMPLES = '''
   oneview_firmware_driver_facts:
     config: "{{ config_file_path }}"
 
-- debug: var=oneview_firmware_drivers
+- debug: var=firmware_drivers
 
 - name: Gather facts about a Firmware Driver by name
   oneview_firmware_driver_facts:
     config: "{{ config_file_path }}"
     name: "Service Pack for ProLiant.iso"
 
-- debug: var=oneview_firmware_drivers
+- debug: var=firmware_drivers
 '''
 
 RETURN = '''
-oneview_firmware_drivers:
+firmware_drivers:
     description: Has all the OneView facts about the Firmware Drivers.
     returned: always, but can be null
     type: complex
@@ -92,7 +92,7 @@ class FirmwareDriverFactsModule(object):
 
             self.module.exit_json(
                 changed=False,
-                ansible_facts=dict(oneview_firmware_drivers=result)
+                ansible_facts=dict(firmware_drivers=result)
             )
         except Exception as exception:
             self.module.fail_json(msg=exception.message)

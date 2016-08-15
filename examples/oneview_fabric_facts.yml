@@ -22,11 +22,11 @@
       oneview_fabric_facts:
         config: "{{ config }}"
       delegate_to: localhost
-    - debug: var=oneview_fabrics
+    - debug: var=fabrics
 
     - name: Gather facts about a Fabric by name
       oneview_fabric_facts:
         config: "{{ config }}"
         name: "DefaultFabric"
       delegate_to: localhost
-    - debug: var=oneview_fabrics
+    - debug: var=fabrics

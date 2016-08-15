@@ -59,6 +59,13 @@ EXAMPLES = '''
 
 '''
 
+RETURN = '''
+firmware_bundle:
+    description: Has the facts about the OneView Firmware Bundle.
+    returned: Always. Can be null.
+    type: complex
+'''
+
 FIRMWARE_BUNDLE_UPLOADED = 'Firmware Bundle uploaded sucessfully.'
 
 
@@ -80,7 +87,7 @@ class FirmwareBundleModule(object):
             new_firmware = self.oneview_client.firmware_bundles.upload(file_path)
             self.module.exit_json(changed=True,
                                   msg=FIRMWARE_BUNDLE_UPLOADED,
-                                  ansible_facts=dict(oneview_firmware_bundle=new_firmware))
+                                  ansible_facts=dict(firmware_bundle=new_firmware))
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)

@@ -66,7 +66,7 @@ class EthernetNetworkAssociatedProfileFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_enet_associated_profiles=ASSOCIATED_PROFILES)
+            ansible_facts=dict(enet_associated_profiles=ASSOCIATED_PROFILES)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -122,7 +122,7 @@ class EthernetNetworkAssociatedProfileFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_enet_associated_profiles=None),
+            ansible_facts=dict(enet_associated_profiles=None),
             msg=ETHERNET_NETWORK_NOT_FOUND)
 
 

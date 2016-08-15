@@ -82,7 +82,7 @@ class EnclosureScriptFactsModule(object):
                                       ansible_facts=dict(enclosure_script=script))
             else:
                 self.module.exit_json(changed=False,
-                                      ansible_facts=dict(enclosure_env_config=None),
+                                      ansible_facts=dict(enclosure_script=None),
                                       msg=ENCLOSURE_NOT_FOUND)
 
         except Exception as exception:

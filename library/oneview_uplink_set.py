@@ -86,6 +86,13 @@ EXAMPLES = '''
       name: 'Test Uplink Set'
 '''
 
+RETURN = '''
+uplink_set:
+    description: Has the OneView facts about the Uplink Set.
+    returned: on state 'present'. Can be null.
+    type: complex
+'''
+
 UPLINK_SET_CREATED = 'Uplink Set created successfully.'
 UPLINK_SET_UPDATED = 'Uplink Set updated successfully.'
 UPLINK_SET_DELETED = 'Uplink Set deleted successfully.'

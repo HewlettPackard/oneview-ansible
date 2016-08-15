@@ -56,7 +56,7 @@ class LogicalEnclosureFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(onveview_logical_enclosure=({"name": "Logical Enclosure Name"}))
+            ansible_facts=dict(logical_enclosures=({"name": "Logical Enclosure Name"}))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -91,7 +91,7 @@ class LogicalEnclosureFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(onveview_logical_enclosure=({"name": "Logical Enclosure Name"}))
+            ansible_facts=dict(logical_enclosures=({"name": "Logical Enclosure Name"}))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')

@@ -19,7 +19,6 @@
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
 
-
 DOCUMENTATION = '''
 ---
 module: oneview_enclosure
@@ -107,6 +106,12 @@ EXAMPLES = '''
   delegate_to: localhost
 '''
 
+RETURN = '''
+enclosure:
+    description: Has all the facts about the enclosure.
+    returned: On states 'present', 'reconfigured', 'refreshed'. Can be null.
+    type: complex
+'''
 
 ENCLOSURE_ADDED = 'Enclosure added successfully.'
 ENCLOSURE_REMOVED = 'Enclosure removed successfully.'
@@ -119,7 +124,6 @@ ENCLOSURE_NOT_FOUND = 'Enclosure not found.'
 
 
 class EnclosureModule(object):
-
     argument_spec = dict(
         config=dict(required=True, type='str'),
         state=dict(

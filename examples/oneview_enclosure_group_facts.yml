@@ -23,7 +23,7 @@
         config: "{{ config }}"
       delegate_to: localhost
 
-    - debug: var=enclosure_group
+    - debug: var=enclosure_groups
 
     - name: Gather facts about an Enclosure Group by name
       oneview_enclosure_group_facts:
@@ -31,4 +31,4 @@
         name: "Enclosure Group (For Demo)"
       delegate_to: localhost
 
-    - debug: var=enclosure_group
+    - debug: var=enclosure_groups

@@ -92,4 +92,4 @@
               maximumBandwidth: 10000
               typicalBandwidth: 2000
       delegate_to: localhost
-    - debug: msg="{{oneview_enet_bulk | map(attribute='name') | list }}"
+    - debug: msg="{{ethernet_network_bulk | map(attribute='name') | list }}"

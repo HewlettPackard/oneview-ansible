@@ -50,7 +50,7 @@
               encrypt: "true"
               excludeApplianceDump: "false"
       delegate_to: localhost
-    - debug: var=oneview_generated_dump_uri
+    - debug: var=generated_dump_uri
 
     - name: Reconfigure all enclosures associated with logical enclosure
       oneview_logical_enclosure:
