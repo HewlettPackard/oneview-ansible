@@ -1,0 +1,129 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    logical_interconnect_name: # Set the name of a Logical interconnect to run the playbook
+    # network_name: set the name of an existent Ethernet Network to update the internal networks
+    # firmware_driver: set the SPP filename to install it
+  tasks:
+    - name: Update the Ethernet interconnect settings for the logical interconnect
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: ethernet_settings_updated
+        data:
+          name: "{{ logical_interconnect_name }}"
+          ethernetSettings:
+            macRefreshInterval: 11
+      delegate_to: localhost
+
+    - name: Update the Internal Networks on the logical interconnect
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: internal_networks_updated
+        data:
+          name: "{{ logical_interconnect_name }}"
+          internalNetworks:
+            - name: "{{ network_name }}"  # could also be a URI. e.g.: - uri: '/rest/ethernet-network/<id>'
+      when: network_name is defined
+      delegate_to: localhost
+
+    - name: Update the Interconnect Settings
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: settings_updated
+        data:
+          name: "{{ logical_interconnect_name }}"
+          ethernetSettings:
+            macRefreshInterval: 12
+      delegate_to: localhost
+
+    - name: Generate the forwarding information base dump file for the logical interconnect
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: forwarding_information_base_generated
+        data:
+          name: "{{ logical_interconnect_name }}"
+      delegate_to: localhost
+      register: result
+
+    - debug: msg="{{ result.msg }}"
+
+    - name: Update the QoS aggregated configuration for the logical interconnect
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: qos_aggregated_configuration_updated
+        data:
+          name: "{{ logical_interconnect_name }}"
+          qosConfiguration:
+            activeQosConfig:
+              category: 'qos-aggregated-configuration'
+              configType: 'Passthrough'
+              downlinkClassificationType: ~
+              uplinkClassificationType: ~
+              qosTrafficClassifiers: []
+              type: 'QosConfiguration'
+      delegate_to: localhost
+      register: result
+
+    - name: Update the SNMP configuration for the logical interconnect
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: snmp_configuration_updated
+        data:
+          name: "{{ logical_interconnect_name }}"
+          snmpConfiguration:
+            enabled: True
+      delegate_to: localhost
+
+    - name: Update the port monitor configuration of the logical interconnect
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: port_monitor_updated
+        data:
+          name: "{{ logical_interconnect_name }}"
+          portMonitor:
+            enablePortMonitor: False
+      delegate_to: localhost
+
+    - name: Update the configuration on the logical interconnect
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: configuration_updated
+        data:
+          name: "{{ logical_interconnect_name }}"
+      delegate_to: localhost
+
+    - name: Install a firmware to the logical interconnect, running the stage operation to upload the firmware
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: firmware_installed
+        data:
+          name: "{{ logical_interconnect_name }}"
+          firmware:
+            command: Stage
+            spp: "{{ firmware_driver }}"  # could also be a sppUri. e.g.: - sppUri: '/rest/firmware-drivers/<filename>'
+      when: firmware_driver is defined
+      delegate_to: localhost
+
+    - name: Return the Logical Interconnect to a consistent state
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: compliant
+        data:
+          name: "{{ logical_interconnect_name }}"
+      delegate_to: localhost
