@@ -19,7 +19,6 @@
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
 
-
 DOCUMENTATION = '''
 ---
 module: oneview_interconnect
@@ -92,11 +91,17 @@ EXAMPLES = '''
     ip: '172.18.1.114'
 '''
 
+RETURN = '''
+interconnect:
+    description: Has the facts about the OneView Interconnect.
+    returned: Always. Can be null.
+    type: complex
+'''
+
 MISSING_KEY_MSG = "You must provide the interconnect name or the interconnect ip address"
 
 
 class InterconnectModule(object):
-
     argument_spec = dict(
         config=dict(required=True, type='str'),
         state=dict(

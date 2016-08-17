@@ -20,7 +20,6 @@ from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
 from hpOneView.common import resource_compare
 
-
 DOCUMENTATION = '''
 ---
 module: oneview_fc_network
@@ -75,6 +74,12 @@ EXAMPLES = '''
       name: 'New FC Network'
 '''
 
+RETURN = '''
+fc_network:
+    description: Has the facts about the OneView FC Networks.
+    returned: on state 'present'. Can be null.
+    type: complex
+'''
 
 FC_NETWORK_CREATED = 'FC Network created successfully.'
 FC_NETWORK_UPDATED = 'FC Network updated successfully.'
@@ -84,7 +89,6 @@ FC_NETWORK_ALREADY_ABSENT = 'Nothing to do.'
 
 
 class FcNetworkModule(object):
-
     argument_spec = dict(
         config=dict(required=True, type='str'),
         state=dict(

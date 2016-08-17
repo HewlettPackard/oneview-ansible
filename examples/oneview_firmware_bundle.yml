@@ -24,4 +24,4 @@
         state: present
         file_path: "/home/user/Downloads/hp-firmware-hdd-a1b08f8a6b-HPGH-1.1.x86_64.rpm"
       delegate_to: localhost
-    - debug: var=oneview_firmware_bundle
+    - debug: var=firmware_bundle

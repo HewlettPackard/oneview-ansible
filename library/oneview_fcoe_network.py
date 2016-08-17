@@ -66,6 +66,13 @@ EXAMPLES = '''
       name: 'New FCoE Network'
 '''
 
+RETURN = '''
+fcoe_network:
+    description: Has the facts about the OneView FCoE Networks.
+    returned: on state 'present'. Can be null.
+    type: complex
+'''
+
 FCOE_NETWORK_CREATED = 'FCoE Network created successfully.'
 FCOE_NETWORK_UPDATED = 'FCoE Network updated successfully.'
 FCOE_NETWORK_DELETED = 'FCoE Network deleted successfully.'

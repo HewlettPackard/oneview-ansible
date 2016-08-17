@@ -50,11 +50,11 @@ EXAMPLES = '''
     name: "Encl1"
   delegate_to: localhost
 
-- debug: var=oneview_logical_enclosure
+- debug: var=logical_enclosure_script
 '''
 
 RETURN = '''
-oneview_logical_enclosure_script_facts:
+logical_enclosure_script:
     description: Gets the Logical Enclosure script by Logical Enclosure name.
     returned: always, but can be null
     type: complex
@@ -83,7 +83,7 @@ class LogicalEnclosureScriptFactsModule(object):
             if logical_enclosure:
                 script = self.oneview_client.logical_enclosures.get_script(logical_enclosure['uri'])
 
-            self.module.exit_json(changed=False, ansible_facts=dict(oneview_logical_enclosure_script=script))
+            self.module.exit_json(changed=False, ansible_facts=dict(logical_enclosure_script=script))
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)

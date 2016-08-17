@@ -52,7 +52,7 @@ class LogicalEnclosureScriptFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_logical_enclosure_script="the script")
+            ansible_facts=dict(logical_enclosure_script="the script")
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')

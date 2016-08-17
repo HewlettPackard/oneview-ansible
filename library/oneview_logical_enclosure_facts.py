@@ -49,7 +49,7 @@ EXAMPLES = '''
     config: "{{ config_file_path }}"
   delegate_to: localhost
 
-- debug: var=oneview_logical_enclosure
+- debug: var=logical_enclosures
 
 - name: Gather facts about a Logical Enclosure by name
   oneview_logical_enclosure_facts:
@@ -57,11 +57,11 @@ EXAMPLES = '''
     name: "Encl1"
   delegate_to: localhost
 
-- debug: var=oneview_logical_enclosure
+- debug: var=logical_enclosures
 '''
 
 RETURN = '''
-oneview_logical_enclosure_facts:
+logical_enclosures:
     description: Has all the OneView facts about the Logical Enclosures.
     returned: always, but can be null
     type: complex
@@ -91,7 +91,7 @@ class LogicalEnclosureFactsModule(object):
                 logical_enclosure = self.oneview_client.logical_enclosures.get_all()
 
             self.module.exit_json(changed=False,
-                                  ansible_facts=dict(onveview_logical_enclosure=logical_enclosure))
+                                  ansible_facts=dict(logical_enclosures=logical_enclosure))
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)

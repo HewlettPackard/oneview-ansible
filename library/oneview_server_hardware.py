@@ -114,11 +114,10 @@ EXAMPLES = '''
   delegate_to: localhost
 '''
 
-
 RETURN = '''
 server_hardware:
     description: Has the OneView facts about the Server Hardware.
-    returned: always, but can be null
+    returned: On states 'present', 'power_state_set', 'refresh_state_set', 'ilo_firmware_version_updated'. Can be null.
     type: complex
 '''
 

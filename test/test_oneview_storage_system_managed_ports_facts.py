@@ -66,7 +66,7 @@ class StorageSystemManagedPortsFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_storage_system_managed_ports=([
+            ansible_facts=dict(storage_system_managed_ports=([
                 {"name": "port1"}
             ]))
         )
@@ -108,7 +108,7 @@ class StorageSystemManagedPortsFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_storage_system_managed_ports=([
+            ansible_facts=dict(storage_system_managed_ports=([
                 {"name": "port1"}
             ]))
         )

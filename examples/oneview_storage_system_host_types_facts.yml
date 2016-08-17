@@ -23,5 +23,5 @@
         config: "{{ config }}"
       delegate_to: localhost
 
-    - debug: var=oneview_storage_host_types
+    - debug: var=storage_host_types
 

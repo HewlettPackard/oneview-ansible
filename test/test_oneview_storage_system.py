@@ -105,7 +105,7 @@ class StorageSystemPresentStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=STORAGE_SYSTEM_ADDED,
-            ansible_facts=dict(oneview_storage_system={"name": "name"})
+            ansible_facts=dict(storage_system={"name": "name"})
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -124,7 +124,7 @@ class StorageSystemPresentStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
             msg=STORAGE_SYSTEM_ALREADY_UPDATED,
-            ansible_facts=dict(oneview_storage_system=DICT_DEFAULT_STORAGE_SYSTEM)
+            ansible_facts=dict(storage_system=DICT_DEFAULT_STORAGE_SYSTEM)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -145,7 +145,7 @@ class StorageSystemPresentStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
             msg=STORAGE_SYSTEM_ALREADY_UPDATED,
-            ansible_facts=dict(oneview_storage_system=dict_by_name.copy())
+            ansible_facts=dict(storage_system=dict_by_name.copy())
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -188,7 +188,7 @@ class StorageSystemPresentStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=STORAGE_SYSTEM_UPDATED,
-            ansible_facts=dict(oneview_storage_system=data_merged)
+            ansible_facts=dict(storage_system=data_merged)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')

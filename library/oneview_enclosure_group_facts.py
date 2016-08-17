@@ -49,7 +49,7 @@ EXAMPLES = '''
     config: "{{ config_file_path }}"
   delegate_to: localhost
 
-- debug: var=enclosure_group
+- debug: var=enclosure_groups
 
 - name: Gather facts about a Enclosure Group by name
   oneview_enclosure_group_facts:
@@ -57,11 +57,11 @@ EXAMPLES = '''
     name: "Test Enclosure Group Facts"
   delegate_to: localhost
 
-- debug: var=enclosure_group
+- debug: var=enclosure_groups
 '''
 
 RETURN = '''
-oneview_enclosure_group_facts:
+enclosure_groups:
     description: Has all the OneView facts about the Enclosure Groups.
     returned: always, but can be null
     type: complex
@@ -91,7 +91,7 @@ class EnclosureGroupFactsModule(object):
                 enclosure_group = self.oneview_client.enclosure_groups.get_all()
 
             self.module.exit_json(changed=False,
-                                  ansible_facts=dict(enclosure_group=enclosure_group))
+                                  ansible_facts=dict(enclosure_groups=enclosure_group))
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)

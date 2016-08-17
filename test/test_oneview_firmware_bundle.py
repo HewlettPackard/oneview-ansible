@@ -67,7 +67,7 @@ class FirmwareBundlePresentStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=FIRMWARE_BUNDLE_UPLOADED,
-            ansible_facts=dict(oneview_firmware_bundle=DEFAULT_FIRMWARE_TEMPLATE)
+            ansible_facts=dict(firmware_bundle=DEFAULT_FIRMWARE_TEMPLATE)
         )
 
 

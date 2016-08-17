@@ -98,7 +98,7 @@ class ServerProfileTemplatePresentStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=TEMPLATE_CREATED,
-            ansible_facts=dict(server_profile_templates=CREATED_BASIC_TEMPLATE)
+            ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -117,7 +117,7 @@ class ServerProfileTemplatePresentStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
             msg=TEMPLATE_ALREADY_EXIST,
-            ansible_facts=dict(server_profile_templates=CREATED_BASIC_TEMPLATE)
+            ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -143,7 +143,7 @@ class ServerProfileTemplatePresentStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=TEMPLATE_UPDATED,
-            ansible_facts=dict(server_profile_templates=CREATED_BASIC_TEMPLATE)
+            ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE)
         )
 
 

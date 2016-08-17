@@ -19,7 +19,6 @@
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
 
-
 DOCUMENTATION = '''
 ---
 module: oneview_enclosure_utilization_facts
@@ -78,7 +77,7 @@ EXAMPLES = '''
     name: 'Test-Enclosure'
     delegate_to: localhost
 
-- debug: var=oneview_enclosure_utilization
+- debug: var=enclosure_utilization
 
 - name: "Gather facts about all temperature data at a resolution of one sample per day for the enclosure
          named 'Test-Enclosure', between two specified dates"
@@ -92,22 +91,20 @@ EXAMPLES = '''
     refresh: False
 delegate_to: localhost
 
-- debug: var=oneview_enclosure_utilization
+- debug: var=enclosure_utilization
 '''
 
 RETURN = '''
-oneview_enclosure_utilization:
+enclosure_utilization:
     description: Has all the OneView facts about the utilization of one enclosure.
     returned: always, but can be null
     type: complex
 '''
 
-
 ENCLOSURE_NOT_FOUND = 'Enclosure not found.'
 
 
 class EnclosureUtilizationFactsModule(object):
-
     argument_spec = dict(
         config=dict(required=True, type='str'),
         name=dict(required=True, type='str'),
@@ -119,8 +116,7 @@ class EnclosureUtilizationFactsModule(object):
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec,
-                                    supports_check_mode=False)
+        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
@@ -139,10 +135,10 @@ class EnclosureUtilizationFactsModule(object):
                                                                              view=view,
                                                                              refresh=refresh)
                 self.module.exit_json(changed=False,
-                                      ansible_facts=dict(oneview_enclosure_utilization=utilization))
+                                      ansible_facts=dict(enclosure_utilization=utilization))
             else:
                 self.module.exit_json(changed=False,
-                                      ansible_facts=dict(oneview_enclosure_utilization=None),
+                                      ansible_facts=dict(enclosure_utilization=None),
                                       msg=ENCLOSURE_NOT_FOUND)
 
         except Exception as exception:

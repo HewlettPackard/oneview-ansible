@@ -49,18 +49,18 @@ EXAMPLES = '''
   oneview_fcoe_network_facts:
     config: "{{ config_file_path }}"
 
-- debug: var=fcoe_network
+- debug: var=fcoe_networks
 
 - name: Gather facts about a FCoE Network by name
   oneview_fcoe_network_facts:
     config: "{{ config_file_path }}"
     name: "Test FCoE Network Facts"
 
-- debug: var=fcoe_network
+- debug: var=fcoe_networks
 '''
 
 RETURN = '''
-oneview_fcoe_network_facts:
+fcoe_networks:
     description: Has all the OneView facts about the FCoE Networks.
     returned: always, but can be null
     type: complex
@@ -93,13 +93,13 @@ class FcoeNetworkFactsModule(object):
         fcoe_network = self.oneview_client.fcoe_networks.get_by('name', name)
 
         self.module.exit_json(changed=False,
-                              ansible_facts=dict(fcoe_network=fcoe_network))
+                              ansible_facts=dict(fcoe_networks=fcoe_network))
 
     def __get_all(self):
         fcoe_network = self.oneview_client.fcoe_networks.get_all()
 
         self.module.exit_json(changed=False,
-                              ansible_facts=dict(fcoe_network=fcoe_network))
+                              ansible_facts=dict(fcoe_networks=fcoe_network))
 
 
 def main():

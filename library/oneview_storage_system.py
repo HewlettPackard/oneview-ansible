@@ -79,6 +79,13 @@ EXAMPLES = '''
   delegate_to: localhost
 '''
 
+RETURN = '''
+storage_system:
+    description: Has the OneView facts about the Storage System.
+    returned: on state 'present'. Can be null.
+    type: complex
+'''
+
 STORAGE_SYSTEM_ADDED = 'Storage System added successfully.'
 STORAGE_SYSTEM_UPDATED = 'Storage System updated successfully.'
 STORAGE_SYSTEM_ALREADY_UPDATED = 'Storage System is already updated.'
@@ -146,7 +153,7 @@ class StorageSystemModule(object):
         else:
             msg = STORAGE_SYSTEM_ALREADY_UPDATED
 
-        return changed, msg, dict(oneview_storage_system=resource)
+        return changed, msg, dict(storage_system=resource)
 
     def __absent(self, data):
         resource = self.__get_resource(data)

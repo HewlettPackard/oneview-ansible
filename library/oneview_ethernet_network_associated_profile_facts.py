@@ -19,7 +19,6 @@
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
 
-
 DOCUMENTATION = '''
 ---
 module: oneview_ethernet_network_associated_profile_facts
@@ -50,30 +49,27 @@ EXAMPLES = '''
     config: "{{ config_file_path }}"
     name: "Test-Ethernet-Network"
 
-- debug: var=oneview_enet_associated_profiles
+- debug: var=enet_associated_profiles
 '''
 
 RETURN = '''
-oneview_enet_associated_profiles:
+enet_associated_profiles:
     description:  List of profile URIs for the Ethernet network.
-    returned: always, but can be null
+    returned: Always, but can be null.
     type: complex
 '''
-
 
 ETHERNET_NETWORK_NOT_FOUND = 'Ethernet Network not found.'
 
 
 class EthernetNetworkAssociatedProfileModule(object):
-
     argument_spec = dict(
         config=dict(required=True, type='str'),
         name=dict(required=True, type='str')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec,
-                                    supports_check_mode=False)
+        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
@@ -91,10 +87,10 @@ class EthernetNetworkAssociatedProfileModule(object):
         if ethernet_network:
             env_config = self.oneview_client.ethernet_networks.get_associated_profiles(ethernet_network['uri'])
             self.module.exit_json(changed=False,
-                                  ansible_facts=dict(oneview_enet_associated_profiles=env_config))
+                                  ansible_facts=dict(enet_associated_profiles=env_config))
         else:
             self.module.exit_json(changed=False,
-                                  ansible_facts=dict(oneview_enet_associated_profiles=None),
+                                  ansible_facts=dict(enet_associated_profiles=None),
                                   msg=ETHERNET_NETWORK_NOT_FOUND)
 
     def __get_ethernet_network_by_name(self, name):

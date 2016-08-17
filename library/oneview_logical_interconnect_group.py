@@ -79,6 +79,13 @@ EXAMPLES = '''
       name: 'New Logical Interconnect Group'
 '''
 
+RETURN = '''
+logical_interconnect_group:
+    description: Has the facts about the OneView Logical Interconnect Group.
+    returned: On state 'present'. Can be null.
+    type: complex
+'''
+
 LIG_CREATED = 'Logical Interconnect Group created successfully.'
 LIG_UPDATED = 'Logical Interconnect Group updated successfully.'
 LIG_DELETED = 'Logical Interconnect Group deleted successfully.'

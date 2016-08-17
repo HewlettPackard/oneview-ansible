@@ -74,7 +74,7 @@ class FirmwareDriverFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_firmware_drivers=firmwares)
+            ansible_facts=dict(firmware_drivers=firmwares)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -92,7 +92,7 @@ class FirmwareDriverFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_firmware_drivers=firmwares)
+            ansible_facts=dict(firmware_drivers=firmwares)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')

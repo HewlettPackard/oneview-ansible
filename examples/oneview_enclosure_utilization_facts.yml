@@ -25,7 +25,7 @@
         name: 'Test-Enclosure'
       delegate_to: localhost
 
-    - debug: var=oneview_enclosure_utilization
+    - debug: var=enclosure_utilization
 
     - name: "Gather facts about all temperature data at a resolution of one sample per day for the enclosure
              named 'Test-Enclosure', between two specified dates"
@@ -39,4 +39,4 @@
         refresh: False
       delegate_to: localhost
 
-    - debug: var=oneview_enclosure_utilization
+    - debug: var=enclosure_utilization

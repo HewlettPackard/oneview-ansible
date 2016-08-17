@@ -24,4 +24,4 @@
         name: "Encl1"
       delegate_to: localhost
 
-    - debug: var=oneview_logical_enclosure_script
+    - debug: var=logical_enclosure_script

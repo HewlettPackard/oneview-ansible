@@ -70,6 +70,13 @@ EXAMPLES = '''
     delegate_to: localhost
 '''
 
+RETURN = '''
+server_profile_template:
+    description: Has the OneView facts about the Server Profile Template.
+    returned: On state 'present'. Can be null.
+    type: complex
+'''
+
 TEMPLATE_CREATED = 'Server Profile Template created successfully.'
 TEMPLATE_UPDATED = 'Server Profile Template updated successfully.'
 TEMPLATE_DELETED = 'Server Profile Template deleted successfully.'
@@ -78,7 +85,6 @@ TEMPLATE_ALREADY_ABSENT = 'Nothing to do.'
 
 
 class ServerProfileTemplateModule(object):
-
     argument_spec = dict(
         config=dict(required=True, type='str'),
         state=dict(
@@ -120,7 +126,7 @@ class ServerProfileTemplateModule(object):
         return dict(
             changed=changed,
             msg=msg,
-            ansible_facts=dict(server_profile_templates=resource)
+            ansible_facts=dict(server_profile_template=resource)
         )
 
     def __create(self, data):

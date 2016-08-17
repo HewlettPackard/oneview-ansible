@@ -116,6 +116,23 @@ EXAMPLES = '''
   delegate_to: localhost
 '''
 
+RETURN = '''
+logical_enclosure:
+    description: Has the facts about the OneView Logical Enclosure.
+    returned: On states 'present', 'firmware_updated', 'reconfigured', 'updated_from_group'. Can be null.
+    type: complex
+
+configuration_script:
+    description: Has the facts about the Logical Enclosure configuration script.
+    returned: On state 'script_updated'. Can be null.
+    type: complex
+
+generated_dump_uri:
+    description: Has the facts about the Logical Enclosure generated support dump uri.
+    returned: On state 'dumped'. Can be null.
+    type: complex
+'''
+
 LOGICAL_ENCLOSURE_UPDATED = 'Logical Enclosure updated successfully.'
 LOGICAL_ENCLOSURE_ALREADY_UPDATED = 'Logical Enclosure already updated.'
 LOGICAL_ENCLOSURE_REQUIRED = "An existing Logical Enclosure is required."
@@ -186,16 +203,16 @@ class LogicalEnclosureModule(object):
         if not resource_compare(existent_resource, merged_data):
             # update resource
             existent_resource = self.oneview_client.logical_enclosures.update(merged_data)
-            return True, LOGICAL_ENCLOSURE_UPDATED, dict(oneview_logical_enclosure=existent_resource)
+            return True, LOGICAL_ENCLOSURE_UPDATED, dict(logical_enclosure=existent_resource)
         else:
-            return False, LOGICAL_ENCLOSURE_ALREADY_UPDATED, dict(oneview_logical_enclosure=existent_resource)
+            return False, LOGICAL_ENCLOSURE_ALREADY_UPDATED, dict(logical_enclosure=existent_resource)
 
     def __update_script(self, data, logical_enclosure_uri):
         script = data.pop("configurationScript")
 
         # update the configuration script
         self.oneview_client.logical_enclosures.update_script(logical_enclosure_uri, script)
-        return True, LOGICAL_ENCLOSURE_CONFIGURATION_SCRIPT_UPDATED, dict(oneview_configuration_script=script)
+        return True, LOGICAL_ENCLOSURE_CONFIGURATION_SCRIPT_UPDATED, dict(configuration_script=script)
 
     def __update_firmware(self, data, logical_enclosure_uri):
         logical_enclosure = self.oneview_client.logical_enclosures.patch(logical_enclosure_uri,
@@ -203,24 +220,24 @@ class LogicalEnclosureModule(object):
                                                                          path="/firmware",
                                                                          value=data['firmware'])
 
-        return True, LOGICAL_ENCLOSURE_FIRMWARE_UPDATED, dict(oneview_logical_enclosure=logical_enclosure)
+        return True, LOGICAL_ENCLOSURE_FIRMWARE_UPDATED, dict(logical_enclosure=logical_enclosure)
 
     def __support_dump(self, data, logical_enclosure_uri):
         generated_dump_uri = self.oneview_client.logical_enclosures.generate_support_dump(
             data['dump'],
             logical_enclosure_uri)
 
-        return True, LOGICAL_ENCLOSURE_DUMP_GENERATED, dict(oneview_generated_dump_uri=generated_dump_uri)
+        return True, LOGICAL_ENCLOSURE_DUMP_GENERATED, dict(generated_dump_uri=generated_dump_uri)
 
     def __reconfigure(self, logical_enclosure_uri):
         logical_enclosure = self.oneview_client.logical_enclosures.update_configuration(logical_enclosure_uri)
 
-        return True, LOGICAL_ENCLOSURE_RECONFIGURED, dict(oneview_logical_enclosure=logical_enclosure)
+        return True, LOGICAL_ENCLOSURE_RECONFIGURED, dict(logical_enclosure=logical_enclosure)
 
     def __update_from_group(self, logical_enclosure_uri):
         logical_enclosure = self.oneview_client.logical_enclosures.update_from_group(logical_enclosure_uri)
 
-        return True, LOGICAL_ENCLOSURE_UPDATED_FROM_GROUP, dict(oneview_logical_enclosure=logical_enclosure)
+        return True, LOGICAL_ENCLOSURE_UPDATED_FROM_GROUP, dict(logical_enclosure=logical_enclosure)
 
 
 def main():

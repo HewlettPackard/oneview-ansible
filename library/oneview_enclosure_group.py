@@ -86,6 +86,13 @@ EXAMPLES = '''
   delegate_to: localhost
 '''
 
+RETURN = '''
+enclosure_group:
+    description: Has the facts about the Enclosure Group.
+    returned: on state 'present'. Can be null.
+    type: complex
+'''
+
 ENCLOSURE_GROUP_CREATED = 'Enclosure Group created successfully.'
 ENCLOSURE_GROUP_UPDATED = 'Enclosure Group updated successfully.'
 ENCLOSURE_GROUP_DELETED = 'Enclosure Group deleted successfully.'

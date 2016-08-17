@@ -50,11 +50,11 @@ EXAMPLES = '''
     name: "Enclosure Group (For Demo)"
   delegate_to: localhost
 
-- debug: var=enclosure_group
+- debug: var=enclosure_group_script
 '''
 
 RETURN = '''
-oneview_enclosure_group_script_facts:
+enclosure_group_script:
     description: Gets the Enclosure Group script by Enclosure Group name.
     returned: always, but can be null
     type: complex

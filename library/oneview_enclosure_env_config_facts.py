@@ -51,7 +51,7 @@ EXAMPLES = '''
     config: "{{ config_file_path }}"
     name: "Test-Enclosure"
 
-- debug: var=oneview_enclosure_env_config_facts
+- debug: var=enclosure_env_config
 '''
 
 RETURN = '''

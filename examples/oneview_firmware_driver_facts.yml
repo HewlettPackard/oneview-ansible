@@ -22,11 +22,11 @@
       oneview_firmware_driver_facts:
         config: "{{ config }}"
 
-    - debug: var=oneview_firmware_drivers
+    - debug: var=firmware_drivers
 
     - name: Gather facts about a Firmware Driver by name
       oneview_firmware_driver_facts:
         config: "{{ config }}"
         name: "Service Pack for ProLiant.iso"
 
-    - debug: var=oneview_firmware_drivers[0]['uri']
+    - debug: var=firmware_drivers[0]['uri']

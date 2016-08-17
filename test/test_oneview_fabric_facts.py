@@ -63,7 +63,7 @@ class FabricFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_fabrics=(PRESENT_FABRICS))
+            ansible_facts=dict(fabrics=(PRESENT_FABRICS))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -96,7 +96,7 @@ class FabricFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_fabrics=(PRESENT_FABRICS))
+            ansible_facts=dict(fabrics=(PRESENT_FABRICS))
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
