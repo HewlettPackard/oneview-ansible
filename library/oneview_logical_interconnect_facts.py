@@ -27,7 +27,9 @@ description:
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
-author: "Bruno Souza (@bsouza)"
+author:
+    - "Bruno Souza (@bsouza)"
+    - "Mariana Kreisig (@marikrg)"
 options:
     config:
       description:
@@ -41,13 +43,16 @@ options:
       description:
         - "List with options to gather additional facts about Logical Interconnect.
           Options allowed:
-          'qos_aggregated_configuration' get the QoS aggregated configuration for the logical interconnect.
-          'snmp_configuration' get the SNMP configuration for a logical interconnect.
-          'port_monitor' get the port monitor configuration of a logical interconnect.
-          'internal_vlans' get the internal VLAN IDs for the provisioned networks on a logical interconnect.
-          'forwarding_information_base' get the forwarding information base data for a logical interconnect.
-          'firmware' get the installed firmware for a logical interconnect."
-        - These options are valid just when a 'name' is provided. Otherwise it will be ignored.
+          'qos_aggregated_configuration' gets the QoS aggregated configuration for the logical interconnect.
+          'snmp_configuration' gets the SNMP configuration for a logical interconnect.
+          'port_monitor' gets the port monitor configuration of a logical interconnect.
+          'internal_vlans' gets the internal VLAN IDs for the provisioned networks on a logical interconnect.
+          'forwarding_information_base' gets the forwarding information base data for a logical interconnect.
+          'firmware' get the installed firmware for a logical interconnect.
+          'unassigned_uplink_ports' gets a collection of uplink ports from the member interconnects which are eligible
+          for assignment to an analyzer port.
+          'telemetry_configuration' gets the telemetry configuration of the logical interconnect.
+        - These options are valid just when a 'name' is provided. Otherwise it will be ignored."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -82,6 +87,8 @@ EXAMPLES = '''
       - internal_vlans
       - forwarding_information_base
       - firmware
+      - unassigned_uplink_ports
+      - telemetry_configuration
 
 - debug: var=logical_interconnects
 - debug: var=qos_aggregated_configuration
@@ -90,6 +97,8 @@ EXAMPLES = '''
 - debug: var=internal_vlans
 - debug: var=forwarding_information_base
 - debug: var=firmware
+- debug: var=unassigned_uplink_ports
+- debug: var=telemetry_configuration
 '''
 
 RETURN = '''
@@ -127,7 +136,20 @@ firmware:
     description: The installed firmware for a logical interconnect.
     returned: When requested, but can be null.
     type: complex
+
+unassigned_uplink_ports:
+    description: "A collection of uplink ports from the member interconnects which are eligible for assignment to an
+                  analyzer port on a logical interconnect."
+    returned: When requested, but can be null.
+    type: complex
+
+telemetry_configuration:
+    description: The telemetry configuration of the logical interconnect.
+    returned: When requested, but can be null.
+    type: complex
 '''
+
+LOGICAL_INTERCONNECT_NOT_FOUND = 'Logical Interconnect not found.'
 
 
 class LogicalInterconnectFactsModule(object):
@@ -149,7 +171,9 @@ class LogicalInterconnectFactsModule(object):
             port_monitor=logical_interconnects.get_port_monitor,
             internal_vlans=logical_interconnects.get_internal_vlans,
             forwarding_information_base=logical_interconnects.get_forwarding_information_base,
-            firmware=logical_interconnects.get_firmware
+            firmware=logical_interconnects.get_firmware,
+            unassigned_uplink_ports=logical_interconnects.get_unassigned_uplink_ports,
+            telemetry_configuration=logical_interconnects.get_telemetry_configuration,
         )
 
     def run(self):
@@ -168,6 +192,9 @@ class LogicalInterconnectFactsModule(object):
 
     def __get_by_name(self, name):
         logical_interconnect = self.resource_client.get_by_name(name=name)
+        if not logical_interconnect:
+            raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
+
         facts = dict(logical_interconnects=logical_interconnect)
 
         options = self.module.params["options"]
@@ -183,7 +210,11 @@ class LogicalInterconnectFactsModule(object):
         uri = logical_interconnect["uri"]
 
         for option in options:
-            facts[option] = self.options[option](id_or_uri=uri)
+            if option == 'telemetry_configuration':
+                telemetry_configuration_uri = logical_interconnect["telemetryConfiguration"]["uri"]
+                facts[option] = self.options[option](telemetry_configuration_uri=telemetry_configuration_uri)
+            else:
+                facts[option] = self.options[option](id_or_uri=uri)
 
         return facts
 
