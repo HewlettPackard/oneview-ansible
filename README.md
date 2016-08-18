@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/HewlettPackard/oneview-ansible.svg?branch=master)](https://travis-ci.org/HewlettPackard/oneview-ansible)
+
 # Ansible Modules for HPE OneView
 
 Modules to manage HPE OneView using Ansible playbooks.
