@@ -24,7 +24,8 @@ DOCUMENTATION = '''
 module: oneview_volume
 short_description: Manage OneView Volume resources.
 description:
-    - Provides an interface to manage Volume resources. Can create, update, or delete.
+    - Provides an interface to manage Volume resources. It allows create, update, delete or repair the volume, and
+      create or delete a snapshot.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -37,23 +38,22 @@ options:
     state:
         description:
             - Indicates the desired state for the Volume resource.
-              'present' ensures data properties are compliant to OneView. For Volume resources, this operation is
-              non-idempotent.
-              'absent' removes the resource from OneView, if it exists.
+              'present' creates or adds the resource when it does not exist, otherwise it updates the resource. The
+              update operation is non-idempotent.
+              'absent' by default deletes a volume from OneView and storage system. When export_only is True, the
+              volume is removed only from OneView.
               'repaired' removes extra presentations from a specified volume on the storage system. This operation is
               non-idempotent.
-        choices: ['present', 'absent', 'repaired']
+              'snapshot_created' creates a snapshot for the volume specified. This operation is non-idempotent.
+              'snapshot_deleted' deletes a snapshot from OneView and storage system.
+        choices: ['present', 'absent', 'repaired', 'snapshot_created', 'snapshot_deleted']
     data:
       description:
-        - List with the Volume properties.
-          Instead of a storageSystemUri, you may provide a storage system name though a property named 'storageSystem'.
-          Instead of a storagePoolUri, you may provide a storage pool name though a property named 'storagePool'.
-          Instead of a snapshotPoolUri, you may provide a snapshot pool name though a property named 'storagePool'.
+        - Volume and snapshot data.
       required: true
     export_only:
       description:
-        - When the status is 'absent' and the resource exists, it will be deleted only from OneView when the value
-          is True.
+        - If set to True, when the status is 'absent' and the resource exists, it will be removed only from OneView.
       default: False
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -122,6 +122,26 @@ EXAMPLES = '''
     data:
       name: 'Volume with Storage Pool - Renamed'
 
+- name: Create a new snapshot for the specified volume
+    oneview_volume:
+    config: '{{ config_path }}'
+    state: snapshot_created
+    data:
+      name: 'Volume with Snapshot Pool'
+      snapshotParameters:
+        name: 'test_snapshot'
+        type: 'Snapshot'
+        description: 'New snapshot'
+
+- name: Delete the snapshot
+    oneview_volume:
+    config: '{{ config_path }}'
+    state: snapshot_deleted
+    data:
+      name: 'Volume with Snapshot Pool'
+      snapshotParameters:
+        name: 'test_snapshot'
+
 - name: Delete the volume previously created with a Storage Pool
   oneview_volume:
     config: '{{ config_path }}'
@@ -156,8 +176,12 @@ VOLUME_CREATED = 'Volume added/created successfully.'
 VOLUME_UPDATED = 'Volume updated successfully.'
 VOLUME_DELETED = 'Volume removed/deleted successfully.'
 VOLUME_REPAIRED = 'Volume repaired successfully.'
+VOLUME_SNAPSHOT_CREATED = 'Volume snapshot created successfully.'
+VOLUME_SNAPSHOT_DELETED = 'Volume snapshot deleted successfully.'
 VOLUME_NOT_FOUND = 'Volume not found.'
+VOLUME_SNAPSHOT_NOT_FOUND = 'Snapshot not found.'
 VOLUME_ALREADY_ABSENT = 'Nothing to do.'
+VOLUME_NO_OPTIONS_PROVIDED = 'No options provided.'
 
 
 class VolumeModule(object):
@@ -165,7 +189,7 @@ class VolumeModule(object):
         config=dict(required=True, type='str'),
         state=dict(
             required=True,
-            choices=['present', 'absent', 'repaired']
+            choices=['present', 'absent', 'repaired', 'snapshot_created', 'snapshot_deleted']
         ),
         data=dict(required=True, type='dict'),
         export_only=dict(required=False, type='bool'),
@@ -187,6 +211,10 @@ class VolumeModule(object):
                 self.__absent(data, export_only)
             elif state == 'repaired':
                 self.__repair(data)
+            elif state == 'snapshot_created':
+                self.__create_snapshot(data)
+            elif state == 'snapshot_deleted':
+                self.__delete_snapshot(data)
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
@@ -217,7 +245,6 @@ class VolumeModule(object):
                               ansible_facts=dict(storage_volume=created_volume))
 
     def __update(self, data, resource):
-
         if 'newName' in data:
             data['name'] = data['newName']
             del data['newName']
@@ -235,14 +262,52 @@ class VolumeModule(object):
         resource = self.__get_by_name(data)
 
         if resource:
-            self.oneview_client.volumes.repair(resource)
+            self.oneview_client.volumes.repair(resource['uri'])
             self.module.exit_json(changed=True,
                                   msg=VOLUME_REPAIRED)
         else:
             self.module.fail_json(msg=VOLUME_NOT_FOUND)
 
+    def __create_snapshot(self, data):
+        if 'snapshotParameters' not in data:
+            raise Exception(VOLUME_NO_OPTIONS_PROVIDED)
+
+        resource = self.__get_by_name(data)
+
+        if resource:
+            self.oneview_client.volumes.create_snapshot(resource['uri'], data['snapshotParameters'])
+            self.module.exit_json(changed=True,
+                                  msg=VOLUME_SNAPSHOT_CREATED)
+        else:
+            self.module.fail_json(msg=VOLUME_NOT_FOUND)
+
+    def __delete_snapshot(self, data):
+        if 'snapshotParameters' not in data:
+            raise Exception(VOLUME_NO_OPTIONS_PROVIDED)
+
+        resource = self.__get_by_name(data)
+
+        if not resource:
+            self.module.fail_json(msg=VOLUME_NOT_FOUND)
+        else:
+            snapshot = self.__get_snapshot_by_name(resource, data)
+            if not snapshot:
+                self.module.fail_json(msg=VOLUME_SNAPSHOT_NOT_FOUND)
+            else:
+                self.oneview_client.volumes.delete_snapshot(snapshot)
+                self.module.exit_json(changed=True,
+                                      msg=VOLUME_SNAPSHOT_DELETED)
+
     def __get_by_name(self, data):
         result = self.oneview_client.volumes.get_by('name', data['name'])
+        return result[0] if result else None
+
+    def __get_snapshot_by_name(self, resource, data):
+        if 'name' not in data['snapshotParameters']:
+            raise Exception(VOLUME_NO_OPTIONS_PROVIDED)
+
+        result = self.oneview_client.volumes.get_snapshot_by(resource['uri'], 'name',
+                                                             data['snapshotParameters']['name'])
         return result[0] if result else None
 
 

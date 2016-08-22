@@ -17,7 +17,9 @@
 - hosts: all
   vars:
     config: '{{ playbook_dir }}/oneview_config.json'
-    wwn: 'DC:32:13:72:47:00:10:00:30:71:47:16:33:58:47:95'
+    storage_pool_uri:  # set a Storage Pool URI to run this example
+    storage_system_uri:  # set a Storage System URI to run this example
+    # wwn:  # set a WWN to add a volume using the WWN of the volume (optional)
   tasks:
     - name: Create a Volume with a specified Storage Pool
       oneview_volume:
@@ -30,7 +32,7 @@
               provisionType: 'Full'
               shareable: True
               requestedCapacity: 1073741824  # 1GB
-              storagePoolUri: '/rest/storage-pools/3B1CF17F-7657-4C89-B580-D236507A9182'
+              storagePoolUri: '{{ storage_pool_uri }}'
       delegate_to: localhost
 
     - name: Create a volume with a specified Snapshot Pool
@@ -44,9 +46,9 @@
               provisionType: 'Full'
               shareable: True
               requestedCapacity: 1073741824  # 1GB
-              storagePoolUri: '/rest/storage-pools/3B1CF17F-7657-4C89-B580-D236507A9182'
-          storageSystemUri: '/rest/storage-systems/TXQ1000307'
-          snapshotPoolUri: '/rest/storage-pools/3B1CF17F-7657-4C89-B580-D236507A9182'
+              storagePoolUri: '{{ storage_pool_uri }}'
+          storageSystemUri: '{{ storage_system_uri }}'
+          snapshotPoolUri: '{{ storage_pool_uri }}'
       delegate_to: localhost
 
     - name: Add a volume for management by the appliance using the WWN of the volume
@@ -57,7 +59,7 @@
           type: AddStorageVolumeV2
           name: 'Volume added with a specific WWN'
           description: 'Test volume added for management: Storage System + Storage Pool + WWN'
-          storageSystemUri: '/rest/storage-systems/TXQ1000307'
+          storageSystemUri: '{{ storage_system_uri }}'
           wwn: '{{ wwn }}'
           provisioningParameters:
               shareable: True
@@ -80,6 +82,28 @@
         state: repaired
         data:
           name: 'Volume with Storage Pool - Renamed'
+      delegate_to: localhost
+
+    - name: Create a new snapshot for the specified volume
+      oneview_volume:
+        config: '{{ config }}'
+        state: snapshot_created
+        data:
+          name: 'Volume with Snapshot Pool'
+          snapshotParameters:
+            name: 'test_snapshot'
+            type: 'Snapshot'
+            description: 'New snapshot'
+      delegate_to: localhost
+
+    - name: Delete the snapshot
+      oneview_volume:
+        config: '{{ config }}'
+        state: snapshot_deleted
+        data:
+          name: 'Volume with Snapshot Pool'
+          snapshotParameters:
+            name: 'test_snapshot'
       delegate_to: localhost
 
     - name: Delete the volume previously created with a Storage Pool
