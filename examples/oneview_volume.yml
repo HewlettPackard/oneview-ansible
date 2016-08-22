@@ -74,6 +74,14 @@
           shareable: False
       delegate_to: localhost
 
+    - name: Remove extra presentations from the specified volume on the storage system
+      oneview_volume:
+        config: '{{ config }}'
+        state: repaired
+        data:
+          name: 'Volume with Storage Pool - Renamed'
+      delegate_to: localhost
+
     - name: Delete the volume previously created with a Storage Pool
       oneview_volume:
         config: '{{ config }}'

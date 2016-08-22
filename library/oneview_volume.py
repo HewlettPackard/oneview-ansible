@@ -37,10 +37,12 @@ options:
     state:
         description:
             - Indicates the desired state for the Volume resource.
-              'present' will ensure data properties are compliant to OneView. For Volume resources, this operation is
+              'present' ensures data properties are compliant to OneView. For Volume resources, this operation is
               non-idempotent.
-              'absent' will remove the resource from OneView, if it exists.
-        choices: ['present', 'absent']
+              'absent' removes the resource from OneView, if it exists.
+              'repaired' removes extra presentations from a specified volume on the storage system. This operation is
+              non-idempotent.
+        choices: ['present', 'absent', 'repaired']
     data:
       description:
         - List with the Volume properties.
@@ -105,13 +107,20 @@ EXAMPLES = '''
 
 - name: Update the name of the volume 'Volume with Storage Pool' and shareable to false
   oneview_volume:
-    config: '{{ config }}'
+    config: '{{ config_path }}'
     state: present
     data:
       name: 'Volume with Storage Pool'
       newName: 'Volume with Storage Pool - Renamed'
       shareable: False
     delegate_to: localhost
+
+- name: Remove extra presentations from the specified volume on the storage system
+  oneview_volume:
+    config: '{{ config_path }}'
+    state: repaired
+    data:
+      name: 'Volume with Storage Pool - Renamed'
 
 - name: Delete the volume previously created with a Storage Pool
   oneview_volume:
@@ -146,6 +155,8 @@ storage_volume:
 VOLUME_CREATED = 'Volume added/created successfully.'
 VOLUME_UPDATED = 'Volume updated successfully.'
 VOLUME_DELETED = 'Volume removed/deleted successfully.'
+VOLUME_REPAIRED = 'Volume repaired successfully.'
+VOLUME_NOT_FOUND = 'Volume not found.'
 VOLUME_ALREADY_ABSENT = 'Nothing to do.'
 
 
@@ -154,7 +165,7 @@ class VolumeModule(object):
         config=dict(required=True, type='str'),
         state=dict(
             required=True,
-            choices=['present', 'absent']
+            choices=['present', 'absent', 'repaired']
         ),
         data=dict(required=True, type='dict'),
         export_only=dict(required=False, type='bool'),
@@ -168,13 +179,14 @@ class VolumeModule(object):
         state = self.module.params['state']
         data = self.module.params['data']
 
-
         try:
             if state == 'present':
                 self.__present(data)
             elif state == 'absent':
                 export_only = self.module.params.get('export_only', False)
                 self.__absent(data, export_only)
+            elif state == 'repaired':
+                self.__repair(data)
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
@@ -218,6 +230,16 @@ class VolumeModule(object):
         self.module.exit_json(changed=True,
                               msg=VOLUME_UPDATED,
                               ansible_facts=dict(storage_volume=updated_volume))
+
+    def __repair(self, data):
+        resource = self.__get_by_name(data)
+
+        if resource:
+            self.oneview_client.volumes.repair(resource)
+            self.module.exit_json(changed=True,
+                                  msg=VOLUME_REPAIRED)
+        else:
+            self.module.fail_json(msg=VOLUME_NOT_FOUND)
 
     def __get_by_name(self, data):
         result = self.oneview_client.volumes.get_by('name', data['name'])

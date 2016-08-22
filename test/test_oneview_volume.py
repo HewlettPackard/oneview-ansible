@@ -18,8 +18,8 @@ import mock
 
 from hpOneView.oneview_client import OneViewClient
 from oneview_volume import VolumeModule
-from oneview_volume import VOLUME_CREATED, VOLUME_UPDATED
-from oneview_volume import VOLUME_DELETED, VOLUME_ALREADY_ABSENT
+from oneview_volume import VOLUME_CREATED, VOLUME_UPDATED, VOLUME_DELETED, VOLUME_ALREADY_ABSENT, \
+                           VOLUME_REPAIRED, VOLUME_NOT_FOUND
 from test.utils import create_ansible_mock
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -57,6 +57,12 @@ PARAMS_FOR_ABSENT_EXPORT_ONLY = dict(
     state='absent',
     data=dict(name='Volume with Storage Pool'),
     export_only=True
+)
+
+PARAMS_FOR_REPAIR = dict(
+    config='config.json',
+    state='repaired',
+    data=dict(name='Volume with Storage Pool')
 )
 
 
@@ -157,6 +163,25 @@ class VolumeAbsentStateSpec(unittest.TestCase):
         )
 
 
+class VolumeRepairedStateSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_volume.AnsibleModule')
+    def test_should_repair_volume(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.volumes.get_by.return_value = [EXISTENT_VOLUME]
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_REPAIR)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        VolumeModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            msg=VOLUME_REPAIRED
+        )
+
+
 class VolumeErrorHandlingSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_volume.AnsibleModule')
@@ -191,6 +216,40 @@ class VolumeErrorHandlingSpec(unittest.TestCase):
 
         mock_ansible_instance.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_volume.AnsibleModule')
+    def test_should_not_repair_when_oneview_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.volumes.get_by.return_value = [EXISTENT_VOLUME]
+        mock_ov_instance.volumes.repair.side_effect = Exception(FAKE_MSG_ERROR)
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_REPAIR)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        self.assertRaises(Exception, VolumeModule().run())
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=FAKE_MSG_ERROR
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_volume.AnsibleModule')
+    def test_should_not_repair_when_resource_not_exist(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.volumes.get_by.return_value = []
+        mock_ov_instance.volumes.repair.side_effect = Exception(FAKE_MSG_ERROR)
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_REPAIR)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        self.assertRaises(Exception, VolumeModule().run())
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=VOLUME_NOT_FOUND
         )
 
 
