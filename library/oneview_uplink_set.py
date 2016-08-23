@@ -132,7 +132,7 @@ class UplinkSetModule(object):
             self.module.fail_json(msg=exception.message)
 
     def __absent(self, data):
-        resource = self.__get_by_name(data)
+        resource = self.__get_by_name(data['name'])
 
         if resource:
             self.oneview_client.uplink_sets.delete(resource)
