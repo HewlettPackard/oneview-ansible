@@ -19,7 +19,8 @@ import mock
 from hpOneView.oneview_client import OneViewClient
 from oneview_volume import VolumeModule
 from oneview_volume import VOLUME_CREATED, VOLUME_UPDATED, VOLUME_DELETED, VOLUME_ALREADY_ABSENT, VOLUME_REPAIRED, \
-    VOLUME_NOT_FOUND, VOLUME_SNAPSHOT_CREATED, VOLUME_SNAPSHOT_DELETED, VOLUME_SNAPSHOT_NOT_FOUND
+    VOLUME_NOT_FOUND, VOLUME_SNAPSHOT_CREATED, VOLUME_SNAPSHOT_DELETED, VOLUME_SNAPSHOT_NOT_FOUND, \
+    VOLUME_NEW_NAME_INVALID
 
 from test.utils import create_ansible_mock
 
@@ -29,6 +30,12 @@ EXISTENT_VOLUME = dict(
     name='Volume with Storage Pool',
     description='Test volume with common creation: Storage Pool',
     uri='/rest/storage-volumes/3B1CF17F-7657-4C89-B580-D236507A9182'
+)
+
+EXISTENT_VOLUME_WITH_NEW_NAME = dict(
+    name='Volume with Storage Pool - Renamed',
+    description='Test volume with common creation: Storage Pool',
+    uri='/rest/storage-volumes/F28FC559-0896-4D14-A694-DB70C784BB9E'
 )
 
 SNAPSHOT_URI = EXISTENT_VOLUME['uri'] + '/snapshots/CA9E652A-A45A-45DA-BD2A-1A7638BF1699'
@@ -47,7 +54,8 @@ PARAMS_FOR_UPDATE = dict(
     config='config.json',
     state='present',
     data=dict(name='Volume with Storage Pool',
-              newName='Volume with Storage Pool - Renamed')
+              newName='Volume with Storage Pool - Renamed',
+              shareable=False)
 )
 
 PARAMS_FOR_ABSENT = dict(
@@ -110,7 +118,7 @@ class VolumeModulePresentStateSpec(unittest.TestCase):
     @mock.patch('oneview_volume.AnsibleModule')
     def test_should_update_volume_when_already_exist(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.volumes.get_by.return_value = [EXISTENT_VOLUME]
+        mock_ov_instance.volumes.get_by.side_effect = [EXISTENT_VOLUME], []
         mock_ov_instance.volumes.update.return_value = EXISTENT_VOLUME.copy()
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
@@ -123,6 +131,26 @@ class VolumeModulePresentStateSpec(unittest.TestCase):
             changed=True,
             msg=VOLUME_UPDATED,
             ansible_facts=dict(storage_volume=EXISTENT_VOLUME.copy())
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_volume.AnsibleModule')
+    def test_should_raise_exception_when_new_name_already_used(self, mock_ansible_module,
+                                                               mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_instance.volumes.get_by.side_effect = [EXISTENT_VOLUME], [EXISTENT_VOLUME_WITH_NEW_NAME]
+        mock_ov_instance.volumes.update.return_value = EXISTENT_VOLUME.copy()
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_UPDATE)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        VolumeModule().run()
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=VOLUME_NEW_NAME_INVALID
         )
 
 
@@ -334,7 +362,7 @@ class VolumeErrorHandlingSpec(unittest.TestCase):
     def test_should_not_update_when_update_raises_exception(self, mock_ansible_module,
                                                             mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.volumes.get_by.return_value = [EXISTENT_VOLUME]
+        mock_ov_instance.volumes.get_by.side_effect = [EXISTENT_VOLUME], []
         mock_ov_instance.volumes.update.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance

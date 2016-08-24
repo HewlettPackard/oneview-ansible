@@ -38,8 +38,10 @@ options:
     state:
         description:
             - Indicates the desired state for the Volume resource.
-              'present' creates or adds the resource when it does not exist, otherwise it updates the resource. The
-              update operation is non-idempotent.
+              'present' creates/adds the resource when it does not exist, otherwise it updates the resource. When the
+              resource already exists, the update operation is non-idempotent, since it is always called even though
+              the given options are compliant with the existent data. To change the name of the volume, a 'newName' in
+              the data must be provided.
               'absent' by default deletes a volume from OneView and storage system. When export_only is True, the
               volume is removed only from OneView.
               'repaired' removes extra presentations from a specified volume on the storage system. This operation is
@@ -49,7 +51,7 @@ options:
         choices: ['present', 'absent', 'repaired', 'snapshot_created', 'snapshot_deleted']
     data:
       description:
-        - Volume and snapshot data.
+        - Volume or snapshot data.
       required: true
     export_only:
       description:
@@ -105,7 +107,7 @@ EXAMPLES = '''
           shareable: True
   when: wwn is defined
 
-- name: Update the name of the volume 'Volume with Storage Pool' and shareable to false
+- name: Update the name of the volume to 'Volume with Storage Pool - Renamed' and shareable to false
   oneview_volume:
     config: '{{ config_path }}'
     state: present
@@ -182,6 +184,7 @@ VOLUME_NOT_FOUND = 'Volume not found.'
 VOLUME_SNAPSHOT_NOT_FOUND = 'Snapshot not found.'
 VOLUME_ALREADY_ABSENT = 'Nothing to do.'
 VOLUME_NO_OPTIONS_PROVIDED = 'No options provided.'
+VOLUME_NEW_NAME_INVALID = 'Rename failed: the new name provided is being used by another Volume.'
 
 
 class VolumeModule(object):
@@ -201,7 +204,7 @@ class VolumeModule(object):
 
     def run(self):
         state = self.module.params['state']
-        data = self.module.params['data']
+        data = self.module.params['data'].copy()
 
         try:
             if state == 'present':
@@ -220,7 +223,7 @@ class VolumeModule(object):
             self.module.fail_json(msg=exception.message)
 
     def __present(self, data):
-        resource = self.__get_by_name(data)
+        resource = self.__get_by_name(data['name'])
 
         if not resource:
             self.__create(data)
@@ -228,7 +231,7 @@ class VolumeModule(object):
             self.__update(data, resource)
 
     def __absent(self, data, export_only):
-        resource = self.__get_by_name(data)
+        resource = self.__get_by_name(data['name'])
 
         if resource:
             self.oneview_client.volumes.delete(resource, export_only=export_only)
@@ -246,8 +249,9 @@ class VolumeModule(object):
 
     def __update(self, data, resource):
         if 'newName' in data:
-            data['name'] = data['newName']
-            del data['newName']
+            if self.__get_by_name(data['newName']):
+                raise Exception(VOLUME_NEW_NAME_INVALID)
+            data['name'] = data.pop('newName')
 
         merged_data = resource.copy()
         merged_data.update(data)
@@ -259,7 +263,7 @@ class VolumeModule(object):
                               ansible_facts=dict(storage_volume=updated_volume))
 
     def __repair(self, data):
-        resource = self.__get_by_name(data)
+        resource = self.__get_by_name(data['name'])
 
         if resource:
             self.oneview_client.volumes.repair(resource['uri'])
@@ -272,7 +276,7 @@ class VolumeModule(object):
         if 'snapshotParameters' not in data:
             raise Exception(VOLUME_NO_OPTIONS_PROVIDED)
 
-        resource = self.__get_by_name(data)
+        resource = self.__get_by_name(data['name'])
 
         if resource:
             self.oneview_client.volumes.create_snapshot(resource['uri'], data['snapshotParameters'])
@@ -285,7 +289,7 @@ class VolumeModule(object):
         if 'snapshotParameters' not in data:
             raise Exception(VOLUME_NO_OPTIONS_PROVIDED)
 
-        resource = self.__get_by_name(data)
+        resource = self.__get_by_name(data['name'])
 
         if not resource:
             self.module.fail_json(msg=VOLUME_NOT_FOUND)
@@ -298,8 +302,8 @@ class VolumeModule(object):
                 self.module.exit_json(changed=True,
                                       msg=VOLUME_SNAPSHOT_DELETED)
 
-    def __get_by_name(self, data):
-        result = self.oneview_client.volumes.get_by('name', data['name'])
+    def __get_by_name(self, name):
+        result = self.oneview_client.volumes.get_by('name', name)
         return result[0] if result else None
 
     def __get_snapshot_by_name(self, resource, data):
