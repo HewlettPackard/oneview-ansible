@@ -1,0 +1,67 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    - config: "{{ playbook_dir }}/oneview_config.json"
+    - volume_name: "Testing facts"     # set a volume name to run this example
+    - snapshot_name: "Testing facts_20160823201021"  # set a snapshot name to run this example
+  tasks:
+    - name: Gather facts about all Volumes
+      oneview_volume_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=storage_volumes
+
+
+    - name: "Gather facts about all Volumes, the attachable volumes managed by the appliance and the extra managed
+             storage volume paths"
+      oneview_volume_facts:
+        config: "{{ config }}"
+        options:
+            - attachableVolumes        # optional
+            - extraManagedVolumePaths  # optional
+      delegate_to: localhost
+
+    - debug: var=storage_volumes
+    - debug: var=attachable_volumes
+    - debug: var=extra_managed_volume_paths
+
+
+    - name: Gather facts about a Volume by name with a list of all snapshots taken
+      oneview_volume_facts:
+        config: "{{ config }}"
+        name: "{{ volume_name }}"
+        options:
+            - snapshots  # optional
+      delegate_to: localhost
+
+    - debug: var=storage_volumes
+    - debug: var=snapshots
+
+
+    - name: "Gather facts about a Volume with one specific snapshot taken"
+      oneview_volume_facts:
+       config: "{{ config }}"
+       name : "{{ volume_name }}"
+       options:
+           - snapshots:  # optional
+                    name : "{{ snapshot_name }}"
+      delegate_to: localhost
+
+    - debug: var=storage_volumes
+    - debug: var=snapshots
