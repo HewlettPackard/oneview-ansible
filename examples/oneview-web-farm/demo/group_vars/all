@@ -23,9 +23,6 @@ ntpserver: # NTP server IP address
 
 # OneView Settings
 
-oneview: # OneView appliance IP or hostname
-ov_username: # Username that will be used to authenticate on the provided OneView appliance
-ov_password: # Password that will be used to authenticate on the provided OneView appliance
 ov_template: # Name of the server profile template that will be used to provision the server profiles
 
 # ICsp Settings

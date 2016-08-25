@@ -16,9 +16,7 @@
 
  - name : Create Server Profiles
    oneview_server_profile:
-      oneview_host: "{{ oneview }}"
-      username: "{{ ov_username }}"
-      password: "{{ ov_password }}"
+      config: "{{ playbook_dir }}/../oneview_config.json"
       server_template: "{{ ov_template }}"
       name: "{{ inventory_hostname }}"
       #server_hardware: "{{ server_hardware }}"  Optional - if ommited, select automatically
@@ -26,9 +24,7 @@
 
  - name : Power on servers
    oneview_server_profile:
-      oneview_host: "{{ oneview }}"
-      username: "{{ ov_username }}"
-      password: "{{ ov_password }}"
+      config: "{{ playbook_dir }}/../oneview_config.json"
       name: "{{ inventory_hostname }}"
       state: "powered_on"
    when: server_hardware.powerState == "Off"
