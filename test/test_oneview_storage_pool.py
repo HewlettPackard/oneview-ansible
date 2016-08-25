@@ -76,7 +76,8 @@ class StoragePoolPresentStateSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_storage_pool.AnsibleModule')
-    def test_should_not_update_when_data_is_equals(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_do_nothing_when_storage_pool_already_exist(self, mock_ansible_module,
+                                                               mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL]
 
@@ -134,7 +135,7 @@ class StoragePoolAbsentStateSpec(unittest.TestCase):
 class StoragePoolErrorHandlingSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_storage_pool.AnsibleModule')
-    def test_should_not_update_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_not_create_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_pools.get_by.return_value = []
         mock_ov_instance.storage_pools.add.side_effect = Exception(FAKE_MSG_ERROR)

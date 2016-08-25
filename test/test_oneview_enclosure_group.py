@@ -206,13 +206,30 @@ class EnclosureGroupAbsentStateSpec(unittest.TestCase):
 class EnclosureGroupErrorHandlingSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_enclosure_group.AnsibleModule')
-    def test_should_not_update_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_not_create_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.enclosure_groups.get_by.return_value = []
         mock_ov_instance.enclosure_groups.create.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(YAML_ENCLOSURE_GROUP)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        self.assertRaises(Exception, EnclosureGroupModule().run())
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=FAKE_MSG_ERROR
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_enclosure_group.AnsibleModule')
+    def test_should_not_update_when_update_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.enclosure_groups.get_by.return_value = [DICT_DEFAULT_ENCLOSURE_GROUP]
+        mock_ov_instance.enclosure_groups.update.side_effect = Exception(FAKE_MSG_ERROR)
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(YAML_ENCLOSURE_GROUP_CHANGES)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, EnclosureGroupModule().run())

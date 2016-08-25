@@ -185,13 +185,30 @@ class StorageVolumeTemplateAbsentStateSpec(unittest.TestCase):
 class StorageVolumeTemplateErrorHandlingSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_storage_volume_template.AnsibleModule')
-    def test_should_not_update_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_not_create_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_volume_templates.get_by.return_value = []
         mock_ov_instance.storage_volume_templates.create.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(YAML_STORAGE_VOLUME_TEMPLATE)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        self.assertRaises(Exception, StorageVolumeTemplateModule().run())
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=FAKE_MSG_ERROR
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_storage_volume_template.AnsibleModule')
+    def test_should_not_update_when_update_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.storage_volume_templates.get_by.return_value = [DICT_DEFAULT_STORAGE_VOLUME_TEMPLATE]
+        mock_ov_instance.storage_volume_templates.update.side_effect = Exception(FAKE_MSG_ERROR)
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_VOLUME_TEMPLATE_CHANGE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, StorageVolumeTemplateModule().run())
