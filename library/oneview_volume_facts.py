@@ -85,7 +85,7 @@ EXAMPLES = '''
 - name: "Gather facts about a Volume with one specific snapshot taken"
   oneview_volume_facts:
     config: "{{ config }}"
-    name : "{{ volume_name }}"
+    name: "{{ volume_name }}"
     options:
        - snapshots  # optional
            name: "{{ snapshot_name }}"
@@ -126,14 +126,14 @@ class VolumeFactsModule(object):
     def run(self):
         try:
             ansible_facts = {}
-            options = self.get_options()
+            options = self.__get_options()
 
             if self.module.params.get('name'):
-                ansible_facts.update(self.gather_facts_about_one_volume(options))
+                ansible_facts.update(self.__gather_facts_about_one_volume(options))
             else:
-                ansible_facts.update(self.gather_facts_about_all_volumes())
+                ansible_facts.update(self.__gather_facts_about_all_volumes())
 
-            ansible_facts.update(self.gather_facts_from_appliance(options))
+            ansible_facts.update(self.__gather_facts_from_appliance(options))
 
             self.module.exit_json(changed=False,
                                   ansible_facts=ansible_facts)
@@ -141,7 +141,7 @@ class VolumeFactsModule(object):
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
 
-    def gather_facts_from_appliance(self, options):
+    def __gather_facts_from_appliance(self, options):
         facts = {}
         extra_managed_volume_paths = None
         attachable_volumes = None
@@ -156,12 +156,12 @@ class VolumeFactsModule(object):
 
         return facts
 
-    def gather_facts_about_all_volumes(self):
+    def __gather_facts_about_all_volumes(self):
         facts = {}
         facts['storage_volumes'] = self.oneview_client.volumes.get_all()
         return facts
 
-    def gather_facts_about_one_volume(self, options):
+    def __gather_facts_about_one_volume(self, options):
         facts = {}
         volumes = self.oneview_client.volumes.get_by('name', self.module.params['name'])
 
@@ -178,7 +178,7 @@ class VolumeFactsModule(object):
 
         return facts
 
-    def get_options(self):
+    def __get_options(self):
         if self.module.params.get('options'):
             return transform_list_to_dict(self.module.params['options'])
         else:
