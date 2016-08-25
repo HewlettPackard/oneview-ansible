@@ -80,7 +80,7 @@ class InterconnectFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_interconnect_facts.AnsibleModule')
-    def test_should_fail_when_oneview_client_raises_error(self, mock_ansible_module, mock_ov_from_file):
+    def test_should_fail_when_oneview_client_raises_exception(self, mock_ansible_module, mock_ov_from_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.interconnects.get_all.side_effect = Exception(ERROR_MSG)
 

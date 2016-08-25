@@ -71,8 +71,8 @@ class EthernetNetworkAssociatedProfileFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_ethernet_network_associated_profile_facts.AnsibleModule')
-    def test_should_fail_when_get_associated_profiles_raises_error(self, mock_ansible_module,
-                                                                   mock_ov_client_from_json_file):
+    def test_should_fail_when_get_associated_profiles_raises_exception(self, mock_ansible_module,
+                                                                       mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.ethernet_networks.get_by.return_value = PRESENT_ENETS
         mock_ov_instance.ethernet_networks.get_associated_profiles.side_effect = Exception(ERROR_MSG)
@@ -88,9 +88,8 @@ class EthernetNetworkAssociatedProfileFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_ethernet_network_associated_profile_facts.AnsibleModule')
-    def test_should_fail_when_get_enet_by_name_raises_error(self,
-                                                            mock_ansible_module,
-                                                            mock_ov_client_from_json_file):
+    def test_should_fail_when_get_enet_by_name_raises_exception(self, mock_ansible_module,
+                                                                mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.ethernet_networks.get_by.side_effect = Exception(ERROR_MSG)
         mock_ov_instance.ethernet_networks.get_associated_profiles.return_value = None

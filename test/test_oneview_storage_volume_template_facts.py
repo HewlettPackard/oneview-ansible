@@ -69,8 +69,7 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_storage_volume_template_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_error(self, mock_ansible_module,
-                                                   mock_ov_client_from_json_file):
+    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_volume_templates.get_all.side_effect = Exception(ERROR_MSG)
 
@@ -104,9 +103,7 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_storage_volume_template_facts.AnsibleModule')
-    def test_should_fail_when_get_by_raises_error(self,
-                                                  mock_ansible_module,
-                                                  mock_ov_client_from_json_file):
+    def test_should_fail_when_get_by_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_volume_templates.get_by.side_effect = Exception(ERROR_MSG)
 
@@ -143,9 +140,9 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_storage_volume_template_facts.AnsibleModule')
-    def test_should_fail_when_get_connectable_storage_volume_template_raises_error(self,
-                                                                                   mock_ansible_module,
-                                                                                   mock_ov_client_from_json_file):
+    def test_should_fail_when_get_connectable_storage_volume_template_raises_exception(self,
+                                                                                       mock_ansible_module,
+                                                                                       mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_volume_templates.get_connectable_volume_templates.side_effect = Exception(ERROR_MSG)
 

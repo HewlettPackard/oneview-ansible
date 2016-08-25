@@ -225,8 +225,7 @@ class EthernetNetworkAbsentStateSpec(unittest.TestCase):
 class EthernetNetworkErrorHandlingSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_not_create_when_create_raises_exception(self, mock_ansible_module,
-                                                            mock_ov_client_from_json_file):
+    def test_should_fail_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.ethernet_networks.get_by.return_value = []
         mock_ov_instance.ethernet_networks.create.side_effect = Exception(FAKE_MSG_ERROR)
@@ -243,8 +242,7 @@ class EthernetNetworkErrorHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_not_update_when_update_raises_exception(self, mock_ansible_module,
-                                                            mock_ov_client_from_json_file):
+    def test_should_fail_when_update_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.ethernet_networks.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
         mock_ov_instance.ethernet_networks.update.side_effect = Exception(FAKE_MSG_ERROR)
@@ -261,7 +259,7 @@ class EthernetNetworkErrorHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_not_delete_when_oneview_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_delete_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.ethernet_networks.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
         mock_ov_instance.ethernet_networks.delete.side_effect = Exception(FAKE_MSG_ERROR)

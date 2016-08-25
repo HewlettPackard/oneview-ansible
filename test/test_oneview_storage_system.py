@@ -193,7 +193,7 @@ class StorageSystemPresentStateSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_storage_system.AnsibleModule')
-    def test_should_not_create_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_add_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_systems.get_by_ip_hostname.return_value = []
         mock_ov_instance.storage_systems.add.side_effect = Exception(FAKE_MSG_ERROR)
@@ -203,26 +203,6 @@ class StorageSystemPresentStateSpec(unittest.TestCase):
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, StorageSystemModule().run())
-
-        mock_ansible_instance.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system.AnsibleModule')
-    def test_should_not_update_when_update_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        data_merged = DICT_DEFAULT_STORAGE_SYSTEM.copy()
-        data_merged['credentials']['newIp_hostname'] = '10.10.10.10'
-
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_systems.get_by_ip_hostname.return_value = DICT_DEFAULT_STORAGE_SYSTEM
-        mock_ov_instance.storage_systems.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_SYSTEM_CHANGES)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        StorageSystemModule().run()
 
         mock_ansible_instance.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR

@@ -71,8 +71,7 @@ class ServerHardwareFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_server_hardware_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_error(self, mock_ansible_module,
-                                                   mock_ov_client_from_json_file):
+    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.server_hardware.get_all.side_effect = Exception(ERROR_MSG)
 
@@ -137,9 +136,7 @@ class ServerHardwareFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_server_hardware_facts.AnsibleModule')
-    def test_should_fail_when_get_by_name_raises_error(self,
-                                                       mock_ansible_module,
-                                                       mock_ov_client_from_json_file):
+    def test_should_fail_when_get_by_name_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.server_hardware.get_by.side_effect = Exception(ERROR_MSG)
 

@@ -341,8 +341,7 @@ class VolumeSnapshotDeletedStateSpec(unittest.TestCase):
 class VolumeErrorHandlingSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_volume.AnsibleModule')
-    def test_should_not_create_when_create_raises_exception(self, mock_ansible_module,
-                                                            mock_ov_client_from_json_file):
+    def test_should_fail_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.volumes.get_by.return_value = []
         mock_ov_instance.volumes.create.side_effect = Exception(FAKE_MSG_ERROR)
@@ -359,8 +358,7 @@ class VolumeErrorHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_volume.AnsibleModule')
-    def test_should_not_update_when_update_raises_exception(self, mock_ansible_module,
-                                                            mock_ov_client_from_json_file):
+    def test_should_fail_when_update_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.volumes.get_by.side_effect = [EXISTENT_VOLUME], []
         mock_ov_instance.volumes.update.side_effect = Exception(FAKE_MSG_ERROR)
@@ -377,7 +375,7 @@ class VolumeErrorHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_volume.AnsibleModule')
-    def test_should_not_delete_when_oneview_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_delete_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.volumes.get_by.return_value = [EXISTENT_VOLUME]
         mock_ov_instance.volumes.delete.side_effect = Exception(FAKE_MSG_ERROR)
@@ -394,7 +392,7 @@ class VolumeErrorHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_volume.AnsibleModule')
-    def test_should_not_repair_when_oneview_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_repair_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.volumes.get_by.return_value = [EXISTENT_VOLUME]
         mock_ov_instance.volumes.repair.side_effect = Exception(FAKE_MSG_ERROR)
@@ -411,7 +409,7 @@ class VolumeErrorHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_volume.AnsibleModule')
-    def test_should_not_create_snapshot_when_oneview_exception(self, mock_ansible_module,
+    def test_should_fail_when_create_snapshot_raises_exception(self, mock_ansible_module,
                                                                mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.volumes.get_by.return_value = [EXISTENT_VOLUME]
@@ -429,14 +427,15 @@ class VolumeErrorHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_volume.AnsibleModule')
-    def test_should_not_delete_snapshot_when_oneview_exception(self, mock_ansible_module,
+    def test_should_fail_when_delete_snapshot_raises_exception(self, mock_ansible_module,
                                                                mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.volumes.get_by.return_value = [EXISTENT_VOLUME]
-        mock_ov_instance.volumes.create_snapshot.side_effect = Exception(FAKE_MSG_ERROR)
+        mock_ov_instance.volumes.get_snapshot_by.return_value = [{'uri': SNAPSHOT_URI}]
+        mock_ov_instance.volumes.delete_snapshot.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_SNAPSHOT_CREATED)
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_SNAPSHOT_DELETED)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, VolumeModule().run())

@@ -57,9 +57,7 @@ class EnclosureGroupScriptFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_enclosure_group_script_facts.AnsibleModule')
-    def test_should_get_an_enclosure_group_script_raises_error(self,
-                                                               mock_ansible_module,
-                                                               mock_ov_client_from_json_file):
+    def test_should_fail_when_get_by_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.enclosure_groups.get_by.side_effect = Exception(ERROR_MSG)
 

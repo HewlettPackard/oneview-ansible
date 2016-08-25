@@ -97,7 +97,7 @@ class FirmwareDriverFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_firmware_driver_facts.AnsibleModule')
-    def test_should_fail_when_oneview_client_raises_error(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_oneview_client_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance, mock_ansible_instance = define_mocks(mock_ov_client_from_json_file,
                                                                mock_ansible_module,
                                                                PARAMS_GET_BY_NAME)

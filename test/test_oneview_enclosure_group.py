@@ -206,7 +206,7 @@ class EnclosureGroupAbsentStateSpec(unittest.TestCase):
 class EnclosureGroupErrorHandlingSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_enclosure_group.AnsibleModule')
-    def test_should_not_create_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.enclosure_groups.get_by.return_value = []
         mock_ov_instance.enclosure_groups.create.side_effect = Exception(FAKE_MSG_ERROR)
@@ -223,7 +223,7 @@ class EnclosureGroupErrorHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_enclosure_group.AnsibleModule')
-    def test_should_not_update_when_update_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_update_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.enclosure_groups.get_by.return_value = [DICT_DEFAULT_ENCLOSURE_GROUP]
         mock_ov_instance.enclosure_groups.update.side_effect = Exception(FAKE_MSG_ERROR)
@@ -240,7 +240,7 @@ class EnclosureGroupErrorHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_enclosure_group.AnsibleModule')
-    def test_should_not_delete_when_oneview_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_delete_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.enclosure_groups.get_by.return_value = [DICT_DEFAULT_ENCLOSURE_GROUP]
         mock_ov_instance.enclosure_groups.delete.side_effect = Exception(FAKE_MSG_ERROR)

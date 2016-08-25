@@ -167,7 +167,7 @@ class ServerHardwarePresentStateSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_server_hardware.AnsibleModule')
-    def test_should_not_add_when_add_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_add_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.server_hardware.get_by.return_value = []
         mock_ov_instance.server_hardware.add.side_effect = Exception(FAKE_MSG_ERROR)
@@ -222,7 +222,7 @@ class ServerHardwareAbsentStateSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_server_hardware.AnsibleModule')
-    def test_should_not_remove_when_oneview_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_remove_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.server_hardware.get_by.return_value = [{'name': 'name'}]
         mock_ov_instance.server_hardware.remove.side_effect = Exception(FAKE_MSG_ERROR)

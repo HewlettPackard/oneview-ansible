@@ -370,10 +370,9 @@ class EnclosureRefreshedStateSpec(unittest.TestCase):
 
 
 class EnclosureErrorHandlingSpec(unittest.TestCase):
-
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_enclosure.AnsibleModule')
-    def test_should_not_add_when_oneview_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_add_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.enclosures.get_by.return_value = []
         mock_ov_instance.enclosures.add.side_effect = Exception(FAKE_MSG_ERROR)
@@ -390,7 +389,7 @@ class EnclosureErrorHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_enclosure.AnsibleModule')
-    def test_should_not_update_when_oneview_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_patch_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
         mock_ov_instance.enclosures.patch.side_effect = Exception(FAKE_MSG_ERROR)
@@ -407,7 +406,7 @@ class EnclosureErrorHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_enclosure.AnsibleModule')
-    def test_should_not_remove_when_oneview_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_remove_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
         mock_ov_instance.enclosures.remove.side_effect = Exception(FAKE_MSG_ERROR)
