@@ -43,21 +43,6 @@ YAML_LOGICAL_SWITCH_GROUP = """
                       permittedSwitchTypeUri: '/rest/switch-types/2f36bc8f-65d8-4ea2-9300-750180402a5e'
           """
 
-YAML_LOGICAL_SWITCH_GROUP_SWITCH_TYPE_REPLACED = """
-        config: "{{ config }}"
-        state: present
-        data:
-            type: "logical-switch-group"
-            name: "OneView Test Logical Switch Group"
-            switchMapTemplate:
-                switchMapEntryTemplates:
-                    - logicalLocation:
-                        locationEntries:
-                           - relativeValue: 1
-                             type: "StackingMemberId"
-                      permittedSwitchTypeUri: '/rest/switch-types/2f36bc8f-65d8-4ea2-9300-750180402a5e'
-          """
-
 YAML_LOGICAL_SWITCH_GROUP_CHANGE = """
         config: "{{ config }}"
         state: present
@@ -232,7 +217,7 @@ class LogicalSwitchGroupErrorHandlingSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_logical_switch_group.AnsibleModule')
-    def test_should_not_delete_when_oneview_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_delete_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.logical_switch_groups.get_by.return_value = [DICT_DEFAULT_LOGICAL_SWITCH_GROUP]
         mock_ov_instance.logical_switch_groups.delete.side_effect = Exception(FAKE_MSG_ERROR)

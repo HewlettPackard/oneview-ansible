@@ -83,7 +83,7 @@ EXAMPLES = '''
                     locationEntries:
                        - relativeValue: 1
                          type: "StackingMemberId"
-                  permittedSwitchTypeUri: '{{ switch_type_uri }}'
+                  permittedSwitchTypeUri: '/rest/switch-types/2f36bc8f-65d8-4ea2-9300-750180402a5e'
   delegate_to: localhost
 
 - name: Delete the Logical Switch Group

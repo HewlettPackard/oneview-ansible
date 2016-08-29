@@ -20,7 +20,7 @@ from hpOneView.oneview_client import OneViewClient
 
 DOCUMENTATION = '''
 ---
-module: oneview_logical_switch_groups_facts
+module: oneview_logical_switch_group_facts
 short_description: Retrieve facts about OneView Logical Switch Groups.
 description:
     - Retrieve facts about the Logical Switch Groups of the OneView.
