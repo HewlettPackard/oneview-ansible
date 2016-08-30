@@ -74,7 +74,7 @@ class FirmwareBundlePresentStateSpec(unittest.TestCase):
 class FirmwareBundleErrorHandlingSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_firmware_bundle.AnsibleModule')
-    def test_should_call_fail_json_when_upload_raises_exception(self, mock_ansible_module, mock_from_json):
+    def test_should_fail_when_upload_raises_exception(self, mock_ansible_module, mock_from_json):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.firmware_drivers.get_by_file_name.return_value = []
         mock_ov_instance.firmware_bundles.upload.side_effect = Exception(FAKE_MSG_ERROR)

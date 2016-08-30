@@ -60,9 +60,7 @@ class StorageSystemHostTypesFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_storage_system_host_types_facts.AnsibleModule')
-    def test_should_fail_when_get_by_name_raises_error(self,
-                                                       mock_ansible_module,
-                                                       mock_ov_client_from_json_file):
+    def test_should_fail_when_get_host_types_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_systems.get_host_types.side_effect = Exception(ERROR_MSG)
 

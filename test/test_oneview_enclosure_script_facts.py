@@ -67,8 +67,8 @@ class EnclosureFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_enclosure_script_facts.AnsibleModule')
-    def test_should_fail_when_get_script_raises_error(self, mock_ansible_module,
-                                                      mock_ov_client_from_json_file):
+    def test_should_fail_when_get_script_raises_exception(self, mock_ansible_module,
+                                                          mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
 
         mock_ov_instance.enclosures.get_script.side_effect = Exception(ERROR_MSG)
@@ -84,9 +84,9 @@ class EnclosureFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_enclosure_script_facts.AnsibleModule')
-    def test_should_fail_when_get_by_name_raises_error(self,
-                                                       mock_ansible_module,
-                                                       mock_ov_client_from_json_file):
+    def test_should_fail_when_get_by_name_raises_exception(self,
+                                                           mock_ansible_module,
+                                                           mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.enclosures.get_by.side_effect = Exception(ERROR_MSG)
 

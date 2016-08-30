@@ -66,8 +66,7 @@ class StorageSystemFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_error(self, mock_ansible_module,
-                                                   mock_ov_client_from_json_file):
+    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_systems.get_all.side_effect = Exception(ERROR_MSG)
 
@@ -101,9 +100,7 @@ class StorageSystemFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_fail_when_get_by_name_raises_error(self,
-                                                       mock_ansible_module,
-                                                       mock_ov_client_from_json_file):
+    def test_should_fail_when_get_by_name_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_systems.get_by_name.side_effect = Exception(ERROR_MSG)
 
@@ -137,9 +134,8 @@ class StorageSystemFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_fail_when_get_by_ip_hostname_raises_error(self,
-                                                              mock_ansible_module,
-                                                              mock_ov_client_from_json_file):
+    def test_should_fail_when_get_by_ip_hostname_raises_exception(self, mock_ansible_module,
+                                                                  mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.storage_systems.get_by_ip_hostname.side_effect = Exception(ERROR_MSG)
 

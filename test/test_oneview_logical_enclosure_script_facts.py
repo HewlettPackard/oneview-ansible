@@ -57,11 +57,27 @@ class LogicalEnclosureScriptFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_logical_enclosure_script_facts.AnsibleModule')
-    def test_should_get_an_logical_enclosure_script_raises_error(self,
-                                                                 mock_ansible_module,
-                                                                 mock_ov_client_from_json_file):
+    def test_should_fail_when_get_by_raises_exception(self, mock_ansible_module,
+                                                      mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.logical_enclosures.get_by.side_effect = Exception(ERROR_MSG)
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalEnclosureScriptFactsModule().run()
+
+        mock_ansible_instance.fail_json.assert_called_once()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_enclosure_script_facts.AnsibleModule')
+    def test_should_fail_when_get_script_raises_exception(self, mock_ansible_module,
+                                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_enclosures.get_by_name.return_value = {"uri": "Logical Enclosure Name"}
+        mock_ov_instance.logical_enclosures.get_script.side_effect = Exception(ERROR_MSG)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
