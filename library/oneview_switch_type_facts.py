@@ -88,7 +88,6 @@ class SwitchTypeFactsModule(object):
                                   ansible_facts=dict(switch_types=switch_types))
 
         except Exception as exception:
-            print exception
             self.module.fail_json(msg=exception.message)
 
 
