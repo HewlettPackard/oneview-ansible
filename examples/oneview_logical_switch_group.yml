@@ -1,0 +1,64 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    switch_type_name: 'Cisco Nexus 50xx'
+  tasks:
+    - name: Create a Logical Switch Group
+      oneview_logical_switch_group:
+        config: "{{ config }}"
+        state: present
+        data:
+            type: "logical-switch-group"
+            name: "OneView Test Logical Switch Group"
+            switchMapTemplate:
+                switchMapEntryTemplates:
+                    - logicalLocation:
+                        locationEntries:
+                           - relativeValue: 1
+                             type: "StackingMemberId"
+                      # You can choose either permittedSwitchTypeName or permittedSwitchTypeUri to inform the Switch Type
+                      permittedSwitchTypeName: '{{ switch_type_name }}' # option 1
+                      permittedSwitchTypeUri: ''                        # option 2
+      delegate_to: localhost
+
+    - name: Update the Logical Switch Group
+      oneview_logical_switch_group:
+        config: "{{ config }}"
+        state: present
+        data:
+            type: "logical-switch-group"
+            name: "OneView Test Logical Switch Group"
+            newName: "Test Logical Switch Group"
+            switchMapTemplate:
+                switchMapEntryTemplates:
+                    - logicalLocation:
+                        locationEntries:
+                           - relativeValue: 1
+                             type: "StackingMemberId"
+                      # You can choose either permittedSwitchTypeName or permittedSwitchTypeUri to inform the Switch Type
+                      permittedSwitchTypeName: '{{ switch_type_name }}'
+      delegate_to: localhost
+
+    - name: Delete the Logical Switch Group
+      oneview_logical_switch_group:
+        config: "{{ config }}"
+        state: absent
+        data:
+            name: 'Test Logical Switch Group'
+      delegate_to: localhost
