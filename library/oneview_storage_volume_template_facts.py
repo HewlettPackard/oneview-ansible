@@ -37,6 +37,10 @@ options:
       description:
         - Storage Volume Template name.
       required: false
+    options:
+      description:
+        - "Retrieve additional facts. Options available: 'connectableVolumeTemplates'"
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
