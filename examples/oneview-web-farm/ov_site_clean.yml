@@ -21,16 +21,11 @@
   connection: local
   gather_facts: no
   tasks:
-    - name: Power off servers
-      oneview_server_profile:
-        config: "{{ playbook_dir }}/../oneview_config.json"
-        name: "{{ inventory_hostname }}"
-        state: powered_off
-      ignore_errors: true
-
     - name: Delete server
       oneview_server_profile:
         config: "{{ playbook_dir }}/../oneview_config.json"
-        name: "{{ inventory_hostname }}"
         state: absent
+        data:
+          name: "{{ inventory_hostname }}"
+
       ignore_errors: true

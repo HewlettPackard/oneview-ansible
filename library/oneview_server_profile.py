@@ -15,9 +15,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+import logging
 
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
+from hpOneView.common import resource_compare
+from copy import deepcopy
+from hpOneView.exceptions import HPOneViewTaskError
+
+ASSIGN_HARDWARE_ERROR_CODES = ['AssignProfileToDeviceBayError',
+                               'EnclosureBayUnavailableForProfile',
+                               'ProfileAlreadyExistsInServer']
+
+TEMPLATE_NOT_FOUND = "Informed Server Profile Template '{}' not found"
+HARDWARE_NOT_FOUND = "Informed Server Hardware '{}' not found"
+SERVER_PROFILE_CREATED = "Server Profile created."
+SERVER_ALREADY_UPDATED = 'Server Profile is already updated.'
+SERVER_PROFILE_UPDATED = 'Server profile updated'
+SERVER_PROFILE_DELETED = 'Deleted profile'
+REMEDIATED_COMPLIANCE = "Remediated compliance issues"
+ALREADY_COMPLIANT = "Server Profile is already compliant."
+SERVER_PROFILE_NOT_FOUND = "Server Profile is required for this operation."
+ERROR_ALLOCATE_SERVER_HARDWARE = 'Could not allocate server hardware'
+MAKE_COMPLIANT_NOT_SUPPORTED = "Update from template is not supported for server profile '{}' because it is not " \
+                               "associated with a server profile template."
 
 CONCURRENCY_FAILOVER_RETRIES = 25
 
@@ -26,13 +47,14 @@ DOCUMENTATION = '''
 module: oneview_server_profile
 short_description: Manage OneView Server Profile resources.
 description:
-    - Manage the servers lifecycle with OneView Server Profiles using an existing server profile template. On 'present'
-      state it selects a server hardware automatically based on the server profile template if no server hardware was
-      provided.
+    - Manage the servers lifecycle with OneView Server Profiles. On 'present' state it selects a server hardware
+      automatically based on the server profile template if no server hardware was provided.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
-author: "Chakravarthy Racharla"
+author:
+    - "Chakravarthy Racharla"
+    - "Camila Balestrin (@balestrinc)"
 options:
   config:
     description:
@@ -43,30 +65,32 @@ options:
       - Indicates the desired state for the Server Profile resource by the end of the playbook execution.
         'present' will ensure data properties are compliant to OneView.
         'absent' will remove the resource from OneView, if it exists.
-        'powered_off' requests a power operation to change the power state of the physical server to Off.
-        'powered_on' requests a power operation to change the power state of the physical server to On.
-        'no-op' gather facts about the Server Profile
+        'compliant' will make the server profile complient with its server profile template.
     default: present
-    choices: ['present', 'powered_off', 'absent', 'powered_on', 'no-op']
-  server_template:
+    choices: ['present', 'absent', 'compliant']
+  data:
     description:
-      - Name of the server profile template that will be used to provision the server profiles.
-    required: false
-  name:
-    description:
-      - Name of the server profile that will be created or updated.
-    required : true
+      - List with Server Profile properties
+    required: true
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
 '''
 
 EXAMPLES = '''
-- name: Create a Server Profile from a Server Profile Template
+- name: Create a Server Profile from a Server Profile Template with automatically selected hardware
   oneview_server_profile:
     config: "{{ config }}"
-    server_template: Compute-node-template
-    name: Web-Server-L2
+    state: "present"
+    data:
+        name: Web-Server-L2
+        # You can choose either server_template or serverProfileTemplateUri to inform the Server Profile Template
+        # serverProfileTemplateUri: "/rest/server-profile-templates/31ade62c-2112-40a0-935c-2f9450a75198"
+        server_template: Compute-node-template
+        # You can inform a server_hardware or a serverHardwareUri. If any hardware was informed, it will try
+        # get one available automatically
+        # server_hardware: "Encl1, bay 12"
+        # serverHardwareUri: "/rest/server-hardware/30303437-3933-4753-4831-30335835524E"
 
 - debug: var=server_profile
 - debug: var=serial_number
@@ -77,54 +101,60 @@ EXAMPLES = '''
 - name : Remediate compliance issues
   oneview_server_profile:
      config: "{{ config }}"
-     name: Web-Server-L2
      state: "compliant"
-  when: server_profile.templateCompliance != 'Compliant'
-
-- name : Power on servers
-  oneview_server_profile:
-     config: "{{ config }}"
-     name: Web-Server-L2
-     state: "powered_on"
-  when: server_hardware.powerState == "Off"
-
-- name : Power off server to remove server profile
-  oneview_server_profile:
-    config: "{{ config }}"
-    name: Web-Server-L2
-    state: "powered_off"
+     data:
+        name: Web-Server-L2
 
 - name : Remove the server profile
   oneview_server_profile:
     config: "{{ config }}"
-    name: Web-Server-L2
     state: "absent"
+    data:
+        name: Web-Server-L2
 '''
 
 RETURN = '''
 server_profile:
     description: Has the OneView facts about the Server Profile.
-    returned: On states 'present', 'compliant' and 'no-op'
+    returned: On states 'present' and'compliant'
     type: complex
 serial_number:
     description: Has the Server Profile serial number.
-    returned: On states 'present', 'compliant' and 'no-op'
+    returned: On states 'present' and'compliant'
     type: complex
 server_hardware:
     description: Has the OneView facts about the Server Hardware.
-    returned: On states 'present', 'compliant' and 'no-op'
+    returned: On states 'present' and'compliant'
     type: complex
 compliance_preview:
     description:
         Has the OneView facts about the manual and automatic updates required to make the server profile
         consistent with its template.
-    returned: On states 'present', 'compliant' and 'no-op'
+    returned: On states 'present' and'compliant'
     type: complex
 created:
     description: Indicates if the Server Profile was created.
-    returned: On states 'present', 'compliant' and 'no-op'
+    returned: On states 'present' and'compliant'
     type: bool
 '''
+
+
+# To activate logs, setup the environment var LOGFILE
+# e.g.: export LOGFILE=/tmp/ansible-oneview.log
+def get_logger(mod_name):
+    logger = logging.getLogger(os.path.basename(mod_name))
+    global LOGFILE
+    LOGFILE = os.environ.get('LOGFILE')
+    if not LOGFILE:
+        logger.addHandler(logging.NullHandler())
+    else:
+        logging.basicConfig(level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S',
+                            format='%(asctime)s %(levelname)s %(name)s %(message)s',
+                            filename=LOGFILE, filemode='a')
+    return logger
+
+
+logger = get_logger(__file__)
 
 
 class ServerProfileModule(object):
@@ -133,18 +163,13 @@ class ServerProfileModule(object):
         state=dict(
             required=False,
             choices=[
-                'powered_on',
-                'powered_off',
                 'present',
                 'absent',
-                'compliant',
-                'no_op'
+                'compliant'
             ],
             default='present'
         ),
-        server_template=dict(required=False, type='str'),
-        name=dict(required=True, type='str'),
-        server_hardware=dict(required=False, type='str', default=None)
+        data=dict(required=True, type='dict'),
     )
 
     def __init__(self):
@@ -155,152 +180,241 @@ class ServerProfileModule(object):
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
-
-        server_template_name = self.module.params['server_template']
-        server_name = self.module.params['name']
+        data = deepcopy(self.module.params['data'])
+        server_profile_name = data.get('name')
         state = self.module.params['state']
 
         try:
-            server_template = None
-            if server_template_name:
-                server_template = self.oneview_client.server_profile_templates.get_by_name(server_template_name)
+            server_profile = self.oneview_client.server_profiles.get_by_name(server_profile_name)
 
-            # check if the server already exists - edit it to match the desired state
-            server_profile = self.oneview_client.server_profiles.get_by_name(server_name)
-            if server_profile:
-                if state == 'present':
-                    changed = self.update_profile(server_profile, server_template)
-                    facts = self.gather_facts(server_profile)
-                    self.module.exit_json(
-                        changed=changed, msg='Updated profile', ansible_facts=facts
-                    )
-                elif state == 'absent':
-                    self.delete_profile(server_profile)
-                    self.module.exit_json(
-                        changed=True, msg='Deleted profile'
-                    )
-                elif state in ["powered_on", "powered_off"]:
-                    self.set_power_state(server_profile, state)
-                    self.module.exit_json(
-                        changed=True, msg='Set power state'
-                    )
-                elif state in ["compliant"]:
-                    changed = self.make_compliant(server_profile)
-                    self.module.exit_json(
-                        changed=changed, msg='Made compliant', ansible_facts=self.gather_facts(server_profile)
-                    )
-                elif state in ['no-op']:
-                    self.module.exit_json(
-                        changed=False, ansible_facts=self.gather_facts(server_profile)
-                    )
+            if state == 'present':
+                created, changed, msg, server_profile = self.__present(data, server_profile)
+                facts = self.__gather_facts(server_profile)
+                facts['created'] = created
+                self.module.exit_json(
+                    changed=changed, msg=msg, ansible_facts=facts
+                )
+            elif state == 'absent':
+                self.__delete_profile(server_profile)
+                self.module.exit_json(
+                    changed=True, msg=SERVER_PROFILE_DELETED
+                )
+            elif state == "compliant":
+                changed, msg, server_profile = self.__make_compliant(server_profile)
+                self.module.exit_json(
+                    changed=changed, msg=msg, ansible_facts=self.__gather_facts(server_profile)
+                )
 
-            else:
-                if state in ["powered_on", "powered_off"]:
-                    self.module.fail_json(msg="Cannot find server to put in state : " + state)
-                # we didnt find an existing one, so we create a profile
-                elif state in ['present']:
-                    server_profile = self.create_profile(server_name, server_template)
-                    facts = self.gather_facts(server_profile)
-                    facts['created'] = True
-                    self.module.exit_json(
-                        changed=True, msg='Created profile', ansible_facts=facts
-                    )
         except Exception as e:
             self.module.fail_json(msg=e.message)
 
-    def update_profile(self, server_profile, server_template):
-        """ update the server to match the template """
+    def __present(self, data, resource):
+
+        server_template_name = data.pop('server_template', '')
+        server_hardware_name = data.pop('server_hardware', '')
+        server_template = None
         changed = False
-        if (server_profile['serverProfileTemplateUri'] != server_template['uri']):
-            server_profile['serverProfileTemplateUri'] = server_template['uri']
-            self.oneview_client.server_profiles.update(server_profile)
+        created = False
+
+        if server_hardware_name:
+            selected_server_hardware = self.__get_server_hardware_by_name(server_hardware_name)
+            if not selected_server_hardware:
+                raise ValueError(HARDWARE_NOT_FOUND.format(server_hardware_name))
+            data['serverHardwareUri'] = selected_server_hardware['uri']
+
+        if server_template_name:
+            server_template = self.oneview_client.server_profile_templates.get_by_name(server_template_name)
+            if not server_template:
+                raise ValueError(TEMPLATE_NOT_FOUND.format(server_template_name))
+            data['serverProfileTemplateUri'] = server_template['uri']
+        elif data.get('serverProfileTemplateUri'):
+            server_template = self.oneview_client.server_profile_templates.get(data['serverProfileTemplateUri'])
+
+        if not resource:
+            resource = self.__create_profile(data, server_template)
             changed = True
+            created = True
+            msg = SERVER_PROFILE_CREATED
+        else:
+            merged_data = deepcopy(resource)
+            merged_data.update(data)
+            if not resource_compare(resource, merged_data):
+                resource = self.__update_server_profile(merged_data)
+                changed = True
+                msg = SERVER_PROFILE_UPDATED
+            else:
+                msg = SERVER_ALREADY_UPDATED
 
-        return changed
+        return created, changed, msg, resource
 
-    def create_profile(self, server_name, server_template):
+    def __update_server_profile(self, profile_with_updates):
 
-        # find servers that have no profile, powered off mathing Server hardware type
-        server_hardware_name = self.module.params.get('server_hardware')
+        logger.debug(msg="Updating Server Profile")
+
+        if profile_with_updates.get('serverHardwareUri'):
+            logger.debug("Power off the server hardware before update")
+            self.__set_server_hardware_power_state(profile_with_updates['serverHardwareUri'], 'Off')
+
+        resource = self.oneview_client.server_profiles.update(profile_with_updates, profile_with_updates['uri'])
+
+        if profile_with_updates.get('serverHardwareUri'):
+            logger.debug("Power on the server hardware after update")
+            self.__set_server_hardware_power_state(profile_with_updates['serverHardwareUri'], 'On')
+
+        return resource
+
+    def __create_profile(self, data, server_profile_template):
+
         tries = 0
         while tries < CONCURRENCY_FAILOVER_RETRIES:
             try:
                 tries += 1
-                if server_hardware_name:
-                    selected_server_hardware = self.oneview_client.server_hardware.get_by_name(server_hardware_name)
-                    if not selected_server_hardware:
-                        self.module.fail_json(msg="Invalid server hardware")
-                    selected_sh_uri = selected_server_hardware['uri']
-                else:
-                    # we need to find an available server.
-                    # we may need to try this multiple times just in case someone else is also trying to use an
-                    # available server.
-                    # Lets use a file lock so that ansible module concurrency does not step cause this on each other
-                    available_server_hardware = self.oneview_client.server_profiles.get_available_targets(
-                        enclosureGroupUri=server_template.get('enclosureGroupUri', ''),
-                        serverHardwareTypeUri=server_template.get('serverHardwareTypeUri', ''))
 
-                    # targets will list empty bays. We need to pick one that has a server
-                    selected_sh_uri = None
-                    index = 0
-                    while selected_sh_uri is None and index < len(available_server_hardware['targets']):
-                        selected_sh_uri = available_server_hardware['targets'][index]['serverHardwareUri']
-                        index = index + 1
-                    selected_server_hardware = self.oneview_client.server_hardware.get(selected_sh_uri)
-                # power off the server
-                self.oneview_client.server_hardware.update_power_state(
-                    dict(powerState='Off', powerControl='PressAndHold'), selected_sh_uri)
+                server_hardware_uri = data.get('serverHardwareUri')
 
-                server_profile = self.oneview_client.server_profile_templates.get_new_profile(server_template['uri'])
-                server_profile['name'] = server_name
-                server_profile['serverHardwareUri'] = selected_sh_uri
+                if not server_hardware_uri:
+                    # find servers that have no profile, mathing Server hardware type and enclosure group
+                    logger.debug(msg="Get an available Server Hardware for the Profile")
+                    server_hardware_uri = self.__get_available_server_hardware_uri(data, server_profile_template)
 
+                if server_hardware_uri:
+                    logger.debug(msg="Power off the Server Hardware before create the Server Profile")
+                    self.__set_server_hardware_power_state(server_hardware_uri, 'Off')
+
+                # Build the data to create a new server profile based on a template if informed
+                server_profile = self.__build_new_profile_data(data, server_profile_template, server_hardware_uri)
+
+                logger.debug(msg="Request Server Profile creation")
                 return self.oneview_client.server_profiles.create(server_profile)
-            except Exception:
-                # if this is because the server is already assigned, someone grabbed it before we assigned,
-                # ignore and try again
-                # This waiting time was chosen empirically and it could differ according to the hardware.
-                time.sleep(10)
-                pass
 
-        raise Exception("Could not allocate server hardware")
+            except HPOneViewTaskError as task_error:
+                logger.exception("Error code: {} Message: {}".format(str(task_error.error_code), str(task_error.msg)))
+                if task_error.error_code in ASSIGN_HARDWARE_ERROR_CODES:
+                    # if this is because the server is already assigned, someone grabbed it before we assigned,
+                    # ignore and try again
+                    # This waiting time was chosen empirically and it could differ according to the hardware.
+                    time.sleep(10)
+                else:
+                    raise task_error
 
-    def delete_profile(self, server_profile):
+        raise Exception(ERROR_ALLOCATE_SERVER_HARDWARE)
+
+    def __build_new_profile_data(self, data, server_template, server_hardware_uri):
+
+        server_profile_data = deepcopy(data)
+
+        if server_template:
+            logger.debug(msg="Get new Profile from template")
+            profile_name = server_profile_data['name']
+            server_profile_data = self.oneview_client.server_profile_templates.get_new_profile(server_template['uri'])
+            server_profile_data['name'] = profile_name
+
+        if server_hardware_uri:
+            server_profile_data['serverHardwareUri'] = server_hardware_uri
+
+        return server_profile_data
+
+    def __get_available_server_hardware_uri(self, server_profile, server_template):
+
+        if server_template:
+            enclosure_group = server_template.get('enclosureGroupUri', '')
+            server_hardware_type = server_template.get('serverHardwareTypeUri', '')
+        else:
+            enclosure_group = server_profile.get('enclosureGroupUri', '')
+            server_hardware_type = server_profile.get('serverHardwareTypeUri', '')
+
+        logger.debug(msg="Finding an available server hardware")
+        available_server_hardware = self.oneview_client.server_profiles.get_available_targets(
+            enclosureGroupUri=enclosure_group,
+            serverHardwareTypeUri=server_hardware_type)
+
+        # targets will list empty bays. We need to pick one that has a server
+        index = 0
+        server_hardware_uri = None
+        while not server_hardware_uri and index < len(available_server_hardware['targets']):
+            server_hardware_uri = available_server_hardware['targets'][index]['serverHardwareUri']
+            index = index + 1
+
+        logger.debug(msg="Found available server hardware: '{}'".format(server_hardware_uri))
+        return server_hardware_uri
+
+    def __delete_profile(self, server_profile):
+        if not server_profile:
+            raise Exception(SERVER_PROFILE_NOT_FOUND)
+
+        if server_profile.get('serverHardwareUri'):
+            self.__set_server_hardware_power_state(server_profile['serverHardwareUri'], 'Off')
+
         self.oneview_client.server_profiles.delete(server_profile)
 
-    def gather_facts(self, server_profile):
+    def __make_compliant(self, server_profile):
+
+        changed = False
+        msg = ALREADY_COMPLIANT
+
+        if not server_profile.get('serverProfileTemplateUri'):
+            logger.error("Make the Server Profile compliant is not supported for this profile")
+            self.module.fail_json(msg=MAKE_COMPLIANT_NOT_SUPPORTED.format(server_profile['name']))
+
+        elif (server_profile['templateCompliance'] != 'Compliant'):
+            logger.debug(
+                "Get the preview of manual and automatic updates required to make the server profile consistent "
+                "with its template.")
+            compliance_preview = self.oneview_client.server_profiles.get_compliance_preview(server_profile['uri'])
+
+            logger.debug(str(compliance_preview))
+
+            is_offline_update = compliance_preview.get('isOnlineUpdate') is False
+
+            if is_offline_update:
+                logger.debug(msg="Power off the server hardware before update from template")
+                self.__set_server_hardware_power_state(server_profile['serverHardwareUri'], 'Off')
+
+            logger.debug(msg="Updating from template")
+
+            server_profile = self.oneview_client.server_profiles.patch(
+                server_profile['uri'], 'replace', '/templateCompliance', 'Compliant')
+
+            if is_offline_update:
+                logger.debug(msg="Power on the server hardware after update from template")
+                self.__set_server_hardware_power_state(server_profile['serverHardwareUri'], 'On')
+
+            changed = True
+            msg = REMEDIATED_COMPLIANCE
+
+        return changed, msg, server_profile
+
+    def __gather_facts(self, server_profile):
+
+        server_hardware = None
+        if server_profile.get('serverHardwareUri'):
+            server_hardware = self.oneview_client.server_hardware.get(server_profile['serverHardwareUri'])
+
+        compliance_preview = None
+        if server_profile.get('serverProfileTemplateUri'):
+            compliance_preview = self.oneview_client.server_profiles.get_compliance_preview(server_profile.get('uri'))
+
         facts = {
             'serial_number': server_profile.get('serialNumber'),
             'server_profile': server_profile,
-            'server_hardware': self.oneview_client.server_hardware.get(server_profile['serverHardwareUri']),
-            'compliance_preview': self.oneview_client.server_profiles.get_compliance_preview(server_profile['uri']),
+            'server_hardware': server_hardware,
+            'compliance_preview': compliance_preview,
             'created': False
         }
 
         return facts
 
-    def make_compliant(self, server_profile):
-        changed = False
-        if (server_profile['templateCompliance'] != 'Compliant'):
-            # check if server can be remediated while powered on
-            # replace | Path: / templateCompliance | Value: Compliant
-            self.oneview_client.server_profiles.patch(server_profile['uri'],
-                                                      'replace', '/templateCompliance', 'Compliant')
-            changed = True
+    def __get_server_hardware_by_name(self, server_hardware_name):
+        server_hardwares = self.oneview_client.server_hardware.get_by('name', server_hardware_name)
+        return server_hardwares[0] if server_hardwares else None
 
-        return changed
-
-    def set_power_state(self, server_profile, power_state):
-
-        power_state_mapping = {'powered_on': 'On', 'powered_off': 'Off'}
-
-        state = power_state_mapping[power_state]
-        control = 'PressAndHold' if (state == 'Off') else 'MomentaryPress'
-
-        configuration = {'powerState': state,
-                         'powerControl': control}
-
-        self.oneview_client.server_hardware.update_power_state(configuration, server_profile['serverHardwareUri'])
+    def __set_server_hardware_power_state(self, hardware_uri, power_state='On'):
+        if power_state == 'On':
+            self.oneview_client.server_hardware.update_power_state(
+                dict(powerState='On', powerControl='MomentaryPress'), hardware_uri)
+        else:
+            self.oneview_client.server_hardware.update_power_state(
+                dict(powerState='Off', powerControl='PressAndHold'), hardware_uri)
 
 
 def main():

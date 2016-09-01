@@ -17,16 +17,21 @@
  - name : Create Server Profiles
    oneview_server_profile:
       config: "{{ playbook_dir }}/../oneview_config.json"
-      server_template: "{{ ov_template }}"
-      name: "{{ inventory_hostname }}"
-      #server_hardware: "{{ server_hardware }}"  Optional - if ommited, select automatically
+      data:
+        server_template: "{{ ov_template }}"
+        name: "{{ inventory_hostname }}"
+        #server_hardware: "{{ server_hardware }}"  Optional - if ommited, select automatically
    delegate_to: localhost
 
- - name : Power on servers
-   oneview_server_profile:
-      config: "{{ playbook_dir }}/../oneview_config.json"
-      name: "{{ inventory_hostname }}"
-      state: "powered_on"
+ - name: Power on the server hardware
+   oneview_server_hardware:
+     config: "{{ playbook_dir }}/../oneview_config.json"
+     state: power_state_set
+     data:
+         hostname : "{{ server_hardware.name }}"
+         powerStateData:
+             powerState: "On"
+             powerControl: "MomentaryPress"
    when: server_hardware.powerState == "Off"
    delegate_to: localhost
 
