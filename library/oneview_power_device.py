@@ -42,8 +42,8 @@ options:
               'discovered' will add an iPDU to the OneView.
               'absent' will remove the resource from OneView, if it exists.
               'power_state_set' will set the power state of the Power Device.
-              'refresh_state_set will set the refresh state of the Power Device.
-              'uid_state_set will set the UId state of the Power Device.
+              'refresh_state_set' will set the refresh state of the Power Device.
+              'uid_state_set' will set the UId state of the Power Device.
         choices: ['present', 'discovered', 'absent', 'power_state_set', 'refresh_state_set', 'uid_state_set']
         required: true
     data:
@@ -123,6 +123,7 @@ power_device:
 '''
 
 POWER_DEVICE_ADDED = 'Power Device added successfully.'
+POWER_DEVICE_IPDU_ADDED = 'iPDU added successfully.'
 POWER_DEVICE_ALREADY_PRESENT = 'Power Device is already present.'
 POWER_DEVICE_DELETED = 'Power Device deleted successfully.'
 POWER_DEVICE_UPDATED = 'Power Device updated successfully.'
@@ -234,7 +235,7 @@ class PowerDeviceModule(object):
     def __discover(self, data):
 
         resource = self.oneview_client.power_devices.add_ipdu(data)
-        msg = POWER_DEVICE_ADDED
+        msg = POWER_DEVICE_IPDU_ADDED
 
         return True, msg, dict(power_device=resource)
 

@@ -22,7 +22,7 @@ from hpOneView.oneview_client import OneViewClient
 from oneview_power_device import PowerDeviceModule, POWER_DEVICE_ADDED, POWER_DEVICE_ALREADY_PRESENT, \
     POWER_DEVICE_DELETED, POWER_DEVICE_UPDATED, POWER_DEVICE_ALREADY_ABSENT, POWER_DEVICE_MANDATORY_FIELD_MISSING, \
     POWER_DEVICE_POWER_STATE_UPDATED, POWER_DEVICE_NOT_FOUND, POWER_DEVICE_REFRESH_STATE_UPDATED, \
-    POWER_DEVICE_UID_STATE_UPDATED, POWER_DEVICE_NEW_NAME_ALERADY_EXISTS
+    POWER_DEVICE_UID_STATE_UPDATED, POWER_DEVICE_NEW_NAME_ALERADY_EXISTS, POWER_DEVICE_IPDU_ADDED
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -135,7 +135,7 @@ class PowerDevicePresentStateSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
-            msg=POWER_DEVICE_ADDED,
+            msg=POWER_DEVICE_IPDU_ADDED,
             ansible_facts=dict(power_device={"name": "name"})
         )
 
@@ -242,7 +242,7 @@ class PowerDevicePresentStateSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_power_device.AnsibleModule')
-    def test_should_not_add_when_add_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_add_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.power_devices.get_by.return_value = []
         mock_ov_instance.power_devices.add.side_effect = Exception(FAKE_MSG_ERROR)
@@ -297,7 +297,7 @@ class PowerDeviceAbsentStateSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_power_device.AnsibleModule')
-    def test_should_not_remove_when_oneview_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_fail_when_remove_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.power_devices.get_by.return_value = [{'name': 'name'}]
         mock_ov_instance.power_devices.remove.side_effect = Exception(FAKE_MSG_ERROR)
@@ -392,7 +392,7 @@ class PowerDeviceRefreshStateSpec(unittest.TestCase):
 class PowerDeviceUidStateSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_power_device.AnsibleModule')
-    def test_should_set_refresh_state(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_set_uid_state(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.power_devices.get_by.return_value = [{"uri": "resourceuri"}]
         mock_ov_instance.power_devices.update_uid_state.return_value = {"name": "name"}

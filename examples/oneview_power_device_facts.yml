@@ -1,0 +1,68 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    - config: "{{ playbook_dir }}/oneview_config.json"
+    - power_device_name: "172.18.8.12, PDU 1, L6,Outlet1"
+  tasks:
+    - name: Gather facts about all Power Devices
+      oneview_power_device_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: msg="{{power_devices | map(attribute='name') | list }}"
+
+
+    - name: Gather facts about a Power Device by name
+      oneview_power_device_facts:
+        config: "{{ config }}"
+        name: "{{ power_device_name }}"
+      delegate_to: localhost
+
+    - debug: var=power_devices
+
+
+    - name: Gather facts about the power state of a Power Device
+      oneview_power_device_facts:
+        config: "{{ config }}"
+        name: "{{ power_device_name }}"
+        options:
+          - powerState            # optional
+
+      delegate_to: localhost
+
+    - debug: msg="{{power_devices | map(attribute='name') | list }}"
+    - debug: var=power_device_power_state
+
+
+    - name: Gather all facts about a Power Device with all options
+      oneview_power_device_facts:
+       config: "{{ config }}"
+       name : "{{ power_device_name }}"
+       options:
+           - powerState             # optional
+           - uidState               # optional
+           - utilization:           # optional
+                    fields : 'AveragePower'
+                    filter : 'startDate=2016-05-30T03:29:42.000Z'
+                    view : 'day'
+      delegate_to: localhost
+
+    - debug: msg="{{power_devices | map(attribute='name') | list }}"
+    - debug: var=power_device_power_state
+    - debug: var=power_device_uid_state
+    - debug: var=power_device_utilization
