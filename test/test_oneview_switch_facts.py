@@ -41,7 +41,7 @@ PARAMS_GET_BY_NAME = dict(
 PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
     config='config.json',
     name=SWITCH_NAME,
-    options=['environmental_configuration']
+    options=['environmentalConfiguration']
 )
 
 SWITCH = dict(name=SWITCH_NAME, uri=SWITCH_URI)
@@ -138,7 +138,7 @@ class SwitchFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(switches=switches, environmental_configuration=environmental_configuration)
+            ansible_facts=dict(switches=switches, switch_environmental_configuration=environmental_configuration)
         )
 
 

@@ -39,7 +39,7 @@
         config: "{{ config }}"
         name: "{{ name }}"
         options:
-          - environmental_configuration
+          - environmentalConfiguration
       delegate_to: localhost
 
-    - debug: var=environmental_configuration
+    - debug: var=switch_environmental_configuration

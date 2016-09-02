@@ -41,7 +41,7 @@ options:
       description:
         - "List with options to gather additional facts about Logical Interconnect.
           Options allowed:
-          'environmental_configuration' gets the environmental configuration for a switch."
+          'environmentalConfiguration' gets the environmental configuration for a switch."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -63,7 +63,7 @@ EXAMPLES = '''
     config: "{{ config }}"
     name: "172.18.20.1"
   options:
-    - environmental_configuration
+    - environmentalConfiguration
 '''
 
 RETURN = '''
@@ -72,7 +72,7 @@ switches:
     returned: Always, but can be null.
     type: list
 
-environmental_configuration:
+switch_environmental_configuration:
     description: The environmental configuration for a switch.
     returned: When requested, but can be null.
     type: complex
@@ -100,10 +100,10 @@ class SwitchFactsModule(object):
                 facts['switches'] = self.resource_client.get_by('name', name)
                 options = self.module.params.get('options') or []
 
-                if facts['switches'] and 'environmental_configuration' in options:
+                if facts['switches'] and 'environmentalConfiguration' in options:
                     uri = facts['switches'][0]['uri']
                     environmental_configuration = self.resource_client.get_environmental_configuration(id_or_uri=uri)
-                    facts['environmental_configuration'] = environmental_configuration
+                    facts['switch_environmental_configuration'] = environmental_configuration
             else:
                 facts['switches'] = self.resource_client.get_all()
 
