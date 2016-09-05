@@ -39,7 +39,8 @@ options:
             - Indicates the desired state for the Ethernet Network resource.
               'present' will ensure data properties are compliant to OneView.
               'absent' will remove the resource from OneView, if it exists.
-        choices: ['present', 'absent']
+              'default_bandwidth_reset' will reset the network connection template to the default.
+        choices: ['present', 'absent', 'default_bandwidth_reset']
     data:
       description:
         - List with Ethernet Network properties
@@ -57,6 +58,18 @@ EXAMPLES = '''
     data:
       name: 'Test Ethernet Network'
       vlanId: '201'
+
+- name: Update the Ethernet Network changing bandwidth and purpose
+  oneview_ethernet_network:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Test Ethernet Network'
+      purpose: Management
+      bandwidth:
+          maximumBandwidth: 3000
+          typicalBandwidth: 2000
+  delegate_to: localhost
 
 - name: Ensure that the Ethernet Network is present with name 'Renamed Ethernet Network'
   oneview_ethernet_network:
@@ -86,17 +99,30 @@ EXAMPLES = '''
       bandwidth:
         maximumBandwidth: 10000
         typicalBandwidth: 2000
+
+- name: Reset to the default network connection template
+  oneview_ethernet_network:
+    config: "{{ config_file_path }}"
+    state: default_bandwidth_reset
+    data:
+      name: 'Test Ethernet Network'
+  delegate_to: localhost
 '''
 
 RETURN = '''
 ethernet_network:
     description: Has the facts about the Ethernet Networks.
-    returned: on state 'present'. Can be null.
+    returned: On state 'present'. Can be null.
     type: complex
 
 ethernet_network_bulk:
     description: Has the facts about the Ethernet Networks affected by the bulk insert.
-    returned: when 'vlanIdRange' attribute is in data argument. Can be null.
+    returned: When 'vlanIdRange' attribute is in data argument. Can be null.
+    type: complex
+
+ethernet_network_connection_template:
+    description: Has the facts about the Ethernet Network Connection Template.
+    returned: On state 'default_bandwidth_reset'. Can be null.
     type: complex
 '''
 
@@ -104,10 +130,12 @@ ETHERNET_NETWORK_CREATED = 'Ethernet Network created successfully.'
 ETHERNET_NETWORK_UPDATED = 'Ethernet Network updated successfully.'
 ETHERNET_NETWORK_DELETED = 'Ethernet Network deleted successfully.'
 ETHERNET_NETWORK_ALREADY_EXIST = 'Ethernet Network already exists.'
-ETHERNET_NETWORK_ALREADY_ABSENT = 'Nothing to do.'
+ETHERNET_NETWORK_ALREADY_ABSENT = 'Ethernet Network is already absent.'
 ETHERNET_NETWORKS_CREATED = 'Ethernet Networks created successfully.'
 MISSING_ETHERNET_NETWORKS_CREATED = 'Some missing Ethernet Networks were created successfully.'
 ETHERNET_NETWORKS_ALREADY_EXIST = 'The specified Ethernet Networks already exist.'
+ETHERNET_NETWORK_CONNECTION_TEMPLATE_RESET = 'Ethernet Network connection template was reset to the default.'
+ETHERNET_NETWORK_NOT_FOUND = 'Ethernet Network was not found.'
 
 
 class EthernetNetworkModule(object):
@@ -115,7 +143,7 @@ class EthernetNetworkModule(object):
         config=dict(required=True, type='str'),
         state=dict(
             required=True,
-            choices=['present', 'absent']
+            choices=['present', 'absent', 'default_bandwidth_reset']
         ),
         data=dict(required=True, type='dict')
     )
@@ -127,57 +155,85 @@ class EthernetNetworkModule(object):
     def run(self):
         state = self.module.params['state']
         data = self.module.params['data']
+        changed, msg, ansible_facts = False, '', {}
 
         try:
             if state == 'present':
                 if data.get('vlanIdRange'):
-                    self.__bulk_present(data)
+                    changed, msg, ansible_facts = self.__bulk_present(data)
                 else:
-                    self.__present(data)
+                    changed, msg, ansible_facts = self.__present(data)
+            elif state == 'default_bandwidth_reset':
+                changed, msg, ansible_facts = self.__default_bandwidth_reset(data)
             elif state == 'absent':
-                self.__absent(data)
+                changed, msg, ansible_facts = self.__absent(data)
+
+            self.module.exit_json(changed=changed,
+                                  msg=msg,
+                                  ansible_facts=ansible_facts)
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
 
     def __present(self, data):
-        resource = self.__get_by_name(data)
+        ethernet_network = self.__get_by_name(data)
+
+        changed = False
 
         if "newName" in data:
-            data["name"] = data["newName"]
-            del data["newName"]
+            data["name"] = data.pop("newName")
 
-        if not resource:
-            self.__create(data)
+        bandwidth = data.pop('bandwidth', None)
+
+        if not ethernet_network:
+            ethernet_network = self.oneview_client.ethernet_networks.create(data)
+            changed = True
+            msg = ETHERNET_NETWORK_CREATED
         else:
-            self.__update(data, resource)
+            merged_data = ethernet_network.copy()
+            merged_data.update(data)
+
+            if not resource_compare(ethernet_network, merged_data):
+                ethernet_network = self.oneview_client.ethernet_networks.update(merged_data)
+                changed = True
+                msg = ETHERNET_NETWORK_UPDATED
+            else:
+                msg = ETHERNET_NETWORK_ALREADY_EXIST
+
+        if bandwidth:
+            if self.__update_connection_template(ethernet_network, bandwidth)[0]:
+                if not changed:
+                    changed = True
+                    msg = ETHERNET_NETWORK_UPDATED
+
+        return changed, msg, dict(ethernet_network=ethernet_network)
 
     def __absent(self, data):
         resource = self.__get_by_name(data)
 
         if resource:
             self.oneview_client.ethernet_networks.delete(resource)
-            self.module.exit_json(changed=True,
-                                  msg=ETHERNET_NETWORK_DELETED)
+            return True, ETHERNET_NETWORK_DELETED, {}
         else:
-            self.module.exit_json(changed=False, msg=ETHERNET_NETWORK_ALREADY_ABSENT)
+            return False, ETHERNET_NETWORK_ALREADY_ABSENT, {}
 
     def __bulk_present(self, data):
-        existent_enets = self.oneview_client.ethernet_networks.get_range(data['namePrefix'], data['vlanIdRange'])
+        ethernet_networks = self.oneview_client.ethernet_networks.get_range(data['namePrefix'], data['vlanIdRange'])
         vlan_id_range = data['vlanIdRange']
 
-        if not existent_enets:
-            new_ethernet_networks = self.oneview_client.ethernet_networks.create_bulk(data)
-            self.module.exit_json(changed=True, msg=ETHERNET_NETWORKS_CREATED,
-                                  ansible_facts=dict(ethernet_network_bulk=new_ethernet_networks))
+        if not ethernet_networks:
+            ethernet_networks = self.oneview_client.ethernet_networks.create_bulk(data)
+            changed = True
+            msg = ETHERNET_NETWORKS_CREATED
+
         else:
             vlan_ids = self.oneview_client.ethernet_networks.dissociate_values_or_ranges(vlan_id_range)
-            for net in existent_enets[:]:
+            for net in ethernet_networks[:]:
                 vlan_ids.remove(net['vlanId'])
 
             if len(vlan_ids) == 0:
-                self.module.exit_json(changed=False, msg=ETHERNET_NETWORKS_ALREADY_EXIST,
-                                      ansible_facts=dict(ethernet_network_bulk=existent_enets))
+                msg = ETHERNET_NETWORKS_ALREADY_EXIST
+                changed = False
             else:
                 if len(vlan_ids) == 1:
                     data['vlanIdRange'] = '{0}-{1}'.format(vlan_ids[0], vlan_ids[0])
@@ -185,37 +241,45 @@ class EthernetNetworkModule(object):
                     data['vlanIdRange'] = ','.join(map(str, vlan_ids))
 
                 self.oneview_client.ethernet_networks.create_bulk(data)
-                enets = self.oneview_client.ethernet_networks.get_range(data['namePrefix'], vlan_id_range)
-                self.module.exit_json(changed=True, msg=MISSING_ETHERNET_NETWORKS_CREATED,
-                                      ansible_facts=dict(ethernet_network_bulk=enets))
+                ethernet_networks = self.oneview_client.ethernet_networks.get_range(data['namePrefix'], vlan_id_range)
+                changed = True
+                msg = MISSING_ETHERNET_NETWORKS_CREATED
 
-    def __create(self, data):
-        new_ethernet_network = self.oneview_client.ethernet_networks.create(data)
-
-        self.module.exit_json(changed=True,
-                              msg=ETHERNET_NETWORK_CREATED,
-                              ansible_facts=dict(ethernet_network=new_ethernet_network))
-
-    def __update(self, new_data, existent_resource):
-        merged_data = existent_resource.copy()
-        merged_data.update(new_data)
-
-        if resource_compare(existent_resource, merged_data):
-
-            self.module.exit_json(changed=False,
-                                  msg=ETHERNET_NETWORK_ALREADY_EXIST,
-                                  ansible_facts=dict(ethernet_network=existent_resource))
-
-        else:
-            updated_ethernet_network = self.oneview_client.ethernet_networks.update(merged_data)
-
-            self.module.exit_json(changed=True,
-                                  msg=ETHERNET_NETWORK_UPDATED,
-                                  ansible_facts=dict(ethernet_network=updated_ethernet_network))
+        return changed, msg, dict(ethernet_network_bulk=ethernet_networks)
 
     def __get_by_name(self, data):
         result = self.oneview_client.ethernet_networks.get_by('name', data['name'])
         return result[0] if result else None
+
+    def __update_connection_template(self, ethernet_network, bandwidth):
+
+        if 'connectionTemplateUri' not in ethernet_network:
+            return False, None
+
+        connection_template = self.oneview_client.connection_templates.get(ethernet_network['connectionTemplateUri'])
+
+        merged_data = connection_template.copy()
+        merged_data.update({'bandwidth': bandwidth})
+
+        if not resource_compare(connection_template, merged_data):
+            connection_template = self.oneview_client.connection_templates.update(merged_data)
+            return True, connection_template
+        else:
+            return False, None
+
+    def __default_bandwidth_reset(self, data):
+        resource = self.__get_by_name(data)
+
+        if not resource:
+            raise Exception(ETHERNET_NETWORK_NOT_FOUND)
+
+        default_connection_template = self.oneview_client.connection_templates.get_default()
+
+        changed, connection_template = self.__update_connection_template(resource,
+                                                                         default_connection_template['bandwidth'])
+
+        return changed, ETHERNET_NETWORK_CONNECTION_TEMPLATE_RESET, dict(
+            ethernet_network_connection_template=connection_template)
 
 
 def main():

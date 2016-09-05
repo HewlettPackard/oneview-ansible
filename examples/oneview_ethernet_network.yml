@@ -17,38 +17,42 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    network_name: 'OneViewSDK Test Ethernet Network'
   tasks:
     - name: Create an Ethernet Network
       oneview_ethernet_network:
         config: "{{ config }}"
         state: present
         data:
-          name: "OneViewSDK Test Ethernet Network"
+          name: '{{ network_name }}'
           vlanId: 200
           ethernetNetworkType: Tagged
           purpose: General
           smartLink: false
           privateNetwork: false
-          connectionTemplateUri: null
+          bandwidth:
+              maximumBandwidth: 2000
+              typicalBandwidth: 1000
       delegate_to: localhost
 
-    - name: Do nothing with the Ethernet Network when no changes are provided
+    - name: Update the Ethernet Network changing bandwidth and purpose
       oneview_ethernet_network:
         config: "{{ config }}"
         state: present
         data:
-          name: "OneViewSDK Test Ethernet Network"
-          vlanId: 200
-          ethernetNetworkType: Tagged
-      delegate_to: localhost
-
-    - name: Update the Ethernet Network changing the attribute purpose to 'Management'
-      oneview_ethernet_network:
-        config: "{{ config }}"
-        state: present
-        data:
-          name: "OneViewSDK Test Ethernet Network"
+          name: '{{ network_name }}'
           purpose: Management
+          bandwidth:
+              maximumBandwidth: 3000
+              typicalBandwidth: 2000
+      delegate_to: localhost
+
+    - name: Reset to the default network connection template
+      oneview_ethernet_network:
+        config: "{{ config }}"
+        state: default_bandwidth_reset
+        data:
+          name: '{{ network_name }}'
       delegate_to: localhost
 
     - name: Rename the Ethernet Network to 'Updated Ethernet Network'
@@ -56,20 +60,11 @@
         config: "{{ config }}"
         state: present
         data:
-          name: "OneViewSDK Test Ethernet Network"
+          name: '{{ network_name }}'
           newName: 'Updated Ethernet Network'
       delegate_to: localhost
 
     - name: Delete the Ethernet Network
-      oneview_ethernet_network:
-        config: "{{ config }}"
-        state: absent
-        data:
-          name: 'Updated Ethernet Network'
-      delegate_to: localhost
-      register: deleted
-
-    - name: Do nothing when the Ethernet Network is absent
       oneview_ethernet_network:
         config: "{{ config }}"
         state: absent

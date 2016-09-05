@@ -73,7 +73,7 @@ EXAMPLES = '''
 RETURN = '''
 connection_templates:
     description: Has all the OneView facts about the Connection Templates.
-    returned: always, except whe defaultConnectionTemplate is requeste. Can be null.
+    returned: Always, except when defaultConnectionTemplate is requested. Can be null.
     type: complex
 
 default_connection_template:
