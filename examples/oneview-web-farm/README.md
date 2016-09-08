@@ -32,15 +32,23 @@ Then, update the `hosts` file and provide the names of the servers you want to d
 
 ### Variables and settings
 
-`demo/group_vars` contains some global definitions like HPE OneView hostname, credentials, the profile template, ICsp preferences, etc.
+`demo/group_vars` contains some global definitions like the profile template, ICsp preferences, etc.
 
-You should update the `demo/group_vars/all` and set the variables to match your test environment. Specify the HPE OneView hostname and credentials, ICsp hostname and credentials (if you are using ICsp).
+You should update the `demo/group_vars/all` and set the variables to match your test environment. Specify the ICsp hostname and credentials (if you are using ICsp).
 
 Feel free to customize any argument – or remove them if using defaults.
 
 :lock: Tip: Check file permissions of the files inside the directory `demo/group_vars` since the passwords are stored in clear-text.
 
 This example passes the SSH keys from the current system to the ICsp build plan, so Ansible can pass the SSH keys into the newly deployed nodes.
+
+**NOTE:** You should specify the HPE OneView hostname and credentials on a file. A sample configuration file is provided within the examples directory. To use it, execute the following steps:
+
+1. `cd` into the `examples` directory.
+2. Copy the `oneview_config-rename.json` file into a new file named `oneview_config.json`.
+3. Modify the file inserting your credentials, OneView appliance IP or hostname.
+
+:lock: Tip: Check the oneview_config.json file permissions, since the password is stored in clear-text.
 
 To execute the playbook, run:
 

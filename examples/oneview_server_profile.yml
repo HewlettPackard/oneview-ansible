@@ -16,25 +16,19 @@
 ---
 - hosts: all
   vars:
-    - oneview: 172.16.102.149
-    - username: administrator
-    - password: serveradmin
+    - config: "{{ playbook_dir }}/oneview_config.json"
     - ov_template: 'webserver-template'
   tasks:
    - name : Create Server Profiles
      oneview_server_profile:
-        oneview_host: "{{ oneview }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
+        config: "{{ config }}"
         server_template: "{{ ov_template }}"
         name: "{{ inventory_hostname }}"
      delegate_to: localhost
 
    - name : Power on servers
      oneview_server_profile:
-        oneview_host: "{{ oneview }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
+        config: "{{ config }}"
         name: "{{ inventory_hostname }}"
         state: "powered_on"
      when: server_hardware.powerState == "Off"
@@ -42,9 +36,7 @@
 
    - name : Power off server to fix offline remediation
      oneview_server_profile:
-       oneview_host: "{{ oneview }}"
-       username: "{{ username }}"
-       password: "{{ password }}"
+       config: "{{ config }}"
        name: "{{ inventory_hostname }}"
        state: "powered_off"
      when: server_profile.templateCompliance != "Compliant" and compliance_preview.isOnlineUpdate == False
@@ -52,9 +44,7 @@
 
    - name : Remediate compliance issues
      oneview_server_profile:
-        oneview_host: "{{ oneview }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
+        config: "{{ config }}"
         name: "{{ inventory_hostname }}"
         state: "compliant"
      when: server_profile.templateCompliance != 'Compliant'
@@ -62,9 +52,7 @@
 
    - name : Power on server
      oneview_server_profile:
-        oneview_host: "{{ oneview }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
+        config: "{{ config }}"
         name: "{{ inventory_hostname }}"
         state: "powered_on"
      when: server_hardware.powerState == "Off"

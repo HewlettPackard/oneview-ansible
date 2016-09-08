@@ -23,18 +23,14 @@
   tasks:
     - name: Power off servers
       oneview_server_profile:
-        oneview_host: "{{ oneview }}"
-        username: "{{ ov_username }}"
-        password: "{{ ov_password }}"
+        config: "{{ playbook_dir }}/../oneview_config.json"
         name: "{{ inventory_hostname }}"
         state: powered_off
       ignore_errors: true
 
     - name: Delete server
       oneview_server_profile:
-        oneview_host: "{{ oneview }}"
-        username: "{{ ov_username }}"
-        password: "{{ ov_password }}"
+        config: "{{ playbook_dir }}/../oneview_config.json"
         name: "{{ inventory_hostname }}"
         state: absent
       ignore_errors: true
