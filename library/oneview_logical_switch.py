@@ -17,6 +17,7 @@
 ###
 
 from ansible.module_utils.basic import *
+from copy import deepcopy
 from hpOneView.oneview_client import OneViewClient
 
 DOCUMENTATION = '''
@@ -37,7 +38,8 @@ options:
     state:
         description:
             - Indicates the desired state for the Logical Switch resource.
-              'present' will ensure data properties are compliant to OneView.
+              'present' will ensure data properties are compliant to OneView. You can choose set the Logical Switch
+              Group by logicalSwitchGroupName or logicalSwitchGroupUri.
               'absent' will remove the resource from OneView, if it exists.
               'refreshed' reclaims the top-of-rack switches in the logical switch. This operation is non-idempotent.
         choices: ['present', 'absent', 'refreshed']
@@ -58,7 +60,9 @@ EXAMPLES = '''
     data:
       logicalSwitch:
         name: 'Test Logical Switch'
-        logicalSwitchGroupUri: '/rest/logical-switch-groups/dce11b79-6fce-48af-84fb-a315b9644571'
+        # You can choose set the Logical Switch Group by logicalSwitchGroupName or logicalSwitchGroupUri
+        logicalSwitchGroupName: 'Group Nexus 55xx'                                                   # option 1
+        # logicalSwitchGroupUri: '/rest/logical-switch-groups/dce11b79-6fce-48af-84fb-a315b9644571'  # option 2
         switchCredentialConfiguration:
           - snmpV1Configuration:  # Switch 1
               communityString: 'public'
@@ -120,6 +124,7 @@ LOGICAL_SWITCH_ALREADY_EXIST = 'Logical Switch already exists.'
 LOGICAL_SWITCH_ALREADY_ABSENT = 'Nothing to do.'
 LOGICAL_SWITCH_REFRESHED = 'Logical Switch refreshed.'
 LOGICAL_SWITCH_NOT_FOUND = 'Logical Switch not found.'
+LOGICAL_SWITCH_GROUP_NOT_FOUND = 'Logical Switch Group not found.'
 
 
 class LogicalSwitchModule(object):
@@ -138,7 +143,7 @@ class LogicalSwitchModule(object):
 
     def run(self):
         state = self.module.params['state']
-        data = self.module.params['data']
+        data = deepcopy(self.module.params['data'])
 
         try:
             if state == 'present':
@@ -161,6 +166,7 @@ class LogicalSwitchModule(object):
                                   ansible_facts=dict(logical_switch=resource))
 
     def __create(self, data):
+        self.__replace_group_name_by_uri(data)
         created_resource = self.oneview_client.logical_switches.create(data)
 
         self.module.exit_json(changed=True,
@@ -193,6 +199,17 @@ class LogicalSwitchModule(object):
             return None
         result = self.oneview_client.logical_switches.get_by('name', data['logicalSwitch']['name'])
         return result[0] if result else None
+
+    def __replace_group_name_by_uri(self, data):
+        if 'logicalSwitch' in data and 'logicalSwitchGroupName' in data['logicalSwitch']:
+            group_name = data['logicalSwitch']['logicalSwitchGroupName']
+            logical_switch_group = self.oneview_client.logical_switch_groups.get_by('name', group_name)
+
+            if logical_switch_group:
+                data['logicalSwitch'].pop('logicalSwitchGroupName')
+                data['logicalSwitch']['logicalSwitchGroupUri'] = logical_switch_group[0]['uri']
+            else:
+                raise Exception(LOGICAL_SWITCH_GROUP_NOT_FOUND)
 
 
 def main():

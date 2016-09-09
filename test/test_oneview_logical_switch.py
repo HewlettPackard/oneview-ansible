@@ -19,7 +19,7 @@ import mock
 from hpOneView.oneview_client import OneViewClient
 from oneview_logical_switch import LogicalSwitchModule
 from oneview_logical_switch import LOGICAL_SWITCH_CREATED, LOGICAL_SWITCH_DELETED, LOGICAL_SWITCH_ALREADY_EXIST, \
-    LOGICAL_SWITCH_ALREADY_ABSENT, LOGICAL_SWITCH_REFRESHED, LOGICAL_SWITCH_NOT_FOUND
+    LOGICAL_SWITCH_ALREADY_ABSENT, LOGICAL_SWITCH_REFRESHED, LOGICAL_SWITCH_NOT_FOUND, LOGICAL_SWITCH_GROUP_NOT_FOUND
 from test.utils import create_ansible_mock
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -35,7 +35,7 @@ PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
     data=dict(logicalSwitch=dict(name='OneView-Enclosure',
-                                 logicalSwitchGroupUri="/rest/logical-switch-groups/dce11b79-6fce-48af-84fb-a315b9644",
+                                 logicalSwitchGroupName="Logical Switch Group Name",
                                  switchCredentialConfiguration=[]),  # assume it contains the switches configuration
               logicalSwitchCredentials=[]) # assume it contains the switches credentials
 )
@@ -60,6 +60,7 @@ class EnclosurePresentStateSpec(unittest.TestCase):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.logical_switches.get_by.return_value = []
         mock_ov_instance.logical_switches.create.return_value = LOGICAL_SWITCH_FROM_ONEVIEW
+        mock_ov_instance.logical_switch_groups.get_by.return_value = [{'uri': '/rest/logical-switch-groups/aa-bb-cc'}]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
@@ -151,23 +152,6 @@ class LogicalSwitchRefreshedStateSpec(unittest.TestCase):
             msg=LOGICAL_SWITCH_REFRESHED
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_switch.AnsibleModule')
-    def test_should_do_nothing_when_logical_switch_not_exist(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_switches.get_by.return_value = []
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_REFRESH)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        LogicalSwitchModule().run()
-
-        mock_ansible_instance.exit_json.assert_called_once_with(
-            changed=False,
-            msg=LOGICAL_SWITCH_NOT_FOUND
-        )
-
 
 class LogicalSwitchErrorHandlingSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -175,6 +159,7 @@ class LogicalSwitchErrorHandlingSpec(unittest.TestCase):
     def test_should_fail_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.logical_switches.get_by.return_value = []
+        mock_ov_instance.logical_switch_groups.get_by.return_value = [{'uri': '/rest/logical-switch-groups/aa-bb-cc'}]
         mock_ov_instance.logical_switches.create.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
@@ -185,6 +170,24 @@ class LogicalSwitchErrorHandlingSpec(unittest.TestCase):
 
         mock_ansible_instance.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_switch.AnsibleModule')
+    def test_should_fail_when_group_not_found(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_switches.get_by.return_value = []
+        mock_ov_instance.logical_switch_groups.get_by.return_value = []
+        mock_ov_instance.logical_switches.create.return_value = LOGICAL_SWITCH_FROM_ONEVIEW
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        self.assertRaises(Exception, LogicalSwitchModule().run())
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=LOGICAL_SWITCH_GROUP_NOT_FOUND
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -210,6 +213,22 @@ class LogicalSwitchErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.logical_switches.get_by.return_value = [LOGICAL_SWITCH_FROM_ONEVIEW]
         mock_ov_instance.logical_switches.refresh.side_effect = Exception(FAKE_MSG_ERROR)
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_REFRESH)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        self.assertRaises(Exception, LogicalSwitchModule().run())
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=FAKE_MSG_ERROR
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_switch.AnsibleModule')
+    def test_should_fail_when_get_by_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_switches.get_by.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_FOR_REFRESH)

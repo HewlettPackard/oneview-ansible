@@ -19,11 +19,11 @@
     config: '{{ playbook_dir }}/oneview_config.json'
 
     # The following variables must be set to run this examples.
-    logical_switch_group_uri: '/rest/logical-switch-groups/dce11b79-6fce-48af-84fb-a315b9644571'  # Logical Switch Group which the logical switch is derived from
+    logical_switch_group_name: 'Logical Switch Group Cisco Nexus 55xx'  # Logical Switch Group which the logical switch is derived from
     ip_address_switch_1: '172.18.16.1'  # IP address/hostname of Switch 1
     ip_address_switch_2: '172.18.16.2'  # IP address/hostname of Switch 2
-    ssh_username: 'dcs'  # The SSH username
-    ssh_password: 'dcs'  # The SSH password
+    ssh_username: ''  # SSH Username
+    ssh_password: ''  # SSH Password
 
     credential_configuration:
       connectionProperties:
@@ -44,7 +44,9 @@
         data:
           logicalSwitch:
             name: 'Test Logical Switch'
-            logicalSwitchGroupUri: '{{ logical_switch_group_uri }}'
+            # You can choose set the Logical Switch Group by logicalSwitchGroupName or logicalSwitchGroupUri
+            logicalSwitchGroupName: '{{ logical_switch_group_name }}'                                    # option 1
+            # logicalSwitchGroupUri: '/rest/logical-switch-groups/dce11b79-6fce-48af-84fb-a315b9644571'  # option 2
             switchCredentialConfiguration:
               - snmpV1Configuration:
                   communityString: 'public'
