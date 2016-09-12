@@ -18,7 +18,7 @@
   vars:
     config: '{{ playbook_dir }}/oneview_config.json'
 
-    # The following variables must be set to run this examples.
+    # The following variables must be set to run this example.
     logical_switch_group_name: 'Logical Switch Group Cisco Nexus 55xx'  # Logical Switch Group which the logical switch is derived from
     ip_address_switch_1: '172.18.16.1'  # IP address/hostname of Switch 1
     ip_address_switch_2: '172.18.16.2'  # IP address/hostname of Switch 2
@@ -37,7 +37,7 @@
           valueType: 'String'
 
   tasks:
-    - name: Add a Logical Switch
+    - name: Create a Logical Switch
       oneview_logical_switch:
         config: "{{ config }}"
         state: present
@@ -63,13 +63,28 @@
             - '{{ credential_configuration }}'
       delegate_to: localhost
 
+    - name: Update the Logical Switch
+      oneview_logical_switch:
+        config: "{{ config }}"
+        state: updated
+        data:
+          logicalSwitch:
+            name: 'Test Logical Switch'
+            newName: 'Test Logical Switch - Renamed'
+            logicalSwitchGroupName: '{{ logical_switch_group_name }}'
+            switchCredentialConfiguration: '{{ logical_switch.switchCredentialConfiguration }}'
+          logicalSwitchCredentials:
+            - '{{ credential_configuration }}'
+            - '{{ credential_configuration }}'
+      delegate_to: localhost
+
     - name: Reclaim the top-of-rack switches in the logical switch
       oneview_logical_switch:
         config: "{{ config }}"
         state: refreshed
         data:
           logicalSwitch:
-            name: 'Test Logical Switch'
+            name: 'Test Logical Switch - Renamed'
       delegate_to: localhost
 
     - name: Delete the Logical Switch
@@ -78,5 +93,5 @@
         state: absent
         data:
           logicalSwitch:
-            name: 'Test Logical Switch'
+            name: 'Test Logical Switch - Renamed'
       delegate_to: localhost
