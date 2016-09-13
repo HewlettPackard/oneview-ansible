@@ -39,6 +39,9 @@ options:
             - Indicates the desired state for the Uplink Set resource.
               'present' will ensure data properties are compliant to OneView.
               'absent' will remove the resource from OneView, if it exists.
+              The key used to find the resource to perform the operation is a compound key, that consists of
+              the name of the uplink set and the URI (or name) of the Logical Interconnect combined. You can choose set
+              the Logical Interconnect by logicalInterconnectUri or logicalInterconnectName.
         choices: ['present', 'absent']
     data:
       description:
@@ -58,7 +61,9 @@ EXAMPLES = '''
     data:
       name: 'Test Uplink Set'
       status: "OK"
-      logicalInterconnectUri: "/rest/logical-interconnects/0de81de6-6652-4861-94f9-9c24b2fd0d66"
+      # You can choose set the Logical Interconnect by logicalInterconnectUri or logicalInterconnectName
+      logicalInterconnectName: "Name of the Logical Interconnect"                                   # option 1
+      # logicalInterconnectUri: "/rest/logical-interconnects/461a9cef-beef-4916-8be1-926078ffb948"  # option 2
       networkUris: [
          '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4'
          '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'
@@ -77,6 +82,7 @@ EXAMPLES = '''
     data:
       name: 'Test Uplink Set'
       newName: 'Renamed Uplink Set'
+      logicalInterconnectName: "Name of the Logical Interconnect"
 
 - name: Ensure that the Uplink Set is absent
   oneview_uplink_set:
@@ -84,6 +90,7 @@ EXAMPLES = '''
     state: absent
     data:
       name: 'Test Uplink Set'
+      logicalInterconnectName: "Name of the Logical Interconnect"
 '''
 
 RETURN = '''
@@ -93,13 +100,14 @@ uplink_set:
     type: complex
 '''
 
+UPLINK_SET_KEY_REQUIRED = "Uplink Set Name and Logical Interconnect required."
 UPLINK_SET_CREATED = 'Uplink Set created successfully.'
 UPLINK_SET_UPDATED = 'Uplink Set updated successfully.'
 UPLINK_SET_DELETED = 'Uplink Set deleted successfully.'
 UPLINK_SET_ALREADY_EXIST = 'Uplink Set already exists.'
 UPLINK_SET_ALREADY_ABSENT = 'Nothing to do.'
-UPLINK_SET_NOT_EXIST = 'Rename failed: Uplink Set not found.'
 UPLINK_SET_NEW_NAME_INVALID = 'Rename failed: the new name is being used by another Uplink Set.'
+UPLINK_SET_LOGICAL_INTERCONNECT_NOT_FOUND = "Logical Interconnect not found."
 
 
 class UplinkSetModule(object):
@@ -118,9 +126,12 @@ class UplinkSetModule(object):
 
     def run(self):
         state = self.module.params['state']
-        data = self.module.params['data']
+        data = self.module.params['data'].copy()
 
         try:
+            self.__validate_key(data)
+            self.__replace_logical_interconnect_name_by_uri(data)
+
             if state == 'present':
                 changed, message, resource = self.__present(data)
                 self.module.exit_json(changed=changed, msg=message, ansible_facts=dict(uplink_set=resource))
@@ -132,7 +143,7 @@ class UplinkSetModule(object):
             self.module.fail_json(msg=exception.message)
 
     def __absent(self, data):
-        resource = self.__get_by_name(data['name'])
+        resource = self.__get_by(data['name'], data['logicalInterconnectUri'])
 
         if resource:
             self.oneview_client.uplink_sets.delete(resource)
@@ -141,44 +152,54 @@ class UplinkSetModule(object):
             return False, UPLINK_SET_ALREADY_ABSENT
 
     def __present(self, data):
-        resource = self.__get_by_name(data['name'])
+        resource = self.__get_by(data['name'], data['logicalInterconnectUri'])
 
-        if data.get('newName'):
-            return self.__rename(data, resource)
-        else:
-            if not resource:
-                return self.__create(data)
-            else:
-                return self.__update(data, resource)
-
-    def __rename(self, data, resource):
-        resource_new_name = self.__get_by_name(data.get('newName'))
         if not resource:
-            self.module.exit_json(changed=False, msg=UPLINK_SET_NOT_EXIST)
-        elif resource_new_name:
-            self.module.exit_json(changed=False, msg=UPLINK_SET_NEW_NAME_INVALID)
+            return self.__create(data)
         else:
-            data["name"] = data.pop("newName")
             return self.__update(data, resource)
 
     def __create(self, data):
         new_uplink_set = self.oneview_client.uplink_sets.create(data)
         return True, UPLINK_SET_CREATED, new_uplink_set
 
-    def __update(self, new_data, existent_resource):
+    def __update(self, data, existent_resource):
+        if 'newName' in data:
+            if self.__get_by(data['newName'], data['logicalInterconnectUri']):
+                self.module.exit_json(changed=False, msg=UPLINK_SET_NEW_NAME_INVALID)
+                return
+            data['name'] = data.pop('newName')
+
         resource_to_update = existent_resource.copy()
-        resource_to_update.update(new_data)
+        resource_to_update.update(data)
 
         if resource_compare(existent_resource, resource_to_update):
             return False, UPLINK_SET_ALREADY_EXIST, existent_resource
-
         else:
             updated_uplink = self.oneview_client.uplink_sets.update(resource_to_update)
             return True, UPLINK_SET_UPDATED, updated_uplink
 
-    def __get_by_name(self, name):
-        result = self.oneview_client.uplink_sets.get_by('name', name)
-        return result[0] if result else None
+    def __validate_key(self, data):
+        if 'name' not in data:
+            raise Exception(UPLINK_SET_KEY_REQUIRED)
+        if 'logicalInterconnectUri' not in data and 'logicalInterconnectName' not in data:
+            raise Exception(UPLINK_SET_KEY_REQUIRED)
+
+    def __replace_logical_interconnect_name_by_uri(self, data):
+        if 'logicalInterconnectName' in data:
+            name = data['logicalInterconnectName']
+            logical_interconnect = self.oneview_client.logical_interconnects.get_by_name(name)
+
+            if logical_interconnect:
+                del data['logicalInterconnectName']
+                data['logicalInterconnectUri'] = logical_interconnect['uri']
+            else:
+                raise Exception(UPLINK_SET_LOGICAL_INTERCONNECT_NOT_FOUND)
+
+    def __get_by(self, name, logical_interconnect_uri):
+        uplink_sets = self.oneview_client.uplink_sets.get_by('name', name)
+        uplink_sets = [x for x in uplink_sets if x['logicalInterconnectUri'] == logical_interconnect_uri]
+        return uplink_sets[0] if uplink_sets else None
 
 
 def main():

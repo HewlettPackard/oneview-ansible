@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    logical_interconnect_name: 'Encl1-Enclosure Name logical interconnect group'  # set the name of an existent logical interconnect to run this example
   tasks:
     - name: Ensure that the Uplink Set is present
       oneview_uplink_set:
@@ -25,10 +26,11 @@
         data:
           name: 'Test Uplink Set'
           status: "OK"
-          logicalInterconnectUri: "/rest/logical-interconnects/0de81de6-6652-4861-94f9-9c24b2fd0d66"
+          # You can choose set the Logical Interconnect by logicalInterconnectUri or logicalInterconnectName
+          logicalInterconnectName: "{{ logical_interconnect_name }}"                                    # option 1
+          # logicalInterconnectUri: "/rest/logical-interconnects/461a9cef-beef-4916-8be1-926078ffb948"  # option 2
           networkUris: [
-             '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
-             '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'
+             '/rest/ethernet-networks/461a9cef-beef-4916-8be1-926078ffb948'
           ]
           fcNetworkUris: []
           fcoeNetworkUris: []
@@ -38,21 +40,13 @@
           manualLoginRedistributionState: "NotSupported"
       delegate_to: localhost
 
-    - name: Do nothing with the Uplink Set when no changes are provided
+    - name: Update the Uplink Set changing the value of the attribute description to 'New Description'
       oneview_uplink_set:
         config: "{{ config }}"
         state: present
         data:
           name: 'Test Uplink Set'
-          networkType: "Ethernet"
-      delegate_to: localhost
-
-    - name: Update the Uplink Set changing the attribute description to 'New Description'
-      oneview_uplink_set:
-        config: "{{ config }}"
-        state: present
-        data:
-          name: 'Test Uplink Set'
+          logicalInterconnectName: "{{ logical_interconnect_name }}"
           description: 'New Description'
       delegate_to: localhost
 
@@ -62,6 +56,7 @@
         state: present
         data:
           name: 'Test Uplink Set'
+          logicalInterconnectName: "{{ logical_interconnect_name }}"
           newName: 'Updated Uplink Set'
       delegate_to: localhost
 
@@ -71,14 +66,6 @@
         state: absent
         data:
           name: 'Updated Uplink Set'
-      delegate_to: localhost
-      register: deleted
-
-    - name: Do nothing when the Uplink Set is absent
-      oneview_uplink_set:
-        config: "{{ config }}"
-        state: absent
-        data:
-          name: 'Updated Uplink Set'
+          logicalInterconnectName: "{{ logical_interconnect_name }}"
       delegate_to: localhost
       register: deleted

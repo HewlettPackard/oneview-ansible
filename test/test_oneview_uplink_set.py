@@ -19,29 +19,34 @@ import mock
 from hpOneView.oneview_client import OneViewClient
 from oneview_uplink_set import UplinkSetModule
 from oneview_uplink_set import UPLINK_SET_ALREADY_ABSENT, UPLINK_SET_ALREADY_EXIST, UPLINK_SET_CREATED, \
-    UPLINK_SET_DELETED, UPLINK_SET_UPDATED, UPLINK_SET_NEW_NAME_INVALID, UPLINK_SET_NOT_EXIST
+    UPLINK_SET_DELETED, UPLINK_SET_UPDATED, UPLINK_SET_NEW_NAME_INVALID, UPLINK_SET_KEY_REQUIRED
 
 FAKE_MSG_ERROR = 'Fake message error'
-
 DEFAULT_UPLINK_NAME = 'Test Uplink Set'
-RENAMED_LIG = 'Renamed Uplink Set'
+RENAMED_UPLINK_SET = 'Renamed Uplink Set'
 
-DEFAULT_UPLINK_TEMPLATE = dict(
-    name=DEFAULT_UPLINK_NAME,
-    status="OK",
-    logicalInterconnectUri="/rest/logical-interconnects/0de81de6-6652-4861-94f9-9c24b2fd0d66",
-    networkUris=[
-        '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
-        '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'
-    ]
-)
+LOGICAL_INTERCONNECT = dict(uri="/rest/logical-interconnects/0de81de6-6652-4861-94f9-9c24b2fd0d66",
+                            name='Name of the Logical Interconnect')
+
+EXISTENT_UPLINK_SETS = [dict(name=DEFAULT_UPLINK_NAME,
+                             logicalInterconnectUri="/rest/logical-interconnects/c4ae6a56-a595-4b06-8c7a-405212df8b93"),
+                        dict(name=DEFAULT_UPLINK_NAME,
+                             status="OK",
+                             logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'],
+                             networkUris=[
+                                 '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
+                                 '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2']),
+                        dict(name=DEFAULT_UPLINK_NAME,
+                             logicalInterconnectUri="/rest/logical-interconnects/c4ae6a56-a595-4b06-8c7a-405212df8b93")]
+
+UPLINK_SET_FOUND_BY_KEY = EXISTENT_UPLINK_SETS[1]
 
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
     data=dict(
         name=DEFAULT_UPLINK_NAME,
-        logicalInterconnectUri="/rest/logical-interconnects/0de81de6-6652-4861-94f9-9c24b2fd0d66",
+        logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'],
         networkUris=[
             '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
             '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'
@@ -49,11 +54,25 @@ PARAMS_FOR_PRESENT = dict(
     )
 )
 
+PARAMS_FOR_PRESENT_WITH_LI_NAME = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name=DEFAULT_UPLINK_NAME,
+        logicalInterconnectName=LOGICAL_INTERCONNECT['name'],
+        networkUris=[
+            '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
+            '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'
+        ]
+    )
+)
+
 PARAMS_TO_RENAME = dict(
     config='config.json',
     state='present',
     data=dict(name=DEFAULT_UPLINK_NAME,
-              newName=RENAMED_LIG)
+              logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'],
+              newName=RENAMED_UPLINK_SET)
 )
 
 PARAMS_WITH_CHANGES = dict(
@@ -61,6 +80,7 @@ PARAMS_WITH_CHANGES = dict(
     state='present',
     data=dict(
         name=DEFAULT_UPLINK_NAME,
+        logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'],
         networkUris=[
             '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
             '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2',
@@ -72,7 +92,15 @@ PARAMS_WITH_CHANGES = dict(
 PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
-    data=dict(name=DEFAULT_UPLINK_NAME)
+    data=dict(name=DEFAULT_UPLINK_NAME,
+              logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'])
+)
+
+PARAMS_FOR_ABSENT_WITH_LI_NAME = dict(
+    config='config.json',
+    state='absent',
+    data=dict(name=DEFAULT_UPLINK_NAME,
+              logicalInterconnectName=LOGICAL_INTERCONNECT['name'])
 )
 
 
@@ -91,7 +119,7 @@ class UplinkSetPresentStateSpec(unittest.TestCase):
     def test_should_create(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.uplink_sets.get_by.return_value = []
-        mock_ov_instance.uplink_sets.create.return_value = DEFAULT_UPLINK_TEMPLATE
+        mock_ov_instance.uplink_sets.create.return_value = UPLINK_SET_FOUND_BY_KEY
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
@@ -102,14 +130,30 @@ class UplinkSetPresentStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=UPLINK_SET_CREATED,
-            ansible_facts=dict(uplink_set=DEFAULT_UPLINK_TEMPLATE)
+            ansible_facts=dict(uplink_set=UPLINK_SET_FOUND_BY_KEY)
         )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_uplink_set.AnsibleModule')
+    def test_should_replace_logical_interconnect_name_by_uri(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.uplink_sets.get_by.return_value = []
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT_WITH_LI_NAME)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        UplinkSetModule().run()
+
+        mock_ov_instance.logical_interconnects.get_by_name.assert_called_once_with('Name of the Logical Interconnect')
+        mock_ov_instance.uplink_sets.create.assert_called_once_with(PARAMS_FOR_PRESENT['data'])
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_uplink_set.AnsibleModule')
     def test_should_not_update_when_data_is_equals(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.uplink_sets.get_by.return_value = [DEFAULT_UPLINK_TEMPLATE]
+        mock_ov_instance.uplink_sets.get_by.return_value = EXISTENT_UPLINK_SETS
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
@@ -120,17 +164,17 @@ class UplinkSetPresentStateSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
             msg=UPLINK_SET_ALREADY_EXIST,
-            ansible_facts=dict(uplink_set=DEFAULT_UPLINK_TEMPLATE)
+            ansible_facts=dict(uplink_set=UPLINK_SET_FOUND_BY_KEY)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_uplink_set.AnsibleModule')
     def test_update_when_data_has_modified_attributes(self, mock_ansible_module, mock_ov_client_from_json_file):
-        data_merged = DEFAULT_UPLINK_TEMPLATE.copy()
+        data_merged = UPLINK_SET_FOUND_BY_KEY.copy()
         data_merged['description'] = 'New description'
 
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.uplink_sets.get_by.return_value = [DEFAULT_UPLINK_TEMPLATE]
+        mock_ov_instance.uplink_sets.get_by.return_value = EXISTENT_UPLINK_SETS
         mock_ov_instance.uplink_sets.update.return_value = data_merged
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
@@ -148,12 +192,12 @@ class UplinkSetPresentStateSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_uplink_set.AnsibleModule')
     def test_rename_when_resource_exists(self, mock_ansible_module, mock_ov_client_from_json_file):
-        data_merged = DEFAULT_UPLINK_TEMPLATE.copy()
-        data_merged['name'] = RENAMED_LIG
+        data_merged = UPLINK_SET_FOUND_BY_KEY.copy()
+        data_merged['name'] = RENAMED_UPLINK_SET
         params_to_rename = PARAMS_TO_RENAME.copy()
 
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.uplink_sets.get_by = mock.MagicMock(side_effect=[[DEFAULT_UPLINK_TEMPLATE], []])
+        mock_ov_instance.uplink_sets.get_by = mock.MagicMock(side_effect=[EXISTENT_UPLINK_SETS, []])
         mock_ov_instance.uplink_sets.update.return_value = data_merged
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
@@ -166,36 +210,13 @@ class UplinkSetPresentStateSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_uplink_set.AnsibleModule')
-    def test_fail_rename_when_resource_not_exist(self, mock_ansible_module, mock_ov_client_from_json_file):
-        data_merged = DEFAULT_UPLINK_TEMPLATE.copy()
-        data_merged['name'] = RENAMED_LIG
-        params_to_rename = PARAMS_TO_RENAME.copy()
-
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.uplink_sets.get_by.return_value = []
-        mock_ov_instance.uplink_sets.update.return_value = data_merged
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(params_to_rename)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        UplinkSetModule().run()
-
-        mock_ansible_instance.exit_json.assert_called_once_with(
-            changed=False,
-            msg=UPLINK_SET_NOT_EXIST
-        )
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_uplink_set.AnsibleModule')
     def test_fail_rename_when_new_name_already_exist(self, mock_ansible_module, mock_ov_client_from_json_file):
-        data_merged = DEFAULT_UPLINK_TEMPLATE.copy()
-        data_merged['name'] = RENAMED_LIG
+        data_merged = UPLINK_SET_FOUND_BY_KEY.copy()
+        data_merged['name'] = RENAMED_UPLINK_SET
         params_to_rename = PARAMS_TO_RENAME.copy()
 
         mock_ov_instance = mock.Mock()
-        # get_by is called twice (with 'name' and with 'newName')
-        mock_ov_instance.uplink_sets.get_by.return_value = [DEFAULT_UPLINK_TEMPLATE]
+        mock_ov_instance.uplink_sets.get_by.return_value = EXISTENT_UPLINK_SETS
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(params_to_rename)
@@ -212,9 +233,9 @@ class UplinkSetPresentStateSpec(unittest.TestCase):
 class UplinkSetAbsentStateSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_uplink_set.AnsibleModule')
-    def test_should_remove(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_delete(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.uplink_sets.get_by.return_value = [DEFAULT_UPLINK_TEMPLATE]
+        mock_ov_instance.uplink_sets.get_by.return_value = EXISTENT_UPLINK_SETS
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
@@ -226,6 +247,22 @@ class UplinkSetAbsentStateSpec(unittest.TestCase):
             changed=True,
             msg=UPLINK_SET_DELETED
         )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_uplink_set.AnsibleModule')
+    def test_should_replace_logical_interconnect_name_by_uri(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.uplink_sets.get_by.return_value = EXISTENT_UPLINK_SETS
+        mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT_WITH_LI_NAME)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        UplinkSetModule().run()
+
+        mock_ov_instance.logical_interconnects.get_by_name.assert_called_once_with('Name of the Logical Interconnect')
+        mock_ov_instance.uplink_sets.delete.assert_called_once_with(UPLINK_SET_FOUND_BY_KEY)
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_uplink_set.AnsibleModule')
@@ -268,7 +305,7 @@ class UplinkSetErrorHandlingSpec(unittest.TestCase):
     @mock.patch('oneview_uplink_set.AnsibleModule')
     def test_should_fail_when_update_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.uplink_sets.get_by.return_value = [DEFAULT_UPLINK_TEMPLATE]
+        mock_ov_instance.uplink_sets.get_by.return_value = EXISTENT_UPLINK_SETS
         mock_ov_instance.uplink_sets.update.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
@@ -285,7 +322,7 @@ class UplinkSetErrorHandlingSpec(unittest.TestCase):
     @mock.patch('oneview_uplink_set.AnsibleModule')
     def test_should_fail_when_delete_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.uplink_sets.get_by.return_value = [DEFAULT_UPLINK_TEMPLATE]
+        mock_ov_instance.uplink_sets.get_by.return_value = EXISTENT_UPLINK_SETS
         mock_ov_instance.uplink_sets.delete.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
@@ -296,6 +333,59 @@ class UplinkSetErrorHandlingSpec(unittest.TestCase):
 
         mock_ansible_instance.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_uplink_set.AnsibleModule')
+    def test_should_fail_when_name_not_set(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        params = PARAMS_FOR_ABSENT.copy()
+        params['data'].pop('name')
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(params)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        self.assertRaises(Exception, UplinkSetModule().run())
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=UPLINK_SET_KEY_REQUIRED
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_uplink_set.AnsibleModule')
+    def test_should_fail_when_logical_interconnect_uri_not_set(self, mock_ansible_module,
+                                                               mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        params = PARAMS_FOR_ABSENT.copy()
+        params['data'].pop('logicalInterconnectUri')
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(params)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        self.assertRaises(Exception, UplinkSetModule().run())
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=UPLINK_SET_KEY_REQUIRED
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_uplink_set.AnsibleModule')
+    def test_should_fail_when_logical_interconnect_name_not_set(self, mock_ansible_module,
+                                                                mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        params = PARAMS_FOR_ABSENT_WITH_LI_NAME.copy()
+        params['data'].pop('logicalInterconnectName')
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(params)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        self.assertRaises(Exception, UplinkSetModule().run())
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=UPLINK_SET_KEY_REQUIRED
         )
 
 
