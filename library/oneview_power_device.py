@@ -43,7 +43,7 @@ options:
               'absent' will remove the resource from OneView, if it exists.
               'power_state_set' will set the power state of the Power Device.
               'refresh_state_set' will set the refresh state of the Power Device.
-              'uid_state_set' will set the UId state of the Power Device.
+              'uid_state_set' will set the UID state of the Power Device.
         choices: ['present', 'discovered', 'absent', 'power_state_set', 'refresh_state_set', 'uid_state_set']
         required: true
     data:
@@ -132,7 +132,7 @@ POWER_DEVICE_NEW_NAME_ALERADY_EXISTS = 'Power Device with new name already exist
 POWER_DEVICE_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: data.name"
 POWER_DEVICE_POWER_STATE_UPDATED = 'Power Device power state changed successfully.'
 POWER_DEVICE_REFRESH_STATE_UPDATED = 'Power Device refresh state changed successfully.'
-POWER_DEVICE_UID_STATE_UPDATED = 'Power Device uid state changed successfully.'
+POWER_DEVICE_UID_STATE_UPDATED = 'Power Device UID state changed successfully.'
 POWER_DEVICE_NOT_FOUND = 'Power Device was not found for this operation.'
 
 

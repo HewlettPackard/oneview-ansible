@@ -17,7 +17,7 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    power_device_name: 'My PPD'
+    power_device_name: 'My PDD'
     ipdu_name: '172.18.8.11, PDU 1, L6,Outlet1'
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
