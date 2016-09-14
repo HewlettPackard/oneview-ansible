@@ -17,16 +17,16 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    server_profile_name: "ProfileTemplate101"
-    server_hardware_type_uri: "/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B"
-    enclosure_group_uri: "/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89"
+    server_profile_template_name: "ProfileTemplate101"
+    server_hardware_type_uri: "/rest/server-hardware-types/DCACB0F3-D664-406C-84E8-19DC30EBFAA7"
+    enclosure_group_uri: "/rest/enclosure-groups/aa5c5d4e-28fb-45f6-b071-9e2a5879449b"
   tasks:
     - name: Create a basic connection-less server profile template
       oneview_server_profile_template:
         config: "{{ config }}"
         state: present
         data:
-          name: "{{ server_profile_name }}"
+          name: "{{ server_profile_template_name }}"
           serverHardwareTypeUri: "{{ server_hardware_type_uri }}"
           enclosureGroupUri: "{{ enclosure_group_uri }}"
       delegate_to: localhost
@@ -36,7 +36,7 @@
         config: "{{ config }}"
         state: present
         data:
-          name: "{{ server_profile_name }}"
+          name: "{{ server_profile_template_name }}"
           serverHardwareTypeUri: "{{ server_hardware_type_uri }}"
           enclosureGroupUri: "{{ enclosure_group_uri }}"
           bootMode:
@@ -49,7 +49,7 @@
         config: "{{ config }}"
         state: absent
         data:
-          name: "{{ server_profile_name }}"
+          name: "{{ server_profile_template_name }}"
       delegate_to: localhost
 
     - name: Do nothing when Server Profile Template is absent
@@ -57,5 +57,5 @@
         config: "{{ config }}"
         state: absent
         data:
-          name: "{{ server_profile_name }}"
+          name: "{{ server_profile_template_name }}"
       delegate_to: localhost
