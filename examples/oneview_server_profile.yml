@@ -16,60 +16,62 @@
 ---
 - hosts: all
   vars:
-    - oneview: 172.16.102.149
-    - username: administrator
-    - password: serveradmin
-    - ov_template: 'webserver-template'
+    # Name of the server profile template that will be used to provision the server profile
+    - ov_template: 'BL460c Gen9 1'
+    - config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
-   - name : Create Server Profiles
-     oneview_server_profile:
-        oneview_host: "{{ oneview }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        server_template: "{{ ov_template }}"
-        name: "{{ inventory_hostname }}"
-     delegate_to: localhost
+    - name : Create Server Profiles
+      oneview_server_profile:
+         config: "{{ config }}"
+         data:
+           server_template: "{{ ov_template }}"
+           name: "{{ inventory_hostname }}"
+      delegate_to: localhost
+      register: result
 
-   - name : Power on servers
-     oneview_server_profile:
-        oneview_host: "{{ oneview }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        name: "{{ inventory_hostname }}"
-        state: "powered_on"
-     when: server_hardware.powerState == "Off"
-     delegate_to: localhost
+    - debug: msg="{{ result.msg }}"
 
-   - name : Power off server to fix offline remediation
-     oneview_server_profile:
-       oneview_host: "{{ oneview }}"
-       username: "{{ username }}"
-       password: "{{ password }}"
-       name: "{{ inventory_hostname }}"
-       state: "powered_off"
-     when: server_profile.templateCompliance != "Compliant" and compliance_preview.isOnlineUpdate == False
-     delegate_to: localhost
+    - debug: var=server_profile
+    - debug: var=serial_number
+    - debug: var=server_hardware
+    - debug: var=compliance_preview
+    - debug: var=created
 
-   - name : Remediate compliance issues
-     oneview_server_profile:
-        oneview_host: "{{ oneview }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        name: "{{ inventory_hostname }}"
-        state: "compliant"
-     when: server_profile.templateCompliance != 'Compliant'
-     delegate_to: localhost
+    - name : Update Server Profile
+      oneview_server_profile:
+         config: "{{ config }}"
+         state: "present"
+         data:
+           name: "{{ inventory_hostname }}"
+           affinity: "BayAndServer"
+           bootMode:
+              manageMode: True
+              mode: "BIOS"
+      delegate_to: localhost
+      register: result
 
-   - name : Power on server
-     oneview_server_profile:
-        oneview_host: "{{ oneview }}"
-        username: "{{ username }}"
-        password: "{{ password }}"
-        name: "{{ inventory_hostname }}"
-        state: "powered_on"
-     when: server_hardware.powerState == "Off"
-     delegate_to: localhost
+    - debug: msg="{{result.msg}}"
 
-   - name: Wait for server to boot
-     wait_for: 'host={{ inventory_hostname }} port=22 state=started timeout=600'
-     delegate_to: localhost
+    - debug: var=server_profile
+
+    - name : Remediate compliance issues
+      oneview_server_profile:
+         config: "{{ config }}"
+         state: "compliant"
+         data:
+           name: "{{ inventory_hostname }}"
+      delegate_to: localhost
+      register: result
+
+    - debug: msg="{{ result.msg }}"
+
+    - name : Delete the Server Profile
+      oneview_server_profile:
+         config: "{{ config }}"
+         state: "absent"
+         data:
+           name: "{{ inventory_hostname }}"
+      delegate_to: localhost
+      register: result
+
+    - debug: msg="{{ result.msg }}"
