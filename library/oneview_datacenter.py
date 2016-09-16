@@ -60,7 +60,9 @@ EXAMPLES = '''
         width: 5000
         depth: 6000
         contents:
-            - resourceName: "Rack-221"
+            # You can choose either resourceName or resourceUri to inform the Rack
+            - resourceName: '{{ datacenter_content_rack_name }}' # option 1
+              resourceUri: ''                                    # option 2
               x: 1000
               y: 1000
   delegate_to: localhost
