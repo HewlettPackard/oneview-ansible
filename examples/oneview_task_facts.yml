@@ -35,4 +35,12 @@
           filter: "associatedResource.resourceCategory='server-profile-templates'"
       delegate_to: localhost
 
+    - name: Gather facts about the last 5 tasks completed with warnings
+      oneview_task_facts:
+        config: "{{ config }}"
+        params:
+          count: 5
+          filter: "taskState='Warning'"
+      delegate_to: localhost
+
     - debug: var=tasks
