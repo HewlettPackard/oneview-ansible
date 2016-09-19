@@ -1,0 +1,62 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+
+    ## To run this sample you must define the following resources for a Brocade Network Advisor
+    manager_host: '172.18.15.1'
+    manager_port: '5989'
+    manager_username: ''
+    manager_password: ''
+  tasks:
+    - name: Create a Device Manager for the Brocade SAN provider with the given hostname and credentials
+      oneview_san_manager:
+        config: "{{ config }}"
+        state: present
+        data:
+          providerDisplayName: 'Brocade Network Advisor'
+          connectionInfo:
+            - name: Host
+              value: '{{ manager_host }}'
+            - name: Port
+              value: '{{ manager_port }}'
+            - name: Username
+              value: '{{ manager_username }}'
+            - name: Password
+              value: '{{ manager_password }}'
+            - name: UseSsl
+              value: true
+      delegate_to: localhost
+
+    - name: Update the SAN Manager
+      oneview_san_manager:
+        config: "{{ config }}"
+        state: present
+        data:
+          providerDisplayName: 'Brocade Network Advisor'
+          refreshStateData:
+            refreshState: 'RefreshPending'
+      delegate_to: localhost
+
+    - name: Delete the SAN Manager recently created
+      oneview_san_manager:
+        config: "{{ config }}"
+        state: absent
+        data:
+          providerDisplayName: 'Brocade Network Advisor'
+      delegate_to: localhost
