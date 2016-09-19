@@ -30,7 +30,10 @@ DEFAULT_SWITCH_NAME = 'Test Logical Switch'
 
 LOGICAL_SWITCH_FROM_ONEVIEW = dict(
     name=DEFAULT_SWITCH_NAME,
-    uri='/rest/logical-switches/f0d7ad37-2053-46ac-bb11-4ebdd079bb66'
+    uri='/rest/logical-switches/f0d7ad37-2053-46ac-bb11-4ebdd079bb66',
+    logicalSwitchGroupUri='/rest/logical-switch-groups/af370d9a-f2f4-4beb-a1f1-670930d6741d',
+    switchCredentialConfiguration=[{'logicalSwitchManagementHost': '172.16.1.1'},
+                                   {'logicalSwitchManagementHost': '172.16.1.2'}]
 )
 
 PARAMS_FOR_PRESENT = dict(
@@ -46,9 +49,17 @@ PARAMS_FOR_UPDATE = dict(
     config='config.json',
     state='updated',
     data=dict(logicalSwitch=dict(name=DEFAULT_SWITCH_NAME,
-                                 newName='Test Logical Switch - Renamed',
-                                 logicalSwitchGroupName="Logical Switch Group Name",
-                                 switchCredentialConfiguration=[]),  # assume it contains the switches configuration
+                                 newName='Test Logical Switch - Renamed'),
+              logicalSwitchCredentials=[])  # assume this list contains the switches credentials
+)
+
+PARAMS_FOR_UPDATE_WITH_SWITCHES_AND_GROUPS = dict(
+    config='config.json',
+    state='updated',
+    data=dict(logicalSwitch=dict(name=DEFAULT_SWITCH_NAME,
+                                 logicalSwitchGroupName='Logical Switch Group Name',
+                                 switchCredentialConfiguration=[{'logicalSwitchManagementHost': '172.16.1.3'},
+                                                                {'logicalSwitchManagementHost': '172.16.1.4'}]),
               logicalSwitchCredentials=[])  # assume this list contains the switches credentials
 )
 
@@ -92,6 +103,7 @@ class LogicalSwitchPresentStateSpec(unittest.TestCase):
                                                                  mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.logical_switches.get_by.return_value = [LOGICAL_SWITCH_FROM_ONEVIEW]
+        mock_ov_instance.logical_switch_groups.get_by.return_value = [{'uri': '/rest/logical-switch-groups/aa-bb-cc'}]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
@@ -210,7 +222,7 @@ class LogicalSwitchUpdatedStateSpec(unittest.TestCase):
         mock_ov_instance.logical_switch_groups.get_by.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_UPDATE)
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_UPDATE_WITH_SWITCHES_AND_GROUPS)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalSwitchModule().run()
@@ -236,6 +248,63 @@ class LogicalSwitchUpdatedStateSpec(unittest.TestCase):
         mock_ansible_instance.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
         )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_switch.AnsibleModule')
+    def test_should_update_with_current_switches_and_group_when_not_provided(self, mock_ansible_module,
+                                                                             mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_switches.get_by.side_effect = [[LOGICAL_SWITCH_FROM_ONEVIEW], []]
+        mock_ov_instance.logical_switches.update.return_value = LOGICAL_SWITCH_FROM_ONEVIEW
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_UPDATE)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalSwitchModule().run()
+
+        data_for_update = {
+            'logicalSwitch': {
+                'name': 'Test Logical Switch - Renamed',
+                'uri': '/rest/logical-switches/f0d7ad37-2053-46ac-bb11-4ebdd079bb66',
+                'logicalSwitchGroupUri': '/rest/logical-switch-groups/af370d9a-f2f4-4beb-a1f1-670930d6741d',
+                'switchCredentialConfiguration': [{'logicalSwitchManagementHost': '172.16.1.1'},
+                                                  {'logicalSwitchManagementHost': '172.16.1.2'}],
+
+            },
+            'logicalSwitchCredentials': []
+
+        }
+        mock_ov_instance.logical_switches.update.assert_called_once_with(data_for_update)
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_logical_switch.AnsibleModule')
+    def test_should_update_with_given_switches_and_group_when_provided(self, mock_ansible_module,
+                                                                       mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.logical_switches.get_by.side_effect = [[LOGICAL_SWITCH_FROM_ONEVIEW], []]
+        mock_ov_instance.logical_switches.update.return_value = LOGICAL_SWITCH_FROM_ONEVIEW
+        mock_ov_instance.logical_switch_groups.get_by.return_value = [{'uri': '/rest/logical-switch-groups/aa-bb-cc'}]
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_UPDATE_WITH_SWITCHES_AND_GROUPS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalSwitchModule().run()
+
+        data_for_update = {
+            'logicalSwitch': {
+                'name': 'Test Logical Switch',
+                'uri': LOGICAL_SWITCH_FROM_ONEVIEW['uri'],
+                'logicalSwitchGroupUri': '/rest/logical-switch-groups/aa-bb-cc',
+                'switchCredentialConfiguration': [{'logicalSwitchManagementHost': '172.16.1.3'},
+                                                  {'logicalSwitchManagementHost': '172.16.1.4'}],
+
+            },
+            'logicalSwitchCredentials': []
+
+        }
+        mock_ov_instance.logical_switches.update.assert_called_once_with(data_for_update)
 
 
 class LogicalSwitchAbsentStateSpec(unittest.TestCase):
