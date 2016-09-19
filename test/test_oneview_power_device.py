@@ -22,7 +22,7 @@ from hpOneView.oneview_client import OneViewClient
 from oneview_power_device import PowerDeviceModule, POWER_DEVICE_ADDED, POWER_DEVICE_ALREADY_PRESENT, \
     POWER_DEVICE_DELETED, POWER_DEVICE_UPDATED, POWER_DEVICE_ALREADY_ABSENT, POWER_DEVICE_MANDATORY_FIELD_MISSING, \
     POWER_DEVICE_POWER_STATE_UPDATED, POWER_DEVICE_NOT_FOUND, POWER_DEVICE_REFRESH_STATE_UPDATED, \
-    POWER_DEVICE_UID_STATE_UPDATED, POWER_DEVICE_NEW_NAME_ALERADY_EXISTS, POWER_DEVICE_IPDU_ADDED
+    POWER_DEVICE_UID_STATE_UPDATED, POWER_DEVICE_NEW_NAME_ALREADY_EXISTS, POWER_DEVICE_IPDU_ADDED
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -199,7 +199,7 @@ class PowerDevicePresentStateSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            msg=POWER_DEVICE_NEW_NAME_ALERADY_EXISTS
+            msg=POWER_DEVICE_NEW_NAME_ALREADY_EXISTS
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')

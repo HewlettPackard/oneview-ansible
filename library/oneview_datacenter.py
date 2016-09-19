@@ -67,18 +67,23 @@ EXAMPLES = '''
               y: 1000
   delegate_to: localhost
 
-- name: Update the Data Center
+- name: Update the Data Center with specified properties (no racks)
   oneview_datacenter:
     config: "{{ config }}"
     state: present
     data:
         name: "MyDatacenter"
-        width: 5000
+        coolingCapacity: '5'
+        costPerKilowattHour: '0.10'
+        currency: USD
+        deratingType: NaJp
+        deratingPercentage: '20.0'
+        defaultPowerLineVoltage: '220'
+        coolingMultiplier: '1.5'
+        width: 4000
         depth: 5000
-        contents:
-            - resourceName: "Rack-221"
-              x: 2000
-              y: 1000
+        contents: ~
+
   delegate_to: localhost
 
 - name: Rename the Data Center
@@ -112,6 +117,8 @@ DATACENTER_ALREADY_UPDATED = 'Data Center is already present.'
 DATACENTER_REMOVED = 'Data Center removed successfully.'
 DATACENTER_ALREADY_ABSENT = 'Data Center is already absent.'
 RACK_NOT_FOUND = 'Rack was not found.'
+DATACENTER_NEW_NAME_ALREADY_EXISTS = 'Data Center with new name already exists.'
+DATACENTER_NOT_FOUND = 'Data Center was not found for this operation.'
 
 
 class DatacenterModule(object):
@@ -153,8 +160,7 @@ class DatacenterModule(object):
         changed = False
         msg = ''
 
-        if "newName" in data:
-            data["name"] = data.pop("newName")
+        self.__check_rename(data, resource)
 
         self.__replace_name_by_uris(data)
 
@@ -185,6 +191,20 @@ class DatacenterModule(object):
                 resource_name = content.pop('resourceName', None)
                 if resource_name:
                     content['resourceUri'] = self.__get_rack_by_name(resource_name)['uri']
+
+    def __check_rename(self, data, resource):
+
+        if "newName" not in data:
+            return
+
+        resource_new_name = (self.oneview_client.datacenters.get_by("name", data['newName']) or [None])[0]
+
+        if not resource:
+            self.module.exit_json(changed=False, msg=DATACENTER_NOT_FOUND)
+        elif resource_new_name:
+            self.module.exit_json(changed=False, msg=DATACENTER_NEW_NAME_ALREADY_EXISTS)
+
+        data["name"] = data.pop("newName")
 
     def __get_rack_by_name(self, name):
         racks = self.oneview_client.racks.get_by('name', name)

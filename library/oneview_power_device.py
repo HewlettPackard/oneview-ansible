@@ -128,7 +128,7 @@ POWER_DEVICE_ALREADY_PRESENT = 'Power Device is already present.'
 POWER_DEVICE_DELETED = 'Power Device deleted successfully.'
 POWER_DEVICE_UPDATED = 'Power Device updated successfully.'
 POWER_DEVICE_ALREADY_ABSENT = 'Power Device is already absent.'
-POWER_DEVICE_NEW_NAME_ALERADY_EXISTS = 'Power Device with new name already exists.'
+POWER_DEVICE_NEW_NAME_ALREADY_EXISTS = 'Power Device with new name already exists.'
 POWER_DEVICE_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: data.name"
 POWER_DEVICE_POWER_STATE_UPDATED = 'Power Device power state changed successfully.'
 POWER_DEVICE_REFRESH_STATE_UPDATED = 'Power Device refresh state changed successfully.'
@@ -221,7 +221,7 @@ class PowerDeviceModule(object):
         if not resource:
             self.module.exit_json(changed=False, msg=POWER_DEVICE_NOT_FOUND)
         elif resource_new_name:
-            self.module.exit_json(changed=False, msg=POWER_DEVICE_NEW_NAME_ALERADY_EXISTS)
+            self.module.exit_json(changed=False, msg=POWER_DEVICE_NEW_NAME_ALREADY_EXISTS)
 
         data["name"] = data.pop("newName")
 

@@ -19,7 +19,7 @@ import mock
 from hpOneView.oneview_client import OneViewClient
 from oneview_rack import RackModule
 from oneview_rack import RACK_CREATED, RACK_ALREADY_EXIST, RACK_UPDATED
-from oneview_rack import RACK_DELETED, RACK_ALREADY_ABSENT, RACK_NOT_FOUND, RACK_NEW_NAME_ALERADY_EXISTS
+from oneview_rack import RACK_DELETED, RACK_ALREADY_ABSENT, RACK_NOT_FOUND, RACK_NEW_NAME_ALREADY_EXISTS
 from copy import deepcopy
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -163,7 +163,7 @@ class RackPresentStateSpec(unittest.TestCase):
 
         mock_ov_instance.racks.update.assert_called_once_with(rack_renamed)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(changed=False, msg=RACK_NEW_NAME_ALERADY_EXISTS)
+        mock_ansible_instance.exit_json.assert_called_once_with(changed=False, msg=RACK_NEW_NAME_ALREADY_EXISTS)
         mock_ansible_instance.fail_json.assert_called_once_with(msg=fail_msg)
 
     @mock.patch.object(OneViewClient, 'from_json_file')

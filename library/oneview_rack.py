@@ -102,7 +102,7 @@ RACK_DELETED = 'Rack deleted successfully.'
 RACK_ALREADY_EXIST = 'Rack already exists.'
 RACK_ALREADY_ABSENT = 'Nothing to do.'
 RACK_NOT_FOUND = 'Rack was not found for this operation.'
-RACK_NEW_NAME_ALERADY_EXISTS = 'Rack with new name already exists.'
+RACK_NEW_NAME_ALREADY_EXISTS = 'Rack with new name already exists.'
 
 
 class RackModule(object):
@@ -183,7 +183,7 @@ class RackModule(object):
         if not resource:
             self.module.exit_json(changed=False, msg=RACK_NOT_FOUND)
         elif resource_new_name:
-            self.module.exit_json(changed=False, msg=RACK_NEW_NAME_ALERADY_EXISTS)
+            self.module.exit_json(changed=False, msg=RACK_NEW_NAME_ALREADY_EXISTS)
 
         data["name"] = data.pop("newName")
 

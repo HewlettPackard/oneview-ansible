@@ -16,10 +16,12 @@
 import unittest
 import mock
 import yaml
+from copy import deepcopy
 
 from hpOneView.oneview_client import OneViewClient
 from oneview_datacenter import DatacenterModule, DATACENTER_ADDED, DATACENTER_REMOVED, DATACENTER_ALREADY_ABSENT, \
-    RACK_NOT_FOUND, DATACENTER_ALREADY_UPDATED, DATACENTER_UPDATED
+    RACK_NOT_FOUND, DATACENTER_ALREADY_UPDATED, DATACENTER_UPDATED, DATACENTER_NOT_FOUND, \
+    DATACENTER_NEW_NAME_ALREADY_EXISTS
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -95,7 +97,7 @@ class DatacenterPresentStateSpec(unittest.TestCase):
     @mock.patch('oneview_datacenter.AnsibleModule')
     def test_should_update_the_datacenter(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.datacenters.get_by.return_value = [DICT_DEFAULT_DATACENTER]
+        mock_ov_instance.datacenters.get_by.side_effect = [[DICT_DEFAULT_DATACENTER], []]
         mock_ov_instance.datacenters.update.return_value = {"name": "name"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
@@ -131,6 +133,48 @@ class DatacenterPresentStateSpec(unittest.TestCase):
             msg=DATACENTER_ALREADY_UPDATED,
             ansible_facts=dict(datacenter=DICT_DEFAULT_DATACENTER)
         )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_datacenter.AnsibleModule')
+    def test_should_warning_rename_when_datacenter_not_exist(self, mock_datacenter_module, mock_from_json):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_instance.datacenters.get_by.return_value = []
+
+        mock_ov_instance.datacenters.add.return_value = {"name": "name"}
+        mock_from_json.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(YAML_DATACENTER_CHANGE)
+        mock_datacenter_module.return_value = mock_ansible_instance
+
+        DatacenterModule().run()
+
+        exit_json_calls = [
+            mock.call(changed=False, msg=DATACENTER_NOT_FOUND),
+            mock.call(changed=True, msg=DATACENTER_ADDED, ansible_facts=dict(datacenter={"name": "name"}))]
+        mock_ansible_instance.exit_json.assert_has_calls(exit_json_calls)
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_datacenter.AnsibleModule')
+    def test_should_warning_rename_when_new_name_in_use(self, mock_datacenter_module, mock_from_json):
+        fail_msg = "There is already a datacenter with the name 'MyDatacenter1'"
+
+        datacenter_to_update = deepcopy(DICT_DEFAULT_DATACENTER_CHANGED)
+        datacenter_to_update['name'] = datacenter_to_update.pop('newName')
+
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.datacenters.get_by.return_value = [DICT_DEFAULT_DATACENTER]
+
+        mock_from_json.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(YAML_DATACENTER_CHANGE)
+        mock_datacenter_module.return_value = mock_ansible_instance
+        mock_ov_instance.datacenters.update.side_effect = Exception(fail_msg)
+
+        DatacenterModule().run()
+
+        mock_ov_instance.datacenters.update.assert_called_once_with(datacenter_to_update)
+
+        mock_ansible_instance.exit_json.assert_called_once_with(changed=False, msg=DATACENTER_NEW_NAME_ALREADY_EXISTS)
+        mock_ansible_instance.fail_json.assert_called_once_with(msg=fail_msg)
 
 
 class DatacenterAbsentStateSpec(unittest.TestCase):
