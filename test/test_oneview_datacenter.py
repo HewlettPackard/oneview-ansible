@@ -16,6 +16,7 @@
 import unittest
 import mock
 import yaml
+import sys
 from copy import deepcopy
 
 from hpOneView.oneview_client import OneViewClient
@@ -156,8 +157,6 @@ class DatacenterPresentStateSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_datacenter.AnsibleModule')
     def test_should_warning_rename_when_new_name_in_use(self, mock_datacenter_module, mock_from_json):
-        fail_msg = "There is already a datacenter with the name 'MyDatacenter1'"
-
         datacenter_to_update = deepcopy(DICT_DEFAULT_DATACENTER_CHANGED)
         datacenter_to_update['name'] = datacenter_to_update.pop('newName')
 
@@ -167,14 +166,11 @@ class DatacenterPresentStateSpec(unittest.TestCase):
         mock_from_json.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(YAML_DATACENTER_CHANGE)
         mock_datacenter_module.return_value = mock_ansible_instance
-        mock_ov_instance.datacenters.update.side_effect = Exception(fail_msg)
+        mock_ansible_instance.exit_json.side_effect = sys.exit
 
         DatacenterModule().run()
 
-        mock_ov_instance.datacenters.update.assert_called_once_with(datacenter_to_update)
-
         mock_ansible_instance.exit_json.assert_called_once_with(changed=False, msg=DATACENTER_NEW_NAME_ALREADY_EXISTS)
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=fail_msg)
 
 
 class DatacenterAbsentStateSpec(unittest.TestCase):
