@@ -86,7 +86,7 @@ EXAMPLES = '''
   oneview_server_profile_facts:
    config: "{{ config }}"
    name : "Encl1, bay 1"
-    options:
+   options:
         - schema
         - compliancePreview
         - profilePorts:
