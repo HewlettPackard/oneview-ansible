@@ -60,10 +60,10 @@
           name: '{{ new_name }}'
       delegate_to: localhost
 
-    - name: Delete all the unmanaged devices
+    - name: Deletes all unmanaged device resources with name ending with 'Device'
       oneview_unmanaged_device:
         config: "{{ config }}"
         state: absent
         data:
-          filter: "name matches '%'"
+          filter: "name matches '%Device'"
       delegate_to: localhost
