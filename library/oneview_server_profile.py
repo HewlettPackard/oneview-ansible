@@ -47,8 +47,8 @@ DOCUMENTATION = '''
 module: oneview_server_profile
 short_description: Manage OneView Server Profile resources.
 description:
-    - Manage the servers lifecycle with OneView Server Profiles. On 'present' state it selects a server hardware
-      automatically based on the server profile template if no server hardware was provided.
+    - Manage the servers lifecycle with OneView Server Profiles. On 'present' state, it selects a server hardware
+      automatically based on the server profile configuration if no server hardware was provided.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
@@ -65,7 +65,8 @@ options:
       - Indicates the desired state for the Server Profile resource by the end of the playbook execution.
         'present' will ensure data properties are compliant to OneView.
         'absent' will remove the resource from OneView, if it exists.
-        'compliant' will make the server profile complient with its server profile template.
+        'compliant' will make the server profile complient with its server profile template, when this option was
+        specified.
     default: present
     choices: ['present', 'absent', 'compliant']
   data:

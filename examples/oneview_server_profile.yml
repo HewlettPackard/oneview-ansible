@@ -16,11 +16,16 @@
 ---
 - hosts: all
   vars:
+    - config: "{{ playbook_dir }}/oneview_config.json"
     # Name of the server profile template that will be used to provision the server profile
     - ov_template: 'BL460c Gen9 1'
-    - config: "{{ playbook_dir }}/oneview_config.json"
+    # Set the uri of an existent enclosure group to run this example
+    - enclosure_group_uri: '/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89'
+    # Set the uri of an existent server hardware type to run this example
+    - server_hardware_type_uri: '/rest/server-hardware-types/79F8B345-19E9-416D-9EE5-E6804A192B17'
+
   tasks:
-    - name : Create Server Profiles
+    - name : Create Server Profile from a Server Profile Template
       oneview_server_profile:
          config: "{{ config }}"
          data:
@@ -75,3 +80,23 @@
       register: result
 
     - debug: msg="{{ result.msg }}"
+
+    - name : Create Server Profile without specifying a template
+      oneview_server_profile:
+         config: "{{ config }}"
+         data:
+           name: "{{ inventory_hostname }}"
+           serverHardwareTypeUri: "{{ server_hardware_type_uri }}"
+           enclosureGroupUri: "{{ enclosure_group_uri }}"
+      delegate_to: localhost
+
+    - debug: var=server_profile
+
+    - name : Delete the Server Profile
+      oneview_server_profile:
+         config: "{{ config }}"
+         state: "absent"
+         data:
+           name: "{{ inventory_hostname }}"
+      delegate_to: localhost
+
