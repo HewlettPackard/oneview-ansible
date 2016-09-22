@@ -63,7 +63,7 @@
             - '{{ credential_configuration }}'
       delegate_to: localhost
 
-    - name: Update the Logical Switch
+    - name: Update the Logical Switch name and credentials
       oneview_logical_switch:
         config: "{{ config }}"
         state: updated
@@ -71,8 +71,6 @@
           logicalSwitch:
             name: 'Test Logical Switch'
             newName: 'Test Logical Switch - Renamed'
-            logicalSwitchGroupName: '{{ logical_switch_group_name }}'
-            switchCredentialConfiguration: '{{ logical_switch.switchCredentialConfiguration }}'
           logicalSwitchCredentials:
             - '{{ credential_configuration }}'
             - '{{ credential_configuration }}'

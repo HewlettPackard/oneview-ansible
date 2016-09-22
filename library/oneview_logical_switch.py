@@ -40,8 +40,9 @@ options:
             - Indicates the desired state for the Logical Switch resource.
               'present' creates a Logical Switch, if it doesn't exist. To update the Logical Switch, use the 'updated'
               state instead.
-              'updated' ensures the Logical Switch is updated. This operation is non-idempotent. To change the name of
-              the Logical Switch, a 'newName' in the data must be provided.
+              'updated' ensures the Logical Switch is updated. Currently OneView only supports updating the credentials
+              and name of the Logical Switch. To change the name of the Logical Switch, a 'newName' in the data must be
+              provided. The update operation is non-idempotent.
               'absent' removes the resource from OneView, if it exists.
               'refreshed' reclaims the top-of-rack switches in the logical switch. This operation is non-idempotent.
         choices: ['present', 'updated', 'absent', 'refreshed']
@@ -97,7 +98,7 @@ EXAMPLES = '''
               valueFormat: 'SecuritySensitive'
               valueType: 'String'
 
-- name: Update the Logical Switch
+- name: Update the Logical Switch name and credentials
   oneview_logical_switch:
     config: "{{ config_path }}"
     state: updated
@@ -105,8 +106,6 @@ EXAMPLES = '''
       logicalSwitch:
         name: 'Test Logical Switch'
         newName: 'Test Logical Switch - Renamed'
-        logicalSwitchGroupName: 'Group Nexus 55xx'
-        switchCredentialConfiguration: '{{ logical_switch.switchCredentialConfiguration }}'
       logicalSwitchCredentials:
         - connectionProperties:  # Switch 1
             - propertyName: 'SshBasicAuthCredentialUser'
@@ -195,6 +194,7 @@ class LogicalSwitchModule(object):
 
     def __present(self, data):
         resource = self.__get_by_name(data)
+        self.__replace_group_name_by_uri(data)
 
         if not resource:
             self.__create(data)
@@ -203,7 +203,6 @@ class LogicalSwitchModule(object):
                                   ansible_facts=dict(logical_switch=resource))
 
     def __create(self, data):
-        self.__replace_group_name_by_uri(data)
         created_resource = self.oneview_client.logical_switches.create(data)
 
         self.module.exit_json(changed=True,
@@ -215,10 +214,15 @@ class LogicalSwitchModule(object):
 
         if resource:
             data['logicalSwitch']['uri'] = resource['uri']
-            if 'logicalSwitch' in data and 'newName' in data['logicalSwitch']:
+
+            if 'logicalSwitchGroupUri' not in data['logicalSwitch']:
+                data['logicalSwitch']['logicalSwitchGroupUri'] = resource['logicalSwitchGroupUri']
+            if 'switchCredentialConfiguration' not in data['logicalSwitch']:
+                data['logicalSwitch']['switchCredentialConfiguration'] = resource['switchCredentialConfiguration']
+
+            if 'newName' in data['logicalSwitch']:
                 if self.__get_by_new_name(data):
                     self.module.exit_json(changed=False, msg=LOGICAL_SWITCH_NEW_NAME_INVALID)
-
                 data['logicalSwitch']['name'] = data['logicalSwitch'].pop('newName')
 
             self.__replace_group_name_by_uri(data)
