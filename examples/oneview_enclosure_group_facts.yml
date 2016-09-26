@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
+    - name: "Enclosure Group 1"
   tasks:
     - name: Gather facts about all Enclosure Groups
       oneview_enclosure_group_facts:
@@ -28,7 +29,17 @@
     - name: Gather facts about an Enclosure Group by name
       oneview_enclosure_group_facts:
         config: "{{ config }}"
-        name: "Enclosure Group (For Demo)"
+        name: "{{ name }}"
       delegate_to: localhost
 
     - debug: var=enclosure_groups
+
+    - name: Gather facts about an Enclosure Group by name with configuration script
+      oneview_enclosure_group_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - configuration_script
+      delegate_to: localhost
+
+    - debug: var=enclosure_group_script
