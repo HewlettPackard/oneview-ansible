@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
+    - name: "Encl1"  # Set the name of an existent Enclosure to run this example
   tasks:
     - name: Gather facts about all Enclosures
       oneview_enclosure_facts:
@@ -28,7 +29,26 @@
     - name: Gather facts about an Enclosure by name
       oneview_enclosure_facts:
         config: "{{ config }}"
-        name: "Test-Enclosure-Renamed"
+        name: "{{ name }}"
       delegate_to: localhost
 
     - debug: var=enclosures
+
+    - name: Gather facts about an Enclosure by name with options
+      oneview_enclosure_facts:
+        config: "{{ config }}"
+        name: '{{ name }}'
+        options:
+          - script                       # optional
+          - environmentalConfiguration   # optional
+          - utilization:                 # optional
+              fields: 'AmbientTemperature'
+              startDate: '2016-07-01T14:29:42.000Z'
+              endDate: '2018-07-01T03:29:42.000Z'
+              view: 'day'
+              refresh: False
+      delegate_to: localhost
+
+    - debug: var=enclosure_script
+    - debug: var=enclosure_environmental_configuration
+    - debug: var=enclosure_utilization
