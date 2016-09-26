@@ -96,7 +96,7 @@ EXAMPLES = '''
   delegate_to: localhost
 
 - debug: var=enclosures
-- debug: var=enclosure_environmental_configuration
+- debug: var=enclosure_utilization
 '''
 
 RETURN = '''
