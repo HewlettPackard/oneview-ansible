@@ -17,10 +17,14 @@
 import unittest
 import mock
 
+from utils import create_ansible_mock
 from hpOneView.oneview_client import OneViewClient
 from oneview_enclosure_group_facts import EnclosureGroupFactsModule
 
 ERROR_MSG = 'Fake message error'
+
+ENCLOSURE_GROUP_NAME = "Enclosure Group Name"
+ENCLOSURE_GROUP_URI = "/rest/enclosure-groups/7a298f96-fda8-480e-9747-8ad4c666f756"
 
 PARAMS_GET_ALL = dict(
     config='config.json',
@@ -29,14 +33,20 @@ PARAMS_GET_ALL = dict(
 
 PARAMS_GET_BY_NAME = dict(
     config='config.json',
-    name="Test Enclosure Groups"
+    name=ENCLOSURE_GROUP_NAME,
+    options=[]
 )
 
+PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
+    config='config.json',
+    name=ENCLOSURE_GROUP_NAME,
+    options=["configuration_script"]
+)
 
-def create_ansible_mock(dict_params):
-    mock_ansible = mock.Mock()
-    mock_ansible.params = dict_params
-    return mock_ansible
+ENCLOSURE_GROUPS = [{
+    "name": ENCLOSURE_GROUP_NAME,
+    "uri": ENCLOSURE_GROUP_URI
+}]
 
 
 class EnclosureGroupFactsSpec(unittest.TestCase):
@@ -45,7 +55,7 @@ class EnclosureGroupFactsSpec(unittest.TestCase):
     def test_should_get_all_enclosure_group(self, mock_ansible_module,
                                             mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.enclosure_groups.get_all.return_value = {"name": "Enclosure Group Name"}
+        mock_ov_instance.enclosure_groups.get_all.return_value = ENCLOSURE_GROUPS
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
@@ -56,7 +66,7 @@ class EnclosureGroupFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(enclosure_groups=({"name": "Enclosure Group Name"}))
+            ansible_facts=dict(enclosure_groups=ENCLOSURE_GROUPS)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -80,7 +90,7 @@ class EnclosureGroupFactsSpec(unittest.TestCase):
     def test_should_get_enclosure_group_by_name(self, mock_ansible_module,
                                                 mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.enclosure_groups.get_by.return_value = {"name": "Enclosure Group Name"}
+        mock_ov_instance.enclosure_groups.get_by.return_value = ENCLOSURE_GROUPS
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
@@ -89,9 +99,39 @@ class EnclosureGroupFactsSpec(unittest.TestCase):
 
         EnclosureGroupFactsModule().run()
 
+        mock_ov_instance.enclosure_groups.get_by.assert_called_once_with('name', ENCLOSURE_GROUP_NAME)
+
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(enclosure_groups=({"name": "Enclosure Group Name"}))
+            ansible_facts=dict(enclosure_groups=ENCLOSURE_GROUPS)
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_enclosure_group_facts.AnsibleModule')
+    def test_should_get_enclosure_group_by_name_with_options(self, mock_ansible_module,
+                                                             mock_ov_client_from_json_file):
+        configuration_script = "echo 'test'"
+
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.enclosure_groups.get_by.return_value = ENCLOSURE_GROUPS
+        mock_ov_instance.enclosure_groups.get_script.return_value = configuration_script
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        EnclosureGroupFactsModule().run()
+
+        mock_ov_instance.enclosure_groups.get_by.assert_called_once_with('name', ENCLOSURE_GROUP_NAME)
+        mock_ov_instance.enclosure_groups.get_script.assert_called_once_with(id_or_uri=ENCLOSURE_GROUP_URI)
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                enclosure_groups=ENCLOSURE_GROUPS,
+                enclosure_group_script=configuration_script
+            )
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')

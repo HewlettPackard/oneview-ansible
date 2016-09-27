@@ -28,7 +28,9 @@ description:
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
-author: "Gustavo Hennig (@GustavoHennig)"
+author:
+    - "Gustavo Hennig (@GustavoHennig)"
+    - "Bruno Souza (@bsouza)"
 options:
     config:
       description:
@@ -38,6 +40,11 @@ options:
       description:
         - Enclosure Group name.
       required: false
+    options:
+      description:
+        - "List with options to gather additional facts about Enclosure Group.
+          Options allowed:
+          'configuration_script' Gets the configuration script for an Enclosure Group."
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -51,13 +58,16 @@ EXAMPLES = '''
 
 - debug: var=enclosure_groups
 
-- name: Gather facts about a Enclosure Group by name
+- name: Gather facts about an Enclosure Group by name with configuration script
   oneview_enclosure_group_facts:
     config: "{{ config_file_path }}"
     name: "Test Enclosure Group Facts"
-  delegate_to: localhost
+    options:
+      - configuration_script
+    delegate_to: localhost
 
 - debug: var=enclosure_groups
+- debug: var=enclosure_group_script
 '''
 
 RETURN = '''
@@ -65,36 +75,60 @@ enclosure_groups:
     description: Has all the OneView facts about the Enclosure Groups.
     returned: always, but can be null
     type: complex
+
+enclosure_group_script:
+    description: The configuration script for an Enclosure Group.
+    returned: When requested, but can be null.
+    type: string
 '''
 
 
 class EnclosureGroupFactsModule(object):
+
     argument_spec = {
         "config": {
             "required": True,
             "type": 'str'},
         "name": {
             "required": False,
-            "type": 'str'
+            "type": 'str'},
+        "options": {
+            "required": False,
+            "type": "list"
         }}
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec,
-                                    supports_check_mode=False)
+        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
         try:
-            if self.module.params.get('name'):
-                enclosure_group = self.oneview_client.enclosure_groups.get_by('name', self.module.params['name'])
-            else:
-                enclosure_group = self.oneview_client.enclosure_groups.get_all()
+            facts = {}
+            name = self.module.params.get('name')
 
-            self.module.exit_json(changed=False,
-                                  ansible_facts=dict(enclosure_groups=enclosure_group))
+            if name:
+                enclosure_groups = self.oneview_client.enclosure_groups.get_by('name', name)
+                options = self.module.params.get("options") or []
+
+                if enclosure_groups and "configuration_script" in options:
+                    facts["enclosure_group_script"] = self.__get_script(enclosure_groups)
+            else:
+                enclosure_groups = self.oneview_client.enclosure_groups.get_all()
+
+            facts["enclosure_groups"] = enclosure_groups
+            self.module.exit_json(changed=False, ansible_facts=facts)
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
+
+    def __get_script(self, enclosure_groups):
+        script = None
+
+        if enclosure_groups:
+            enclosure_group_uri = enclosure_groups[0]['uri']
+            script = self.oneview_client.enclosure_groups.get_script(id_or_uri=enclosure_group_uri)
+
+        return script
 
 
 def main():
