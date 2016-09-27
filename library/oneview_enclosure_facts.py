@@ -18,6 +18,7 @@
 
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
+from hpOneView.common import transform_list_to_dict
 
 
 DOCUMENTATION = '''
@@ -39,6 +40,12 @@ options:
       description:
         - Enclosure name.
       required: false
+    options:
+      description:
+        - "List with options to gather additional facts about an Enclosure and related resources.
+          Options allowed: script, environmentalConfiguration, and utilization. For the option utilization, you can
+          provide specific parameters."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -55,14 +62,62 @@ EXAMPLES = '''
   oneview_enclosure_facts:
     config: "{{ config_file_path }}"
     name: "Enclosure-Name"
+  delegate_to: localhost
 
 - debug: var=enclosures
+
+- name: Gather facts about an Enclosure by name with options
+  oneview_enclosure_facts:
+    config: "{{ config_file_path }}"
+    name: 'Test-Enclosure'
+    options:
+      - script                       # optional
+      - environmentalConfiguration   # optional
+      - utilization                  # optional
+  delegate_to: localhost
+
+- debug: var=enclosures
+- debug: var=enclosure_script
+- debug: var=enclosure_environmental_configuration
+- debug: var=enclosure_utilization
+
+- name: "Gather facts about an Enclosure with temperature data at a resolution of one sample per day, between two
+         specified dates"
+  oneview_enclosure_facts:
+    config: "{{ config_file_path }}"
+    name: 'Test-Enclosure'
+    options:
+      - utilization                  # optional
+          fields: 'AmbientTemperature'
+          startDate: '2016-07-01T14:29:42.000Z'
+          endDate: '2018-07-01T03:29:42.000Z'
+          view: 'day'
+          refresh: False
+  delegate_to: localhost
+
+- debug: var=enclosures
+- debug: var=enclosure_utilization
 '''
 
 RETURN = '''
 enclosures:
     description: Has all the OneView facts about the Enclosures.
     returned: always, but can be null
+    type: complex
+
+enclosure_script:
+    description: Has all the OneView facts about the script of an Enclosure.
+    returned: when requested, but can be null
+    type: complex
+
+enclosure_environmental_configuration:
+    description: Has all the OneView facts about the environmental configuration of an Enclosure.
+    returned: when requested, but can be null
+    type: complex
+
+enclosure_utilization:
+    description: Has all the OneView facts about the utilization of an Enclosure.
+    returned: when requested, but can be null
     type: complex
 '''
 
@@ -71,7 +126,8 @@ class EnclosureFactsModule(object):
 
     argument_spec = dict(
         config=dict(required=True, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        options=dict(required=False, type='list')
     )
 
     def __init__(self):
@@ -81,25 +137,74 @@ class EnclosureFactsModule(object):
 
     def run(self):
         try:
+            ansible_facts = {}
+
             if self.module.params['name']:
-                self.__get_by_name(self.module.params['name'])
+                enclosures = self.__get_by_name(self.module.params['name'])
+
+                if self.module.params.get('options') and enclosures:
+                    ansible_facts = self.__gather_optional_facts(self.module.params['options'], enclosures[0])
             else:
-                self.__get_all()
+                enclosures = self.__get_all()
+
+            ansible_facts['enclosures'] = enclosures
+
+            self.module.exit_json(changed=False,
+                                  ansible_facts=ansible_facts)
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
 
-    def __get_by_name(self, name):
-        enclosure = self.oneview_client.enclosures.get_by('name', name)
+    def __gather_optional_facts(self, options, enclosure):
 
-        self.module.exit_json(changed=False,
-                              ansible_facts=dict(enclosures=enclosure))
+        options = transform_list_to_dict(options)
+
+        enclosure_client = self.oneview_client.enclosures
+        ansible_facts = {}
+
+        if options.get('script'):
+            ansible_facts['enclosure_script'] = enclosure_client.get_script(enclosure['uri'])
+        if options.get('environmentalConfiguration'):
+            env_config = enclosure_client.get_environmental_configuration(enclosure['uri'])
+            ansible_facts['enclosure_environmental_configuration'] = env_config
+        if options.get('utilization'):
+            ansible_facts['enclosure_utilization'] = self.__get_utilization(enclosure, options['utilization'])
+
+        return ansible_facts
+
+    def __get_utilization(self, enclosure, params):
+        fields = view = refresh = date_filter = ''
+
+        if isinstance(params, dict):
+            fields = params.get('fields')
+            view = params.get('view')
+            refresh = params.get('refresh')
+            date_filter = self.__build_utilization_filter(params)
+
+        return self.oneview_client.enclosures.get_utilization(enclosure['uri'],
+                                                              fields=fields,
+                                                              filter=date_filter,
+                                                              refresh=refresh,
+                                                              view=view)
+
+    def __build_utilization_filter(self, params):
+        start_date = params.get('startDate')
+        end_date = params.get('endDate')
+
+        if not start_date and not end_date:
+            return None
+
+        start_date_query = ('startDate=' + start_date) if start_date else ''
+        end_date_query = ('endDate=' + end_date) if end_date else ''
+        separator = ',' if (start_date_query and end_date_query) else ''
+
+        return '{0}{1}{2}'.format(start_date_query, separator, end_date_query)
+
+    def __get_by_name(self, name):
+        return self.oneview_client.enclosures.get_by('name', name)
 
     def __get_all(self):
-        enclosures = self.oneview_client.enclosures.get_all()
-
-        self.module.exit_json(changed=False,
-                              ansible_facts=dict(enclosures=enclosures))
+        return self.oneview_client.enclosures.get_all()
 
 
 def main():
