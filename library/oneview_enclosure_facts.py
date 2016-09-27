@@ -89,8 +89,9 @@ EXAMPLES = '''
     options:
       - utilization                  # optional
           fields: 'AmbientTemperature'
-          startDate: '2016-07-01T14:29:42.000Z'
-          endDate: '2018-07-01T03:29:42.000Z'
+          filter:
+            - "startDate=2016-07-01T14:29:42.000Z"
+            - "endDate=2017-07-01T03:29:42.000Z"
           view: 'day'
           refresh: False
   delegate_to: localhost

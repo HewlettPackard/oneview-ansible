@@ -82,7 +82,7 @@ EXAMPLES = '''
        - uidState               # optional
        - utilization:           # optional
                 fields : 'AveragePower'
-                filter : 'startDate=2016-05-30T03:29:42.000Z'
+                filter : ['startDate=2016-05-30T03:29:42.000Z']
                 view : 'day'
   delegate_to: localhost
 
