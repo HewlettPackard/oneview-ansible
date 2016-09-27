@@ -1,0 +1,69 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    name: 'MyUnmanagedDevice'
+    new_name: 'UnmanagedDeviceRenamed'
+  tasks:
+    - name: Ensure that the unmanaged device is present
+      oneview_unmanaged_device:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ name }}'
+          model: 'Procurve 4200VL'
+          deviceType: 'Server'
+      delegate_to: localhost
+
+    - debug: var=unmanaged_device
+
+    - name: Add another unmanaged device
+      oneview_unmanaged_device:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'AnotherUnmanagedDevice'
+          model: 'Procurve 4200VL'
+      delegate_to: localhost
+
+    - name: Update the unmanaged device changing the name attribute
+      oneview_unmanaged_device:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ name }}'
+          newName: '{{ new_name }}'
+      delegate_to: localhost
+
+    - debug: var=unmanaged_device
+
+    - name: Ensure that the unmanaged device is absent
+      oneview_unmanaged_device:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: '{{ new_name }}'
+      delegate_to: localhost
+
+    - name: Deletes all unmanaged device resources with name ending with 'Device'
+      oneview_unmanaged_device:
+        config: "{{ config }}"
+        state: absent
+        data:
+          filter: "name matches '%Device'"
+      delegate_to: localhost
