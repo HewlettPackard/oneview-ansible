@@ -44,12 +44,11 @@ PARAMS_GET_UTILIZATION_WITH_PARAMS = dict(
     config='config.json',
     name="Test-Enclosure",
     options=[dict(utilization=dict(fields='AveragePower',
-                                   startDate='2016-06-30T03:29:42.000Z',
-                                   endDate='2016-07-01T03:29:42.000Z',
+                                   filter=['startDate=2016-06-30T03:29:42.000Z',
+                                           'endDate=2016-07-01T03:29:42.000Z'],
                                    view='day',
                                    refresh=True))]
 )
-
 
 PRESENT_ENCLOSURES = [{
     "name": "Test-Enclosure",
@@ -254,13 +253,14 @@ class EnclosureFactsSpec(unittest.TestCase):
 
         EnclosureFactsModule().run()
 
-        date_filter = "startDate=2016-06-30T03:29:42.000Z,endDate=2016-07-01T03:29:42.000Z"
+        date_filter = ["startDate=2016-06-30T03:29:42.000Z", "endDate=2016-07-01T03:29:42.000Z"]
 
         mock_ov_instance.enclosures.get_utilization.assert_called_once_with(PRESENT_ENCLOSURES[0]['uri'],
                                                                             fields='AveragePower',
                                                                             filter=date_filter,
                                                                             view='day',
                                                                             refresh=True)
+
 
 if __name__ == '__main__':
     unittest.main()
