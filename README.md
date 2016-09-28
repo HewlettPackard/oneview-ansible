@@ -4,13 +4,11 @@
 
 Modules to manage HPE OneView using Ansible playbooks.
 
-**NOTE:** This is an early version that provides a few specific Ansible modules. Additional Ansible modules will be added in future releases.
-
 ## Requirements
 
  - Ansible >= 2.0.2
  - Python >= 2.7.9
- - python-OneView SDK ([Install python-OneView SDK](https://github.com/HewlettPackard/python-hpOneView#installation))
+ - HPE OneView Python SDK ([Install HPE OneView Python SDK](https://github.com/HewlettPackard/python-hpOneView#installation))
 
 ## Modules
 
@@ -45,27 +43,33 @@ The detailed documentation for each module is available at: [HPE OneView Ansible
         name: "Test FCoE Network Facts"
 ```
 
-Sample playbooks and instructions on how to run the modules can be found in the [`examples` directory](/examples).
+Sample playbooks and instructions on how to run the modules can be found in the [`examples`](/examples) directory.
 
 An end-to-end DevOps example using OneView for the bare metal server provisioning, HPE ICsp for OS deployment, and Ansible modules for software setup is provided at: [Accelerating DevOps with HPE OneView and Ansible sample](/examples/oneview-web-farm).
 
-## Ansible OneView SDK setup
+## Setup
 
 To run the Ansible modules provided in this project, you should execute the following steps:
 
-Clone the project:
+**1. Clone the repository**
+
+Run:
+
 ```bash
 $ git clone https://github.com/HewlettPackard/oneview-ansible.git
 ```
 
-Set the `ANSIBLE_LIBRARY` path, specifying the full path for the cloned project:
+**2. Configure the ANSIBLE_LIBRARY environmental variable**
+
+Set the `ANSIBLE_LIBRARY` path, specifying the `library` full path from the cloned project:
+
 ```bash
 $ export ANSIBLE_LIBRARY=/path/to/oneview-ansible/library
 ```
 
-**Configuration file**
+**3. Create the JSON Configuration File**
 
-To use the Ansible OneView modules, you need to create OneView Python SDK json configuration file. This file is used to define the settings, which will be used on the OneView appliance connection, like hostname, username, and password. Here's an example:
+To use the Ansible OneView modules, you need to create OneView Python SDK JSON configuration file. This file is used to define the settings, which will be used on the OneView appliance connection, like hostname, username, and password. Here's an example:
 
 ```json
 # config.json
@@ -76,6 +80,12 @@ To use the Ansible OneView modules, you need to create OneView Python SDK json c
     "password": "secret123"
   }
 }
+```
+
+If your environment requires a proxy, define the proxy properties in the JSON file using the following syntax:
+
+```json
+  "proxy": "<proxy_host>:<proxy_port>"
 ```
 
 :lock: Tip: Check the file permissions since the password is stored in clear-text.
