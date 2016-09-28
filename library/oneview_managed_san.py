@@ -157,9 +157,9 @@ class ManagedSanModule(object):
             elif state == 'refresh_state_set':
                 exit_status = self.__set_refresh_state(data, resource)
             elif state == 'endpoints_csv_file_created':
-                exit_status = self.__create_endpoints_csv_file(data, resource)
+                exit_status = self.__create_endpoints_csv_file(resource)
             elif state == 'issues_report_created':
-                exit_status = self.__create_issue_report(data, resource)
+                exit_status = self.__create_issue_report(resource)
 
             self.module.exit_json(**exit_status)
 
@@ -193,14 +193,14 @@ class ManagedSanModule(object):
                     msg=MANAGED_SAN_REFRESH_STATE_UPDATED,
                     ansible_facts=dict(managed_san=resource))
 
-    def __create_endpoints_csv_file(self, data, resource):
+    def __create_endpoints_csv_file(self, resource):
         resource = self.oneview_client.managed_sans.create_endpoints_csv_file(resource['uri'])
 
         return dict(changed=True,
                     msg=MANAGED_SAN_ENDPOINTS_CSV_FILE_CREATED,
                     ansible_facts=dict(managed_san_endpoints=resource))
 
-    def __create_issue_report(self, data, resource):
+    def __create_issue_report(self, resource):
         resource = self.oneview_client.managed_sans.create_issues_report(resource['uri'])
 
         return dict(changed=True,
