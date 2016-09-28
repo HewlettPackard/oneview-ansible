@@ -18,6 +18,7 @@
 
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
+from hpOneView.common import transform_list_to_dict
 
 DOCUMENTATION = '''
 ---
@@ -28,7 +29,9 @@ description:
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
-author: "Gustavo Hennig (@GustavoHennig)"
+author:
+    - "Gustavo Hennig (@GustavoHennig)"
+    - "Mariana Kreisig (@marikrg)"
 options:
     config:
       description:
@@ -37,6 +40,11 @@ options:
     name:
       description:
         - Logical Enclosure name.
+      required: false
+    options:
+      description:
+        - "List with options to gather additional facts about a Logical Enclosure and related resources.
+          Options allowed: script."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -58,12 +66,28 @@ EXAMPLES = '''
   delegate_to: localhost
 
 - debug: var=logical_enclosures
+
+- name: Gather facts about a Logical Enclosure by name with options
+  oneview_logical_enclosure_facts:
+    config: "{{ config_file_path }}"
+    name: "Encl1"
+    options:
+      - script
+  delegate_to: localhost
+
+- debug: var=logical_enclosures
+- debug: var=logical_enclosure_script
 '''
 
 RETURN = '''
 logical_enclosures:
     description: Has all the OneView facts about the Logical Enclosures.
     returned: always, but can be null
+    type: complex
+
+logical_enclosure_script:
+    description: Has the facts about the script of a Logical Enclosure.
+    returned: when required, but can be null
     type: complex
 '''
 
@@ -76,6 +100,10 @@ class LogicalEnclosureFactsModule(object):
         "name": {
             "required": False,
             "type": 'str'
+        },
+        "options": {
+            "required": False,
+            "type": 'list'
         }}
 
     def __init__(self):
@@ -85,16 +113,33 @@ class LogicalEnclosureFactsModule(object):
 
     def run(self):
         try:
-            if self.module.params.get('name'):
-                logical_enclosure = self.oneview_client.logical_enclosures.get_by('name', self.module.params['name'])
-            else:
-                logical_enclosure = self.oneview_client.logical_enclosures.get_all()
+            ansible_facts = {}
 
-            self.module.exit_json(changed=False,
-                                  ansible_facts=dict(logical_enclosures=logical_enclosure))
+            if self.module.params.get('name'):
+                logical_enclosures = self.oneview_client.logical_enclosures.get_by('name', self.module.params['name'])
+
+                if self.module.params.get('options') and logical_enclosures:
+                    ansible_facts = self.__gather_optional_facts(self.module.params['options'], logical_enclosures[0])
+            else:
+                logical_enclosures = self.oneview_client.logical_enclosures.get_all()
+
+            ansible_facts['logical_enclosures'] = logical_enclosures
+
+            self.module.exit_json(changed=False, ansible_facts=ansible_facts)
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
+
+    def __gather_optional_facts(self, options, logical_enclosure):
+        options = transform_list_to_dict(options)
+
+        logical_enclosure_client = self.oneview_client.logical_enclosures
+        ansible_facts = {}
+
+        if options.get('script'):
+            ansible_facts['logical_enclosure_script'] = logical_enclosure_client.get_script(logical_enclosure['uri'])
+
+        return ansible_facts
 
 
 def main():
