@@ -117,25 +117,25 @@ EXAMPLES = '''
 RETURN = '''
 server_profile:
     description: Has the OneView facts about the Server Profile.
-    returned: On states 'present' and'compliant'
+    returned: On states 'present' and 'compliant'
     type: complex
 serial_number:
     description: Has the Server Profile serial number.
-    returned: On states 'present' and'compliant'
+    returned: On states 'present' and 'compliant'
     type: complex
 server_hardware:
     description: Has the OneView facts about the Server Hardware.
-    returned: On states 'present' and'compliant'
+    returned: On states 'present' and 'compliant'
     type: complex
 compliance_preview:
     description:
         Has the OneView facts about the manual and automatic updates required to make the server profile
         consistent with its template.
-    returned: On states 'present' and'compliant'
+    returned: On states 'present' and 'compliant'
     type: complex
 created:
     description: Indicates if the Server Profile was created.
-    returned: On states 'present' and'compliant'
+    returned: On states 'present' and 'compliant'
     type: bool
 '''
 
