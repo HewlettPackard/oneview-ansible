@@ -17,8 +17,7 @@ import unittest
 import mock
 
 from hpOneView.oneview_client import OneViewClient
-from oneview_interconnect import InterconnectModule, MISSING_KEY_MSG
-
+from oneview_interconnect import InterconnectModule, MISSING_KEY_MSG, INTERCONNECT_WAS_NOT_FOUND
 
 FAKE_URI = "/rest/interconnects/748d4699-62ff-454e-8ec8-773815c4aa2f"
 
@@ -276,9 +275,8 @@ class InterconnectPowerStateSpec(unittest.TestCase):
 
         InterconnectModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
-            changed=False,
-            msg=AnyStringWith("There is no interconnect named")
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=INTERCONNECT_WAS_NOT_FOUND
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
