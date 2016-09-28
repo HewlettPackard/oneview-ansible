@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
+    - name: "Test Ethernet Network_1"  # Set the name of an existent Ethernet Network to run this example
   tasks:
     - name: Gather facts about all Ethernet Networks
       oneview_ethernet_network_facts:
@@ -25,10 +26,22 @@
 
     - debug: var=ethernet_networks
 
-    - name: Gather facts about a Ethernet Network by name
+    - name: Gather facts about an Ethernet Network by name
       oneview_ethernet_network_facts:
         config: "{{ config }}"
-        name: "Demo Ethernet Network"
+        name: "{{ name }}"
       delegate_to: localhost
 
     - debug: var=ethernet_networks
+
+    - name: Gather facts about an Ethernet Network by name with options
+      oneview_ethernet_network_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - associatedProfiles
+          - associatedUplinkGroups
+      delegate_to: localhost
+
+    - debug: var=enet_associated_profiles
+    - debug: var=enet_associated_uplink_groups

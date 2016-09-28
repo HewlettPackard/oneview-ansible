@@ -19,6 +19,7 @@ import mock
 
 from hpOneView.oneview_client import OneViewClient
 from oneview_ethernet_network_facts import EthernetNetworkFactsModule
+from utils import create_ansible_mock
 
 ERROR_MSG = 'Fake message error'
 
@@ -29,7 +30,14 @@ PARAMS_GET_ALL = dict(
 
 PARAMS_GET_BY_NAME = dict(
     config='config.json',
-    name="Test Ethernet Network"
+    name="Test Ethernet Network",
+    options=[]
+)
+
+PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
+    config='config.json',
+    name="Test Ethernet Network",
+    options=['associatedProfiles', 'associatedUplinkGroups']
 )
 
 PRESENT_ENETS = [{
@@ -37,21 +45,27 @@ PRESENT_ENETS = [{
     "uri": "/rest/ethernet-networks/d34dcf5e-0d8e-441c-b00d-e1dd6a067188"
 }]
 
+ENET_ASSOCIATED_UPLINK_GROUP_URIS = [
+    "/rest/uplink-sets/c6bf9af9-48e7-4236-b08a-77684dc258a5",
+    "/rest/uplink-sets/e2f0031b-52bd-4223-9ac1-d91cb519d548"
+]
 
-def create_ansible_mock(params):
-    mock_params = mock.Mock()
-    mock_params.__getitem__ = mock.Mock(side_effect=lambda name: params[name])
+ENET_ASSOCIATED_PROFILE_URIS = [
+    "/rest/server-profiles/83e2e117-59dc-4e33-9f24-462af951cbbe",
+    "/rest/server-profiles/57d3af2a-b6d2-4446-8645-f38dd808ea4d"
+]
 
-    mock_ansible = mock.Mock()
-    mock_ansible.params = mock_params
-    return mock_ansible
+ENET_ASSOCIATED_UPLINK_GROUPS = [dict(uri=ENET_ASSOCIATED_UPLINK_GROUP_URIS[0], name='Uplink Set 1'),
+                                 dict(uri=ENET_ASSOCIATED_UPLINK_GROUP_URIS[1], name='Uplink Set 2')]
+
+ENET_ASSOCIATED_PROFILES = [dict(uri=ENET_ASSOCIATED_PROFILE_URIS[0], name='Server Profile 1'),
+                            dict(uri=ENET_ASSOCIATED_PROFILE_URIS[1], name='Server Profile 2')]
 
 
-class LogicalInterconnectGroupFactsSpec(unittest.TestCase):
+class EthernetNetworkFactsSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_ethernet_network_facts.AnsibleModule')
-    def test_should_get_all_enets(self, mock_ansible_module,
-                                  mock_ov_client_from_json_file):
+    def test_should_get_all_enets(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.ethernet_networks.get_all.return_value = PRESENT_ENETS
 
@@ -84,8 +98,7 @@ class LogicalInterconnectGroupFactsSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_ethernet_network_facts.AnsibleModule')
-    def test_should_get_enet_by_name(self, mock_ansible_module,
-                                     mock_ov_client_from_json_file):
+    def test_should_get_enet_by_name(self, mock_ansible_module, mock_ov_client_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.ethernet_networks.get_by.return_value = PRESENT_ENETS
 
@@ -116,6 +129,67 @@ class LogicalInterconnectGroupFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.fail_json.assert_called_once()
 
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_ethernet_network_facts.AnsibleModule')
+    def test_should_get_enet_by_name_with_options(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.ethernet_networks.get_by.return_value = PRESENT_ENETS
+        mock_ov_instance.ethernet_networks.get_associated_profiles.return_value = ENET_ASSOCIATED_PROFILE_URIS
+        mock_ov_instance.ethernet_networks.get_associated_uplink_groups.return_value = ENET_ASSOCIATED_UPLINK_GROUP_URIS
+        mock_ov_instance.server_profiles.get.side_effect = ENET_ASSOCIATED_PROFILES
+        mock_ov_instance.uplink_sets.get.side_effect = ENET_ASSOCIATED_UPLINK_GROUPS
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        EthernetNetworkFactsModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(ethernet_networks=PRESENT_ENETS,
+                               enet_associated_profiles=ENET_ASSOCIATED_PROFILES,
+                               enet_associated_uplink_groups=ENET_ASSOCIATED_UPLINK_GROUPS)
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_ethernet_network_facts.AnsibleModule')
+    def test_should_fail_when_get_associated_profiles_raises_exception(self, mock_ansible_module,
+                                                                       mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.ethernet_networks.get_by.return_value = PRESENT_ENETS
+        mock_ov_instance.ethernet_networks.get_associated_profiles.side_effect = Exception(ERROR_MSG)
+        mock_ov_instance.ethernet_networks.get_associated_uplink_groups.return_value = ENET_ASSOCIATED_UPLINK_GROUP_URIS
+        mock_ov_instance.uplink_sets.get.side_effect = ENET_ASSOCIATED_UPLINK_GROUPS
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        EthernetNetworkFactsModule().run()
+
+        mock_ansible_instance.fail_json.assert_called_once()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_ethernet_network_facts.AnsibleModule')
+    def test_should_fail_when_get_uplink_groups_raises_exception(self, mock_ansible_module,
+                                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.ethernet_networks.get_by.return_value = PRESENT_ENETS
+        mock_ov_instance.ethernet_networks.get_associated_profiles.return_value = ENET_ASSOCIATED_PROFILE_URIS
+        mock_ov_instance.ethernet_networks.get_associated_uplink_groups.side_effect = Exception(ERROR_MSG)
+        mock_ov_instance.server_profiles.get.side_effect = ENET_ASSOCIATED_PROFILES
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        EthernetNetworkFactsModule().run()
+
+        mock_ansible_instance.fail_json.assert_called_once()
 
 if __name__ == '__main__':
     unittest.main()

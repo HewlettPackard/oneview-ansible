@@ -18,6 +18,7 @@
 
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
+from hpOneView.common import transform_list_to_dict
 
 DOCUMENTATION = '''
 ---
@@ -28,7 +29,9 @@ description:
 requirements:
     - "python >= 2.7.9"
     - "hpOneView"
-author: "Camila Balestrin (@balestrinc)"
+author:
+    - "Camila Balestrin (@balestrinc)"
+    - "Mariana Kreisig (@marikrg)"
 options:
     config:
       description:
@@ -37,6 +40,11 @@ options:
     name:
       description:
         - Ethernet Network name.
+      required: false
+    options:
+      description:
+        - "List with options to gather additional facts about an Ethernet Network and related resources.
+          Options allowed: associatedProfiles and associatedUplinkGroups."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -56,12 +64,34 @@ EXAMPLES = '''
     name: Ethernet network name
 
 - debug: var=ethernet_networks
+
+- name: Gather facts about an Ethernet Network by name with options
+  oneview_ethernet_network_facts:
+    config: "{{ config }}"
+    name: "{{ name }}"
+    options:
+      - associatedProfiles
+      - associatedUplinkGroups
+  delegate_to: localhost
+
+- debug: var=enet_associated_profiles
+- debug: var=enet_associated_uplink_groups
 '''
 
 RETURN = '''
 ethernet_networks:
     description: Has all the OneView facts about the Ethernet Networks.
-    returned: always, but can be null
+    returned: Always, but can be null.
+    type: complex
+
+enet_associated_profiles:
+    description: Has all the OneView facts about the profiles which are using the Ethernet network.
+    returned: When requested, but can be null.
+    type: complex
+
+enet_associated_uplink_groups:
+    description: Has all the OneView facts about the uplink sets which are using the Ethernet network.
+    returned: When requested, but can be null.
     type: complex
 '''
 
@@ -69,7 +99,8 @@ ethernet_networks:
 class EthernetNetworkFactsModule(object):
     argument_spec = dict(
         config=dict(required=True, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        options=dict(required=False, type='list')
     )
 
     def __init__(self):
@@ -79,26 +110,53 @@ class EthernetNetworkFactsModule(object):
 
     def run(self):
         try:
-            enet_name = self.module.params['name']
-            if enet_name:
-                self.__get_by_name(enet_name)
+            ansible_facts = {}
+            if self.module.params['name']:
+                ethernet_networks = self.__get_by_name(self.module.params['name'])
+
+                if self.module.params.get('options') and ethernet_networks:
+                    ansible_facts = self.__gather_optional_facts(self.module.params['options'], ethernet_networks[0])
             else:
-                self.__get_all()
+                ethernet_networks = self.__get_all()
+
+            ansible_facts['ethernet_networks'] = ethernet_networks
+
+            self.module.exit_json(changed=False, ansible_facts=ansible_facts)
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
 
-    def __get_by_name(self, name):
-        ethernet_networks = self.oneview_client.ethernet_networks.get_by('name', name)
+    def __gather_optional_facts(self, options, ethernet_network):
+        options = transform_list_to_dict(options)
 
-        self.module.exit_json(changed=False,
-                              ansible_facts=dict(ethernet_networks=ethernet_networks))
+        ansible_facts = {}
+
+        if options.get('associatedProfiles'):
+            ansible_facts['enet_associated_profiles'] = self.__get_associated_profiles(ethernet_network)
+        if options.get('associatedUplinkGroups'):
+            ansible_facts['enet_associated_uplink_groups'] = self.__get_associated_uplink_groups(ethernet_network)
+
+        return ansible_facts
+
+    def __get_associated_profiles(self, ethernet_network):
+        associated_profiles = self.oneview_client.ethernet_networks.get_associated_profiles(ethernet_network['uri'])
+        return [self.__get_server_profile_by_uri(x) for x in associated_profiles]
+
+    def __get_associated_uplink_groups(self, ethernet_network):
+        uplink_groups = self.oneview_client.ethernet_networks.get_associated_uplink_groups(ethernet_network['uri'])
+        return [self.__get_uplink_set_by_uri(x) for x in uplink_groups]
+
+    def __get_uplink_set_by_uri(self, uplink_set_uri):
+        return self.oneview_client.uplink_sets.get(uplink_set_uri)
+
+    def __get_server_profile_by_uri(self, server_profile_uri):
+        return self.oneview_client.server_profiles.get(server_profile_uri)
+
+    def __get_by_name(self, name):
+        return self.oneview_client.ethernet_networks.get_by('name', name)
 
     def __get_all(self):
-        ethernet_networks = self.oneview_client.ethernet_networks.get_all()
-
-        self.module.exit_json(changed=False,
-                              ansible_facts=dict(ethernet_networks=ethernet_networks))
+        return self.oneview_client.ethernet_networks.get_all()
 
 
 def main():
