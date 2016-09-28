@@ -89,8 +89,9 @@ EXAMPLES = '''
     options:
       - utilization                  # optional
           fields: 'AmbientTemperature'
-          startDate: '2016-07-01T14:29:42.000Z'
-          endDate: '2018-07-01T03:29:42.000Z'
+          filter:
+            - "startDate=2016-07-01T14:29:42.000Z"
+            - "endDate=2017-07-01T03:29:42.000Z"
           view: 'day'
           refresh: False
   delegate_to: localhost
@@ -173,32 +174,19 @@ class EnclosureFactsModule(object):
         return ansible_facts
 
     def __get_utilization(self, enclosure, params):
-        fields = view = refresh = date_filter = ''
+        fields = view = refresh = filter = ''
 
         if isinstance(params, dict):
             fields = params.get('fields')
             view = params.get('view')
             refresh = params.get('refresh')
-            date_filter = self.__build_utilization_filter(params)
+            filter = params.get('filter')
 
         return self.oneview_client.enclosures.get_utilization(enclosure['uri'],
                                                               fields=fields,
-                                                              filter=date_filter,
+                                                              filter=filter,
                                                               refresh=refresh,
                                                               view=view)
-
-    def __build_utilization_filter(self, params):
-        start_date = params.get('startDate')
-        end_date = params.get('endDate')
-
-        if not start_date and not end_date:
-            return None
-
-        start_date_query = ('startDate=' + start_date) if start_date else ''
-        end_date_query = ('endDate=' + end_date) if end_date else ''
-        separator = ',' if (start_date_query and end_date_query) else ''
-
-        return '{0}{1}{2}'.format(start_date_query, separator, end_date_query)
 
     def __get_by_name(self, name):
         return self.oneview_client.enclosures.get_by('name', name)
