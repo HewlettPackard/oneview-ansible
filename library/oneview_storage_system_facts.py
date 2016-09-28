@@ -18,6 +18,7 @@
 
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
+from hpOneView.common import transform_list_to_dict
 
 DOCUMENTATION = '''
 ---
@@ -41,6 +42,15 @@ options:
     name:
       description:
         - Storage System name.
+      required: false
+    options:
+      description:
+        - "List with options to gather additional facts about a Storage System and related resources.
+          Options allowed:
+          'hostTypes' gets the list of supported host types.
+          'storagePools' gets a list of storage pools belonging to the specified storage system."
+        - "To gather facts about 'storagePools' it is required inform either the argument 'name' or 'ip_hostname'.
+          Otherwise, this option will be ignored."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -72,12 +82,36 @@ EXAMPLES = '''
   delegate_to: localhost
 
 - debug: var=storage_systems
+
+- name: Gather facts about a Storage System and all options
+  oneview_storage_system_facts:
+    config: "{{ config }}"
+    name: "ThreePAR7200-4555"
+    options:
+        - hostTypes
+        - storagePools
+  delegate_to: localhost
+
+- debug: var=storage_systems
+- debug: var=storage_system_host_types
+- debug: var=storage_system_pools
+
 '''
 
 RETURN = '''
 storage_systems:
     description: Has all the OneView facts about the Storage Systems.
     returned: always, but can be null
+    type: complex
+
+storage_system_host_types:
+    description: Has all the OneView facts about the supported host types.
+    returned: when requested, but can be null
+    type: complex
+
+storage_system_pools:
+    description: Has all the OneView facts about the Storage Systems - Storage Pools.
+    returned: when requested, but can be null
     type: complex
 '''
 
@@ -95,6 +129,10 @@ class StorageSystemFactsModule(object):
         "ip_hostname": {
             "required": False,
             "type": 'str'
+        },
+        "options": {
+            "required": False,
+            "type": 'list'
         }}
 
     def __init__(self):
@@ -103,19 +141,38 @@ class StorageSystemFactsModule(object):
 
     def run(self):
         try:
+            facts = {}
+            is_specific_storage_system = True
             if self.module.params.get('ip_hostname'):
-                storage_system = self.oneview_client.storage_systems.get_by_ip_hostname(
+                storage_systems = self.oneview_client.storage_systems.get_by_ip_hostname(
                     self.module.params.get('ip_hostname'))
             elif self.module.params.get('name'):
-                storage_system = self.oneview_client.storage_systems.get_by_name(self.module.params['name'])
+                storage_systems = self.oneview_client.storage_systems.get_by_name(self.module.params['name'])
             else:
-                storage_system = self.oneview_client.storage_systems.get_all()
+                storage_systems = self.oneview_client.storage_systems.get_all()
+                is_specific_storage_system = False
 
-            self.module.exit_json(changed=False,
-                                  ansible_facts=dict(storage_systems=storage_system))
+            self.__get_options(facts, storage_systems, is_specific_storage_system)
+
+            facts['storage_systems'] = storage_systems
+
+            self.module.exit_json(changed=False, ansible_facts=facts)
 
         except Exception as exception:
             self.module.fail_json(msg=exception.message)
+
+    def __get_options(self, facts, storage_system, is_specific_storage_system):
+
+        if self.module.params.get('options'):
+            options = transform_list_to_dict(self.module.params['options'])
+
+            if options.get('hostTypes'):
+                facts['storage_system_host_types'] = self.oneview_client.storage_systems.get_host_types()
+
+            if storage_system and is_specific_storage_system:
+                storage_uri = storage_system['uri']
+                if options.get('storagePools'):
+                    facts['storage_system_pools'] = self.oneview_client.storage_systems.get_storage_pools(storage_uri)
 
 
 def main():
