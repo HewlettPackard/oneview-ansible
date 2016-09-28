@@ -39,7 +39,7 @@ options:
       required: false
     options:
       description:
-        - "List with options to gather additional facts about Logical Interconnect.
+        - "List with options to gather additional facts about the Switch.
           Options allowed:
           'environmentalConfiguration' gets the environmental configuration for a switch."
       required: false
