@@ -95,7 +95,7 @@ class ServerProfileTemplateFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(server_profile_templates=BASIC_TEMPLATE)
+            ansible_facts=dict(server_profile_templates=[BASIC_TEMPLATE])
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -117,7 +117,7 @@ class ServerProfileTemplateFactsSpec(unittest.TestCase):
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
-                server_profile_templates=BASIC_TEMPLATE,
+                server_profile_templates=[BASIC_TEMPLATE],
                 new_profile=PROFILE
             )
         )
