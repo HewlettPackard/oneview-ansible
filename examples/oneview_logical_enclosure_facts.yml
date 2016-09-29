@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
+    - logical_enclosure_name: "Encl1"  # The name of an existent Logical Enclosure must be set to run this example
   tasks:
     - name: Gather facts about all Logical Enclosures
       oneview_logical_enclosure_facts:
@@ -28,7 +29,18 @@
     - name: Gather facts about a Logical Enclosure by name
       oneview_logical_enclosure_facts:
         config: "{{ config }}"
-        name: "Encl1"
+        name: "{{ logical_enclosure_name }}"
       delegate_to: localhost
 
     - debug: var=logical_enclosures
+
+    - name: Gather facts about a Logical Enclosure by name with options
+      oneview_logical_enclosure_facts:
+        config: "{{ config }}"
+        name: "{{ logical_enclosure_name }}"
+        options:
+          - script
+      delegate_to: localhost
+
+    - debug: var=logical_enclosures
+    - debug: var=logical_enclosure_script
