@@ -29,7 +29,7 @@ description:
     - Provides an interface to manage Logical Interconnect resources.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView"
+    - "hpOneView >= 2.0.1"
 author: "Mariana Kreisig (@marikrg)"
 options:
     config:

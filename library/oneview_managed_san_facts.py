@@ -26,7 +26,7 @@ description:
     - Retrieve facts about the OneView Managed SANs.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView"
+    - "hpOneView >= 2.0.1"
 author: "Mariana Kreisig (@marikrg)"
 options:
     config:

@@ -28,7 +28,7 @@ description:
     - Retrieve facts about one or more of the Logical Enclosures from OneView.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView"
+    - "hpOneView >= 2.0.1"
 author:
     - "Gustavo Hennig (@GustavoHennig)"
     - "Mariana Kreisig (@marikrg)"

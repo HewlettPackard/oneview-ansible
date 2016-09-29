@@ -27,7 +27,7 @@ description:
     - Provides an interface to manage Ethernet Network resources. Can create, update, or delete.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView"
+    - "hpOneView >= 2.0.1"
 author: "Camila Balestrin (@balestrinc)"
 options:
     config:

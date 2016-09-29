@@ -30,7 +30,7 @@ description:
      A reference to the switch is mantained, and the resource is marked as 'Absent'."
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView"
+    - "hpOneView >= 2.0.1"
 author: "Bruno Souza (@bsouza)"
 options:
     config:

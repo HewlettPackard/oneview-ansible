@@ -28,7 +28,7 @@ description:
     - Provides an interface to manage Network Set resources. Can create, update, or delete.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView"
+    - "hpOneView >= 2.0.1"
 author: "Mariana Kreisig (@marikrg)"
 options:
     config:
