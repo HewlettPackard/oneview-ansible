@@ -18,13 +18,20 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     - interconnect_name: 'Encl1, interconnect 1' # provide your interconnect name here
+    - port_name: 'd3' # provide your interconnect port_name
+    - subport_number: 1 # provide a subport_number
   tasks:
+    - name: Fail if interconnect_name is undefined
+      fail: msg="To run this example you must define the vars first"
+      when: not interconnect_name
+
     - name: Gather facts about all interconnects
       oneview_interconnect_facts:
         config: "{{ config }}"
       delegate_to: localhost
 
-    - debug: var=interconnects
+    - debug: msg="{{interconnects | map(attribute='name') | list }}"
+
 
     - name: Gather facts about the interconnect that matches the specified name
       oneview_interconnect_facts:
@@ -34,10 +41,46 @@
 
     - debug: var=interconnects
 
+
     - name: Gather facts about the interconnect that matches the specified name and its name servers
       oneview_interconnect_facts:
         config: "{{ config }}"
         name: "{{ interconnect_name }}"
-        gather_name_servers: true
+        options:
+            - nameServers
+      delegate_to: localhost
 
-    - debug: var=name_servers
+    - debug: msg="Interconnect '{{ interconnects[0]['name'] }}'"
+    - debug: var=interconnect_name_servers
+
+    - name: Gather facts about statistics for the Interconnect that matches the specified name
+      oneview_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ interconnect_name }}"
+        options:
+            - statistics
+
+    - debug: msg="Interconnect '{{ interconnects[0]['name'] }}'"
+    - debug: var=interconnect_statistics
+
+    - name: Get the port statistics for the specified interconnect name and port name
+      oneview_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ interconnect_name }}"
+        options:
+            - portStatistics: "{{ port_name }}"
+
+    - debug: msg="Interconnect '{{ interconnects[0]['name'] }}'"
+    - debug: var=interconnect_port_statistics
+
+    - name: Get the subport statistics
+      oneview_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ interconnect_name }}"
+        options:
+            - subPortStatistics:
+                portName: "{{ port_name }}"
+                subportNumber: "{{ subport_number }}"
+
+    - debug: msg="Interconnect '{{ interconnects[0]['name'] }}'"
+    - debug: var=interconnect_subport_statistics
