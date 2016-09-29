@@ -266,7 +266,7 @@ class InterconnectPowerStateSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_do_nothing_when_interconnect_is_absent(self, mock_ansible_module, mock_ov_from_file):
+    def test_should_fail_when_interconnect_was_not_found(self, mock_ansible_module, mock_ov_from_file):
         ansible_arguments = create_params_for('device_reset')
         mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
         mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
