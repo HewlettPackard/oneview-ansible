@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
+    - storage_system_name: "ThreePAR7200-4555"
   tasks:
     - name: Gather facts about all Storage Systems
       oneview_storage_system_facts:
@@ -38,7 +39,26 @@
     - name: Gather facts about a Storage System by name
       oneview_storage_system_facts:
         config: "{{ config }}"
-        name: "ThreePAR7200-4555"
+        name: "{{ storage_system_name }}"
       delegate_to: localhost
 
     - debug: var=storage_systems
+
+    - name: Gather facts about Storage System - Host Types
+      oneview_storage_system_facts:
+        config: "{{ config }}"
+        options:
+          - hostTypes
+      delegate_to: localhost
+
+    - debug: var=storage_system_host_types
+
+    - name: Gather facts about Storage Pools of a Storage System by name
+      oneview_storage_system_facts:
+        config: "{{ config }}"
+        name: "{{ storage_system_name }}"
+        options:
+          - storagePools
+      delegate_to: localhost
+
+    - debug: var=storage_system_pools
