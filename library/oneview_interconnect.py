@@ -99,6 +99,7 @@ interconnect:
 '''
 
 MISSING_KEY_MSG = "You must provide the interconnect name or the interconnect ip address"
+INTERCONNECT_WAS_NOT_FOUND = "The Interconnect was not found."
 
 
 class InterconnectModule(object):
@@ -169,10 +170,7 @@ class InterconnectModule(object):
             raise Exception(MISSING_KEY_MSG)
 
         if not interconnects:
-            self.module.exit_json(
-                changed=False,
-                msg="There is no interconnect named '{}'".format(interconnect_name)
-            )
+            raise Exception(INTERCONNECT_WAS_NOT_FOUND)
 
         return interconnects[0]
 
