@@ -206,8 +206,8 @@ class ServerProfileModule(object):
                     changed=changed, msg=msg, ansible_facts=self.__gather_facts(server_profile)
                 )
 
-        except Exception as e:
-            self.module.fail_json(msg=e.message)
+        except Exception as exception:
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data, resource):
 

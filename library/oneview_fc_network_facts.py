@@ -87,7 +87,7 @@ class FcNetworkFactsModule(object):
                 self.__get_all()
 
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_by_name(self, name):
         fc_network = self.oneview_client.fc_networks.get_by('name', name)

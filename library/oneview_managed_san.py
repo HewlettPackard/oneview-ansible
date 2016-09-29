@@ -164,7 +164,7 @@ class ManagedSanModule(object):
             self.module.exit_json(**exit_status)
 
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_resource(self, data):
         return self.oneview_client.managed_sans.get_by_name(data['name'])

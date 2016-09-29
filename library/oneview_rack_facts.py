@@ -130,7 +130,7 @@ class RackFactsModule(object):
                                   ansible_facts=facts)
 
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
 
 def main():

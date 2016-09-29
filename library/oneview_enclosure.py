@@ -153,8 +153,8 @@ class EnclosureModule(object):
             elif state == 'refreshed':
                 self.__refresh(resource, data)
 
-        except Exception as e:
-            self.module.fail_json(msg=e.message)
+        except Exception as exception:
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, resource, data):
         resource_added = False

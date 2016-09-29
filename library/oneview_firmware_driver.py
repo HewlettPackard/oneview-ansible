@@ -90,7 +90,7 @@ class FirmwareDriverModule(object):
             else:
                 self.module.exit_json(changed=False, msg=FIRMWARE_DRIVER_ALREADY_ABSENT)
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_by_name(self, name):
         result = self.resource_client.get_by('name', name) or [None]

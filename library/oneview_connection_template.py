@@ -110,7 +110,7 @@ class ConnectionTemplateModule(object):
                                   ansible_facts=ansible_facts)
 
         except Exception as exception:
-            self.module.fail_json(msg=exception.args[0])
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data, resource):
 

@@ -115,7 +115,7 @@ class UnmanagedDeviceFactsModule(object):
             facts["unmanaged_devices"] = unmanaged_devices
             self.module.exit_json(ansible_facts=facts)
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_environmental_configuration(self, unmanaged_devices):
         environmental_configuration = None

@@ -266,7 +266,7 @@ class LogicalInterconnectModule(object):
                 self.module.exit_json(changed=changed, msg=msg)
 
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __compliance(self, uri):
         li = self.oneview_client.logical_interconnects.update_compliance(uri)
