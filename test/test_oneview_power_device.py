@@ -16,13 +16,12 @@
 import unittest
 import mock
 import yaml
-import sys
 
 from hpOneView.oneview_client import OneViewClient
 from oneview_power_device import PowerDeviceModule, POWER_DEVICE_ADDED, POWER_DEVICE_ALREADY_PRESENT, \
     POWER_DEVICE_DELETED, POWER_DEVICE_UPDATED, POWER_DEVICE_ALREADY_ABSENT, POWER_DEVICE_MANDATORY_FIELD_MISSING, \
     POWER_DEVICE_POWER_STATE_UPDATED, POWER_DEVICE_NOT_FOUND, POWER_DEVICE_REFRESH_STATE_UPDATED, \
-    POWER_DEVICE_UID_STATE_UPDATED, POWER_DEVICE_NEW_NAME_ALREADY_EXISTS, POWER_DEVICE_IPDU_ADDED
+    POWER_DEVICE_UID_STATE_UPDATED, POWER_DEVICE_IPDU_ADDED
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -182,42 +181,6 @@ class PowerDevicePresentStateSpec(unittest.TestCase):
             changed=True,
             msg=POWER_DEVICE_UPDATED,
             ansible_facts=dict(power_device={'name': 'name'})
-        )
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_power_device.AnsibleModule')
-    def test_should_fail_when_same_name_already_exists(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.power_devices.get_by.return_value = [DICT_DEFAULT_POWER_DEVICE]
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE_CHANGE)
-        mock_ansible_module.return_value = mock_ansible_instance
-        mock_ansible_instance.exit_json.side_effect = sys.exit
-
-        PowerDeviceModule().run()
-
-        mock_ansible_instance.exit_json.assert_called_once_with(
-            changed=False,
-            msg=POWER_DEVICE_NEW_NAME_ALREADY_EXISTS
-        )
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_power_device.AnsibleModule')
-    def test_should_fail_when_power_device_not_exists(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.power_devices.get_by.return_value = []
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE_CHANGE)
-        mock_ansible_module.return_value = mock_ansible_instance
-        mock_ansible_instance.exit_json.side_effect = sys.exit
-
-        PowerDeviceModule().run()
-
-        mock_ansible_instance.exit_json.assert_called_once_with(
-            changed=False,
-            msg=POWER_DEVICE_NOT_FOUND
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
