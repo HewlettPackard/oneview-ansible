@@ -111,9 +111,10 @@ class ManagedSanFactsModule(object):
                 options = self.module.params.get('options') or []
 
                 if facts['managed_sans'] and 'endpoints' in options:
-                    uri = facts['managed_sans'][0]['uri']
-                    environmental_configuration = self.resource_client.get_endpoints(uri)
-                    facts['managed_san_endpoints'] = environmental_configuration
+                    managed_san = facts['managed_sans'][0]
+                    if managed_san:
+                        environmental_configuration = self.resource_client.get_endpoints(managed_san['uri'])
+                        facts['managed_san_endpoints'] = environmental_configuration
             else:
                 facts['managed_sans'] = self.resource_client.get_all()
 
