@@ -106,8 +106,6 @@ RACK_UPDATED = 'Rack updated successfully.'
 RACK_DELETED = 'Rack deleted successfully.'
 RACK_ALREADY_EXIST = 'Rack already exists.'
 RACK_ALREADY_ABSENT = 'Nothing to do.'
-RACK_NOT_FOUND = 'Rack was not found for this operation.'
-RACK_NEW_NAME_ALREADY_EXISTS = 'Rack with new name already exists.'
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
@@ -147,7 +145,8 @@ class RackModule(object):
     def __present(self, data):
         resource = self.__get_by_name(data['name'])
 
-        self.__check_rename(data, resource)
+        if "newName" in data:
+            data["name"] = data.pop("newName")
 
         if not resource:
             return True, RACK_CREATED, self.oneview_client.racks.add(data)
@@ -180,20 +179,6 @@ class RackModule(object):
             msg = RACK_UPDATED
 
         return changed, msg, resource
-
-    def __check_rename(self, data, resource):
-
-        if "newName" not in data:
-            return
-
-        resource_new_name = self.__get_by_name(data['newName'])
-
-        if not resource:
-            self.module.exit_json(changed=False, msg=RACK_NOT_FOUND)
-        elif resource_new_name:
-            self.module.exit_json(changed=False, msg=RACK_NEW_NAME_ALREADY_EXISTS)
-
-        data["name"] = data.pop("newName")
 
     def __get_by_name(self, name):
         result = self.oneview_client.racks.get_by('name', name)
