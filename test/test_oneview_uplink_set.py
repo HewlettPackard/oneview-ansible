@@ -19,7 +19,7 @@ import mock
 from hpOneView.oneview_client import OneViewClient
 from oneview_uplink_set import UplinkSetModule
 from oneview_uplink_set import UPLINK_SET_ALREADY_ABSENT, UPLINK_SET_ALREADY_EXIST, UPLINK_SET_CREATED, \
-    UPLINK_SET_DELETED, UPLINK_SET_UPDATED, UPLINK_SET_NEW_NAME_INVALID, UPLINK_SET_KEY_REQUIRED
+    UPLINK_SET_DELETED, UPLINK_SET_UPDATED, UPLINK_SET_KEY_REQUIRED
 
 FAKE_MSG_ERROR = 'Fake message error'
 DEFAULT_UPLINK_NAME = 'Test Uplink Set'
@@ -207,27 +207,6 @@ class UplinkSetPresentStateSpec(unittest.TestCase):
         UplinkSetModule().run()
 
         mock_ov_instance.uplink_sets.update.assert_called_once_with(data_merged)
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_uplink_set.AnsibleModule')
-    def test_fail_rename_when_new_name_already_exist(self, mock_ansible_module, mock_ov_client_from_json_file):
-        data_merged = UPLINK_SET_FOUND_BY_KEY.copy()
-        data_merged['name'] = RENAMED_UPLINK_SET
-        params_to_rename = PARAMS_TO_RENAME.copy()
-
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.uplink_sets.get_by.return_value = EXISTENT_UPLINK_SETS
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(params_to_rename)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        UplinkSetModule().run()
-
-        mock_ansible_instance.exit_json.assert_called_once_with(
-            changed=False,
-            msg=UPLINK_SET_NEW_NAME_INVALID
-        )
 
 
 class UplinkSetAbsentStateSpec(unittest.TestCase):

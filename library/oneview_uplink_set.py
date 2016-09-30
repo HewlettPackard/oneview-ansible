@@ -111,7 +111,6 @@ UPLINK_SET_UPDATED = 'Uplink Set updated successfully.'
 UPLINK_SET_DELETED = 'Uplink Set deleted successfully.'
 UPLINK_SET_ALREADY_EXIST = 'Uplink Set already exists.'
 UPLINK_SET_ALREADY_ABSENT = 'Nothing to do.'
-UPLINK_SET_NEW_NAME_INVALID = 'Rename failed: the new name is being used by another Uplink Set.'
 UPLINK_SET_LOGICAL_INTERCONNECT_NOT_FOUND = "Logical Interconnect not found."
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
@@ -173,9 +172,6 @@ class UplinkSetModule(object):
 
     def __update(self, data, existent_resource):
         if 'newName' in data:
-            if self.__get_by(data['newName'], data['logicalInterconnectUri']):
-                self.module.exit_json(changed=False, msg=UPLINK_SET_NEW_NAME_INVALID)
-                return
             data['name'] = data.pop('newName')
 
         resource_to_update = existent_resource.copy()
