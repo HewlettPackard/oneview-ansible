@@ -122,8 +122,6 @@ DATACENTER_ALREADY_UPDATED = 'Data Center is already present.'
 DATACENTER_REMOVED = 'Data Center removed successfully.'
 DATACENTER_ALREADY_ABSENT = 'Data Center is already absent.'
 RACK_NOT_FOUND = 'Rack was not found.'
-DATACENTER_NEW_NAME_ALREADY_EXISTS = 'Data Center with new name already exists.'
-DATACENTER_NOT_FOUND = 'Data Center was not found for this operation.'
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
@@ -168,7 +166,8 @@ class DatacenterModule(object):
         changed = False
         msg = ''
 
-        self.__check_rename(data, resource)
+        if "newName" in data:
+            data["name"] = data.pop("newName")
 
         self.__replace_name_by_uris(data)
 
@@ -199,20 +198,6 @@ class DatacenterModule(object):
                 resource_name = content.pop('resourceName', None)
                 if resource_name:
                     content['resourceUri'] = self.__get_rack_by_name(resource_name)['uri']
-
-    def __check_rename(self, data, resource):
-
-        if "newName" not in data:
-            return
-
-        resource_new_name = (self.oneview_client.datacenters.get_by("name", data['newName']) or [None])[0]
-
-        if not resource:
-            self.module.exit_json(changed=False, msg=DATACENTER_NOT_FOUND)
-        elif resource_new_name:
-            self.module.exit_json(changed=False, msg=DATACENTER_NEW_NAME_ALREADY_EXISTS)
-
-        data["name"] = data.pop("newName")
 
     def __get_rack_by_name(self, name):
         racks = self.oneview_client.racks.get_by('name', name)
