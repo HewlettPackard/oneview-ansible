@@ -17,8 +17,13 @@
 ###
 
 from ansible.module_utils.basic import *
-from hpOneView.oneview_client import OneViewClient
-from hpOneView.common import resource_compare
+try:
+    from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import resource_compare
+
+    HAS_HPE_ONEVIEW = True
+except ImportError:
+    HAS_HPE_ONEVIEW = False
 
 DOCUMENTATION = '''
 ---
@@ -208,6 +213,7 @@ LOGICAL_INTERCONNECT_NOT_FOUND = 'Logical Interconnect not found.'
 LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND = 'Ethernet network not found: '
 LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED = 'Nothing to do.'
 LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED = 'No options provided.'
+HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class LogicalInterconnectModule(object):
@@ -225,6 +231,8 @@ class LogicalInterconnectModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):

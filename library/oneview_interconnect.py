@@ -17,7 +17,12 @@
 ###
 
 from ansible.module_utils.basic import *
-from hpOneView.oneview_client import OneViewClient
+try:
+    from hpOneView.oneview_client import OneViewClient
+
+    HAS_HPE_ONEVIEW = True
+except ImportError:
+    HAS_HPE_ONEVIEW = False
 
 DOCUMENTATION = '''
 ---
@@ -100,6 +105,7 @@ interconnect:
 
 MISSING_KEY_MSG = "You must provide the interconnect name or the interconnect ip address"
 INTERCONNECT_WAS_NOT_FOUND = "The Interconnect was not found."
+HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class InterconnectModule(object):
@@ -132,6 +138,8 @@ class InterconnectModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):

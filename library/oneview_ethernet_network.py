@@ -16,8 +16,13 @@
 # limitations under the License.
 ###
 from ansible.module_utils.basic import *
-from hpOneView.oneview_client import OneViewClient
-from hpOneView.common import resource_compare
+try:
+    from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import resource_compare
+
+    HAS_HPE_ONEVIEW = True
+except ImportError:
+    HAS_HPE_ONEVIEW = False
 
 DOCUMENTATION = '''
 ---
@@ -136,6 +141,7 @@ MISSING_ETHERNET_NETWORKS_CREATED = 'Some missing Ethernet Networks were created
 ETHERNET_NETWORKS_ALREADY_EXIST = 'The specified Ethernet Networks already exist.'
 ETHERNET_NETWORK_CONNECTION_TEMPLATE_RESET = 'Ethernet Network connection template was reset to the default.'
 ETHERNET_NETWORK_NOT_FOUND = 'Ethernet Network was not found.'
+HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class EthernetNetworkModule(object):
@@ -150,6 +156,8 @@ class EthernetNetworkModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):

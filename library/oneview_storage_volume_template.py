@@ -16,8 +16,13 @@
 # limitations under the License.
 ###
 from ansible.module_utils.basic import *
-from hpOneView.oneview_client import OneViewClient
-from hpOneView.common import resource_compare
+try:
+    from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import resource_compare
+
+    HAS_HPE_ONEVIEW = True
+except ImportError:
+    HAS_HPE_ONEVIEW = False
 
 DOCUMENTATION = '''
 ---
@@ -93,6 +98,7 @@ STORAGE_VOLUME_TEMPLATE_ALREADY_UPDATED = 'Storage Volume Template is already up
 STORAGE_VOLUME_TEMPLATE_DELETED = 'Storage Volume Template deleted successfully.'
 STORAGE_VOLUME_TEMPLATE_ALREADY_ABSENT = 'Storage Volume Template is already absent.'
 STORAGE_VOLUME_TEMPLATE_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: data.name"
+HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class StorageVolumeTemplateModule(object):
@@ -107,6 +113,8 @@ class StorageVolumeTemplateModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):

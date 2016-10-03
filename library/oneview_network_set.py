@@ -17,8 +17,13 @@
 ###
 
 from ansible.module_utils.basic import *
-from hpOneView.oneview_client import OneViewClient
-from hpOneView.common import resource_compare
+try:
+    from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import resource_compare
+
+    HAS_HPE_ONEVIEW = True
+except ImportError:
+    HAS_HPE_ONEVIEW = False
 
 DOCUMENTATION = '''
 ---
@@ -93,6 +98,7 @@ NETWORK_SET_ALREADY_EXIST = 'Network Set already exists.'
 NETWORK_SET_ALREADY_ABSENT = 'Nothing to do.'
 NETWORK_SET_NEW_NAME_INVALID = 'Rename failed: the new name provided is being used by another Network Set.'
 NETWORK_SET_ENET_NETWORK_NOT_FOUND = 'Ethernet network not found: '
+HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class NetworkSetModule(object):
@@ -107,6 +113,8 @@ class NetworkSetModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):

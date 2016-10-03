@@ -16,8 +16,13 @@
 # limitations under the License.
 ###
 from ansible.module_utils.basic import *
-from hpOneView.oneview_client import OneViewClient
-from hpOneView.common import resource_compare
+try:
+    from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import resource_compare
+
+    HAS_HPE_ONEVIEW = True
+except ImportError:
+    HAS_HPE_ONEVIEW = False
 
 DOCUMENTATION = '''
 ---
@@ -126,6 +131,7 @@ MANAGED_SAN_NOT_FOUND = 'Managed SAN was not found for this operation.'
 MANAGED_SAN_NO_CHANGES_PROVIDED = 'The Managed SAN is already compliant.'
 MANAGED_SAN_ENDPOINTS_CSV_FILE_CREATED = 'SAN endpoints CSV file created successfully.'
 MANAGED_SAN_ISSUES_REPORT_CREATED = 'Unexpected zoning report created successfully.'
+HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class ManagedSanModule(object):
@@ -140,6 +146,8 @@ class ManagedSanModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):

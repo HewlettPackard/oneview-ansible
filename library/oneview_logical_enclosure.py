@@ -16,8 +16,13 @@
 # limitations under the License.
 ###
 from ansible.module_utils.basic import *
-from hpOneView.common import resource_compare
-from hpOneView.oneview_client import OneViewClient
+try:
+    from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import resource_compare
+
+    HAS_HPE_ONEVIEW = True
+except ImportError:
+    HAS_HPE_ONEVIEW = False
 
 DOCUMENTATION = '''
 ---
@@ -141,6 +146,7 @@ LOGICAL_ENCLOSURE_FIRMWARE_UPDATED = 'Logical Enclosure firmware updated.'
 LOGICAL_ENCLOSURE_CONFIGURATION_SCRIPT_UPDATED = 'Logical Enclosure configuration script updated.'
 LOGICAL_ENCLOSURE_DUMP_GENERATED = 'Logical Enclosure support dump generated.'
 LOGICAL_ENCLOSURE_RECONFIGURED = 'Logical Enclosure configuration reapplied.'
+HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class LogicalEnclosureModule(object):
@@ -156,6 +162,8 @@ class LogicalEnclosureModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):

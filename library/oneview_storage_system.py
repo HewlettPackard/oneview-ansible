@@ -16,8 +16,13 @@
 # limitations under the License.
 ###
 from ansible.module_utils.basic import *
-from hpOneView.common import resource_compare
-from hpOneView.oneview_client import OneViewClient
+try:
+    from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import resource_compare
+
+    HAS_HPE_ONEVIEW = True
+except ImportError:
+    HAS_HPE_ONEVIEW = False
 
 DOCUMENTATION = '''
 ---
@@ -94,6 +99,7 @@ STORAGE_SYSTEM_ALREADY_ABSENT = 'Storage System is already absent.'
 STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING = \
     'At least one mandatory field must be provided: name or credentials.ip_hostname.'
 STORAGE_SYSTEM_CREDENTIALS_MANDATORY = "The attribute 'credentials' is mandatory for Storage System creation."
+HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class StorageSystemModule(object):
@@ -108,6 +114,8 @@ class StorageSystemModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
