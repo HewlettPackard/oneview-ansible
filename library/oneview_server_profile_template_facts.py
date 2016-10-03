@@ -80,7 +80,6 @@ new_profile:
 
 
 class ServerProfileTemplateFactsModule(object):
-
     argument_spec = dict(
         config=dict(required=True, type='str'),
         name=dict(required=False, type='str'),
@@ -107,7 +106,10 @@ class ServerProfileTemplateFactsModule(object):
 
     def __get_by_name(self, name):
         template = self.resource_client.get_by_name(name=name)
-        facts = dict(server_profile_templates=template)
+        if not template:
+            return dict(server_profile_templates=[])
+
+        facts = dict(server_profile_templates=[template])
 
         options = self.module.params["options"]
 
