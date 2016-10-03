@@ -20,7 +20,7 @@ import yaml
 from hpOneView.oneview_client import OneViewClient
 from oneview_storage_system import StorageSystemModule, STORAGE_SYSTEM_ADDED, STORAGE_SYSTEM_ALREADY_UPDATED, \
     STORAGE_SYSTEM_UPDATED, STORAGE_SYSTEM_DELETED, STORAGE_SYSTEM_ALREADY_ABSENT, \
-    STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING
+    STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING, STORAGE_SYSTEM_CREDENTIALS_MANDATORY
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -166,6 +166,23 @@ class StorageSystemPresentStateSpec(unittest.TestCase):
 
         mock_ansible_instance.fail_json.assert_called_once_with(
             msg=STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_storage_system.AnsibleModule')
+    def test_should_fail_when_credentials_attribute_is_missing(self, mock_ansible_module,
+                                                               mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.storage_systems.get_by_name.return_value = []
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_SYSTEM_BY_NAME)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        StorageSystemModule().run()
+
+        mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=STORAGE_SYSTEM_CREDENTIALS_MANDATORY
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')

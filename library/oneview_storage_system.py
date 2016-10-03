@@ -93,6 +93,7 @@ STORAGE_SYSTEM_DELETED = 'Storage System deleted successfully.'
 STORAGE_SYSTEM_ALREADY_ABSENT = 'Storage System is already absent.'
 STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING = \
     'At least one mandatory field must be provided: name or credentials.ip_hostname.'
+STORAGE_SYSTEM_CREDENTIALS_MANDATORY = "The attribute 'credentials' is mandatory for Storage System creation."
 
 
 class StorageSystemModule(object):
@@ -133,6 +134,8 @@ class StorageSystemModule(object):
         msg = ''
 
         if not resource:
+            if 'credentials' not in data:
+                raise Exception(STORAGE_SYSTEM_CREDENTIALS_MANDATORY)
             resource = self.oneview_client.storage_systems.add(data['credentials'])
             changed = True
             msg = STORAGE_SYSTEM_ADDED

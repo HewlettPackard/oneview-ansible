@@ -17,6 +17,8 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    storage_domain: 'TestDomain'
+    storage_system_name : 'ThreePAR7200-4555'
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
@@ -29,15 +31,14 @@
                 ip_hostname: '{{ storage_system_ip_hostname }}'
                 username: '{{ storage_system_username }}'
                 password: '{{ storage_system_password }}'
-            managedDomain: TestDomain
+            managedDomain: '{{ storage_domain }}'
             managedPools:
-              - domain: TestDomain
+              - domain: '{{ storage_domain }}'
                 type: StoragePoolV2
                 name: CPG_FC-AO
                 deviceType: FC
 
       delegate_to: localhost
-
 
     - name: Update the Storage System adding another managed pool
       oneview_storage_system:
@@ -48,9 +49,9 @@
                 ip_hostname: '{{ storage_system_ip_hostname }}'
                 username: '{{ storage_system_username }}'
                 password: '{{ storage_system_password }}'
-            managedDomain: TestDomain
+            managedDomain: '{{ storage_domain }}'
             managedPools:
-              - domain: TestDomain
+              - domain: '{{ storage_domain }}'
                 type: StoragePoolV2
                 name: CPG_FC-AO
                 deviceType: FC
@@ -60,22 +61,20 @@
                 deviceType: FC
       delegate_to: localhost
 
-
     - name: Update the Storage System removing one managed pool using name as key
       oneview_storage_system:
         config: "{{ config }}"
         state: present
         data:
-            name: ThreePAR7200-4555
-            managedDomain: TestDomain
+            name: '{{ storage_system_name }}'
+            managedDomain: '{{ storage_domain }}'
             managedPools:
-              - domain: TestDomain
+              - domain: '{{ storage_domain }}'
                 type: StoragePoolV2
                 name: CPG-SSD-AO
                 deviceType: FC
 
       delegate_to: localhost
-
 
     - name: Remove the storage system by its IP
       oneview_storage_system:
@@ -83,14 +82,13 @@
         state: absent
         data:
             credentials:
-                ip_hostname: 172.18.11.12
+                ip_hostname: '{{ storage_system_ip_hostname }}'
       delegate_to: localhost
-
 
     - name: Do nothing when the storage system is already removed (by name)
       oneview_storage_system:
         config: "{{ config }}"
         state: absent
         data:
-            name: ThreePAR7200-4555
+            name: '{{ storage_system_name }}'
       delegate_to: localhost
