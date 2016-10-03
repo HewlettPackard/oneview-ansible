@@ -27,7 +27,7 @@ description:
     - "Provides an interface to manage Storage Volume Template resources. Can create, update and delete."
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView"
+    - "hpOneView >= 2.0.1"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     config:

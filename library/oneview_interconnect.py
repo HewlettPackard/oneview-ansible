@@ -28,7 +28,7 @@ description:
       UID light state, perform device reset, reset port protection, and update the interconnect ports.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView"
+    - "hpOneView >= 2.0.1"
 author: "Bruno Souza (@bsouza)"
 options:
     config:

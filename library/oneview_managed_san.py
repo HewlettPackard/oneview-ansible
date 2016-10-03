@@ -28,7 +28,7 @@ description:
        a SAN endpoints CSV file, and create an unexpected zoning issue report."
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView"
+    - "hpOneView >= 2.0.1"
 author: "Mariana Kreisig (@marikrg)"
 options:
     config:

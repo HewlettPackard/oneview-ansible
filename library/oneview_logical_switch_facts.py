@@ -28,7 +28,7 @@ description:
     - Retrieve the facts about one or more of the Logical Switches from OneView.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView"
+    - "hpOneView >= 2.0.1"
 author: "Mariana Kreisig (@marikrg)"
 options:
     config:

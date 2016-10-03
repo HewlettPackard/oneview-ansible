@@ -26,7 +26,7 @@ description:
     - Retrieve facts about Storage Volume Templates of the OneView.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView"
+    - "hpOneView >= 2.0.1"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     config:

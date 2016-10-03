@@ -26,7 +26,7 @@ description:
     - "Provides an interface to manage Storage Pool resources. Can add and remove."
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView"
+    - "hpOneView >= 2.0.1"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     config:
