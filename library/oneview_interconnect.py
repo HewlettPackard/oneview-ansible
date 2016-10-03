@@ -156,7 +156,7 @@ class InterconnectModule(object):
                 ansible_facts=dict(interconnect=resource)
             )
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_interconnect(self):
         interconnect_ip = self.module.params['ip']

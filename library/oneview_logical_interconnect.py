@@ -20,7 +20,6 @@ from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
 from hpOneView.common import resource_compare
 
-
 DOCUMENTATION = '''
 ---
 module: oneview_logical_interconnect
@@ -212,7 +211,6 @@ LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED = 'No options provided.'
 
 
 class LogicalInterconnectModule(object):
-
     argument_spec = dict(
         config=dict(required=True, type='str'),
         state=dict(
@@ -268,7 +266,7 @@ class LogicalInterconnectModule(object):
                 self.module.exit_json(changed=changed, msg=msg)
 
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __compliance(self, uri):
         li = self.oneview_client.logical_interconnects.update_compliance(uri)
@@ -312,7 +310,7 @@ class LogicalInterconnectModule(object):
         fcoe_settings_merged = self.__merge_network_settings('fcoeSettings', resource, data)
 
         if resource_compare(resource['ethernetSettings'], ethernet_settings_merged) and \
-           resource_compare(resource['fcoeSettings'], fcoe_settings_merged):
+                resource_compare(resource['fcoeSettings'], fcoe_settings_merged):
 
             self.module.exit_json(changed=False,
                                   msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
@@ -406,7 +404,9 @@ class LogicalInterconnectModule(object):
         return self.oneview_client.logical_interconnects.get_port_monitor(uri)
 
     def __merge_network_settings(self, settings_type, resource, data):
-        settings_merged = resource[settings_type].copy()
+        settings_merged = {}
+        if resource.get(settings_type):
+            settings_merged = resource[settings_type].copy()
 
         if settings_type in data:
             settings_merged.update(data[settings_type])

@@ -140,7 +140,7 @@ class UplinkSetModule(object):
                 self.module.exit_json(changed=changed, msg=message)
 
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __absent(self, data):
         resource = self.__get_by(data['name'], data['logicalInterconnectUri'])

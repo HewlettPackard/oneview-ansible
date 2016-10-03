@@ -85,7 +85,7 @@ class InterconnectTypeFactsModule(object):
                 self.__get_all()
 
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_by_name(self, name):
         interconnect_types = self.oneview_client.interconnect_types.get_by('name', name)

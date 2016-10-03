@@ -118,7 +118,7 @@ class NetworkSetFactsModule(object):
                                   ansible_facts=dict(network_sets=network_sets))
 
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_all_network_sets(self, options):
         if 'withoutEthernet' in options:

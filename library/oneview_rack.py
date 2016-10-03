@@ -134,7 +134,7 @@ class RackModule(object):
             self.module.exit_json(changed=changed, msg=msg, **facts)
 
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data):
         resource = self.__get_by_name(data['name'])

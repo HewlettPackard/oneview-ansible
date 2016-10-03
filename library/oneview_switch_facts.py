@@ -108,8 +108,9 @@ class SwitchFactsModule(object):
                 facts['switches'] = self.resource_client.get_all()
 
             self.module.exit_json(changed=False, ansible_facts=facts)
-        except Exception as e:
-            self.module.fail_json(msg=e.message)
+
+        except Exception as exception:
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
 
 def main():

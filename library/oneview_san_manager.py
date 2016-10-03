@@ -124,7 +124,7 @@ class SanManagerModule(object):
                 self.__absent(data)
 
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data):
         resource = self.oneview_client.san_managers.get_by_provider_display_name(data['providerDisplayName'])

@@ -124,7 +124,7 @@ class EthernetNetworkFactsModule(object):
             self.module.exit_json(changed=False, ansible_facts=ansible_facts)
 
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __gather_optional_facts(self, options, ethernet_network):
         options = transform_list_to_dict(options)

@@ -93,7 +93,7 @@ class StoragePoolFactsModule(object):
                                   ansible_facts=dict(storage_pools=storage_pool))
 
         except Exception as exception:
-            self.module.fail_json(msg=exception.message)
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
 
 def main():
