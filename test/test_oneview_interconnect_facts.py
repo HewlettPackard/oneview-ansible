@@ -20,7 +20,6 @@ import mock
 from hpOneView.oneview_client import OneViewClient
 from oneview_interconnect_facts import InterconnectFactsModule
 
-
 ERROR_MSG = 'Fake message error'
 
 INTERCONNECT_NAME = "0000A66102, interconnect 2"
@@ -28,34 +27,54 @@ INTERCONNECT_NAME = "0000A66102, interconnect 2"
 PARAMS_FOR_GET_ALL = dict(
     config='config.json',
     name=None,
-    gather_name_servers=False
 )
 
 PARAMS_FOR_GET_BY_NAME = dict(
     config='config.json',
-    name=INTERCONNECT_NAME,
-    gather_name_servers=False
+    name=INTERCONNECT_NAME
 )
 
 PARAMS_FOR_GET_NAME_SERVERS = dict(
     config='config.json',
     name=INTERCONNECT_NAME,
-    gather_name_servers=True
+    options=['nameServers']
 )
 
 
-def create_ansible_mock(params):
-    mock_params = mock.Mock()
-    mock_params.__getitem__ = mock.Mock(side_effect=lambda name: params[name])
-
+def create_ansible_mock(dict_params):
     mock_ansible = mock.Mock()
-    mock_ansible.params = mock_params
-
+    mock_ansible.params = dict_params
     return mock_ansible
 
 
-class InterconnectFactsSpec(unittest.TestCase):
+INTERCONNECT_URI = "/rest/interconnects/53fa7d35-1cc8-46c1-abf0-6af091a1aed3"
+PORT_NAME = "d1"
+SUBPORT_NUMBER = 1
 
+PARAMS = dict(
+    config='config.json',
+    name=INTERCONNECT_NAME,
+    options=['statistics']
+)
+
+PARAMS_FOR_PORT_STATISTICS = dict(
+    config='config.json',
+    name=INTERCONNECT_NAME,
+    options=[{'portStatistics': PORT_NAME}]
+)
+
+PARAMS_FOR_SUBPORT_STATISTICS = dict(
+    config='config.json',
+    name=INTERCONNECT_NAME,
+    options=[{'subPortStatistics': {'portName': PORT_NAME, 'subportNumber': SUBPORT_NUMBER}}]
+)
+
+MOCK_INTERCONNECTS = [
+    dict(uidState='On', uri=INTERCONNECT_URI)
+]
+
+
+class InterconnectFactsSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_interconnect_facts.AnsibleModule')
     def test_should_get_all_interconnects(self, mock_ansible_module, mock_ov_from_file):
@@ -95,10 +114,8 @@ class InterconnectFactsSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_interconnect_facts.AnsibleModule')
     def test_should_get_interconnects_by_interconnect_name(self, mock_ansible_module, mock_ov_from_file):
-        fake_interconnects = [dict(uidState='On', name=INTERCONNECT_NAME)]
-
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.interconnects.get_by.return_value = fake_interconnects
+        mock_ov_instance.interconnects.get_by.return_value = MOCK_INTERCONNECTS
 
         mock_ov_from_file.return_value = mock_ov_instance
 
@@ -111,18 +128,16 @@ class InterconnectFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(interconnects=fake_interconnects)
+            ansible_facts=dict(interconnects=MOCK_INTERCONNECTS)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_interconnect_facts.AnsibleModule')
     def test_should_get_interconnect_name_servers(self, mock_ansible_module, mock_ov_from_file):
-        fake_uri = '/rest/interconnects/9b8f7ec0-52b3-475e-84f4-c4eac51c2c20'
-        fake_interconnects = [dict(uidState='On', name=INTERCONNECT_NAME, uri=fake_uri)]
         fake_name_servers = [dict(t=1)]
 
         mock_ov_instance = mock.Mock()
-        mock_ov_instance.interconnects.get_by.return_value = fake_interconnects
+        mock_ov_instance.interconnects.get_by.return_value = MOCK_INTERCONNECTS
         mock_ov_instance.interconnects.get_name_servers.return_value = fake_name_servers
 
         mock_ov_from_file.return_value = mock_ov_instance
@@ -133,11 +148,95 @@ class InterconnectFactsSpec(unittest.TestCase):
         InterconnectFactsModule().run()
 
         mock_ov_instance.interconnects.get_by.assert_called_once_with('name', INTERCONNECT_NAME)
-        mock_ov_instance.interconnects.get_name_servers.assert_called_once_with(fake_uri)
+        mock_ov_instance.interconnects.get_name_servers.assert_called_once_with(INTERCONNECT_URI)
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(interconnects=fake_interconnects, name_servers=fake_name_servers)
+            ansible_facts=dict(interconnects=MOCK_INTERCONNECTS, interconnect_name_servers=fake_name_servers)
+        )
+
+
+class InterconnectStatisticsFactsSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_interconnect_facts.AnsibleModule')
+    def test_should_get_interconnect_statistics_by_interconnect_name(self, mock_ansible_module,
+                                                                     mock_ov_from_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.interconnects.get_by.return_value = MOCK_INTERCONNECTS
+
+        fake_statistics = dict()
+        mock_ov_instance.interconnects.get_statistics.return_value = fake_statistics
+
+        mock_ov_from_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        InterconnectFactsModule().run()
+
+        mock_ov_instance.interconnects.get_statistics.assert_called_once_with(INTERCONNECT_URI)
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                interconnects=MOCK_INTERCONNECTS,
+                interconnect_statistics=fake_statistics,
+
+            )
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_interconnect_facts.AnsibleModule')
+    def test_should_gather_facts_about_interconnect_port_statistics(self, mock_ansible_module, mock_ov_from_file):
+        fake_statistics = dict(name='test')
+
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.interconnects.get_by.return_value = MOCK_INTERCONNECTS
+        mock_ov_instance.interconnects.get_statistics.return_value = fake_statistics
+
+        mock_ov_from_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PORT_STATISTICS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        InterconnectFactsModule().run()
+
+        mock_ov_instance.interconnects.get_statistics.assert_called_once_with(INTERCONNECT_URI, PORT_NAME)
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                interconnects=MOCK_INTERCONNECTS,
+                interconnect_port_statistics=fake_statistics,
+            )
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_interconnect_facts.AnsibleModule')
+    def test_should_gather_facts_about_interconnect_subport_statistics(self, mock_ansible_module, mock_ov_from_file):
+        fake_statistics = dict(name='test')
+
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.interconnects.get_by.return_value = MOCK_INTERCONNECTS
+        mock_ov_instance.interconnects.get_subport_statistics.return_value = fake_statistics
+
+        mock_ov_from_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_SUBPORT_STATISTICS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        InterconnectFactsModule().run()
+
+        mock_ov_instance.interconnects.get_subport_statistics.assert_called_once_with(
+            INTERCONNECT_URI,
+            PORT_NAME,
+            SUBPORT_NUMBER
+        )
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                interconnects=MOCK_INTERCONNECTS,
+                interconnect_subport_statistics=fake_statistics
+            )
         )
 
 

@@ -18,6 +18,7 @@
 
 from ansible.module_utils.basic import *
 from hpOneView.oneview_client import OneViewClient
+from hpOneView.common import transform_list_to_dict
 
 DOCUMENTATION = '''
 ---
@@ -38,11 +39,17 @@ options:
       description:
         - Interconnect name
       required: false
-    gather_name_servers:
+    options:
       description:
-        - If true facts about the name servers will also be gathered.
+        - "List with options to gather additional facts about Interconnect.
+          Options allowed:
+          'nameServers' gets the named servers for an interconnect.
+          'statistics' gets the statistics from an interconnect.
+          'portStatistics' gets the statistics for the specified port name on an interconnect.
+          'subPortStatistics' gets the subport statistics on an interconnect."
+        - "To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be
+          ignored."
       required: false
-      default: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -53,16 +60,58 @@ EXAMPLES = '''
   oneview_interconnect_facts:
     config: "{{ config }}"
 
+- debug: var=interconnects
+
+
 - name: Gather facts about the interconnect that matches the specified name
   oneview_interconnect_facts:
     config: "{{ config }}"
-    name: "{{ interconnect_name }}"
+    name: '0000A66102, interconnect 2'
+
+- debug: var=interconnects
+
 
 - name: Gather facts about the interconnect that matches the specified name and its name servers
   oneview_interconnect_facts:
     config: "{{ config }}"
-    name: "{{ interconnect_name }}"
-    gather_name_servers: true
+    name: '0000A66102, interconnect 2'
+    options:
+        - nameServers
+
+- debug: var=interconnects
+- debug: var=interconnect_name_servers
+
+- name: Gather facts about statistics for the Interconnect named '0000A66102, interconnect 2'
+  oneview_interconnect_facts:
+    config: "{{ config }}"
+    name: '0000A66102, interconnect 2'
+    options:
+        - statistics
+
+- debug: var=interconnects
+- debug: var=interconnect_statistics
+
+- name: Gather facts about statistics for the Port named 'd3' of the Interconnect named '0000A66102, interconnect 2'
+  oneview_interconnect_facts:
+    config: "{{ config }}"
+    name: '0000A66102, interconnect 2'
+    options:
+        - portStatistics: 'd3'
+
+- debug: var=interconnects
+- debug: var=interconnect_port_statistics
+
+- name: Gather facts about statistics for the sub Port number '1' of the Interconnect named 'Enc2, interconnect 2'
+  oneview_interconnect_facts:
+    config: "{{ config }}"
+    name: 'Enc2, interconnect 2'
+    options:
+        - subPortStatistics:
+            portName: 'd4'
+            subportNumber: 1
+
+- debug: var=interconnects
+- debug: var=interconnect_subport_statistics
 '''
 
 RETURN = '''
@@ -70,19 +119,34 @@ interconnects:
     description: The list of interconnects.
     returned: Always, but can be null
     type: list
-name_servers:
+
+interconnect_name_servers:
     description: The named servers for an interconnect.
-    returned: When the gather_name_servers is true
+    returned: when requested, but can be null
     type: list
+
+interconnect_statistics:
+    description: Has all the OneView facts about the Interconnect Statistics.
+    returned: when requested, but can be null
+    type: dict
+
+interconnect_port_statistics:
+    description: Statistics for the specified port name on an interconnect.
+    returned: when requested, but can be null
+    type: dict
+
+interconnect_subport_statistics:
+    description: The subport statistics on an interconnect
+    returned: when requested, but can be null
+    type: dict
 '''
 
 
 class InterconnectFactsModule(object):
-
     argument_spec = dict(
         config=dict(required=True, type='str'),
         name=dict(required=False, type='str'),
-        gather_name_servers=dict(required=False, type='bool', default=False)
+        options=dict(required=False, type='list')
     )
 
     def __init__(self):
@@ -98,10 +162,9 @@ class InterconnectFactsModule(object):
                 interconnects = self.oneview_client.interconnects.get_by('name', interconnect_name)
                 facts['interconnects'] = interconnects
 
-                if interconnects and self.module.params['gather_name_servers']:
-                    interconnect_uri = interconnects[0]['uri']
-                    name_servers = self.oneview_client.interconnects.get_name_servers(interconnect_uri)
-                    facts['name_servers'] = name_servers
+                if interconnects and self.module.params.get('options'):
+                    self.__get_options(interconnects, facts)
+
             else:
                 facts['interconnects'] = self.oneview_client.interconnects.get_all()
 
@@ -111,6 +174,31 @@ class InterconnectFactsModule(object):
             )
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+
+    def __get_options(self, interconnects, facts):
+
+        options = transform_list_to_dict(self.module.params['options'])
+
+        interconnect_uri = interconnects[0]['uri']
+
+        if options.get('nameServers'):
+            name_servers = self.oneview_client.interconnects.get_name_servers(interconnect_uri)
+            facts['interconnect_name_servers'] = name_servers
+
+        if options.get('statistics'):
+            facts['interconnect_statistics'] = self.oneview_client.interconnects.get_statistics(interconnect_uri)
+
+        if options.get('portStatistics'):
+            port_name = options['portStatistics']
+            port_statistics = self.oneview_client.interconnects.get_statistics(interconnect_uri, port_name)
+            facts['interconnect_port_statistics'] = port_statistics
+
+        if options.get('subPortStatistics'):
+            facts['interconnect_subport_statistics'] = None
+            sub_options = options['subPortStatistics']
+            if type(sub_options) is dict and sub_options.get('portName') and sub_options.get('subportNumber'):
+                facts['interconnect_subport_statistics'] = self.oneview_client.interconnects.get_subport_statistics(
+                    interconnect_uri, sub_options['portName'], sub_options['subportNumber'])
 
 
 def main():
