@@ -16,8 +16,13 @@
 # limitations under the License.
 ###
 from ansible.module_utils.basic import *
-from hpOneView.oneview_client import OneViewClient
-from hpOneView.common import resource_compare
+try:
+    from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import resource_compare
+
+    HAS_HPE_ONEVIEW = True
+except ImportError:
+    HAS_HPE_ONEVIEW = False
 
 DOCUMENTATION = '''
 ---
@@ -112,6 +117,7 @@ UNMANAGED_DEVICE_UPDATED = 'Unmanaged Device updated successfully.'
 UNMANAGED_DEVICE_REMOVED = 'Unmanaged Device removed successfully.'
 UNMANAGED_DEVICE_SET_REMOVED = 'Unmanaged device set deleted successfully.'
 NOTHING_TO_DO = 'Nothing to do.'
+HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class UnmanagedDeviceModule(object):
@@ -127,6 +133,8 @@ class UnmanagedDeviceModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
         oneview_client = OneViewClient.from_json_file(self.module.params['config'])
         self.resource_client = oneview_client.unmanaged_devices
 

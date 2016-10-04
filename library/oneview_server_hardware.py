@@ -16,7 +16,12 @@
 # limitations under the License.
 ###
 from ansible.module_utils.basic import *
-from hpOneView.oneview_client import OneViewClient
+try:
+    from hpOneView.oneview_client import OneViewClient
+
+    HAS_HPE_ONEVIEW = True
+except ImportError:
+    HAS_HPE_ONEVIEW = False
 
 DOCUMENTATION = '''
 ---
@@ -131,6 +136,7 @@ SERVER_HARDWARE_REFRESH_STATE_UPDATED = 'Server Hardware refresh state changed s
 SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED = 'Server Hardware iLO firmware version updated successfully.'
 SERVER_HARDWARE_ENV_CONFIG_UPDATED = 'Server Hardware calibrated max power updated successfully.'
 SERVER_HARDWARE_NOT_FOUND = 'Server Hardware is required for this operation.'
+HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class ServerHardwareModule(object):
@@ -145,6 +151,8 @@ class ServerHardwareModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):

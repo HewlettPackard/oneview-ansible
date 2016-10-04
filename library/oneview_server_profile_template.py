@@ -17,8 +17,13 @@
 ###
 
 from ansible.module_utils.basic import *
-from hpOneView.common import resource_compare
-from hpOneView.oneview_client import OneViewClient
+try:
+    from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import resource_compare
+
+    HAS_HPE_ONEVIEW = True
+except ImportError:
+    HAS_HPE_ONEVIEW = False
 
 DOCUMENTATION = '''
 ---
@@ -82,6 +87,7 @@ TEMPLATE_UPDATED = 'Server Profile Template updated successfully.'
 TEMPLATE_DELETED = 'Server Profile Template deleted successfully.'
 TEMPLATE_ALREADY_EXIST = 'Server Profile Template already exists.'
 TEMPLATE_ALREADY_ABSENT = 'Nothing to do.'
+HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class ServerProfileTemplateModule(object):
@@ -99,6 +105,8 @@ class ServerProfileTemplateModule(object):
             argument_spec=self.argument_spec,
             supports_check_mode=False
         )
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
         oneview_client = OneViewClient.from_json_file(self.module.params['config'])
         self.resource_client = oneview_client.server_profile_templates
 

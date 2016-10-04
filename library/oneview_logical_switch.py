@@ -18,7 +18,13 @@
 
 from ansible.module_utils.basic import *
 from copy import deepcopy
-from hpOneView.oneview_client import OneViewClient
+try:
+    from hpOneView.oneview_client import OneViewClient
+
+    HAS_HPE_ONEVIEW = True
+except ImportError:
+    HAS_HPE_ONEVIEW = False
+
 
 DOCUMENTATION = '''
 ---
@@ -159,6 +165,7 @@ LOGICAL_SWITCH_REFRESHED = 'Logical Switch refreshed.'
 LOGICAL_SWITCH_NOT_FOUND = 'Logical Switch not found.'
 LOGICAL_SWITCH_GROUP_NOT_FOUND = 'Logical Switch Group not found.'
 LOGICAL_SWITCH_NEW_NAME_INVALID = 'Rename failed: the new name provided is being used by another Logical Switch.'
+HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class LogicalSwitchModule(object):
@@ -173,6 +180,8 @@ class LogicalSwitchModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
         self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):

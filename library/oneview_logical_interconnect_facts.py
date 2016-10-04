@@ -16,7 +16,12 @@
 # limitations under the License.
 ###
 from ansible.module_utils.basic import *
-from hpOneView.oneview_client import OneViewClient
+try:
+    from hpOneView.oneview_client import OneViewClient
+
+    HAS_HPE_ONEVIEW = True
+except ImportError:
+    HAS_HPE_ONEVIEW = False
 
 DOCUMENTATION = '''
 ---
@@ -150,6 +155,7 @@ telemetry_configuration:
 '''
 
 LOGICAL_INTERCONNECT_NOT_FOUND = 'Logical Interconnect not found.'
+HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class LogicalInterconnectFactsModule(object):
@@ -162,6 +168,8 @@ class LogicalInterconnectFactsModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
         logical_interconnects = OneViewClient.from_json_file(self.module.params['config']).logical_interconnects
 
         self.resource_client = logical_interconnects
