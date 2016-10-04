@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 ###
 # Copyright (2016) Hewlett Packard Enterprise Development LP
 #
@@ -18,13 +17,13 @@
 
 from ansible.module_utils.basic import *
 from copy import deepcopy
+
 try:
     from hpOneView.oneview_client import OneViewClient
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
     HAS_HPE_ONEVIEW = False
-
 
 DOCUMENTATION = '''
 ---
@@ -164,7 +163,6 @@ LOGICAL_SWITCH_ALREADY_ABSENT = 'Nothing to do.'
 LOGICAL_SWITCH_REFRESHED = 'Logical Switch refreshed.'
 LOGICAL_SWITCH_NOT_FOUND = 'Logical Switch not found.'
 LOGICAL_SWITCH_GROUP_NOT_FOUND = 'Logical Switch Group not found.'
-LOGICAL_SWITCH_NEW_NAME_INVALID = 'Rename failed: the new name provided is being used by another Logical Switch.'
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
@@ -230,8 +228,6 @@ class LogicalSwitchModule(object):
                 data['logicalSwitch']['switchCredentialConfiguration'] = resource['switchCredentialConfiguration']
 
             if 'newName' in data['logicalSwitch']:
-                if self.__get_by_new_name(data):
-                    self.module.exit_json(changed=False, msg=LOGICAL_SWITCH_NEW_NAME_INVALID)
                 data['logicalSwitch']['name'] = data['logicalSwitch'].pop('newName')
 
             self.__replace_group_name_by_uri(data)
@@ -269,10 +265,6 @@ class LogicalSwitchModule(object):
             return None
 
         result = self.oneview_client.logical_switches.get_by('name', data['logicalSwitch']['name'])
-        return result[0] if result else None
-
-    def __get_by_new_name(self, data):
-        result = self.oneview_client.logical_switches.get_by('name', data['logicalSwitch']['newName'])
         return result[0] if result else None
 
     def __replace_group_name_by_uri(self, data):
