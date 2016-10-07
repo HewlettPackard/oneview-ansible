@@ -15,13 +15,12 @@
 ###
 import unittest
 import mock
-import sys
 
 from hpOneView.oneview_client import OneViewClient
 from oneview_logical_switch import LogicalSwitchModule
 from oneview_logical_switch import LOGICAL_SWITCH_CREATED, LOGICAL_SWITCH_UPDATED, LOGICAL_SWITCH_DELETED, \
     LOGICAL_SWITCH_ALREADY_EXIST, LOGICAL_SWITCH_ALREADY_ABSENT, LOGICAL_SWITCH_REFRESHED, LOGICAL_SWITCH_NOT_FOUND, \
-    LOGICAL_SWITCH_GROUP_NOT_FOUND, LOGICAL_SWITCH_NEW_NAME_INVALID
+    LOGICAL_SWITCH_GROUP_NOT_FOUND
 from test.utils import create_ansible_mock
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -173,26 +172,6 @@ class LogicalSwitchUpdatedStateSpec(unittest.TestCase):
             changed=True,
             msg=LOGICAL_SWITCH_UPDATED,
             ansible_facts=dict(logical_switch=LOGICAL_SWITCH_FROM_ONEVIEW)
-        )
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_switch.AnsibleModule')
-    def test_should_not_update_when_new_name_in_use(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_switches.get_by.side_effect = [[LOGICAL_SWITCH_FROM_ONEVIEW], [{'uri': '/path'}]]
-        mock_ov_instance.logical_switches.update.return_value = LOGICAL_SWITCH_FROM_ONEVIEW
-        mock_ov_instance.logical_switch_groups.get_by.return_value = [{'uri': '/rest/logical-switch-groups/aa-bb-cc'}]
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_UPDATE)
-        mock_ansible_instance.exit_json.side_effect = sys.exit
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        LogicalSwitchModule().run()
-
-        mock_ansible_instance.exit_json.assert_called_once_with(
-            changed=False,
-            msg=LOGICAL_SWITCH_NEW_NAME_INVALID
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
