@@ -1,0 +1,414 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    ethernet_network_name_1: 'eth-net-1-oneview-ansible'
+    ethernet_network_name_2: 'eth-net-2-oneview-ansible'
+    fc_network_name_1: 'fc-network-1-oneview-ansible'
+    fc_network_name_2: 'fc-network-2-oneview-ansible'
+    storage_pool_name: 'FST_CPG2'  # The name of the storage pool to be imported must be set
+    storage_volume_name: 'volume-1-oneview-ansible'
+    logical_interconnect_group_name: 'lig-oneview-ansible'
+    enclosure_group_name: 'enclosure-group-oneview-ansible'
+    enclosure_name: 'enclosure-oneview-ansible'
+    server_profile_name: 'profile-oneview-ansible'
+    firmware_driver_name: 'Service Pack for ProLiant'  # The name of a Firmware Driver previously uploaded must be set
+  vars_files:
+    # The hostnames and credentials of the enclosure and storage system must be defined in the file /vars/config.yml
+    - '{{ playbook_dir }}/vars/config.yml'
+  tasks:
+    - name: Ensure the Ethernet Network '{{ethernet_network_name_1}}' is present
+      oneview_ethernet_network:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ ethernet_network_name_1 }}'
+          ethernetNetworkType: Tagged
+          vlanId: 301
+          purpose: General
+          privateNetwork: false
+          smartLink: true
+          bandwidth:
+              maximumBandwidth: 1000
+              typicalBandwidth: 1000
+      delegate_to: localhost
+
+    - set_fact: ethernet_network_1="{{ ethernet_network }}"
+
+    - name: Ensure the Ethernet Network '{{ethernet_network_name_2}}' is present
+      oneview_ethernet_network:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ ethernet_network_name_2 }}'
+          ethernetNetworkType: Tagged
+          vlanId: 302
+          purpose: General
+          privateNetwork: false
+          smartLink: true
+          bandwidth:
+              maximumBandwidth: 1000
+              typicalBandwidth: 1000
+      delegate_to: localhost
+
+    - set_fact: ethernet_network_2="{{ ethernet_network }}"
+
+    - name: Ensure the FC-Network '{{fc_network_name_1}}' is present
+      oneview_fc_network:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ fc_network_name_1 }}'
+          fabricType: FabricAttach
+          linkStabilityTime: 30
+          autoLoginRedistribution: true
+      delegate_to: localhost
+
+    - set_fact: fc_network_1="{{ fc_network }}"
+
+    - name: Ensure the FC-Network '{{fc_network_name_2}}' is present
+      oneview_fc_network:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ fc_network_name_2 }}'
+          fabricType: FabricAttach
+          linkStabilityTime: 30
+          autoLoginRedistribution: true
+      delegate_to: localhost
+      register: fc_network_2
+
+    - set_fact: fc_network_2="{{ fc_network }}"
+
+    - name: Gather facts about the Storage System with hostname '{{ storage_system_ip_hostname }}'
+      oneview_storage_system_facts:
+        config: "{{ config }}"
+        ip_hostname: "{{ storage_system_ip_hostname }}"
+      delegate_to: localhost
+
+    - name: Create the Storage System with one managed pool if it doesn't exist
+      oneview_storage_system:
+        config: "{{ config }}"
+        state: present
+        data:
+            credentials:
+                ip_hostname: '{{ storage_system_ip_hostname }}'
+                username: '{{ storage_system_username }}'
+                password: '{{ storage_system_password }}'
+            managedDomain: TestDomain
+            managedPools:
+              - domain: TestDomain
+                type: StoragePoolV2
+                name: CPG_FC-AO
+                deviceType: FC
+      when: (storage_systems is undefined or storage_systems is none)
+      delegate_to: localhost
+
+    - name: Set the storage system
+      set_fact: storage_system="{{ storage_systems }}"
+      when: (storage_system is undefined or storage_system is none)
+
+    - set_fact: storage_system_ports={{ storage_system['unmanagedPorts'] + storage_system['managedPorts'] }}
+    - set_fact: port_1={{ storage_system_ports | selectattr('portName', 'equalto', '0:1:1') | first }}
+    - set_fact: port_2={{ storage_system_ports | selectattr('portName', 'equalto', '0:1:2') | first }}
+
+    - name: Associate the fc-networks with the storage system
+      oneview_storage_system:
+        config: "{{ config }}"
+        state: present
+        data:
+            refreshState: RefreshPending
+            credentials:
+                ip_hostname: '{{ storage_system_ip_hostname }}'
+                username: '{{ storage_system_username }}'
+                password: '{{ storage_system_password }}'
+            managedPorts:
+              - name: '{{ port_1.name }}'
+                protocolType": "FC"
+                expectedNetworkUri: '{{ fc_network_1.uri }}'
+                portWwn: '{{ port_1.portWwn }}'
+                type:  '{{ port_1.type }}'
+                groupName: Auto
+              - name: '{{ port_2.name }}'
+                protocolType": "FC"
+                expectedNetworkUri: '{{ fc_network_2.uri }}'
+                portWwn: '{{ port_2.portWwn }}'
+                type:  '{{ port_2.type }}'
+                groupName: Auto
+      when: >
+            (port_1.expectedNetworkUri != '{{ fc_network_1.uri }}') or
+            (port_2.expectedNetworkUri != '{{ fc_network_2.uri }}')
+      delegate_to: localhost
+
+    - name: Ensure a Storage Pool is present
+      oneview_storage_pool:
+        config: "{{ config }}"
+        state: present
+        data:
+           storageSystemUri: '{{ storage_system.uri }}'
+           poolName: '{{ storage_pool_name }}'
+      delegate_to: localhost
+
+    - name: Gather facts about the Volume named '{{ storage_volume_name }}'
+      oneview_volume_facts:
+        config: "{{ config }}"
+        name: "{{ storage_volume_name }}"
+      delegate_to: localhost
+
+    - name: Set the storage volume to be associated with the Server Profile
+      set_fact: storage_volume="{{ storage_volumes.0 }}"
+      when: >
+            not(storage_volumes.0 is undefined or storage_system.0 is none) and
+            (storage_volumes.0.storagePoolUri == '{{ storage_pool.uri }}') and
+            (storage_volumes.0.storageSystemUri == '{{ storage_system.uri }}')
+
+    - name: Create the storage volume '{{ storage_volume_name }}'
+      oneview_volume:
+        config: '{{ config }}'
+        state: present
+        data:
+          name: '{{ storage_volume_name }}'
+          provisioningParameters:
+              provisionType: 'Full'
+              shareable: True
+              requestedCapacity: 1073741824  # 1GB
+              storagePoolUri: '{{ storage_pool.uri }}'
+          storageSystemUri: '{{ storage_system.uri }}'
+      when: (storage_volume is undefined)
+      delegate_to: localhost
+
+    - name: Gather facts about the Interconnect Type 'HP VC FlexFabric 10Gb/24-Port Module'
+      oneview_interconnect_type_facts:
+        config: "{{ config }}"
+        name: "HP VC FlexFabric 10Gb/24-Port Module"
+      delegate_to: localhost
+
+    - name: Ensure a Logical Interconnect Group is present with the given map and uplink sets
+      oneview_logical_interconnect_group:
+        config: "{{ config }}"
+        state: present
+        data:
+          type: 'logical-interconnect-groupV3'
+          name: '{{ logical_interconnect_group_name }}'
+          enclosureType: 'C7000'
+          interconnectMapTemplate:
+            interconnectMapEntryTemplates:
+              - logicalLocation:
+                  locationEntries:
+                    - relativeValue: 1
+                      type: 'Bay'
+                    - relativeValue: 1
+                      type: 'Enclosure'
+                permittedInterconnectTypeUri: '{{ interconnect_types.0.uri }}'
+              - logicalLocation:
+                  locationEntries:
+                    - relativeValue: 2
+                      type: 'Bay'
+                    - relativeValue: 1
+                      type: 'Enclosure'
+                permittedInterconnectTypeUri: '{{ interconnect_types.0.uri }}'
+          uplinkSets:
+            - logicalPortConfigInfos:
+                - desiredSpeed: "Auto"
+                  logicalLocation:
+                    locationEntries:
+                      - relativeValue: 1
+                        type: "Bay"
+                      - relativeValue: 21
+                        type: "Port"
+                      - relativeValue: 1
+                        type: "Enclosure"
+                - desiredSpeed: "Auto"
+                  logicalLocation:
+                    locationEntries:
+                      - relativeValue: 1
+                        type: "Bay"
+                      - relativeValue: 22
+                        type: "Port"
+                      - relativeValue: 1
+                        type: "Enclosure"
+              name: "EnetUplink1"
+              mode: "Auto"
+              networkType: "Ethernet"
+              networkUris:
+                - '{{ ethernet_network_1.uri }}'
+            - logicalPortConfigInfos:
+                - desiredSpeed: "Auto"
+                  logicalLocation:
+                    locationEntries:
+                      - relativeValue: 2
+                        type: "Bay"
+                      - relativeValue: 21
+                        type: "Port"
+                      - relativeValue: 1
+                        type: "Enclosure"
+                - desiredSpeed: "Auto"
+                  logicalLocation:
+                    locationEntries:
+                      - relativeValue: 2
+                        type: "Bay"
+                      - relativeValue: 22
+                        type: "Port"
+                      - relativeValue: 1
+                        type: "Enclosure"
+              name: "EnetUplink2"
+              mode: "Auto"
+              networkType: "Ethernet"
+              networkUris:
+                - '{{ ethernet_network_2.uri }}'
+            - logicalPortConfigInfos:
+                - desiredSpeed: "Auto"
+                  logicalLocation:
+                    locationEntries:
+                      - relativeValue: 1
+                        type: "Bay"
+                      - relativeValue: 17
+                        type: "Port"
+                      - relativeValue: 1
+                        type: "Enclosure"
+              name: "FcUplink1"
+              mode: "Auto"
+              networkType: "FibreChannel"
+              networkUris:
+                - '{{ fc_network_1.uri }}'
+            - logicalPortConfigInfos:
+                - desiredSpeed: "Auto"
+                  logicalLocation:
+                    locationEntries:
+                      - relativeValue: 1
+                        type: "Bay"
+                      - relativeValue: 18
+                        type: "Port"
+                      - relativeValue: 1
+                        type: "Enclosure"
+              name: "FcUplink2"
+              mode: "Auto"
+              networkType: "FibreChannel"
+              networkUris:
+                - '{{ fc_network_2.uri }}'
+      delegate_to: localhost
+
+    - name: Ensure the Enclosure Group is present
+      oneview_enclosure_group:
+        config: "{{ config }}"
+        state: present
+        data:
+            name: "{{ enclosure_group_name }}"
+            stackingMode: "Enclosure"
+            interconnectBayMappings:
+                - interconnectBay: 1
+                  logicalInterconnectGroupUri: '{{ logical_interconnect_group.uri }}'
+                - interconnectBay: 2
+                  logicalInterconnectGroupUri: '{{ logical_interconnect_group.uri }}'
+                - interconnectBay: 3
+                - interconnectBay: 4
+                - interconnectBay: 5
+                - interconnectBay: 6
+                - interconnectBay: 7
+                - interconnectBay: 8
+      delegate_to: localhost
+
+    - name: Gather facts about the Firmware Driver '{{ firmware_driver_name }}'
+      oneview_firmware_driver_facts:
+        config: "{{ config }}"
+        name: "{{ firmware_driver_name }}"
+      delegate_to: localhost
+
+    - name: 'Validate the firmware baseline to apply to the enclosure'
+      fail: msg="The firmware driver '{{ firmware_driver_name }}' was not found."
+      when: (firmware_drivers.0 is undefined or firmware_drivers.0 is none)
+
+    - name: Ensure the enclosure '{{ enclosure_name }}' is present
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: present
+        data:
+          enclosureGroupUri: '{{ enclosure_group.uri }}'
+          hostname: '{{ enclosure_hostname }}'
+          username: '{{ enclosure_username }}'
+          password: '{{ enclosure_password }}'
+          name: '{{ enclosure_name }}'
+          licensingIntent: 'OneView'
+          firmwareBaselineUri: '{{ firmware_drivers.0.uri}}'
+          updateFirmwareOn: EnclosureOnly
+          forceInstallFirmware: false
+      delegate_to: localhost
+
+    - name : Ensure the server profile '{{ server_profile_name }}' is present'
+      oneview_server_profile:
+         config: "{{ config }}"
+         state: "present"
+         data:
+           name: '{{ server_profile_name }}'
+           affinity: 'Bay'
+           macType: 'Virtual'
+           wwnType: 'Virtual'
+           serialNumberType: 'Physical'
+           enclosureGroupUri: '{{ enclosure_group.uri }}'
+           server_hardware: '{{ enclosure_name }}, bay 3'
+           connections:
+            - id: 1
+              name: 'connection1'
+              functionType: 'FibreChannel'
+              networkUri: '{{ fc_network_1.uri }}'
+              portId: Auto
+              requestedMbps: 2500
+              boot:
+                priority: NotBootable
+            - id: 2
+              name: 'connection2'
+              functionType: 'FibreChannel'
+              networkUri: '{{ fc_network_2.uri }}'
+              portId: None
+              requestedMbps: 2500
+              boot:
+                priority: NotBootable
+            - id: 3
+              name: 'connection3'
+              functionType: 'Ethernet'
+              networkUri: '{{ ethernet_network_1.uri }}'
+              portId: Auto
+              requestedMbps: 1000
+              boot:
+                priority: NotBootable
+            - id: 4
+              name: 'connection4'
+              functionType: 'Ethernet'
+              networkUri: '{{ ethernet_network_2.uri }}'
+              portId: Auto
+              requestedMbps: 1000
+              boot:
+                priority: NotBootable
+           sanStorage:
+             hostOSType: 'Windows 2012 / WS2012 R2'
+             manageSanStorage: true
+             volumeAttachments:
+               - id: 1
+                 volumeUri: '{{ storage_volume.uri }}'
+                 lunType: 'Auto'
+                 storagePaths:
+                   - isEnabled: true
+                     connectionId: 1
+                     storageTargetType: "Auto"
+                     storageTargets: []
+                   - isEnabled: true
+                     connectionId: 2
+                     storageTargetType: "Auto"
+                     storageTargets: []
+      delegate_to: localhost
+      register: result
