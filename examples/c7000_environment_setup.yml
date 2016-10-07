@@ -21,14 +21,15 @@
     ethernet_network_name_2: 'eth-net-2-oneview-ansible'
     fc_network_name_1: 'fc-network-1-oneview-ansible'
     fc_network_name_2: 'fc-network-2-oneview-ansible'
-    storage_pool_name: 'FST_CPG2'
+    storage_pool_name: 'FST_CPG2'  # The name of the storage pool to be imported must be set
     storage_volume_name: 'volume-1-oneview-ansible'
     logical_interconnect_group_name: 'lig-oneview-ansible'
     enclosure_group_name: 'enclosure-group-oneview-ansible'
     enclosure_name: 'enclosure-oneview-ansible'
-    firmware_driver_name: 'Service Pack for ProLiant'
     server_profile_name: 'profile-oneview-ansible'
+    firmware_driver_name: 'Service Pack for ProLiant'  # The name of a Firmware Driver previously uploaded must be set
   vars_files:
+    # The hostnames and credentials of the enclosure and storage system must be defined in the file /vars/config.yml
     - '{{ playbook_dir }}/vars/config.yml'
   tasks:
     - name: Ensure the Ethernet Network '{{ethernet_network_name_1}}' is present
