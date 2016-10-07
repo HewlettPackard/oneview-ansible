@@ -19,8 +19,7 @@ import mock
 from hpOneView.oneview_client import OneViewClient
 from oneview_rack import RackModule
 from oneview_rack import RACK_CREATED, RACK_ALREADY_EXIST, RACK_UPDATED
-from oneview_rack import RACK_DELETED, RACK_ALREADY_ABSENT, RACK_NOT_FOUND, RACK_NEW_NAME_ALREADY_EXISTS
-from copy import deepcopy
+from oneview_rack import RACK_DELETED, RACK_ALREADY_ABSENT
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -113,58 +112,6 @@ class RackPresentStateSpec(unittest.TestCase):
             msg=RACK_UPDATED,
             ansible_facts=dict(rack=DEFAULT_RACK_TEMPLATE)
         )
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_rack.AnsibleModule')
-    def test_should_warning_rename_when_rack_not_exist(self, mock_rack_module, mock_from_json):
-        params_for_present = deepcopy(PARAMS_FOR_PRESENT)
-        params_for_present['data']['newName'] = "Rename the Rack"
-
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.racks.get_by.return_value = []
-
-        mock_ov_instance.racks.add.return_value = DEFAULT_RACK_TEMPLATE
-        mock_from_json.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(params_for_present)
-        mock_rack_module.return_value = mock_ansible_instance
-
-        RackModule().run()
-
-        exit_json_calls = [
-            mock.call(changed=False, msg=RACK_NOT_FOUND),
-            mock.call(changed=True, msg=RACK_CREATED, ansible_facts=dict(rack=DEFAULT_RACK_TEMPLATE))]
-        mock_ansible_instance.exit_json.assert_has_calls(exit_json_calls)
-
-    @mock.patch('oneview_rack.resource_compare')
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_rack.AnsibleModule')
-    def test_should_warning_rename_when_new_name_in_use(self, mock_rack_module, mock_from_json, mock_resource_compare):
-        mock_resource_compare.return_value = False
-
-        params_for_present = deepcopy(PARAMS_FOR_PRESENT)
-        params_for_present['data']['newName'] = "Rename the Rack"
-
-        rack_renamed = deepcopy(DEFAULT_RACK_TEMPLATE)
-        rack_renamed['name'] = "Rename the Rack"
-
-        fail_msg = "There is already a rack with the name 'Rename the Rack'"
-
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.racks.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
-
-        mock_ov_instance.racks.add.return_value = DEFAULT_RACK_TEMPLATE
-        mock_from_json.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(params_for_present)
-        mock_rack_module.return_value = mock_ansible_instance
-        mock_ov_instance.racks.update.return_value = rack_renamed
-        mock_ov_instance.racks.update.side_effect = Exception(fail_msg)
-
-        RackModule().run()
-
-        mock_ov_instance.racks.update.assert_called_once_with(rack_renamed)
-
-        mock_ansible_instance.exit_json.assert_called_once_with(changed=False, msg=RACK_NEW_NAME_ALREADY_EXISTS)
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=fail_msg)
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_rack.AnsibleModule')
