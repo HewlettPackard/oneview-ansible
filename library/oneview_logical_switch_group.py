@@ -42,13 +42,13 @@ options:
     state:
         description:
             - Indicates the desired state for the Logical Switch Group resource.
-              'present' will ensure data properties are compliant to OneView.
+              'present' will ensure data properties are compliant with OneView.
               'absent' will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
         required: true
     data:
         description:
-            - List with Logical Switch Group properties and its associated states
+            - List with Logical Switch Group properties and its associated states.
         required: true
 notes:
     - "A sample configuration file for the config parameter can be found at:

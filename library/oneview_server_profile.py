@@ -68,7 +68,7 @@ options:
   state:
     description:
       - Indicates the desired state for the Server Profile resource by the end of the playbook execution.
-        'present' will ensure data properties are compliant to OneView.
+        'present' will ensure data properties are compliant with OneView.
         'absent' will remove the resource from OneView, if it exists.
         'compliant' will make the server profile complient with its server profile template, when this option was
         specified.
@@ -76,7 +76,7 @@ options:
     choices: ['present', 'absent', 'compliant']
   data:
     description:
-      - List with Server Profile properties
+      - List with Server Profile properties.
     required: true
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -122,25 +122,25 @@ EXAMPLES = '''
 RETURN = '''
 server_profile:
     description: Has the OneView facts about the Server Profile.
-    returned: On states 'present' and 'compliant'
+    returned: On states 'present' and 'compliant'.
     type: complex
 serial_number:
     description: Has the Server Profile serial number.
-    returned: On states 'present' and 'compliant'
+    returned: On states 'present' and 'compliant'.
     type: complex
 server_hardware:
     description: Has the OneView facts about the Server Hardware.
-    returned: On states 'present' and 'compliant'
+    returned: On states 'present' and 'compliant'.
     type: complex
 compliance_preview:
     description:
         Has the OneView facts about the manual and automatic updates required to make the server profile
         consistent with its template.
-    returned: On states 'present' and 'compliant'
+    returned: On states 'present' and 'compliant'.
     type: complex
 created:
     description: Indicates if the Server Profile was created.
-    returned: On states 'present' and 'compliant'
+    returned: On states 'present' and 'compliant'.
     type: bool
 '''
 

@@ -43,7 +43,7 @@ options:
     state:
         description:
             - Indicates the desired state for the Rack resource.
-              'present' will ensure data properties are compliant to OneView. To change the name of the Rack,
+              'present' will ensure data properties are compliant with OneView. To change the name of the Rack,
                a 'newName' in the data must be provided.
               'absent' will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
@@ -97,7 +97,7 @@ EXAMPLES = '''
 RETURN = '''
 rack:
     description: Has the facts about the OneView Racks.
-    returned: on state 'present'. Can be null.
+    returned: On state 'present'. Can be null.
     type: complex
 '''
 

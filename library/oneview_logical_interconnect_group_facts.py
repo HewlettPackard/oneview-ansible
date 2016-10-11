@@ -66,7 +66,7 @@ EXAMPLES = '''
 RETURN = '''
 logical_interconnect_groups:
     description: Has all the OneView facts about the Logical Interconnect Groups.
-    returned: always, but can be null
+    returned: Always, but can be null.
     type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'

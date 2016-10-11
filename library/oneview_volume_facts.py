@@ -102,17 +102,17 @@ EXAMPLES = '''
 RETURN = '''
 storage_volumes:
     description: Has all the OneView facts about the Volumes.
-    returned: always, but can be null
+    returned: Always, but can be null.
     type: complex
 
 attachable_volumes:
     description: Has all the facts about the attachable volumes managed by the appliance.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 extra_managed_volume_paths:
     description: Has all the facts about the extra managed storage volume paths from the appliance
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'

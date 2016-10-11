@@ -3,17 +3,15 @@
 ### Modules
 
   * [hpe_icsp - Deploy the operating system on a server using HPE ICsp.](#hpe_icsp)
+  * [oneview_connection_template - Manage OneView Connection Template resources.](#oneview_connection_template)
+  * [oneview_connection_template_facts - Retrieve facts about Connection Templates of the OneView.](#oneview_connection_template_facts)
+  * [oneview_datacenter - Manage OneView Data Center resources.](#oneview_datacenter)
+  * [oneview_datacenters_facts - Retrieve facts about Data Centers of the OneView.](#oneview_datacenters_facts)
   * [oneview_enclosure - Manage OneView Enclosure resources.](#oneview_enclosure)
-  * [oneview_enclosure_env_config_facts - Retrieve the facts about the environmental configuration of one enclosure.](#oneview_enclosure_env_config_facts)
   * [oneview_enclosure_facts - Retrieve facts about one or more Enclosures.](#oneview_enclosure_facts)
   * [oneview_enclosure_group - Manage OneView Enclosure Group resources.](#oneview_enclosure_group)
   * [oneview_enclosure_group_facts - Retrieve facts about one or more of the OneView Enclosure Groups.](#oneview_enclosure_group_facts)
-  * [oneview_enclosure_group_script_facts - Retrieve the configuration script associated with a OneView Enclosure Group.](#oneview_enclosure_group_script_facts)
-  * [oneview_enclosure_script_facts - Retrieve facts about the script of one enclosure.](#oneview_enclosure_script_facts)
-  * [oneview_enclosure_utilization_facts - Retrieve the facts about the utilization of one enclosure.](#oneview_enclosure_utilization_facts)
   * [oneview_ethernet_network - Manage OneView Ethernet Network resources.](#oneview_ethernet_network)
-  * [oneview_ethernet_network_associated_profile_facts - Retrieve the facts about the profiles which are using an Ethernet network.](#oneview_ethernet_network_associated_profile_facts)
-  * [oneview_ethernet_network_associated_uplink_group_facts - Gather facts about the uplink sets which are using an Ethernet network.](#oneview_ethernet_network_associated_uplink_group_facts)
   * [oneview_ethernet_network_facts - Retrieve the facts about one or more of the OneView Ethernet Networks.](#oneview_ethernet_network_facts)
   * [oneview_fabric_facts - Retrieve the facts about one or more of the OneView Fabrics.](#oneview_fabric_facts)
   * [oneview_fc_network - Manage OneView Fibre Channel Network resources.](#oneview_fc_network)
@@ -25,21 +23,54 @@
   * [oneview_firmware_driver_facts - Retrieve the facts about one or more of the OneView Firmware Drivers.](#oneview_firmware_driver_facts)
   * [oneview_interconnect - Manage the OneView Interconnect resources.](#oneview_interconnect)
   * [oneview_interconnect_facts - Retrieve facts about one or more of the OneView Interconnects.](#oneview_interconnect_facts)
-  * [oneview_interconnect_statistics_facts - Retrieve the statistics facts about one interconnect from OneView.](#oneview_interconnect_statistics_facts)
   * [oneview_interconnect_type_facts - Retrieve facts about one or more of the OneView Interconnect Types.](#oneview_interconnect_type_facts)
+  * [oneview_logical_downlinks_facts - Retrieve facts about one or more of the OneView Logical Downlinks.](#oneview_logical_downlinks_facts)
   * [oneview_logical_enclosure - Manage OneView Logical Enclosure resources.](#oneview_logical_enclosure)
   * [oneview_logical_enclosure_facts - Retrieve facts about one or more of the OneView Logical Enclosures.](#oneview_logical_enclosure_facts)
-  * [oneview_logical_enclosure_script_facts - Retrieve the configuration script associated with the OneView Logical Enclosure.](#oneview_logical_enclosure_script_facts)
+  * [oneview_logical_interconnect - Manage OneView Logical Interconnect resources.](#oneview_logical_interconnect)
+  * [oneview_logical_interconnect_facts - Retrieve facts about one or more of the OneView Logical Interconnects.](#oneview_logical_interconnect_facts)
   * [oneview_logical_interconnect_group - Manage OneView Logical Interconnect Group resources.](#oneview_logical_interconnect_group)
   * [oneview_logical_interconnect_group_facts - Retrieve facts about one or more of the OneView Logical Interconnect Groups.](#oneview_logical_interconnect_group_facts)
+  * [oneview_logical_switch - Manage OneView Logical Switch resources.](#oneview_logical_switch)
+  * [oneview_logical_switch_facts - Retrieve the facts about one or more of the OneView Logical Switches.](#oneview_logical_switch_facts)
+  * [oneview_logical_switch_group - Manage OneView Logical Switch Group resources.](#oneview_logical_switch_group)
+  * [oneview_logical_switch_group_facts - Retrieve facts about OneView Logical Switch Groups.](#oneview_logical_switch_group_facts)
+  * [oneview_managed_san - Manage OneView Managed SAN resources.](#oneview_managed_san)
+  * [oneview_managed_san_facts - Retrieve facts about the OneView Managed SANs.](#oneview_managed_san_facts)
+  * [oneview_network_set - Manage OneView Network Set resources.](#oneview_network_set)
+  * [oneview_network_set_facts - Retrieve facts about the OneView Network Sets.](#oneview_network_set_facts)
+  * [oneview_power_device - Manage OneView Power Device resources.](#oneview_power_device)
+  * [oneview_power_device_facts - Retrieve facts about the OneView Power Devices.](#oneview_power_device_facts)
+  * [oneview_rack - Manage OneView Racks resources.](#oneview_rack)
+  * [oneview_rack_facts - Retrieve facts about Rack resources.](#oneview_rack_facts)
+  * [oneview_san_manager - Manage OneView SAN Manager resources.](#oneview_san_manager)
+  * [oneview_san_manager_facts - Retrieve facts about one or more of the OneView SAN Managers.](#oneview_san_manager_facts)
   * [oneview_server_hardware - Manage OneView Server Hardware resources.](#oneview_server_hardware)
   * [oneview_server_hardware_facts - Retrieve facts about the OneView Server Hardwares.](#oneview_server_hardware_facts)
-  * [oneview_server_profile - Selects a server hardware automatically based on the server hardware template.](#oneview_server_profile)
+  * [oneview_server_hardware_type - Manage OneView Server Hardware Type resources.](#oneview_server_hardware_type)
+  * [oneview_server_hardware_type_facts - Retrieve facts about Server Hardware Types of the OneView.](#oneview_server_hardware_type_facts)
+  * [oneview_server_profile - Manage OneView Server Profile resources.](#oneview_server_profile)
+  * [oneview_server_profile_facts - Retrieve facts about the OneView Server Profiles.](#oneview_server_profile_facts)
+  * [oneview_server_profile_template - Manage OneView Server Profile Template resources.](#oneview_server_profile_template)
+  * [oneview_server_profile_template_facts - Retrieve facts about the Server Profile Templates from OneView.](#oneview_server_profile_template_facts)
+  * [oneview_storage_pool - Manage OneView Storage Pool resources.](#oneview_storage_pool)
+  * [oneview_storage_pool_facts - Retrieve facts about one or more Storage Pools.](#oneview_storage_pool_facts)
   * [oneview_storage_system - Manage OneView Storage System resources.](#oneview_storage_system)
   * [oneview_storage_system_facts - Retrieve facts about the OneView Storage Systems.](#oneview_storage_system_facts)
-  * [oneview_storage_system_host_types_facts - Retrieve facts about Host Types of the OneView Storage Systems.](#oneview_storage_system_host_types_facts)
-  * [oneview_storage_system_managed_ports_facts - Retrieve facts about Managed Ports of the OneView Storage System.](#oneview_storage_system_managed_ports_facts)
-  * [oneview_storage_system_pools_facts - Retrieve facts about Storage Pools of the OneView Storage System.](#oneview_storage_system_pools_facts)
+  * [oneview_storage_volume_attachment - Provides an interface to remove extra presentations from a specified server profile.](#oneview_storage_volume_attachment)
+  * [oneview_storage_volume_attachment_facts - Retrieve facts about Storage Volume Attachments of the OneView.](#oneview_storage_volume_attachment_facts)
+  * [oneview_storage_volume_template - Manage OneView Storage Volume Template resources.](#oneview_storage_volume_template)
+  * [oneview_storage_volume_templates_facts - Retrieve facts about Storage Volume Templates of the OneView.](#oneview_storage_volume_templates_facts)
+  * [oneview_switch - Provides an interface to remove ToR Switch resources.](#oneview_switch)
+  * [oneview_switch_facts - Retrieve facts about the OneView Switches.](#oneview_switch_facts)
+  * [oneview_switch_type_facts - Retrieve facts about the OneView Switch Types.](#oneview_switch_type_facts)
+  * [oneview_task_facts - Retrieve facts about the OneView Tasks.](#oneview_task_facts)
+  * [oneview_unmanaged_device - Manage OneView Unmanaged Device resources.](#oneview_unmanaged_device)
+  * [oneview_unmanaged_device_facts - Retrieve facts about one or more of the OneView Unmanaged Device.](#oneview_unmanaged_device_facts)
+  * [oneview_uplink_set - Manage OneView Uplink Set resources.](#oneview_uplink_set)
+  * [oneview_uplink_set_facts - Retrieve facts about one or more of the OneView Uplink Sets.](#oneview_uplink_set_facts)
+  * [oneview_volume - Manage OneView Volume resources.](#oneview_volume)
+  * [oneview_volume_facts - Retrieve facts about the OneView Volumes.](#oneview_volume_facts)
 
 ---
 
@@ -57,19 +88,19 @@ Deploy the operating system on a server using HPE ICsp.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| username  |   yes  |  | |  ICsp username.  |
-| server_id  |   yes  |  | |  Server ID.  |
-| personality_data  |   no  |  | |  Personality Data.  |
-| os_build_plan  |   yes  |  | |  OS Build plan.  |
-| custom_attributes  |   no  |  | |  Custom Attributes.  |
-| icsp_host  |   yes  |  | |  ICsp hostname.  |
-| password  |   yes  |  | |  ICsp password.  |
+| custom_attributes  |   No  |  | |  Custom Attributes.  |
+| icsp_host  |   Yes  |  | |  ICsp hostname.  |
+| os_build_plan  |   Yes  |  | |  OS Build plan.  |
+| password  |   Yes  |  | |  ICsp password.  |
+| personality_data  |   No  |  | |  Personality Data.  |
+| server_id  |   Yes  |  | |  Server ID.  |
+| username  |   Yes  |  | |  ICsp username.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Deploy OS
   hpe_icsp:
     icsp_host: "{{ icsp }}"
@@ -86,6 +117,291 @@ Deploy the operating system on a server using HPE ICsp.
 
 
 
+
+---
+
+
+## oneview_connection_template
+Manage OneView Connection Template resources.
+
+#### Synopsis
+ Provides an interface to manage Connection Template resources. Can just update.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Connection Template properties and its associated states.  |
+| state  |   Yes  |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Connection Template resource. 'present' will ensure data properties are compliant with OneView.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Update the Connection Template
+  oneview_connection_template:
+    config: "{{ config }}"
+    state: present
+    data:
+        name: 'name1304244267-1467656930023'
+        type : "connection-template"
+        bandwidth :
+            maximumBandwidth : 10000
+            typicalBandwidth : 2000
+        newName : "CT-23"
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| connection_template   | Has the OneView facts about the Connection Template. |  On 'present' state, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_connection_template_facts
+Retrieve facts about Connection Templates of the OneView.
+
+#### Synopsis
+ Retrieve facts about Connection Templates of the OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Connection Template name.  |
+| options  |   No  |  | |  List with options to gather additional facts about Connection Template related resources. Options allowed: defaultConnectionTemplate  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Connection Templates
+  oneview_connection_template_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=connection_templates
+
+- name: Gather facts about a Connection Template by name
+  oneview_connection_template_facts:
+    config: "{{ config }}"
+    name: 'connection template name'
+  delegate_to: localhost
+- debug: var=connection_templates
+
+- name: Gather facts about the Default Connection Template
+  oneview_connection_template_facts:
+    config: "{{ config }}"
+    options:
+      - defaultConnectionTemplate
+  delegate_to: localhost
+- debug: var=default_connection_template
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| connection_templates   | Has all the OneView facts about the Connection Templates. |  Always, except when defaultConnectionTemplate is requested. Can be null. |  complex |
+| default_connection_template   | Has the facts about the Default Connection Template. |  When requested, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_datacenter
+Manage OneView Data Center resources.
+
+#### Synopsis
+ Provides an interface to manage Data Center resources. Can add, update, remove.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Data Center properties and its associated states.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Data Center resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Add a Data Center
+  oneview_datacenter:
+    config: "{{ config }}"
+    state: present
+    data:
+        name: "MyDatacenter"
+        width: 5000
+        depth: 6000
+        contents:
+            # You can choose either resourceName or resourceUri to inform the Rack
+            - resourceName: '{{ datacenter_content_rack_name }}' # option 1
+              resourceUri: ''                                    # option 2
+              x: 1000
+              y: 1000
+  delegate_to: localhost
+
+- name: Update the Data Center with specified properties (no racks)
+  oneview_datacenter:
+    config: "{{ config }}"
+    state: present
+    data:
+        name: "MyDatacenter"
+        coolingCapacity: '5'
+        costPerKilowattHour: '0.10'
+        currency: USD
+        deratingType: NaJp
+        deratingPercentage: '20.0'
+        defaultPowerLineVoltage: '220'
+        coolingMultiplier: '1.5'
+        width: 4000
+        depth: 5000
+        contents: ~
+
+  delegate_to: localhost
+
+- name: Rename the Data Center
+  oneview_datacenter:
+    config: "{{ config }}"
+    state: present
+    data:
+        name: "MyDatacenter"
+        newName: "My Datacenter"
+  delegate_to: localhost
+
+- name: Remove the Data Center
+  oneview_datacenter:
+    config: "{{ config }}"
+    state: absent
+    data:
+        name: 'My Datacenter'
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| datacenter   | Has the OneView facts about the Data Center. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_datacenters_facts
+Retrieve facts about Data Centers of the OneView.
+
+#### Synopsis
+ Retrieve facts about Data Centers of the OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Data Center name.  |
+| options  |   No  |  | |  Retrieve additional facts. Options available: 'visualContent'  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Data Centers
+  oneview_datacenter_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=datacenters
+
+
+- name: Gather facts about a Data Center by name
+  oneview_datacenter_facts:
+    config: "{{ config }}"
+    name: "My Data Center"
+  delegate_to: localhost
+
+- debug: var=datacenters
+
+
+- name: Gather facts about the Data Center Visual Content
+  oneview_datacenter_facts:
+    config: "{{ config }}"
+    name: "My Data Center"
+    options:
+      - visualContent
+  delegate_to: localhost
+
+- debug: var=datacenters
+- debug: var=datacenter_visual_content
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| datacenter_visual_content   | Has facts about the Data Center Visual Content. |  When requested, but can be null. |  complex |
+| datacenters   | Has all the OneView facts about the Data Centers. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
 ---
 
 
@@ -97,21 +413,21 @@ Manage OneView Enclosure resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| data  |   yes  |  | |  List with the Enclosure properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Enclosure resource. 'present' will ensure data properties are compliant to OneView. 'absent' will remove the resource from OneView, if it exists. 'reconfigured' will reapply the appliance's configuration on the enclosure. This includes running the same configuration steps that were performed as part of the enclosure add. 'refreshed' will refresh the enclosure along with all of its components, including interconnects and servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is removed.  |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with the Enclosure properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Enclosure resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'reconfigured' will reapply the appliance's configuration on the enclosure. This includes running the same configuration steps that were performed as part of the enclosure add. 'refreshed' will refresh the enclosure along with all of its components, including interconnects and servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is removed.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Ensure that an Enclosure is present using the default configuration
   oneview_enclosure:
     config: "{{ config_file_path }}"
@@ -165,44 +481,12 @@ Manage OneView Enclosure resources.
 ```
 
 
-#### Notes
 
-- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+#### Return Values
 
-
----
-
-
-## oneview_enclosure_env_config_facts
-Retrieve the facts about the environmental configuration of one enclosure.
-
-#### Synopsis
- Retrieve the facts about the settings that describe the environmental configuration (supported feature set, calibrated minimum and maximum power, location and dimensions, ...) of the enclosure resource.
-
-#### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView
-
-#### Options
-
-| Parameter     | Required    | Default  | Choices    | Comments |
-| ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   yes  |  | |  Enclosure name.  |
-
-
-
-#### Examples
-
-```
-- name: Gather facts about the environmental configuration of the enclosure named 'Test-Enclosure'
-  oneview_enclosure_env_config_facts:
-    config: "{{ config_file_path }}"
-    name: "Test-Enclosure"
-
-- debug: var=oneview_enclosure_env_config_facts
-
-```
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| enclosure   | Has all the facts about the enclosure. |  On states 'present', 'reconfigured', 'refreshed'. Can be null. |  complex |
 
 
 #### Notes
@@ -221,20 +505,21 @@ Retrieve facts about one or more Enclosures.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Enclosure name.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Enclosure name.  |
+| options  |   No  |  | |  List with options to gather additional facts about an Enclosure and related resources. Options allowed: script, environmentalConfiguration, and utilization. For the option utilization, you can provide specific parameters.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Gather facts about all Enclosures
   oneview_enclosure_facts:
     config: "{{ config_file_path }}"
@@ -245,10 +530,55 @@ Retrieve facts about one or more Enclosures.
   oneview_enclosure_facts:
     config: "{{ config_file_path }}"
     name: "Enclosure-Name"
+  delegate_to: localhost
 
 - debug: var=enclosures
 
+- name: Gather facts about an Enclosure by name with options
+  oneview_enclosure_facts:
+    config: "{{ config_file_path }}"
+    name: 'Test-Enclosure'
+    options:
+      - script                       # optional
+      - environmentalConfiguration   # optional
+      - utilization                  # optional
+  delegate_to: localhost
+
+- debug: var=enclosures
+- debug: var=enclosure_script
+- debug: var=enclosure_environmental_configuration
+- debug: var=enclosure_utilization
+
+- name: "Gather facts about an Enclosure with temperature data at a resolution of one sample per day, between two
+         specified dates"
+  oneview_enclosure_facts:
+    config: "{{ config_file_path }}"
+    name: 'Test-Enclosure'
+    options:
+      - utilization                  # optional
+          fields: 'AmbientTemperature'
+          filter:
+            - "startDate=2016-07-01T14:29:42.000Z"
+            - "endDate=2017-07-01T03:29:42.000Z"
+          view: 'day'
+          refresh: False
+  delegate_to: localhost
+
+- debug: var=enclosures
+- debug: var=enclosure_utilization
+
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| enclosure_environmental_configuration   | Has all the OneView facts about the environmental configuration of an Enclosure. |  When requested, but can be null. |  complex |
+| enclosure_script   | Has all the OneView facts about the script of an Enclosure. |  When requested, but can be null. |  complex |
+| enclosure_utilization   | Has all the OneView facts about the utilization of an Enclosure. |  When requested, but can be null. |  complex |
+| enclosures   | Has all the OneView facts about the Enclosures. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -267,21 +597,21 @@ Manage OneView Enclosure Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| data  |   yes  |  | |  List with Enclosure Group properties  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Enclosure Group resource. 'present' will ensure data properties are compliant to OneView. 'absent' will remove the resource from OneView, if it exists.  |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Enclosure Group properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Enclosure Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Ensure that Enclosure Group is present using the default configuration
   oneview_enclosure_group:
     config: "{{ config_file_name }}"
@@ -320,6 +650,14 @@ Manage OneView Enclosure Group resources.
 ```
 
 
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| enclosure_group   | Has the facts about the Enclosure Group. |  On state 'present'. Can be null. |  complex |
+
+
 #### Notes
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
@@ -336,178 +674,49 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Enclosure Group name.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Enclosure Group name.  |
+| options  |   No  |  | |  List with options to gather additional facts about Enclosure Group. Options allowed: 'configuration_script' Gets the configuration script for an Enclosure Group.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Gather facts about all Enclosure Groups
   oneview_enclosure_group_facts:
     config: "{{ config_file_path }}"
   delegate_to: localhost
 
-- debug: var=enclosure_group
+- debug: var=enclosure_groups
 
-- name: Gather facts about a Enclosure Group by name
+- name: Gather facts about an Enclosure Group by name with configuration script
   oneview_enclosure_group_facts:
     config: "{{ config_file_path }}"
     name: "Test Enclosure Group Facts"
-  delegate_to: localhost
-
-- debug: var=enclosure_group
-
-```
-
-
-#### Notes
-
-- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
-
-
----
-
-
-## oneview_enclosure_group_script_facts
-Retrieve the configuration script associated with a OneView Enclosure Group.
-
-#### Synopsis
- Retrieve the configuration script associated with a OneView Enclosure Group.
-
-#### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView
-
-#### Options
-
-| Parameter     | Required    | Default  | Choices    | Comments |
-| ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   yes  |  | |  Enclosure Group name.  |
-
-
-
-#### Examples
-
-```
-- name: Get Enclosure Group Script by Enclosure Group name
-  oneview_enclosure_group_script_facts:
-    config: "{{ config }}"
-    name: "Enclosure Group (For Demo)"
-  delegate_to: localhost
-
-- debug: var=enclosure_group
-
-```
-
-
-#### Notes
-
-- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
-
-
----
-
-
-## oneview_enclosure_script_facts
-Retrieve facts about the script of one enclosure.
-
-#### Synopsis
- Retrieve facts about the script of one Enclosure from OneView.
-
-#### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView
-
-#### Options
-
-| Parameter     | Required    | Default  | Choices    | Comments |
-| ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   yes  |  | |  Enclosure name.  |
-
-
-
-#### Examples
-
-```
-- name: Gather facts about the script of the enclosure named 'Test-Enclosure'
-  oneview_enclosure_script_facts:
-    config: "{{ config_file_path }}"
-    name: "Enclosure-Name"
-
-- debug: var=enclosure_script
-
-```
-
-
-#### Notes
-
-- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
-
-
----
-
-
-## oneview_enclosure_utilization_facts
-Retrieve the facts about the utilization of one enclosure.
-
-#### Synopsis
- Retrieve the facts about the historical utilization data, metrics, and time span of the enclosure resource.
-
-#### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView
-
-#### Options
-
-| Parameter     | Required    | Default  | Choices    | Comments |
-| ------------- |-------------| ---------|----------- |--------- |
-| startDate  |   no  |  | |  Start date of requested starting time range in ISO 8601 format.  |
-| endDate  |   no  |  | |  End date of requested starting time range in ISO 8601 format. When omitted the endDate includes the latest data sample available.  |
-| name  |   yes  |  | |  Enclosure name.  |
-| fields  |   no  |  | |  Name of the metric(s) to be retrieved in the format METRIC[,METRIC]... Enclosures support the following utilization metrics: AmbientTemperature, AveragePower, PeakPower, PowerCap, DeratedCapacity and RatedCapacity. If unspecified, all metrics supported are returned.  |
-| refresh  |   no  |  | |  Specifies that if necessary an additional request will be queued to obtain the most recent utilization data from the enclosure.  |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| view  |   no  |  | <ul> <li>native</li>  <li>hour</li>  <li>day</li> </ul> |  Specifies the resolution interval length of the samples to be retrieved.  |
-
-
-
-#### Examples
-
-```
-- name: "Gather facts about the 24 hours of data for all available metrics at a resolution of one sample
-         every 5 minutes for the enclosure named 'Test-Enclosure'"
-  oneview_enclosure_utilization_facts:
-    config: "{{ config }}"
-    name: 'Test-Enclosure'
+    options:
+      - configuration_script
     delegate_to: localhost
 
-- debug: var=oneview_enclosure_utilization
-
-- name: "Gather facts about all temperature data at a resolution of one sample per day for the enclosure
-         named 'Test-Enclosure', between two specified dates"
-  oneview_enclosure_utilization_facts:
-    config: "{{ config }}"
-    name: 'Test-Enclosure'
-    fields: 'AmbientTemperature
-    start_date: '2016-06-30T03:29:42.000Z'
-    end_date: '2018-07-01T03:29:42.000Z'
-    view: 'day'
-    refresh: False
-delegate_to: localhost
-
-- debug: var=oneview_enclosure_utilization
+- debug: var=enclosure_groups
+- debug: var=enclosure_group_script
 
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| enclosure_group_script   | The configuration script for an Enclosure Group. |  When requested, but can be null. |  string |
+| enclosure_groups   | Has all the OneView facts about the Enclosure Groups. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -526,21 +735,21 @@ Manage OneView Ethernet Network resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| data  |   yes  |  | |  List with Ethernet Network properties  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Ethernet Network resource. 'present' will ensure data properties are compliant to OneView. 'absent' will remove the resource from OneView, if it exists.  |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Ethernet Network properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>default_bandwidth_reset</li> </ul> |  Indicates the desired state for the Ethernet Network resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'default_bandwidth_reset' will reset the network connection template to the default.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Ensure that the Ethernet Network is present using the default configuration
   oneview_ethernet_network:
     config: "{{ config_file_path }}"
@@ -549,7 +758,19 @@ Manage OneView Ethernet Network resources.
       name: 'Test Ethernet Network'
       vlanId: '201'
 
-- name: Ensure that the Logical Interconnect Group is present with name 'Renamed Ethernet Network'
+- name: Update the Ethernet Network changing bandwidth and purpose
+  oneview_ethernet_network:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Test Ethernet Network'
+      purpose: Management
+      bandwidth:
+          maximumBandwidth: 3000
+          typicalBandwidth: 2000
+  delegate_to: localhost
+
+- name: Ensure that the Ethernet Network is present with name 'Renamed Ethernet Network'
   oneview_ethernet_network:
     config: "{{ config_file_path }}"
     state: present
@@ -578,87 +799,25 @@ Manage OneView Ethernet Network resources.
         maximumBandwidth: 10000
         typicalBandwidth: 2000
 
-```
-
-
-#### Notes
-
-- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
-
-
----
-
-
-## oneview_ethernet_network_associated_profile_facts
-Retrieve the facts about the profiles which are using an Ethernet network.
-
-#### Synopsis
- Retrieve the facts about the profiles which are using an Ethernet network.
-
-#### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView
-
-#### Options
-
-| Parameter     | Required    | Default  | Choices    | Comments |
-| ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   yes  |  | |  Ethernet Network name.  |
-
-
-
-#### Examples
-
-```
-- name: Gather facts about profiles which are using an Ethernet network named 'Test-Ethernet-Network'
-  oneview_ethernet_network_associated_profile_facts:
+- name: Reset to the default network connection template
+  oneview_ethernet_network:
     config: "{{ config_file_path }}"
-    name: "Test-Ethernet-Network"
-
-- debug: var=oneview_enet_associated_profiles
-
-```
-
-
-#### Notes
-
-- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
-
-
----
-
-
-## oneview_ethernet_network_associated_uplink_group_facts
-Gather facts about the uplink sets which are using an Ethernet network.
-
-#### Synopsis
- Retrieve a list of uplink port group URIs for the Ethernet network with specified name.
-
-#### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView
-
-#### Options
-
-| Parameter     | Required    | Default  | Choices    | Comments |
-| ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   yes  |  | |  Ethernet Network name.  |
-
-
-
-#### Examples
+    state: default_bandwidth_reset
+    data:
+      name: 'Test Ethernet Network'
+  delegate_to: localhost
 
 ```
-- name: Gather facts about the uplink sets which are using an Ethernet network named 'Test Ethernet Network'
-  oneview_ethernet_network_associated_uplink_group_facts:
-    config: "{{ config_file_path }}"
-    name: "Test Ethernet Network"
 
-- debug: var=enet_associated_uplink_groups
 
-```
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| ethernet_network   | Has the facts about the Ethernet Networks. |  On state 'present'. Can be null. |  complex |
+| ethernet_network_bulk   | Has the facts about the Ethernet Networks affected by the bulk insert. |  When 'vlanIdRange' attribute is in data argument. Can be null. |  complex |
+| ethernet_network_connection_template   | Has the facts about the Ethernet Network Connection Template. |  On state 'default_bandwidth_reset'. Can be null. |  complex |
 
 
 #### Notes
@@ -677,20 +836,21 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Ethernet Network name.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Ethernet Network name.  |
+| options  |   No  |  | |  List with options to gather additional facts about an Ethernet Network and related resources. Options allowed: associatedProfiles and associatedUplinkGroups.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Gather facts about all Ethernet Networks
   oneview_ethernet_network_facts:
     config: "{{ config_file_path }}"
@@ -704,7 +864,29 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
 
 - debug: var=ethernet_networks
 
+- name: Gather facts about an Ethernet Network by name with options
+  oneview_ethernet_network_facts:
+    config: "{{ config }}"
+    name: "{{ name }}"
+    options:
+      - associatedProfiles
+      - associatedUplinkGroups
+  delegate_to: localhost
+
+- debug: var=enet_associated_profiles
+- debug: var=enet_associated_uplink_groups
+
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| enet_associated_profiles   | Has all the OneView facts about the profiles which are using the Ethernet network. |  When requested, but can be null. |  complex |
+| enet_associated_uplink_groups   | Has all the OneView facts about the uplink sets which are using the Ethernet network. |  When requested, but can be null. |  complex |
+| ethernet_networks   | Has all the OneView facts about the Ethernet Networks. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -723,34 +905,42 @@ Retrieve the facts about one or more of the OneView Fabrics.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Fabric name.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Fabric name.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Gather facts about all Fabrics
   oneview_fabric_facts:
     config: "{{ config_file_path }}"
 
-- debug: var=oneview_fabrics
+- debug: var=fabrics
 
 - name: Gather facts about a Fabric by name
   oneview_fabric_facts:
     config: "{{ config_file_path }}"
     name: DefaultFabric
 
-- debug: var=oneview_fabrics
+- debug: var=fabrics
 
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| fabrics   | Has all the OneView facts about the Fabrics. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -769,21 +959,21 @@ Manage OneView Fibre Channel Network resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| data  |   yes  |  | |  List with the Fibre Channel Network properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Fibre Channel Network resource. 'present' will ensure data properties are compliant to OneView. 'absent' will remove the resource from OneView, if it exists.  |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with the Fibre Channel Network properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Fibre Channel Network resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Ensure that a Fibre Channel Network is present using the default configuration
   oneview_fc_network:
     config: "{{ config_file_path }}"
@@ -809,6 +999,14 @@ Manage OneView Fibre Channel Network resources.
 ```
 
 
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| fc_network   | Has the facts about the OneView FC Networks. |  On state 'present'. Can be null. |  complex |
+
+
 #### Notes
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
@@ -825,20 +1023,20 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Fibre Channel Network name.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Fibre Channel Network name.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Gather facts about all Fibre Channel Networks
   oneview_fc_network_facts:
     config: "{{ config_file_path }}"
@@ -853,6 +1051,14 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks.
 - debug: var=fc_networks
 
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| fc_networks   | Has all the OneView facts about the Fibre Channel Networks. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -871,21 +1077,21 @@ Manage OneView FCoE Network resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| data  |   yes  |  | |  List with FCoE Network properties  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the FCoE Network resource. 'present' will ensure data properties are compliant to OneView. 'absent' will remove the resource from OneView, if it exists.  |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with FCoE Network properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the FCoE Network resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Ensure that FCoE Network is present using the default configuration
   oneview_fcoe_network:
     config: "{{ config_file_path }}"
@@ -904,6 +1110,14 @@ Manage OneView FCoE Network resources.
 ```
 
 
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| fcoe_network   | Has the facts about the OneView FCoE Networks. |  On state 'present'. Can be null. |  complex |
+
+
 #### Notes
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
@@ -920,34 +1134,42 @@ Retrieve the facts about one or more of the OneView FCoE Networks.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  FCoE Network name.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  FCoE Network name.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Gather facts about all FCoE Networks
   oneview_fcoe_network_facts:
     config: "{{ config_file_path }}"
 
-- debug: var=fcoe_network
+- debug: var=fcoe_networks
 
 - name: Gather facts about a FCoE Network by name
   oneview_fcoe_network_facts:
     config: "{{ config_file_path }}"
     name: "Test FCoE Network Facts"
 
-- debug: var=fcoe_network
+- debug: var=fcoe_networks
 
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| fcoe_networks   | Has all the OneView facts about the FCoE Networks. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -966,21 +1188,21 @@ Upload OneView Firmware Bundle resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| file_path  |   Yes  |  | |  The full path of a local file to be loaded.  |
 | state  |   |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Firmware Driver resource. 'present' will ensure that the firmware bundle is at OneView.  |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| file_path  |   yes  |  | |  The full path of a local file to be loaded.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Ensure that the Firmware Driver is present
   oneview_firmware_bundle:
     config: "{{ config_file_path }}"
@@ -989,6 +1211,14 @@ Upload OneView Firmware Bundle resources.
 
 
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| firmware_bundle   | Has the facts about the OneView Firmware Bundle. |  Always. Can be null. |  complex |
 
 
 #### Notes
@@ -1007,21 +1237,21 @@ Provides an interface to remove Firmware Driver resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   Yes  |  | |  Firmware driver name.  |
 | state  |   |  | <ul> <li>absent</li> </ul> |  Indicates the desired state for the Firmware Driver. 'absent' will remove the resource from OneView, if it exists.  |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   yes  |  | |  Firmware driver name.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Ensure that Firmware Driver is absent
   oneview_firmware_driver:
     config: "{{ config_file_path }}"
@@ -1029,6 +1259,7 @@ Provides an interface to remove Firmware Driver resources.
     name: "Service Pack for ProLiant.iso"
 
 ```
+
 
 
 #### Notes
@@ -1047,34 +1278,42 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Firmware driver name.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Firmware driver name.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Gather facts about all Firmware Drivers
   oneview_firmware_driver_facts:
     config: "{{ config_file_path }}"
 
-- debug: var=oneview_firmware_drivers
+- debug: var=firmware_drivers
 
 - name: Gather facts about a Firmware Driver by name
   oneview_firmware_driver_facts:
     config: "{{ config_file_path }}"
     name: "Service Pack for ProLiant.iso"
 
-- debug: var=oneview_firmware_drivers
+- debug: var=firmware_drivers
 
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| firmware_drivers   | Has all the OneView facts about the Firmware Drivers. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -1093,23 +1332,23 @@ Manage the OneView Interconnect resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| ip  |   no  |  | |  Interconnect IP add  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| ip  |   No  |  | |  Interconnect IP add  |
+| name  |   No  |  | |  Interconnect name  |
+| ports  |   No  |  | |  List with ports to update. This option should be used together with 'update_ports' state.  |
 | state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>device_reset</li>  <li>update_ports</li>  <li>reset_port_protection</li> </ul> |  Indicates the desired state for the Interconnect resource. 'powered_on' turns the power on. 'powered_off' turns the power off. 'uid_on' turns the UID light on. 'uid_off' turns the UID light off. 'device_reset' perform a device reset. 'update_ports' updates the interconnect ports. 'reset_port_protection' triggers a reset of port protection.  |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Interconnect name  |
-| ports  |   no  |  | |  List with ports to update. This option should be used together with 'update_ports' state.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Turn the power off for Interconnect named '0000A66102, interconnect 2'
   oneview_interconnect:
     config: "{{ config_file_path }}"
@@ -1131,6 +1370,14 @@ Manage the OneView Interconnect resources.
 ```
 
 
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| interconnect   | Has the facts about the OneView Interconnect. |  Always. Can be null. |  complex |
+
+
 #### Notes
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
@@ -1147,79 +1394,91 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Interconnect name  |
-| gather_name_servers  |   no  |  False  | |  If true facts about the name servers will also be gathered.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Interconnect name  |
+| options  |   No  |  | |  List with options to gather additional facts about Interconnect. Options allowed: 'nameServers' gets the named servers for an interconnect. 'statistics' gets the statistics from an interconnect. 'portStatistics' gets the statistics for the specified port name on an interconnect. 'subPortStatistics' gets the subport statistics on an interconnect.  To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be ignored.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Gather facts about all interconnects
   oneview_interconnect_facts:
     config: "{{ config }}"
 
+- debug: var=interconnects
+
+
 - name: Gather facts about the interconnect that matches the specified name
   oneview_interconnect_facts:
     config: "{{ config }}"
-    name: "{{ interconnect_name }}"
+    name: '0000A66102, interconnect 2'
+
+- debug: var=interconnects
+
 
 - name: Gather facts about the interconnect that matches the specified name and its name servers
   oneview_interconnect_facts:
     config: "{{ config }}"
-    name: "{{ interconnect_name }}"
-    gather_name_servers: true
+    name: '0000A66102, interconnect 2'
+    options:
+        - nameServers
 
-```
+- debug: var=interconnects
+- debug: var=interconnect_name_servers
 
-
-#### Notes
-
-- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
-
-
----
-
-
-## oneview_interconnect_statistics_facts
-Retrieve the statistics facts about one interconnect from OneView.
-
-#### Synopsis
- Retrieve the statistics facts about one interconnect from OneView.
-
-#### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView
-
-#### Options
-
-| Parameter     | Required    | Default  | Choices    | Comments |
-| ------------- |-------------| ---------|----------- |--------- |
-| port_name  |   no  |  | |  Interconnect name  |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   yes  |  | |  Interconnect name  |
-
-
-
-#### Examples
-
-```
 - name: Gather facts about statistics for the Interconnect named '0000A66102, interconnect 2'
-  oneview_interconnect_statistics_facts:
+  oneview_interconnect_facts:
     config: "{{ config }}"
     name: '0000A66102, interconnect 2'
-    delegate_to: localhost
+    options:
+        - statistics
 
-- debug: interconnect_statistics
+- debug: var=interconnects
+- debug: var=interconnect_statistics
+
+- name: Gather facts about statistics for the Port named 'd3' of the Interconnect named '0000A66102, interconnect 2'
+  oneview_interconnect_facts:
+    config: "{{ config }}"
+    name: '0000A66102, interconnect 2'
+    options:
+        - portStatistics: 'd3'
+
+- debug: var=interconnects
+- debug: var=interconnect_port_statistics
+
+- name: Gather facts about statistics for the sub Port number '1' of the Interconnect named 'Enc2, interconnect 2'
+  oneview_interconnect_facts:
+    config: "{{ config }}"
+    name: 'Enc2, interconnect 2'
+    options:
+        - subPortStatistics:
+            portName: 'd4'
+            subportNumber: 1
+
+- debug: var=interconnects
+- debug: var=interconnect_subport_statistics
 
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| interconnect_name_servers   | The named servers for an interconnect. |  When requested, but can be null. |  list |
+| interconnect_port_statistics   | Statistics for the specified port name on an interconnect. |  When requested, but can be null. |  dict |
+| interconnect_statistics   | Has all the OneView facts about the Interconnect Statistics. |  When requested, but can be null. |  dict |
+| interconnect_subport_statistics   | The subport statistics on an interconnect |  When requested, but can be null. |  dict |
+| interconnects   | The list of interconnects. |  Always, but can be null. |  list |
 
 
 #### Notes
@@ -1238,20 +1497,20 @@ Retrieve facts about one or more of the OneView Interconnect Types.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Interconnect Type name.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Interconnect Type name.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Gather facts about all Interconnect Types
   oneview_interconnect_type_facts:
     config: "{{ config_file_path }}"
@@ -1266,6 +1525,79 @@ Retrieve facts about one or more of the OneView Interconnect Types.
 - debug: var=interconnect_types
 
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| interconnect_types   | Has all the OneView facts about the Interconnect Types. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_logical_downlinks_facts
+Retrieve facts about one or more of the OneView Logical Downlinks.
+
+#### Synopsis
+ Retrieve facts about one or more of the Logical Downlinks from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Logical Downlink name  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Logical Downlinks
+  oneview_logical_downlinks_facts:
+    config: "{{ config }}"
+    delegate_to: localhost
+
+- debug: var=logical_downlinks
+
+- name: Gather facts about all Logical Downlinks excluding any existing Ethernet networks
+  oneview_logical_downlinks_facts:
+    config: "{{ config }}"
+    excludeEthernet: true
+    delegate_to: localhost
+
+- debug: var=logical_downlinks
+
+- name: Gather facts about a Logical Downlink by name and excluding any existing Ethernet networks
+  oneview_logical_downlinks_facts:
+    config: "{{ config }}"
+    name: "LD415a472f-ed77-42cc-9a5e-b9bd5d096923 (HP VC FlexFabric-20/40 F8 Module)"
+    excludeEthernet: true
+    delegate_to: localhost
+
+- debug: var=logical_downlinks
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| logical_interconnects   | The list of logical downlinks. |  Always, but can be null. |  list |
 
 
 #### Notes
@@ -1284,21 +1616,21 @@ Manage OneView Logical Enclosure resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| data  |   yes  |  | |  List with Logical Enclosure properties and its associated states  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>firmware_updated</li>  <li>script_updated</li>  <li>dumped</li>  <li>reconfigured</li>  <li>updated_from_group</li> </ul> |  Indicates the desired state for the Logical Enclosure resource. 'present' enable to change the Logical Enclosure name. 'firmware_updated' update the firmware for the Logical Enclosure. 'script_updated' update the Logical Enclosure configuration script. 'dumped' generates a support dump for the Logical Enclosure. 'reconfigured' reconfigure all enclosures associated with logical enclosure. 'updated_from_group' makes the logical enclosure consistent with the enclosure group.  |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Logical Enclosure properties and its associated states.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>firmware_updated</li>  <li>script_updated</li>  <li>dumped</li>  <li>reconfigured</li>  <li>updated_from_group</li> </ul> |  Indicates the desired state for the Logical Enclosure resource. 'present' enable to change the Logical Enclosure name. 'firmware_updated' update the firmware for the Logical Enclosure. 'script_updated' update the Logical Enclosure configuration script. 'dumped' generates a support dump for the Logical Enclosure. 'reconfigured' reconfigure all enclosures associated with logical enclosure. 'updated_from_group' makes the logical enclosure consistent with the enclosure group.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Update the firmware for the Logical Enclosure
   oneview_logical_enclosure:
     config: "{{ config_file_name }}"
@@ -1361,6 +1693,16 @@ Manage OneView Logical Enclosure resources.
 ```
 
 
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| configuration_script   | Has the facts about the Logical Enclosure configuration script. |  On state 'script_updated'. Can be null. |  complex |
+| generated_dump_uri   | Has the facts about the Logical Enclosure generated support dump uri. |  On state 'dumped'. Can be null. |  complex |
+| logical_enclosure   | Has the facts about the OneView Logical Enclosure. |  On states 'present', 'firmware_updated', 'reconfigured', 'updated_from_group'. Can be null. |  complex |
+
+
 #### Notes
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
@@ -1377,26 +1719,27 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Logical Enclosure name.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Logical Enclosure name.  |
+| options  |   No  |  | |  List with options to gather additional facts about a Logical Enclosure and related resources. Options allowed: script.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Gather facts about all Logical Enclosures
   oneview_logical_enclosure_facts:
     config: "{{ config_file_path }}"
   delegate_to: localhost
 
-- debug: var=oneview_logical_enclosure
+- debug: var=logical_enclosures
 
 - name: Gather facts about a Logical Enclosure by name
   oneview_logical_enclosure_facts:
@@ -1404,9 +1747,29 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
     name: "Encl1"
   delegate_to: localhost
 
-- debug: var=oneview_logical_enclosure
+- debug: var=logical_enclosures
+
+- name: Gather facts about a Logical Enclosure by name with options
+  oneview_logical_enclosure_facts:
+    config: "{{ config_file_path }}"
+    name: "Encl1"
+    options:
+      - script
+  delegate_to: localhost
+
+- debug: var=logical_enclosures
+- debug: var=logical_enclosure_script
 
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| logical_enclosure_script   | Has the facts about the script of a Logical Enclosure. |  When required, but can be null. |  complex |
+| logical_enclosures   | Has all the OneView facts about the Logical Enclosures. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -1417,37 +1780,226 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 ---
 
 
-## oneview_logical_enclosure_script_facts
-Retrieve the configuration script associated with the OneView Logical Enclosure.
+## oneview_logical_interconnect
+Manage OneView Logical Interconnect resources.
 
 #### Synopsis
- Retrieve the configuration script associated with the OneView Logical Enclosure.
+ Provides an interface to manage Logical Interconnect resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   yes  |  | |  Logical Enclosure name.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with the options.  |
+| state  |   |  | <ul> <li>compliant</li>  <li>ethernet_settings_updated</li>  <li>internal_networks_updated</li>  <li>settings_updated</li>  <li>forwarding_information_base_generated</li>  <li>qos_aggregated_configuration_updated</li>  <li>snmp_configuration_updated</li>  <li>port_monitor_updated</li>  <li>configuration_updated</li>  <li>firmware_installed</li> </ul> |  Indicates the desired state for the Logical Interconnect resource. 'compliant' brings the logical interconnect back to a consistent state. 'ethernet_settings_updated' updates the Ethernet interconnect settings for the logical interconnect. 'internal_networks_updated' updates the internal networks on the logical interconnect. This operation is non-idempotent. 'settings_updated' updates the Logical Interconnect settings. 'forwarding_information_base_generated' generates the forwarding information base dump file for the logical interconnect. This operation is non-idempotent and asynchronous. 'qos_aggregated_configuration_updated' updates the QoS aggregated configuration for the logical interconnect. 'snmp_configuration_updated' updates the SNMP configuration for the logical interconnect. 'port_monitor_updated' updates the port monitor configuration of a logical interconnect. 'configuration_updated' asynchronously applies or re-applies the logical interconnect configuration to all managed interconnects. This operation is non-idempotent. 'firmware_installed' installs firmware to a logical interconnect. The three operations that are supported for the firmware update are Stage (uploads firmware to the interconnect), Activate (installs firmware on the interconnect) and Update (which does a Stage and Activate in a sequential manner). All of them are non-idempotent.  |
 
 
-
+ 
 #### Examples
 
+```yml
+- name: Return the Logical Interconnect to a consistent state
+  oneview_logical_interconnect:
+  config: "{{ config_file_path }}"
+  state: compliant
+  data:
+    name: "Name of the Logical Interconnect"
+
+- name: Update the Ethernet interconnect settings for the logical interconnect
+  oneview_logical_interconnect:
+  config: "{{ config_file_path }}"
+  state: ethernet_settings_updated
+  data:
+    name: "Name of the Logical Interconnect"
+    ethernetSettings:
+      macRefreshInterval: 10
+
+- name: Update the internal networks on the logical interconnect
+  oneview_logical_interconnect:
+    config: "{{ config_file_path }}"
+    state: internal_networks_updated
+    data:
+      name: "Name of the Logical Interconnect"
+      internalNetworks:
+        - name: "Name of the Ethernet Network 1"
+        - name: "Name of the Ethernet Network 2"
+        - uri: "/rest/ethernet-networks/8a58cf7c-d49d-43b1-94ce-da5621be490c"
+
+- name: Update the interconnect settings
+  oneview_logical_interconnect:
+    config: "{{ config_file_path }}"
+    state: settings_updated
+    data:
+      name: "Name of the Logical Interconnect"
+      ethernetSettings:
+        macRefreshInterval: 10
+
+- name: Generate the forwarding information base dump file for the logical interconnect
+  oneview_logical_interconnect:
+    config: "{{ config_file_path }}"
+    state: forwarding_information_base_generated
+    data:
+      name: "{{ logical_interconnect_name }}"  # could also be 'uri'
+
+- name: Update the QoS aggregated configuration for the logical interconnect
+  oneview_logical_interconnect:
+    config: "{{ config_file_path }}"
+    state: qos_aggregated_configuration_updated
+    data:
+      name: "Name of the Logical Interconnect"
+      qosConfiguration:
+      activeQosConfig:
+        category: 'qos-aggregated-configuration'
+        configType: 'Passthrough'
+        downlinkClassificationType: ~
+        uplinkClassificationType: ~
+        qosTrafficClassifiers: []
+        type: 'QosConfiguration'
+
+- name: Update the SNMP configuration for the logical interconnect
+  oneview_logical_interconnect:
+  config: "{{ config_file_path }}"
+  state: snmp_configuration_updated
+  data:
+    name: "Name of the Logical Interconnect"
+    snmpConfiguration:
+      enabled: True
+
+- name: Update the port monitor configuration of the logical interconnect
+  oneview_logical_interconnect:
+    config: "{{ config_file_path }}"
+    state: port_monitor_updated
+    data:
+      name: "Name of the Logical Interconnect"
+      portMonitor:
+        enablePortMonitor: False
+
+- name: Update the configuration on the logical interconnect
+  oneview_logical_interconnect:
+  config: "{{ config_file_path }}"
+  state: configuration_updated
+  data:
+    name: "Name of the Logical Interconnect"
+
+- name: Install a firmware to the logical interconnect, running the stage operation to upload the firmware
+  oneview_logical_interconnect:
+  config: "{{ config_file_path }}"
+  state: firmware_installed
+  data:
+    name: "Name of the Logical Interconnect"
+    firmware:
+      command: Stage
+      spp: "filename"  # could also be sppUri: '/rest/firmware-drivers/<filename>'
+
 ```
-- name: Get Logical Enclosure Script by Logical Enclosure name
-  oneview_logical_enclosure_script_facts:
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| interconnect_fib   | Has the OneView facts about the Forwarding information Base. |  On 'forwarding_information_base_generated' state, but can be null. |  complex |
+| li_firmware   | Has the OneView facts about the installed Firmware. |  On 'firmware_installed' state, but can be null. |  complex |
+| port_monitor   | Has the OneView facts about the Port Monitor Configuration. |  On 'port_monitor_updated' state, but can be null. |  complex |
+| qos_configuration   | Has the OneView facts about the QoS Configuration. |  On 'qos_aggregated_configuration_updated' state, but can be null. |  complex |
+| snmp_configuration   | Has the OneView facts about the SNMP Configuration. |  On 'snmp_configuration_updated' state, but can be null. |  complex |
+| storage_volume_template   | Has the OneView facts about the Logical Interconnect. |  On 'compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',               and 'configuration_updated' states, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_logical_interconnect_facts
+Retrieve facts about one or more of the OneView Logical Interconnects.
+
+#### Synopsis
+ Retrieve facts about one or more of the OneView Logical Interconnects.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Logical Interconnect name.  |
+| options  |   No  |  | |  List with options to gather additional facts about Logical Interconnect. Options allowed: 'qos_aggregated_configuration' gets the QoS aggregated configuration for the logical interconnect. 'snmp_configuration' gets the SNMP configuration for a logical interconnect. 'port_monitor' gets the port monitor configuration of a logical interconnect. 'internal_vlans' gets the internal VLAN IDs for the provisioned networks on a logical interconnect. 'forwarding_information_base' gets the forwarding information base data for a logical interconnect. 'firmware' get the installed firmware for a logical interconnect. 'unassigned_uplink_ports' gets a collection of uplink ports from the member interconnects which are eligible for assignment to an analyzer port. 'telemetry_configuration' gets the telemetry configuration of the logical interconnect. - These options are valid just when a 'name' is provided. Otherwise it will be ignored.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Logical Interconnects
+  oneview_logical_interconnect_facts:
+  config: "{{ config }}"
+
+- debug: var=logical_interconnects
+
+- name: Gather facts about a Logical Interconnect by name with QOS Configuration
+  oneview_logical_interconnect_facts:
     config: "{{ config }}"
-    name: "Encl1"
-  delegate_to: localhost
+    name: "{{ name }}"
+    options:
+      - qos_aggregated_configuration
 
-- debug: var=oneview_logical_enclosure
+- debug: var=logical_interconnects
+- debug: var=qos_aggregated_configuration
+
+- name: Gather facts about a Logical Interconnect by name with all options
+  oneview_logical_interconnect_facts:
+    config: "{{ config }}"
+    name: "{{ name }}"
+    options:
+      - qos_aggregated_configuration
+      - snmp_configuration
+      - port_monitor
+      - internal_vlans
+      - forwarding_information_base
+      - firmware
+      - unassigned_uplink_ports
+      - telemetry_configuration
+
+- debug: var=logical_interconnects
+- debug: var=qos_aggregated_configuration
+- debug: var=snmp_configuration
+- debug: var=port_monitor
+- debug: var=internal_vlans
+- debug: var=forwarding_information_base
+- debug: var=firmware
+- debug: var=unassigned_uplink_ports
+- debug: var=telemetry_configuration
 
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| firmware   | The installed firmware for a logical interconnect. |  When requested, but can be null. |  complex |
+| forwarding_information_base   | The forwarding information base data for a logical interconnect. |  When requested, but can be null. |  complex |
+| internal_vlans   | The internal VLAN IDs for the provisioned networks on a logical interconnect. |  When requested, but can be null. |  complex |
+| logical_interconnects   | The list of logical interconnects. |  Always, but can be null. |  list |
+| port_monitor   | The port monitor configuration of a logical interconnect. |  When requested, but can be null. |  complex |
+| qos_aggregated_configuration   | The QoS aggregated configuration for the logical interconnect. |  When requested, but can be null. |  complex |
+| snmp_configuration   | The SNMP configuration for a logical interconnect. |  When requested, but can be null. |  complex |
+| telemetry_configuration   | The telemetry configuration of the logical interconnect. |  When requested, but can be null. |  complex |
+| unassigned_uplink_ports   | A collection of uplink ports from the member interconnects which are eligible for assignment to an analyzer port on a logical interconnect. |  When requested, but can be null. |  complex |
 
 
 #### Notes
@@ -1466,21 +2018,21 @@ Manage OneView Logical Interconnect Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| data  |   yes  |  | |  List with the Logical Interconnect Group properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Interconnect Group resource. 'present' will ensure data properties are compliant to OneView. 'absent' will remove the resource from OneView, if it exists.  |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with the Logical Interconnect Group properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Interconnect Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Ensure that the Logical Interconnect Group is present
   oneview_logical_interconnect_group:
     config: "{{ config_file_path }}"
@@ -1511,6 +2063,14 @@ Manage OneView Logical Interconnect Group resources.
 ```
 
 
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| logical_interconnect_group   | Has the facts about the OneView Logical Interconnect Group. |  On state 'present'. Can be null. |  complex |
+
+
 #### Notes
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
@@ -1527,20 +2087,20 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Logical Interconnect Group name.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Logical Interconnect Group name.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Gather facts about all Logical Interconnect Groups
   oneview_logical_interconnect_group_facts:
     config: "{{ config_file_path }}"
@@ -1557,9 +2117,1107 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups.
 ```
 
 
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| logical_interconnect_groups   | Has all the OneView facts about the Logical Interconnect Groups. |  Always, but can be null. |  complex |
+
+
 #### Notes
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_logical_switch
+Manage OneView Logical Switch resources.
+
+#### Synopsis
+ Provides an interface to manage Logical Switch resources. Can create, update, delete, or refresh.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with the Logical Switches properties. You can choose set the Logical Switch Group by logicalSwitchGroupName or logicalSwitchGroupUri.  |
+| state  |   |  | <ul> <li>present</li>  <li>updated</li>  <li>absent</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Logical Switch resource. 'present' creates a Logical Switch, if it doesn't exist. To update the Logical Switch, use the 'updated' state instead. 'updated' ensures the Logical Switch is updated. Currently OneView only supports updating the credentials and name of the Logical Switch. To change the name of the Logical Switch, a 'newName' in the data must be provided. The update operation is non-idempotent. 'absent' removes the resource from OneView, if it exists. 'refreshed' reclaims the top-of-rack switches in the logical switch. This operation is non-idempotent.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Create a Logical Switch
+  oneview_logical_switch:
+    config: "{{ config_path }}"
+    state: present
+    data:
+      logicalSwitch:
+        name: 'Test Logical Switch'
+        # You can choose set the Logical Switch Group by logicalSwitchGroupName or logicalSwitchGroupUri
+        logicalSwitchGroupName: 'Group Nexus 55xx'                                                   # option 1
+        # logicalSwitchGroupUri: '/rest/logical-switch-groups/dce11b79-6fce-48af-84fb-a315b9644571'  # option 2
+        switchCredentialConfiguration:
+          - snmpV1Configuration:  # Switch 1
+              communityString: 'public'
+            logicalSwitchManagementHost: '172.18.16.1'
+            snmpVersion: 'SNMPv1'
+            snmpPort: 161
+          - snmpV1Configuration:  # Switch 2
+              communityString: 'public'
+            logicalSwitchManagementHost: '172.18.16.2'
+            snmpVersion: 'SNMPv1'
+            snmpPort: 161
+      logicalSwitchCredentials:
+        - connectionProperties:  # Switch 1
+            - propertyName: 'SshBasicAuthCredentialUser'
+              value: 'ssh_username_switch_1'
+              valueFormat: 'Unknown'
+              valueType: 'String'
+            - propertyName: 'SshBasicAuthCredentialPassword'
+              value: 'ssh_password_switch_1'
+              valueFormat: 'SecuritySensitive'
+              valueType: 'String'
+        - connectionProperties:  # Switch 2
+            - propertyName: 'SshBasicAuthCredentialUser'
+              value: 'ssh_username_switch_2'
+              valueFormat: 'Unknown'
+              valueType: 'String'
+            - propertyName: 'SshBasicAuthCredentialPassword'
+              value: 'ssh_password_switch_2'
+              valueFormat: 'SecuritySensitive'
+              valueType: 'String'
+
+- name: Update the Logical Switch name and credentials
+  oneview_logical_switch:
+    config: "{{ config_path }}"
+    state: updated
+    data:
+      logicalSwitch:
+        name: 'Test Logical Switch'
+        newName: 'Test Logical Switch - Renamed'
+      logicalSwitchCredentials:
+        - connectionProperties:  # Switch 1
+            - propertyName: 'SshBasicAuthCredentialUser'
+              value: 'ssh_username_switch_1'
+              valueFormat: 'Unknown'
+              valueType: 'String'
+            - propertyName: 'SshBasicAuthCredentialPassword'
+              value: 'ssh_password_switch_1'
+              valueFormat: 'SecuritySensitive'
+              valueType: 'String'
+        - connectionProperties:  # Switch 2
+            - propertyName: 'SshBasicAuthCredentialUser'
+              value: 'ssh_username_switch_2'
+              valueFormat: 'Unknown'
+              valueType: 'String'
+            - propertyName: 'SshBasicAuthCredentialPassword'
+              value: 'ssh_password_switch_2'
+              valueFormat: 'SecuritySensitive'
+              valueType: 'String'
+
+- name: Reclaim the top-of-rack switches in the logical switch
+  oneview_logical_switch:
+    config: "{{ config_path }}"
+    state: refreshed
+    data:
+      logicalSwitch:
+        name: 'Test Logical Switch'
+
+- name: Delete a Logical Switch
+  oneview_logical_switch:
+    config: "{{ config_path }}"
+    state: absent
+    data:
+      logicalSwitch:
+        name: 'Test Logical Switch'
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| logical_switch   | Has the facts about the OneView Logical Switch. |  On the states 'present', 'updated', and 'refreshed'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_logical_switch_facts
+Retrieve the facts about one or more of the OneView Logical Switches.
+
+#### Synopsis
+ Retrieve the facts about one or more of the Logical Switches from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Logical Switch name.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Logical Switches
+  oneview_logical_switch_facts:
+    config: "{{ config_file_path }}"
+
+- debug: var=logical_switches
+
+- name: Gather facts about a Logical Switch by name
+  oneview_logical_switch_facts:
+    config: "{{ config_file_path }}"
+    name: 'Name of the Logical Switch'
+
+- debug: var=logical_switches
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| logical_switches   | Has all the OneView facts about the Logical Switches. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_logical_switch_group
+Manage OneView Logical Switch Group resources.
+
+#### Synopsis
+ Provides an interface to manage Logical Switch Group resources. Can add, update, remove.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Logical Switch Group properties and its associated states.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Switch Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Create a Logical Switch Group
+  oneview_logical_switch_group:
+    config: "{{ config }}"
+    state: present
+    data:
+        type: "logical-switch-group"
+        name: "OneView Test Logical Switch Group"
+        switchMapTemplate:
+            switchMapEntryTemplates:
+                - logicalLocation:
+                    locationEntries:
+                       - relativeValue: 1
+                         type: "StackingMemberId"
+                  # You can choose either permittedSwitchTypeName or permittedSwitchTypeUri to inform the Switch Type
+                  permittedSwitchTypeName: 'Cisco Nexus 50xx'
+                  permittedSwitchTypeUri: '/rest/switch-types/2f36bc8f-65d8-4ea2-9300-750180402a5e'
+  delegate_to: localhost
+
+- name: Update the Logical Switch Group
+  oneview_logical_switch_group:
+    config: "{{ config }}"
+    state: present
+    data:
+        type: "logical-switch-group"
+        name: "OneView Test Logical Switch Group"
+        newName: "Test Logical Switch Group"
+        switchMapTemplate:
+            switchMapEntryTemplates:
+                - logicalLocation:
+                    locationEntries:
+                       - relativeValue: 1
+                         type: "StackingMemberId"
+                  permittedSwitchTypeUri: '/rest/switch-types/2f36bc8f-65d8-4ea2-9300-750180402a5e'
+  delegate_to: localhost
+
+- name: Delete the Logical Switch Group
+  oneview_logical_switch_group:
+    config: "{{ config }}"
+    state: absent
+    data:
+        name: 'Test Logical Switch Group'
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| logical_switch_group   | Has the OneView facts about the Logical Switch Group. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_logical_switch_group_facts
+Retrieve facts about OneView Logical Switch Groups.
+
+#### Synopsis
+ Retrieve facts about the Logical Switch Groups of the OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Logical Switch Group name.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Logical Switch Groups
+  oneview_logical_switch_group_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=logical_switch_groups
+
+- name: Gather facts about a Logical Switch Group by name
+  oneview_logical_switch_group_facts:
+    config: "{{ config }}"
+    name: "LogicalSwitchGroupDemo"
+  delegate_to: localhost
+
+- debug: var=logical_switch_groups
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| logical_switch_groups   | Has all the OneView facts about the Logical Switch Groups. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_managed_san
+Manage OneView Managed SAN resources.
+
+#### Synopsis
+ Provides an interface to manage Managed SAN resources. Can update the Managed SAN, set the refresh state, create a SAN endpoints CSV file, and create an unexpected zoning issue report.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Managed SAN properties and its associated states. Warning: For the 'present' state, the contents of the publicAttributes will replace the existing list, so leaving out a public attribute from the given list will effectively delete it.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>refresh_state_set</li>  <li>endpoints_csv_file_created</li>  <li>issues_report_created</li> </ul> |  Indicates the desired state for the Managed SAN resource. 'present' ensures data properties are compliant with OneView. 'refresh_state_set' updates the refresh state of the Managed SAN. 'endpoints_csv_file_created' creates a SAN endpoints CSV file. 'issues_report_created' creates an unexpected zoning report for a SAN.  |
+
+
+ 
+#### Examples
+
+```yml
+  - name: Refresh the Managed SAN
+    oneview_managed_san:
+      config: '{{ config_path }}'
+      state: refresh_state_set
+      data:
+          name: 'SAN1_0'
+          refreshStateData:
+              refreshState: 'RefreshPending'
+    delegate_to: localhost
+
+  - name: Update the Managed SAN
+    oneview_managed_san:
+      config: '{{ config_path }}'
+      state: present
+      data:
+          name: 'SAN1_0'
+          publicAttributes:
+            - name: 'MetaSan'
+              value: 'Neon SAN'
+              valueType: 'String'
+              valueFormat: 'None'
+          sanPolicy:
+            zoningPolicy: 'SingleInitiatorAllTargets'
+            zoneNameFormat: '{hostName}_{initiatorWwn}'
+            enableAliasing: True
+            initiatorNameFormat: '{hostName}_{initiatorWwn}'
+            targetNameFormat: '{storageSystemName}_{targetName}'
+            targetGroupNameFormat: '{storageSystemName}_{targetGroupName}'
+    delegate_to: localhost
+
+  - name: Create an endpoints CSV file for the SAN
+    oneview_managed_san:
+      config: '{{ config }}'
+      state: endpoints_csv_file_created
+      data:
+          name: '{{ name }}'
+    delegate_to: localhost
+
+  - name: Create an unexpected zoning report for the SAN
+    oneview_managed_san:
+      config: '{{ config }}'
+      state: issues_report_created
+      data:
+          name: '{{ name }}'
+    delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| managed_san   | Has the OneView facts about the Managed SAN. |  On states 'present' and 'refresh_state_set'. Can be null. |  complex |
+| managed_san_endpoints   | Has the OneView facts about the Endpoints CSV File created. |  On state 'endpoints_csv_file_created'. Can be null. |  complex |
+| managed_san_issues   | Has the OneView facts about the unexpected zoning report created. |  On state 'issues_report_created'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_managed_san_facts
+Retrieve facts about the OneView Managed SANs.
+
+#### Synopsis
+ Retrieve facts about the OneView Managed SANs.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Name of the Managed SAN.  |
+| options  |   No  |  | |  List with options to gather additional facts about Managed SAN. Options allowed: 'endpoints' gets the list of endpoints in the SAN identified by name.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Managed SANs
+  oneview_managed_san_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=managed_sans
+
+- name: Gather facts about a Managed SAN by name
+  oneview_managed_san_facts:
+    config: "{{ config_path }}"
+    name: "SAN1_0"
+  delegate_to: localhost
+
+- debug: var=managed_sans
+
+- name: Gather facts about the endpoints in the SAN identified by name
+  oneview_managed_san_facts:
+    config: "{{ config_path }}"
+    name: "SAN1_0"
+    options:
+      - endpoints
+  delegate_to: localhost
+
+- debug: var=managed_sans
+- debug: var=managed_san_endpoints
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| managed_san_endpoints   | The list of endpoints in the SAN identified by name. |  When requested, but can be null. |  complex |
+| managed_sans   | The list of Managed SANs. |  Always, but can be null. |  list |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_network_set
+Manage OneView Network Set resources.
+
+#### Synopsis
+ Provides an interface to manage Network Set resources. Can create, update, or delete.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with the Network Set properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Network Set resource. 'present' ensures data properties are compliant with OneView. 'absent' removes the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Create a Network Set
+  oneview_network_set:
+    config: '{{ config_path }}'
+    state: present
+    data:
+      name: 'OneViewSDK Test Network Set'
+      networkUris:
+        - 'Test Ethernet Network_1'                                       # can be a name
+        - '/rest/ethernet-networks/e4360c9d-051d-4931-b2aa-7de846450dd8'  # or a URI
+
+- name: Update the Network Set name to 'OneViewSDK Test Network Set - Renamed' and change the associated networks
+  oneview_network_set:
+    config: '{{ config_path }}'
+    state: present
+    data:
+      name: 'OneViewSDK Test Network Set'
+      newName: 'OneViewSDK Test Network Set - Renamed'
+      networkUris:
+        - 'Test Ethernet Network_1'
+
+- name: Delete the Network Set
+  oneview_network_set:
+    config: '{{ config_path }}'
+    state: absent
+    data:
+        name: 'OneViewSDK Test Network Set - Renamed'
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| network_set   | Has the facts about the Network Set. |  On state 'present', but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_network_set_facts
+Retrieve facts about the OneView Network Sets.
+
+#### Synopsis
+ Retrieve facts about the Network Sets from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Network Set name.  |
+| options  |   No  |  | |  List with options to gather facts about Network Set. Option allowed: withoutEthernet The option 'withoutEthernet' retrieves the list of network_sets excluding Ethernet networks.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Network Sets
+  oneview_network_set_facts:
+    config: '{{ config_path }}'
+
+- debug: var=network_sets
+
+
+- name: Gather facts about all Network Sets, excluding Ethernet networks
+  oneview_network_set_facts:
+    config: '{{ config_path }}'
+    options:
+        - withoutEthernet
+
+- debug: var=network_sets
+
+
+- name: Gather facts about a Network Set by name
+  oneview_network_set_facts:
+    config: '{{ config_path }}'
+    name: 'Name of the Network Set'
+
+- debug: var=network_sets
+
+
+- name: Gather facts about a Network Set by name, excluding Ethernet networks
+  oneview_network_set_facts:
+    config: '{{ config_path }}'
+    name: 'Name of the Network Set'
+    options:
+        - withoutEthernet
+
+- debug: var=network_sets
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| network_sets   | Has all the OneView facts about the Network Sets. |  Always, but can be empty. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_power_device
+Manage OneView Power Device resources.
+
+#### Synopsis
+ Provides an interface to manage Power delivery devices resources. Can add, update, remove, change power state, change UID state and refresh state.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Power Device properties and its associated states.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>discovered</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>uid_state_set</li> </ul> |  Indicates the desired state for the Power Device resource. 'present' will ensure data properties are compliant with OneView. 'discovered' will add an iPDU to the OneView. 'absent' will remove the resource from OneView, if it exists. 'power_state_set' will set the power state of the Power Device. 'refresh_state_set' will set the refresh state of the Power Device. 'uid_state_set' will set the UID state of the Power Device.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Add a Power Device
+  oneview_power_device:
+    config: "{{ config }}"
+    state: present
+    data:
+        name: 'Power Device Name'
+        ratedCapacity: 40
+  delegate_to: localhost
+
+- name: Add an iPDU
+  oneview_power_device:
+    config: "{{ config }}"
+    state: discovered
+    data:
+         hostname : '{{ power_device_hostname }}'
+         username : '{{ power_device_username }}'
+         password : '{{ power_device_password }}'
+         force : false
+  delegate_to: localhost
+
+- name: Power off the Power Device
+  oneview_power_device:
+    config: "{{ config }}"
+    state: power_state_set
+    data:
+        name: 'Power Device Name'
+        powerStateData:
+            powerState: "Off"
+  delegate_to: localhost
+
+- name: Refresh the Power Device
+  oneview_power_device:
+    config: "{{ config }}"
+    state: refresh_state_set
+    data:
+        name: 'Power Device Name'
+        refreshStateData:
+            refreshState : "RefreshPending"
+  delegate_to: localhost
+
+- name: Set UID light state of the Power Device on
+  oneview_power_device:
+    config: "{{ config }}"
+    state: uid_state_set
+    data:
+        name: 'Power Device Name'
+        uidStateData:
+            uidState: "On"
+  delegate_to: localhost
+
+- name: Remove the Power Device by its name
+  oneview_power_device:
+    config: "{{ config }}"
+    state: absent
+    data:
+        name: 'Power Device Name'
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| power_device   | Has the OneView facts about the Power Device. |  On states 'present', 'discovered', 'power_state_set', 'refresh_state_set', 'uid_state_set'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_power_device_facts
+Retrieve facts about the OneView Power Devices.
+
+#### Synopsis
+ Retrieve facts about the Power Delivery Devices from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Power Device name.  |
+| options  |   No  |  | |  List with options to gather additional facts about Power Device. Options allowed: powerState, uidState, utilization  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Power Devices
+  oneview_power_device_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+- debug: msg="{{power_devices | map(attribute='name') | list }}"
+
+- name: Gather facts about a Power Device by name
+  oneview_power_device_facts:
+    config: "{{ config }}"
+    name: "Power Device Name"
+  delegate_to: localhost
+- debug: var=power_devices
+
+- name: Gather facts about the power state of a Power Device
+  oneview_power_device_facts:
+    config: "{{ config }}"
+    name: "Power Device Name"
+    options:
+      - powerState            # optional
+  delegate_to: localhost
+- debug: msg="{{power_devices | map(attribute='name') | list }}"
+- debug: var=power_device_power_state
+
+- name: Gather all facts about a Power Device with all options
+  oneview_power_device_facts:
+   config: "{{ config }}"
+   name : "Power Device Name"
+   options:
+       - powerState             # optional
+       - uidState               # optional
+       - utilization:           # optional
+                fields : 'AveragePower'
+                filter : ['startDate=2016-05-30T03:29:42.000Z']
+                view : 'day'
+  delegate_to: localhost
+
+- debug: msg="{{power_devices | map(attribute='name') | list }}"
+- debug: var=power_device_power_state
+- debug: var=power_device_uid_state
+- debug: var=power_device_utilization
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| power_device_power_state   | Has all the facts about the Power state of the Power Device. |  When requested, but can be null. |  complex |
+| power_device_uid_state   | Has all the facts about the Power Device UID state. |  When requested, but can be null. |  complex |
+| power_device_utilization   | Has all the facts about the Power Device utilization. |  When requested, but can be null. |  complex |
+| power_devices   | Has all the OneView facts about the Power Device. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_rack
+Manage OneView Racks resources.
+
+#### Synopsis
+ Provides an interface to manage Rack resources. Can create, update, delete.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with the Rack properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Rack resource. 'present' will ensure data properties are compliant with OneView. To change the name of the Rack, a 'newName' in the data must be provided. 'absent' will remove the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Ensure that a Rack is present using the default configuration
+  oneview_rack:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Rack Name'
+
+- name: Add rack with custom size and a single mounted enclosure at slot 20
+  oneview_rack:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Rack101'
+      depth: 1500
+      height: 2500
+      width: 1200
+      rackMounts:
+        - mountUri: "/rest/enclosures/39SGH102X6J2"
+          topUSlot: 20
+          uHeight: 10
+
+- name: Rename the Rack to 'Rack101'
+  oneview_rack:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Rack Name'
+      newName: 'Rack101'
+
+- name: Ensure that Rack is absent
+  oneview_rack:
+    config: "{{ config_file_path }}"
+    state: absent
+    data:
+      name: 'Rack Name'
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| rack   | Has the facts about the OneView Racks. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_rack_facts
+Retrieve facts about Rack resources.
+
+#### Synopsis
+ Gets a list of rack resources. Filter by name can be used to get a specific Rack. If a name is specified, it is  allowed retrieve information about the device topology.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Rack name.  |
+| options  |   No  |  | |  Retrieve additional facts. Options available: 'deviceTopology'  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Racks
+  oneview_rack_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=racks
+
+
+- name: Gather facts about a Rack by name
+  oneview_rack_facts:
+    config: "{{ config }}"
+    name: "Rack Name"
+  delegate_to: localhost
+
+- debug: var=racks
+
+
+- name: Gather facts about the topology information for the rack
+  oneview_rack_facts:
+    config: "{{ config }}"
+    name: "Rack Name"
+    options:
+      - deviceTopology
+  delegate_to: localhost
+
+- debug: var=racks
+- debug: var=rack_device_topology
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| rack_device_topology   | Retrieves the topology information for the rack resource. |  When requested, but can be null. |  complex |
+| racks   | Has all the OneView facts about the Racks. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_san_manager
+Manage OneView SAN Manager resources.
+
+#### Synopsis
+ Provides an interface to manage SAN Manager resources. Can create, update, or delete.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with SAN Manager properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Uplink Set resource. 'present' ensures data properties are compliant with OneView. 'absent' removes the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Creates a Device Manager for the Brocade SAN provider with the given hostname and credentials
+  oneview_san_manager:
+    config: "{{ config }}"
+    state: present
+    data:
+      providerDisplayName: 'Brocade Network Advisor'
+      connectionInfo:
+        - name: Host
+          value: '172.18.15.1'
+        - name: Port
+          value: '5989'
+        - name: Username
+          value: 'username'
+        - name: Password
+          value: 'password'
+        - name: UseSsl
+          value: true
+
+- name: Update the SAN Manager
+  oneview_san_manager:
+    config: "{{ config_path }}"
+    state: present
+    data:
+      providerDisplayName: 'Brocade Network Advisor'
+      refreshStateData:
+        refreshState: 'RefreshPending'
+
+- name: Delete the SAN Manager recently created
+  oneview_san_manager:
+    config: "{{ config_path }}"
+    state: absent
+    data:
+      providerDisplayName: 'Brocade Network Advisor'
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| san_manager   | Has the OneView facts about the SAN Manager. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+
+
+---
+
+
+## oneview_san_manager_facts
+Retrieve facts about one or more of the OneView SAN Managers.
+
+#### Synopsis
+ Retrieve facts about one or more of the SAN Managers from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| provider_display_name  |   No  |  | |  Provider Display Name.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all SAN Managers
+    oneview_san_manager_facts:
+    config: "{{ config_path }}"
+
+- debug: var=san_managers
+
+- name: Gather facts about a SAN Manager by provider display name
+    oneview_san_manager_facts:
+    config: "{{ config_path }}"
+    provider_display_name: "Brocade Network Advisor"
+
+- debug: var=san_managers
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| san_managers   | Has all the OneView facts about the SAN Managers. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
 
 
 ---
@@ -1569,25 +3227,25 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups.
 Manage OneView Server Hardware resources.
 
 #### Synopsis
- Provides an interface to manage Server Hardware resources. Can add, update, remove and change power state.
+ Provides an interface to manage Server Hardware resources. Can add, update, remove, change power state and refresh state.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| data  |   yes  |  | |  List with Server Hardware properties and its associated states  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>power_state_set</li> <li>refresh_state_set</li> <li>ilo_firmware_version_updated</li> </ul> |  Indicates the desired state for the Server Hardware resource. 'present' will ensure data properties are compliant to OneView. 'absent' will remove the resource from OneView, if it exists. 'power_state_set' will set the power state of the Server Hardware. 'refresh_state_set will set the refresh state of the Server Hardware. 'ilo_firmware_version_updated' will update the iLO firmware version of the Server Hardware.  |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Server Hardware properties and its associated states.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>ilo_firmware_version_updated</li> </ul> |  Indicates the desired state for the Server Hardware resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'power_state_set' will set the power state of the Server Hardware. 'refresh_state_set will set the refresh state of the Server Hardware. 'ilo_firmware_version_updated' will update the iLO firmware version of the Server Hardware.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Add a Server Hardware
   oneview_server_hardware:
     config: "{{ config }}"
@@ -1600,7 +3258,7 @@ Manage OneView Server Hardware resources.
          licensingIntent: "OneView"
          configurationState: "Managed"
   delegate_to: localhost
-  
+
 - name: Power Off the server hardware
   oneview_server_hardware:
     config: "{{ config }}"
@@ -1611,7 +3269,7 @@ Manage OneView Server Hardware resources.
             powerState: "Off"
             powerControl: "MomentaryPress"
   delegate_to: localhost
-  
+
 - name: Refresh the server hardware
   oneview_server_hardware:
     config: "{{ config }}"
@@ -1621,7 +3279,7 @@ Manage OneView Server Hardware resources.
         refreshStateData:
             refreshState : "RefreshPending"
   delegate_to: localhost
-  
+
 - name: Update the Server Hardware iLO firmware version
   oneview_server_hardware:
     config: "{{ config }}"
@@ -1629,7 +3287,7 @@ Manage OneView Server Hardware resources.
     data:
         hostname : "172.18.6.15"
   delegate_to: localhost
-  
+
 - name: Set the calibrated max power of a server hardware
   oneview_server_hardware:
     config: "{{ config }}"
@@ -1638,7 +3296,7 @@ Manage OneView Server Hardware resources.
         hostname : "172.18.6.15"
         calibratedMaxPower: 2500
   delegate_to: localhost
-  
+
 - name: Remove the server hardware by its IP
   oneview_server_hardware:
     config: "{{ config }}"
@@ -1646,7 +3304,16 @@ Manage OneView Server Hardware resources.
     data:
         hostname : "172.18.6.15"
   delegate_to: localhost
+
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| server_hardware   | Has the OneView facts about the Server Hardware. |  On states 'present', 'power_state_set', 'refresh_state_set', 'ilo_firmware_version_updated'. Can be null. |  complex |
 
 
 #### Notes
@@ -1665,26 +3332,27 @@ Retrieve facts about the OneView Server Hardwares.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Server Hardware name.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Server Hardware name.  |
+| options  |   No  |  | |  List with options to gather additional facts about Server Hardware related resources. Options allowed: bios, javaRemoteConsoleUrl, environmentalConfig, iloSsoUrl, remoteConsoleUrl, utilization  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Gather facts about all Server Hardwares
   oneview_server_hardware_facts:
     config: "{{ config }}"
   delegate_to: localhost
 
-- debug: var=oneview_server_hardware
+- debug: var=server_hardwares
 
 
 - name: Gather facts about a Server Hardware by name
@@ -1693,9 +3361,182 @@ Retrieve facts about the OneView Server Hardwares.
     name: "172.18.6.15"
   delegate_to: localhost
 
-- debug: var=oneview_server_hardware
+- debug: var=server_hardwares
+
+
+- name: Gather BIOS facts about a Server Hardware
+  oneview_server_hardware_facts:
+    config: "{{ config }}"
+    name: "Encl1, bay 1"
+    options:
+      - bios
+  delegate_to: localhost
+
+- debug: var=server_hardwares
+- debug: var=server_hardware_bios
+
+
+- name: Gather all facts about a Server Hardware
+  oneview_server_hardware_facts:
+   config: "{{ config }}"
+   name : "Encl1, bay 1"
+   options:
+       - bios                   # optional
+       - javaRemoteConsoleUrl   # optional
+       - environmentalConfig    # optional
+       - iloSsoUrl              # optional
+       - remoteConsoleUrl       # optional
+       - utilization:           # optional
+                fields : 'AveragePower'
+                filter : ['startDate=2016-05-30T03:29:42.000Z']
+                view : 'day'
+  delegate_to: localhost
+
+- debug: var=server_hardwares
+- debug: var=server_hardware_bios
+- debug: var=server_hardware_env_config
+- debug: var=server_hardware_java_remote_console_url
+- debug: var=server_hardware_ilo_sso_url
+- debug: var=server_hardware_remote_console_url
+- debug: var=server_hardware_utilization
 
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| server_hardware_bios   | Has all the facts about the Server Hardware BIOS. |  When requested, but can be null. |  complex |
+| server_hardware_env_config   | Has all the facts about the Server Hardware environmental configuration. |  When requested, but can be null. |  complex |
+| server_hardware_ilo_sso_url   | Has the facts about the Server Hardware iLO SSO url. |  When requested, but can be null. |  complex |
+| server_hardware_java_remote_console_url   | Has the facts about the Server Hardware java console url. |  When requested, but can be null. |  complex |
+| server_hardware_remote_console_url   | Has the facts about the Server Hardware remote console url. |  When requested, but can be null. |  complex |
+| server_hardware_utilization   | Has all the facts about the Server Hardware utilization. |  When requested, but can be null. |  complex |
+| server_hardwares   | Has all the OneView facts about the Server Hardware. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_server_hardware_type
+Manage OneView Server Hardware Type resources.
+
+#### Synopsis
+ Provides an interface to manage Server Hardware Type resources. Can update, remove.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Server Hardware Type properties and its associated states.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Server Hardware Type resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Update the Server Hardware Type description
+  oneview_server_hardware_type:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: 'DL380p Gen8 1'
+      description: "New Description"
+  delegate_to: localhost
+
+- name: Rename the Server Hardware Type
+  oneview_server_hardware_type:
+    config: "{{ config }}"
+    state: present
+    data:
+        name: 'DL380p Gen8 1'
+        newName: 'DL380p Gen8 1 (new name)'
+  delegate_to: localhost
+
+- name: Delete the Server Hardware Type
+  oneview_server_hardware_type:
+    config: "{{ config }}"
+    state: absent
+    data:
+        name: 'DL380p Gen8 1 (new name)'
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| server_hardware_type   | Has the OneView facts about the Server Hardware Type. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_server_hardware_type_facts
+Retrieve facts about Server Hardware Types of the OneView.
+
+#### Synopsis
+ Retrieve facts about Server Hardware Types of the OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Server Hardware Type name.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Server Hardware Types
+  oneview_server_hardware_type_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=server_hardware_types
+
+- name: Gather facts about a Server Hardware Type by name
+  oneview_server_hardware_type_facts:
+    config: "{{ config }}"
+    name: "BL460c Gen8 1"
+  delegate_to: localhost
+- debug: var=server_hardware_types
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| server_hardware_types   | Has all the OneView facts about the Server Hardware Types. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -1707,40 +3548,436 @@ Retrieve facts about the OneView Server Hardwares.
 
 
 ## oneview_server_profile
-Selects a server hardware automatically based on the server hardware template.
+Manage OneView Server Profile resources.
 
 #### Synopsis
- Manage the servers lifecycle with OneView Server Profiles using an existing server profile template.
+ Manage the servers lifecycle with OneView Server Profiles. On 'present' state, it selects a server hardware automatically based on the server profile configuration if no server hardware was provided.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| username  |   yes  |  | |  Username that will be used to authenticate on the provided OneView appliance.  |
-| name  |   yes  |  | |  Name of the server profile that will be created or updated.  |
-| oneview_host  |   yes  |  | |  OneView appliance IP or hostname.  |
-| server_template  |   yes  |  | |  Name of the server profile template that will be used to provision the server profiles.  |
-| state  |   |  present  | <ul> <li>present</li>  <li>powered_off</li>  <li>absent</li>  <li>powered_on</li>  <li>restarted</li> </ul> |  Desired state for the server profile by the end of the playbook execution.  |
-| password  |   yes  |  | |  Password that will be used to authenticate on the provided OneView appliance.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Server Profile properties.  |
+| state  |   |  present  | <ul> <li>present</li>  <li>absent</li>  <li>compliant</li> </ul> |  Indicates the desired state for the Server Profile resource by the end of the playbook execution. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'compliant' will make the server profile complient with its server profile template, when this option was specified.  |
 
 
-
+ 
 #### Examples
 
-```
-- oneview_server_profile:
-    oneview_host: <ip>
-    username: oneview_username
-    password: oneview_password
-    server_template: Compute-node-template
-    name: <server-profile-name>
+```yml
+- name: Create a Server Profile from a Server Profile Template with automatically selected hardware
+  oneview_server_profile:
+    config: "{{ config }}"
+    state: "present"
+    data:
+        name: Web-Server-L2
+        # You can choose either server_template or serverProfileTemplateUri to inform the Server Profile Template
+        # serverProfileTemplateUri: "/rest/server-profile-templates/31ade62c-2112-40a0-935c-2f9450a75198"
+        server_template: Compute-node-template
+        # You can inform a server_hardware or a serverHardwareUri. If any hardware was informed, it will try
+        # get one available automatically
+        # server_hardware: "Encl1, bay 12"
+        # serverHardwareUri: "/rest/server-hardware/30303437-3933-4753-4831-30335835524E"
+
+- debug: var=server_profile
+- debug: var=serial_number
+- debug: var=server_hardware
+- debug: var=compliance_preview
+- debug: var=created
+
+- name : Remediate compliance issues
+  oneview_server_profile:
+     config: "{{ config }}"
+     state: "compliant"
+     data:
+        name: Web-Server-L2
+
+- name : Remove the server profile
+  oneview_server_profile:
+    config: "{{ config }}"
+    state: "absent"
+    data:
+        name: Web-Server-L2
 
 ```
 
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| compliance_preview   | Has the OneView facts about the manual and automatic updates required to make the server profile consistent with its template. |  On states 'present' and 'compliant'. |  complex |
+| created   | Indicates if the Server Profile was created. |  On states 'present' and 'compliant'. |  bool |
+| serial_number   | Has the Server Profile serial number. |  On states 'present' and 'compliant'. |  complex |
+| server_hardware   | Has the OneView facts about the Server Hardware. |  On states 'present' and 'compliant'. |  complex |
+| server_profile   | Has the OneView facts about the Server Profile. |  On states 'present' and 'compliant'. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_server_profile_facts
+Retrieve facts about the OneView Server Profiles.
+
+#### Synopsis
+ Retrieve facts about the Server Profile from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Server Profile name.  |
+| options  |   No  |  | |  List with options to gather additional facts about Server Profile related resources. Options allowed: schema, compliancePreview, profilePorts, messages, transformation, available_networks, available_servers, available_storage_system, available_storage_systems, available_targets  To gather facts about 'compliancePreview', 'messages' and 'transformation' it is required inform the Server Profile name. Otherwise, these options will be ignored.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Server Profiles
+  oneview_server_profile_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=server_profiles
+
+
+- name: Gather facts about a Server Profile by name
+  oneview_server_profile_facts:
+    config: "{{ config }}"
+    name: "WebServer-1"
+  delegate_to: localhost
+
+- debug: var=server_profiles
+
+
+- name: Gather facts about available servers and bays for a given enclosure group and server hardware type
+  oneview_server_profile_facts:
+    config: "{{ config }}"
+    options:
+      - availableTargets:
+          enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
+          serverHardwareTypeUri: '/rest/server-hardware-types/C8DEF9A6-9586-465E-A951-3070988BC226'
+  delegate_to: localhost
+
+- debug: var=server_profile_available_targets
+
+
+- name: Gather all facts about a Server Profile
+  oneview_server_profile_facts:
+   config: "{{ config }}"
+   name : "Encl1, bay 1"
+   options:
+        - schema
+        - compliancePreview
+        - profilePorts:
+           enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
+           serverHardwareTypeUri: '/rest/server-hardware-types/C8DEF9A6-9586-465E-A951-3070988BC226'
+        - messages
+        - transformation:
+            enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
+            serverHardwareTypeUri: '/rest/server-hardware-types/C8DEF9A6-9586-465E-A951-3070988BC226'
+        - availableNetworks:
+            enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
+            serverHardwareTypeUri: '/rest/server-hardware-types/C8DEF9A6-9586-465E-A951-3070988BC226'
+        - availableServers
+        - availableStorageSystem:
+            storageSystemId: "{{storage_system_id}}"
+            enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
+            serverHardwareTypeUri: '/rest/server-hardware-types/C8DEF9A6-9586-465E-A951-3070988BC226'
+        - availableStorageSystems:
+            enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
+            serverHardwareTypeUri: '/rest/server-hardware-types/C8DEF9A6-9586-465E-A951-3070988BC226'
+        - availableTargets
+
+  delegate_to: localhost
+
+- debug: var=server_profiles
+- debug: var=server_profile_schema
+- debug: var=server_profile_compliance_preview
+- debug: var=server_profile_profile_ports
+- debug: var=server_profile_messages
+- debug: var=server_profile_transformation
+- debug: var=server_profile_available_networks
+- debug: var=server_profile_available_servers
+- debug: var=server_profile_available_storage_system
+- debug: var=server_profile_available_storage_systems
+- debug: var=server_profile_available_targets
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| server_profile_available_networks   | Has all the facts about the list of Ethernet networks, Fibre Channel networks and network sets that are available to the server profile along with their respective ports. |  When requested, but can be null. |  complex |
+| server_profile_available_servers   | Has the facts about the list of available servers. |  When requested, but can be null. |  complex |
+| server_profile_available_storage_system   | Has the facts about a specific storage system and its associated volumes that are available to the server profile. |  When requested, but can be null. |  complex |
+| server_profile_available_storage_systems   | Has the facts about the list of the storage systems and their associated volumes that are available to the server profile. |  When requested, but can be null. |  complex |
+| server_profile_available_targets   | Has the facts about the target servers and empty device bays that are available for assignment to the server profile. |  When requested, but can be null. |  complex |
+| server_profile_compliance_preview   | Has all the facts about the manual and automatic updates required to make the server profile compliant with its template. |  When requested, but can be null. |  complex |
+| server_profile_messages   | Has the facts about the profile status messages associated with the profile. |  When requested, but can be null. |  complex |
+| server_profile_profile_ports   | Has the facts about the port model associated. |  When requested, but can be null. |  complex |
+| server_profile_schema   | Has the facts about the Server Profile schema. |  When requested, but can be null. |  complex |
+| server_profile_transformation   | Has the facts about the transformation of an existing profile by supplying a new server hardware type and/or enclosure group. |  When requested, but can be null. |  complex |
+| server_profiles   | Has all the OneView facts about the Server Profiles. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_server_profile_template
+Manage OneView Server Profile Template resources.
+
+#### Synopsis
+ Provides an interface to create, modify, and delete server profile templates.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  Dict with Server Profile Template properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Server Profile Template. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Create a basic connection-less server profile template
+  oneview_server_profile_template:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: "ProfileTemplate101"
+      serverHardwareTypeUri: "/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B"
+      enclosureGroupUri: "/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89"
+    delegate_to: localhost
+
+- name: Delete the Server Profile Template
+  oneview_server_profile_template:
+    config: "{{ config }}"
+    state: absent
+    data:
+      name: "ProfileTemplate101"
+    delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| server_profile_template   | Has the OneView facts about the Server Profile Template. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_server_profile_template_facts
+Retrieve facts about the Server Profile Templates from OneView.
+
+#### Synopsis
+ Retrieve facts about the Server Profile Templates from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Server Profile Template name.  |
+| options  |   No  |  | |  List with options to gather additional facts about Server Profile Template resources. Options allowed: new_profile  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Server Profile Templates
+  oneview_server_profile_template_facts:
+    config: "{{ config }}"
+
+- name: Gather facts about a Server Profile Template by name
+  oneview_server_profile_template_facts:
+    config: "{{ config }}"
+    name: "ProfileTemplate101"
+
+- name: Gather facts about a template and a profile with the configuration based on this template
+  oneview_server_profile_template_facts:
+    config: "{{ config }}"
+    name: "ProfileTemplate101"
+    options:
+      - new_profile
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| new_profile   | A profile object with the configuration based on this template. |  When requested, but can be null. |  complex |
+| server_profile_templates   | Has all the OneView facts about the Server Profile Templates. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_storage_pool
+Manage OneView Storage Pool resources.
+
+#### Synopsis
+ Provides an interface to manage Storage Pool resources. Can add and remove.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Storage Pool properties and its associated states.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage Pool resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Create a Storage Pool
+  oneview_storage_pool:
+    config: "{{ config }}"
+    state: present
+    data:
+       storageSystemUri: "/rest/storage-systems/TXQ1010307"
+       poolName: "FST_CPG2"
+  delegate_to: localhost
+
+- name: Delete the Storage Pool
+  oneview_storage_pool:
+    config: "{{ config }}"
+    state: absent
+    data:
+       poolName: "FST_CPG2"
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| storage_pool   | Has the OneView facts about the Storage Pool. |  On 'present' state, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_storage_pool_facts
+Retrieve facts about one or more Storage Pools.
+
+#### Synopsis
+ Retrieve facts about one or more of the Storage Pools from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Storage Pool name.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Storage Pools
+  oneview_storage_pool_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=storage_pools
+
+- name: Gather facts about a Storage Pool by name
+  oneview_storage_pool_facts:
+    config: "{{ config }}"
+    name: "CPG_FC-AO"
+  delegate_to: localhost
+
+- debug: var=storage_pools
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| storage_pools   | Has all the OneView facts about the Storage Pools. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 
 ---
@@ -1754,21 +3991,21 @@ Manage OneView Storage System resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| data  |   yes  |  | |  List with Storage System properties and its associated states  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage System resource. 'present' will ensure data properties are compliant to OneView. 'absent' will remove the resource from OneView, if it exists.  |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Storage System properties and its associated states.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage System resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Create a Storage System with one managed pool
   oneview_storage_system:
     config: "{{ config }}"
@@ -1799,6 +4036,14 @@ Manage OneView Storage System resources.
 ```
 
 
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| storage_system   | Has the OneView facts about the Storage System. |  On state 'present'. Can be null. |  complex |
+
+
 #### Notes
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
@@ -1815,27 +4060,28 @@ Retrieve facts about the OneView Storage Systems.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Storage System name.  |
-| ip_hostname  |   no  |  | |  Storage System IP or hostname.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| ip_hostname  |   No  |  | |  Storage System IP or hostname.  |
+| name  |   No  |  | |  Storage System name.  |
+| options  |   No  |  | |  List with options to gather additional facts about a Storage System and related resources. Options allowed: 'hostTypes' gets the list of supported host types. 'storagePools' gets a list of storage pools belonging to the specified storage system.  To gather facts about 'storagePools' it is required inform either the argument 'name' or 'ip_hostname'. Otherwise, this option will be ignored.  |
 
 
-
+ 
 #### Examples
 
-```
+```yml
 - name: Gather facts about all Storage Systems
   oneview_storage_system_facts:
     config: "{{ config }}"
   delegate_to: localhost
 
-- debug: var=oneview_storage_system
+- debug: var=storage_systems
 
 
 - name: Gather facts about a Storage System by IP
@@ -1844,7 +4090,7 @@ Retrieve facts about the OneView Storage Systems.
     ip_hostname: "172.18.11.12"
   delegate_to: localhost
 
-- debug: var=oneview_storage_system
+- debug: var=storage_systems
 
 
 - name: Gather facts about a Storage System by name
@@ -1853,99 +4099,33 @@ Retrieve facts about the OneView Storage Systems.
     name: "ThreePAR7200-4555"
   delegate_to: localhost
 
-- debug: var=oneview_storage_system
+- debug: var=storage_systems
 
-```
-
-
-#### Notes
-
-- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
-
-
----
-
-
-## oneview_storage_system_host_types_facts
-Retrieve facts about Host Types of the OneView Storage Systems.
-
-#### Synopsis
- Retrieve facts about Host Types of the OneView Storage Systems.
-
-#### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView
-
-#### Options
-
-| Parameter     | Required    | Default  | Choices    | Comments |
-| ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-
-
-
-#### Examples
-
-```
-- name: Gather facts about Storage System - Host Types
-  oneview_storage_system_host_types_facts:
-    config: "{{ config }}"
-  delegate_to: localhost
-
-- debug: var=oneview_storage_host_types
-
-```
-
-
-#### Notes
-
-- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
-
-
----
-
-
-## oneview_storage_system_managed_ports_facts
-Retrieve facts about Managed Ports of the OneView Storage System.
-
-#### Synopsis
- Retrieve facts about Managed Ports of the Storage Systems from OneView.
-
-#### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView
-
-#### Options
-
-| Parameter     | Required    | Default  | Choices    | Comments |
-| ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Storage System name.  |
-| ip_hostname  |   no  |  | |  Storage System IP or hostname.  |
-
-
-
-#### Examples
-
-```
-- name: Gather facts about managed ports by Storage System IP
-  oneview_storage_system_managed_ports_facts:
-    config: "{{ config }}"
-    ip_hostname: "172.18.11.12"
-  delegate_to: localhost
-
-- debug: var=oneview_storage_system_managed_ports
-
-
-- name: Gather facts about managed ports by Storage System Name
-  oneview_storage_system_managed_ports_facts:
+- name: Gather facts about a Storage System and all options
+  oneview_storage_system_facts:
     config: "{{ config }}"
     name: "ThreePAR7200-4555"
+    options:
+        - hostTypes
+        - storagePools
   delegate_to: localhost
 
-- debug: var=oneview_storage_system_managed_ports
+- debug: var=storage_systems
+- debug: var=storage_system_host_types
+- debug: var=storage_system_pools
+
 
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| storage_system_host_types   | Has all the OneView facts about the supported host types. |  When requested, but can be null. |  complex |
+| storage_system_pools   | Has all the OneView facts about the Storage Systems - Storage Pools. |  When requested, but can be null. |  complex |
+| storage_systems   | Has all the OneView facts about the Storage Systems. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -1956,46 +4136,57 @@ Retrieve facts about Managed Ports of the OneView Storage System.
 ---
 
 
-## oneview_storage_system_pools_facts
-Retrieve facts about Storage Pools of the OneView Storage System.
+## oneview_storage_volume_attachment
+Provides an interface to remove extra presentations from a specified server profile.
 
 #### Synopsis
- Retrieve facts about Storage Pools of the Storage Systems from OneView.
+ Provides an interface to remove extra presentations from a specified server profile.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView
+  * hpOneView >= 2.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
-| name  |   no  |  | |  Storage System name.  |
-| ip_hostname  |   no  |  | |  Storage System IP or hostname.  |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| server_profile  |   Yes  |  | |  Server Profile name or Server Profile URI  |
+| state  |   Yes  |  | <ul> <li>extra_presentations_removed</li> </ul> |  Indicates the desired state for the Storage Volume Attachment 'extra_presentations_removed' will remove extra presentations from a specified server profile.  |
 
 
-
+ 
 #### Examples
 
-```
-- name: Gather facts about Storage Pools of a Storage System by IP
-  oneview_storage_system_pools_facts:
+```yml
+- name: Removes extra presentations from a specified server profile URI
+  oneview_storage_volume_attachment:
     config: "{{ config }}"
-    ip_hostname: "172.18.11.12"
+    state: extra_presentations_removed
+    server_profile: "/rest/server-profiles/e6516410-c873-4644-ab93-d26dba6ccf0d"
   delegate_to: localhost
 
-- debug: var=oneview_storage_pools
+- debug: var=server_profile
 
-- name: Gather facts about Storage Pools of a Storage System by name
-  oneview_storage_system_pools_facts:
+
+- name: Removes extra presentations from a specified server profile name
+  oneview_storage_volume_attachment:
     config: "{{ config }}"
-    name: "ThreePAR7200-4555"
+    state: extra_presentations_removed
+    server_profile: "SV-1001"
   delegate_to: localhost
 
-- debug: var=oneview_storage_pools
+- debug: var=server_profile
 
 ```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| server_profile   | Has all the OneView facts about the repaired Server Profile. |  Always. |  complex |
 
 
 #### Notes
@@ -2004,3 +4195,990 @@ Retrieve facts about Storage Pools of the OneView Storage System.
 
 
 ---
+
+
+## oneview_storage_volume_attachment_facts
+Retrieve facts about Storage Volume Attachments of the OneView.
+
+#### Synopsis
+ Retrieve facts about Storage Volume Attachments of the OneView. To gather facts about a specific Storage Volume Attachment is required inform the param 'storageVolumeAttachmentUri'. It is also possible retrieve a specific Storage Volume Attachment by the Server Profile and the Volume. For this option is required inform the param 'serverProfileName' and the param 'storageVolumeName' or 'storageVolumeUri'.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| options  |   No  |  | |  Retrieve additional facts. Options available: 'extraUnmanagedStorageVolumes' retrieve the list of extra unmanaged storage volumes. 'paths' retrieve all paths or a specific attachment path for the specified volume attachment. To retrieve a specific path a 'pathUri' or a 'pathId' must be informed  |
+| serverProfileName  |   No  |  | |  Server Profile name.  |
+| storageVolumeAttachmentUri  |   No  |  | |  Storage Volume Attachment uri.  |
+| storageVolumeName  |   No  |  | |  Storage Volume name.  |
+| storageVolumeUri  |   No  |  | |  Storage Volume uri.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Storage Volume Attachments
+  oneview_storage_volume_attachment_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=storage_volume_attachments
+
+
+- name: Gather facts about a Storage Volume Attachment by Server Profile and Volume
+  oneview_storage_volume_attachment_facts:
+    config: "{{ config }}"
+    serverProfileName: "sp-web"
+    storageVolumeName: "volume-test" # You could inform either the volume name or the volume uri
+    # storageVolumeUri: "volume-test"
+  delegate_to: localhost
+
+- debug: var=storage_volume_attachments
+
+
+- name: Gather facts about extra unmanaged storage volumes
+  oneview_storage_volume_attachment_facts:
+    config: "{{ config }}"
+    options:
+      - extraUnmanagedStorageVolumes:
+            start: 0     # optional
+            count: '-1'  # optional
+            filter: ''   # optional
+            sort: ''     # optional
+  delegate_to: localhost
+
+- debug: var=storage_volume_attachments
+- debug: var=extra_unmanaged_storage_volumes
+
+- name: Gather facts about all paths for the specified volume attachment
+  oneview_storage_volume_attachment_facts:
+    config: "{{ config }}"
+    serverProfileName: "sp-web"
+    storageVolumeUri: "/rest/storage-volumes/12345-AAA-BBBB-CCCC-121212AA"
+    options:
+      - paths
+  delegate_to: localhost
+
+- debug: var=storage_volume_attachments
+- debug: var=storage_volume_attachment_paths
+
+- name: Gather facts about a specific attachment path
+  oneview_storage_volume_attachment_facts:
+    config: "{{ config }}"
+    serverProfileName: "sp-web"
+    storageVolumeUri: "/rest/storage-volumes/12345-AAA-BBBB-CCCC-121212AA"
+    options:
+      - paths:
+            # You could inform either the path id or the path uri
+            pathId: '9DFC8953-15A4-4EA9-AB65-23AB12AB23' # optional
+            # pathUri: '/rest/storage-volume-attachments/123-123-123/paths/123-123-123'
+  delegate_to: localhost
+
+- debug: var=storage_volume_attachments
+- debug: var=storage_volume_attachment_paths
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| extra_unmanaged_storage_volumes   | Has facts about the extra unmanaged storage volumes. |  When requested, but can be null. |  complex |
+| storage_volume_attachment_paths   | Has facts about all paths or a specific attachment path for the specified volume attachment. |  When requested, but can be null. |  complex |
+| storage_volume_attachments   | Has all the OneView facts about the Storage Volume Attachments. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_storage_volume_template
+Manage OneView Storage Volume Template resources.
+
+#### Synopsis
+ Provides an interface to manage Storage Volume Template resources. Can create, update and delete.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Storage Volume Template properties and its associated states.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage Volume Template resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Create a Storage Volume Template
+  oneview_storage_volume_template:
+    config: "{{ config }}"
+    state: present
+    data:
+        name: 'Volume Template Name'
+        state: "Configured"
+        description: "Example Template"
+        provisioning:
+             shareable: true
+             provisionType: "Thin"
+             capacity: "235834383322"
+             storagePoolUri: "/rest/storage-pools/2D69A182-862E-4ECE-8BEE-73E0F5BEC855"
+        stateReason: "None"
+        storageSystemUri: "/rest/storage-systems/TXQ1010307"
+        snapshotPoolUri: "/rest/storage-pools/2D69A182-862E-4ECE-8BEE-73E0F5BEC855"
+        type: StorageVolumeTemplateV3
+  delegate_to: localhost
+
+
+- name: Delete the Storage Volume Template
+  oneview_storage_volume_template:
+    config: "{{ config }}"
+    state: absent
+    data:
+        name: 'Volume Template Name'
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| storage_volume_template   | Has the OneView facts about the Storage Volume Template. |  On 'present' state, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_storage_volume_templates_facts
+Retrieve facts about Storage Volume Templates of the OneView.
+
+#### Synopsis
+ Retrieve facts about Storage Volume Templates of the OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Storage Volume Template name.  |
+| options  |   No  |  | |  Retrieve additional facts. Options available: 'connectableVolumeTemplates'  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Storage Volume Templates
+  oneview_storage_volume_template_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=storage_volume_templates
+
+
+- name: Gather facts about a Storage Volume Template by name
+  oneview_storage_volume_template_facts:
+    config: "{{ config }}"
+    name: "FusionTemplateExample"
+  delegate_to: localhost
+
+- debug: var=storage_volume_templates
+
+
+- name: Gather facts about the connectable Storage Volume Templates
+  oneview_storage_volume_template_facts:
+    config: "{{ config }}"
+    name: "FusionTemplateExample"
+    options:
+      - connectableVolumeTemplates
+  delegate_to: localhost
+
+- debug: var=storage_volume_templates
+- debug: var=connectable_volume_templates
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| connectable_volume_templates   | Has facts about the Connectable Storage Volume Templates. |  When requested, but can be null. |  complex |
+| storage_volume_templates   | Has all the OneView facts about the Storage Volume Templates. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_switch
+Provides an interface to remove ToR Switch resources.
+
+#### Synopsis
+ Provides an interface to remove Top of Rack(ToR) Switch resources. The switch resource will be removed if it is in an unmanaged state. If the switch resource is associated with a Logical Switch, it's removal is treated as a hardware removal only. A reference to the switch is mantained, and the resource is marked as 'Absent'.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   Yes  |  | |  Switch name.  |
+| state  |   |  | <ul> <li>absent</li> </ul> |  Indicates the desired state for the Switch. 'absent' will remove the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Delete the Switch
+  oneview_switch:
+    config: "{{ config }}"
+    state: absent
+    name: "172.18.16.2"
+
+```
+
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_switch_facts
+Retrieve facts about the OneView Switches.
+
+#### Synopsis
+ Retrieve facts about the OneView Switches.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Switch name.  |
+| options  |   No  |  | |  List with options to gather additional facts about the Switch. Options allowed: 'environmentalConfiguration' gets the environmental configuration for a switch.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all switches
+  oneview_switch_facts:
+    config: "{{ config }}"
+
+- name: Gather facts about the switch that matches the specified switch name
+  oneview_switch_facts:
+    config: "{{ config }}"
+    name: "172.18.20.1"
+
+- name: Gather facts about the environmental configuration for the switch that matches the specified switch name
+  oneview_switch_facts:
+    config: "{{ config }}"
+    name: "172.18.20.1"
+  options:
+    - environmentalConfiguration
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| switch_environmental_configuration   | The environmental configuration for a switch. |  When requested, but can be null. |  complex |
+| switches   | The list of switches. |  Always, but can be null. |  list |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_switch_type_facts
+Retrieve facts about the OneView Switch Types.
+
+#### Synopsis
+ Retrieve facts about the Switch Types from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Name of the Switch Type.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Switch Types
+  oneview_switch_type_facts:
+    config: "{{ config_path }}"
+
+- debug: var=switch_types
+
+
+- name: Gather facts about a Switch Type by name
+  oneview_switch_type_facts:
+    config: "{{ config_path }}"
+    name: "Name of the Switch Type"
+
+- debug: var=switch_types
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| switch_types   |  |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_task_facts
+Retrieve facts about the OneView Tasks.
+
+#### Synopsis
+ Retrieve facts about the OneView Tasks.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| params  |   No  |  | |  List with parameters to help filter the tasks. Params allowed: count, fields, filter, query, sort, start, and view  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about the last 2 tasks
+  oneview_task_facts:
+    config: "{{ config }}"
+    params:
+      count: 2
+
+- debug: var=tasks
+
+- name: Gather facts about the last 2 tasks associated to Server Profile templates
+  oneview_task_facts:
+    config: "{{ config }}"
+    params:
+      count: 2
+      filter: "associatedResource.resourceCategory='server-profile-templates'"
+
+- debug: var=tasks
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| tasks   | The list of tasks. |  Always, but can be null. |  list |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_unmanaged_device
+Manage OneView Unmanaged Device resources.
+
+#### Synopsis
+ Provides an interface to manage Unmanaged Device resources. Can create, update, or delete.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Unmanaged Device properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Unmanaged Device resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Ensure that the unmanaged device is present
+  oneview_unmanaged_device:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: 'MyUnmanagedDevice'
+      model: 'Procurve 4200VL'
+      deviceType: 'Server'
+    delegate_to: localhost
+
+- debug: var=unmanaged_device
+
+- name: Add another unmanaged device
+  oneview_unmanaged_device:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: 'AnotherUnmanagedDevice'
+      model: 'Procurve 4200VL'
+    delegate_to: localhost
+
+- name: Update the unmanaged device changing the name attribute
+  oneview_unmanaged_device:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: 'MyUnmanagedDevice'
+      newName: 'UnmanagedDeviceRenamed'
+    delegate_to: localhost
+
+- debug: var=unmanaged_device
+
+- name: Ensure that the unmanaged device is absent
+  oneview_unmanaged_device:
+    config: "{{ config }}"
+    state: absent
+    data:
+      name: 'UnmanagedDeviceRenamed'
+    delegate_to: localhost
+
+- name: Delete all the unmanaged devices
+  oneview_unmanaged_device:
+    config: "{{ config }}"
+    state: absent
+    data:
+      filter: "name matches '%'"
+    delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| unmanaged_device   | Has the OneView facts about the Unmanaged Device. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+
+- To rename an unamnaged device you must inform a 'newName' in the data argument. The rename is non-idempotent
+
+
+---
+
+
+## oneview_unmanaged_device_facts
+Retrieve facts about one or more of the OneView Unmanaged Device.
+
+#### Synopsis
+ Retrieve facts about one or more of the Unmanaged Device from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Unmanaged Device name.  |
+| options  |   |  | |  List with options to gather additional facts about Unmanaged Device. Options allowed: 'environmental_configuration' gets a description of the environmental configuration for the Unmnaged Device.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Unmanaged Devices
+  oneview_unmanaged_device_facts:
+    config: "{{ config }}"
+
+- debug: var=unmanaged_devices
+
+- name: Gather facts about an Unmanaged Device by name
+  oneview_unmanaged_device_facts:
+    config: "{{ config }}"
+    name: "{{ name }}"
+
+- debug: var=unmanaged_devices
+
+- name: Gather facts about an Unmanaged Device by name with environmental configuration
+  oneview_unmanaged_device_facts:
+    config: "{{ config }}"
+    name: "{{ name }}"
+    options:
+      - environmental_configuration
+
+- debug: var=unmanaged_device_environmental_configuration
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| unmanaged_device_environmental_configuration   | The description of the environmental configuration for the logical interconnect. |  When requested, but can be null. |  complex |
+| unmanaged_devices   | The list of unmanaged devices. |  Always, but can be null. |  list |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+
+
+---
+
+
+## oneview_uplink_set
+Manage OneView Uplink Set resources.
+
+#### Synopsis
+ Provides an interface to manage Uplink Set resources. Can create, update, or delete.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  List with Uplink Set properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Uplink Set resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. The key used to find the resource to perform the operation is a compound key, that consists of the name of the uplink set and the URI (or name) of the Logical Interconnect combined. You can choose set the Logical Interconnect by logicalInterconnectUri or logicalInterconnectName.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Ensure that the Uplink Set is present
+  oneview_uplink_set:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Test Uplink Set'
+      status: "OK"
+      # You can choose set the Logical Interconnect by logicalInterconnectUri or logicalInterconnectName
+      logicalInterconnectName: "Name of the Logical Interconnect"                                   # option 1
+      # logicalInterconnectUri: "/rest/logical-interconnects/461a9cef-beef-4916-8be1-926078ffb948"  # option 2
+      networkUris: [
+         '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4'
+         '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'
+      ]
+      fcNetworkUris: []
+      fcoeNetworkUris: []
+      portConfigInfos: []
+      connectionMode: "Auto"
+      networkType: "Ethernet"
+      manualLoginRedistributionState: "NotSupported"
+
+- name: Rename the Uplink Set from 'Test Uplink Set' to 'Renamed Uplink Set'
+  oneview_uplink_set:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Test Uplink Set'
+      newName: 'Renamed Uplink Set'
+      logicalInterconnectName: "Name of the Logical Interconnect"
+
+- name: Ensure that the Uplink Set is absent
+  oneview_uplink_set:
+    config: "{{ config_file_path }}"
+    state: absent
+    data:
+      name: 'Test Uplink Set'
+      logicalInterconnectName: "Name of the Logical Interconnect"
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| uplink_set   | Has the OneView facts about the Uplink Set. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+
+- To rename an uplink set you must inform a 'newName' in the data argument. The rename is non-idempotent
+
+
+---
+
+
+## oneview_uplink_set_facts
+Retrieve facts about one or more of the OneView Uplink Sets.
+
+#### Synopsis
+ Retrieve facts about one or more of the Uplink Sets from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Uplink Set name.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Uplink Sets
+  oneview_uplink_set_facts:
+    config: "{{ config_file_path }}"
+
+- debug: var=uplink_sets
+
+- name: Gather facts about a Uplink Set by name
+  oneview_uplink_set_facts:
+    config: "{{ config_file_path }}"
+    name: logical lnterconnect group name
+
+- debug: var=uplink_sets
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| uplink_sets   | Has all the OneView facts about the Uplink Sets. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+
+
+---
+
+
+## oneview_volume
+Manage OneView Volume resources.
+
+#### Synopsis
+ Provides an interface to manage Volume resources. It allows create, update, delete or repair the volume, and create or delete a snapshot.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| data  |   Yes  |  | |  Volume or snapshot data.  |
+| export_only  |   |  False  | |  If set to True, when the status is 'absent' and the resource exists, it will be removed only from OneView.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>repaired</li>  <li>snapshot_created</li>  <li>snapshot_deleted</li> </ul> |  Indicates the desired state for the Volume resource. 'present' creates/adds the resource when it does not exist, otherwise it updates the resource. When the resource already exists, the update operation is non-idempotent, since it is always called even though the given options are compliant with the existent data. To change the name of the volume, a 'newName' in the data must be provided. 'absent' by default deletes a volume from OneView and storage system. When export_only is True, the volume is removed only from OneView. 'repaired' removes extra presentations from a specified volume on the storage system. This operation is non-idempotent. 'snapshot_created' creates a snapshot for the volume specified. This operation is non-idempotent. 'snapshot_deleted' deletes a snapshot from OneView and storage system.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Create a Volume with a specified Storage Pool
+  oneview_volume:
+    config: '{{ config_path }}'
+    state: present
+    data:
+      name: 'Volume with Storage Pool'
+      description: 'Test volume with common creation: Storage Pool'
+      provisioningParameters:
+          provisionType: 'Full'
+          shareable: True
+          requestedCapacity: 1073741824  # 1GB
+          storagePoolUri: '/rest/storage-pools/3B1CF17F-7657-4C89-B580-D236507A9182'
+  delegate_to: localhost
+
+- name: Create a volume with a specified Snapshot Pool
+  oneview_volume:
+    config: '{{ config_path }}'
+    state: present
+    data:
+      name: 'Volume with Snapshot Pool'
+      description: 'Test volume with common creation: Storage System + Storage Pool + Snapshot Pool'
+      provisioningParameters:
+          provisionType: 'Full'
+          shareable: True
+          requestedCapacity: 1073741824
+          storagePoolUri: '/rest/storage-pools/3B1CF17F-7657-4C89-B580-D236507A9182'
+      storageSystemUri: '/rest/storage-systems/TXQ1000307'
+      snapshotPoolUri: '/rest/storage-pools/3B1CF17F-7657-4C89-B580-D236507A9182'
+  delegate_to: localhost
+
+- name: Add a volume for management by the appliance using the WWN of the volume
+  oneview_volume:
+    config: '{{ config_path }}'
+    state: present
+    data:
+      type: AddStorageVolumeV2
+      name: 'Volume added with a specific WWN'
+      description: 'Test volume added for management: Storage System + Storage Pool + WWN'
+      storageSystemUri: '/rest/storage-systems/TXQ1000307'
+      wwn: 'DC:32:13:72:47:00:10:00:30:71:47:16:33:58:47:95'
+      provisioningParameters:
+          shareable: True
+  when: wwn is defined
+
+- name: Update the name of the volume to 'Volume with Storage Pool - Renamed' and shareable to false
+  oneview_volume:
+    config: '{{ config_path }}'
+    state: present
+    data:
+      name: 'Volume with Storage Pool'
+      newName: 'Volume with Storage Pool - Renamed'
+      shareable: False
+    delegate_to: localhost
+
+- name: Remove extra presentations from the specified volume on the storage system
+  oneview_volume:
+    config: '{{ config_path }}'
+    state: repaired
+    data:
+      name: 'Volume with Storage Pool - Renamed'
+
+- name: Create a new snapshot for the specified volume
+    oneview_volume:
+    config: '{{ config_path }}'
+    state: snapshot_created
+    data:
+      name: 'Volume with Snapshot Pool'
+      snapshotParameters:
+        name: 'test_snapshot'
+        type: 'Snapshot'
+        description: 'New snapshot'
+
+- name: Delete the snapshot
+    oneview_volume:
+    config: '{{ config_path }}'
+    state: snapshot_deleted
+    data:
+      name: 'Volume with Snapshot Pool'
+      snapshotParameters:
+        name: 'test_snapshot'
+
+- name: Delete the volume previously created with a Storage Pool
+  oneview_volume:
+    config: '{{ config_path }}'
+    state: absent
+    data:
+      name: 'Volume with Storage Pool - Renamed'
+
+- name: Delete the volume previously created with a Snapshot Pool
+  oneview_volume:
+    config: '{{ config_path }}'
+    state: absent
+    data:
+      name: 'Volume with Snapshot Pool - Renamed'
+
+- name: Delete the volume previously added using the WWN of the volume
+  oneview_volume:
+    config: '{{ config_path }}'
+    state: absent
+    data:
+      name: 'Volume added with a specific WWN'
+    export_only: True
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| storage_volume   | Has the facts about the Storage Volume. |  On state 'present', but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+
+
+## oneview_volume_facts
+Retrieve facts about the OneView Volumes.
+
+#### Synopsis
+ Retrieve facts about the Volumes from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| name  |   No  |  | |  Volume name.  |
+| options  |   No  |  | |  List with options to gather additional facts about Volume and related resources. Options allowed: attachableVolumes, extraManagedVolumePaths, and snapshots. For the option snapshots, you may provide a name.  |
+
+
+ 
+#### Examples
+
+```yml
+- name: Gather facts about all Volumes
+  oneview_volume_facts:
+    config: "{{ config_path }}"
+
+- debug: var=storage_volumes
+
+
+- name: "Gather facts about all Volumes, the attachable volumes managed by the appliance and the extra managed
+         storage volume paths"
+  oneview_volume_facts:
+    config: "{{ config_path }}"
+    options:
+        - attachableVolumes        # optional
+        - extraManagedVolumePaths  # optional
+
+- debug: var=storage_volumes
+- debug: var=attachable_volumes
+- debug: var=extra_managed_volume_paths
+
+
+- name: Gather facts about a Volume by name with a list of all snapshots taken
+  oneview_volume_facts:
+    config: "{{ config }}"
+    name: "{{ volume_name }}"
+    options:
+        - snapshots  # optional
+
+- debug: var=storage_volumes
+- debug: var=snapshots
+
+
+- name: "Gather facts about a Volume with one specific snapshot taken"
+  oneview_volume_facts:
+    config: "{{ config }}"
+    name: "{{ volume_name }}"
+    options:
+       - snapshots  # optional
+           name: "{{ snapshot_name }}"
+
+- debug: var=storage_volumes
+- debug: var=snapshots
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| attachable_volumes   | Has all the facts about the attachable volumes managed by the appliance. |  When requested, but can be null. |  complex |
+| extra_managed_volume_paths   | Has all the facts about the extra managed storage volume paths from the appliance |  When requested, but can be null. |  complex |
+| storage_volumes   | Has all the OneView facts about the Volumes. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+
+---
+

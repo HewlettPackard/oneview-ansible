@@ -135,17 +135,17 @@ EXAMPLES = '''
 RETURN = '''
 storage_volume_attachments:
     description: Has all the OneView facts about the Storage Volume Attachments.
-    returned: always, but can be null
+    returned: Always, but can be null.
     type: complex
 
 extra_unmanaged_storage_volumes:
     description: Has facts about the extra unmanaged storage volumes.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 storage_volume_attachment_paths:
     description: Has facts about all paths or a specific attachment path for the specified volume attachment.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 '''
 ATTACHMENT_KEY_REQUIRED = "Server Profile Name and Volume Name or Volume Uri are required."

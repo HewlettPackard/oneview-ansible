@@ -50,6 +50,7 @@ options:
         - "List with options to gather additional facts about Enclosure Group.
           Options allowed:
           'configuration_script' Gets the configuration script for an Enclosure Group."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -78,7 +79,7 @@ EXAMPLES = '''
 RETURN = '''
 enclosure_groups:
     description: Has all the OneView facts about the Enclosure Groups.
-    returned: always, but can be null
+    returned: Always, but can be null.
     type: complex
 
 enclosure_group_script:

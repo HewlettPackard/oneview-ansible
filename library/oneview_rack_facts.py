@@ -85,12 +85,12 @@ EXAMPLES = '''
 RETURN = '''
 racks:
     description: Has all the OneView facts about the Racks.
-    returned: always, but can be null
+    returned: Always, but can be null.
     type: complex
 
 rack_device_topology:
     description: Retrieves the topology information for the rack resource.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'

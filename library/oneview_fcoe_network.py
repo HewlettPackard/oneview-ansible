@@ -42,12 +42,12 @@ options:
     state:
         description:
             - Indicates the desired state for the FCoE Network resource.
-              'present' will ensure data properties are compliant to OneView.
+              'present' will ensure data properties are compliant with OneView.
               'absent' will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
     data:
       description:
-        - List with FCoE Network properties
+        - List with FCoE Network properties.
       required: true
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -74,7 +74,7 @@ EXAMPLES = '''
 RETURN = '''
 fcoe_network:
     description: Has the facts about the OneView FCoE Networks.
-    returned: on state 'present'. Can be null.
+    returned: On state 'present'. Can be null.
     type: complex
 '''
 

@@ -43,7 +43,7 @@ options:
     state:
         description:
             - Indicates the desired state for the Managed SAN resource.
-              'present' ensures data properties are compliant to OneView.
+              'present' ensures data properties are compliant with OneView.
               'refresh_state_set' updates the refresh state of the Managed SAN.
               'endpoints_csv_file_created' creates a SAN endpoints CSV file.
               'issues_report_created' creates an unexpected zoning report for a SAN.

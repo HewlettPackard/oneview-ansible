@@ -43,7 +43,7 @@ options:
     state:
         description:
             - Indicates the desired state for the Fibre Channel Network resource.
-              'present' will ensure data properties are compliant to OneView.
+              'present' will ensure data properties are compliant with OneView.
               'absent' will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
     data:
@@ -82,7 +82,7 @@ EXAMPLES = '''
 RETURN = '''
 fc_network:
     description: Has the facts about the OneView FC Networks.
-    returned: on state 'present'. Can be null.
+    returned: On state 'present'. Can be null.
     type: complex
 '''
 

@@ -41,7 +41,7 @@ options:
     state:
         description:
             - Indicates the desired state for the Server Hardware Type resource.
-              'present' will ensure data properties are compliant to OneView.
+              'present' will ensure data properties are compliant with OneView.
               'absent' will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
         required: true

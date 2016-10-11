@@ -43,7 +43,7 @@ options:
     state:
         description:
             - Indicates the desired state for the Network Set resource.
-              'present' ensures data properties are compliant to OneView.
+              'present' ensures data properties are compliant with OneView.
               'absent' removes the resource from OneView, if it exists.
         choices: ['present', 'absent']
     data:
@@ -87,7 +87,7 @@ EXAMPLES = '''
 RETURN = '''
 network_set:
     description: Has the facts about the Network Set.
-    returned: on state 'present', but can be null.
+    returned: On state 'present', but can be null.
     type: complex
 '''
 

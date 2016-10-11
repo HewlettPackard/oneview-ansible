@@ -93,7 +93,7 @@ EXAMPLES = '''
 RETURN = '''
 network_sets:
     description: Has all the OneView facts about the Network Sets.
-    returned: always, but can be empty
+    returned: Always, but can be empty.
     type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
