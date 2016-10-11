@@ -87,12 +87,12 @@ EXAMPLES = '''
 RETURN = '''
 logical_enclosures:
     description: Has all the OneView facts about the Logical Enclosures.
-    returned: always, but can be null
+    returned: Always, but can be null.
     type: complex
 
 logical_enclosure_script:
     description: Has the facts about the script of a Logical Enclosure.
-    returned: when required, but can be null
+    returned: When required, but can be null.
     type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'

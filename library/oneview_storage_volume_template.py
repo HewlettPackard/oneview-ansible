@@ -42,13 +42,13 @@ options:
     state:
         description:
             - Indicates the desired state for the Storage Volume Template resource.
-              'present' will ensure data properties are compliant to OneView.
+              'present' will ensure data properties are compliant with OneView.
               'absent' will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
         required: true
     data:
         description:
-            - List with Storage Volume Template properties and its associated states
+            - List with Storage Volume Template properties and its associated states.
         required: true
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -88,7 +88,7 @@ EXAMPLES = '''
 RETURN = '''
 storage_volume_template:
     description: Has the OneView facts about the Storage Volume Template.
-    returned: on 'present' state, but can be null
+    returned: On 'present' state, but can be null.
     type: complex
 '''
 

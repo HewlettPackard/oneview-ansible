@@ -100,22 +100,22 @@ EXAMPLES = '''
 RETURN = '''
 power_devices:
     description: Has all the OneView facts about the Power Device.
-    returned: always, but can be null
+    returned: Always, but can be null.
     type: complex
 
 power_device_power_state:
     description: Has all the facts about the Power state of the Power Device.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 power_device_uid_state:
     description: Has all the facts about the Power Device UID state.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 power_device_utilization:
     description: Has all the facts about the Power Device utilization.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'

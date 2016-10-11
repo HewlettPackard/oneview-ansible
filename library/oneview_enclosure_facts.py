@@ -108,22 +108,22 @@ EXAMPLES = '''
 RETURN = '''
 enclosures:
     description: Has all the OneView facts about the Enclosures.
-    returned: always, but can be null
+    returned: Always, but can be null.
     type: complex
 
 enclosure_script:
     description: Has all the OneView facts about the script of an Enclosure.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 enclosure_environmental_configuration:
     description: Has all the OneView facts about the environmental configuration of an Enclosure.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 enclosure_utilization:
     description: Has all the OneView facts about the utilization of an Enclosure.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'

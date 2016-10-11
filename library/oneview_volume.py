@@ -175,7 +175,7 @@ EXAMPLES = '''
 RETURN = '''
 storage_volume:
     description: Has the facts about the Storage Volume.
-    returned: on state 'present', but can be null.
+    returned: On state 'present', but can be null.
     type: complex
 '''
 

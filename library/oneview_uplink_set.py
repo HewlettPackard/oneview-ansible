@@ -42,7 +42,7 @@ options:
     state:
         description:
             - Indicates the desired state for the Uplink Set resource.
-              'present' will ensure data properties are compliant to OneView.
+              'present' will ensure data properties are compliant with OneView.
               'absent' will remove the resource from OneView, if it exists.
               The key used to find the resource to perform the operation is a compound key, that consists of
               the name of the uplink set and the URI (or name) of the Logical Interconnect combined. You can choose set
@@ -50,7 +50,7 @@ options:
         choices: ['present', 'absent']
     data:
       description:
-        - List with Uplink Set properties
+        - List with Uplink Set properties.
       required: true
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -101,7 +101,7 @@ EXAMPLES = '''
 RETURN = '''
 uplink_set:
     description: Has the OneView facts about the Uplink Set.
-    returned: on state 'present'. Can be null.
+    returned: On state 'present'. Can be null.
     type: complex
 '''
 

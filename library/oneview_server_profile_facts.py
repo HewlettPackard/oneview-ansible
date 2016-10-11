@@ -132,69 +132,69 @@ EXAMPLES = '''
 RETURN = '''
 server_profiles:
     description: Has all the OneView facts about the Server Profiles.
-    returned: always, but can be null
+    returned: Always, but can be null.
     type: complex
 
 server_profile_schema:
     description: Has the facts about the Server Profile schema.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 server_profile_compliance_preview:
-    description: >
+    description:
         Has all the facts about the manual and automatic updates required to make the server profile compliant
         with its template.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 server_profile_profile_ports:
     description: Has the facts about the port model associated.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 server_profile_messages:
     description: Has the facts about the profile status messages associated with the profile.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 server_profile_transformation:
-    description: >
+    description:
         Has the facts about the transformation of an existing profile by supplying a new server hardware type
         and/or enclosure group.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 server_profile_available_networks:
-    description: >
+    description:
         Has all the facts about the list of Ethernet networks, Fibre Channel networks and network sets that
         are available to the server profile along with their respective ports.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 server_profile_available_servers:
     description: Has the facts about the list of available servers.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 server_profile_available_storage_system:
-    description: >
+    description:
         Has the facts about a specific storage system and its associated volumes that are available to
         the server profile.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 server_profile_available_storage_systems:
-    description: >
+    description:
         Has the facts about the list of the storage systems and their associated volumes that are available to
         the server profile.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 server_profile_available_targets:
-    description: >
+    description:
         Has the facts about the target servers and empty device bays that are available for assignment to
         the server profile.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'

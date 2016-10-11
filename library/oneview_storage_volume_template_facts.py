@@ -84,12 +84,12 @@ EXAMPLES = '''
 RETURN = '''
 storage_volume_templates:
     description: Has all the OneView facts about the Storage Volume Templates.
-    returned: always, but can be null
+    returned: Always, but can be null.
     type: complex
 
 connectable_volume_templates:
     description: Has facts about the Connectable Storage Volume Templates.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'

@@ -170,33 +170,33 @@ EXAMPLES = '''
 RETURN = '''
 storage_volume_template:
     description: Has the OneView facts about the Logical Interconnect.
-    returned: on 'compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated', \
+    returned: On 'compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated', \
               and 'configuration_updated' states, but can be null.
     type: complex
 
 interconnect_fib:
     description: Has the OneView facts about the Forwarding information Base.
-    returned: on 'forwarding_information_base_generated' state, but can be null.
+    returned: On 'forwarding_information_base_generated' state, but can be null.
     type: complex
 
 qos_configuration:
     description: Has the OneView facts about the QoS Configuration.
-    returned: on 'qos_aggregated_configuration_updated' state, but can be null.
+    returned: On 'qos_aggregated_configuration_updated' state, but can be null.
     type: complex
 
 snmp_configuration:
     description: Has the OneView facts about the SNMP Configuration.
-    returned: on 'snmp_configuration_updated' state, but can be null.
+    returned: On 'snmp_configuration_updated' state, but can be null.
     type: complex
 
 port_monitor:
     description: Has the OneView facts about the Port Monitor Configuration.
-    returned: on 'port_monitor_updated' state, but can be null.
+    returned: On 'port_monitor_updated' state, but can be null.
     type: complex
 
 li_firmware:
     description: Has the OneView facts about the installed Firmware.
-    returned: on 'firmware_installed' state, but can be null.
+    returned: On 'firmware_installed' state, but can be null.
     type: complex
 '''
 

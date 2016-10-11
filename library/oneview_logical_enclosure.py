@@ -53,7 +53,7 @@ options:
         required: true
     data:
         description:
-            - List with Logical Enclosure properties and its associated states
+            - List with Logical Enclosure properties and its associated states.
         required: true
 notes:
     - "A sample configuration file for the config parameter can be found at:

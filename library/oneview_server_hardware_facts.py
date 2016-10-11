@@ -112,37 +112,37 @@ EXAMPLES = '''
 RETURN = '''
 server_hardwares:
     description: Has all the OneView facts about the Server Hardware.
-    returned: always, but can be null
+    returned: Always, but can be null.
     type: complex
 
 server_hardware_bios:
     description: Has all the facts about the Server Hardware BIOS.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 server_hardware_env_config:
     description: Has all the facts about the Server Hardware environmental configuration.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 server_hardware_java_remote_console_url:
     description: Has the facts about the Server Hardware java console url.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 server_hardware_ilo_sso_url:
     description: Has the facts about the Server Hardware iLO SSO url.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 server_hardware_remote_console_url:
     description: Has the facts about the Server Hardware remote console url.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 
 server_hardware_utilization:
     description: Has all the facts about the Server Hardware utilization.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'

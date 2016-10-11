@@ -122,27 +122,27 @@ EXAMPLES = '''
 RETURN = '''
 interconnects:
     description: The list of interconnects.
-    returned: Always, but can be null
+    returned: Always, but can be null.
     type: list
 
 interconnect_name_servers:
     description: The named servers for an interconnect.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: list
 
 interconnect_statistics:
     description: Has all the OneView facts about the Interconnect Statistics.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: dict
 
 interconnect_port_statistics:
     description: Statistics for the specified port name on an interconnect.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: dict
 
 interconnect_subport_statistics:
     description: The subport statistics on an interconnect
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: dict
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'

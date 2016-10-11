@@ -42,12 +42,12 @@ options:
     state:
         description:
             - Indicates the desired state for the Connection Template resource.
-              'present' will ensure data properties are compliant to OneView.
+              'present' will ensure data properties are compliant with OneView.
         choices: ['present']
         required: true
     data:
         description:
-            - List with Connection Template properties and its associated states
+            - List with Connection Template properties and its associated states.
         required: true
 notes:
     - "A sample configuration file for the config parameter can be found at:

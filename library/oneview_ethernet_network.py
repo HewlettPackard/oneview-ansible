@@ -42,13 +42,13 @@ options:
     state:
         description:
             - Indicates the desired state for the Ethernet Network resource.
-              'present' will ensure data properties are compliant to OneView.
+              'present' will ensure data properties are compliant with OneView.
               'absent' will remove the resource from OneView, if it exists.
               'default_bandwidth_reset' will reset the network connection template to the default.
         choices: ['present', 'absent', 'default_bandwidth_reset']
     data:
       description:
-        - List with Ethernet Network properties
+        - List with Ethernet Network properties.
       required: true
 notes:
     - "A sample configuration file for the config parameter can be found at:

@@ -42,12 +42,12 @@ options:
     state:
         description:
             - Indicates the desired state for the Unmanaged Device resource.
-              'present' will ensure data properties are compliant to OneView.
+              'present' will ensure data properties are compliant with OneView.
               'absent' will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
     data:
       description:
-        - List with Unmanaged Device properties
+        - List with Unmanaged Device properties.
       required: true
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -108,7 +108,7 @@ EXAMPLES = '''
 RETURN = '''
 unmanaged_device:
     description: Has the OneView facts about the Unmanaged Device.
-    returned: on state 'present'. Can be null.
+    returned: On state 'present'. Can be null.
     type: complex
 '''
 

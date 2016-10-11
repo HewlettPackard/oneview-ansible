@@ -74,12 +74,12 @@ EXAMPLES = '''
 RETURN = '''
 server_profile_templates:
     description: Has all the OneView facts about the Server Profile Templates.
-    returned: always, but can be null
+    returned: Always, but can be null.
     type: complex
 
 new_profile:
     description: A profile object with the configuration based on this template.
-    returned: when requested, but can be null
+    returned: When requested, but can be null.
     type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'

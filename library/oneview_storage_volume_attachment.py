@@ -75,7 +75,7 @@ EXAMPLES = '''
 RETURN = '''
 server_profile:
     description: Has all the OneView facts about the repaired Server Profile.
-    returned: always
+    returned: Always.
     type: complex
 '''
 
