@@ -92,7 +92,7 @@ If your environment requires a proxy, define the proxy properties in the JSON fi
 
 The configuration file path must be provided for all of the playbooks `config` arguments. For example:
 
-```
+```yml
 - name: Gather facts about the FCoE Network with name 'Test FCoE Network Facts'
   oneview_fcoe_network_facts:
     config: "/path/to/config.json"
