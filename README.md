@@ -113,3 +113,30 @@ We are passionate about improving this project, and glad to accept help to make 
 
 **Feature Requests:** If you have a need that is not met by the current implementation, please let us know (via a new issue).
 This feedback is crucial for us to deliver a useful product. Do not assume that we have already thought of everything, because we assure you that is not the case.
+
+## Naming convention
+
+By adding support for a new resource, 3 files are required: self-contained module, test and example.
+The following is a summary of the code structure and naming conventions for the oneview-ansible modules.
+
+**Modules**
+
+The modules are located in **library** folder, all modules need to be self-contained, 
+without external dependencies except hpOneView.
+The module is named according to the **HPE OneView API Reference** resource title, but in singular.
+The name should start with "oneview_" prefix, with all characters in lowercase, 
+replacing spaces by underscores. For example: **oneview_fc_network** 
+
+**Tests**
+
+Tests are located in **tests** folder. The name of the test modules should start with 
+"test_" prefix in addition to the tested module name, for example: **test_oneview_fc_network**
+
+**Playbook Examples**
+
+The examples are located in **examples** folder with the same name of corresponding module, 
+for example: **oneview_fc_network.yml**
+
+**Facts**
+
+Modules that implement facts follow the same rules of any other modules, but the filenames have a suffix: "_facts", for example: **oneview_fc_network_facts**
