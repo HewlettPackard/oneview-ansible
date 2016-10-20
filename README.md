@@ -121,7 +121,7 @@ The following is a summary of the code structure and naming conventions for the 
 
 **Modules**
 
-The modules are located in **library** folder, all modules need to be self-contained, 
+Modules are located in **library** folder. All modules need to be self-contained, 
 without external dependencies except hpOneView.
 The module is named according to the **HPE OneView API Reference** resource title, but in singular.
 The name should start with "oneview_" prefix, with all characters in lowercase, 
@@ -134,7 +134,7 @@ Tests are located in **tests** folder. The name of the test modules should start
 
 **Playbook Examples**
 
-The examples are located in **examples** folder with the same name of corresponding module, 
+Examples are located in **examples** folder with the same name of corresponding module, 
 for example: **oneview_fc_network.yml**
 
 **Facts**
