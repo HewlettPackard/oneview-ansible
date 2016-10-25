@@ -15,9 +15,16 @@
 ###
 
 import mock
+import yaml
 
 
 def create_ansible_mock(params):
     mock_ansible = mock.Mock()
     mock_ansible.params = params
+    return mock_ansible
+
+
+def create_ansible_mock_yaml(yaml_config):
+    mock_ansible = mock.Mock()
+    mock_ansible.params = yaml.load(yaml_config)
     return mock_ansible

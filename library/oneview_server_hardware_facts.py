@@ -39,7 +39,9 @@ options:
     config:
       description:
         - Path to a .json configuration file containing the OneView client configuration.
-      required: true
+          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
+          environment variables.
+      required: false
     name:
       description:
         - Server Hardware name.
@@ -52,6 +54,8 @@ options:
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
+    - "Check how to use environment variables for configuration at:
+       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
 '''
 
 EXAMPLES = '''
@@ -151,7 +155,7 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 class ServerHardwareFactsModule(object):
     argument_spec = {
         "config": {
-            "required": True,
+            "required": False,
             "type": 'str'
         },
         "name": {
@@ -168,7 +172,11 @@ class ServerHardwareFactsModule(object):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
         if not HAS_HPE_ONEVIEW:
             self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
-        self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+
+        if not self.module.params['config']:
+            self.oneview_client = OneViewClient.from_environment_variables()
+        else:
+            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
         try:

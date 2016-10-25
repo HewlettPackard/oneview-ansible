@@ -24,6 +24,8 @@ from oneview_logical_enclosure import LogicalEnclosureModule, LOGICAL_ENCLOSURE_
     LOGICAL_ENCLOSURE_CONFIGURATION_SCRIPT_UPDATED, \
     LOGICAL_ENCLOSURE_DUMP_GENERATED, LOGICAL_ENCLOSURE_RECONFIGURED, LOGICAL_ENCLOSURE_UPDATED_FROM_GROUP, \
     LOGICAL_ENCLOSURE_REQUIRED
+from test.utils import create_ansible_mock
+from test.utils import create_ansible_mock_yaml
 
 YAML_LOGICAL_ENCLOSURE = """
     config: "{{ config }}"
@@ -96,10 +98,37 @@ YAML_LOGICAL_ENCLOSURE_NO_RENAME = """
 DICT_DEFAULT_LOGICAL_ENCLOSURE = yaml.load(YAML_LOGICAL_ENCLOSURE)["data"]
 
 
-def create_ansible_mock(yaml_config):
-    mock_ansible = mock.Mock()
-    mock_ansible.params = yaml.load(yaml_config)
-    return mock_ansible
+class LogicalEnclosureClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_logical_enclosure.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalEnclosureModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_logical_enclosure.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalEnclosureModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
 class LogicalEnclosureSpec(unittest.TestCase):
@@ -112,7 +141,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         # Mock Ansible Module
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_ENCLOSURE_NO_RENAME)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_ENCLOSURE_NO_RENAME)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalEnclosureModule().run()
@@ -132,7 +161,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         # Mock Ansible Module
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_ENCLOSURE_NO_RENAME)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_ENCLOSURE_NO_RENAME)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalEnclosureModule().run()
@@ -152,7 +181,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         # Mock Ansible Module
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_ENCLOSURE_RENAME)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_ENCLOSURE_RENAME)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalEnclosureModule().run()
@@ -173,7 +202,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         # Mock Ansible Module
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_ENCLOSURE_FIRMWARE_UPDATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_ENCLOSURE_FIRMWARE_UPDATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalEnclosureModule().run()
@@ -193,7 +222,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         # Mock Ansible Module
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_ENCLOSURE_UPDATE_SCRIPT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_ENCLOSURE_UPDATE_SCRIPT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalEnclosureModule().run()
@@ -214,7 +243,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         # Mock Ansible Module
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_ENCLOSURE_DUMP)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_ENCLOSURE_DUMP)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalEnclosureModule().run()
@@ -235,7 +264,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         # Mock Ansible Module
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_ENCLOSURE_CONFIGURE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_ENCLOSURE_CONFIGURE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalEnclosureModule().run()
@@ -256,7 +285,7 @@ class LogicalEnclosureSpec(unittest.TestCase):
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         # Mock Ansible Module
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_ENCLOSURE_UPDATE_FROM_GROUP)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_ENCLOSURE_UPDATE_FROM_GROUP)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalEnclosureModule().run()

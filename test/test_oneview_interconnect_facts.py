@@ -19,6 +19,7 @@ import mock
 
 from hpOneView.oneview_client import OneViewClient
 from oneview_interconnect_facts import InterconnectFactsModule
+from test.utils import create_ansible_mock
 
 ERROR_MSG = 'Fake message error'
 
@@ -39,12 +40,6 @@ PARAMS_FOR_GET_NAME_SERVERS = dict(
     name=INTERCONNECT_NAME,
     options=['nameServers']
 )
-
-
-def create_ansible_mock(dict_params):
-    mock_ansible = mock.Mock()
-    mock_ansible.params = dict_params
-    return mock_ansible
 
 
 INTERCONNECT_URI = "/rest/interconnects/53fa7d35-1cc8-46c1-abf0-6af091a1aed3"
@@ -72,6 +67,39 @@ PARAMS_FOR_SUBPORT_STATISTICS = dict(
 MOCK_INTERCONNECTS = [
     dict(uidState='On', uri=INTERCONNECT_URI)
 ]
+
+
+class InterconnectFactsClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_interconnect_facts.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        InterconnectFactsModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_interconnect_facts.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        InterconnectFactsModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
 class InterconnectFactsSpec(unittest.TestCase):

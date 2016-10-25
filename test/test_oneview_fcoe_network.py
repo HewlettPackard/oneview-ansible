@@ -20,6 +20,7 @@ from hpOneView.oneview_client import OneViewClient
 from oneview_fcoe_network import FcoeNetworkModule
 from oneview_fcoe_network import FCOE_NETWORK_CREATED, FCOE_NETWORK_ALREADY_EXIST, FCOE_NETWORK_UPDATED
 from oneview_fcoe_network import FCOE_NETWORK_DELETED, FCOE_NETWORK_ALREADY_ABSENT
+from test.utils import create_ansible_mock
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -49,16 +50,40 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-def create_ansible_mock(params):
-    mock_params = mock.Mock()
-    mock_params.__getitem__ = mock.Mock(side_effect=lambda name: params[name])
+class FcoeNetworkClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_fcoe_network.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
 
-    mock_ansible = mock.Mock()
-    mock_ansible.params = mock_params
-    return mock_ansible
+        FcoeNetworkModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_fcoe_network.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        FcoeNetworkModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
-class FcNetworkPresentStateSpec(unittest.TestCase):
+class FcoeNetworkPresentStateSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_fcoe_network.AnsibleModule')
     def test_should_create_new_fcoe_network(self, mock_ansible_module, mock_ov_client_from_json_file):
@@ -119,7 +144,7 @@ class FcNetworkPresentStateSpec(unittest.TestCase):
         )
 
 
-class FcNetworkAbsentStateSpec(unittest.TestCase):
+class FcoeNetworkAbsentStateSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_fcoe_network.AnsibleModule')
     def test_should_remove_fcoe_network(self, mock_ansible_module, mock_ov_client_from_json_file):
@@ -155,7 +180,7 @@ class FcNetworkAbsentStateSpec(unittest.TestCase):
         )
 
 
-class FcNetworkErrorHandlingSpec(unittest.TestCase):
+class FcoeNetworkErrorHandlingSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_fcoe_network.AnsibleModule')
     def test_should_fail_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):

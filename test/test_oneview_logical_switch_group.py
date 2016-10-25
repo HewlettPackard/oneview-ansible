@@ -22,6 +22,8 @@ from oneview_logical_switch_group import LogicalSwitchGroupModule, LOGICAL_SWITC
     LOGICAL_SWITCH_GROUP_DELETED, LOGICAL_SWITCH_GROUP_ALREADY_ABSENT, \
     SWITCH_TYPE_NOT_FOUND, \
     LOGICAL_SWITCH_GROUP_ALREADY_UPDATED, LOGICAL_SWITCH_GROUP_UPDATED
+from test.utils import create_ansible_mock
+from test.utils import create_ansible_mock_yaml
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -70,10 +72,37 @@ DICT_DEFAULT_LOGICAL_SWITCH_GROUP = yaml.load(YAML_LOGICAL_SWITCH_GROUP)["data"]
 DICT_DEFAULT_LOGICAL_SWITCH_GROUP_CHANGED = yaml.load(YAML_LOGICAL_SWITCH_GROUP_CHANGE)["data"]
 
 
-def create_ansible_mock(yaml_config):
-    mock_ansible = mock.Mock()
-    mock_ansible.params = yaml.load(yaml_config)
-    return mock_ansible
+class LogicalSwitchGroupClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_logical_switch_group.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalSwitchGroupModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_logical_switch_group.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalSwitchGroupModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
 class LogicalSwitchGroupPresentStateSpec(unittest.TestCase):
@@ -86,7 +115,7 @@ class LogicalSwitchGroupPresentStateSpec(unittest.TestCase):
         mock_ov_instance.switch_types.get_by.return_value = [{'uri': SWITCH_TYPE_URI}]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_SWITCH_GROUP)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_SWITCH_GROUP)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalSwitchGroupModule().run()
@@ -105,7 +134,7 @@ class LogicalSwitchGroupPresentStateSpec(unittest.TestCase):
         mock_ov_instance.logical_switch_groups.update.return_value = {"name": "name"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_SWITCH_GROUP_CHANGE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_SWITCH_GROUP_CHANGE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalSwitchGroupModule().run()
@@ -127,7 +156,7 @@ class LogicalSwitchGroupPresentStateSpec(unittest.TestCase):
         mock_ov_instance.switch_types.get_by.return_value = [{'uri': SWITCH_TYPE_URI}]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_SWITCH_GROUP)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_SWITCH_GROUP)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalSwitchGroupModule().run()
@@ -147,7 +176,7 @@ class LogicalSwitchGroupAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.logical_switch_groups.get_by.return_value = [DICT_DEFAULT_LOGICAL_SWITCH_GROUP]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_SWITCH_GROUP_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_SWITCH_GROUP_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalSwitchGroupModule().run()
@@ -166,7 +195,7 @@ class LogicalSwitchGroupAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.logical_switch_groups.get_by.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_SWITCH_GROUP_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_SWITCH_GROUP_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         LogicalSwitchGroupModule().run()
@@ -188,7 +217,7 @@ class LogicalSwitchGroupErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.switch_types.get_by.return_value = [{'uri': SWITCH_TYPE_URI}]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_SWITCH_GROUP)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_SWITCH_GROUP)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, LogicalSwitchGroupModule().run())
@@ -206,7 +235,7 @@ class LogicalSwitchGroupErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.switch_types.get_by.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_SWITCH_GROUP)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_SWITCH_GROUP)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, LogicalSwitchGroupModule().run())
@@ -223,7 +252,7 @@ class LogicalSwitchGroupErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.logical_switch_groups.delete.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_LOGICAL_SWITCH_GROUP_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_LOGICAL_SWITCH_GROUP_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, LogicalSwitchGroupModule().run())

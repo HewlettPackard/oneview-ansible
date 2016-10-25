@@ -21,6 +21,8 @@ from hpOneView.oneview_client import OneViewClient
 from oneview_server_hardware_type import ServerHardwareTypeModule, SERVER_HARDWARE_TYPE_DELETED, \
     SERVER_HARDWARE_TYPE_ALREADY_ABSENT, SERVER_HARDWARE_TYPE_ALREADY_UPDATED, SERVER_HARDWARE_TYPE_UPDATED, \
     SERVER_HARDWARE_TYPE_NOT_FOUND
+from test.utils import create_ansible_mock
+from test.utils import create_ansible_mock_yaml
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -52,10 +54,37 @@ DICT_DEFAULT_SERVER_HARDWARE_TYPE = yaml.load(YAML_SERVER_HARDWARE_TYPE)["data"]
 DICT_DEFAULT_SERVER_HARDWARE_TYPE_CHANGED = yaml.load(YAML_SERVER_HARDWARE_TYPE_CHANGE)["data"]
 
 
-def create_ansible_mock(yaml_config):
-    mock_ansible = mock.Mock()
-    mock_ansible.params = yaml.load(yaml_config)
-    return mock_ansible
+class ServerHardwareTypeClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_server_hardware_type.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ServerHardwareTypeModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_server_hardware_type.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ServerHardwareTypeModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
 class ServerHardwareTypePresentStateSpec(unittest.TestCase):
@@ -71,7 +100,7 @@ class ServerHardwareTypePresentStateSpec(unittest.TestCase):
         mock_ov_instance.server_hardware_types.update.return_value = {"name": "name"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_SERVER_HARDWARE_TYPE_CHANGE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_HARDWARE_TYPE_CHANGE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         ServerHardwareTypeModule().run()
@@ -89,7 +118,7 @@ class ServerHardwareTypePresentStateSpec(unittest.TestCase):
         mock_ov_instance.server_hardware_types.get_by.return_value = [DICT_DEFAULT_SERVER_HARDWARE_TYPE]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_SERVER_HARDWARE_TYPE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_HARDWARE_TYPE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         ServerHardwareTypeModule().run()
@@ -109,7 +138,7 @@ class ServerHardwareTypeAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.server_hardware_types.get_by.return_value = [DICT_DEFAULT_SERVER_HARDWARE_TYPE]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_SERVER_HARDWARE_TYPE_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_HARDWARE_TYPE_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         ServerHardwareTypeModule().run()
@@ -128,7 +157,7 @@ class ServerHardwareTypeAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.server_hardware_types.get_by.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_SERVER_HARDWARE_TYPE_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_HARDWARE_TYPE_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         ServerHardwareTypeModule().run()
@@ -149,7 +178,7 @@ class ServerHardwareTypeErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.server_hardware_types.update.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_SERVER_HARDWARE_TYPE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_HARDWARE_TYPE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, ServerHardwareTypeModule().run())
@@ -166,7 +195,7 @@ class ServerHardwareTypeErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.server_hardware_types.get_by.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_SERVER_HARDWARE_TYPE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_HARDWARE_TYPE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, ServerHardwareTypeModule().run())
@@ -183,7 +212,7 @@ class ServerHardwareTypeErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.server_hardware_types.delete.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_SERVER_HARDWARE_TYPE_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_HARDWARE_TYPE_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, ServerHardwareTypeModule().run())

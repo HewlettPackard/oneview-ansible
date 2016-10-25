@@ -51,7 +51,7 @@ An end-to-end DevOps example using OneView for the bare metal server provisionin
 
 To run the Ansible modules provided in this project, you should execute the following steps:
 
-**1. Clone the repository**
+###1. Clone the repository
 
 Run:
 
@@ -59,7 +59,7 @@ Run:
 $ git clone https://github.com/HewlettPackard/oneview-ansible.git
 ```
 
-**2. Configure the ANSIBLE_LIBRARY environmental variable**
+###2. Configure the ANSIBLE_LIBRARY environmental variable
 
 Set the `ANSIBLE_LIBRARY` path, specifying the `library` full path from the cloned project:
 
@@ -67,18 +67,23 @@ Set the `ANSIBLE_LIBRARY` path, specifying the `library` full path from the clon
 $ export ANSIBLE_LIBRARY=/path/to/oneview-ansible/library
 ```
 
-**3. Create the JSON Configuration File**
+###3. OneViewClient Configuration
 
-To use the Ansible OneView modules, you need to create OneView Python SDK JSON configuration file. This file is used to define the settings, which will be used on the OneView appliance connection, like hostname, username, and password. Here's an example:
+####Using a JSON Configuration File
+
+To use the Ansible OneView modules, you can store the configuration on a JSON file. This file is used to define the
+settings, which will be used on the OneView appliance connection, like hostname, username, and password. Here's an
+example:
 
 ```json
-# config.json
 {
   "ip": "172.25.105.12",
   "credentials": {
     "userName": "Administrator",
+    "authLoginDomain": "",
     "password": "secret123"
-  }
+  },
+  "api_version": 200
 }
 ```
 
@@ -93,11 +98,39 @@ If your environment requires a proxy, define the proxy properties in the JSON fi
 The configuration file path must be provided for all of the playbooks `config` arguments. For example:
 
 ```yml
-- name: Gather facts about the FCoE Network with name 'Test FCoE Network Facts'
+- name: Gather facts about the FCoE Network with name 'FCoE Network Test'
   oneview_fcoe_network_facts:
     config: "/path/to/config.json"
-    name: "Test FCoE Network Facts"
+    name: "FCoE Network Test"
 ```
+
+####Environment Variables
+
+If you prefer, the configuration can also be stored in environment variables.
+
+```bash
+# Required
+export ONEVIEWSDK_IP='172.25.105.12'
+export ONEVIEWSDK_USERNAME='Administrator'
+export ONEVIEWSDK_PASSWORD='secret123'
+
+# Optional
+export ONEVIEWSDK_API_VERSION='200'
+export ONEVIEWSDK_AUTH_LOGIN_DOMAIN='authdomain'
+export ONEVIEWSDK_PROXY='<proxy_host>:<proxy_port>'
+```
+
+:lock: Tip: Make sure no unauthorised person has access to the environment variables, since the password is stored in clear-text.
+
+In this case, you shouldn't provide the `config` argument. For example:
+
+```yml
+- name: Gather facts about the FCoE Network with name 'FCoE Network Test'
+  oneview_fcoe_network_facts:
+    name: "FCoE Network Test"
+```
+
+Once you have defined the environment variables, you can run the plays.
 
 ## License
 
@@ -121,20 +154,20 @@ The following is a summary of the code structure and naming conventions for the 
 
 **Modules**
 
-Modules are located in **library** folder. All modules need to be self-contained, 
+Modules are located in **library** folder. All modules need to be self-contained,
 without external dependencies except hpOneView.
 The module is named according to the **HPE OneView API Reference** resource title, but in singular.
-The name should start with "oneview_" prefix, with all characters in lowercase, 
-replacing spaces by underscores. For example: **oneview_fc_network** 
+The name should start with "oneview_" prefix, with all characters in lowercase,
+replacing spaces by underscores. For example: **oneview_fc_network**
 
 **Tests**
 
-Tests are located in **tests** folder. The name of the test modules should start with 
+Tests are located in **tests** folder. The name of the test modules should start with
 "test_" prefix in addition to the tested module name, for example: **test_oneview_fc_network**
 
 **Playbook Examples**
 
-Examples are located in **examples** folder with the same name of corresponding module, 
+Examples are located in **examples** folder with the same name of corresponding module,
 for example: **oneview_fc_network.yml**
 
 **Facts**

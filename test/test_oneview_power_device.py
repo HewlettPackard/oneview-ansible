@@ -22,6 +22,8 @@ from oneview_power_device import PowerDeviceModule, POWER_DEVICE_ADDED, POWER_DE
     POWER_DEVICE_DELETED, POWER_DEVICE_UPDATED, POWER_DEVICE_ALREADY_ABSENT, POWER_DEVICE_MANDATORY_FIELD_MISSING, \
     POWER_DEVICE_POWER_STATE_UPDATED, POWER_DEVICE_NOT_FOUND, POWER_DEVICE_REFRESH_STATE_UPDATED, \
     POWER_DEVICE_UID_STATE_UPDATED, POWER_DEVICE_IPDU_ADDED
+from test.utils import create_ansible_mock
+from test.utils import create_ansible_mock_yaml
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -96,10 +98,37 @@ YAML_POWER_DEVICE_SET_CALIBRATED_MAX_POWER = """
 DICT_DEFAULT_POWER_DEVICE = yaml.load(YAML_POWER_DEVICE)["data"]
 
 
-def create_ansible_mock(yaml_config):
-    mock_ansible = mock.Mock()
-    mock_ansible.params = yaml.load(yaml_config)
-    return mock_ansible
+class PowerDeviceClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_power_device.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        PowerDeviceModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_power_device.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        PowerDeviceModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
 class PowerDevicePresentStateSpec(unittest.TestCase):
@@ -110,7 +139,7 @@ class PowerDevicePresentStateSpec(unittest.TestCase):
         mock_ov_instance.power_devices.get_by.return_value = []
         mock_ov_instance.power_devices.add.return_value = {"name": "name"}
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_POWER_DEVICE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         PowerDeviceModule().run()
@@ -127,7 +156,7 @@ class PowerDevicePresentStateSpec(unittest.TestCase):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.power_devices.add_ipdu.return_value = {"name": "name"}
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_IPDU)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_IPDU)
         mock_ansible_module.return_value = mock_ansible_instance
 
         PowerDeviceModule().run()
@@ -145,7 +174,7 @@ class PowerDevicePresentStateSpec(unittest.TestCase):
         mock_ov_instance.power_devices.get_by.return_value = [DICT_DEFAULT_POWER_DEVICE]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_POWER_DEVICE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         PowerDeviceModule().run()
@@ -172,7 +201,7 @@ class PowerDevicePresentStateSpec(unittest.TestCase):
         mock_ov_instance.power_devices.update.return_value = {'name': 'name'}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE_CHANGE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_POWER_DEVICE_CHANGE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         PowerDeviceModule().run()
@@ -211,7 +240,7 @@ class PowerDevicePresentStateSpec(unittest.TestCase):
         mock_ov_instance.power_devices.add.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_POWER_DEVICE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, PowerDeviceModule().run())
@@ -229,7 +258,7 @@ class PowerDeviceAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.power_devices.get_by.return_value = [{'name': 'name'}]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_POWER_DEVICE_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         PowerDeviceModule().run()
@@ -247,7 +276,7 @@ class PowerDeviceAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.power_devices.get_by.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_POWER_DEVICE_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         PowerDeviceModule().run()
@@ -266,7 +295,7 @@ class PowerDeviceAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.power_devices.remove.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_POWER_DEVICE_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, PowerDeviceModule().run())
@@ -285,7 +314,7 @@ class PowerDevicePowerStateSpec(unittest.TestCase):
         mock_ov_instance.power_devices.update_power_state.return_value = {"name": "name"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE_POWER_STATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_POWER_DEVICE_POWER_STATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         PowerDeviceModule().run()
@@ -304,7 +333,7 @@ class PowerDevicePowerStateSpec(unittest.TestCase):
         mock_ov_instance.power_devices.get_by.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE_POWER_STATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_POWER_DEVICE_POWER_STATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         PowerDeviceModule().run()
@@ -323,7 +352,7 @@ class PowerDeviceRefreshStateSpec(unittest.TestCase):
         mock_ov_instance.power_devices.update_refresh_state.return_value = {"name": "name"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE_REFRESH_STATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_POWER_DEVICE_REFRESH_STATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         PowerDeviceModule().run()
@@ -342,7 +371,7 @@ class PowerDeviceRefreshStateSpec(unittest.TestCase):
         mock_ov_instance.power_devices.get_by.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE_REFRESH_STATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_POWER_DEVICE_REFRESH_STATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         PowerDeviceModule().run()
@@ -361,7 +390,7 @@ class PowerDeviceUidStateSpec(unittest.TestCase):
         mock_ov_instance.power_devices.update_uid_state.return_value = {"name": "name"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE_UID_STATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_POWER_DEVICE_UID_STATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         PowerDeviceModule().run()
@@ -380,7 +409,7 @@ class PowerDeviceUidStateSpec(unittest.TestCase):
         mock_ov_instance.power_devices.get_by.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_POWER_DEVICE_UID_STATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_POWER_DEVICE_UID_STATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         PowerDeviceModule().run()

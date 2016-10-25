@@ -21,6 +21,8 @@ from hpOneView.oneview_client import OneViewClient
 from oneview_connection_template import ConnectionTemplateModule, \
     CONNECTION_TEMPLATE_MANDATORY_FIELD_MISSING, CONNECTION_TEMPLATE_NOT_FOUND, \
     CONNECTION_TEMPLATE_ALREADY_UPDATED, CONNECTION_TEMPLATE_UPDATED
+from test.utils import create_ansible_mock
+from test.utils import create_ansible_mock_yaml
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -58,10 +60,37 @@ DICT_DEFAULT_CONNECTION_TEMPLATE = yaml.load(YAML_CONNECTION_TEMPLATE)["data"]
 DICT_DEFAULT_CONNECTION_TEMPLATE_CHANGED = yaml.load(YAML_CONNECTION_TEMPLATE_CHANGE)["data"]
 
 
-def create_ansible_mock(yaml_config):
-    mock_ansible = mock.Mock()
-    mock_ansible.params = yaml.load(yaml_config)
-    return mock_ansible
+class ConnectionTemplateClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_connection_template.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ConnectionTemplateModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_connection_template.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ConnectionTemplateModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
 class ConnectionTemplatePresentStateSpec(unittest.TestCase):
@@ -73,7 +102,7 @@ class ConnectionTemplatePresentStateSpec(unittest.TestCase):
         mock_ov_instance.connection_templates.update.return_value = {"name": "name"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_CONNECTION_TEMPLATE_CHANGE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_CONNECTION_TEMPLATE_CHANGE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         ConnectionTemplateModule().run()
@@ -91,7 +120,7 @@ class ConnectionTemplatePresentStateSpec(unittest.TestCase):
         mock_ov_instance.connection_templates.get_by.return_value = [DICT_DEFAULT_CONNECTION_TEMPLATE]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_CONNECTION_TEMPLATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_CONNECTION_TEMPLATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         ConnectionTemplateModule().run()
@@ -112,7 +141,7 @@ class ConnectionTemplateErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.connection_templates.update.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_CONNECTION_TEMPLATE_CHANGE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_CONNECTION_TEMPLATE_CHANGE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, ConnectionTemplateModule().run())
@@ -128,7 +157,7 @@ class ConnectionTemplateErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.connection_templates.get_by.return_value = [DICT_DEFAULT_CONNECTION_TEMPLATE]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_CONNECTION_TEMPLATE_MISSING_KEY)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_CONNECTION_TEMPLATE_MISSING_KEY)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, ConnectionTemplateModule().run())
@@ -145,7 +174,7 @@ class ConnectionTemplateErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.connection_templates.get_by.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_CONNECTION_TEMPLATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_CONNECTION_TEMPLATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         ConnectionTemplateModule().run()

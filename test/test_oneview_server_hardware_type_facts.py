@@ -19,6 +19,7 @@ import mock
 
 from hpOneView.oneview_client import OneViewClient
 from oneview_server_hardware_type_facts import ServerHardwareTypeFactsModule
+from test.utils import create_ansible_mock
 
 ERROR_MSG = 'Fake message error'
 
@@ -32,13 +33,40 @@ PARAMS_GET_ALL = dict(
 )
 
 
-def create_ansible_mock(dict_params):
-    mock_ansible = mock.Mock()
-    mock_ansible.params = dict_params
-    return mock_ansible
+class ServerHardwareTypeFactsClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_server_hardware_type_facts.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ServerHardwareTypeFactsModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_server_hardware_type_facts.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ServerHardwareTypeFactsModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
-class ServerHardwareTypesFactsSpec(unittest.TestCase):
+class ServerHardwareTypeFactsSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_server_hardware_type_facts.AnsibleModule')
     def test_should_get_all_server_hardware_types(self, mock_ansible_module,
