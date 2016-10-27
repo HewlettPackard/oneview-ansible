@@ -136,7 +136,7 @@ class DriveEnclosureSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts=dict(oneview_drive_enclosure=mock_return_patch)
+            ansible_facts=dict(drive_enclosure=mock_return_patch)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -155,7 +155,7 @@ class DriveEnclosureSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_drive_enclosure=drive_enclosure)
+            ansible_facts=dict(drive_enclosure=drive_enclosure)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -177,7 +177,7 @@ class DriveEnclosureSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts=dict(oneview_drive_enclosure=mock_return_patch)
+            ansible_facts=dict(drive_enclosure=mock_return_patch)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -196,7 +196,7 @@ class DriveEnclosureSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(oneview_drive_enclosure=drive_enclosure)
+            ansible_facts=dict(drive_enclosure=drive_enclosure)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -218,7 +218,7 @@ class DriveEnclosureSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts=dict(oneview_drive_enclosure=mock_return_patch)
+            ansible_facts=dict(drive_enclosure=mock_return_patch)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
@@ -240,7 +240,7 @@ class DriveEnclosureSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts=dict(oneview_drive_enclosure=mock_return_refresh)
+            ansible_facts=dict(drive_enclosure=mock_return_refresh)
         )
 
 

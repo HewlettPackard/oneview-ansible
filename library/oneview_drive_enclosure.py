@@ -29,10 +29,10 @@ DOCUMENTATION = '''
 module: oneview_drive_enclosure
 short_description: Manage OneView Drive Enclosure resources.
 description:
-    - Provides an interface to manage Drive Enclosure resources. Can create, update, delete. ??????????TODO
+    - Provides an interface to manage Drive Enclosure resources.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 3.0.0"
 author: "Camila Balestrin(@balestrinc)"
 options:
     config:
@@ -90,7 +90,7 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-oneview_drive_enclosure:
+drive_enclosure:
     description: Has the facts about the Drive Enclosure.
     returned: Always, but can be null.
     type: complex
@@ -151,7 +151,7 @@ class DriveEnclosureModule(object):
                 refresh_data = dict(refreshState=data.get('refreshState'))
                 resource_updated = self.oneview_client.drive_enclosures.refresh_state(drive_enclosure_uri, refresh_data)
 
-            self.module.exit_json(changed=changed, ansible_facts=dict(oneview_drive_enclosure=resource_updated))
+            self.module.exit_json(changed=changed, ansible_facts=dict(drive_enclosure=resource_updated))
 
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
