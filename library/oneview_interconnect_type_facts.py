@@ -59,7 +59,7 @@ EXAMPLES = '''
 
 - debug: var=interconnect_types
 
-- name: Gather facts about a Interconnect Type by name
+- name: Gather facts about an Interconnect Type by name
   oneview_interconnect_type_facts:
     config: "{{ config_file_path }}"
     name: HP VC Flex-10 Enet Module
