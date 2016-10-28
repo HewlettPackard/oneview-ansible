@@ -157,7 +157,7 @@ The following is a summary of the code structure and naming conventions for the 
 Modules are located in **library** folder. All modules need to be self-contained,
 without external dependencies except hpOneView.
 The module is named according to the **HPE OneView API Reference** resource title, but in singular.
-The name should start with "oneview_" prefix, with all characters in lowercase,
+The name should have the "oneview_" prefix, with all characters in lowercase,
 replacing spaces by underscores. For example: **oneview_fc_network**
 
 **Tests**
