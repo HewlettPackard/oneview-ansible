@@ -26,13 +26,13 @@ except ImportError:
 
 DOCUMENTATION = '''
 ---
-module: oneview_switch_type_facts
-short_description: Retrieve facts about the OneView Switch Types.
+module: oneview_sas_interconnect_type_facts
+short_description: Retrieve facts about the OneView SAS Interconnect Types.
 description:
-    - Retrieve facts about the Switch Types from OneView.
+    - Retrieve facts about the SAS Interconnect Types from OneView.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 3.0.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     config:
@@ -43,7 +43,7 @@ options:
       required: false
     name:
       description:
-        - Name of the Switch Type.
+        - Name of the SAS Interconnect Type.
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -53,31 +53,32 @@ notes:
 '''
 
 EXAMPLES = '''
-- name: Gather facts about all Switch Types
-  oneview_switch_type_facts:
+- name: Gather facts about all SAS Interconnect Types
+  oneview_sas_interconnect_type_facts:
     config: "{{ config_path }}"
 
-- debug: var=switch_types
+- debug: var=sas_interconnect_types
 
 
-- name: Gather facts about a Switch Type by name
-  oneview_switch_type_facts:
+- name: Gather facts about a SAS Interconnect Type by name
+  oneview_sas_interconnect_type_facts:
     config: "{{ config_path }}"
-    name: "Name of the Switch Type"
+    name: "SAS Interconnect Type Name"
 
-- debug: var=switch_types
+- debug: var=sas_interconnect_types
 '''
 
 RETURN = '''
-switch_types:
-    description: Has all the OneView facts about the Switch Types.
+sas_interconnect_types:
+    description: Has all the OneView facts about the SAS Interconnect Types.
     returned: Always, but can be null.
     type: complex
 '''
+
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
-class SwitchTypeFactsModule(object):
+class SasInterconnectTypeFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str')
@@ -96,19 +97,19 @@ class SwitchTypeFactsModule(object):
     def run(self):
         try:
             if self.module.params.get('name'):
-                switch_types = self.oneview_client.switch_types.get_by('name', self.module.params.get('name'))
+                types = self.oneview_client.sas_interconnect_types.get_by('name', self.module.params.get('name'))
             else:
-                switch_types = self.oneview_client.switch_types.get_all()
+                types = self.oneview_client.sas_interconnect_types.get_all()
 
             self.module.exit_json(changed=False,
-                                  ansible_facts=dict(switch_types=switch_types))
+                                  ansible_facts=dict(sas_interconnect_types=types))
 
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
 
 def main():
-    SwitchTypeFactsModule().run()
+    SasInterconnectTypeFactsModule().run()
 
 
 if __name__ == '__main__':
