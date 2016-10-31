@@ -20,6 +20,7 @@ import mock
 from hpOneView.oneview_client import OneViewClient
 from oneview_logical_interconnect_facts import LogicalInterconnectFactsModule
 from oneview_logical_interconnect_facts import LOGICAL_INTERCONNECT_NOT_FOUND
+from test.utils import create_ansible_mock
 
 ERROR_MSG = 'Fake message error'
 
@@ -100,12 +101,6 @@ LOGICAL_INTERCONNECT = dict(
 ALL_INTERCONNECTS = [LOGICAL_INTERCONNECT]
 
 
-def create_ansible_mock(dict_params):
-    mock_ansible = mock.Mock()
-    mock_ansible.params = dict_params
-    return mock_ansible
-
-
 def define_mocks_for_get_by_name(mock_ov_from_file, mock_ansible_module, PARAMS):
     mock_ov_instance = mock.Mock()
     mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
@@ -121,8 +116,40 @@ def create_params(options=[]):
     return dict(config='config.json', name=LOGICAL_INTERCONNECT_NAME, options=options)
 
 
-class LogicalInterconnectFactsSpec(unittest.TestCase):
+class LogicalInterconnectFactsClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
 
+        LogicalInterconnectFactsModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectFactsModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
+
+
+class LogicalInterconnectFactsSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
     def test_should_get_all_logical_interconnects(self, mock_ansible_module, mock_ov_from_file):

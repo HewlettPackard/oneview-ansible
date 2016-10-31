@@ -20,6 +20,7 @@ from hpOneView.oneview_client import OneViewClient
 from oneview_managed_san import ManagedSanModule
 from oneview_managed_san import MANAGED_SAN_UPDATED, MANAGED_SAN_REFRESH_STATE_UPDATED, MANAGED_SAN_NOT_FOUND, \
     MANAGED_SAN_NO_CHANGES_PROVIDED, MANAGED_SAN_ENDPOINTS_CSV_FILE_CREATED, MANAGED_SAN_ISSUES_REPORT_CREATED
+from test.utils import create_ansible_mock
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -67,13 +68,37 @@ PARAMS_TO_CREATE_ISSUES_REPORT = dict(
 )
 
 
-def create_ansible_mock(params):
-    mock_params = mock.Mock()
-    mock_params.__getitem__ = mock.Mock(side_effect=lambda name: params[name])
+class ManagedSanClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_managed_san.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
 
-    mock_ansible = mock.Mock()
-    mock_ansible.params = mock_params
-    return mock_ansible
+        ManagedSanModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_managed_san.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ManagedSanModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
 class ManagedSanPresentStateSpec(unittest.TestCase):

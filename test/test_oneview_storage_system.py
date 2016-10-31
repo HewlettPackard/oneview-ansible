@@ -21,6 +21,8 @@ from hpOneView.oneview_client import OneViewClient
 from oneview_storage_system import StorageSystemModule, STORAGE_SYSTEM_ADDED, STORAGE_SYSTEM_ALREADY_UPDATED, \
     STORAGE_SYSTEM_UPDATED, STORAGE_SYSTEM_DELETED, STORAGE_SYSTEM_ALREADY_ABSENT, \
     STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING, STORAGE_SYSTEM_CREDENTIALS_MANDATORY
+from test.utils import create_ansible_mock
+from test.utils import create_ansible_mock_yaml
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -81,10 +83,37 @@ DICT_DEFAULT_STORAGE_SYSTEM = yaml.load(YAML_STORAGE_SYSTEM)["data"]
 del DICT_DEFAULT_STORAGE_SYSTEM['credentials']['password']
 
 
-def create_ansible_mock(yaml_config):
-    mock_ansible = mock.Mock()
-    mock_ansible.params = yaml.load(yaml_config)
-    return mock_ansible
+class StorageSystemClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_storage_system.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        StorageSystemModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_storage_system.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        StorageSystemModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
 class StorageSystemPresentStateSpec(unittest.TestCase):
@@ -97,7 +126,7 @@ class StorageSystemPresentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_systems.update.return_value = {"name": "name"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_SYSTEM)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_SYSTEM)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StorageSystemModule().run()
@@ -116,7 +145,7 @@ class StorageSystemPresentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_systems.update.return_value = {"name": "name"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_SYSTEM)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_SYSTEM)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StorageSystemModule().run()
@@ -137,7 +166,7 @@ class StorageSystemPresentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_systems.get_by_name.return_value = dict_by_name
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_SYSTEM_BY_NAME)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_SYSTEM_BY_NAME)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StorageSystemModule().run()
@@ -176,7 +205,7 @@ class StorageSystemPresentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_systems.get_by_name.return_value = []
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_SYSTEM_BY_NAME)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_SYSTEM_BY_NAME)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StorageSystemModule().run()
@@ -197,7 +226,7 @@ class StorageSystemPresentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_systems.update.return_value = data_merged
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_SYSTEM_CHANGES)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_SYSTEM_CHANGES)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StorageSystemModule().run()
@@ -216,7 +245,7 @@ class StorageSystemPresentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_systems.add.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_SYSTEM)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_SYSTEM)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, StorageSystemModule().run())
@@ -234,7 +263,7 @@ class StorageSystemAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_systems.get_by_ip_hostname.return_value = DICT_DEFAULT_STORAGE_SYSTEM
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_SYSTEM_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_SYSTEM_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StorageSystemModule().run()
@@ -252,7 +281,7 @@ class StorageSystemAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_systems.get_by_ip_hostname.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_SYSTEM_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_SYSTEM_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StorageSystemModule().run()
@@ -271,7 +300,7 @@ class StorageSystemAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_systems.remove.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_SYSTEM_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_SYSTEM_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, StorageSystemModule().run())

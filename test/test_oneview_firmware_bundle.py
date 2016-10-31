@@ -19,6 +19,7 @@ import mock
 from hpOneView.oneview_client import OneViewClient
 from oneview_firmware_bundle import FirmwareBundleModule
 from oneview_firmware_bundle import FIRMWARE_BUNDLE_UPLOADED
+from test.utils import create_ansible_mock
 
 FAKE_MSG_ERROR = 'Fake message error'
 DEFAULT_FIRMWARE_FILE_PATH = '/path/to/file.rpm'
@@ -41,13 +42,37 @@ PARAMS_FOR_PRESENT = dict(
 )
 
 
-def create_ansible_mock(params):
-    mock_params = mock.Mock()
-    mock_params.__getitem__ = mock.Mock(side_effect=lambda name: params[name])
+class FirmwareBundleClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_firmware_bundle.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
 
-    mock_ansible = mock.Mock()
-    mock_ansible.params = mock_params
-    return mock_ansible
+        FirmwareBundleModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_firmware_bundle.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        FirmwareBundleModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
 class FirmwareBundlePresentStateSpec(unittest.TestCase):

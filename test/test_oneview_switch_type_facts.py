@@ -36,6 +36,39 @@ PARAMS_GET_BY_NAME = dict(
 SWITCH_TYPES = [{"name": "Test Switch Type 1"}, {"name": "Test Switch Type 2"}, {"name": "Test Switch Type 3"}]
 
 
+class SwitchTypeFactsClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_switch_type_facts.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        SwitchTypeFactsModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_switch_type_facts.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        SwitchTypeFactsModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
+
+
 class SwitchTypeFactsSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_switch_type_facts.AnsibleModule')

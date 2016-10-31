@@ -22,6 +22,8 @@ from oneview_storage_volume_template import StorageVolumeTemplateModule, STORAGE
     STORAGE_VOLUME_TEMPLATE_DELETED, STORAGE_VOLUME_TEMPLATE_ALREADY_ABSENT, \
     STORAGE_VOLUME_TEMPLATE_MANDATORY_FIELD_MISSING, \
     STORAGE_VOLUME_TEMPLATE_ALREADY_UPDATED, STORAGE_VOLUME_TEMPLATE_UPDATED
+from test.utils import create_ansible_mock
+from test.utils import create_ansible_mock_yaml
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -79,10 +81,37 @@ DICT_DEFAULT_STORAGE_VOLUME_TEMPLATE = yaml.load(YAML_STORAGE_VOLUME_TEMPLATE)["
 DICT_DEFAULT_STORAGE_VOLUME_TEMPLATE_CHANGED = yaml.load(YAML_STORAGE_VOLUME_TEMPLATE_CHANGE)["data"]
 
 
-def create_ansible_mock(yaml_config):
-    mock_ansible = mock.Mock()
-    mock_ansible.params = yaml.load(yaml_config)
-    return mock_ansible
+class StorageVolumeTemplateClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_storage_volume_template.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        StorageVolumeTemplateModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_storage_volume_template.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        StorageVolumeTemplateModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
 class StorageVolumeTemplatePresentStateSpec(unittest.TestCase):
@@ -94,7 +123,7 @@ class StorageVolumeTemplatePresentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_volume_templates.create.return_value = {"name": "name"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_VOLUME_TEMPLATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_VOLUME_TEMPLATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StorageVolumeTemplateModule().run()
@@ -113,7 +142,7 @@ class StorageVolumeTemplatePresentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_volume_templates.update.return_value = {"name": "name"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_VOLUME_TEMPLATE_CHANGE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_VOLUME_TEMPLATE_CHANGE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StorageVolumeTemplateModule().run()
@@ -131,7 +160,7 @@ class StorageVolumeTemplatePresentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_volume_templates.get_by.return_value = [DICT_DEFAULT_STORAGE_VOLUME_TEMPLATE]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_VOLUME_TEMPLATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_VOLUME_TEMPLATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StorageVolumeTemplateModule().run()
@@ -151,7 +180,7 @@ class StorageVolumeTemplateAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_volume_templates.get_by.return_value = [DICT_DEFAULT_STORAGE_VOLUME_TEMPLATE]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_VOLUME_TEMPLATE_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_VOLUME_TEMPLATE_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StorageVolumeTemplateModule().run()
@@ -170,7 +199,7 @@ class StorageVolumeTemplateAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_volume_templates.get_by.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_VOLUME_TEMPLATE_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_VOLUME_TEMPLATE_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StorageVolumeTemplateModule().run()
@@ -191,7 +220,7 @@ class StorageVolumeTemplateErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.storage_volume_templates.create.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_VOLUME_TEMPLATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_VOLUME_TEMPLATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, StorageVolumeTemplateModule().run())
@@ -208,7 +237,7 @@ class StorageVolumeTemplateErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.storage_volume_templates.update.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_VOLUME_TEMPLATE_CHANGE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_VOLUME_TEMPLATE_CHANGE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, StorageVolumeTemplateModule().run())
@@ -225,7 +254,7 @@ class StorageVolumeTemplateErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.storage_volume_templates.delete.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_VOLUME_TEMPLATE_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_VOLUME_TEMPLATE_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, StorageVolumeTemplateModule().run())
@@ -242,7 +271,7 @@ class StorageVolumeTemplateErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.storage_volume_templates.remove.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_VOLUME_TEMPLATE_MISSING_KEY)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_VOLUME_TEMPLATE_MISSING_KEY)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, StorageVolumeTemplateModule().run())

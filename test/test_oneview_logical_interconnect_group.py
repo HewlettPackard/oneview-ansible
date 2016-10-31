@@ -20,6 +20,7 @@ from hpOneView.oneview_client import OneViewClient
 from oneview_logical_interconnect_group import LogicalInterconnectGroupModule
 from oneview_logical_interconnect_group import LIG_CREATED, LIG_ALREADY_EXIST, LIG_UPDATED, LIG_DELETED, \
     LIG_ALREADY_ABSENT
+from test.utils import create_ansible_mock
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -63,13 +64,37 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-def create_ansible_mock(params):
-    mock_params = mock.Mock()
-    mock_params.__getitem__ = mock.Mock(side_effect=lambda name: params[name])
+class LogicalInterconnectGroupClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
 
-    mock_ansible = mock.Mock()
-    mock_ansible.params = mock_params
-    return mock_ansible
+        LogicalInterconnectGroupModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        LogicalInterconnectGroupModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
 class LogicalInterconnectGroupPresentStateSpec(unittest.TestCase):

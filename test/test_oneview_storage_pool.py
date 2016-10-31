@@ -20,6 +20,8 @@ import yaml
 from hpOneView.oneview_client import OneViewClient
 from oneview_storage_pool import StoragePoolModule, STORAGE_POOL_ADDED, STORAGE_POOL_ALREADY_ADDED, \
     STORAGE_POOL_DELETED, STORAGE_POOL_ALREADY_ABSENT, STORAGE_POOL_MANDATORY_FIELD_MISSING
+from test.utils import create_ansible_mock
+from test.utils import create_ansible_mock_yaml
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -48,10 +50,37 @@ YAML_STORAGE_POOL_ABSENT = """
 DICT_DEFAULT_STORAGE_POOL = yaml.load(YAML_STORAGE_POOL)["data"]
 
 
-def create_ansible_mock(yaml_config):
-    mock_ansible = mock.Mock()
-    mock_ansible.params = yaml.load(yaml_config)
-    return mock_ansible
+class StoragePoolClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_storage_pool.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        StoragePoolModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_storage_pool.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        StoragePoolModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
 class StoragePoolPresentStateSpec(unittest.TestCase):
@@ -63,7 +92,7 @@ class StoragePoolPresentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_pools.add.return_value = {"name": "name"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_POOL)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_POOL)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StoragePoolModule().run()
@@ -82,7 +111,7 @@ class StoragePoolPresentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_POOL)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_POOL)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StoragePoolModule().run()
@@ -102,7 +131,7 @@ class StoragePoolAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_POOL_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_POOL_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StoragePoolModule().run()
@@ -120,7 +149,7 @@ class StoragePoolAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.storage_pools.get_by.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_POOL_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_POOL_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         StoragePoolModule().run()
@@ -141,7 +170,7 @@ class StoragePoolErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.storage_pools.add.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_POOL)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_POOL)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, StoragePoolModule().run())
@@ -158,7 +187,7 @@ class StoragePoolErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.storage_pools.remove.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_POOL_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_POOL_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, StoragePoolModule().run())
@@ -174,7 +203,7 @@ class StoragePoolErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_STORAGE_POOL_MISSING_KEY)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_STORAGE_POOL_MISSING_KEY)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, StoragePoolModule().run())

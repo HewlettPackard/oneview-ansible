@@ -39,7 +39,9 @@ options:
     config:
       description:
         - Path to a .json configuration file containing the OneView client configuration.
-      required: true
+          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
+          environment variables.
+      required: false
     name:
       description:
         - Logical Interconnect name.
@@ -62,6 +64,8 @@ options:
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
+    - "Check how to use environment variables for configuration at:
+       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
 '''
 
 EXAMPLES = '''
@@ -161,7 +165,7 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 class LogicalInterconnectFactsModule(object):
 
     argument_spec = dict(
-        config=dict(required=True, type='str'),
+        config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list')
     )
@@ -170,7 +174,10 @@ class LogicalInterconnectFactsModule(object):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
         if not HAS_HPE_ONEVIEW:
             self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
-        logical_interconnects = OneViewClient.from_json_file(self.module.params['config']).logical_interconnects
+        if not self.module.params['config']:
+            logical_interconnects = OneViewClient.from_environment_variables().logical_interconnects
+        else:
+            logical_interconnects = OneViewClient.from_json_file(self.module.params['config']).logical_interconnects
 
         self.resource_client = logical_interconnects
         self.options = dict(

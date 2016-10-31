@@ -20,6 +20,8 @@ import yaml
 from hpOneView.oneview_client import OneViewClient
 from oneview_datacenter import DatacenterModule, DATACENTER_ADDED, DATACENTER_REMOVED, DATACENTER_ALREADY_ABSENT, \
     RACK_NOT_FOUND, DATACENTER_ALREADY_UPDATED, DATACENTER_UPDATED
+from test.utils import create_ansible_mock
+from test.utils import create_ansible_mock_yaml
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -64,10 +66,37 @@ DICT_DEFAULT_DATACENTER = yaml.load(YAML_DATACENTER)["data"]
 DICT_DEFAULT_DATACENTER_CHANGED = yaml.load(YAML_DATACENTER_CHANGE)["data"]
 
 
-def create_ansible_mock(yaml_config):
-    mock_ansible = mock.Mock()
-    mock_ansible.params = yaml.load(yaml_config)
-    return mock_ansible
+class DatacenterClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_datacenter.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        DatacenterModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_datacenter.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        DatacenterModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
 class DatacenterPresentStateSpec(unittest.TestCase):
@@ -80,7 +109,7 @@ class DatacenterPresentStateSpec(unittest.TestCase):
         mock_ov_instance.racks.get_by.return_value = [{'uri': RACK_URI}]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DATACENTER)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DATACENTER)
         mock_ansible_module.return_value = mock_ansible_instance
 
         DatacenterModule().run()
@@ -99,7 +128,7 @@ class DatacenterPresentStateSpec(unittest.TestCase):
         mock_ov_instance.datacenters.update.return_value = {"name": "name"}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DATACENTER_CHANGE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DATACENTER_CHANGE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         DatacenterModule().run()
@@ -121,7 +150,7 @@ class DatacenterPresentStateSpec(unittest.TestCase):
         mock_ov_instance.racks.get_by.return_value = [{'uri': RACK_URI}]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DATACENTER)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DATACENTER)
         mock_ansible_module.return_value = mock_ansible_instance
 
         DatacenterModule().run()
@@ -141,7 +170,7 @@ class DatacenterAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.datacenters.get_by.return_value = [DICT_DEFAULT_DATACENTER]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DATACENTER_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DATACENTER_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         DatacenterModule().run()
@@ -160,7 +189,7 @@ class DatacenterAbsentStateSpec(unittest.TestCase):
         mock_ov_instance.datacenters.get_by.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DATACENTER_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DATACENTER_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         DatacenterModule().run()
@@ -182,7 +211,7 @@ class DatacenterErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.racks.get_by.return_value = [{'uri': RACK_URI}]
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DATACENTER)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DATACENTER)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, DatacenterModule().run())
@@ -200,7 +229,7 @@ class DatacenterErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.racks.get_by.return_value = []
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DATACENTER)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DATACENTER)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, DatacenterModule().run())
@@ -217,7 +246,7 @@ class DatacenterErrorHandlingSpec(unittest.TestCase):
         mock_ov_instance.datacenters.remove.side_effect = Exception(FAKE_MSG_ERROR)
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DATACENTER_ABSENT)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DATACENTER_ABSENT)
         mock_ansible_module.return_value = mock_ansible_instance
 
         self.assertRaises(Exception, DatacenterModule().run())
