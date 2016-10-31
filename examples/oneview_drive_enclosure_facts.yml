@@ -1,0 +1,47 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    - config: "{{ playbook_dir }}/oneview_config.json"
+    - name: "0000A66102, bay 1"  # Set the name of an existent Drive Enclosure to run this example
+  tasks:
+    - name: Gather facts about all Drive Enclosures
+      oneview_drive_enclosure_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=drive_enclosures
+
+    - name: Gather facts about a Drive Enclosure by name
+      oneview_drive_enclosure_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+      delegate_to: localhost
+
+    - debug: var=drive_enclosures
+
+    - name: Gather facts about a Drive Enclosure by name with options
+      oneview_drive_enclosure_facts:
+        config: "{{ config }}"
+        name: '{{ name }}'
+        options:
+          - portMap    # optional
+
+      delegate_to: localhost
+
+    - debug: var=drive_enclosures
+    - debug: var=drive_enclosure_port_map
