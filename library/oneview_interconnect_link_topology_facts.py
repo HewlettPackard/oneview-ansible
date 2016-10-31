@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
 # Copyright (2016) Hewlett Packard Enterprise Development LP
 #
@@ -26,14 +26,14 @@ except ImportError:
 
 DOCUMENTATION = '''
 ---
-module: oneview_interconnect_type_facts
-short_description: Retrieve facts about one or more of the OneView Interconnect Types.
+module: oneview_interconnect_link_topology_facts
+short_description: Retrieve facts about the OneView Interconnect Link Topologies.
 description:
-    - Retrieve facts about one or more of the Interconnect Types from OneView.
+    - Retrieve facts about the Interconnect Link Topologies from OneView.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
-author: "Camila Balestrin (@balestrinc)"
+    - "hpOneView >= 3.0.0"
+author: "Mariana Kreisig (@marikrg)"
 options:
     config:
       description:
@@ -43,7 +43,7 @@ options:
       required: false
     name:
       description:
-        - Interconnect Type name.
+        - Name of the Interconnect Link Topology.
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -53,38 +53,38 @@ notes:
 '''
 
 EXAMPLES = '''
-- name: Gather facts about all Interconnect Types
-  oneview_interconnect_type_facts:
-    config: "{{ config_file_path }}"
+- name: Gather facts about all Interconnect Link Topologies
+  oneview_interconnect_link_topology_facts:
+    config: "{{ config_path }}"
 
-- debug: var=interconnect_types
+- debug: var=interconnect_link_topologies
 
-- name: Gather facts about an Interconnect Type by name
-  oneview_interconnect_type_facts:
-    config: "{{ config_file_path }}"
-    name: HP VC Flex-10 Enet Module
 
-- debug: var=interconnect_types
+- name: Gather facts about an Interconnect Link Topology by name
+  oneview_interconnect_link_topology_facts:
+    config: "{{ config_path }}"
+    name: "Name of the Interconnect Link Topologies"
+
+- debug: var=interconnect_link_topologies
 '''
 
 RETURN = '''
-interconnect_types:
-    description: Has all the OneView facts about the Interconnect Types.
+interconnect_link_topologies:
+    description: Has all the OneView facts about the Interconnect Link Topologies.
     returned: Always, but can be null.
     type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
-class InterconnectTypeFactsModule(object):
+class InterconnectLinkTopologyFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec,
-                                    supports_check_mode=False)
+        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
         if not HAS_HPE_ONEVIEW:
             self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
 
@@ -95,29 +95,21 @@ class InterconnectTypeFactsModule(object):
 
     def run(self):
         try:
-            if self.module.params['name']:
-                self.__get_by_name(self.module.params['name'])
+            if self.module.params.get('name'):
+                name = self.module.params.get('name')
+                interconnect_link_topologies = self.oneview_client.interconnect_link_topologies.get_by('name', name)
             else:
-                self.__get_all()
+                interconnect_link_topologies = self.oneview_client.interconnect_link_topologies.get_all()
+
+            self.module.exit_json(changed=False,
+                                  ansible_facts=dict(interconnect_link_topologies=interconnect_link_topologies))
 
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
-    def __get_by_name(self, name):
-        interconnect_types = self.oneview_client.interconnect_types.get_by('name', name)
-
-        self.module.exit_json(changed=False,
-                              ansible_facts=dict(interconnect_types=interconnect_types))
-
-    def __get_all(self):
-        interconnect_types = self.oneview_client.interconnect_types.get_all()
-
-        self.module.exit_json(changed=False,
-                              ansible_facts=dict(interconnect_types=interconnect_types))
-
 
 def main():
-    InterconnectTypeFactsModule().run()
+    InterconnectLinkTopologyFactsModule().run()
 
 
 if __name__ == '__main__':
