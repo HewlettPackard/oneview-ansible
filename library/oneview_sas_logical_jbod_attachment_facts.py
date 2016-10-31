@@ -26,7 +26,7 @@ except ImportError:
 
 DOCUMENTATION = '''
 ---
-module: oneview_sas_logical_jbod_attachments
+module: oneview_sas_logical_jbod_attachment_facts
 short_description: Retrieve facts about one or more of the OneView SAS Logical JBOD Attachments.
 description:
     - Retrieve facts about one or more of the SAS Logical JBOD Attachments from OneView.
@@ -38,25 +38,29 @@ options:
     config:
       description:
         - Path to a .json configuration file containing the OneView client configuration.
-      required: true
+          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
+          environment variables.
+      required: false
     name:
       description:
         - Name of SAS Logical JBOD Attachment.
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
-      https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
+       https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
+    - "Check how to use environment variables for configuration at:
+       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
 '''
 
 EXAMPLES = '''
 - name: Gather facts about all SAS Logical JBOD Attachment
-    oneview_sas_logical_jbod_attachments_facts:
+    oneview_sas_logical_jbod_attachment_facts:
     config: "{{ config_path }}"
 
 - debug: var=sas_logical_jbod_attachments
 
 - name: Gather facts about a SAS Logical JBOD Attachment by name
-    oneview_sas_logical_jbod_attachments_facts:
+    oneview_sas_logical_jbod_attachment_facts:
     config: "{{ config_path }}"
     name: "logical-enclosure-SAS-Logical-Interconnect-Group-BDD-1-SLJA-1"
 
@@ -72,9 +76,9 @@ sas_logical_jbod_attachments:
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
-class SasLogicalJBODAttachment(object):
+class SasLogicalJbodAttachmentFactsModule(object):
     argument_spec = dict(
-        config=dict(required=True, type='str'),
+        config=dict(required=False, type='str'),
         name=dict(required=False, type='str')
     )
 
@@ -83,19 +87,17 @@ class SasLogicalJBODAttachment(object):
                                     supports_check_mode=False)
         if not HAS_HPE_ONEVIEW:
             self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
-        self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+
+        if not self.module.params['config']:
+            self.oneview_client = OneViewClient.from_environment_variables()
+        else:
+            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
         try:
             if self.module.params['name']:
                 name = self.module.params['name']
-
-                sas_logical_jbod_attachment = self.oneview_client.sas_logical_jbod_attachments.get_by('name', name)
-
-                if sas_logical_jbod_attachment:
-                    resources = [sas_logical_jbod_attachment]
-                else:
-                    resources = []
+                resources = self.oneview_client.sas_logical_jbod_attachments.get_by('name', name)
             else:
                 resources = self.oneview_client.sas_logical_jbod_attachments.get_all()
 
@@ -107,7 +109,7 @@ class SasLogicalJBODAttachment(object):
 
 
 def main():
-    SasLogicalJBODAttachment().run()
+    SasLogicalJbodAttachmentFactsModule().run()
 
 
 if __name__ == '__main__':

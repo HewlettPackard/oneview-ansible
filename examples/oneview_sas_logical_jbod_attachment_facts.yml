@@ -21,7 +21,7 @@
     sas_logical_jbod_attachment_name: "logical-enclosure-SAS-Logical-Interconnect-Group-BDD-1-SLJA-1"
 
   tasks:
-    - name: Gather facts about all SAS Logical JBOD Attachment
+    - name: Gather facts about all SAS Logical JBOD Attachments
       oneview_sas_logical_jbod_attachment_facts:
         config: "{{ config }}"
       delegate_to: localhost
@@ -35,6 +35,3 @@
       delegate_to: localhost
 
     - debug: var=sas_logical_jbod_attachments
-
-
-
