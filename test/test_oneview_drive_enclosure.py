@@ -15,10 +15,13 @@
 ###
 import unittest
 import mock
-import yaml
+
 
 from hpOneView.oneview_client import OneViewClient
 from oneview_drive_enclosure import DriveEnclosureModule, DRIVE_ENCLOSURE_NAME_REQUIRED, DRIVE_ENCLOSURE_NOT_FOUND
+
+from test.utils import create_ansible_mock
+from test.utils import create_ansible_mock_yaml
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -81,10 +84,37 @@ YAML_WITHOUT_NAME = """
 """
 
 
-def create_ansible_mock(yaml_config):
-    mock_ansible = mock.Mock()
-    mock_ansible.params = yaml.load(yaml_config)
-    return mock_ansible
+class DriveEnclosureClientConfigurationSpec(unittest.TestCase):
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_drive_enclosure.AnsibleModule')
+    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                          mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        DriveEnclosureModule()
+
+        mock_ov_client_from_json_file.assert_called_once_with('config.json')
+        mock_ov_client_from_env_vars.not_been_called()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch.object(OneViewClient, 'from_environment_variables')
+    @mock.patch('oneview_drive_enclosure.AnsibleModule')
+    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
+                                                 mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+
+        mock_ov_client_from_env_vars.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock({'config': None})
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        DriveEnclosureModule()
+
+        mock_ov_client_from_env_vars.assert_called_once()
+        mock_ov_client_from_json_file.not_been_called()
 
 
 class DriveEnclosureSpec(unittest.TestCase):
@@ -93,7 +123,7 @@ class DriveEnclosureSpec(unittest.TestCase):
     def test_should_raise_exception_when_name_not_defined(self, mock_ansible_module, mock_from_json_file):
         mock_ov_instance = mock.Mock()
         mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_WITHOUT_NAME)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_WITHOUT_NAME)
         mock_ansible_module.return_value = mock_ansible_instance
 
         DriveEnclosureModule().run()
@@ -108,7 +138,7 @@ class DriveEnclosureSpec(unittest.TestCase):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.drive_enclosures.get_by.return_value = []
         mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DRIVE_ENCLOSURE_POWER_STATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DRIVE_ENCLOSURE_POWER_STATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         DriveEnclosureModule().run()
@@ -126,7 +156,7 @@ class DriveEnclosureSpec(unittest.TestCase):
         mock_ov_instance.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
         mock_ov_instance.drive_enclosures.patch.return_value = mock_return_patch
         mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DRIVE_ENCLOSURE_POWER_STATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DRIVE_ENCLOSURE_POWER_STATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         DriveEnclosureModule().run()
@@ -148,7 +178,7 @@ class DriveEnclosureSpec(unittest.TestCase):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.drive_enclosures.get_by.return_value = [drive_enclosure]
         mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DRIVE_ENCLOSURE_POWER_STATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DRIVE_ENCLOSURE_POWER_STATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         DriveEnclosureModule().run()
@@ -167,7 +197,7 @@ class DriveEnclosureSpec(unittest.TestCase):
         mock_ov_instance.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
         mock_ov_instance.drive_enclosures.patch.return_value = mock_return_patch
         mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DRIVE_ENCLOSURE_UID_STATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DRIVE_ENCLOSURE_UID_STATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         DriveEnclosureModule().run()
@@ -189,7 +219,7 @@ class DriveEnclosureSpec(unittest.TestCase):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.drive_enclosures.get_by.return_value = [drive_enclosure]
         mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DRIVE_ENCLOSURE_UID_STATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DRIVE_ENCLOSURE_UID_STATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         DriveEnclosureModule().run()
@@ -208,7 +238,7 @@ class DriveEnclosureSpec(unittest.TestCase):
         mock_ov_instance.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
         mock_ov_instance.drive_enclosures.patch.return_value = mock_return_patch
         mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DRIVE_ENCLOSURE_HARD_RESET_STATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DRIVE_ENCLOSURE_HARD_RESET_STATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         DriveEnclosureModule().run()
@@ -230,7 +260,7 @@ class DriveEnclosureSpec(unittest.TestCase):
         mock_ov_instance.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
         mock_ov_instance.drive_enclosures.refresh_state.return_value = mock_return_refresh
         mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(YAML_DRIVE_ENCLOSURE_REFRESH_STATE)
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_DRIVE_ENCLOSURE_REFRESH_STATE)
         mock_ansible_module.return_value = mock_ansible_instance
 
         DriveEnclosureModule().run()

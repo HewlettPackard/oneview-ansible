@@ -38,7 +38,9 @@ options:
     config:
       description:
         - Path to a .json configuration file containing the OneView client configuration.
-      required: true
+          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
+          environment variables.
+      required: false
     state:
         description:
             - Indicates the desired state for the Drive Enclosure resource.
@@ -103,7 +105,7 @@ DRIVE_ENCLOSURE_NOT_FOUND = 'Drive Enclosure with specified name not found.'
 
 class DriveEnclosureModule(object):
     argument_spec = dict(
-        config=dict(required=True, type='str'),
+        config=dict(required=False, type='str'),
         state=dict(
             required=True,
             choices=['power_state_set', 'uid_state_set', 'hard_reset_state_set', 'refresh_state_set']
@@ -115,7 +117,11 @@ class DriveEnclosureModule(object):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
         if not HAS_HPE_ONEVIEW:
             self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
-        self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+
+        if not self.module.params['config']:
+            self.oneview_client = OneViewClient.from_environment_variables()
+        else:
+            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
         state = self.module.params['state']
