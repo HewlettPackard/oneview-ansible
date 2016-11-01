@@ -135,7 +135,7 @@ Manage OneView Connection Template resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Connection Template properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Connection Template resource. 'present' will ensure data properties are compliant with OneView.  |
 
@@ -172,6 +172,8 @@ Manage OneView Connection Template resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -190,7 +192,7 @@ Retrieve facts about Connection Templates of the OneView.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Connection Template name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Connection Template related resources. Options allowed: defaultConnectionTemplate  |
 
@@ -236,6 +238,8 @@ Retrieve facts about Connection Templates of the OneView.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -254,7 +258,7 @@ Manage OneView Data Center resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Data Center properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Data Center resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -330,6 +334,8 @@ Manage OneView Data Center resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -348,7 +354,7 @@ Retrieve facts about Data Centers of the OneView.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Data Center name.  |
 | options  |   No  |  | |  Retrieve additional facts. Options available: 'visualContent'  |
 
@@ -401,6 +407,8 @@ Retrieve facts about Data Centers of the OneView.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -419,7 +427,7 @@ Manage OneView Enclosure resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the Enclosure properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Enclosure resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'reconfigured' will reapply the appliance's configuration on the enclosure. This includes running the same configuration steps that were performed as part of the enclosure add. 'refreshed' will refresh the enclosure along with all of its components, including interconnects and servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is removed.  |
 
@@ -493,6 +501,8 @@ Manage OneView Enclosure resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -511,7 +521,7 @@ Retrieve facts about one or more Enclosures.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Enclosure name.  |
 | options  |   No  |  | |  List with options to gather additional facts about an Enclosure and related resources. Options allowed: script, environmentalConfiguration, and utilization. For the option utilization, you can provide specific parameters.  |
 
@@ -585,6 +595,8 @@ Retrieve facts about one or more Enclosures.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -603,7 +615,7 @@ Manage OneView Enclosure Group resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Enclosure Group properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Enclosure Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -662,6 +674,8 @@ Manage OneView Enclosure Group resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -680,7 +694,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Enclosure Group name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Enclosure Group. Options allowed: 'configuration_script' Gets the configuration script for an Enclosure Group.  |
 
@@ -723,6 +737,8 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -741,7 +757,7 @@ Manage OneView Ethernet Network resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Ethernet Network properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>default_bandwidth_reset</li> </ul> |  Indicates the desired state for the Ethernet Network resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'default_bandwidth_reset' will reset the network connection template to the default.  |
 
@@ -824,6 +840,8 @@ Manage OneView Ethernet Network resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -842,7 +860,7 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Ethernet Network name.  |
 | options  |   No  |  | |  List with options to gather additional facts about an Ethernet Network and related resources. Options allowed: associatedProfiles and associatedUplinkGroups.  |
 
@@ -893,6 +911,8 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -911,7 +931,7 @@ Retrieve the facts about one or more of the OneView Fabrics.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Fabric name.  |
 
 
@@ -947,6 +967,8 @@ Retrieve the facts about one or more of the OneView Fabrics.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -965,7 +987,7 @@ Manage OneView Fibre Channel Network resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the Fibre Channel Network properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Fibre Channel Network resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -1011,6 +1033,8 @@ Manage OneView Fibre Channel Network resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -1029,7 +1053,7 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Fibre Channel Network name.  |
 
 
@@ -1065,6 +1089,8 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -1083,7 +1109,7 @@ Manage OneView FCoE Network resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with FCoE Network properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the FCoE Network resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -1122,6 +1148,8 @@ Manage OneView FCoE Network resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -1140,7 +1168,7 @@ Retrieve the facts about one or more of the OneView FCoE Networks.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  FCoE Network name.  |
 
 
@@ -1176,6 +1204,8 @@ Retrieve the facts about one or more of the OneView FCoE Networks.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -1194,7 +1224,7 @@ Upload OneView Firmware Bundle resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | file_path  |   Yes  |  | |  The full path of a local file to be loaded.  |
 | state  |   |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Firmware Driver resource. 'present' will ensure that the firmware bundle is at OneView.  |
 
@@ -1225,6 +1255,8 @@ Upload OneView Firmware Bundle resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -1243,7 +1275,7 @@ Provides an interface to remove Firmware Driver resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   Yes  |  | |  Firmware driver name.  |
 | state  |   |  | <ul> <li>absent</li> </ul> |  Indicates the desired state for the Firmware Driver. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -1266,6 +1298,8 @@ Provides an interface to remove Firmware Driver resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -1284,7 +1318,7 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Firmware driver name.  |
 
 
@@ -1320,6 +1354,8 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -1338,7 +1374,7 @@ Manage the OneView Interconnect resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | ip  |   No  |  | |  Interconnect IP add  |
 | name  |   No  |  | |  Interconnect name  |
 | ports  |   No  |  | |  List with ports to update. This option should be used together with 'update_ports' state.  |
@@ -1382,6 +1418,8 @@ Manage the OneView Interconnect resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -1400,7 +1438,7 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Interconnect name  |
 | options  |   No  |  | |  List with options to gather additional facts about Interconnect. Options allowed: 'nameServers' gets the named servers for an interconnect. 'statistics' gets the statistics from an interconnect. 'portStatistics' gets the statistics for the specified port name on an interconnect. 'subPortStatistics' gets the subport statistics on an interconnect.  To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be ignored.  |
 
@@ -1485,6 +1523,8 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -1503,7 +1543,7 @@ Retrieve facts about one or more of the OneView Interconnect Types.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Interconnect Type name.  |
 
 
@@ -1539,6 +1579,8 @@ Retrieve facts about one or more of the OneView Interconnect Types.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -1557,7 +1599,7 @@ Retrieve facts about one or more of the OneView Logical Downlinks.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Downlink name  |
 
 
@@ -1604,6 +1646,8 @@ Retrieve facts about one or more of the OneView Logical Downlinks.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -1622,7 +1666,7 @@ Manage OneView Logical Enclosure resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Logical Enclosure properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>firmware_updated</li>  <li>script_updated</li>  <li>dumped</li>  <li>reconfigured</li>  <li>updated_from_group</li> </ul> |  Indicates the desired state for the Logical Enclosure resource. 'present' enable to change the Logical Enclosure name. 'firmware_updated' update the firmware for the Logical Enclosure. 'script_updated' update the Logical Enclosure configuration script. 'dumped' generates a support dump for the Logical Enclosure. 'reconfigured' reconfigure all enclosures associated with logical enclosure. 'updated_from_group' makes the logical enclosure consistent with the enclosure group.  |
 
@@ -1707,6 +1751,8 @@ Manage OneView Logical Enclosure resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -1725,7 +1771,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Enclosure name.  |
 | options  |   No  |  | |  List with options to gather additional facts about a Logical Enclosure and related resources. Options allowed: script.  |
 
@@ -1776,6 +1822,8 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -1794,7 +1842,7 @@ Manage OneView Logical Interconnect resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the options.  |
 | state  |   |  | <ul> <li>compliant</li>  <li>ethernet_settings_updated</li>  <li>internal_networks_updated</li>  <li>settings_updated</li>  <li>forwarding_information_base_generated</li>  <li>qos_aggregated_configuration_updated</li>  <li>snmp_configuration_updated</li>  <li>port_monitor_updated</li>  <li>configuration_updated</li>  <li>firmware_installed</li> </ul> |  Indicates the desired state for the Logical Interconnect resource. 'compliant' brings the logical interconnect back to a consistent state. 'ethernet_settings_updated' updates the Ethernet interconnect settings for the logical interconnect. 'internal_networks_updated' updates the internal networks on the logical interconnect. This operation is non-idempotent. 'settings_updated' updates the Logical Interconnect settings. 'forwarding_information_base_generated' generates the forwarding information base dump file for the logical interconnect. This operation is non-idempotent and asynchronous. 'qos_aggregated_configuration_updated' updates the QoS aggregated configuration for the logical interconnect. 'snmp_configuration_updated' updates the SNMP configuration for the logical interconnect. 'port_monitor_updated' updates the port monitor configuration of a logical interconnect. 'configuration_updated' asynchronously applies or re-applies the logical interconnect configuration to all managed interconnects. This operation is non-idempotent. 'firmware_installed' installs firmware to a logical interconnect. The three operations that are supported for the firmware update are Stage (uploads firmware to the interconnect), Activate (installs firmware on the interconnect) and Update (which does a Stage and Activate in a sequential manner). All of them are non-idempotent.  |
 
@@ -1916,6 +1964,8 @@ Manage OneView Logical Interconnect resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -1934,7 +1984,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Interconnect name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Logical Interconnect. Options allowed: 'qos_aggregated_configuration' gets the QoS aggregated configuration for the logical interconnect. 'snmp_configuration' gets the SNMP configuration for a logical interconnect. 'port_monitor' gets the port monitor configuration of a logical interconnect. 'internal_vlans' gets the internal VLAN IDs for the provisioned networks on a logical interconnect. 'forwarding_information_base' gets the forwarding information base data for a logical interconnect. 'firmware' get the installed firmware for a logical interconnect. 'unassigned_uplink_ports' gets a collection of uplink ports from the member interconnects which are eligible for assignment to an analyzer port. 'telemetry_configuration' gets the telemetry configuration of the logical interconnect. - These options are valid just when a 'name' is provided. Otherwise it will be ignored.  |
 
@@ -2006,6 +2056,8 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -2024,7 +2076,7 @@ Manage OneView Logical Interconnect Group resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the Logical Interconnect Group properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Interconnect Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -2075,6 +2127,8 @@ Manage OneView Logical Interconnect Group resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -2093,7 +2147,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Interconnect Group name.  |
 
 
@@ -2129,6 +2183,8 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -2147,7 +2203,7 @@ Manage OneView Logical Switch resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the Logical Switches properties. You can choose set the Logical Switch Group by logicalSwitchGroupName or logicalSwitchGroupUri.  |
 | state  |   |  | <ul> <li>present</li>  <li>updated</li>  <li>absent</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Logical Switch resource. 'present' creates a Logical Switch, if it doesn't exist. To update the Logical Switch, use the 'updated' state instead. 'updated' ensures the Logical Switch is updated. Currently OneView only supports updating the credentials and name of the Logical Switch. To change the name of the Logical Switch, a 'newName' in the data must be provided. The update operation is non-idempotent. 'absent' removes the resource from OneView, if it exists. 'refreshed' reclaims the top-of-rack switches in the logical switch. This operation is non-idempotent.  |
 
@@ -2256,6 +2312,8 @@ Manage OneView Logical Switch resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -2274,7 +2332,7 @@ Retrieve the facts about one or more of the OneView Logical Switches.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Switch name.  |
 
 
@@ -2310,6 +2368,8 @@ Retrieve the facts about one or more of the OneView Logical Switches.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -2328,7 +2388,7 @@ Manage OneView Logical Switch Group resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Logical Switch Group properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Switch Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -2395,6 +2455,8 @@ Manage OneView Logical Switch Group resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -2413,7 +2475,7 @@ Retrieve facts about OneView Logical Switch Groups.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Switch Group name.  |
 
 
@@ -2451,6 +2513,8 @@ Retrieve facts about OneView Logical Switch Groups.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -2469,7 +2533,7 @@ Manage OneView Managed SAN resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Managed SAN properties and its associated states. Warning: For the 'present' state, the contents of the publicAttributes will replace the existing list, so leaving out a public attribute from the given list will effectively delete it.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>refresh_state_set</li>  <li>endpoints_csv_file_created</li>  <li>issues_report_created</li> </ul> |  Indicates the desired state for the Managed SAN resource. 'present' ensures data properties are compliant with OneView. 'refresh_state_set' updates the refresh state of the Managed SAN. 'endpoints_csv_file_created' creates a SAN endpoints CSV file. 'issues_report_created' creates an unexpected zoning report for a SAN.  |
 
@@ -2541,6 +2605,8 @@ Manage OneView Managed SAN resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -2559,7 +2625,7 @@ Retrieve facts about the OneView Managed SANs.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Managed SAN.  |
 | options  |   No  |  | |  List with options to gather additional facts about Managed SAN. Options allowed: 'endpoints' gets the list of endpoints in the SAN identified by name.  |
 
@@ -2610,6 +2676,8 @@ Retrieve facts about the OneView Managed SANs.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -2628,7 +2696,7 @@ Manage OneView Network Set resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the Network Set properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Network Set resource. 'present' ensures data properties are compliant with OneView. 'absent' removes the resource from OneView, if it exists.  |
 
@@ -2679,6 +2747,8 @@ Manage OneView Network Set resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -2697,7 +2767,7 @@ Retrieve facts about the OneView Network Sets.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Network Set name.  |
 | options  |   No  |  | |  List with options to gather facts about Network Set. Option allowed: withoutEthernet The option 'withoutEthernet' retrieves the list of network_sets excluding Ethernet networks.  |
 
@@ -2754,6 +2824,8 @@ Retrieve facts about the OneView Network Sets.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -2772,7 +2844,7 @@ Manage OneView Power Device resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Power Device properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>discovered</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>uid_state_set</li> </ul> |  Indicates the desired state for the Power Device resource. 'present' will ensure data properties are compliant with OneView. 'discovered' will add an iPDU to the OneView. 'absent' will remove the resource from OneView, if it exists. 'power_state_set' will set the power state of the Power Device. 'refresh_state_set' will set the refresh state of the Power Device. 'uid_state_set' will set the UID state of the Power Device.  |
 
@@ -2854,6 +2926,8 @@ Manage OneView Power Device resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -2872,7 +2946,7 @@ Retrieve facts about the OneView Power Devices.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Power Device name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Power Device. Options allowed: powerState, uidState, utilization  |
 
@@ -2940,6 +3014,8 @@ Retrieve facts about the OneView Power Devices.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -2958,7 +3034,7 @@ Manage OneView Racks resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the Rack properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Rack resource. 'present' will ensure data properties are compliant with OneView. To change the name of the Rack, a 'newName' in the data must be provided. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -3018,6 +3094,8 @@ Manage OneView Racks resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -3036,7 +3114,7 @@ Retrieve facts about Rack resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Rack name.  |
 | options  |   No  |  | |  Retrieve additional facts. Options available: 'deviceTopology'  |
 
@@ -3089,6 +3167,8 @@ Retrieve facts about Rack resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -3107,7 +3187,7 @@ Manage OneView SAN Manager resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with SAN Manager properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Uplink Set resource. 'present' ensures data properties are compliant with OneView. 'absent' removes the resource from OneView, if it exists.  |
 
@@ -3163,7 +3243,9 @@ Manage OneView SAN Manager resources.
 
 #### Notes
 
-- A sample configuration file for the config parameter can be found at: https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 
 ---
@@ -3183,7 +3265,7 @@ Retrieve facts about one or more of the OneView SAN Managers.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | provider_display_name  |   No  |  | |  Provider Display Name.  |
 
 
@@ -3217,7 +3299,9 @@ Retrieve facts about one or more of the OneView SAN Managers.
 
 #### Notes
 
-- A sample configuration file for the config parameter can be found at: https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 
 ---
@@ -3237,7 +3321,7 @@ Manage OneView Server Hardware resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Server Hardware properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>ilo_firmware_version_updated</li> </ul> |  Indicates the desired state for the Server Hardware resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'power_state_set' will set the power state of the Server Hardware. 'refresh_state_set will set the refresh state of the Server Hardware. 'ilo_firmware_version_updated' will update the iLO firmware version of the Server Hardware.  |
 
@@ -3320,6 +3404,8 @@ Manage OneView Server Hardware resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -3338,7 +3424,7 @@ Retrieve facts about the OneView Server Hardwares.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Server Hardware name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Server Hardware related resources. Options allowed: bios, javaRemoteConsoleUrl, environmentalConfig, iloSsoUrl, remoteConsoleUrl, utilization  |
 
@@ -3421,6 +3507,8 @@ Retrieve facts about the OneView Server Hardwares.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -3439,7 +3527,7 @@ Manage OneView Server Hardware Type resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Server Hardware Type properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Server Hardware Type resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -3489,6 +3577,8 @@ Manage OneView Server Hardware Type resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -3507,7 +3597,7 @@ Retrieve facts about Server Hardware Types of the OneView.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Server Hardware Type name.  |
 
 
@@ -3543,6 +3633,8 @@ Retrieve facts about Server Hardware Types of the OneView.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -3561,7 +3653,7 @@ Manage OneView Server Profile resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Server Profile properties.  |
 | state  |   |  present  | <ul> <li>present</li>  <li>absent</li>  <li>compliant</li> </ul> |  Indicates the desired state for the Server Profile resource by the end of the playbook execution. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'compliant' will make the server profile complient with its server profile template, when this option was specified.  |
 
@@ -3623,6 +3715,8 @@ Manage OneView Server Profile resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -3641,7 +3735,7 @@ Retrieve facts about the OneView Server Profiles.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Server Profile name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Server Profile related resources. Options allowed: schema, compliancePreview, profilePorts, messages, transformation, available_networks, available_servers, available_storage_system, available_storage_systems, available_targets  To gather facts about 'compliancePreview', 'messages' and 'transformation' it is required inform the Server Profile name. Otherwise, these options will be ignored.  |
 
@@ -3745,6 +3839,8 @@ Retrieve facts about the OneView Server Profiles.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -3763,7 +3859,7 @@ Manage OneView Server Profile Template resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  Dict with Server Profile Template properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Server Profile Template. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -3805,6 +3901,8 @@ Manage OneView Server Profile Template resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -3823,7 +3921,7 @@ Retrieve facts about the Server Profile Templates from OneView.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Server Profile Template name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Server Profile Template resources. Options allowed: new_profile  |
 
@@ -3864,6 +3962,8 @@ Retrieve facts about the Server Profile Templates from OneView.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -3882,7 +3982,7 @@ Manage OneView Storage Pool resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Storage Pool properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage Pool resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -3923,6 +4023,8 @@ Manage OneView Storage Pool resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -3941,7 +4043,7 @@ Retrieve facts about one or more Storage Pools.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Storage Pool name.  |
 
 
@@ -3979,6 +4081,8 @@ Retrieve facts about one or more Storage Pools.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -3997,7 +4101,7 @@ Manage OneView Storage System resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Storage System properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage System resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -4048,6 +4152,8 @@ Manage OneView Storage System resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -4066,7 +4172,7 @@ Retrieve facts about the OneView Storage Systems.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | ip_hostname  |   No  |  | |  Storage System IP or hostname.  |
 | name  |   No  |  | |  Storage System name.  |
 | options  |   No  |  | |  List with options to gather additional facts about a Storage System and related resources. Options allowed: 'hostTypes' gets the list of supported host types. 'storagePools' gets a list of storage pools belonging to the specified storage system.  To gather facts about 'storagePools' it is required inform either the argument 'name' or 'ip_hostname'. Otherwise, this option will be ignored.  |
@@ -4132,6 +4238,8 @@ Retrieve facts about the OneView Storage Systems.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -4150,7 +4258,7 @@ Provides an interface to remove extra presentations from a specified server prof
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | server_profile  |   Yes  |  | |  Server Profile name or Server Profile URI  |
 | state  |   Yes  |  | <ul> <li>extra_presentations_removed</li> </ul> |  Indicates the desired state for the Storage Volume Attachment 'extra_presentations_removed' will remove extra presentations from a specified server profile.  |
 
@@ -4193,6 +4301,8 @@ Provides an interface to remove extra presentations from a specified server prof
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -4211,7 +4321,7 @@ Retrieve facts about Storage Volume Attachments of the OneView.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | options  |   No  |  | |  Retrieve additional facts. Options available: 'extraUnmanagedStorageVolumes' retrieve the list of extra unmanaged storage volumes. 'paths' retrieve all paths or a specific attachment path for the specified volume attachment. To retrieve a specific path a 'pathUri' or a 'pathId' must be informed  |
 | serverProfileName  |   No  |  | |  Server Profile name.  |
 | storageVolumeAttachmentUri  |   No  |  | |  Storage Volume Attachment uri.  |
@@ -4300,6 +4410,8 @@ Retrieve facts about Storage Volume Attachments of the OneView.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -4318,7 +4430,7 @@ Manage OneView Storage Volume Template resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Storage Volume Template properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage Volume Template resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -4370,6 +4482,8 @@ Manage OneView Storage Volume Template resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -4388,7 +4502,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Storage Volume Template name.  |
 | options  |   No  |  | |  Retrieve additional facts. Options available: 'connectableVolumeTemplates'  |
 
@@ -4441,6 +4555,8 @@ Retrieve facts about Storage Volume Templates of the OneView.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -4459,7 +4575,7 @@ Provides an interface to remove ToR Switch resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   Yes  |  | |  Switch name.  |
 | state  |   |  | <ul> <li>absent</li> </ul> |  Indicates the desired state for the Switch. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -4482,6 +4598,8 @@ Provides an interface to remove ToR Switch resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -4500,7 +4618,7 @@ Retrieve facts about the OneView Switches.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Switch name.  |
 | options  |   No  |  | |  List with options to gather additional facts about the Switch. Options allowed: 'environmentalConfiguration' gets the environmental configuration for a switch.  |
 
@@ -4541,6 +4659,8 @@ Retrieve facts about the OneView Switches.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -4559,7 +4679,7 @@ Retrieve facts about the OneView Switch Types.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Switch Type.  |
 
 
@@ -4596,6 +4716,8 @@ Retrieve facts about the OneView Switch Types.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -4614,7 +4736,7 @@ Retrieve facts about the OneView Tasks.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | params  |   No  |  | |  List with parameters to help filter the tasks. Params allowed: count, fields, filter, query, sort, start, and view  |
 
 
@@ -4654,6 +4776,8 @@ Retrieve facts about the OneView Tasks.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -4672,7 +4796,7 @@ Manage OneView Unmanaged Device resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Unmanaged Device properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Unmanaged Device resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
@@ -4742,7 +4866,9 @@ Manage OneView Unmanaged Device resources.
 
 #### Notes
 
-- A sample configuration file for the config parameter can be found at: https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 - To rename an unamnaged device you must inform a 'newName' in the data argument. The rename is non-idempotent
 
@@ -4764,7 +4890,7 @@ Retrieve facts about one or more of the OneView Unmanaged Device.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Unmanaged Device name.  |
 | options  |   |  | |  List with options to gather additional facts about Unmanaged Device. Options allowed: 'environmental_configuration' gets a description of the environmental configuration for the Unmnaged Device.  |
 
@@ -4809,7 +4935,9 @@ Retrieve facts about one or more of the OneView Unmanaged Device.
 
 #### Notes
 
-- A sample configuration file for the config parameter can be found at: https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 
 ---
@@ -4829,7 +4957,7 @@ Manage OneView Uplink Set resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Uplink Set properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Uplink Set resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. The key used to find the resource to perform the operation is a compound key, that consists of the name of the uplink set and the URI (or name) of the Logical Interconnect combined. You can choose set the Logical Interconnect by logicalInterconnectUri or logicalInterconnectName.  |
 
@@ -4889,7 +5017,9 @@ Manage OneView Uplink Set resources.
 
 #### Notes
 
-- A sample configuration file for the config parameter can be found at: https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 - To rename an uplink set you must inform a 'newName' in the data argument. The rename is non-idempotent
 
@@ -4911,7 +5041,7 @@ Retrieve facts about one or more of the OneView Uplink Sets.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Uplink Set name.  |
 
 
@@ -4945,7 +5075,9 @@ Retrieve facts about one or more of the OneView Uplink Sets.
 
 #### Notes
 
-- A sample configuration file for the config parameter can be found at: https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 
 ---
@@ -4965,7 +5097,7 @@ Manage OneView Volume resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  Volume or snapshot data.  |
 | export_only  |   |  False  | |  If set to True, when the status is 'absent' and the resource exists, it will be removed only from OneView.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>repaired</li>  <li>snapshot_created</li>  <li>snapshot_deleted</li> </ul> |  Indicates the desired state for the Volume resource. 'present' creates/adds the resource when it does not exist, otherwise it updates the resource. When the resource already exists, the update operation is non-idempotent, since it is always called even though the given options are compliant with the existent data. To change the name of the volume, a 'newName' in the data must be provided. 'absent' by default deletes a volume from OneView and storage system. When export_only is True, the volume is removed only from OneView. 'repaired' removes extra presentations from a specified volume on the storage system. This operation is non-idempotent. 'snapshot_created' creates a snapshot for the volume specified. This operation is non-idempotent. 'snapshot_deleted' deletes a snapshot from OneView and storage system.  |
@@ -5093,6 +5225,8 @@ Manage OneView Volume resources.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
 
 ---
 
@@ -5111,7 +5245,7 @@ Retrieve facts about the OneView Volumes.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   Yes  |  | |  Path to a .json configuration file containing the OneView client configuration.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Volume name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Volume and related resources. Options allowed: attachableVolumes, extraManagedVolumePaths, and snapshots. For the option snapshots, you may provide a name.  |
 
@@ -5178,6 +5312,8 @@ Retrieve facts about the OneView Volumes.
 #### Notes
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 
 ---
