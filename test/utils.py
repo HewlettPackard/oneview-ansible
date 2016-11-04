@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ###
 # Copyright (2016) Hewlett Packard Enterprise Development LP
 #
@@ -16,6 +17,9 @@
 
 import mock
 import yaml
+import unittest
+from mock import patch
+from hpOneView.oneview_client import OneViewClient
 
 
 def create_ansible_mock(params):
@@ -28,3 +32,25 @@ def create_ansible_mock_yaml(yaml_config):
     mock_ansible = mock.Mock()
     mock_ansible.params = yaml.load(yaml_config)
     return mock_ansible
+
+
+class PreloadedMocksTestCase(unittest.TestCase):
+    def create_common_mocks(self, test_module):
+        """
+        Preload mocked OneViewClient instance and AnsibleModule
+        Args:
+            test_module (str): module name being tested
+        """
+        # Define One View Client Mock
+        patcher = patch.object(OneViewClient, 'from_json_file')
+        self.addCleanup(patcher.stop)
+        mock_from_json_file = patcher.start()
+        mock_from_json_file.return_value = mock.Mock()
+        self.mock_ov_client = mock_from_json_file.return_value
+
+        # Define Ansible Module Mock
+        patcher_ansible = patch(test_module + '.AnsibleModule')
+        self.addCleanup(patcher_ansible.stop)
+        mock_ansible_module = patcher_ansible.start()
+        self.mock_ansible_module = mock.Mock()
+        mock_ansible_module.return_value = self.mock_ansible_module

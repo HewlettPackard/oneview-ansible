@@ -1,0 +1,79 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    # Set the names of 2 SAS Logical Interconnects to run the playbook
+    sas_logical_interconnect_name_1: 'LOG_EN-LIG_SAS-1'
+    sas_logical_interconnect_name_2: 'LOG_EN-LIG_SAS-2'
+
+    # Set the URIs of 2 SAS Logical Interconnects to run the playbook
+    sas_logical_interconnect_uri_1: '/rest/sas-logical-interconnects/16b2990f-944a-449a-a78f-004d8b4e6824'
+    sas_logical_interconnect_uri_2: '/rest/sas-logical-interconnects/c800b2e4-92bb-44fa-8a46-f71d40737fa5'
+
+    # Set the SPP filename to install it
+    # firmware_driver_name: 'SPPgen9snap6_2016_0405_87'
+  tasks:
+    - name: Update the configuration on the SAS Logical Interconnect
+      oneview_sas_logical_interconnect:
+        config: "{{ config }}"
+        state: configuration_updated
+        data:
+          name: "{{ sas_logical_interconnect_name_1 }}"
+      delegate_to: localhost
+
+    - name: Install a firmware to the SAS Logical Interconnect, running the stage operation to upload the firmware
+      oneview_sas_logical_interconnect:
+        config: "{{ config }}"
+        state: firmware_installed
+        data:
+          name: "{{ sas_logical_interconnect_name_1 }}"
+          firmware:
+            command: Stage
+            sppName: "{{ firmware_driver_name }}"
+            # Can be either the firmware name with "sppName" or the uri with "sppUri", e.g.:
+            # sppUri: '/rest/firmware-drivers/<filename>'
+      when: firmware_driver_name is defined
+      delegate_to: localhost
+
+    - name: Replace drive enclosure
+      oneview_sas_logical_interconnect:
+        config: "{{ config }}"
+        state: drive_enclosure_replaced
+        data:
+          name: "{{ sas_logical_interconnect_name_1 }}"
+          replace_drive_enclosure:
+            oldSerialNumber: "S46016710000J4524YPT"
+            newSerialNumber: "S46016710001J4524YPT"
+      when: replace_drive_enclosure is defined
+      delegate_to: localhost
+
+    - name: Return a SAS Logical Interconnect list to a consistent state by its names
+      oneview_sas_logical_interconnect:
+        config: "{{ config }}"
+        state: compliant
+        data:
+          logicalInterconnectNames: ["{{ sas_logical_interconnect_name_1 }}", "{{ sas_logical_interconnect_name_2 }}"]
+      delegate_to: localhost
+
+    - name: Return a SAS Logical Interconnect list to a consistent state by its URIs
+      oneview_sas_logical_interconnect:
+        config: "{{ config }}"
+        state: compliant
+        data:
+          logicalInterconnectUris: ["{{ sas_logical_interconnect_uri_1 }}", "{{ sas_logical_interconnect_uri_2 }}"]
+      delegate_to: localhost
