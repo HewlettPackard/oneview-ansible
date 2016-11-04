@@ -17,6 +17,8 @@
 ###
 
 from ansible.module_utils.basic import *
+from hpOneView.common import transform_list_to_dict
+
 try:
     from hpOneView.oneview_client import OneViewClient
 
@@ -48,7 +50,7 @@ options:
     options:
       description:
         - "List with options to gather additional facts about Server Profile Template resources.
-          Options allowed: new_profile"
+          Options allowed: new_profile and transformation"
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -130,9 +132,18 @@ class ServerProfileTemplateFactsModule(object):
 
         options = self.module.params["options"]
 
-        if options and "new_profile" in options:
-            profile = self.resource_client.get_new_profile(id_or_uri=template["uri"])
-            facts["new_profile"] = profile
+        if options:
+            options = transform_list_to_dict(options)
+
+            if "new_profile" in options:
+                facts["new_profile"] = self.resource_client.get_new_profile(id_or_uri=template["uri"])
+
+            if "transformation" in options:
+                tranformation_data = options.get('transformation')
+                facts["transformation"] = self.resource_client.get_transformation(
+                    id_or_uri=template["uri"],
+                    **tranformation_data
+                )
 
         return facts
 
