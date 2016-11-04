@@ -20,7 +20,6 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import resource_compare
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -34,17 +33,19 @@ description:
     - Provides an interface to manage SAS Logical Interconnect resources.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 3.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     config:
       description:
         - Path to a .json configuration file containing the OneView client configuration.
-      required: true
+          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
+          environment variables.
+      required: false
     state:
         description:
             - Indicates the desired state for the SAS Logical Interconnect resource.
-              'compliant' brings the SAS Logical Interconnect back to a consistent state.
+              'compliant' brings the list of SAS Logical Interconnect back to a consistent state.
               'configuration_updated' asynchronously applies or re-applies the SAS Logical Interconnect configuration
               to all managed interconnects.
               'firmware_installed' installs firmware to a SAS Logical Interconnect.
@@ -58,6 +59,8 @@ options:
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
+    - "Check how to use environment variables for configuration at:
+       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
 """
 
 EXAMPLES = """
@@ -135,7 +138,7 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 class SasLogicalInterconnectModule(object):
     argument_spec = dict(
-        config=dict(required=True, type='str'),
+        config=dict(required=False, type='str'),
         state=dict(
             required=True,
             choices=['compliant', 'drive_enclosure_replaced', 'configuration_updated', 'firmware_installed']
@@ -147,7 +150,11 @@ class SasLogicalInterconnectModule(object):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
         if not HAS_HPE_ONEVIEW:
             self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
-        self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+
+        if not self.module.params['config']:
+            self.oneview_client = OneViewClient.from_environment_variables()
+        else:
+            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
         state = self.module.params['state']

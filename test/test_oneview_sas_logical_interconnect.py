@@ -15,14 +15,12 @@
 ###
 import unittest
 import yaml
-from test.utils import PreloadedMocksTestCase
+from test.utils import PreloadedMocksTestCase, ModuleContructorTestCase
 
 from oneview_sas_logical_interconnect import SasLogicalInterconnectModule, \
-    SAS_LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED, \
-    SAS_LOGICAL_INTERCONNECT_DRIVE_ENCLOSURE_REPLACED, SAS_LOGICAL_INTERCONNECT_CONSISTENT, \
-    SAS_LOGICAL_INTERCONNECT_NOT_FOUND, \
-    SAS_LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED, \
-    SAS_LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED
+    SAS_LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED, SAS_LOGICAL_INTERCONNECT_DRIVE_ENCLOSURE_REPLACED, \
+    SAS_LOGICAL_INTERCONNECT_CONSISTENT, SAS_LOGICAL_INTERCONNECT_NOT_FOUND, \
+    SAS_LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED, SAS_LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -30,6 +28,15 @@ SAS_LOGICAL_INTERCONNECT = {
     "name": "SAS Logical Interconnect name",
     "uri": "/rest/sas-logical-interconnects/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0"
 }
+
+
+class LogicalInterconnectClientConfigurationSpec(unittest.TestCase, ModuleContructorTestCase):
+    """
+    Test the module constructor
+    """
+
+    def setUp(self):
+        self.configure_mocks("oneview_sas_logical_interconnect", SasLogicalInterconnectModule)
 
 
 class SasLogicalInterconnectCompliantStateSpec(PreloadedMocksTestCase):
@@ -57,7 +64,7 @@ class SasLogicalInterconnectCompliantStateSpec(PreloadedMocksTestCase):
     EXPECTED_UPDATE_COMPLIANCE_CALL = ["/rest/resource1", "/rest/resource2"]
 
     def setUp(self):
-        self.create_common_mocks("oneview_sas_logical_interconnect")
+        self.configure_mocks("oneview_sas_logical_interconnect")
         self.resource = self.mock_ov_client.sas_logical_interconnects
 
     def test_should_return_to_a_consistent_state_by_uris(self):
@@ -132,7 +139,7 @@ class SasLogicalInterconnectConfigurationUpdatedStateSpec(PreloadedMocksTestCase
     """
 
     def setUp(self):
-        self.create_common_mocks("oneview_sas_logical_interconnect")
+        self.configure_mocks("oneview_sas_logical_interconnect")
         self.resource = self.mock_ov_client.sas_logical_interconnects
 
     def test_should_update_configuration(self):
@@ -210,7 +217,7 @@ class SasLogicalInterconnectFirmwareInstalledStateSpec(PreloadedMocksTestCase):
     }
 
     def setUp(self):
-        self.create_common_mocks("oneview_sas_logical_interconnect")
+        self.configure_mocks("oneview_sas_logical_interconnect")
         self.resource = self.mock_ov_client.sas_logical_interconnects
 
     def test_should_install_firmware_when_spp_name_set(self):
@@ -278,7 +285,7 @@ class SasLogicalInterconnectDriveEnclosureReplacedStateSpec(PreloadedMocksTestCa
     """
 
     def setUp(self):
-        self.create_common_mocks("oneview_sas_logical_interconnect")
+        self.configure_mocks("oneview_sas_logical_interconnect")
         self.resource = self.mock_ov_client.sas_logical_interconnects
 
     def test_should_replace_drive_enclosure(self):

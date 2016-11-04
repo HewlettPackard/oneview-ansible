@@ -117,10 +117,10 @@ class ModuleContructorTestCase():
         self.mock_ansible_module.params = {'config': 'config.json'}
 
         with mock.patch(self.__testing_module + ".HAS_HPE_ONEVIEW", False):
-            with mock.patch(self.__testing_module + ".HPE_ONEVIEW_SDK_REQUIRED", "SDK NEEDED"):
-                self._testing_class()
+            self._testing_class()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg="SDK NEEDED")
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg='HPE OneView Python SDK is required for this module.')
 
     def test_main_function_should_call_run_method(self):
         self.__valitations()
