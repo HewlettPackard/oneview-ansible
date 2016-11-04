@@ -28,7 +28,7 @@ DOCUMENTATION = '''
 module: oneview_scope
 short_description: Manage OneView Scope resources.
 description:
-    - Provides an interface to manage scopes. Can create, update, or delete scopes, and modifies the scope membership by
+    - Provides an interface to manage scopes. Can create, update, or delete scopes, and modify the scope membership by
       adding or removing resource assignments.
 requirements:
     - "python >= 2.7.9"
@@ -114,7 +114,7 @@ EXAMPLES = '''
 
 RETURN = '''
 scope:
-    description: Has the facts about the Scopes.
+    description: Has the facts about the Scope.
     returned: On state 'present' and 'resource_assignments_updated', but can be null.
     type: complex
 '''

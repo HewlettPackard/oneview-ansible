@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+import copy
 import unittest
 import mock
 
@@ -22,6 +23,7 @@ from oneview_scope import SCOPE_CREATED, SCOPE_UPDATED, SCOPE_ALREADY_EXIST
 from oneview_scope import SCOPE_DELETED, SCOPE_ALREADY_ABSENT
 from oneview_scope import SCOPE_RESOURCE_ASSIGNMENTS_UPDATED, SCOPE_NOT_FOUND
 from test.utils import create_ansible_mock
+from mock import patch
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -89,186 +91,141 @@ class ScopeClientConfigurationSpec(unittest.TestCase):
         mock_ov_client_from_json_file.not_been_called()
 
 
-class ScopePresentStateSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_scope.AnsibleModule')
-    def test_should_create_new_scope(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.scopes.get_by_name.return_value = None
-        mock_ov_instance.scopes.create.return_value = RESOURCE
+class ScopeModuleSpec(unittest.TestCase):
+    def setUp(self):
+        self.patcher_ov_client_from_json_file = patch.object(OneViewClient, 'from_json_file')
+        mock_from_json_file = self.patcher_ov_client_from_json_file.start()
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        mock_ov_client = mock.Mock()
+        mock_from_json_file.return_value = mock_ov_client
+
+        self.resource = mock_ov_client.scopes
+
+        self.patcher_ansible_module = patch('oneview_scope.AnsibleModule')
+        mock_ansible_module = self.patcher_ansible_module.start()
+
+        self.mock_ansible_instance = mock.Mock()
+        mock_ansible_module.return_value = self.mock_ansible_instance
+
+    def tearDown(self):
+        self.patcher_ov_client_from_json_file.stop()
+        self.patcher_ansible_module.stop()
+
+    def test_should_create_new_scope_when_not_found(self):
+        self.resource.get_by_name.return_value = None
+        self.resource.create.return_value = RESOURCE
+        self.mock_ansible_instance.params = copy.deepcopy(PARAMS_FOR_PRESENT)
 
         ScopeModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=SCOPE_CREATED,
             ansible_facts=dict(scope=RESOURCE)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_scope.AnsibleModule')
-    def test_should_not_update_when_data_is_equals(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.scopes.get_by_name.return_value = RESOURCE
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_not_update_when_data_is_equals(self):
+        self.resource.get_by_name.return_value = RESOURCE
+        self.mock_ansible_instance.params = copy.deepcopy(PARAMS_FOR_PRESENT)
 
         ScopeModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
             msg=SCOPE_ALREADY_EXIST,
             ansible_facts=dict(scope=RESOURCE)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_scope.AnsibleModule')
-    def test_update_when_data_has_modified_attributes(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.scopes.get_by_name.return_value = RESOURCE
-        mock_ov_instance.scopes.update.return_value = RESOURCE_UPDATED
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_WITH_CHANGES)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_update_when_data_has_changes(self):
+        self.resource.get_by_name.return_value = RESOURCE
+        self.resource.update.return_value = RESOURCE_UPDATED
+        self.mock_ansible_instance.params = copy.deepcopy(PARAMS_WITH_CHANGES)
 
         ScopeModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=SCOPE_UPDATED,
             ansible_facts=dict(scope=RESOURCE_UPDATED)
         )
 
-
-class ScopeAbsentStateSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_scope.AnsibleModule')
-    def test_should_remove_scope(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.scopes.get_by_name.return_value = RESOURCE
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_remove_scope_when_found(self):
+        self.resource.get_by_name.return_value = RESOURCE
+        self.mock_ansible_instance.params = copy.deepcopy(PARAMS_FOR_ABSENT)
 
         ScopeModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=SCOPE_DELETED
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_scope.AnsibleModule')
-    def test_should_do_nothing_when_scope_not_exist(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.scopes.get_by_name.return_value = None
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_not_delete_when_scope_not_found(self):
+        self.resource.get_by_name.return_value = None
+        self.mock_ansible_instance.params = copy.deepcopy(PARAMS_FOR_ABSENT)
 
         ScopeModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
             msg=SCOPE_ALREADY_ABSENT
         )
 
-
-class ScopeResourceAssigmentsUpdatedStateSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_scope.AnsibleModule')
-    def test_should_update_resource_assignments(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.scopes.get_by_name.return_value = RESOURCE
-        mock_ov_instance.scopes.update_resource_assignments.return_value = RESOURCE
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_RESOURCE_ASSIGNMENTS)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_update_resource_assignments(self):
+        self.resource.get_by_name.return_value = RESOURCE
+        self.resource.update_resource_assignments.return_value = RESOURCE
+        self.mock_ansible_instance.params = copy.deepcopy(PARAMS_RESOURCE_ASSIGNMENTS)
 
         ScopeModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(scope=RESOURCE),
             msg=SCOPE_RESOURCE_ASSIGNMENTS_UPDATED
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_scope.AnsibleModule')
-    def test_should_fail_when_scope_not_found(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.scopes.get_by_name.return_value = None
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_RESOURCE_ASSIGNMENTS)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_scope_not_found(self):
+        self.resource.get_by_name.return_value = None
+        self.mock_ansible_instance.params = copy.deepcopy(PARAMS_RESOURCE_ASSIGNMENTS)
 
         ScopeModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_instance.fail_json.assert_called_once_with(
             msg=SCOPE_NOT_FOUND
         )
 
-
-class ScopeErrorHandlingSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_scope.AnsibleModule')
-    def test_should_fail_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.scopes.get_by_name.return_value = None
-        mock_ov_instance.scopes.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_create_raises_exception(self):
+        self.resource.get_by_name.return_value = None
+        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
+        self.mock_ansible_instance.params = copy.deepcopy(PARAMS_FOR_PRESENT)
 
         self.assertRaises(Exception, ScopeModule().run())
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_instance.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_scope.AnsibleModule')
-    def test_should_fail_when_update_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.scopes.get_by_name.return_value = RESOURCE
-        mock_ov_instance.scopes.update.side_effect = Exception(FAKE_MSG_ERROR)
+    def test_should_fail_when_update_raises_exception(self):
+        self.resource.get_by_name.return_value = RESOURCE
+        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_WITH_CHANGES)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = copy.deepcopy(PARAMS_WITH_CHANGES)
 
         self.assertRaises(Exception, ScopeModule().run())
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_instance.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_scope.AnsibleModule')
-    def test_should_fail_when_delete_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.scopes.get_by_name.return_value = RESOURCE
-        mock_ov_instance.scopes.delete.side_effect = Exception(FAKE_MSG_ERROR)
+    def test_should_fail_when_delete_raises_exception(self):
+        self.resource.get_by_name.return_value = RESOURCE
+        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = copy.deepcopy(PARAMS_FOR_ABSENT)
 
         self.assertRaises(Exception, ScopeModule().run())
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_instance.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
         )
 
