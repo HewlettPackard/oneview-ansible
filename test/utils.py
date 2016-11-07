@@ -35,13 +35,13 @@ def create_ansible_mock_yaml(yaml_config):
 
 
 class PreloadedMocksTestCase(unittest.TestCase):
-    def configure_mocks(self, test_module):
+    def configure_mocks(self, testing_class):
         """
         Preload mocked OneViewClient instance and AnsibleModule
         Args:
-            test_module (str): module name being tested
+            testing_class (object): class being tested
         """
-        # Define One View Client Mock
+        # Define OneView Client Mock
         patcher = patch.object(OneViewClient, 'from_json_file')
         self.addCleanup(patcher.stop)
         mock_from_json_file = patcher.start()
@@ -49,49 +49,53 @@ class PreloadedMocksTestCase(unittest.TestCase):
         self.mock_ov_client = mock_from_json_file.return_value
 
         # Define Ansible Module Mock
-        patcher_ansible = patch(test_module + '.AnsibleModule')
+        patcher_ansible = patch(testing_class.__module__ + '.AnsibleModule')
         self.addCleanup(patcher_ansible.stop)
         mock_ansible_module = patcher_ansible.start()
         self.mock_ansible_module = mock.Mock()
         mock_ansible_module.return_value = self.mock_ansible_module
 
 
-class ModuleContructorTestCase():
+class ModuleContructorTestCase(object):
+    """
+    ModuleContructorTestCase has common tests for class constructor and main function
+    """
     _testing_class = None
+    _testing_module = None
 
-    def configure_mocks(self, test_module, testing_class):
+    def configure_mocks(self, test_case, testing_class):
         """
         Preload mocked OneViewClient instance and AnsibleModule
         Args:
-            test_module (str): module name being tested
+            test_case (object): class instance (self) that are inheriting from ModuleContructorTestCase
+            testing_class (object): class being tested
         """
-        self.__testing_module = test_module
+        self._testing_class = testing_class
+        self._testing_module = testing_class.__module__
 
         # Define One View Client Mock (FILE)
-        patcher = patch.object(OneViewClient, 'from_json_file')
-        self.addCleanup(patcher.stop)
-        self.mock_ov_client_from_json_file = patcher.start()
+        patcher_json_file = patch.object(OneViewClient, 'from_json_file')
+        test_case.addCleanup(patcher_json_file.stop)
+        self.mock_ov_client_from_json_file = patcher_json_file.start()
 
         # Define One View Client Mock (ENV)
-        patcher = patch.object(OneViewClient, 'from_environment_variables')
-        self.addCleanup(patcher.stop)
-        self.mock_ov_client_from_env_vars = patcher.start()
+        patcher_env = patch.object(OneViewClient, 'from_environment_variables')
+        test_case.addCleanup(patcher_env.stop)
+        self.mock_ov_client_from_env_vars = patcher_env.start()
 
         # Define Ansible Module Mock
-        patcher_ansible = patch(test_module + '.AnsibleModule')
-        self.addCleanup(patcher_ansible.stop)
+        patcher_ansible = patch(self._testing_module + '.AnsibleModule')
+        test_case.addCleanup(patcher_ansible.stop)
         mock_ansible_module = patcher_ansible.start()
         self.mock_ansible_module = mock.Mock()
         mock_ansible_module.return_value = self.mock_ansible_module
 
-        self._testing_class = testing_class
-
-    def __valitations(self):
+    def __validations(self):
         if not self._testing_class:
-            self.fail("Mocks are not configured, you must call 'configure_mocks' before running this test")
+            raise Exception("Mocks are not configured, you must call 'configure_mocks' before running this test.")
 
     def test_should_load_config_from_file(self):
-        self.__valitations()
+        self.__validations()
 
         self.mock_ansible_module.params = {'config': 'config.json'}
 
@@ -102,7 +106,7 @@ class ModuleContructorTestCase():
         self.mock_ov_client_from_env_vars.not_been_called()
 
     def test_should_load_config_from_environment(self):
-        self.__valitations()
+        self.__validations()
 
         self.mock_ansible_module.params = {'config': None}
 
@@ -113,20 +117,20 @@ class ModuleContructorTestCase():
         self.mock_ov_client_from_json_file.not_been_called()
 
     def test_should_call_fail_json_when_not_have_oneview(self):
-        self.__valitations()
+        self.__validations()
         self.mock_ansible_module.params = {'config': 'config.json'}
 
-        with mock.patch(self.__testing_module + ".HAS_HPE_ONEVIEW", False):
+        with mock.patch(self._testing_module + ".HAS_HPE_ONEVIEW", False):
             self._testing_class()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg='HPE OneView Python SDK is required for this module.')
 
     def test_main_function_should_call_run_method(self):
-        self.__valitations()
+        self.__validations()
         self.mock_ansible_module.params = {'config': 'config.json'}
 
-        module = __import__(self.__testing_module)
+        module = __import__(self._testing_module)
         main_func = getattr(module, 'main')
 
         with mock.patch.object(self._testing_class, "run") as mock_run:

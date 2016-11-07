@@ -39,7 +39,7 @@
     - name: Install a firmware to the SAS Logical Interconnect, running the stage operation to upload the firmware
       oneview_sas_logical_interconnect:
         config: "{{ config }}"
-        state: firmware_installed
+        state: firmware_updated
         data:
           name: "{{ sas_logical_interconnect_name_1 }}"
           firmware:

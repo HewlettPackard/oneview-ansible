@@ -20,7 +20,7 @@ from test.utils import PreloadedMocksTestCase, ModuleContructorTestCase
 from oneview_sas_logical_interconnect import SasLogicalInterconnectModule, \
     SAS_LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED, SAS_LOGICAL_INTERCONNECT_DRIVE_ENCLOSURE_REPLACED, \
     SAS_LOGICAL_INTERCONNECT_CONSISTENT, SAS_LOGICAL_INTERCONNECT_NOT_FOUND, \
-    SAS_LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED, SAS_LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED
+    SAS_LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED, SAS_LOGICAL_INTERCONNECT_FIRMWARE_UPDATED
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -30,13 +30,14 @@ SAS_LOGICAL_INTERCONNECT = {
 }
 
 
-class LogicalInterconnectClientConfigurationSpec(unittest.TestCase, ModuleContructorTestCase):
+class SasLogicalInterconnectClientConfigurationSpec(unittest.TestCase, ModuleContructorTestCase):
     """
     Test the module constructor
+    ModuleContructorTestCase has common tests for class constructor and main function
     """
 
     def setUp(self):
-        self.configure_mocks("oneview_sas_logical_interconnect", SasLogicalInterconnectModule)
+        self.configure_mocks(self, SasLogicalInterconnectModule)
 
 
 class SasLogicalInterconnectCompliantStateSpec(PreloadedMocksTestCase):
@@ -64,7 +65,7 @@ class SasLogicalInterconnectCompliantStateSpec(PreloadedMocksTestCase):
     EXPECTED_UPDATE_COMPLIANCE_CALL = ["/rest/resource1", "/rest/resource2"]
 
     def setUp(self):
-        self.configure_mocks("oneview_sas_logical_interconnect")
+        self.configure_mocks(SasLogicalInterconnectModule)
         self.resource = self.mock_ov_client.sas_logical_interconnects
 
     def test_should_return_to_a_consistent_state_by_uris(self):
@@ -82,7 +83,7 @@ class SasLogicalInterconnectCompliantStateSpec(PreloadedMocksTestCase):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SAS_LOGICAL_INTERCONNECT_CONSISTENT,
-            ansible_facts=dict(sas_logical_interconnects=[SAS_LOGICAL_INTERCONNECT])
+            ansible_facts={}
         )
 
     def test_should_return_to_a_consistent_state_by_names(self):
@@ -100,7 +101,7 @@ class SasLogicalInterconnectCompliantStateSpec(PreloadedMocksTestCase):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SAS_LOGICAL_INTERCONNECT_CONSISTENT,
-            ansible_facts=dict(sas_logical_interconnects=[SAS_LOGICAL_INTERCONNECT])
+            ansible_facts={}
         )
 
     def test_should_fail_when_no_uris_provided(self):
@@ -139,7 +140,7 @@ class SasLogicalInterconnectConfigurationUpdatedStateSpec(PreloadedMocksTestCase
     """
 
     def setUp(self):
-        self.configure_mocks("oneview_sas_logical_interconnect")
+        self.configure_mocks(SasLogicalInterconnectModule)
         self.resource = self.mock_ov_client.sas_logical_interconnects
 
     def test_should_update_configuration(self):
@@ -189,7 +190,7 @@ class SasLogicalInterconnectConfigurationUpdatedStateSpec(PreloadedMocksTestCase
 class SasLogicalInterconnectFirmwareInstalledStateSpec(PreloadedMocksTestCase):
     YAML_FIRMWARE_WITH_SPP_NAME = """
         config: "{{ config }}"
-        state: firmware_installed
+        state: firmware_updated
         data:
           name: "Sas Logical Interconnect Name"
           firmware:
@@ -199,7 +200,7 @@ class SasLogicalInterconnectFirmwareInstalledStateSpec(PreloadedMocksTestCase):
 
     YAML_FIRMWARE_WITH_SPP_URI = """
         config: "{{ config }}"
-        state: firmware_installed
+        state: firmware_updated
         data:
           name: "{{ sas_logical_interconnect_name }}"
           firmware:
@@ -217,7 +218,7 @@ class SasLogicalInterconnectFirmwareInstalledStateSpec(PreloadedMocksTestCase):
     }
 
     def setUp(self):
-        self.configure_mocks("oneview_sas_logical_interconnect")
+        self.configure_mocks(SasLogicalInterconnectModule)
         self.resource = self.mock_ov_client.sas_logical_interconnects
 
     def test_should_install_firmware_when_spp_name_set(self):
@@ -232,7 +233,7 @@ class SasLogicalInterconnectFirmwareInstalledStateSpec(PreloadedMocksTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SAS_LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED,
+            msg=SAS_LOGICAL_INTERCONNECT_FIRMWARE_UPDATED,
             ansible_facts=dict(li_firmware=self.response))
 
     def test_should_update_firmware_when_spp_uri_set(self):
@@ -247,7 +248,7 @@ class SasLogicalInterconnectFirmwareInstalledStateSpec(PreloadedMocksTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SAS_LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED,
+            msg=SAS_LOGICAL_INTERCONNECT_FIRMWARE_UPDATED,
             ansible_facts=dict(li_firmware=self.response))
 
     def test_should_fail_when_sas_logical_interconnect_not_found(self):
@@ -285,7 +286,7 @@ class SasLogicalInterconnectDriveEnclosureReplacedStateSpec(PreloadedMocksTestCa
     """
 
     def setUp(self):
-        self.configure_mocks("oneview_sas_logical_interconnect")
+        self.configure_mocks(SasLogicalInterconnectModule)
         self.resource = self.mock_ov_client.sas_logical_interconnects
 
     def test_should_replace_drive_enclosure(self):

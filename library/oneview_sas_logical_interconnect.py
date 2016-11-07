@@ -48,10 +48,10 @@ options:
               'compliant' brings the list of SAS Logical Interconnect back to a consistent state.
               'configuration_updated' asynchronously applies or re-applies the SAS Logical Interconnect configuration
               to all managed interconnects.
-              'firmware_installed' installs firmware to a SAS Logical Interconnect.
+              'firmware_updated' installs firmware to a SAS Logical Interconnect.
               'drive_enclosure_replaced' replacement operation of a drive enclosure.
               * All of them are non-idempotent.
-        choices: ['compliant', 'drive_enclosure_replaced', 'configuration_updated', 'firmware_installed']
+        choices: ['compliant', 'drive_enclosure_replaced', 'configuration_updated', 'firmware_updated']
     data:
       description:
         - List with the options.
@@ -75,7 +75,7 @@ EXAMPLES = """
 - name: Install a firmware to the SAS Logical Interconnect, running the stage operation to upload the firmware
   oneview_sas_logical_interconnect:
     config: "{{ config }}"
-    state: firmware_installed
+    state: firmware_updated
     data:
       name: "SAS Logical Interconnect name"
       firmware:
@@ -101,7 +101,7 @@ EXAMPLES = """
     config: "{{ config }}"
     state: compliant
     data:
-      logicalInterconnectNames: ["SAS Logical Interconnect name", "{{ sas_logical_interconnect_name_2 }}"]
+      logicalInterconnectNames: ["SAS Logical Interconnect name 1", "SAS Logical Interconnect name 2"]
   delegate_to: localhost
 
 - name: Return a SAS Logical Interconnect list to a consistent state by its URIs
@@ -118,18 +118,18 @@ EXAMPLES = """
 RETURN = """
 sas_logical_interconnect:
     description: Has the OneView facts about the SAS Logical Interconnect.
-    returned: On states 'compliant', 'drive_enclosure_replaced', 'configuration_updated', but can be null.
+    returned: On states 'drive_enclosure_replaced', 'configuration_updated', but can be null.
     type: complex
 
 li_firmware:
-    description: Has the OneView facts about the installed Firmware.
-    returned: On 'firmware_installed' state, but can be null.
+    description: Has the OneView facts about the updated Firmware.
+    returned: On 'firmware_updated' state, but can be null.
     type: complex
 """
 
 SAS_LOGICAL_INTERCONNECT_CONSISTENT = 'SAS Logical Interconnect returned to a consistent state.'
 SAS_LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED = 'Configuration on the SAS Logical Interconnect updated successfully.'
-SAS_LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED = 'Firmware updated successfully.'
+SAS_LOGICAL_INTERCONNECT_FIRMWARE_UPDATED = 'Firmware updated successfully.'
 SAS_LOGICAL_INTERCONNECT_DRIVE_ENCLOSURE_REPLACED = 'Drive enclosure replaced successfully.'
 SAS_LOGICAL_INTERCONNECT_NOT_FOUND = 'SAS Logical Interconnect not found.'
 SAS_LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED = 'No options provided.'
@@ -141,7 +141,7 @@ class SasLogicalInterconnectModule(object):
         config=dict(required=False, type='str'),
         state=dict(
             required=True,
-            choices=['compliant', 'drive_enclosure_replaced', 'configuration_updated', 'firmware_installed']
+            choices=['compliant', 'drive_enclosure_replaced', 'configuration_updated', 'firmware_updated']
         ),
         data=dict(required=True, type='dict')
     )
@@ -176,8 +176,8 @@ class SasLogicalInterconnectModule(object):
 
                 if state == 'configuration_updated':
                     changed, msg, ansible_facts = self.__update_configuration(uri)
-                elif state == 'firmware_installed':
-                    changed, msg, ansible_facts = self.__install_firmware(uri, data)
+                elif state == 'firmware_updated':
+                    changed, msg, ansible_facts = self.__update_firmware(uri, data)
                 elif state == 'drive_enclosure_replaced':
                     changed, msg, ansible_facts = self.__replace_drive_enclosure(uri, data)
 
@@ -198,8 +198,8 @@ class SasLogicalInterconnectModule(object):
 
             uris = self.__resolve_log_interconnect_names(data['logicalInterconnectNames'])
 
-        li = self.oneview_client.sas_logical_interconnects.update_compliance_all(uris)
-        return True, SAS_LOGICAL_INTERCONNECT_CONSISTENT, dict(sas_logical_interconnects=li)
+        self.oneview_client.sas_logical_interconnects.update_compliance_all(uris)
+        return True, SAS_LOGICAL_INTERCONNECT_CONSISTENT, {}
 
     def __get_log_interconnect_by_name(self, name):
         resource = self.oneview_client.sas_logical_interconnects.get_by("name", name)
@@ -218,14 +218,14 @@ class SasLogicalInterconnectModule(object):
 
         return uris
 
-    def __install_firmware(self, uri, data):
+    def __update_firmware(self, uri, data):
         options = data['firmware'].copy()
         if 'sppName' in options:
             options['sppUri'] = '/rest/firmware-drivers/' + options.pop('sppName')
 
         firmware = self.oneview_client.sas_logical_interconnects.update_firmware(options, uri)
 
-        return True, SAS_LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED, dict(li_firmware=firmware)
+        return True, SAS_LOGICAL_INTERCONNECT_FIRMWARE_UPDATED, dict(li_firmware=firmware)
 
     def __update_configuration(self, uri):
         result = self.oneview_client.sas_logical_interconnects.update_configuration(uri)
