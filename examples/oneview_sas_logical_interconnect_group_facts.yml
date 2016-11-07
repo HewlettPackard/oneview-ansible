@@ -18,7 +18,7 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     # Set the name of a SAS Logical Interconnect Group to run the playbook
-    sas_logical_jbod_attachment_name: "LIG1"
+    sas_logical_interconnect_group_name: "LIG1"
 
   tasks:
     - name: Gather facts about all SAS Logical Interconnect Groups
@@ -31,7 +31,7 @@
     - name: Gather facts about a SAS Logical Interconnect Group by name
       oneview_sas_logical_interconnect_group_facts:
         config: "{{ config }}"
-        name: "{{ sas_logical_jbod_attachment_name }}"
+        name: "{{ sas_logical_interconnect_group_name }}"
       delegate_to: localhost
 
     - debug: var=sas_logical_interconnect_groups

@@ -33,7 +33,7 @@ PARAMS_GET_BY_NAME = dict(
     name="SAS LIG 2"
 )
 
-SAS_JBOD_LOGICAL_ATTACHMENTS = [{"name": "SAS LIG 1"}, {"name": "SAS LIG 2"}]
+SAS_LIGS = [{"name": "SAS LIG 1"}, {"name": "SAS LIG 2"}]
 
 
 class SasLogicalInterconnectGroupFactsClientConfigurationSpec(unittest.TestCase):
@@ -70,67 +70,57 @@ class SasLogicalInterconnectGroupFactsClientConfigurationSpec(unittest.TestCase)
 
 
 class SasLogicalInterconnectGroupFactsModuleSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_sas_logical_interconnect_group_facts.AnsibleModule')
-    def test_should_get_all(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.sas_logical_interconnect_groups.get_all.return_value = SAS_JBOD_LOGICAL_ATTACHMENTS
+    def setUp(self):
+        self.patcher_ansible_module = mock.patch('oneview_sas_logical_interconnect_group_facts.AnsibleModule')
+        self.mock_ansible_module = self.patcher_ansible_module.start()
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        self.patcher_ov_client_from_json_file = mock.patch.object(OneViewClient, 'from_json_file')
+        self.mock_ov_client_from_json_file = self.patcher_ov_client_from_json_file.start()
 
+        self.mock_ov_instance = mock.Mock()
+        self.mock_ov_client_from_json_file.return_value = self.mock_ov_instance
+
+    def tearDown(self):
+        self.patcher_ansible_module.stop()
+        self.patcher_ov_client_from_json_file.stop()
+
+    def test_should_get_all(self):
+        self.mock_ov_instance.sas_logical_interconnect_groups.get_all.return_value = SAS_LIGS
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.return_value = mock_ansible_instance
 
         SasLogicalInterconnectGroupFactsModule().run()
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(sas_logical_interconnect_groups=(SAS_JBOD_LOGICAL_ATTACHMENTS))
+            ansible_facts=dict(sas_logical_interconnect_groups=(SAS_LIGS))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_sas_logical_interconnect_group_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.sas_logical_interconnect_groups.get_all.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
+    def test_should_fail_when_get_all_raises_exception(self):
+        self.mock_ov_instance.sas_logical_interconnect_groups.get_all.side_effect = Exception(ERROR_MSG)
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.return_value = mock_ansible_instance
 
         SasLogicalInterconnectGroupFactsModule().run()
 
         mock_ansible_instance.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_sas_logical_interconnect_group_facts.AnsibleModule')
-    def test_should_get_by_name(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.sas_logical_interconnect_groups.get_by.return_value = [SAS_JBOD_LOGICAL_ATTACHMENTS[1]]
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
+    def test_should_get_by_name(self):
+        self.mock_ov_instance.sas_logical_interconnect_groups.get_by.return_value = [SAS_LIGS[1]]
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.return_value = mock_ansible_instance
 
         SasLogicalInterconnectGroupFactsModule().run()
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(sas_logical_interconnect_groups=([SAS_JBOD_LOGICAL_ATTACHMENTS[1]]))
+            ansible_facts=dict(sas_logical_interconnect_groups=([SAS_LIGS[1]]))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_sas_logical_interconnect_group_facts.AnsibleModule')
-    def test_should_fail_when_get_by_name_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.sas_logical_interconnect_groups.get_by.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
+    def test_should_fail_when_get_by_name_raises_exception(self):
+        self.mock_ov_instance.sas_logical_interconnect_groups.get_by.side_effect = Exception(ERROR_MSG)
         mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.return_value = mock_ansible_instance
 
         SasLogicalInterconnectGroupFactsModule().run()
 
