@@ -18,6 +18,8 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     server_profile_template_name: "ProfileTemplate101"
+    enclosure_group_uri: "/rest/enclosure-groups/34e4af48-f57d-45d6-a0a3-e9c18d69bc90"
+    server_hardware_type_uri: "/rest/server-hardware-types/9DD96E9B-8B24-42C7-867F-5F8AB3246EFC"
   tasks:
     - name: Gather facts about all Server Profile Templates
       oneview_server_profile_template_facts:
@@ -44,3 +46,15 @@
 
     - debug: var=server_profile_templates
     - debug: var=new_profile
+
+    - name: Transform an existing profile template by supplying a new server hardware type and/or enclosure group.
+      oneview_server_profile_template_facts:
+        config: "{{ config }}"
+        name: "{{ server_profile_template_name }}"
+        options:
+          - transformation:
+              enclosure_group_uri: "{{ enclosure_group_uri }}"
+              server_hardware_type_uri: "{{ server_hardware_type_uri }}"
+      delegate_to: localhost
+
+    - debug: var=transformation
