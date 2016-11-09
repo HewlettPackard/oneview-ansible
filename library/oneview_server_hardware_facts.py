@@ -33,7 +33,7 @@ description:
     - Retrieve facts about the Server Hardware from OneView.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 3.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     config:
@@ -49,7 +49,8 @@ options:
     options:
       description:
         - "List with options to gather additional facts about Server Hardware related resources.
-          Options allowed: bios, javaRemoteConsoleUrl, environmentalConfig, iloSsoUrl, remoteConsoleUrl, utilization"
+          Options allowed: bios, javaRemoteConsoleUrl, environmentalConfig, iloSsoUrl, remoteConsoleUrl,
+          utilization, firmware, firmwares"
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -102,6 +103,7 @@ EXAMPLES = '''
                 fields : 'AveragePower'
                 filter : ['startDate=2016-05-30T03:29:42.000Z']
                 view : 'day'
+       - firmware               # optional
   delegate_to: localhost
 
 - debug: var=server_hardwares
@@ -111,6 +113,17 @@ EXAMPLES = '''
 - debug: var=server_hardware_ilo_sso_url
 - debug: var=server_hardware_remote_console_url
 - debug: var=server_hardware_utilization
+- debug: var=server_hardware_firmware
+
+- name: Gather facts about the Server Hardware firmware
+  oneview_server_hardware_facts:
+   config: "{{ config }}"
+   name : "0000A66102, bay 12"
+   options:
+       - firmware
+  delegate_to: localhost
+
+- debug: var=server_hardware_firmware
 '''
 
 RETURN = '''
@@ -148,6 +161,16 @@ server_hardware_utilization:
     description: Has all the facts about the Server Hardware utilization.
     returned: When requested, but can be null.
     type: complex
+
+server_hardware_firmware:
+    description: Has all the facts about the Server Hardware firmware.
+    returned: When requested, but can be null.
+    type: complex
+
+server_hardware_firmwares:
+    description: Has all the facts about the firmwares inventory across all servers.
+    returned: When requested, but can be null.
+    type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
@@ -180,17 +203,22 @@ class ServerHardwareFactsModule(object):
 
     def run(self):
         try:
+            ansible_facts, options = {}, None
 
-            ansible_facts = {}
+            if self.module.params.get('options'):
+                options = transform_list_to_dict(self.module.params.get('options'))
 
             if self.module.params.get('name'):
                 server_hardwares = self.oneview_client.server_hardware.get_by("name", self.module.params['name'])
 
                 if self.module.params.get('options') and server_hardwares:
-                    ansible_facts = self.gather_option_facts(self.module.params['options'], server_hardwares[0])
+                    ansible_facts = self.gather_option_facts(options, server_hardwares[0])
 
             else:
                 server_hardwares = self.oneview_client.server_hardware.get_all()
+
+                if options and options.get('firmwares'):
+                    ansible_facts['server_hardware_firmwares'] = self.get_all_firmwares(options)
 
             ansible_facts["server_hardwares"] = server_hardwares
 
@@ -201,9 +229,6 @@ class ServerHardwareFactsModule(object):
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def gather_option_facts(self, options, server_hardware):
-
-        options = transform_list_to_dict(options)
-
         srv_hw_client = self.oneview_client.server_hardware
         ansible_facts = {}
 
@@ -222,8 +247,18 @@ class ServerHardwareFactsModule(object):
                 server_hardware['uri'])
         if options.get('utilization'):
             ansible_facts['server_hardware_utilization'] = self.get_utilization(server_hardware, options['utilization'])
+        if options.get('firmware'):
+            ansible_facts['server_hardware_firmware'] = srv_hw_client.get_firmware(server_hardware["uri"])
 
         return ansible_facts
+
+    def get_all_firmwares(self, options):
+        if isinstance(options['firmwares'], bool):
+            params = {}
+        else:
+            params = options['firmwares']
+
+        return self.oneview_client.server_hardware.get_all_firmwares(**params)
 
     def get_utilization(self, server_hardware, data):
 
