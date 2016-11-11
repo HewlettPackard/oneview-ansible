@@ -21,87 +21,109 @@
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
-    - name: Add an Enclosure
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: present
-        data:
-          enclosureGroupUri: '{{ enclosure_group_uri }}'
-          hostname: '{{ enclosure_hostname }}'
-          username: '{{ enclosure_username }}'
-          password: '{{ enclosure_password }}'
-          name: 'Test-Enclosure'
-          licensingIntent : 'OneView'
-          rackName: 'Rack-Name'
-      delegate_to: localhost
+#    - name: Add an Enclosure
+#      oneview_enclosure:
+#        config: "{{ config }}"
+#        state: present
+#        data:
+#          enclosureGroupUri: '{{ enclosure_group_uri }}'
+#          hostname: '{{ enclosure_hostname }}'
+#          username: '{{ enclosure_username }}'
+#          password: '{{ enclosure_password }}'
+#          name: 'Test-Enclosure'
+#          licensingIntent : 'OneView'
+#          rackName: 'Rack-Name'
+#      delegate_to: localhost
+#
+#    - name: Do nothing with the Enclosure when no changes are provided
+#      oneview_enclosure:
+#        config: "{{ config }}"
+#        state: present
+#        data:
+#          name: 'Test-Enclosure'
+#      delegate_to: localhost
+#
+#    - name: Update the name of the enclosure to "Test-Enclosure-Renamed"
+#      oneview_enclosure:
+#        config: "{{ config }}"
+#        state: present
+#        data:
+#          name: 'Test-Enclosure'
+#          newName: 'Test-Enclosure-Renamed'
+#      delegate_to: localhost
+#
+#    - name: Update the name of the rack to "Rack-Renamed"
+#      oneview_enclosure:
+#        config: "{{ config }}"
+#        state: present
+#        data:
+#          name: 'Test-Enclosure-Renamed'
+#          rackName: 'Rack-Renamed'
+#      delegate_to: localhost
+#
+#    - name: Reconfigure the enclosure "Test-Enclosure-Renamed"
+#      oneview_enclosure:
+#        config: "{{ config }}"
+#        state: reconfigured
+#        data:
+#          name: 'Test-Enclosure-Renamed'
+#      delegate_to: localhost
+#
+#    - name: Refresh the enclosure along with all of its components
+#      oneview_enclosure:
+#        config: "{{ config }}"
+#        state: refreshed
+#        data:
+#          name: 'Test-Enclosure-Renamed'
+#          refreshState: 'RefreshPending'
+#      delegate_to: localhost
+#
+#    - name: Remove the Enclosure
+#      oneview_enclosure:
+#        config: "{{ config }}"
+#        state: absent
+#        data:
+#          name: 'Test-Enclosure-Renamed'
+#      delegate_to: localhost
+#
+#    - name: Do nothing when Enclosure is absent
+#      oneview_enclosure:
+#        config: "{{ config }}"
+#        state: absent
+#        data:
+#          name: 'Test-Enclosure-Renamed'
+#      delegate_to: localhost
+#
+#    - name: Set the appliance bay power state on
+#      oneview_enclosure:
+#        config: "{{ config }}"
+#        state: appliance_bays_power_on
+#        data:
+#          name: '0000A66101'
+#          applianceBay: 2
+#      delegate_to: localhost
+#      register: result
+#
+#    - debug: var=result
 
-    - name: Do nothing with the Enclosure when no changes are provided
+    - name: Set the appliance UID state off
       oneview_enclosure:
         config: "{{ config }}"
-        state: present
-        data:
-          name: 'Test-Enclosure'
-      delegate_to: localhost
-
-    - name: Update the name of the enclosure to "Test-Enclosure-Renamed"
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: present
-        data:
-          name: 'Test-Enclosure'
-          newName: 'Test-Enclosure-Renamed'
-      delegate_to: localhost
-
-    - name: Update the name of the rack to "Rack-Renamed"
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: present
-        data:
-          name: 'Test-Enclosure-Renamed'
-          rackName: 'Rack-Renamed'
-      delegate_to: localhost
-
-    - name: Reconfigure the enclosure "Test-Enclosure-Renamed"
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: reconfigured
-        data:
-          name: 'Test-Enclosure-Renamed'
-      delegate_to: localhost
-
-    - name: Refresh the enclosure along with all of its components
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: refreshed
-        data:
-          name: 'Test-Enclosure-Renamed'
-          refreshState: 'RefreshPending'
-      delegate_to: localhost
-
-    - name: Remove the Enclosure
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: absent
-        data:
-          name: 'Test-Enclosure-Renamed'
-      delegate_to: localhost
-
-    - name: Do nothing when Enclosure is absent
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: absent
-        data:
-          name: 'Test-Enclosure-Renamed'
-      delegate_to: localhost
-
-    - name: Set the appliance bay power state on
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: appliance_bays_power_on
+        state: uid_off
         data:
           name: '0000A66101'
-          applianceBay: 2
       delegate_to: localhost
       register: result
 
-    - debug: var=result
+    - debug: var=result.msg
+
+    - name: Set the appliance UID state on
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: uid_on
+        data:
+          name: '0000A66101'
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg

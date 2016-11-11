@@ -46,17 +46,19 @@ options:
           environment variables.
       required: false
     state:
-        description:
-            - Indicates the desired state for the Enclosure resource.
-              'present' will ensure data properties are compliant with OneView.
-              'absent' will remove the resource from OneView, if it exists.
-              'reconfigured' will reapply the appliance's configuration on the enclosure. This includes
-              running the same configuration steps that were performed as part of the enclosure add.
-              'refreshed' will refresh the enclosure along with all of its components, including interconnects and
-              servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is
-              removed.
-              'appliance_bays_power_on' will set the appliance bay power state on.
-        choices: ['present', 'absent', 'reconfigured', 'refreshed', 'appliance_bays_power_on']
+      description:
+        - Indicates the desired state for the Enclosure resource.
+          'present' will ensure data properties are compliant with OneView.
+          'absent' will remove the resource from OneView, if it exists.
+          'reconfigured' will reapply the appliance's configuration on the enclosure. This includes
+          running the same configuration steps that were performed as part of the enclosure add.
+          'refreshed' will refresh the enclosure along with all of its components, including interconnects and
+          servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is
+          removed.
+          'appliance_bays_power_on' will set the appliance bay power state on.
+          'uid_on' will set the UID state on.
+          'uid_on' will set the UID state off.
+      choices: ['present', 'absent', 'reconfigured', 'refreshed', 'appliance_bays_power_on', 'uid_on', 'uid_off']
     data:
       description:
         - List with the Enclosure properties.
@@ -126,6 +128,20 @@ EXAMPLES = '''
     data:
       name: 'Test-Enclosure'
       applianceBay: 1
+
+- name: Set the appliance UID state on
+  oneview_enclosure:
+    config: "{{ config_file_path }}"
+    state: uid_on
+    data:
+      name: 'Test-Enclosure'
+
+- name: Set the appliance UID state off
+  oneview_enclosure:
+    config: "{{ config_file_path }}"
+    state: uid_off
+    data:
+      name: 'Test-Enclosure'
 '''
 
 RETURN = '''
@@ -148,15 +164,27 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 APPLIANCE_BAY_ALREADY_POWERED_ON = 'The device in specified bay is already powered on.'
 APPLIANCE_BAY_POWERED_ON = 'Appliance bay power state set to on successfully.'
 
+UID_ALREADY_POWERED_ON = 'UID state is already On.'
+UID_POWERED_ON = 'UID state set to On successfully.'
+
+UID_ALREADY_POWERED_OFF = 'UID state is already Off.'
+UID_POWERED_OFF = 'UID state set to Off successfully.'
+
 
 class EnclosureModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         state=dict(
             required=True,
-            choices=['present', 'absent', 'reconfigured', 'refreshed', 'appliance_bays_power_on']
+            choices=['present', 'absent', 'reconfigured', 'refreshed', 'appliance_bays_power_on', 'uid_on', 'uid_off']
         ),
         data=dict(required=True, type='dict')
+    )
+
+    patch_params = dict(
+        appliance_bays_power_on=dict(operation='replace', path='/applianceBays/{}/power', value='On'),
+        uid_on=dict(operation='replace', path='/uidState', value='On'),
+        uid_off=dict(operation='replace', path='/uidState', value='Off'),
     )
 
     def __init__(self):
@@ -191,6 +219,10 @@ class EnclosureModule(object):
                     self.__refresh(resource, data)
                 elif state == 'appliance_bays_power_on':
                     self.__set_appliance_bays_power_on(resource, data)
+                elif state == 'uid_on':
+                    self.__set_uid_on(resource)
+                elif state == 'uid_off':
+                    self.__set_uid_off(resource)
 
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
@@ -260,18 +292,49 @@ class EnclosureModule(object):
         if appliance_bay and not appliance_bay['poweredOn']:
             changed = True
             msg = APPLIANCE_BAY_POWERED_ON
+            resource = self.__patch(resource, bay_number)
 
-            operation = 'replace'
-            path = '/applianceBays/{}/power'.format(bay_number)
-            value = 'On'
-            resource = self.oneview_client.enclosures.patch(resource['uri'], operation=operation, path=path,
-                                                            value=value)
         elif not resource.get('applianceBays') or not appliance_bay:
             raise Exception(APPLIANCE_BAY_NOT_FOUND)
 
         self.module.exit_json(changed=changed,
                               ansible_facts=dict(enclosure=resource),
                               msg=msg)
+
+    def __set_uid_on(self, resource):
+        changed = False
+        msg = UID_ALREADY_POWERED_ON
+
+        if resource.get('uidState', '') != 'On':
+            changed = True
+            msg = UID_POWERED_ON
+            resource = self.__patch(resource)
+
+        self.module.exit_json(changed=changed,
+                              ansible_facts=dict(enclosure=resource),
+                              msg=msg)
+
+    def __set_uid_off(self, resource):
+        changed = False
+        msg = UID_ALREADY_POWERED_OFF
+
+        if resource.get('uidState', '') != 'Off':
+            changed = True
+            msg = UID_POWERED_OFF
+            resource = self.__patch(resource)
+
+        self.module.exit_json(changed=changed,
+                              ansible_facts=dict(enclosure=resource),
+                              msg=msg)
+
+    def __patch(self, resource, *path_params):
+        state_name = self.module.params['state']
+        state = self.patch_params[state_name].copy()
+
+        if path_params:
+            state['path'] = state['path'].format(*path_params)
+
+        return self.oneview_client.enclosures.patch(resource['uri'], **state)
 
     def __add(self, data):
         new_enclosure = self.oneview_client.enclosures.add(data)

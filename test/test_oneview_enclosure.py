@@ -16,11 +16,13 @@
 import unittest
 from test.utils import PreloadedMocksTestCase, ModuleContructorTestCase
 from copy import deepcopy
+import yaml
 
 from oneview_enclosure import EnclosureModule
 from oneview_enclosure import ENCLOSURE_ADDED, ENCLOSURE_ALREADY_EXIST, ENCLOSURE_UPDATED, \
     ENCLOSURE_REMOVED, ENCLOSURE_ALREADY_ABSENT, ENCLOSURE_RECONFIGURED, ENCLOSURE_REFRESHED, \
-    ENCLOSURE_NOT_FOUND, APPLIANCE_BAY_POWERED_ON, APPLIANCE_BAY_ALREADY_POWERED_ON, APPLIANCE_BAY_NOT_FOUND
+    ENCLOSURE_NOT_FOUND, APPLIANCE_BAY_POWERED_ON, APPLIANCE_BAY_ALREADY_POWERED_ON, APPLIANCE_BAY_NOT_FOUND, \
+    UID_ALREADY_POWERED_ON, UID_POWERED_ON, UID_POWERED_OFF, UID_ALREADY_POWERED_OFF
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -30,6 +32,7 @@ ENCLOSURE_FROM_ONEVIEW = dict(
     name='Encl1',
     uri='/a/path',
     applianceBayCount=2,
+    uidState='Off',
     applianceBays=[
         dict(bayNumber=1, poweredOn=True),
         dict(bayNumber=2, poweredOn=False)
@@ -420,6 +423,118 @@ class EnclosureApplianceBaysPowerOnStateSpec(PreloadedMocksTestCase):
         self.enclosures.get_by.return_value = []
 
         self.mock_ansible_module.params = PARAMS_FOR_BAY_POWER_ON
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
+
+
+class EnclosureUidOnStateSpec(PreloadedMocksTestCase):
+    PARAMS_FOR_UID_ON = """
+        config: "{{ config_file_path }}"
+        state: uid_on
+        data:
+          name: 'Test-Enclosure'
+    """
+
+    def setUp(self):
+        self.configure_mocks(EnclosureModule)
+        self.enclosures = self.mock_ov_client.enclosures
+
+    def test_should_turn_on_uid(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.patch.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_UID_ON)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.assert_called_once_with(
+            ENCLOSURE_FROM_ONEVIEW['uri'], operation='replace', path='/uidState', value='On')
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=UID_POWERED_ON
+        )
+
+    def test_should_not_set_to_on_when_already_on(self):
+        enclosure_uid_on = dict(ENCLOSURE_FROM_ONEVIEW, uidState='On')
+        self.enclosures.get_by.return_value = [enclosure_uid_on]
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_UID_ON)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(enclosure=enclosure_uid_on),
+            msg=UID_ALREADY_POWERED_ON
+        )
+
+    def test_should_fail_when_enclosure_not_found(self):
+        self.enclosures.get_by.return_value = []
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_UID_ON)
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
+
+
+class EnclosureUidOffStateSpec(PreloadedMocksTestCase):
+    PARAMS_FOR_UID_OFF = """
+        config: "{{ config_file_path }}"
+        state: uid_off
+        data:
+          name: 'Test-Enclosure'
+    """
+
+    def setUp(self):
+        self.configure_mocks(EnclosureModule)
+        self.enclosures = self.mock_ov_client.enclosures
+
+    def test_should_turn_off_uid(self):
+        enclosure_uid_on = dict(ENCLOSURE_FROM_ONEVIEW, uidState='On')
+
+        self.enclosures.get_by.return_value = [enclosure_uid_on]
+        self.enclosures.patch.return_value = enclosure_uid_on
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_UID_OFF)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.assert_called_once_with(
+            ENCLOSURE_FROM_ONEVIEW['uri'], operation='replace', path='/uidState', value='Off')
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=enclosure_uid_on),
+            msg=UID_POWERED_OFF
+        )
+
+    def test_should_not_set_to_off_when_already_off(self):
+
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_UID_OFF)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=UID_ALREADY_POWERED_OFF
+        )
+
+    def test_should_fail_when_enclosure_not_found(self):
+        self.enclosures.get_by.return_value = []
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_UID_OFF)
 
         EnclosureModule().run()
 
