@@ -17,6 +17,9 @@
 ###
 
 from ansible.module_utils.basic import *
+
+APPLIANCE_BAY_NOT_FOUND = 'The informed bay is not supported.'
+
 try:
     from hpOneView.oneview_client import OneViewClient
 
@@ -29,7 +32,8 @@ DOCUMENTATION = '''
 module: oneview_enclosure
 short_description: Manage OneView Enclosure resources.
 description:
-    - Provides an interface to manage Enclosure resources. Can add, update, remove, or reconfigure.
+    - Provides an interface to manage Enclosure resources. Can add, update, remove, reconfigure, refresh and power on
+      appliance bays.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
@@ -51,7 +55,8 @@ options:
               'refreshed' will refresh the enclosure along with all of its components, including interconnects and
               servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is
               removed.
-        choices: ['present', 'absent', 'reconfigured', 'refreshed']
+              'appliance_bays_power_on' will set the appliance bay power state on.
+        choices: ['present', 'absent', 'reconfigured', 'refreshed', 'appliance_bays_power_on']
     data:
       description:
         - List with the Enclosure properties.
@@ -107,12 +112,20 @@ EXAMPLES = '''
       refreshState: Refreshing
 
 - name: Set the calibrated max power of an unmanaged or unsupported enclosure
-  config: "{{ config }}"
-  state: present
-  data:
-    name: 'Test-Enclosure'
-    calibratedMaxPower: 1700
-  delegate_to: localhost
+  oneview_enclosure:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: 'Test-Enclosure'
+      calibratedMaxPower: 1700
+
+- name: Set the appliance bay power state on
+  oneview_enclosure:
+    config: "{{ config_file_path }}"
+    state: appliance_bays_power_on
+    data:
+      name: 'Test-Enclosure'
+      applianceBay: 1
 '''
 
 RETURN = '''
@@ -132,13 +145,16 @@ ENCLOSURE_REFRESHED = 'Enclosure refreshed successfully.'
 ENCLOSURE_NOT_FOUND = 'Enclosure not found.'
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
+APPLIANCE_BAY_ALREADY_POWERED_ON = 'The device in specified bay is already powered on.'
+APPLIANCE_BAY_POWERED_ON = 'Appliance bay power state set to on successfully.'
+
 
 class EnclosureModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         state=dict(
             required=True,
-            choices=['present', 'absent', 'reconfigured', 'refreshed']
+            choices=['present', 'absent', 'reconfigured', 'refreshed', 'appliance_bays_power_on']
         ),
         data=dict(required=True, type='dict')
     )
@@ -164,10 +180,17 @@ class EnclosureModule(object):
                 self.__present(resource, data)
             elif state == 'absent':
                 self.__absent(resource, data)
-            elif state == 'reconfigured':
-                self.__reconfigure(resource, data)
-            elif state == 'refreshed':
-                self.__refresh(resource, data)
+            else:
+
+                if not resource:
+                    raise Exception(ENCLOSURE_NOT_FOUND)
+
+                if state == 'reconfigured':
+                    self.__reconfigure(resource)
+                elif state == 'refreshed':
+                    self.__refresh(resource, data)
+                elif state == 'appliance_bays_power_on':
+                    self.__set_appliance_bays_power_on(resource, data)
 
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
@@ -208,30 +231,47 @@ class EnclosureModule(object):
         else:
             self.module.exit_json(changed=False, msg=ENCLOSURE_ALREADY_ABSENT)
 
-    def __reconfigure(self, resource, data):
-        resource = self.__get_by_name(data)
-
-        if resource:
-            reconfigured_enclosure = self.oneview_client.enclosures.update_configuration(resource['uri'])
-            self.module.exit_json(changed=True,
-                                  msg=ENCLOSURE_RECONFIGURED,
-                                  ansible_facts=dict(enclosure=reconfigured_enclosure))
-        else:
-            self.module.exit_json(changed=False, msg=ENCLOSURE_NOT_FOUND)
+    def __reconfigure(self, resource):
+        reconfigured_enclosure = self.oneview_client.enclosures.update_configuration(resource['uri'])
+        self.module.exit_json(changed=True,
+                              msg=ENCLOSURE_RECONFIGURED,
+                              ansible_facts=dict(enclosure=reconfigured_enclosure))
 
     def __refresh(self, resource, data):
         refresh_config = data.copy()
         refresh_config.pop('name', None)
 
-        if resource:
-            self.oneview_client.enclosures.refresh_state(resource['uri'], refresh_config)
-            enclosure = self.oneview_client.enclosures.get(resource['uri'])
+        self.oneview_client.enclosures.refresh_state(resource['uri'], refresh_config)
+        enclosure = self.oneview_client.enclosures.get(resource['uri'])
 
-            self.module.exit_json(changed=True,
-                                  ansible_facts=dict(enclosure=enclosure),
-                                  msg=ENCLOSURE_REFRESHED)
-        else:
-            self.module.exit_json(changed=False, msg=ENCLOSURE_NOT_FOUND)
+        self.module.exit_json(changed=True,
+                              ansible_facts=dict(enclosure=enclosure),
+                              msg=ENCLOSURE_REFRESHED)
+
+    def __set_appliance_bays_power_on(self, resource, data):
+        changed = False
+        msg = APPLIANCE_BAY_ALREADY_POWERED_ON
+        appliance_bay = None
+        bay_number = data.get('applianceBay')
+
+        if resource.get('applianceBays'):
+            appliance_bay = next((bay for bay in resource['applianceBays'] if bay['bayNumber'] == bay_number), None)
+
+        if appliance_bay and not appliance_bay['poweredOn']:
+            changed = True
+            msg = APPLIANCE_BAY_POWERED_ON
+
+            operation = 'replace'
+            path = '/applianceBays/{}/power'.format(bay_number)
+            value = 'On'
+            resource = self.oneview_client.enclosures.patch(resource['uri'], operation=operation, path=path,
+                                                            value=value)
+        elif not resource.get('applianceBays') or not appliance_bay:
+            raise Exception(APPLIANCE_BAY_NOT_FOUND)
+
+        self.module.exit_json(changed=changed,
+                              ansible_facts=dict(enclosure=resource),
+                              msg=msg)
 
     def __add(self, data):
         new_enclosure = self.oneview_client.enclosures.add(data)
