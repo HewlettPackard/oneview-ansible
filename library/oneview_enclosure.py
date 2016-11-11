@@ -18,8 +18,6 @@
 
 from ansible.module_utils.basic import *
 
-APPLIANCE_BAY_NOT_FOUND = 'The informed bay is not supported.'
-
 try:
     from hpOneView.oneview_client import OneViewClient
 
@@ -58,7 +56,10 @@ options:
           'appliance_bays_power_on' will set the appliance bay power state on.
           'uid_on' will set the UID state on.
           'uid_on' will set the UID state off.
-      choices: ['present', 'absent', 'reconfigured', 'refreshed', 'appliance_bays_power_on', 'uid_on', 'uid_off']
+          'manager_bays_uid_on' will set the UID state on for the Synergy Frame Link Module.
+          'manager_bays_uid_off' will set the UID state off for the Synergy Frame Link Module.
+      choices: ['present', 'absent', 'reconfigured', 'refreshed', 'appliance_bays_power_on', 'uid_on', 'uid_off',
+        'manager_bays_uid_on', 'manager_bays_uid_off']
     data:
       description:
         - List with the Enclosure properties.
@@ -142,6 +143,22 @@ EXAMPLES = '''
     state: uid_off
     data:
       name: 'Test-Enclosure'
+
+- name: Set the UID for the Synergy Frame Link Module state on
+  oneview_enclosure:
+    config: "{{ config_file_path }}"
+    state: manager_bays_uid_on
+    data:
+      name: 'Test-Enclosure'
+      managerBay: 1
+
+- name: Set the UID for the Synergy Frame Link Module state off
+  oneview_enclosure:
+    config: "{{ config_file_path }}"
+    state: manager_bays_uid_off
+    data:
+      name: 'Test-Enclosure'
+      managerBay: 1
 '''
 
 RETURN = '''
@@ -161,6 +178,7 @@ ENCLOSURE_REFRESHED = 'Enclosure refreshed successfully.'
 ENCLOSURE_NOT_FOUND = 'Enclosure not found.'
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
+APPLIANCE_BAY_NOT_FOUND = 'The informed bay is not supported.'
 APPLIANCE_BAY_ALREADY_POWERED_ON = 'The device in specified bay is already powered on.'
 APPLIANCE_BAY_POWERED_ON = 'Appliance bay power state set to on successfully.'
 
@@ -170,13 +188,29 @@ UID_POWERED_ON = 'UID state set to On successfully.'
 UID_ALREADY_POWERED_OFF = 'UID state is already Off.'
 UID_POWERED_OFF = 'UID state set to Off successfully.'
 
+MANAGER_BAY_UID_ON = 'UID for the Synergy Frame Link Module set to On successfully.'
+MANAGER_BAY_UID_ALREADY_ON = 'The UID for the Synergy Frame Link Module is already On.'
+MANAGER_BAY_NOT_FOUND = 'Manager Bay not found.'
+
+MANAGER_BAY_UID_ALREADY_OFF = 'The UID for the Synergy Frame Link Module is already Off.'
+MANAGER_BAY_UID_OFF = 'UID for the Synergy Frame Link Module set to Off successfully.'
+
 
 class EnclosureModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         state=dict(
             required=True,
-            choices=['present', 'absent', 'reconfigured', 'refreshed', 'appliance_bays_power_on', 'uid_on', 'uid_off']
+            choices=[
+                'present',
+                'absent',
+                'reconfigured',
+                'refreshed',
+                'appliance_bays_power_on',
+                'uid_on',
+                'uid_off',
+                'manager_bays_uid_on',
+                'manager_bays_uid_off']
         ),
         data=dict(required=True, type='dict')
     )
@@ -185,6 +219,8 @@ class EnclosureModule(object):
         appliance_bays_power_on=dict(operation='replace', path='/applianceBays/{}/power', value='On'),
         uid_on=dict(operation='replace', path='/uidState', value='On'),
         uid_off=dict(operation='replace', path='/uidState', value='Off'),
+        manager_bays_uid_on=dict(operation='replace', path='/managerBays/{}/uidState', value='On'),
+        manager_bays_uid_off=dict(operation='replace', path='/managerBays/{}/uidState', value='Off'),
     )
 
     def __init__(self):
@@ -223,6 +259,10 @@ class EnclosureModule(object):
                     self.__set_uid_on(resource)
                 elif state == 'uid_off':
                     self.__set_uid_off(resource)
+                elif state == 'manager_bays_uid_on':
+                    self.__set_manager_bays_uid_on(resource, data)
+                elif state == 'manager_bays_uid_off':
+                    self.__set_manager_bays_uid_off(resource, data)
 
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
@@ -287,7 +327,8 @@ class EnclosureModule(object):
         bay_number = data.get('applianceBay')
 
         if resource.get('applianceBays'):
-            appliance_bay = next((bay for bay in resource['applianceBays'] if bay['bayNumber'] == bay_number), None)
+            appliance_bay = next((bay for bay in resource['applianceBays'] if str(bay['bayNumber']) == str(bay_number)),
+                                 None)
 
         if appliance_bay and not appliance_bay['poweredOn']:
             changed = True
@@ -322,6 +363,52 @@ class EnclosureModule(object):
             changed = True
             msg = UID_POWERED_OFF
             resource = self.__patch(resource)
+
+        self.module.exit_json(changed=changed,
+                              ansible_facts=dict(enclosure=resource),
+                              msg=msg)
+
+    def __set_manager_bays_uid_on(self, resource, data):
+
+        changed = False
+        msg = MANAGER_BAY_UID_ALREADY_ON
+        manager_bay = None
+        bay_number = data.get('managerBay')
+
+        if resource.get('managerBays'):
+            manager_bay = next((bay for bay in resource['managerBays'] if str(bay['bayNumber']) == str(bay_number)),
+                               None)
+
+        if manager_bay and manager_bay['uidState'] != 'On':
+            changed = True
+            msg = MANAGER_BAY_UID_ON
+            resource = self.__patch(resource, bay_number)
+
+        if not resource.get('managerBays') or not manager_bay:
+            raise Exception(MANAGER_BAY_NOT_FOUND)
+
+        self.module.exit_json(changed=changed,
+                              ansible_facts=dict(enclosure=resource),
+                              msg=msg)
+
+    def __set_manager_bays_uid_off(self, resource, data):
+
+        changed = False
+        msg = MANAGER_BAY_UID_ALREADY_OFF
+        manager_bay = None
+        bay_number = data.get('managerBay')
+
+        if resource.get('managerBays'):
+            manager_bay = next((bay for bay in resource['managerBays'] if str(bay['bayNumber']) == str(bay_number)),
+                               None)
+
+        if manager_bay and manager_bay['uidState'] != 'Off':
+            changed = True
+            msg = MANAGER_BAY_UID_OFF
+            resource = self.__patch(resource, bay_number)
+
+        if not resource.get('managerBays') or not manager_bay:
+            raise Exception(MANAGER_BAY_NOT_FOUND)
 
         self.module.exit_json(changed=changed,
                               ansible_facts=dict(enclosure=resource),

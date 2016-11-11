@@ -22,7 +22,8 @@ from oneview_enclosure import EnclosureModule
 from oneview_enclosure import ENCLOSURE_ADDED, ENCLOSURE_ALREADY_EXIST, ENCLOSURE_UPDATED, \
     ENCLOSURE_REMOVED, ENCLOSURE_ALREADY_ABSENT, ENCLOSURE_RECONFIGURED, ENCLOSURE_REFRESHED, \
     ENCLOSURE_NOT_FOUND, APPLIANCE_BAY_POWERED_ON, APPLIANCE_BAY_ALREADY_POWERED_ON, APPLIANCE_BAY_NOT_FOUND, \
-    UID_ALREADY_POWERED_ON, UID_POWERED_ON, UID_POWERED_OFF, UID_ALREADY_POWERED_OFF
+    UID_ALREADY_POWERED_ON, UID_POWERED_ON, UID_POWERED_OFF, UID_ALREADY_POWERED_OFF, MANAGER_BAY_UID_ALREADY_ON, \
+    MANAGER_BAY_UID_ON, MANAGER_BAY_NOT_FOUND, MANAGER_BAY_UID_OFF, MANAGER_BAY_UID_ALREADY_OFF
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -36,6 +37,10 @@ ENCLOSURE_FROM_ONEVIEW = dict(
     applianceBays=[
         dict(bayNumber=1, poweredOn=True),
         dict(bayNumber=2, poweredOn=False)
+    ],
+    managerBays=[
+        dict(bayNumber=1, uidState='On'),
+        dict(bayNumber=2, uidState='Off')
     ]
 
 )
@@ -516,7 +521,6 @@ class EnclosureUidOffStateSpec(PreloadedMocksTestCase):
         )
 
     def test_should_not_set_to_off_when_already_off(self):
-
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
 
         self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_UID_OFF)
@@ -535,6 +539,172 @@ class EnclosureUidOffStateSpec(PreloadedMocksTestCase):
         self.enclosures.get_by.return_value = []
 
         self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_UID_OFF)
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
+
+
+class EnclosureManagerBaysUidOnStateSpec(PreloadedMocksTestCase):
+    PARAMS_FOR_MANAGER_BAY_UID_ON = """
+        config: "{{ config_file_path }}"
+        state: manager_bays_uid_on
+        data:
+          name: 'Test-Enclosure'
+          managerBay: 2
+    """
+
+    def setUp(self):
+        self.configure_mocks(EnclosureModule)
+        self.enclosures = self.mock_ov_client.enclosures
+
+    def test_should_turn_on_uid(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.patch.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_ON)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.assert_called_once_with(
+            ENCLOSURE_FROM_ONEVIEW['uri'], operation='replace', path='/managerBays/2/uidState', value='On')
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=MANAGER_BAY_UID_ON
+        )
+
+    def test_should_not_set_to_on_when_already_on(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+
+        params_manager_bay_uid = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_ON)
+        params_manager_bay_uid['data']['managerBay'] = '1'
+
+        self.mock_ansible_module.params = params_manager_bay_uid
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=MANAGER_BAY_UID_ALREADY_ON
+        )
+
+    def test_should_fail_when_manager_bay_not_found(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+
+        params_power_on_not_found_bay = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_ON)
+        params_power_on_not_found_bay['data']['managerBay'] = 3
+        self.mock_ansible_module.params = params_power_on_not_found_bay
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=MANAGER_BAY_NOT_FOUND)
+
+    def test_should_fail_when_there_are_not_manager_bays(self):
+        enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, managerBays=[])
+        self.enclosures.get_by.return_value = [enclosure_without_appliance_bays]
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_ON)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=MANAGER_BAY_NOT_FOUND)
+
+    def test_should_fail_when_enclosure_not_found(self):
+        self.enclosures.get_by.return_value = []
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_ON)
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
+
+
+class EnclosureManagerBaysUidOffStateSpec(PreloadedMocksTestCase):
+    PARAMS_FOR_MANAGER_BAY_UID_OFF = """
+        config: "{{ config_file_path }}"
+        state: manager_bays_uid_off
+        data:
+          name: 'Test-Enclosure'
+          managerBay: 1
+    """
+
+    def setUp(self):
+        self.configure_mocks(EnclosureModule)
+        self.enclosures = self.mock_ov_client.enclosures
+
+    def test_should_turn_off_uid(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.patch.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_OFF)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.assert_called_once_with(
+            ENCLOSURE_FROM_ONEVIEW['uri'], operation='replace', path='/managerBays/1/uidState', value='Off')
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=MANAGER_BAY_UID_OFF
+        )
+
+    def test_should_not_set_to_off_when_already_off(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+
+        params_manager_bay_uid = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_OFF)
+        params_manager_bay_uid['data']['managerBay'] = '2'
+
+        self.mock_ansible_module.params = params_manager_bay_uid
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=MANAGER_BAY_UID_ALREADY_OFF
+        )
+
+    def test_should_fail_when_manager_bay_not_found(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+
+        params_power_on_not_found_bay = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_OFF)
+        params_power_on_not_found_bay['data']['managerBay'] = 3
+        self.mock_ansible_module.params = params_power_on_not_found_bay
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=MANAGER_BAY_NOT_FOUND)
+
+    def test_should_fail_when_there_are_not_manager_bays(self):
+        enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, managerBays=[])
+        self.enclosures.get_by.return_value = [enclosure_without_appliance_bays]
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_OFF)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=MANAGER_BAY_NOT_FOUND)
+
+    def test_should_fail_when_enclosure_not_found(self):
+        self.enclosures.get_by.return_value = []
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_OFF)
 
         EnclosureModule().run()
 
