@@ -37,10 +37,25 @@ PARAMS_WITH_OPTIONS = dict(
     config='config.json',
     name="Test Server Hardware",
     options=[
-        'bios', 'javaRemoteConsoleUrl', 'environmentalConfig', 'iloSsoUrl', 'remoteConsoleUrl',
+        'bios', 'javaRemoteConsoleUrl', 'environmentalConfig', 'iloSsoUrl', 'remoteConsoleUrl', 'firmware',
         {"utilization": {"fields": 'AveragePower',
                          "filter": 'startDate=2016-05-30T03:29:42.000Z',
                          "view": 'day'}}]
+)
+
+PARAMS_WITH_ALL_FIRMWARES_WITHOUT_FILTER = dict(
+    config='config.json',
+    options=['firmwares']
+)
+
+FIRMWARE_FILTERS = [
+    "components.componentName='HPE Synergy 3530C 16G Host Bus Adapter'",
+    "components.componentVersion matches '1.2%'"
+]
+
+PARAMS_WITH_ALL_FIRMWARES_WITH_FILTERS = dict(
+    config='config.json',
+    options=[dict(firmwares=dict(filters=FIRMWARE_FILTERS))]
 )
 
 
@@ -143,6 +158,7 @@ class ServerHardwareFactsSpec(unittest.TestCase):
         mock_ov_instance.server_hardware.get_ilo_sso_url.return_value = {'subresource': 'value'}
         mock_ov_instance.server_hardware.get_remote_console_url.return_value = {'subresource': 'value'}
         mock_ov_instance.server_hardware.get_utilization.return_value = {'subresource': 'value'}
+        mock_ov_instance.server_hardware.get_firmware.return_value = {'subresource': 'firmware'}
 
         mock_ov_client_from_json_file.return_value = mock_ov_instance
 
@@ -159,7 +175,54 @@ class ServerHardwareFactsSpec(unittest.TestCase):
                            'server_hardware_ilo_sso_url': {'subresource': 'value'},
                            'server_hardware_bios': {'subresource': 'value'},
                            'server_hardware_java_remote_console_url': {'subresource': 'value'},
-                           'server_hardware_env_config': {'subresource': 'value'}}
+                           'server_hardware_env_config': {'subresource': 'value'},
+                           'server_hardware_firmware': {'subresource': 'firmware'}}
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_server_hardware_facts.AnsibleModule')
+    def test_should_get_all_firmwares_across_the_servers(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.server_hardware.get_all.return_value = []
+        mock_ov_instance.server_hardware.get_all_firmwares.return_value = [{'subresource': 'firmware'}]
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_WITH_ALL_FIRMWARES_WITHOUT_FILTER)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ServerHardwareFactsModule().run()
+
+        mock_ov_instance.server_hardware.get_all_firmwares.assert_called_once_with()
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts={
+                'server_hardwares': [],
+                'server_hardware_firmwares': [{'subresource': 'firmware'}]
+            }
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_server_hardware_facts.AnsibleModule')
+    def test_should_get_all_firmwares_with_filters(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.server_hardware.get_all.return_value = []
+        mock_ov_instance.server_hardware.get_all_firmwares.return_value = [{'subresource': 'firmware'}]
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_WITH_ALL_FIRMWARES_WITH_FILTERS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ServerHardwareFactsModule().run()
+
+        mock_ov_instance.server_hardware.get_all_firmwares.assert_called_once_with(filters=FIRMWARE_FILTERS)
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts={
+                'server_hardwares': [],
+                'server_hardware_firmwares': [{'subresource': 'firmware'}]
+            }
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
