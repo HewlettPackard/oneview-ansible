@@ -18,7 +18,7 @@ import unittest
 import mock
 
 from hpOneView.oneview_client import OneViewClient
-from oneview_switch import SwitchModule, SWITCH_DELETED, SWITCH_ALREADY_ABSENT
+from oneview_switch import SwitchModule, SWITCH_DELETED, SWITCH_ALREADY_ABSENT, SWITCH_PORTS_UPDATED
 from utils import create_ansible_mock
 
 SWITCH_NAME = "172.18.16.2"
@@ -29,7 +29,23 @@ PARAMS_ABSENT = dict(
     name=SWITCH_NAME
 )
 
-SWITCH = dict(name=SWITCH_NAME)
+PARAMS_PORTS_UPDATED = dict(
+    config='config.json',
+    state='ports_updated',
+    name=SWITCH_NAME,
+    data=[
+        dict(
+            portId="ca520119-1329-496b-8e44-43092e937eae:1.21",
+            portName="1.21",
+            enabled=True
+        )
+    ]
+)
+
+SWITCH = dict(
+    name=SWITCH_NAME,
+    uri="/rest/switches/ca520119-1329-496b-8e44-43092e937eae"
+)
 
 
 def define_mocks(mock_ov_client_from_json_file, mock_ansible_module, params):
@@ -74,7 +90,7 @@ class SwitchClientConfigurationSpec(unittest.TestCase):
         mock_ov_client_from_json_file.not_been_called()
 
 
-class SwitchSpec(unittest.TestCase):
+class SwitchAbsentSpec(unittest.TestCase):
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_switch.AnsibleModule')
@@ -118,6 +134,31 @@ class SwitchSpec(unittest.TestCase):
         mock_ov_instance.switches.get_by.side_effect = Exception()
         SwitchModule().run()
         mock_ansible_instance.fail_json.assert_called_once()
+
+
+class SwitchPortsUpdatedSpec(unittest.TestCase):
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_switch.AnsibleModule')
+    def test_should_update_switch_ports(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance, mock_ansible_instance = define_mocks(mock_ov_client_from_json_file,
+                                                               mock_ansible_module,
+                                                               PARAMS_PORTS_UPDATED)
+
+        switches = [SWITCH]
+        mock_ov_instance.switches.get_by.return_value = switches
+
+        SwitchModule().run()
+
+        mock_ov_instance.switches.update_ports.assert_called_once_with(
+            id_or_uri=SWITCH["uri"],
+            ports=PARAMS_PORTS_UPDATED["data"]
+        )
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            msg=SWITCH_PORTS_UPDATED
+        )
 
 
 if __name__ == '__main__':
