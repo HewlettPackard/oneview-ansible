@@ -15,10 +15,8 @@
 # limitations under the License.
 ###
 
-import mock
 import yaml
-import unittest
-from mock import patch
+from mock import mock, patch
 from hpOneView.oneview_client import OneViewClient
 
 
@@ -34,34 +32,13 @@ def create_ansible_mock_yaml(yaml_config):
     return mock_ansible
 
 
-class PreloadedMocksTestCase(unittest.TestCase):
-    def configure_mocks(self, testing_class):
-        """
-        Preload mocked OneViewClient instance and AnsibleModule
-        Args:
-            testing_class (object): class being tested
-        """
-        # Define OneView Client Mock
-        patcher = patch.object(OneViewClient, 'from_json_file')
-        self.addCleanup(patcher.stop)
-        mock_from_json_file = patcher.start()
-        mock_from_json_file.return_value = mock.Mock()
-        self.mock_ov_client = mock_from_json_file.return_value
-
-        # Define Ansible Module Mock
-        patcher_ansible = patch(testing_class.__module__ + '.AnsibleModule')
-        self.addCleanup(patcher_ansible.stop)
-        mock_ansible_module = patcher_ansible.start()
-        self.mock_ansible_module = mock.Mock()
-        mock_ansible_module.return_value = self.mock_ansible_module
-
-
-class ModuleContructorTestCase(object):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function
-    """
+class PreloadedMocksBaseTestCase(object):
     _testing_class = None
     _testing_module = None
+    mock_ov_client_from_json_file = None
+    mock_ov_client_from_env_vars = None
+    mock_ansible_module = None
+    mock_ov_client = None
 
     def configure_mocks(self, test_case, testing_class):
         """
@@ -73,12 +50,15 @@ class ModuleContructorTestCase(object):
         self._testing_class = testing_class
         self._testing_module = testing_class.__module__
 
-        # Define One View Client Mock (FILE)
+        # Define OneView Client Mock (FILE)
         patcher_json_file = patch.object(OneViewClient, 'from_json_file')
         test_case.addCleanup(patcher_json_file.stop)
         self.mock_ov_client_from_json_file = patcher_json_file.start()
 
-        # Define One View Client Mock (ENV)
+        # Define OneView Client Mock
+        self.mock_ov_client = self.mock_ov_client_from_json_file.return_value
+
+        # Define OneView Client Mock (ENV)
         patcher_env = patch.object(OneViewClient, 'from_environment_variables')
         test_case.addCleanup(patcher_env.stop)
         self.mock_ov_client_from_env_vars = patcher_env.start()
@@ -89,6 +69,14 @@ class ModuleContructorTestCase(object):
         mock_ansible_module = patcher_ansible.start()
         self.mock_ansible_module = mock.Mock()
         mock_ansible_module.return_value = self.mock_ansible_module
+
+
+class ModuleContructorTestCase(PreloadedMocksBaseTestCase):
+    """
+    ModuleContructorTestCase has common tests for class constructor and main function
+
+    When inheriting this class, the class and main function tests are added to your test case.
+    """
 
     def __validations(self):
         if not self._testing_class:
