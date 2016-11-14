@@ -35,7 +35,7 @@ description:
      A reference to the switch is mantained, and the resource is marked as 'Absent'."
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 3.0.0"
 author: "Bruno Souza (@bsouza)"
 options:
     config:
@@ -48,7 +48,8 @@ options:
         description:
             - Indicates the desired state for the Switch.
               'absent' will remove the resource from OneView, if it exists.
-        choices: ['absent']
+              'ports_updated' will update the switch ports
+        choices: ['absent', 'ports_updated']
     name:
       description:
         - Switch name.
@@ -69,6 +70,7 @@ EXAMPLES = '''
 '''
 
 SWITCH_DELETED = 'Switch deleted successfully.'
+SWITCH_PORTS_UPDATED = "Switch ports updated successfully."
 SWITCH_ALREADY_ABSENT = 'Nothing to do.'
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
@@ -79,9 +81,10 @@ class SwitchModule(object):
         config=dict(required=False, type='str'),
         state=dict(
             required=True,
-            choices=['absent']
+            choices=['absent', 'ports_updated']
         ),
-        name=dict(required=True, type='str')
+        name=dict(required=True, type='str'),
+        data=dict(required=False, type='list')
     )
 
     def __init__(self):
@@ -102,19 +105,33 @@ class SwitchModule(object):
     def run(self):
         try:
             name = self.module.params["name"]
+            state = self.module.params["state"]
+
             resource = self.__get_by_name(name)
 
-            if resource:
-                self.resource_client.delete(resource)
-                self.module.exit_json(changed=True, msg=SWITCH_DELETED)
+            if state == 'absent':
+                changed, msg = self.__delete(resource)
             else:
-                self.module.exit_json(changed=False, msg=SWITCH_ALREADY_ABSENT)
+                changed, msg = self.__update_ports(resource)
+
+            self.module.exit_json(changed=changed, msg=msg)
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_by_name(self, name):
         result = self.resource_client.get_by('name', name) or [None]
         return result[0]
+
+    def __delete(self, resource):
+        if resource:
+            self.resource_client.delete(resource)
+            return True, SWITCH_DELETED
+        else:
+            return False, SWITCH_ALREADY_ABSENT
+
+    def __update_ports(self, resource):
+        self.resource_client.update_ports(id_or_uri=resource["uri"], ports=self.module.params["data"])
+        return True, SWITCH_PORTS_UPDATED
 
 
 def main():
