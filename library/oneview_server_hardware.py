@@ -129,7 +129,7 @@ EXAMPLES = '''
 - name: Set the server UID state off
   oneview_server_hardware:
     config: "{{ config }}"
-    state: uid_state_on
+    state: uid_state_off
     data:
         hostname : '0000A66102, bay 12'
   delegate_to: localhost
