@@ -203,7 +203,6 @@
         config: "{{ config }}"
         state: present
         data:
-          type: 'logical-interconnect-groupV3'
           name: '{{ logical_interconnect_group_name }}'
           enclosureType: 'C7000'
           interconnectMapTemplate:

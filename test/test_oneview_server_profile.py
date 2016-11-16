@@ -787,7 +787,6 @@ class ServerProfileUpdateSpec(unittest.TestCase):
 
 
 class ServerProfileDeepMergeSpec(unittest.TestCase):
-
     boot_conn = dict(priority="NotBootable", chapLevel="none")
 
     connection_1 = dict(id=1, name="connection-1", mac="E2:4B:0D:30:00:29", boot=boot_conn)
