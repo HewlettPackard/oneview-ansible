@@ -787,11 +787,14 @@ class ServerProfileUpdateSpec(unittest.TestCase):
 
 
 class ServerProfileDeepMergeSpec(unittest.TestCase):
-    connection_1 = dict(id=1, name="connection-1", mac="E2:4B:0D:30:00:29")
-    connection_2 = dict(id=2, name="connection-2", mac="E2:4B:0D:30:00:2A")
 
-    connection_1_no_mac = dict(id=1, name="connection-1")
-    connection_2_no_mac = dict(id=2, name="connection-2")
+    boot_conn = dict(priority="NotBootable", chapLevel="none")
+
+    connection_1 = dict(id=1, name="connection-1", mac="E2:4B:0D:30:00:29", boot=boot_conn)
+    connection_2 = dict(id=2, name="connection-2", mac="E2:4B:0D:30:00:2A", boot=boot_conn)
+
+    connection_1_no_mac_basic_boot = dict(id=1, name="connection-1", boot=dict(priority="NotBootable"))
+    connection_2_no_mac_basic_boot = dict(id=2, name="connection-2", boot=dict(priority="NotBootable"))
 
     path_1 = dict(isEnabled=True, connectionId=1, storageTargets=["20:00:00:02:AC:00:08:D6"])
     path_2 = dict(isEnabled=True, connectionId=2, storageTargetType="Auto")
@@ -844,8 +847,8 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
         self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
-                    connections=[self.connection_1_no_mac.copy(),
-                                 self.connection_2_no_mac.copy(),
+                    connections=[self.connection_1_no_mac_basic_boot.copy(),
+                                 self.connection_2_no_mac_basic_boot.copy(),
                                  connection_added.copy()])
         self.mock_ansible_instance.params['data'] = data
 
@@ -870,7 +873,7 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
     def test_merge_connections_when_item_renamed(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
-        connection_2_renamed = dict(id=2, name="connection-2-renamed")
+        connection_2_renamed = dict(id=2, name="connection-2-renamed", boot=dict(priority="NotBootable"))
 
         self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
@@ -879,7 +882,7 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
         ServerProfileModule().run()
         actual_connections = self.mock_ov_client.server_profiles.update.call_args[0][0]['connections']
-        connection_2_merged = dict(id=2, name="connection-2-renamed", mac="E2:4B:0D:30:00:2A")
+        connection_2_merged = dict(id=2, name="connection-2-renamed", mac="E2:4B:0D:30:00:2A", boot=self.boot_conn)
         expected_connections = [self.connection_1.copy(), connection_2_merged.copy()]
 
         self.assertEqual(expected_connections, actual_connections)
@@ -1027,6 +1030,48 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
         self.assertEqual([], actual_volumes[1]['storagePaths'])
         self.assertEqual([], actual_volumes[1]['storagePaths'])
+
+    def test_merge_bios(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    sanStorage=deepcopy(self.san_storage))
+        data['bios'] = dict(newField="123")
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_bios = self.mock_ov_client.server_profiles.update.call_args[0][0]['bios']
+
+        expected_bios = dict(manageBios=False, overriddenSettings=[], newField="123")
+        self.assertEqual(expected_bios, actual_bios)
+
+    def test_merge_boot(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    sanStorage=deepcopy(self.san_storage))
+        data['boot'] = dict(newField="123")
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_boot = self.mock_ov_client.server_profiles.update.call_args[0][0]['boot']
+
+        expected_boot = dict(manageBoot=False, order=[], newField="123")
+        self.assertEqual(expected_boot, actual_boot)
+
+    def test_merge_boot_mode(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    sanStorage=deepcopy(self.san_storage))
+        data['bootMode'] = dict(newField="123")
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_boot_mode = self.mock_ov_client.server_profiles.update.call_args[0][0]['bootMode']
+
+        expected_boot_mode = dict(manageMode=False, mode=None, pxeBootPolicy=None, newField="123")
+        self.assertEqual(expected_boot_mode, actual_boot_mode)
 
 
 class ServerProfileAbsentStateSpec(unittest.TestCase):

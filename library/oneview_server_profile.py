@@ -152,7 +152,7 @@ created:
 # To activate logs, setup the environment var LOGFILE
 # e.g.: export LOGFILE=/tmp/ansible-oneview.log
 def get_logger(mod_name):
-    logger = logging.getLogger(os.path.basename(mod_name))
+    logger = logging.getLogger("hpOneView")
     global LOGFILE
     LOGFILE = os.environ.get('LOGFILE')
     if not LOGFILE:
@@ -268,29 +268,55 @@ class ServerProfileModule(object):
         merged_data = deepcopy(resource)
         merged_data.update(data)
 
-        if self._is_merge_needed('sanStorage', data, resource):
-            merged_san_storage = deepcopy(resource['sanStorage'])
-            merged_san_storage.update(deepcopy(data['sanStorage']))
-            merged_data['sanStorage'] = merged_san_storage
+        if self._is_merge_needed('bios', data, resource):
+            self._merge_by_key('bios', merged_data, resource, data)
 
+        if self._is_merge_needed('boot', data, resource):
+            self._merge_by_key('boot', merged_data, resource, data)
+
+        if self._is_merge_needed('bootMode', data, resource):
+            self._merge_by_key('bootMode', merged_data, resource, data)
+
+        if self._is_merge_needed('sanStorage', data, resource):
+            self._merge_by_key('sanStorage', merged_data, resource, data)
             if self._is_merge_needed('volumeAttachments', data['sanStorage'], resource['sanStorage']):
                 self._merge_volumes(merged_data, resource, data)
-        elif 'sanStorage' in data and not data['sanStorage'] and 'sanStorage' in resource:
+        elif self._san_was_removed(data, resource):
             merged_data['sanStorage'] = dict(volumeAttachments=[], manageSanStorage=False)
 
         if self._is_merge_needed('connections', data, resource):
             self._merge_connections(merged_data, resource, data)
+            self._merge_boot_from_connections(merged_data, resource)
 
         return merged_data
 
     def _is_merge_needed(self, attribute, data, original_data):
         return attribute in data and data[attribute] and attribute in original_data
 
+    def _san_was_removed(self, data, resource):
+        return 'sanStorage' in data and not data['sanStorage'] and 'sanStorage' in resource
+
+    def _merge_by_key(self, key, merged_data, resource, data):
+        merged_san_storage = deepcopy(resource[key])
+        merged_san_storage.update(deepcopy(data[key]))
+        merged_data[key] = merged_san_storage
+
     def _merge_connections(self, merged_data, resource, data):
         existent_connections = resource['connections']
         provided_connections = data['connections']
         merged_connections = merge_list_by_key(existent_connections, provided_connections, 'id')
         merged_data['connections'] = merged_connections
+
+    def _merge_boot_from_connections(self, merged_data, resource):
+        existent_connection_map = {x['id']: x.copy() for x in resource['connections']}
+        merged_connections = merged_data['connections']
+        for merged_connection in merged_connections:
+            if merged_connection['id'] in existent_connection_map:
+                if 'boot' in merged_connection and 'boot' in existent_connection_map[merged_connection['id']]:
+                    current_connection = existent_connection_map[merged_connection['id']]
+                    boot_settings_merged = deepcopy(current_connection['boot'])
+                    boot_settings_merged.update(merged_connection['boot'])
+                    merged_connection['boot'] = boot_settings_merged
 
     def _merge_volumes(self, merged_data, resource, data):
         existent_volumes = resource['sanStorage']['volumeAttachments']
