@@ -15,7 +15,7 @@
 ###
 import unittest
 import yaml
-from test.utils import PreloadedMocksTestCase, ModuleContructorTestCase
+from test.utils import PreloadedMocksBaseTestCase, ModuleContructorTestCase
 
 from oneview_sas_logical_interconnect import SasLogicalInterconnectModule, \
     SAS_LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED, SAS_LOGICAL_INTERCONNECT_DRIVE_ENCLOSURE_REPLACED, \
@@ -40,7 +40,7 @@ class SasLogicalInterconnectClientConfigurationSpec(unittest.TestCase, ModuleCon
         self.configure_mocks(self, SasLogicalInterconnectModule)
 
 
-class SasLogicalInterconnectCompliantStateSpec(PreloadedMocksTestCase):
+class SasLogicalInterconnectCompliantStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     YAML_PARAMS_COMPLIANCE_URIS = """
         config: "{{ config }}"
         state: compliant
@@ -65,7 +65,7 @@ class SasLogicalInterconnectCompliantStateSpec(PreloadedMocksTestCase):
     EXPECTED_UPDATE_COMPLIANCE_CALL = ["/rest/resource1", "/rest/resource2"]
 
     def setUp(self):
-        self.configure_mocks(SasLogicalInterconnectModule)
+        self.configure_mocks(self, SasLogicalInterconnectModule)
         self.resource = self.mock_ov_client.sas_logical_interconnects
 
     def test_should_return_to_a_consistent_state_by_uris(self):
@@ -131,7 +131,7 @@ class SasLogicalInterconnectCompliantStateSpec(PreloadedMocksTestCase):
         )
 
 
-class SasLogicalInterconnectConfigurationUpdatedStateSpec(PreloadedMocksTestCase):
+class SasLogicalInterconnectConfigurationUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     YAML_CONFIGURATION = """
         config: "config.json"
         state: configuration_updated
@@ -140,7 +140,7 @@ class SasLogicalInterconnectConfigurationUpdatedStateSpec(PreloadedMocksTestCase
     """
 
     def setUp(self):
-        self.configure_mocks(SasLogicalInterconnectModule)
+        self.configure_mocks(self, SasLogicalInterconnectModule)
         self.resource = self.mock_ov_client.sas_logical_interconnects
 
     def test_should_update_configuration(self):
@@ -187,7 +187,7 @@ class SasLogicalInterconnectConfigurationUpdatedStateSpec(PreloadedMocksTestCase
         )
 
 
-class SasLogicalInterconnectFirmwareInstalledStateSpec(PreloadedMocksTestCase):
+class SasLogicalInterconnectFirmwareInstalledStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     YAML_FIRMWARE_WITH_SPP_NAME = """
         config: "{{ config }}"
         state: firmware_updated
@@ -218,7 +218,7 @@ class SasLogicalInterconnectFirmwareInstalledStateSpec(PreloadedMocksTestCase):
     }
 
     def setUp(self):
-        self.configure_mocks(SasLogicalInterconnectModule)
+        self.configure_mocks(self, SasLogicalInterconnectModule)
         self.resource = self.mock_ov_client.sas_logical_interconnects
 
     def test_should_install_firmware_when_spp_name_set(self):
@@ -274,7 +274,7 @@ class SasLogicalInterconnectFirmwareInstalledStateSpec(PreloadedMocksTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=FAKE_MSG_ERROR)
 
 
-class SasLogicalInterconnectDriveEnclosureReplacedStateSpec(PreloadedMocksTestCase):
+class SasLogicalInterconnectDriveEnclosureReplacedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     YAML_REPLACE_DRIVE_ENCLOSURE = """
         config: "{{ config }}"
         state: drive_enclosure_replaced
@@ -286,7 +286,7 @@ class SasLogicalInterconnectDriveEnclosureReplacedStateSpec(PreloadedMocksTestCa
     """
 
     def setUp(self):
-        self.configure_mocks(SasLogicalInterconnectModule)
+        self.configure_mocks(self, SasLogicalInterconnectModule)
         self.resource = self.mock_ov_client.sas_logical_interconnects
 
     def test_should_replace_drive_enclosure(self):
