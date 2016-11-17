@@ -19,14 +19,14 @@
     - config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
     - name: Gather facts about all Os Deployment Plans
-      oneview_os_deployment_plans_facts:
+      oneview_os_deployment_plan_facts:
         config: "{{ config }}"
       delegate_to: localhost
 
     - debug: var=os_deployment_plans
 
-    - name: Gather facts about a Os Deployment Plan by name
-      oneview_os_deployment_plans_facts:
+    - name: Gather facts about an Os Deployment Plan by name
+      oneview_os_deployment_plan_facts:
         config: "{{ config }}"
         name: "Deployment Plan"
       delegate_to: localhost

@@ -26,13 +26,13 @@ except ImportError:
 
 DOCUMENTATION = '''
 ---
-module: oneview_os_deployment_plans_facts
+module: oneview_os_deployment_plan_facts
 short_description: Retrieve facts about one or more Os Deployment Plans.
 description:
     - Retrieve facts about one or more of the Os Deployment Plans from OneView.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 3.0.0"
 author: "Abilio Parada (@abiliogp)"
 options:
     config:
@@ -58,7 +58,7 @@ EXAMPLES = '''
     config: "{{ config }}"
   delegate_to: localhost
 
-- debug: var=os_deployment_plan
+- debug: var=os_deployment_plans
 
 - name: Gather facts about an Os Deployment Plan by name
   oneview_os_deployment_plan_facts:
@@ -66,7 +66,7 @@ EXAMPLES = '''
     name: "Deployment Plan"
   delegate_to: localhost
 
-- debug: var=os_deployment_plan
+- debug: var=os_deployment_plans
 '''
 
 RETURN = '''
@@ -78,7 +78,7 @@ os_deployment_plans:
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
-class OsDeploymentPlansFactsModule(object):
+class OsDeploymentPlanFactsModule(object):
     argument_spec = {
         "config": {
             "required": False,
@@ -101,7 +101,7 @@ class OsDeploymentPlansFactsModule(object):
     def run(self):
         try:
             if self.module.params.get('name'):
-                os_deployment_plans = self.oneview_client.os_deployment_plans.get_by_name(self.module.params['name'])
+                os_deployment_plans = self.oneview_client.os_deployment_plans.get_by('name', self.module.params['name'])
             else:
                 os_deployment_plans = self.oneview_client.os_deployment_plans.get_all()
 
@@ -113,7 +113,7 @@ class OsDeploymentPlansFactsModule(object):
 
 
 def main():
-    OsDeploymentPlansFactsModule().run()
+    OsDeploymentPlanFactsModule().run()
 
 
 if __name__ == '__main__':
