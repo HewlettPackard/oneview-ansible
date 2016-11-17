@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    server_hardware_name: '0000A66102, bay 12'
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
@@ -89,6 +90,24 @@
         state: ilo_firmware_version_updated
         data:
             hostname : '{{ server_hardware_hostname }}'
+      delegate_to: localhost
+
+
+    - name: Reset the Server Hardware iLO State
+      oneview_server_hardware:
+        config: "{{ config }}"
+        state: ilo_state_reset
+        data:
+            hostname: '{{ server_hardware_name }}'
+      delegate_to: localhost
+
+
+    - name: Set the server UID state off
+      oneview_server_hardware:
+        config: "{{ config }}"
+        state: uid_state_off
+        data:
+            hostname: '{{ server_hardware_name }}'
       delegate_to: localhost
 
 

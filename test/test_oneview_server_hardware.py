@@ -21,7 +21,8 @@ from hpOneView.oneview_client import OneViewClient
 from oneview_server_hardware import ServerHardwareModule, SERVER_HARDWARE_ADDED, SERVER_HARDWARE_ALREADY_ADDED, \
     SERVER_HARDWARE_DELETED, SERVER_HARDWARE_ALREADY_ABSENT, SERVER_HARDWARE_MANDATORY_FIELD_MISSING, \
     SERVER_HARDWARE_POWER_STATE_UPDATED, SERVER_HARDWARE_NOT_FOUND, SERVER_HARDWARE_REFRESH_STATE_UPDATED, \
-    SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED, SERVER_HARDWARE_ENV_CONFIG_UPDATED
+    SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED, SERVER_HARDWARE_ENV_CONFIG_UPDATED, NOTHING_TO_DO, \
+    SERVER_HARDWARE_UID_STATE_CHANGED, SERVER_HARDWARE_ILO_STATE_RESET
 from test.utils import create_ansible_mock
 from test.utils import create_ansible_mock_yaml
 
@@ -79,6 +80,30 @@ YAML_SERVER_HARDWARE_SET_CALIBRATED_MAX_POWER = """
             hostname : 'server_hardware_hostname'
             calibratedMaxPower: 2500
 """
+
+YAML_SERVER_HARDWARE_ILO_STATE_RESET = """
+        config: config
+        state: ilo_state_reset
+        data:
+            hostname : "172.18.6.15"
+"""
+
+YAML_SERVER_HARDWARE_UID_STATE_ON = """
+        config: config
+        state: uid_state_on
+        data:
+            hostname : "172.18.6.15"
+"""
+
+YAML_SERVER_HARDWARE_UID_STATE_OFF = """
+        config: config
+        state: uid_state_off
+        data:
+            hostname : "172.18.6.15"
+"""
+
+SERVER_HARDWARE_HOSTNAME = "172.18.6.15"
+
 
 DICT_DEFAULT_SERVER_HARDWARE = yaml.load(YAML_SERVER_HARDWARE)["data"]
 
@@ -378,6 +403,131 @@ class ServerHardwareIloFirmwareUpdateStateSpec(unittest.TestCase):
 
         mock_ansible_instance.fail_json.assert_called_once_with(
             msg=SERVER_HARDWARE_NOT_FOUND
+        )
+
+
+class ServerHardwareIloStateResetSpec(unittest.TestCase):
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_server_hardware.AnsibleModule')
+    def test_should_reset_ilo_state(self, mock_ansible_module, mock_ov_client_from_json_file):
+        server_hardware_uri = "resourceuri"
+
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.server_hardware.get_by.return_value = [{"uri": server_hardware_uri}]
+        mock_ov_instance.server_hardware.patch.return_value = {"name": "name"}
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_HARDWARE_ILO_STATE_RESET)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ServerHardwareModule().run()
+
+        patch_params = ServerHardwareModule.patch_params['ilo_state_reset']
+        mock_ov_instance.server_hardware.patch.assert_called_once_with(id_or_uri=server_hardware_uri, **patch_params)
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            msg=SERVER_HARDWARE_ILO_STATE_RESET,
+            ansible_facts=dict(server_hardware={"name": "name"})
+        )
+
+
+class ServerHardwareUidStateOnSpec(unittest.TestCase):
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_server_hardware.AnsibleModule')
+    def test_should_set_on_the_uid_state(self, mock_ansible_module, mock_ov_client_from_json_file):
+        server_hardware_uri = "resourceuri"
+
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.server_hardware.get_by.return_value = [{"uri": server_hardware_uri, "uidState": "Off"}]
+        mock_ov_instance.server_hardware.patch.return_value = {"name": "name"}
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_HARDWARE_UID_STATE_ON)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ServerHardwareModule().run()
+
+        patch_params = ServerHardwareModule.patch_params['uid_state_on']
+        mock_ov_instance.server_hardware.patch.assert_called_once_with(id_or_uri=server_hardware_uri, **patch_params)
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            msg=SERVER_HARDWARE_UID_STATE_CHANGED,
+            ansible_facts=dict(server_hardware={"name": "name"})
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_server_hardware.AnsibleModule')
+    def test_should_not_set_when_the_uid_state_is_already_on(self, mock_ansible_module, mock_ov_client_from_json_file):
+        server_hardware_uri = "resourceuri"
+        server_hardware = {"uri": server_hardware_uri, "uidState": "On"}
+
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.server_hardware.get_by.return_value = [server_hardware]
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_HARDWARE_UID_STATE_ON)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ServerHardwareModule().run()
+
+        mock_ov_instance.server_hardware.patch.assert_not_called()
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            msg=NOTHING_TO_DO,
+            ansible_facts=dict(server_hardware=server_hardware)
+        )
+
+
+class ServerHardwareUidStateOffSpec(unittest.TestCase):
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_server_hardware.AnsibleModule')
+    def test_should_set_off_the_uid_state(self, mock_ansible_module, mock_ov_client_from_json_file):
+        server_hardware_uri = "resourceuri"
+
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.server_hardware.get_by.return_value = [{"uri": server_hardware_uri, "uidState": "On"}]
+        mock_ov_instance.server_hardware.patch.return_value = {"name": "name"}
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_HARDWARE_UID_STATE_OFF)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ServerHardwareModule().run()
+
+        patch_params = ServerHardwareModule.patch_params['uid_state_off']
+        mock_ov_instance.server_hardware.patch.assert_called_once_with(id_or_uri=server_hardware_uri, **patch_params)
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=True,
+            msg=SERVER_HARDWARE_UID_STATE_CHANGED,
+            ansible_facts=dict(server_hardware={"name": "name"})
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_server_hardware.AnsibleModule')
+    def test_should_not_set_when_the_uid_state_is_already_off(self, mock_ansible_module, mock_ov_client_from_json_file):
+        server_hardware_uri = "resourceuri"
+        server_hardware = {"uri": server_hardware_uri, "uidState": "Off"}
+
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.server_hardware.get_by.return_value = [server_hardware]
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_HARDWARE_UID_STATE_OFF)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ServerHardwareModule().run()
+
+        mock_ov_instance.server_hardware.patch.assert_not_called()
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            msg=NOTHING_TO_DO,
+            ansible_facts=dict(server_hardware=server_hardware)
         )
 
 
