@@ -446,5 +446,6 @@ class EnclosureErrorHandlingSpec(unittest.TestCase):
             msg=FAKE_MSG_ERROR
         )
 
+
 if __name__ == '__main__':
     unittest.main()

@@ -224,5 +224,6 @@ class EthernetNetworkFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.fail_json.assert_called_once()
 
+
 if __name__ == '__main__':
     unittest.main()
