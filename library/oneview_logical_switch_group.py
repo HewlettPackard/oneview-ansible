@@ -65,7 +65,6 @@ EXAMPLES = '''
     config: "{{ config }}"
     state: present
     data:
-        type: "logical-switch-group"
         name: "OneView Test Logical Switch Group"
         switchMapTemplate:
             switchMapEntryTemplates:
@@ -83,7 +82,6 @@ EXAMPLES = '''
     config: "{{ config }}"
     state: present
     data:
-        type: "logical-switch-group"
         name: "OneView Test Logical Switch Group"
         newName: "Test Logical Switch Group"
         switchMapTemplate:
