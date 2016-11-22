@@ -16,8 +16,9 @@
 import unittest
 import mock
 
-from test.utils import create_ansible_mock
 from copy import deepcopy
+from mock import patch
+from test.utils import create_ansible_mock
 
 from hpOneView.oneview_client import OneViewClient
 from hpOneView.exceptions import HPOneViewTaskError
@@ -31,6 +32,7 @@ SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B
 SHT_URI = "/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B"
 ENCLOSURE_GROUP_URI = "/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89"
 TEMPLATE_URI = '/rest/server-profile-templates/9a156b04-fce8-40b0-b0cd-92ced1311dda'
+FAKE_SERVER_HARDWARE = {'uri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'}
 
 MESSAGE_COMPLIANT_ERROR = MAKE_COMPLIANT_NOT_SUPPORTED.format(SERVER_PROFILE_NAME)
 FAKE_MSG_ERROR = 'Fake message error'
@@ -379,15 +381,13 @@ class ServerProfileCreateSpec(unittest.TestCase):
         profile_data = deepcopy(BASIC_PROFILE)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
-        mock_server_hardware = {'uri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'}
-
         present = deepcopy(PARAMS_FOR_PRESENT)
         present['data']['server_hardware'] = "ServerHardwareName"
 
         mock_ov_instance = mock.Mock()
         mock_ov_instance.server_profiles.get_by_name.return_value = None
         mock_ov_instance.server_profiles.create.return_value = CREATED_BASIC_PROFILE
-        mock_ov_instance.server_hardware.get_by.return_value = [mock_server_hardware]
+        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
         mock_ov_from_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(present)
         mock_module.return_value = mock_ansible_instance
@@ -411,8 +411,6 @@ class ServerProfileCreateSpec(unittest.TestCase):
         profile_data = deepcopy(BASIC_PROFILE)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
-        mock_server_hardware = {'uri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'}
-
         template = deepcopy(BASIC_TEMPLATE)
 
         profile_from_template = deepcopy(BASIC_PROFILE)
@@ -424,7 +422,7 @@ class ServerProfileCreateSpec(unittest.TestCase):
         mock_ov_instance = mock.Mock()
         mock_ov_instance.server_profiles.get_by_name.return_value = None
         mock_ov_instance.server_profiles.create.return_value = CREATED_BASIC_PROFILE
-        mock_ov_instance.server_hardware.get_by.return_value = [mock_server_hardware]
+        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
         mock_ov_instance.server_profile_templates.get_by_name.return_value = template
         mock_ov_instance.server_profile_templates.get_new_profile.return_value = profile_from_template
         mock_ov_from_file.return_value = mock_ov_instance
@@ -447,15 +445,13 @@ class ServerProfileCreateSpec(unittest.TestCase):
     @mock.patch('oneview_server_profile.AnsibleModule')
     def test_should_try_create_with_informed_hardware_25_times_when_not_exists(
             self, mock_module, mock_ov_from_file, mock_sleep):
-        mock_server_hardware = {'uri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'}
-
         present = deepcopy(PARAMS_FOR_PRESENT)
         present['data']['server_hardware'] = "ServerHardwareName"
 
         mock_ov_instance = mock.Mock()
         mock_ov_instance.server_profiles.get_by_name.return_value = None
         mock_ov_instance.server_profiles.create.side_effect = TASK_ERROR
-        mock_ov_instance.server_hardware.get_by.return_value = [mock_server_hardware]
+        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
         mock_ov_from_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(present)
         mock_module.return_value = mock_ansible_instance
@@ -481,15 +477,13 @@ class ServerProfileCreateSpec(unittest.TestCase):
         profile_data = deepcopy(BASIC_PROFILE)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
-        mock_server_hardware = {'uri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'}
-
         present = deepcopy(PARAMS_FOR_PRESENT)
         present['data']['server_hardware'] = "ServerHardwareName"
 
         mock_ov_instance = mock.Mock()
         mock_ov_instance.server_profiles.get_by_name.return_value = None
         mock_ov_instance.server_profiles.create.side_effect = [TASK_ERROR, CREATED_BASIC_PROFILE]
-        mock_ov_instance.server_hardware.get_by.return_value = [mock_server_hardware]
+        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
         mock_ov_from_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(present)
         mock_module.return_value = mock_ansible_instance
@@ -514,15 +508,13 @@ class ServerProfileCreateSpec(unittest.TestCase):
     @mock.patch('oneview_server_profile.AnsibleModule')
     def test_should_try_create_with_automatically_selected_hardware_25_times_when_not_exists(
             self, mock_module, mock_ov_from_file, mock_sleep):
-        mock_server_hardware = {'uri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'}
-
         present = deepcopy(PARAMS_FOR_PRESENT)
 
         mock_ov_instance = mock.Mock()
         mock_ov_instance.server_profiles.get_by_name.return_value = None
         mock_ov_instance.server_profiles.create.side_effect = TASK_ERROR
         mock_ov_instance.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
-        mock_ov_instance.server_hardware.get_by.return_value = [mock_server_hardware]
+        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
         mock_ov_from_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(present)
         mock_module.return_value = mock_ansible_instance
@@ -545,15 +537,13 @@ class ServerProfileCreateSpec(unittest.TestCase):
     @mock.patch('oneview_server_profile.AnsibleModule')
     def test_should_fail_when_exception_is_not_related_with_server_hardware(
             self, mock_module, mock_ov_from_file, mock_sleep):
-        mock_server_hardware = {'uri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'}
-
         present = deepcopy(PARAMS_FOR_PRESENT)
 
         mock_ov_instance = mock.Mock()
         mock_ov_instance.server_profiles.get_by_name.return_value = None
         mock_ov_instance.server_profiles.create.side_effect = Exception(FAKE_MSG_ERROR)
         mock_ov_instance.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
-        mock_ov_instance.server_hardware.get_by.return_value = [mock_server_hardware]
+        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
         mock_ov_from_file.return_value = mock_ov_instance
         mock_ansible_instance = create_ansible_mock(present)
         mock_module.return_value = mock_ansible_instance
@@ -575,15 +565,13 @@ class ServerProfileCreateSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_server_profile.AnsibleModule')
     def test_fail_when_informed_template_not_exist(self, mock_module, mock_ov_from_file, mock_sleep):
-        mock_server_hardware = {'uri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'}
-
         present = deepcopy(PARAMS_FOR_PRESENT)
         present['data']['server_hardware'] = "ServerHardwareName"
         present['data']['server_template'] = "TemplateA200"
 
         mock_ov_instance = mock.Mock()
         mock_ov_instance.server_profiles.get_by_name.return_value = None
-        mock_ov_instance.server_hardware.get_by.return_value = [mock_server_hardware]
+        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
         mock_ov_instance.server_profile_templates.get_by_name.return_value = None
 
         mock_ov_from_file.return_value = mock_ov_instance
@@ -747,8 +735,6 @@ class ServerProfileUpdateSpec(unittest.TestCase):
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_server_profile.AnsibleModule')
     def test_fail_when_informed_template_not_exist(self, mock_module, mock_ov_from_file, mock_resource_compare):
-        mock_server_hardware = {'uri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'}
-
         profile_data = deepcopy(CREATED_BASIC_PROFILE)
 
         present = deepcopy(PARAMS_FOR_PRESENT)
@@ -759,7 +745,7 @@ class ServerProfileUpdateSpec(unittest.TestCase):
 
         mock_ov_instance = mock.Mock()
         mock_ov_instance.server_profiles.get_by_name.return_value = profile_data
-        mock_ov_instance.server_hardware.get_by.return_value = [mock_server_hardware]
+        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
         mock_ov_instance.server_profile_templates.get_by_name.return_value = None
 
         mock_ov_from_file.return_value = mock_ov_instance
@@ -798,6 +784,293 @@ class ServerProfileUpdateSpec(unittest.TestCase):
 
         mock_ansible_instance.fail_json.assert_called_once_with(
             msg="Informed Server Hardware 'ServerHardwareName' not found")
+
+
+class ServerProfileDeepMergeSpec(unittest.TestCase):
+    boot_conn = dict(priority="NotBootable", chapLevel="none")
+
+    connection_1 = dict(id=1, name="connection-1", mac="E2:4B:0D:30:00:29", boot=boot_conn)
+    connection_2 = dict(id=2, name="connection-2", mac="E2:4B:0D:30:00:2A", boot=boot_conn)
+
+    connection_1_no_mac_basic_boot = dict(id=1, name="connection-1", boot=dict(priority="NotBootable"))
+    connection_2_no_mac_basic_boot = dict(id=2, name="connection-2", boot=dict(priority="NotBootable"))
+
+    path_1 = dict(isEnabled=True, connectionId=1, storageTargets=["20:00:00:02:AC:00:08:D6"])
+    path_2 = dict(isEnabled=True, connectionId=2, storageTargetType="Auto")
+
+    volume_1 = dict(id=1, volumeUri='/rest/volume/id1', lunType='Auto', storagePaths=[path_1, path_2])
+    volume_2 = dict(id=2, volumeUri='/rest/volume/id2', lunType='Auto', storagePaths=[])
+
+    san_storage = dict(hostOSType="Windows 2012 / WS2012 R2",
+                       volumeAttachments=[volume_1, volume_2])
+
+    profile_with_san_storage = CREATED_BASIC_PROFILE.copy()
+    profile_with_san_storage['connections'] = [connection_1, connection_2]
+    profile_with_san_storage['sanStorage'] = san_storage
+
+    def setUp(self):
+        self.patcher_ov_client_from_json_file = patch.object(OneViewClient, 'from_json_file')
+        mock_from_json_file = self.patcher_ov_client_from_json_file.start()
+
+        self.mock_ov_client = mock.Mock()
+        mock_from_json_file.return_value = self.mock_ov_client
+
+        self.patcher_ansible_module = patch('oneview_server_profile.AnsibleModule')
+        mock_ansible_module = self.patcher_ansible_module.start()
+
+        self.mock_ansible_instance = mock.Mock()
+        mock_ansible_module.return_value = self.mock_ansible_instance
+
+        self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.mock_ov_client.server_hardware.update_power_state.return_value = {}
+        self.mock_ov_client.server_profiles.update.return_value = deepcopy(self.profile_with_san_storage)
+
+    def tearDown(self):
+        self.patcher_ov_client_from_json_file.stop()
+        self.patcher_ansible_module.stop()
+
+    def test_merge_when_data_is_equals(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    connections=[self.connection_1.copy(), self.connection_2.copy()])
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+
+        self.mock_ov_client.server_profiles.update.assert_not_called()
+
+    def test_merge_connections_when_item_added(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        connection_added = dict(id=3, name="new-connection")
+
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    connections=[self.connection_1_no_mac_basic_boot.copy(),
+                                 self.connection_2_no_mac_basic_boot.copy(),
+                                 connection_added.copy()])
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_connections = self.mock_ov_client.server_profiles.update.call_args[0][0]['connections']
+        expected_connections = [self.connection_1.copy(), self.connection_2.copy(), connection_added]
+
+        self.assertEqual(expected_connections, actual_connections)
+
+    def test_merge_connections_when_item_removed(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    connections=[self.connection_1.copy()])
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_connections = self.mock_ov_client.server_profiles.update.call_args[0][0]['connections']
+        expected_connections = [self.connection_1]
+
+        self.assertEqual(expected_connections, actual_connections)
+
+    def test_merge_connections_when_item_renamed(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        connection_2_renamed = dict(id=2, name="connection-2-renamed", boot=dict(priority="NotBootable"))
+
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    connections=[self.connection_1.copy(), connection_2_renamed.copy()])
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_connections = self.mock_ov_client.server_profiles.update.call_args[0][0]['connections']
+        connection_2_merged = dict(id=2, name="connection-2-renamed", mac="E2:4B:0D:30:00:2A", boot=self.boot_conn)
+        expected_connections = [self.connection_1.copy(), connection_2_merged.copy()]
+
+        self.assertEqual(expected_connections, actual_connections)
+
+    def test_merge_connections_when_connection_list_removed(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    connections=[])
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_merged_data = self.mock_ov_client.server_profiles.update.call_args[0][0]
+
+        self.assertFalse(actual_merged_data['connections'])
+
+    def test_merge_san_storage_when_values_changed(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    sanStorage=deepcopy(self.san_storage))
+        data['sanStorage'].pop('hostOSType')
+        data['sanStorage']['newField'] = "123"
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_san_storage = self.mock_ov_client.server_profiles.update.call_args[0][0]['sanStorage']
+        expected_san_storage = deepcopy(self.san_storage)
+        expected_san_storage['newField'] = "123"
+
+        self.assertEqual(expected_san_storage, actual_san_storage)
+
+    def test_merge_san_storage_when_san_removed_from_profile_with_san(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    sanStorage=None)
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_merged_data = self.mock_ov_client.server_profiles.update.call_args[0][0]
+
+        expected_san_storage = dict(manageSanStorage=False,
+                                    volumeAttachments=[])
+        self.assertEqual(expected_san_storage, actual_merged_data['sanStorage'])
+
+    def test_merge_san_storage_when_san_removed_from_basic_profile(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(CREATED_BASIC_PROFILE)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    sanStorage=None,
+                    newField="123")
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_merged_data = self.mock_ov_client.server_profiles.update.call_args[0][0]
+
+        self.assertFalse(actual_merged_data['sanStorage'])
+
+    def test_merge_volume_attachments_removed(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    sanStorage=deepcopy(self.san_storage))
+        data['sanStorage']['volumeAttachments'] = None
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_volumes = self.mock_ov_client.server_profiles.update.call_args[0][0]['sanStorage']['volumeAttachments']
+
+        self.assertFalse(actual_volumes)
+
+    def test_merge_volume_attachments_when_item_changed(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    sanStorage=deepcopy(self.san_storage))
+        data['sanStorage']['volumeAttachments'][0]['newField'] = "123"
+        self.mock_ansible_instance.params['data'] = data
+
+        expected_volumes = [deepcopy(self.volume_1), deepcopy(self.volume_2)]
+        expected_volumes[0]['newField'] = "123"
+
+        ServerProfileModule().run()
+        actual_volumes = self.mock_ov_client.server_profiles.update.call_args[0][0]['sanStorage']['volumeAttachments']
+
+        self.assertEqual(expected_volumes, actual_volumes)
+
+    def test_merge_storage_paths_when_item_changed(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    sanStorage=deepcopy(self.san_storage))
+        data['sanStorage']['volumeAttachments'][0]['storagePaths'][1]['newField'] = "123"
+        self.mock_ansible_instance.params['data'] = data
+
+        expected_paths_storage_1 = [deepcopy(self.path_1), deepcopy(self.path_2)]
+        expected_paths_storage_1[1]['newField'] = "123"
+
+        ServerProfileModule().run()
+        actual_volumes = self.mock_ov_client.server_profiles.update.call_args[0][0]['sanStorage']['volumeAttachments']
+
+        self.assertEqual(expected_paths_storage_1, actual_volumes[0]['storagePaths'])
+        self.assertEqual([], actual_volumes[1]['storagePaths'])
+
+    def test_merge_storage_paths_when_order_differs(self):
+        """
+        When a resource is retrieved by OneView, the order of the storage paths sometimes differs from the order of the
+        storage paths saved.
+        """
+        profile = deepcopy(self.profile_with_san_storage)
+        profile['sanStorage']['volumeAttachments'][0]['storagePaths'][0] = deepcopy(self.path_2)  # connectionId = 2
+        profile['sanStorage']['volumeAttachments'][0]['storagePaths'][1] = deepcopy(self.path_1)  # connectionId = 1
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    sanStorage=deepcopy(self.san_storage))
+        data['sanStorage']['volumeAttachments'][0]['storagePaths'][0]['newField'] = "123"  # connectionId = 1
+
+        self.mock_ansible_instance.params['data'] = data
+
+        path_1_changed = deepcopy(self.path_1)
+        path_1_changed['newField'] = "123"
+
+        expected_paths = [deepcopy(path_1_changed),  # connectionId = 1, with field added
+                          deepcopy(self.path_2)]     # connectionId = 2
+
+        ServerProfileModule().run()
+        actual_volumes = self.mock_ov_client.server_profiles.update.call_args[0][0]['sanStorage']['volumeAttachments']
+
+        self.assertEqual(expected_paths, actual_volumes[0]['storagePaths'])
+        self.assertEqual([], actual_volumes[1]['storagePaths'])
+
+    def test_merge_storage_paths_removed(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    sanStorage=deepcopy(self.san_storage))
+        data['sanStorage']['volumeAttachments'][0]['storagePaths'] = []
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_volumes = self.mock_ov_client.server_profiles.update.call_args[0][0]['sanStorage']['volumeAttachments']
+
+        self.assertEqual([], actual_volumes[1]['storagePaths'])
+        self.assertEqual([], actual_volumes[1]['storagePaths'])
+
+    def test_merge_bios(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    sanStorage=deepcopy(self.san_storage))
+        data['bios'] = dict(newField="123")
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_bios = self.mock_ov_client.server_profiles.update.call_args[0][0]['bios']
+
+        expected_bios = dict(manageBios=False, overriddenSettings=[], newField="123")
+        self.assertEqual(expected_bios, actual_bios)
+
+    def test_merge_boot(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    sanStorage=deepcopy(self.san_storage))
+        data['boot'] = dict(newField="123")
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_boot = self.mock_ov_client.server_profiles.update.call_args[0][0]['boot']
+
+        expected_boot = dict(manageBoot=False, order=[], newField="123")
+        self.assertEqual(expected_boot, actual_boot)
+
+    def test_merge_boot_mode(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
+        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        data = dict(name="Profile101",
+                    sanStorage=deepcopy(self.san_storage))
+        data['bootMode'] = dict(newField="123")
+        self.mock_ansible_instance.params['data'] = data
+
+        ServerProfileModule().run()
+        actual_boot_mode = self.mock_ov_client.server_profiles.update.call_args[0][0]['bootMode']
+
+        expected_boot_mode = dict(manageMode=False, mode=None, pxeBootPolicy=None, newField="123")
+        self.assertEqual(expected_boot_mode, actual_boot_mode)
 
 
 class ServerProfileAbsentStateSpec(unittest.TestCase):

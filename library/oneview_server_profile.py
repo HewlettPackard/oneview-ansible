@@ -21,7 +21,7 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
-
+    from hpOneView.common import merge_list_by_key
     HAS_HPE_ONEVIEW = True
 except ImportError:
     HAS_HPE_ONEVIEW = False
@@ -221,7 +221,6 @@ class ServerProfileModule(object):
                 self.module.exit_json(
                     changed=changed, msg=msg, ansible_facts=self.__gather_facts(server_profile)
                 )
-
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
@@ -253,8 +252,8 @@ class ServerProfileModule(object):
             created = True
             msg = SERVER_PROFILE_CREATED
         else:
-            merged_data = deepcopy(resource)
-            merged_data.update(data)
+            merged_data = self._merge_data(resource, data)
+
             if not resource_compare(resource, merged_data):
                 resource = self.__update_server_profile(merged_data)
                 changed = True
@@ -263,6 +262,89 @@ class ServerProfileModule(object):
                 msg = SERVER_ALREADY_UPDATED
 
         return created, changed, msg, resource
+
+    def _merge_data(self, resource, data):
+        merged_data = deepcopy(resource)
+        merged_data.update(data)
+
+        if self._is_merge_needed('bios', data, resource):
+            self._merge_by_key('bios', merged_data, resource, data)
+
+        if self._is_merge_needed('boot', data, resource):
+            self._merge_by_key('boot', merged_data, resource, data)
+
+        if self._is_merge_needed('bootMode', data, resource):
+            self._merge_by_key('bootMode', merged_data, resource, data)
+
+        if self._is_merge_needed('sanStorage', data, resource):
+            self._merge_by_key('sanStorage', merged_data, resource, data)
+            if self._is_merge_needed('volumeAttachments', data['sanStorage'], resource['sanStorage']):
+                self._merge_volumes(merged_data, resource, data)
+        elif self._san_was_removed(data, resource):
+            merged_data['sanStorage'] = dict(volumeAttachments=[], manageSanStorage=False)
+
+        if self._is_merge_needed('connections', data, resource):
+            self._merge_connections(merged_data, resource, data)
+            self._merge_boot_from_connections(merged_data, resource)
+
+        return merged_data
+
+    def _is_merge_needed(self, attribute, data, original_data):
+        return attribute in data and data[attribute] and attribute in original_data
+
+    def _san_was_removed(self, data, resource):
+        return 'sanStorage' in data and not data['sanStorage'] and 'sanStorage' in resource
+
+    def _merge_by_key(self, key, merged_data, resource, data):
+        merged_san_storage = deepcopy(resource[key])
+        merged_san_storage.update(deepcopy(data[key]))
+        merged_data[key] = merged_san_storage
+
+    def _merge_connections(self, merged_data, resource, data):
+        existent_connections = resource['connections']
+        provided_connections = data['connections']
+        merged_connections = merge_list_by_key(existent_connections, provided_connections, 'id')
+        merged_data['connections'] = merged_connections
+
+    def _merge_boot_from_connections(self, merged_data, resource):
+        existent_connection_map = {x['id']: x.copy() for x in resource['connections']}
+        merged_connections = merged_data['connections']
+        for merged_connection in merged_connections:
+            if merged_connection['id'] in existent_connection_map:
+                if 'boot' in merged_connection and 'boot' in existent_connection_map[merged_connection['id']]:
+                    current_connection = existent_connection_map[merged_connection['id']]
+                    boot_settings_merged = deepcopy(current_connection['boot'])
+                    boot_settings_merged.update(merged_connection['boot'])
+                    merged_connection['boot'] = boot_settings_merged
+
+    def _merge_volumes(self, merged_data, resource, data):
+        existent_volumes = resource['sanStorage']['volumeAttachments']
+        provided_volumes = data['sanStorage']['volumeAttachments']
+        merged_volumes = merge_list_by_key(existent_volumes, provided_volumes, 'id')
+        merged_data['sanStorage']['volumeAttachments'] = merged_volumes
+        self._merge_storage_paths(merged_data, resource, data)
+
+    def _merge_storage_paths(self, merged_data, resource, data):
+        existent_volumes_map = {x['id']: x for x in resource['sanStorage']['volumeAttachments']}  # can't be a copy here
+        merged_volumes = merged_data['sanStorage']['volumeAttachments']
+        for merged_volume in merged_volumes:
+            if merged_volume['id'] in existent_volumes_map:
+                if 'storagePaths' in merged_volume and 'storagePaths' in existent_volumes_map[merged_volume['id']]:
+                    # merge the volumes already created on OneView with storage paths
+                    existent_paths = existent_volumes_map[merged_volume['id']]['storagePaths']
+                    existent_paths = self._sort_by_key(existent_paths, 'connectionId')
+                    # it changes the original storage paths order, to ensure comparation will work properly
+                    existent_volumes_map[merged_volume['id']]['storagePaths'] = existent_paths
+
+                    paths_from_merged_volume = merged_volume['storagePaths']
+                    paths_from_merged_volume = self._sort_by_key(paths_from_merged_volume, 'connectionId')
+
+                    merged_paths = merge_list_by_key(existent_paths, paths_from_merged_volume, 'connectionId')
+
+                    merged_volume['storagePaths'] = merged_paths
+
+    def _sort_by_key(self, mylist, attribute):
+        return sorted(mylist, key=lambda k: k[attribute])
 
     def __update_server_profile(self, profile_with_updates):
 
@@ -281,7 +363,6 @@ class ServerProfileModule(object):
         return resource
 
     def __create_profile(self, data, server_profile_template):
-
         tries = 0
         while tries < CONCURRENCY_FAILOVER_RETRIES:
             try:

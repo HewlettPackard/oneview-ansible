@@ -203,7 +203,6 @@
         config: "{{ config }}"
         state: present
         data:
-          type: 'logical-interconnect-groupV3'
           name: '{{ logical_interconnect_group_name }}'
           enclosureType: 'C7000'
           interconnectMapTemplate:
@@ -366,7 +365,6 @@
               name: 'connection1'
               functionType: 'FibreChannel'
               networkUri: '{{ fc_network_1.uri }}'
-              portId: Auto
               requestedMbps: 2500
               boot:
                 priority: NotBootable
@@ -374,7 +372,7 @@
               name: 'connection2'
               functionType: 'FibreChannel'
               networkUri: '{{ fc_network_2.uri }}'
-              portId: None
+              portId: 'None'
               requestedMbps: 2500
               boot:
                 priority: NotBootable
@@ -382,7 +380,6 @@
               name: 'connection3'
               functionType: 'Ethernet'
               networkUri: '{{ ethernet_network_1.uri }}'
-              portId: Auto
               requestedMbps: 1000
               boot:
                 priority: NotBootable
@@ -390,7 +387,6 @@
               name: 'connection4'
               functionType: 'Ethernet'
               networkUri: '{{ ethernet_network_2.uri }}'
-              portId: Auto
               requestedMbps: 1000
               boot:
                 priority: NotBootable
@@ -404,11 +400,9 @@
                  storagePaths:
                    - isEnabled: true
                      connectionId: 1
-                     storageTargetType: "Auto"
-                     storageTargets: []
+                     storageTargetType: 'Auto'
                    - isEnabled: true
                      connectionId: 2
-                     storageTargetType: "Auto"
-                     storageTargets: []
+                     storageTargetType: 'Auto'
       delegate_to: localhost
       register: result
