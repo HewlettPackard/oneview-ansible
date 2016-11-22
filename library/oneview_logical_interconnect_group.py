@@ -17,6 +17,7 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
@@ -65,12 +66,20 @@ EXAMPLES = '''
     config: "{{ config_file_path }}"
     state: present
     data:
-      type: 'logical-interconnect-groupV3'
-      name: 'New Logical Interconnect Group'
+      name: 'Test Logical Interconnect Group'
       uplinkSets: []
       enclosureType: 'C7000'
       interconnectMapTemplate:
-        interconnectMapEntryTemplates: []
+        interconnectMapEntryTemplates:
+          - logicalDownlinkUri: ~
+            logicalLocation:
+                locationEntries:
+                    - relativeValue: "1"
+                      type: "Bay"
+                    - relativeValue: 1
+                      type: "Enclosure"
+            permittedInterconnectTypeName: 'HP VC Flex-10/10D Module'
+            # Alternatively you can inform permittedInterconnectTypeUri
 
 - name: Ensure that the Logical Interconnect Group is present with name 'Test'
   oneview_logical_interconnect_group:
@@ -100,6 +109,7 @@ LIG_UPDATED = 'Logical Interconnect Group updated successfully.'
 LIG_DELETED = 'Logical Interconnect Group deleted successfully.'
 LIG_ALREADY_EXIST = 'Logical Interconnect Group already exists.'
 LIG_ALREADY_ABSENT = 'Nothing to do.'
+INTERCONNECT_TYPE_NOT_FOUND = 'Interconnect Type was not found.'
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
@@ -143,10 +153,31 @@ class LogicalInterconnectGroupModule(object):
             data["name"] = data["newName"]
             del data["newName"]
 
+        self.__replace_name_by_uris(data)
+
         if not resource:
             self.__create(data)
         else:
             self.__update(data, resource)
+
+    def __replace_name_by_uris(self, resource):
+        map_template = resource.get('interconnectMapTemplate')
+
+        if map_template:
+            map_entry_templates = map_template.get('interconnectMapEntryTemplates')
+            if map_entry_templates:
+                for value in map_entry_templates:
+                    permitted_interconnect_type_name = value.pop('permittedInterconnectTypeName', None)
+                    if permitted_interconnect_type_name:
+                        value['permittedInterconnectTypeUri'] = self.__get_interconnect_type_by_name(
+                            permitted_interconnect_type_name).get('uri')
+
+    def __get_interconnect_type_by_name(self, name):
+        i_type = self.oneview_client.interconnect_types.get_by('name', name)
+        if i_type:
+            return i_type[0]
+        else:
+            raise Exception(INTERCONNECT_TYPE_NOT_FOUND)
 
     def __absent(self, data):
         resource = self.__get_by_name(data)

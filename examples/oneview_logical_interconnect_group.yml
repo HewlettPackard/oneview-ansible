@@ -17,18 +17,28 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    # Inform the permitted Interconnect Type URI to configure Interconnect Map
+    permitted_interconnect_type_name: 'HP VC Flex-10/10D Module'
   tasks:
     - name: Create a Logical Interconnect Group
       oneview_logical_interconnect_group:
         config: "{{ config }}"
         state: present
         data:
-          type: 'logical-interconnect-groupV3'
           name: 'Test Logical Interconnect Group'
           uplinkSets: []
           enclosureType: 'C7000'
           interconnectMapTemplate:
-            interconnectMapEntryTemplates: []
+            interconnectMapEntryTemplates:
+              - logicalDownlinkUri: ~
+                logicalLocation:
+                    locationEntries:
+                        - relativeValue: "1"
+                          type: "Bay"
+                        - relativeValue: 1
+                          type: "Enclosure"
+                permittedInterconnectTypeName: '{{ permitted_interconnect_type_name }}'
+                # Alternatively you can inform permittedInterconnectTypeUri
       delegate_to: localhost
 
     - name: Do nothing with the Logical Interconnect Group when no changes are provided
