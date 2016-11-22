@@ -14,13 +14,12 @@
 # limitations under the License.
 ###
 import unittest
-import mock
+from copy import deepcopy
 
-from hpOneView.oneview_client import OneViewClient
-from oneview_logical_interconnect_group import LogicalInterconnectGroupModule
-from oneview_logical_interconnect_group import LIG_CREATED, LIG_ALREADY_EXIST, LIG_UPDATED, LIG_DELETED, \
-    LIG_ALREADY_ABSENT
-from test.utils import create_ansible_mock
+from oneview_logical_interconnect_group import LogicalInterconnectGroupModule, LIG_CREATED, LIG_ALREADY_EXIST, \
+    LIG_UPDATED, LIG_DELETED, \
+    LIG_ALREADY_ABSENT, INTERCONNECT_TYPE_NOT_FOUND
+from test.utils import PreloadedMocksBaseTestCase, ModuleContructorTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -28,7 +27,6 @@ DEFAULT_LIG_NAME = 'Test Logical Interconnect Group'
 RENAMED_LIG = 'Renamed Logical Interconnect Group'
 
 DEFAULT_LIG_TEMPLATE = dict(
-    type='logical-interconnect-groupV3',
     name=DEFAULT_LIG_NAME,
     uplinkSets=[],
     enclosureType='C7000',
@@ -36,6 +34,34 @@ DEFAULT_LIG_TEMPLATE = dict(
         interconnectMapEntryTemplates=[]
     )
 )
+
+PARAMS_LIG_TEMPLATE_WITH_MAP = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name=DEFAULT_LIG_NAME,
+        uplinkSets=[],
+        enclosureType='C7000',
+        interconnectMapTemplate=dict(
+            interconnectMapEntryTemplates=[
+                {
+                    "logicalDownlinkUri": None,
+                    "logicalLocation": {
+                        "locationEntries": [
+                            {
+                                "relativeValue": "1",
+                                "type": "Bay"
+                            },
+                            {
+                                "relativeValue": 1,
+                                "type": "Enclosure"
+                            }
+                        ]
+                    },
+                    "permittedInterconnectTypeName": "HP VC Flex-10/10D Module"
+                }]
+        )
+    ))
 
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
@@ -64,223 +90,187 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class LogicalInterconnectGroupClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class LogicalInterconnectGroupClientConfigurationSpec(unittest.TestCase, ModuleContructorTestCase):
+    """
+    Test the module constructor
+    ModuleContructorTestCase has common tests for class constructor and main function
+    """
 
-        LogicalInterconnectGroupModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        LogicalInterconnectGroupModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
+    def setUp(self):
+        self.configure_mocks(self, LogicalInterconnectGroupModule)
 
 
-class LogicalInterconnectGroupPresentStateSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
-    def test_should_create_new_lig(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_interconnect_groups.get_by.return_value = []
-        mock_ov_instance.logical_interconnect_groups.create.return_value = DEFAULT_LIG_TEMPLATE
+class LogicalInterconnectGroupPresentStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
+    def setUp(self):
+        self.configure_mocks(self, LogicalInterconnectGroupModule)
+        self.resource = self.mock_ov_client.logical_interconnect_groups
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_create_new_lig(self):
+        self.resource.get_by.return_value = []
+        self.resource.create.return_value = DEFAULT_LIG_TEMPLATE
+
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         LogicalInterconnectGroupModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=LIG_CREATED,
             ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
-    def test_should_not_update_when_data_is_equals(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_interconnect_groups.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
+    def test_should_create_new_with_named_permitted_interconnect_type(self):
+        self.resource.get_by.return_value = []
+        self.resource.create.return_value = PARAMS_FOR_PRESENT
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP)
 
         LogicalInterconnectGroupModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LIG_CREATED,
+            ansible_facts=dict(logical_interconnect_group=PARAMS_FOR_PRESENT.copy())
+        )
+
+    def test_should_fail_when_permitted_interconnect_type_name_not_exists(self):
+        self.resource.get_by.return_value = []
+        self.resource.create.return_value = PARAMS_FOR_PRESENT
+        self.mock_ov_client.interconnect_types.get_by.return_value = []
+
+        self.mock_ansible_module.params = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP)
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=INTERCONNECT_TYPE_NOT_FOUND)
+
+    def test_should_not_update_when_data_is_equals(self):
+        self.resource.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
+
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=LIG_ALREADY_EXIST,
             ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
-    def test_update_when_data_has_modified_attributes(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_update_when_data_has_modified_attributes(self):
         data_merged = DEFAULT_LIG_TEMPLATE.copy()
         data_merged['description'] = 'New description'
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_interconnect_groups.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
-        mock_ov_instance.logical_interconnect_groups.update.return_value = data_merged
+        self.resource.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
+        self.resource.update.return_value = data_merged
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_WITH_CHANGES)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         LogicalInterconnectGroupModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=LIG_UPDATED,
             ansible_facts=dict(logical_interconnect_group=data_merged)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
-    def test_rename_when_resource_exists(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_rename_when_resource_exists(self):
         data_merged = DEFAULT_LIG_TEMPLATE.copy()
         data_merged['name'] = RENAMED_LIG
         params_to_rename = PARAMS_TO_RENAME.copy()
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_interconnect_groups.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
-        mock_ov_instance.logical_interconnect_groups.update.return_value = data_merged
+        self.resource.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
+        self.resource.update.return_value = data_merged
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(params_to_rename)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params_to_rename
 
         LogicalInterconnectGroupModule().run()
 
-        mock_ov_instance.logical_interconnect_groups.update.assert_called_once_with(data_merged)
+        self.resource.update.assert_called_once_with(data_merged)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
-    def test_create_with_newName_when_resource_not_exists(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_create_with_newName_when_resource_not_exists(self):
         data_merged = DEFAULT_LIG_TEMPLATE.copy()
         data_merged['name'] = RENAMED_LIG
         params_to_rename = PARAMS_TO_RENAME.copy()
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_interconnect_groups.get_by.return_value = []
-        mock_ov_instance.logical_interconnect_groups.create.return_value = DEFAULT_LIG_TEMPLATE
+        self.resource.get_by.return_value = []
+        self.resource.create.return_value = DEFAULT_LIG_TEMPLATE
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(params_to_rename)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params_to_rename
 
         LogicalInterconnectGroupModule().run()
 
-        mock_ov_instance.logical_interconnect_groups.create.assert_called_once_with(PARAMS_TO_RENAME['data'])
+        self.resource.create.assert_called_once_with(PARAMS_TO_RENAME['data'])
 
 
-class LogicalInterconnectGroupAbsentStateSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
-    def test_should_remove_lig(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_interconnect_groups.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
+class LogicalInterconnectGroupAbsentStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
+    def setUp(self):
+        self.configure_mocks(self, LogicalInterconnectGroupModule)
+        self.resource = self.mock_ov_client.logical_interconnect_groups
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_remove_lig(self):
+        self.resource.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
+
+        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         LogicalInterconnectGroupModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=LIG_DELETED
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
-    def test_should_do_nothing_when_lig_not_exist(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_interconnect_groups.get_by.return_value = []
+    def test_should_do_nothing_when_lig_not_exist(self):
+        self.resource.get_by.return_value = []
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         LogicalInterconnectGroupModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=LIG_ALREADY_ABSENT
         )
 
 
-class LogicalInterconnectGroupErrorHandlingSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
-    def test_should_fail_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_interconnect_groups.get_by.return_value = []
-        mock_ov_instance.logical_interconnect_groups.create.side_effect = Exception(FAKE_MSG_ERROR)
+class LogicalInterconnectGroupErrorHandlingSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
+    def setUp(self):
+        self.configure_mocks(self, LogicalInterconnectGroupModule)
+        self.resource = self.mock_ov_client.logical_interconnect_groups
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_create_raises_exception(self):
+        self.resource.get_by.return_value = []
+        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
+
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         self.assertRaises(Exception, LogicalInterconnectGroupModule().run())
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
-    def test_should_fail_when_update_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_interconnect_groups.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
-        mock_ov_instance.logical_interconnect_groups.update.side_effect = Exception(FAKE_MSG_ERROR)
+    def test_should_fail_when_update_raises_exception(self):
+        self.resource.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
+        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_WITH_CHANGES)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         self.assertRaises(Exception, LogicalInterconnectGroupModule().run())
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_group.AnsibleModule')
-    def test_should_fail_when_delete_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_interconnect_groups.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
-        mock_ov_instance.logical_interconnect_groups.delete.side_effect = Exception(FAKE_MSG_ERROR)
+    def test_should_fail_when_delete_raises_exception(self):
+        self.resource.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
+        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         self.assertRaises(Exception, LogicalInterconnectGroupModule().run())
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
         )
 
