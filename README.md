@@ -132,6 +132,23 @@ In this case, you shouldn't provide the `config` argument. For example:
 
 Once you have defined the environment variables, you can run the plays.
 
+###4. OneView 3.0
+
+The Ansible Modules for HPE OneView already supports the new API endpoints for OneView 3.0 and for HPE Synergy.
+To access this feature, you must set the API version on the OneViewClient configuration, either using the JSON configuration:
+
+```json
+  "api_version": 300
+```
+OR using the Environment variable:
+
+```bash
+export ONEVIEWSDK_API_VERSION='300'
+```
+
+If this property is not specified, it will fall back to the ```200``` default value.
+
+
 ## License
 
 This project is licensed under the Apache 2.0 license. Please see the [LICENSE](LICENSE) for more information.
