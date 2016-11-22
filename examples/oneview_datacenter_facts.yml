@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
+    - datacenter_name: "MyDatacenter" # The name of an existent Data Center must be set to run this example
   tasks:
     - name: Gather facts about all Data Centers
       oneview_datacenter_facts:
@@ -29,7 +30,7 @@
     - name: Gather facts about a Data Center by name
       oneview_datacenter_facts:
         config: "{{ config }}"
-        name: "My Data Center for Demo"
+        name: "{{ datacenter_name }}"
       delegate_to: localhost
 
     - debug: var=datacenters
@@ -38,7 +39,7 @@
     - name: Gather facts about the Data Center Visual Content
       oneview_datacenter_facts:
         config: "{{ config }}"
-        name: "My Data Center for Demo"
+        name: "{{ datacenter_name }}"
         options:
           - visualContent
       delegate_to: localhost
