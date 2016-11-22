@@ -3,5 +3,6 @@
   "credentials": {
     "userName": "administrator",
     "password": ""
-  }
+  },
+  "api_version": 300
 }
