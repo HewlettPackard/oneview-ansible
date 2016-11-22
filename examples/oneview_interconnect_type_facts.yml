@@ -24,9 +24,9 @@
       delegate_to: localhost
     - debug: msg="{{interconnect_types | map(attribute='name') | list }}"
 
-    - name: Gather facts about an Interconnect Type by name
+    - name: Gather facts about an Interconnect Type by name {{ interconnect_types.0.name }}
       oneview_interconnect_type_facts:
         config: "{{ config }}"
-        name: "HP VC Flex-10 Enet Module"
+        name: "{{ interconnect_types.0.name }}"
       delegate_to: localhost
-    - debug: msg="Found an interconnect type named [{{interconnect_types[0].name}}] and with uri [{{interconnect_types[0].uri}}]"
+    - debug: msg="Found an interconnect type named {{interconnect_types.0.name}} and with uri {{interconnect_types.0.uri}}"
