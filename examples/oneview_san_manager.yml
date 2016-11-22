@@ -24,7 +24,7 @@
     manager_username: ''
     manager_password: ''
   tasks:
-    - name: Create a Device Manager for the Brocade SAN provider with the given hostname and credentials
+    - name: Ensure a Device Manager for the Brocade SAN Provider is present
       oneview_san_manager:
         config: "{{ config }}"
         state: present
@@ -49,8 +49,7 @@
         state: present
         data:
           providerDisplayName: 'Brocade Network Advisor'
-          refreshStateData:
-            refreshState: 'RefreshPending'
+          refreshState: 'RefreshPending'
       delegate_to: localhost
 
     - name: Delete the SAN Manager recently created

@@ -83,8 +83,7 @@ EXAMPLES = '''
     state: present
     data:
       providerDisplayName: 'Brocade Network Advisor'
-      refreshStateData:
-        refreshState: 'RefreshPending'
+      refreshState: 'RefreshPending'
 
 - name: Delete the SAN Manager recently created
   oneview_san_manager:
