@@ -21,9 +21,12 @@ import yaml
 from oneview_enclosure import EnclosureModule
 from oneview_enclosure import ENCLOSURE_ADDED, ENCLOSURE_ALREADY_EXIST, ENCLOSURE_UPDATED, \
     ENCLOSURE_REMOVED, ENCLOSURE_ALREADY_ABSENT, ENCLOSURE_RECONFIGURED, ENCLOSURE_REFRESHED, \
-    ENCLOSURE_NOT_FOUND, APPLIANCE_BAY_POWERED_ON, APPLIANCE_BAY_ALREADY_POWERED_ON, APPLIANCE_BAY_NOT_FOUND, \
-    UID_ALREADY_POWERED_ON, UID_POWERED_ON, UID_POWERED_OFF, UID_ALREADY_POWERED_OFF, MANAGER_BAY_UID_ALREADY_ON, \
-    MANAGER_BAY_UID_ON, MANAGER_BAY_NOT_FOUND, MANAGER_BAY_UID_OFF, MANAGER_BAY_UID_ALREADY_OFF
+    ENCLOSURE_NOT_FOUND, APPLIANCE_BAY_POWERED_ON, APPLIANCE_BAY_ALREADY_POWERED_ON, UID_ALREADY_POWERED_ON, \
+    UID_POWERED_ON, UID_POWERED_OFF, UID_ALREADY_POWERED_OFF, MANAGER_BAY_UID_ALREADY_ON, \
+    MANAGER_BAY_UID_ON, BAY_NOT_FOUND, MANAGER_BAY_UID_OFF, MANAGER_BAY_UID_ALREADY_OFF, \
+    MANAGER_BAY_POWER_STATE_E_FUSED, MANAGER_BAY_POWER_STATE_RESET, APPLIANCE_BAY_POWER_STATE_E_FUSED, \
+    DEVICE_BAY_POWER_STATE_E_FUSED, DEVICE_BAY_POWER_STATE_RESET, INTERCONNECT_BAY_POWER_STATE_E_FUSE, \
+    DEVICE_BAY_IPV4_SETTING_REMOVED, INTERCONNECT_BAY_IPV4_SETTING_REMOVED
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -35,13 +38,21 @@ ENCLOSURE_FROM_ONEVIEW = dict(
     applianceBayCount=2,
     uidState='Off',
     applianceBays=[
-        dict(bayNumber=1, poweredOn=True),
-        dict(bayNumber=2, poweredOn=False)
+        dict(bayNumber=1, poweredOn=True, bayPowerState='Unknown'),
+        dict(bayNumber=2, poweredOn=False, bayPowerState='Unknown')
     ],
     managerBays=[
-        dict(bayNumber=1, uidState='On'),
-        dict(bayNumber=2, uidState='Off')
-    ]
+        dict(bayNumber=1, uidState='On', bayPowerState='Unknown'),
+        dict(bayNumber=2, uidState='Off', bayPowerState='Unknown')
+    ],
+    deviceBays=[
+        dict(bayNumber=1, bayPowerState='Unknown'),
+        dict(bayNumber=2, bayPowerState='Unknown')
+    ],
+    interconnectBays=[
+        dict(bayNumber=1, bayPowerState='Unknown'),
+        dict(bayNumber=2, bayPowerState='Unknown')
+    ],
 
 )
 
@@ -95,7 +106,7 @@ PARAMS_FOR_BAY_POWER_ON = dict(
     config='config.json',
     state='appliance_bays_power_on',
     data=dict(name=DEFAULT_ENCLOSURE_NAME,
-              applianceBay=2)
+              bayNumber=2)
 )
 
 
@@ -386,7 +397,7 @@ class EnclosureApplianceBaysPowerOnStateSpec(PreloadedMocksTestCase):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
 
         params_power_on_do_nothing = deepcopy(PARAMS_FOR_BAY_POWER_ON)
-        params_power_on_do_nothing['data']['applianceBay'] = 1
+        params_power_on_do_nothing['data']['bayNumber'] = 1
         self.mock_ansible_module.params = params_power_on_do_nothing
 
         EnclosureModule().run()
@@ -403,14 +414,14 @@ class EnclosureApplianceBaysPowerOnStateSpec(PreloadedMocksTestCase):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
 
         params_power_on_not_found_bay = deepcopy(PARAMS_FOR_BAY_POWER_ON)
-        params_power_on_not_found_bay['data']['applianceBay'] = 3
+        params_power_on_not_found_bay['data']['bayNumber'] = 3
         self.mock_ansible_module.params = params_power_on_not_found_bay
 
         EnclosureModule().run()
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=APPLIANCE_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
 
     def test_should_fail_when_there_are_not_appliance_bays(self):
         enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, applianceBays=[])
@@ -422,7 +433,7 @@ class EnclosureApplianceBaysPowerOnStateSpec(PreloadedMocksTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=APPLIANCE_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
 
     def test_should_fail_when_enclosure_not_found(self):
         self.enclosures.get_by.return_value = []
@@ -551,7 +562,7 @@ class EnclosureManagerBaysUidOnStateSpec(PreloadedMocksTestCase):
         state: manager_bays_uid_on
         data:
           name: 'Test-Enclosure'
-          managerBay: 2
+          bayNumber: 2
     """
 
     def setUp(self):
@@ -579,7 +590,7 @@ class EnclosureManagerBaysUidOnStateSpec(PreloadedMocksTestCase):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
 
         params_manager_bay_uid = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_ON)
-        params_manager_bay_uid['data']['managerBay'] = '1'
+        params_manager_bay_uid['data']['bayNumber'] = '1'
 
         self.mock_ansible_module.params = params_manager_bay_uid
 
@@ -597,14 +608,14 @@ class EnclosureManagerBaysUidOnStateSpec(PreloadedMocksTestCase):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
 
         params_power_on_not_found_bay = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_ON)
-        params_power_on_not_found_bay['data']['managerBay'] = 3
+        params_power_on_not_found_bay['data']['bayNumber'] = 3
         self.mock_ansible_module.params = params_power_on_not_found_bay
 
         EnclosureModule().run()
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=MANAGER_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
 
     def test_should_fail_when_there_are_not_manager_bays(self):
         enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, managerBays=[])
@@ -616,7 +627,7 @@ class EnclosureManagerBaysUidOnStateSpec(PreloadedMocksTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=MANAGER_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
 
     def test_should_fail_when_enclosure_not_found(self):
         self.enclosures.get_by.return_value = []
@@ -634,7 +645,7 @@ class EnclosureManagerBaysUidOffStateSpec(PreloadedMocksTestCase):
         state: manager_bays_uid_off
         data:
           name: 'Test-Enclosure'
-          managerBay: 1
+          bayNumber: 1
     """
 
     def setUp(self):
@@ -662,7 +673,7 @@ class EnclosureManagerBaysUidOffStateSpec(PreloadedMocksTestCase):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
 
         params_manager_bay_uid = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_OFF)
-        params_manager_bay_uid['data']['managerBay'] = '2'
+        params_manager_bay_uid['data']['bayNumber'] = '2'
 
         self.mock_ansible_module.params = params_manager_bay_uid
 
@@ -680,14 +691,14 @@ class EnclosureManagerBaysUidOffStateSpec(PreloadedMocksTestCase):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
 
         params_power_on_not_found_bay = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_OFF)
-        params_power_on_not_found_bay['data']['managerBay'] = 3
+        params_power_on_not_found_bay['data']['bayNumber'] = 3
         self.mock_ansible_module.params = params_power_on_not_found_bay
 
         EnclosureModule().run()
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=MANAGER_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
 
     def test_should_fail_when_there_are_not_manager_bays(self):
         enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, managerBays=[])
@@ -699,12 +710,533 @@ class EnclosureManagerBaysUidOffStateSpec(PreloadedMocksTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=MANAGER_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
 
     def test_should_fail_when_enclosure_not_found(self):
         self.enclosures.get_by.return_value = []
 
         self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_MANAGER_BAY_UID_OFF)
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
+
+
+class EnclosureManagerBaysPowerStateEFuseSpec(PreloadedMocksTestCase):
+    PARAMS_FOR_MANAGER_BAY_POWER_STATE_E_FUSE = """
+        config: "{{ config_file_path }}"
+        state: manager_bays_power_state_e_fuse
+        data:
+          name: 'Test-Enclosure'
+          bayNumber: 1
+    """
+
+    def setUp(self):
+        self.configure_mocks(EnclosureModule)
+        self.enclosures = self.mock_ov_client.enclosures
+
+    def test_should_e_fuse(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.patch.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_MANAGER_BAY_POWER_STATE_E_FUSE)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.assert_called_once_with(
+            ENCLOSURE_FROM_ONEVIEW['uri'], operation='replace', path='/managerBays/1/bayPowerState', value='E-Fuse')
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=MANAGER_BAY_POWER_STATE_E_FUSED
+        )
+
+    def test_should_fail_when_manager_bay_not_found(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+
+        params_power_on_not_found_bay = yaml.load(self.PARAMS_FOR_MANAGER_BAY_POWER_STATE_E_FUSE)
+        params_power_on_not_found_bay['data']['bayNumber'] = 3
+        self.mock_ansible_module.params = params_power_on_not_found_bay
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_there_are_not_manager_bays(self):
+        enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, managerBays=[])
+        self.enclosures.get_by.return_value = [enclosure_without_appliance_bays]
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_MANAGER_BAY_POWER_STATE_E_FUSE)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_enclosure_not_found(self):
+        self.enclosures.get_by.return_value = []
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_MANAGER_BAY_POWER_STATE_E_FUSE)
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
+
+
+class EnclosureManagerBaysPowerStateResetSpec(PreloadedMocksTestCase):
+    PARAMS_FOR_MANAGER_BAY_POWER_STATE_RESET = """
+        config: "{{ config_file_path }}"
+        state: manager_bays_power_state_reset
+        data:
+          name: 'Test-Enclosure'
+          bayNumber: 1
+    """
+
+    def setUp(self):
+        self.configure_mocks(EnclosureModule)
+        self.enclosures = self.mock_ov_client.enclosures
+
+    def test_should_reset(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.patch.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_MANAGER_BAY_POWER_STATE_RESET)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.assert_called_once_with(
+            ENCLOSURE_FROM_ONEVIEW['uri'], operation='replace', path='/managerBays/1/bayPowerState', value='Reset')
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=MANAGER_BAY_POWER_STATE_RESET
+        )
+
+    def test_should_fail_when_manager_bay_not_found(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+
+        params_power_on_not_found_bay = yaml.load(self.PARAMS_FOR_MANAGER_BAY_POWER_STATE_RESET)
+        params_power_on_not_found_bay['data']['bayNumber'] = 3
+        self.mock_ansible_module.params = params_power_on_not_found_bay
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_there_are_not_manager_bays(self):
+        enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, managerBays=[])
+        self.enclosures.get_by.return_value = [enclosure_without_appliance_bays]
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_MANAGER_BAY_POWER_STATE_RESET)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_enclosure_not_found(self):
+        self.enclosures.get_by.return_value = []
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_MANAGER_BAY_POWER_STATE_RESET)
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
+
+
+class EnclosureApplianceBaysPowerStateEFuseSpec(PreloadedMocksTestCase):
+    PARAMS_FOR_APPLIANCE_BAY_POWER_STATE_E_FUSE = """
+        config: "{{ config_file_path }}"
+        state: appliance_bays_power_state_e_fuse
+        data:
+          name: 'Test-Enclosure'
+          bayNumber: 1
+    """
+
+    def setUp(self):
+        self.configure_mocks(EnclosureModule)
+        self.enclosures = self.mock_ov_client.enclosures
+
+    def test_should_e_fuse(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.patch.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_APPLIANCE_BAY_POWER_STATE_E_FUSE)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.assert_called_once_with(
+            ENCLOSURE_FROM_ONEVIEW['uri'], operation='replace', path='/applianceBays/1/bayPowerState', value='E-Fuse')
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=APPLIANCE_BAY_POWER_STATE_E_FUSED
+        )
+
+    def test_should_fail_when_appliance_bay_not_found(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+
+        params_power_on_not_found_bay = yaml.load(self.PARAMS_FOR_APPLIANCE_BAY_POWER_STATE_E_FUSE)
+        params_power_on_not_found_bay['data']['bayNumber'] = 3
+        self.mock_ansible_module.params = params_power_on_not_found_bay
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_there_are_not_appliance_bays(self):
+        enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, applianceBays=[])
+        self.enclosures.get_by.return_value = [enclosure_without_appliance_bays]
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_APPLIANCE_BAY_POWER_STATE_E_FUSE)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_enclosure_not_found(self):
+        self.enclosures.get_by.return_value = []
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_APPLIANCE_BAY_POWER_STATE_E_FUSE)
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
+
+
+class DeviceBaysPowerStateEFuseSpec(PreloadedMocksTestCase):
+    PARAMS_FOR_DEVICE_BAY_POWER_STATE_E_FUSE = """
+        config: "{{ config_file_path }}"
+        state: device_bays_power_state_e_fuse
+        data:
+          name: 'Test-Enclosure'
+          bayNumber: 1
+    """
+
+    def setUp(self):
+        self.configure_mocks(EnclosureModule)
+        self.enclosures = self.mock_ov_client.enclosures
+
+    def test_should_e_fuse(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.patch.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_DEVICE_BAY_POWER_STATE_E_FUSE)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.assert_called_once_with(
+            ENCLOSURE_FROM_ONEVIEW['uri'], operation='replace', path='/deviceBays/1/bayPowerState', value='E-Fuse')
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=DEVICE_BAY_POWER_STATE_E_FUSED
+        )
+
+    def test_should_fail_when_device_bay_not_found(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+
+        params_power_on_not_found_bay = yaml.load(self.PARAMS_FOR_DEVICE_BAY_POWER_STATE_E_FUSE)
+        params_power_on_not_found_bay['data']['bayNumber'] = 3
+        self.mock_ansible_module.params = params_power_on_not_found_bay
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_there_are_not_device_bays(self):
+        enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, deviceBays=[])
+        self.enclosures.get_by.return_value = [enclosure_without_appliance_bays]
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_DEVICE_BAY_POWER_STATE_E_FUSE)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_enclosure_not_found(self):
+        self.enclosures.get_by.return_value = []
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_DEVICE_BAY_POWER_STATE_E_FUSE)
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
+
+
+class DeviceBaysPowerStateResetSpec(PreloadedMocksTestCase):
+    PARAMS_FOR_DEVICE_BAY_POWER_STATE_RESET = """
+        config: "{{ config_file_path }}"
+        state: device_bays_power_state_reset
+        data:
+          name: 'Test-Enclosure'
+          bayNumber: 1
+    """
+
+    def setUp(self):
+        self.configure_mocks(EnclosureModule)
+        self.enclosures = self.mock_ov_client.enclosures
+
+    def test_should_reset(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.patch.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_DEVICE_BAY_POWER_STATE_RESET)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.assert_called_once_with(
+            ENCLOSURE_FROM_ONEVIEW['uri'], operation='replace', path='/deviceBays/1/bayPowerState', value='Reset')
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=DEVICE_BAY_POWER_STATE_RESET
+        )
+
+    def test_should_fail_when_device_bay_not_found(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+
+        params_power_on_not_found_bay = yaml.load(self.PARAMS_FOR_DEVICE_BAY_POWER_STATE_RESET)
+        params_power_on_not_found_bay['data']['bayNumber'] = 3
+        self.mock_ansible_module.params = params_power_on_not_found_bay
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_there_are_not_device_bays(self):
+        enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, deviceBays=[])
+        self.enclosures.get_by.return_value = [enclosure_without_appliance_bays]
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_DEVICE_BAY_POWER_STATE_RESET)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_enclosure_not_found(self):
+        self.enclosures.get_by.return_value = []
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_DEVICE_BAY_POWER_STATE_RESET)
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
+
+
+class InterconnectBaysPowerStateEFuseSpec(PreloadedMocksTestCase):
+    PARAMS_FOR_INTERCONNECT_BAY_POWER_STATE_E_FUSE = """
+        config: "{{ config_file_path }}"
+        state: interconnect_bays_power_state_e_fuse
+        data:
+          name: 'Test-Enclosure'
+          bayNumber: 2
+    """
+
+    def setUp(self):
+        self.configure_mocks(EnclosureModule)
+        self.enclosures = self.mock_ov_client.enclosures
+
+    def test_should_e_fuse(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.patch.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_INTERCONNECT_BAY_POWER_STATE_E_FUSE)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.assert_called_once_with(
+            ENCLOSURE_FROM_ONEVIEW['uri'], operation='replace', path='/interconnectBays/2/bayPowerState',
+            value='E-Fuse')
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=INTERCONNECT_BAY_POWER_STATE_E_FUSE
+        )
+
+    def test_should_fail_when_interconnect_bay_not_found(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+
+        params_power_on_not_found_bay = yaml.load(self.PARAMS_FOR_INTERCONNECT_BAY_POWER_STATE_E_FUSE)
+        params_power_on_not_found_bay['data']['bayNumber'] = 3
+        self.mock_ansible_module.params = params_power_on_not_found_bay
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_there_are_not_interconnect_bays(self):
+        enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, interconnectBays=[])
+        self.enclosures.get_by.return_value = [enclosure_without_appliance_bays]
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_INTERCONNECT_BAY_POWER_STATE_E_FUSE)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_enclosure_not_found(self):
+        self.enclosures.get_by.return_value = []
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_INTERCONNECT_BAY_POWER_STATE_E_FUSE)
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
+
+
+class DeviceBaysIpv4RemovedStateSpec(PreloadedMocksTestCase):
+    PARAMS_FOR_DEVICE_BAY_IPV4_RELEASE = """
+        config: "{{ config_file_path }}"
+        state: device_bays_ipv4_removed
+        data:
+          name: 'Test-Enclosure'
+          bayNumber: 1
+    """
+
+    def setUp(self):
+        self.configure_mocks(EnclosureModule)
+        self.enclosures = self.mock_ov_client.enclosures
+
+    def test_should_remove_ipv4(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.patch.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_DEVICE_BAY_IPV4_RELEASE)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.assert_called_once_with(
+            ENCLOSURE_FROM_ONEVIEW['uri'], operation='remove', path='/deviceBays/1/ipv4Setting', value='')
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=DEVICE_BAY_IPV4_SETTING_REMOVED
+        )
+
+    def test_should_fail_when_device_bay_not_found(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+
+        params_power_on_not_found_bay = yaml.load(self.PARAMS_FOR_DEVICE_BAY_IPV4_RELEASE)
+        params_power_on_not_found_bay['data']['bayNumber'] = 3
+        self.mock_ansible_module.params = params_power_on_not_found_bay
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_there_are_not_device_bays(self):
+        enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, deviceBays=[])
+        self.enclosures.get_by.return_value = [enclosure_without_appliance_bays]
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_DEVICE_BAY_IPV4_RELEASE)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_enclosure_not_found(self):
+        self.enclosures.get_by.return_value = []
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_DEVICE_BAY_IPV4_RELEASE)
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
+
+
+class InterconnectBaysIpv4RemovedStateSpec(PreloadedMocksTestCase):
+    PARAMS_FOR_DEVICE_BAY_IPV4_RELEASE = """
+        config: "{{ config_file_path }}"
+        state: interconnect_bays_ipv4_removed
+        data:
+          name: 'Test-Enclosure'
+          bayNumber: 1
+    """
+
+    def setUp(self):
+        self.configure_mocks(EnclosureModule)
+        self.enclosures = self.mock_ov_client.enclosures
+
+    def test_should_remove_ipv4(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.patch.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_DEVICE_BAY_IPV4_RELEASE)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.assert_called_once_with(
+            ENCLOSURE_FROM_ONEVIEW['uri'], operation='remove', path='/interconnectBays/1/ipv4Setting', value='')
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=INTERCONNECT_BAY_IPV4_SETTING_REMOVED
+        )
+
+    def test_should_fail_when_interconnect_bay_not_found(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+
+        params_power_on_not_found_bay = yaml.load(self.PARAMS_FOR_DEVICE_BAY_IPV4_RELEASE)
+        params_power_on_not_found_bay['data']['bayNumber'] = 3
+        self.mock_ansible_module.params = params_power_on_not_found_bay
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_there_are_not_interconnect_bays(self):
+        enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, interconnectBays=[])
+        self.enclosures.get_by.return_value = [enclosure_without_appliance_bays]
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_DEVICE_BAY_IPV4_RELEASE)
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=BAY_NOT_FOUND)
+
+    def test_should_fail_when_enclosure_not_found(self):
+        self.enclosures.get_by.return_value = []
+
+        self.mock_ansible_module.params = yaml.load(self.PARAMS_FOR_DEVICE_BAY_IPV4_RELEASE)
 
         EnclosureModule().run()
 
