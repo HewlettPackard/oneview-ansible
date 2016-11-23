@@ -98,7 +98,7 @@
     - name: Set the appliance bay power state on
       oneview_enclosure:
         config: "{{ config }}"
-        state: appliance_bays_power_on
+        state: appliance_bays_powered_on
         data:
           name: '0000A66101'
           bayNumber: 1
@@ -249,7 +249,7 @@
     - debug: var=result.msg
 
     # This state is only available on HPE Synergy.
-    - name: Release IPv4 address in the bay 3
+    - name: Release IPv4 address in the device bay 3
       oneview_enclosure:
         config: "{{ config }}"
         state: device_bays_ipv4_removed
@@ -261,14 +261,27 @@
 
     - debug: var=result.msg
 
-    # This state is only available on HPE Synergy.
-    - name: Release IPv4 address in the bay 6
+    # This state is only available on HPE Synergy
+    - name: Release IPv4 address in the interconnect bay 6
       oneview_enclosure:
         config: "{{ config }}"
         state: interconnect_bays_ipv4_removed
         data:
           name: '0000A66101'
           bayNumber: 6
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available for C7000 enclosures
+    - name: Set the supportDataCollectionState equals to 'PendingCollection' for the enclosure
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: support_data_collection_set
+        data:
+          name: 'Encl2'
+          supportDataCollectionState: 'PendingCollection'
       delegate_to: localhost
       register: result
 

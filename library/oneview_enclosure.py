@@ -30,8 +30,7 @@ DOCUMENTATION = '''
 module: oneview_enclosure
 short_description: Manage OneView Enclosure resources.
 description:
-    - Provides an interface to manage Enclosure resources. Can add, update, remove, reconfigure, refresh and power on
-      appliance bays.
+    - Provides an interface to manage Enclosure resources.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
@@ -53,9 +52,9 @@ options:
           'refreshed' will refresh the enclosure along with all of its components, including interconnects and
           servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is
           removed.
-          'appliance_bays_power_on' will set the appliance bay power state on.
+          'appliance_bays_powered_on' will set the appliance bay power state on.
           'uid_on' will set the UID state on.
-          'uid_on' will set the UID state off.
+          'uid_off' will set the UID state off.
           'manager_bays_uid_on' will set the UID state on for the Synergy Frame Link Module.
           'manager_bays_uid_off' will set the UID state off for the Synergy Frame Link Module.
           'manager_bays_power_state_e_fuse' will E-Fuse the Synergy Frame Link Module bay in the path.
@@ -67,12 +66,14 @@ options:
           'manager_bays_role_active' will set the active Synergy Frame Link Module.
           'device_bays_ipv4_removed' will release IPv4 address in the device bay.
           'interconnect_bays_ipv4_removed' will release IPv4 address in the interconnect bay.
+          'support_data_collection_set' will set the support data collection state for the enclosure. The supported
+          values for this state are 'PendingCollection', 'Completed', 'Error' and 'NotSupported'
       choices: [
-        'present', 'absent', 'reconfigured', 'refreshed', 'appliance_bays_power_on', 'uid_on', 'uid_off',
+        'present', 'absent', 'reconfigured', 'refreshed', 'appliance_bays_powered_on', 'uid_on', 'uid_off',
         'manager_bays_uid_on', 'manager_bays_uid_off', 'manager_bays_power_state_e_fuse',
         'manager_bays_power_state_reset', 'appliance_bays_power_state_e_fuse', 'device_bays_power_state_e_fuse',
         'device_bays_power_state_reset', 'interconnect_bays_power_state_e_fuse', 'manager_bays_role_active',
-        'device_bays_ipv4_removed', 'interconnect_bays_ipv4_removed'
+        'device_bays_ipv4_removed', 'interconnect_bays_ipv4_removed', 'support_data_collection_set'
         ]
     data:
       description:
@@ -83,7 +84,7 @@ notes:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
     - "Check how to use environment variables for configuration at:
        https://github.com/HewlettPackard/oneview-ansible#environment-variables"
-    - "These states are only available on HPE Synergy: 'appliance_bays_power_on', 'uid_on', 'uid_off',
+    - "These states are only available on HPE Synergy: 'appliance_bays_powered_on', 'uid_on', 'uid_off',
       'manager_bays_uid_on', 'manager_bays_uid_off', 'manager_bays_power_state_e_fuse',
       'manager_bays_power_state_reset', 'appliance_bays_power_state_e_fuse', 'device_bays_power_state_e_fuse',
       'device_bays_power_state_reset', 'interconnect_bays_power_state_e_fuse', 'manager_bays_role_active',
@@ -144,7 +145,7 @@ EXAMPLES = '''
 - name: Set the appliance bay power state on
   oneview_enclosure:
     config: "{{ config_file_path }}"
-    state: appliance_bays_power_on
+    state: appliance_bays_powered_on
     data:
       name: 'Test-Enclosure'
       bayNumber: 1
@@ -250,6 +251,14 @@ EXAMPLES = '''
     data:
       name: 'Test-Enclosure'
       bayNumber: 2
+
+- name: Set the supportDataCollectionState for the enclosure
+  oneview_enclosure:
+    config: "{{ config_file_path }}"
+    state: support_data_collection_set
+    data:
+      name: 'Test-Enclosure'
+      supportDataCollectionState: 'PendingCollection'
 '''
 
 RETURN = '''
@@ -288,6 +297,8 @@ INTERCONNECT_BAY_POWER_STATE_E_FUSE = 'E-Fuse the IC bay in the path.'
 MANAGER_BAY_ROLE_ACTIVE = 'Set the active Synergy Frame Link Module.'
 DEVICE_BAY_IPV4_SETTING_REMOVED = 'Release IPv4 address in the device bay.'
 INTERCONNECT_BAY_IPV4_SETTING_REMOVED = 'Release IPv4 address in the interconnect bay'
+SUPPORT_DATA_COLLECTION_STATE_SET = 'Support data collection state set.'
+SUPPORT_DATA_COLLECTION_STATE_ALREADY_SET = 'The support data collection state is already set with the desired value.'
 
 
 class EnclosureModule(object):
@@ -300,7 +311,7 @@ class EnclosureModule(object):
                 'absent',
                 'reconfigured',
                 'refreshed',
-                'appliance_bays_power_on',
+                'appliance_bays_powered_on',
                 'uid_on',
                 'uid_off',
                 'manager_bays_uid_on',
@@ -314,13 +325,14 @@ class EnclosureModule(object):
                 'manager_bays_role_active',
                 'device_bays_ipv4_removed',
                 'interconnect_bays_ipv4_removed',
+                'support_data_collection_set',
             ]
         ),
         data=dict(required=True, type='dict')
     )
 
     patch_params = dict(
-        appliance_bays_power_on=dict(operation='replace', path='/applianceBays/{bayNumber}/power', value='On'),
+        appliance_bays_powered_on=dict(operation='replace', path='/applianceBays/{bayNumber}/power', value='On'),
         uid_on=dict(operation='replace', path='/uidState', value='On'),
         uid_off=dict(operation='replace', path='/uidState', value='Off'),
         manager_bays_uid_on=dict(operation='replace', path='/managerBays/{bayNumber}/uidState', value='On'),
@@ -344,7 +356,7 @@ class EnclosureModule(object):
     )
 
     patch_messages = dict(
-        appliance_bays_power_on=dict(changed=APPLIANCE_BAY_POWERED_ON, not_changed=APPLIANCE_BAY_ALREADY_POWERED_ON),
+        appliance_bays_powered_on=dict(changed=APPLIANCE_BAY_POWERED_ON, not_changed=APPLIANCE_BAY_ALREADY_POWERED_ON),
         uid_on=dict(changed=UID_POWERED_ON, not_changed=UID_ALREADY_POWERED_ON),
         uid_off=dict(changed=UID_POWERED_OFF, not_changed=UID_ALREADY_POWERED_OFF),
         manager_bays_uid_on=dict(changed=MANAGER_BAY_UID_ON, not_changed=MANAGER_BAY_UID_ALREADY_ON),
@@ -387,15 +399,17 @@ class EnclosureModule(object):
                     raise Exception(ENCLOSURE_NOT_FOUND)
 
                 if state == 'reconfigured':
-                    self.__reconfigure(resource)
+                    changed, msg, resource = self.__reconfigure(resource)
                 elif state == 'refreshed':
-                    self.__refresh(resource, data)
+                    changed, msg, resource = self.__refresh(resource, data)
+                elif state == 'support_data_collection_set':
+                    changed, msg, resource = self.__support_data_collection_set(resource, data)
                 else:
                     changed, msg, resource = self.__patch(resource, data)
 
-                    self.module.exit_json(changed=changed,
-                                          msg=msg,
-                                          ansible_facts=dict(enclosure=resource))
+                self.module.exit_json(changed=changed,
+                                      msg=msg,
+                                      ansible_facts=dict(enclosure=resource))
 
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
@@ -438,9 +452,7 @@ class EnclosureModule(object):
 
     def __reconfigure(self, resource):
         reconfigured_enclosure = self.oneview_client.enclosures.update_configuration(resource['uri'])
-        self.module.exit_json(changed=True,
-                              msg=ENCLOSURE_RECONFIGURED,
-                              ansible_facts=dict(enclosure=reconfigured_enclosure))
+        return True, ENCLOSURE_RECONFIGURED, reconfigured_enclosure
 
     def __refresh(self, resource, data):
         refresh_config = data.copy()
@@ -449,9 +461,19 @@ class EnclosureModule(object):
         self.oneview_client.enclosures.refresh_state(resource['uri'], refresh_config)
         enclosure = self.oneview_client.enclosures.get(resource['uri'])
 
-        self.module.exit_json(changed=True,
-                              ansible_facts=dict(enclosure=enclosure),
-                              msg=ENCLOSURE_REFRESHED)
+        return True, ENCLOSURE_REFRESHED, enclosure
+
+    def __support_data_collection_set(self, resource, data):
+        current_value = resource.get('supportDataCollectionState')
+        desired_value = data.get('supportDataCollectionState')
+
+        if current_value != desired_value:
+            updated_resource = self.oneview_client.enclosures.patch(resource['uri'], operation='replace',
+                                                                    path='/supportDataCollectionState',
+                                                                    value=desired_value)
+            return True, SUPPORT_DATA_COLLECTION_STATE_SET, updated_resource
+
+        return False, SUPPORT_DATA_COLLECTION_STATE_ALREADY_SET, resource
 
     def __patch(self, resource, data):
         changed = False
@@ -474,7 +496,7 @@ class EnclosureModule(object):
             need_request_update = True
         elif state['operation'] == 'remove':
             need_request_update = True
-        elif state_name == 'appliance_bays_power_on':
+        elif state_name == 'appliance_bays_powered_on':
             if not property_current_value:
                 need_request_update = True
         elif property_current_value != state['value']:
@@ -489,7 +511,7 @@ class EnclosureModule(object):
         if sub_property_name == property_name:
             sub_property_name = None
 
-        if state_name == 'appliance_bays_power_on':
+        if state_name == 'appliance_bays_powered_on':
             sub_property_name = 'poweredOn'
 
         filter = set(data.keys()) - set(["name"])
