@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
@@ -92,3 +93,196 @@
         data:
           name: 'Test-Enclosure-Renamed'
       delegate_to: localhost
+
+    # This state is only available on HPE Synergy.
+    - name: Set the appliance bay power state on
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: appliance_bays_powered_on
+        data:
+          name: '0000A66101'
+          bayNumber: 1
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available on HPE Synergy.
+    - name: Set the appliance UID state off
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: uid_off
+        data:
+          name: '0000A66101'
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available on HPE Synergy.
+    - name: Set the appliance UID state on
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: uid_on
+        data:
+          name: '0000A66101'
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available on HPE Synergy.
+    - name: Set the UID for the Synergy Frame Link Module state on
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: manager_bays_uid_on
+        data:
+          name: '0000A66101'
+          bayNumber: 1
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available on HPE Synergy.
+    - name: Set the UID for the Synergy Frame Link Module state off
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: manager_bays_uid_off
+        data:
+          name: '0000A66101'
+          bayNumber: 1
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available on HPE Synergy.
+    - name: E-Fuse the Synergy Frame Link Module bay 1
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: manager_bays_power_state_e_fuse
+        data:
+          name: '0000A66101'
+          bayNumber: 1
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available on HPE Synergy.
+    - name: Reset the Synergy Frame Link Module bay 2
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: manager_bays_power_state_reset
+        data:
+          name: '0000A66101'
+          bayNumber: 2
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available on HPE Synergy.
+    - name: E-Fuse the appliance bay 1
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: appliance_bays_power_state_e_fuse
+        data:
+          name: '0000A66101'
+          bayNumber: 1
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available on HPE Synergy.
+    - name: E-Fuse the device bay 10
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: device_bays_power_state_e_fuse
+        data:
+          name: '0000A66101'
+          bayNumber: 10
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available on HPE Synergy.
+    - name: Reset the device bay 11
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: device_bays_power_state_reset
+        data:
+          name: '0000A66101'
+          bayNumber: 11
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available on HPE Synergy.
+    - name: E-Fuse the IC bay 3
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: interconnect_bays_power_state_e_fuse
+        data:
+          name: '0000A66101'
+          bayNumber: 3
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available on HPE Synergy.
+    - name: Set the active Synergy Frame Link Module on bay 2
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: manager_bays_role_active
+        data:
+          name: '0000A66101'
+          bayNumber: 2
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available on HPE Synergy.
+    - name: Release IPv4 address in the device bay 3
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: device_bays_ipv4_removed
+        data:
+          name: '0000A66101'
+          bayNumber: 3
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available on HPE Synergy
+    - name: Release IPv4 address in the interconnect bay 6
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: interconnect_bays_ipv4_removed
+        data:
+          name: '0000A66101'
+          bayNumber: 6
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
+
+    # This state is only available for C7000 enclosures
+    - name: Set the supportDataCollectionState equals to 'PendingCollection' for the enclosure
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: support_data_collection_set
+        data:
+          name: 'Encl2'
+          supportDataCollectionState: 'PendingCollection'
+      delegate_to: localhost
+      register: result
+
+    - debug: var=result.msg
