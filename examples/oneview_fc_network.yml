@@ -24,6 +24,9 @@
         state: present
         data:
           name: 'Test FC Network'
+          fabricType: 'FabricAttach'
+          linkStabilityTime: '30'
+          autoLoginRedistribution: true
       delegate_to: localhost
       register: fc_network_1
 
@@ -34,6 +37,8 @@
         data:
           name: 'Test FC Network'
           fabricType: 'FabricAttach'
+          linkStabilityTime: '30'
+          autoLoginRedistribution: true
       delegate_to: localhost
 
     - name: Update the Fibre Channel Network changing the attribute autoLoginRedistribution to True
@@ -43,6 +48,8 @@
         data:
           name: 'Test FC Network'
           autoLoginRedistribution: True
+          fabricType: 'FabricAttach'
+          linkStabilityTime: '30'
       delegate_to: localhost
 
     - name: Delete the Fibre Channel Network
