@@ -1,7 +1,7 @@
 {
-  "ip": "172.16.102.xx",
+  "ip": "",
   "credentials": {
-    "userName": "administrator",
+    "userName": "",
     "password": ""
   },
   "api_version": 300
