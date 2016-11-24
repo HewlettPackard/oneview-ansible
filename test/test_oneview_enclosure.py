@@ -32,6 +32,8 @@ from oneview_enclosure import ENCLOSURE_ADDED, ENCLOSURE_ALREADY_EXIST, ENCLOSUR
 FAKE_MSG_ERROR = 'Fake message error'
 
 DEFAULT_ENCLOSURE_NAME = 'Test-Enclosure'
+PRIMARY_IP_ADDRESS = '172.18.1.13'
+STANDBY_IP_ADDRESS = '172.18.1.14'
 
 ENCLOSURE_FROM_ONEVIEW = dict(
     name='Encl1',
@@ -54,14 +56,28 @@ ENCLOSURE_FROM_ONEVIEW = dict(
         dict(bayNumber=1, bayPowerState='Unknown'),
         dict(bayNumber=2, bayPowerState='Unknown')
     ],
-    supportDataCollectionState='Completed'
-
+    supportDataCollectionState='Completed',
+    activeOaPreferredIP=PRIMARY_IP_ADDRESS,
+    standbyOaPreferredIP=STANDBY_IP_ADDRESS
 )
+
+ALL_ENCLOSURES = [dict(name='Encl3', uri='/a/path3', activeOaPreferredIP='172.18.1.3'),
+                  dict(name='Encl2', uri='/a/path2', activeOaPreferredIP='172.18.1.2'),
+                  ENCLOSURE_FROM_ONEVIEW]
 
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
-    data=dict(name='OneView-Enclosure')
+    data=dict(name='Encl1',
+              hostname=PRIMARY_IP_ADDRESS,
+              username='admin',
+              password='password123')
+)
+
+PARAMS_FOR_PRESENT_NO_HOSTNAME = dict(
+    config='config.json',
+    state='present',
+    data=dict(name='Encl1')
 )
 
 PARAMS_WITH_NEW_NAME = dict(
@@ -122,6 +138,7 @@ class EnclosurePresentStateSpec(PreloadedMocksBaseTestCase):
 
     def test_should_create_new_enclosure(self):
         self.enclosures.get_by.return_value = []
+        self.enclosures.get_all.return_value = []
         self.enclosures.add.return_value = ENCLOSURE_FROM_ONEVIEW
         self.enclosures.patch.return_value = ENCLOSURE_FROM_ONEVIEW
 
@@ -135,10 +152,41 @@ class EnclosurePresentStateSpec(PreloadedMocksBaseTestCase):
             ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW)
         )
 
-    def test_should_not_update_when_data_is_equals(self):
+    def test_should_not_update_when_no_changes_by_primary_ip_key(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.get_all.return_value = ALL_ENCLOSURES
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ENCLOSURE_ALREADY_EXIST,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW)
+        )
+
+    def test_should_not_update_when_no_changes_by_standby_ip_key(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.get_all.return_value = ALL_ENCLOSURES
+
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['hostname'] = STANDBY_IP_ADDRESS
+        self.mock_ansible_module.params = params
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ENCLOSURE_ALREADY_EXIST,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW)
+        )
+
+    def test_should_not_update_when_no_changes_by_name_key(self):
+        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.get_all.return_value = ALL_ENCLOSURES
+
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT_NO_HOSTNAME
 
         EnclosureModule().run()
 
@@ -153,6 +201,7 @@ class EnclosurePresentStateSpec(PreloadedMocksBaseTestCase):
         updated_data['name'] = 'Test-Enclosure-Renamed'
 
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.get_all.return_value = ALL_ENCLOSURES
         self.enclosures.patch.return_value = updated_data
 
         self.mock_ansible_module.params = PARAMS_WITH_NEW_NAME
@@ -170,6 +219,7 @@ class EnclosurePresentStateSpec(PreloadedMocksBaseTestCase):
         updated_data['rackName'] = 'Another-Rack-Name'
 
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
+        self.enclosures.get_all.return_value = ALL_ENCLOSURES
         self.enclosures.patch.return_value = updated_data
 
         self.mock_ansible_module.params = PARAMS_WITH_NEW_RACK_NAME
@@ -184,15 +234,18 @@ class EnclosurePresentStateSpec(PreloadedMocksBaseTestCase):
 
     def test_replace_name_for_new_enclosure(self):
         self.enclosures.get_by.return_value = []
+        self.enclosures.get_all.return_value = []
         self.enclosures.add.return_value = ENCLOSURE_FROM_ONEVIEW
         self.enclosures.patch.return_value = []
 
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+        params_ansible = deepcopy(PARAMS_FOR_PRESENT)
+        params_ansible['data']['name'] = 'Encl1-Renamed'
+        self.mock_ansible_module.params = params_ansible
 
         EnclosureModule().run()
 
         self.enclosures.patch.assert_called_once_with(
-            "/a/path", "replace", "/name", "OneView-Enclosure")
+            "/a/path", "replace", "/name", "Encl1-Renamed")
 
     def test_replace_name_for_existent_enclosure(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
@@ -206,11 +259,17 @@ class EnclosurePresentStateSpec(PreloadedMocksBaseTestCase):
             "/a/path", "replace", "/name", "OneView-Enclosure")
 
     def test_replace_rack_name_for_new_enclosure(self):
+        updated_data = ENCLOSURE_FROM_ONEVIEW.copy()
+        updated_data['rackName'] = 'Another-Rack-Name'
+
         self.enclosures.get_by.return_value = []
+        self.enclosures.get_all.return_value = []
         self.enclosures.add.return_value = ENCLOSURE_FROM_ONEVIEW
         self.enclosures.patch.return_value = []
 
-        self.mock_ansible_module.params = PARAMS_WITH_NEW_RACK_NAME
+        params_ansible = deepcopy(PARAMS_FOR_PRESENT)
+        params_ansible['data']['rackName'] = 'Another-Rack-Name'
+        self.mock_ansible_module.params = params_ansible
 
         EnclosureModule().run()
 
@@ -332,6 +391,7 @@ class EnclosureErrorHandlingSpec(PreloadedMocksBaseTestCase):
 
     def test_should_fail_when_add_raises_exception(self):
         self.enclosures.get_by.return_value = []
+        self.enclosures.get_all.return_value = []
         self.enclosures.add.side_effect = Exception(FAKE_MSG_ERROR)
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT

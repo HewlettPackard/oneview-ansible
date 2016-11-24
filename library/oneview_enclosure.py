@@ -45,7 +45,8 @@ options:
     state:
       description:
         - Indicates the desired state for the Enclosure resource.
-          'present' will ensure data properties are compliant with OneView.
+          'present' will ensure data properties are compliant with OneView. You can rename the enclosure providing an
+          attribute 'newName'. You can also rename the rack providing an attribute 'rackName'.
           'absent' will remove the resource from OneView, if it exists.
           'reconfigured' will reapply the appliance's configuration on the enclosure. This includes
           running the same configuration steps that were performed as part of the enclosure add.
@@ -102,7 +103,7 @@ EXAMPLES = '''
       username : {{ enclosure_username }},
       password : {{ enclosure_password }},
       name: 'Test-Enclosure'
-      licensingIntent : "OneView"
+      licensingIntent : 'OneView'
 
 - name: Updates the enclosure to have a name of "Test-Enclosure-Renamed".
   oneview_enclosure:
@@ -414,28 +415,32 @@ class EnclosureModule(object):
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
-    def __present(self, resource, data):
+    def __present(self, resource_by_name, data):
         resource_added = False
         resource_updated = False
 
         configuration_data = data.copy()
 
-        name = configuration_data.pop('newName', None)
+        name = configuration_data.pop('newName', configuration_data.pop('name', None))
         rack_name = configuration_data.pop('rackName', None)
         calibrated_max_power = configuration_data.pop('calibratedMaxPower', None)
 
-        if not resource:
-            if not name:
-                name = configuration_data.pop('name', None)
-            resource = self.__add(configuration_data)
-            resource_added = True
+        if 'hostname' in data:
+            resource = self.__get_by_hostname(data['hostname'])
+            if not resource:
+                resource = self.oneview_client.enclosures.add(configuration_data)
+                resource_added = True
+        else:
+            resource = resource_by_name
 
         if self.__name_has_changes(resource, name):
             resource = self.__replace_enclosure_name(resource, name)
             resource_updated = True
+
         if self.__rack_name_has_changes(resource, rack_name):
             resource = self.__replace_enclosure_rack_name(resource, rack_name)
             resource_updated = True
+
         if calibrated_max_power:
             self.__set_calibrated_max_power(resource, calibrated_max_power)
             resource_updated = True
@@ -538,12 +543,8 @@ class EnclosureModule(object):
 
         return property_current_value
 
-    def __add(self, data):
-        new_enclosure = self.oneview_client.enclosures.add(data)
-        return new_enclosure
-
     def __name_has_changes(self, resource, name):
-        return name and resource.get('name', None) != name
+        return name and resource['name'] != name
 
     def __rack_name_has_changes(self, resource, rack_name):
         return rack_name and resource.get('rackName', None) != rack_name
@@ -573,7 +574,19 @@ class EnclosureModule(object):
                               ansible_facts=dict(enclosure=resource))
 
     def __get_by_name(self, data):
+        if 'name' not in data:
+            return None
         result = self.oneview_client.enclosures.get_by('name', data['name'])
+        return result[0] if result else None
+
+    def __get_by_hostname(self, hostname):
+        def filter_by_hostname(hostname, enclosure):
+            is_primary_ip = ('activeOaPreferredIP' in enclosure and enclosure['activeOaPreferredIP'] == hostname)
+            is_standby_ip = ('standbyOaPreferredIP' in enclosure and enclosure['standbyOaPreferredIP'] == hostname)
+            return is_primary_ip or is_standby_ip
+
+        enclosures = self.oneview_client.enclosures.get_all()
+        result = [x for x in enclosures if filter_by_hostname(hostname, x)]
         return result[0] if result else None
 
 

@@ -21,7 +21,9 @@
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
-    - name: Add an Enclosure
+
+    # This play is compatible with C7000 Enclosures
+    - name: Ensure the Enclosure with hostname '{{ enclosure_hostname }}' is present with name 'Test-Enclosure'
       oneview_enclosure:
         config: "{{ config }}"
         state: present
@@ -35,12 +37,19 @@
           rackName: 'Rack-Name'
       delegate_to: localhost
 
+    # This play is compatible with C7000 Enclosures
     - name: Do nothing with the Enclosure when no changes are provided
       oneview_enclosure:
         config: "{{ config }}"
         state: present
         data:
+          enclosureGroupUri: '{{ enclosure_group_uri }}'
+          hostname: '{{ enclosure_hostname }}'
+          username: '{{ enclosure_username }}'
+          password: '{{ enclosure_password }}'
           name: 'Test-Enclosure'
+          licensingIntent : 'OneView'
+          rackName: 'Rack-Name'
       delegate_to: localhost
 
     - name: Update the name of the enclosure to "Test-Enclosure-Renamed"
@@ -77,6 +86,20 @@
           name: 'Test-Enclosure-Renamed'
           refreshState: 'RefreshPending'
       delegate_to: localhost
+
+    # This state is only available for C7000 enclosures
+    - name: Set the supportDataCollectionState equals to 'PendingCollection' for the enclosure
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: support_data_collection_set
+        data:
+          name: 'Test-Enclosure-Renamed'
+          supportDataCollectionState: 'PendingCollection'
+      delegate_to: localhost
+      ignore_errors: yes
+      register: result
+
+    - debug: var=result.msg
 
     - name: Remove the Enclosure
       oneview_enclosure:
@@ -269,19 +292,6 @@
         data:
           name: '0000A66101'
           bayNumber: 6
-      delegate_to: localhost
-      register: result
-
-    - debug: var=result.msg
-
-    # This state is only available for C7000 enclosures
-    - name: Set the supportDataCollectionState equals to 'PendingCollection' for the enclosure
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: support_data_collection_set
-        data:
-          name: 'Encl2'
-          supportDataCollectionState: 'PendingCollection'
       delegate_to: localhost
       register: result
 
