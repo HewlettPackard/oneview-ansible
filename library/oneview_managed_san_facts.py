@@ -32,7 +32,9 @@ description:
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
-author: "Mariana Kreisig (@marikrg)"
+author:
+    - "Mariana Kreisig (@marikrg)"
+    - "Abilio Parada (@abiliogp)"
 options:
     config:
       description:
@@ -43,6 +45,10 @@ options:
     name:
       description:
         - Name of the Managed SAN.
+      required: false
+    wwn:
+      description:
+        - WWN associated with Managed SAN.
       required: false
     options:
       description:
@@ -83,6 +89,14 @@ EXAMPLES = '''
 
 - debug: var=managed_sans
 - debug: var=managed_san_endpoints
+
+- name: Gather facts about Managed SANs for an associated WWN
+  oneview_managed_san_facts:
+    config: "{{ config_path }}"
+    wwn: "20:00:4A:2B:21:E0:00:01"
+  delegate_to: localhost
+
+- debug: var=managed_sans
 '''
 
 RETURN = '''
@@ -103,6 +117,7 @@ class ManagedSanFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
+        wwn=dict(required=False, type='str'),
         options=dict(required=False, type='list')
     )
 
@@ -121,7 +136,8 @@ class ManagedSanFactsModule(object):
     def run(self):
         try:
             facts = dict()
-            name = self.module.params["name"]
+            name = self.module.params['name']
+            wwn = self.module.params['wwn']
 
             if name:
                 facts['managed_sans'] = [self.resource_client.get_by_name(name)]
@@ -132,6 +148,10 @@ class ManagedSanFactsModule(object):
                     if managed_san:
                         environmental_configuration = self.resource_client.get_endpoints(managed_san['uri'])
                         facts['managed_san_endpoints'] = environmental_configuration
+
+            elif wwn:
+                facts['managed_sans'] = self.resource_client.get_wwn(wwn)
+
             else:
                 facts['managed_sans'] = self.resource_client.get_all()
 

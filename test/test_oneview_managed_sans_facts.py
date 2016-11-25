@@ -25,26 +25,38 @@ ERROR_MSG = 'Fake message error'
 
 MANAGED_SAN_NAME = 'SAN1_0'
 
-MANAGED_SAN_URI = '/rest/fc-sans/managed-sans/028e81d0-831b-4211-931c-8ac63d687ebd'
+MANAGED_SAN_URI = '/rest/fc-sans/managed-sans/cc64ee18-8f7d-4cdf-9bf8-a68f00e4af9c'
+
+MANAGED_SAN_WWN = '20:00:4A:2B:21:E0:00:01'
 
 PARAMS_GET_ALL = dict(
     config='config.json',
-    name=None
+    name=None,
+    wwn=None
 )
 
 PARAMS_GET_BY_NAME = dict(
     config='config.json',
     name=MANAGED_SAN_NAME,
+    wwn=None,
     options=[]
 )
 
 PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
     config='config.json',
     name=MANAGED_SAN_NAME,
+    wwn=None,
     options=['endpoints']
 )
 
-MANAGED_SAN = dict(name=MANAGED_SAN_NAME, uri=MANAGED_SAN_URI)
+PARAMS_GET_ASSOCIATED_WWN = dict(
+    config='config.json',
+    name=None,
+    wwn=MANAGED_SAN_WWN,
+    options=[]
+)
+
+MANAGED_SAN = dict(name=MANAGED_SAN_NAME, uri=MANAGED_SAN_URI, wwn=MANAGED_SAN_WWN)
 
 ALL_MANAGED_SANS = [MANAGED_SAN,
                     dict(name='SAN1_1', uri='/rest/fc-sans/managed-sans/928374892-asd-34234234-asd23')]
@@ -187,6 +199,38 @@ class ManagedSanFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_managed_san_facts.AnsibleModule')
+    def test_should_get_managed_san_for_an_associated_wwn(self, mock_ansible_module, mock_ov_from_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.managed_sans.get_wwn.return_value = MANAGED_SAN
+        mock_ov_from_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ASSOCIATED_WWN)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ManagedSanFactsModule().run()
+
+        mock_ov_instance.managed_sans.get_wwn.assert_called_once_with(MANAGED_SAN_WWN)
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(managed_sans=MANAGED_SAN)
+        )
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_managed_san_facts.AnsibleModule')
+    def test_should_fail_when_get_wwn_raises_exception(self, mock_ansible_module, mock_ov_from_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.managed_sans.get_wwn.side_effect = Exception(ERROR_MSG)
+        mock_ov_from_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ASSOCIATED_WWN)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        ManagedSanFactsModule().run()
+
+        mock_ansible_instance.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 if __name__ == '__main__':
     unittest.main()
