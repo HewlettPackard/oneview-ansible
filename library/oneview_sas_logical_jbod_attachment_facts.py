@@ -50,6 +50,7 @@ notes:
        https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
     - "Check how to use environment variables for configuration at:
        https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+    - This resource is only available on HPE Synergy
 '''
 
 EXAMPLES = '''

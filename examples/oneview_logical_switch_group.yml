@@ -14,6 +14,7 @@
 # limitations under the License.
 ###
 ---
+# This resource is only available on C7000 enclosures
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
