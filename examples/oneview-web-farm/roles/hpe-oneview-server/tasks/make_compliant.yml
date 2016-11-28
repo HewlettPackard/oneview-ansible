@@ -28,7 +28,7 @@
 
    when: server_profile.templateCompliance != 'Compliant'
    delegate_to: localhost
-
- - name: Wait for server to boot
-   wait_for: 'host={{ inventory_hostname }} port=22 state=started timeout=600'
+ 
+ - name: Wait for SSH connection to server
+   wait_for: host="{{ ansible_host | default(inventory_hostname) }}" port=22 state=started timeout=600
    delegate_to: localhost

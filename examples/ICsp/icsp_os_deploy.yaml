@@ -14,12 +14,21 @@
 # limitations under the License.
 ###
 
+# These variables contain sensitive information such as users and passwords, 
+# and are presented here in order to keep the example simple.
+# In a production enviromnment, we strongly suggest the usage of Ansible Vault
+# to secure such information.
+---
+- hosts: localhost
 
- # Create server profiles, Deploy OS
- - include: deploy.yml
-
- #Ensure servers are compliant to templates.
- - include: make_compliant.yml
-   delegate_to: localhost
-
-
+  tasks:
+  - name: Deploy OS
+    hpe_icsp_os_deployment:
+      icsp_host: "16.123.123.251"
+      username: "Administrator"
+      password: "admin"
+      server_id: "VCGYZ33007"
+      os_build_plan: "RHEL 7.2 x64"
+      custom_attributes:
+        - SSH_CERT: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+    delegate_to: localhost

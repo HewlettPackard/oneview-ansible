@@ -52,7 +52,7 @@ class connectionHPOneView(object):
         self._session = None
         self._host = applianceIp
         self._cred = None
-        self._apiVersion = 102
+        self._apiVersion = 300
         self._headers = {
             'X-API-Version': self._apiVersion,
             'Accept': 'application/json, */*',
@@ -119,11 +119,11 @@ class connectionHPOneView(object):
                     conn.request(method, path, body, self._headers)
                 else:
                     import ssl
-                    context = None #ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-                    #context.verify_mode = ssl.CERT_NONE
+                    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+                    context.verify_mode = ssl.CERT_NONE
                     if self._doProxy is False:
-                        conn = http.client.HTTPSConnection(self._host)
-                                                           # context=context)
+                        conn = http.client.HTTPSConnection(self._host,
+                                                           context=context)
                     else:
                         conn = http.client.HTTPSConnection(self._proxyHost,
                                                            self._proxyPort,

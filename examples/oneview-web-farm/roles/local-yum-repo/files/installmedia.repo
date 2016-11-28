@@ -1,0 +1,4 @@
+[InstallMedia]
+name=Red Hat Enterprise Linux 7.2
+baseurl="http://icspmediaserver.mynetwork/deployment/rhel72-x64/"
+gpgcheck=0
