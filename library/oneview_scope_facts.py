@@ -49,6 +49,7 @@ notes:
        https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
     - "Check how to use environment variables for configuration at:
        https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+    - This resource is available for API version 300 or later.
 '''
 
 EXAMPLES = '''

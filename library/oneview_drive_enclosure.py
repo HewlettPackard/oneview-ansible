@@ -56,6 +56,7 @@ options:
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
+    - This resource is only available on HPE Synergy.
 '''
 
 EXAMPLES = '''

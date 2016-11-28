@@ -58,6 +58,7 @@ notes:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
     - "Check how to use environment variables for configuration at:
        https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+    - This resource is only available on HPE Synergy
 '''
 
 EXAMPLES = '''
