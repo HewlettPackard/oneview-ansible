@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 ###
 # Copyright (2016) Hewlett Packard Enterprise Development LP
 #
@@ -17,8 +16,10 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -33,7 +34,9 @@ description:
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.0"
-author: "Abilio Parada (@abiliogp)"
+author:
+    - Abilio Parada (@abiliogp)
+    - Gustavo Hennig (@GustavoHennig)
 options:
     config:
       description:
@@ -45,6 +48,13 @@ options:
       description:
         - Os Deployment Plan name.
       required: false
+    options:
+      description:
+        - "List with options to gather facts about OS Deployment Plan.
+          Option allowed: osCustomAttributesForServerProfile
+          The option 'osCustomAttributesForServerProfile' retrieves the list of editable OS Custom Atributes, prepared
+          for Server Profile use."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -53,20 +63,29 @@ notes:
 '''
 
 EXAMPLES = '''
-- name: Gather facts about all Os Deployment Plans
+- name: Gather facts about all OS Deployment Plans
   oneview_os_deployment_plan_facts:
     config: "{{ config }}"
   delegate_to: localhost
-
 - debug: var=os_deployment_plans
 
-- name: Gather facts about an Os Deployment Plan by name
+- name: Gather facts about an OS Deployment Plan by name
   oneview_os_deployment_plan_facts:
     config: "{{ config }}"
     name: "Deployment Plan"
   delegate_to: localhost
-
 - debug: var=os_deployment_plans
+
+- name: Gather facts about an OS Deployment Plan by name with OS Custom Attributes option
+  oneview_os_deployment_plan_facts:
+    config: "{{ config }}"
+    name: "Deployment Plan"
+    options:
+      # This option will generate an os_deployment_plan_custom_attributes facts in the Server Profile format.
+      - osCustomAttributesForServerProfile
+  delegate_to: localhost
+- debug: var=os_deployment_plans
+- debug: var=os_deployment_plan_custom_attributes
 '''
 
 RETURN = '''
@@ -74,19 +93,21 @@ os_deployment_plans:
     description: Has all the OneView facts about the Os Deployment Plans.
     returned: Always, but can be null.
     type: complex
+
+os_deployment_plan_custom_attributes:
+    description: Has the editable Custom Attribute facts of the Os Deployment Plans in the Server Profiles format.
+    returned: When requested, but can be empty.
+    type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class OsDeploymentPlanFactsModule(object):
     argument_spec = {
-        "config": {
-            "required": False,
-            "type": 'str'},
-        "name": {
-            "required": False,
-            "type": 'str'
-        }}
+        "config": {"required": False, "type": 'str'},
+        "name": {"required": False, "type": 'str'},
+        "options": {"required": False, "type": 'list'},
+    }
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
@@ -100,16 +121,43 @@ class OsDeploymentPlanFactsModule(object):
 
     def run(self):
         try:
+            ansible_facts = {}
             if self.module.params.get('name'):
                 os_deployment_plans = self.oneview_client.os_deployment_plans.get_by('name', self.module.params['name'])
+
+                if self.module.params.get('options') and os_deployment_plans:
+                    option_facts = self._gather_option_facts(self.module.params['options'], os_deployment_plans[0])
+                    ansible_facts.update(option_facts)
+
             else:
                 os_deployment_plans = self.oneview_client.os_deployment_plans.get_all()
 
+            ansible_facts['os_deployment_plans'] = os_deployment_plans
+
             self.module.exit_json(changed=False,
-                                  ansible_facts=dict(os_deployment_plans=os_deployment_plans))
+                                  ansible_facts=ansible_facts)
 
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+
+    def _gather_option_facts(self, options, resource):
+        options = transform_list_to_dict(options)
+
+        ansible_facts = {}
+        custom_attributes = []
+
+        if options.get('osCustomAttributesForServerProfile'):
+            for item in resource['additionalParameters']:
+                if item.get("caEditable"):
+                    custom_attributes.append({
+                        "name": item.get('name'),
+                        "value": item.get('value')
+                    })
+
+            ansible_facts['os_deployment_plan_custom_attributes'] = {
+                "os_custom_attributes_for_server_profile": custom_attributes}
+
+        return ansible_facts
 
 
 def main():

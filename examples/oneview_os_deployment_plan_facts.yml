@@ -22,7 +22,6 @@
       oneview_os_deployment_plan_facts:
         config: "{{ config }}"
       delegate_to: localhost
-
     - debug: var=os_deployment_plans
 
     - name: Gather facts about an Os Deployment Plan by name
@@ -30,5 +29,20 @@
         config: "{{ config }}"
         name: "Deployment Plan"
       delegate_to: localhost
-
     - debug: var=os_deployment_plans
+
+    - name: Gather facts about an Os Deployment Plan by name with OS Custom Attributes option
+      oneview_os_deployment_plan_facts:
+        config: "{{ config }}"
+        name: "Deployment Plan"
+        options:
+          # This option will generate an os_deployment_plan_custom_attributes facts in a Server Profile format.
+          - osCustomAttributesForServerProfile
+      delegate_to: localhost
+    - debug: var=os_deployment_plans
+    - debug: var=os_deployment_plan_custom_attributes
+
+    # Copy contents of the fact to a local file, allowing the user to edit it
+    - name: "Exporting OS Custom Attributes to a file: {{ playbook_dir }}/vars/os_attributes.yaml"
+      copy: content="{{ os_deployment_plan_custom_attributes | to_nice_yaml }}" dest="{{ playbook_dir }}/vars/os_attributes.yaml"
+      delegate_to: localhost
