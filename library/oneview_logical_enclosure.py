@@ -77,6 +77,22 @@ EXAMPLES = '''
             forceInstallFirmware: "false"
   delegate_to: localhost
 
+# This play is compatible with Synergy Enclosures
+- name: Update the firmware for the Logical Enclosure with the logical-interconnect validation set as true
+  oneview_logical_enclosure:
+    config: "{{ config }}"
+    state: firmware_updated
+    data:
+        name: "Encl1"
+        firmware:
+            firmwareBaselineUri: "/rest/firmware-drivers/SPPGen9Snap3_2015_0221_71"
+            firmwareUpdateOn: "EnclosureOnly"
+            forceInstallFirmware: "false"
+            validateIfLIFirmwareUpdateIsNonDisruptive: "true"
+            logicalInterconnectUpdateMode: "Orchestrated"
+            updateFirmwareOnUnmanagedInterconnect: "true"
+  delegate_to: localhost
+
 - name: Update the Logical Enclosure configuration script
   oneview_logical_enclosure:
     config: "{{ config_file_name }}"

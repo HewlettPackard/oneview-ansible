@@ -17,17 +17,37 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    logical_enclosure_name: "Encl1"  # Set the name of a Logical Enclosure
+    firmware_baseline_uri: "/rest/firmware-drivers/SPPgen9snap6_2016_0405_87"  # Set the URI of a Firmware Driver
   tasks:
     - name: Update the firmware for the Logical Enclosure
       oneview_logical_enclosure:
         config: "{{ config }}"
         state: firmware_updated
         data:
-            name: "Encl1"
+            name: "{{ logical_enclosure_name }}"
             firmware:
-                firmwareBaselineUri: "/rest/firmware-drivers/SPPGen9Snap3_2015_0221_71"
+                firmwareBaselineUri: "{{ firmware_baseline_uri }}"
                 firmwareUpdateOn: "EnclosureOnly"
                 forceInstallFirmware: "false"
+      ignore_errors: true
+      delegate_to: localhost
+
+    # This play is compatible with Synergy Enclosures
+    - name: Update the firmware for the Logical Enclosure with the logical-interconnect validation set as true
+      oneview_logical_enclosure:
+        config: "{{ config }}"
+        state: firmware_updated
+        data:
+            name: "{{ logical_enclosure_name }}"
+            firmware:
+                firmwareBaselineUri: "{{ firmware_baseline_uri }}"
+                firmwareUpdateOn: "EnclosureOnly"
+                forceInstallFirmware: "false"
+                validateIfLIFirmwareUpdateIsNonDisruptive: "true"
+                logicalInterconnectUpdateMode: "Orchestrated"
+                updateFirmwareOnUnmanagedInterconnect: "true"
+      ignore_errors: true
       delegate_to: localhost
 
     - name: Update the Logical Enclosure configuration script
@@ -35,7 +55,7 @@
         config: "{{ config }}"
         state: script_updated
         data:
-            name: "Encl1"
+            name: "{{ logical_enclosure_name }}"
             configurationScript: "# script (updated)"
       delegate_to: localhost
 
@@ -44,7 +64,7 @@
         config: "{{ config }}"
         state: dumped
         data:
-            name: "Encl1"
+            name: "{{ logical_enclosure_name }}"
             dump:
               errorCode: "MyDump16"
               encrypt: "true"
@@ -57,7 +77,7 @@
         config: "{{ config }}"
         state: reconfigured
         data:
-            name: "Encl1"
+            name: "{{ logical_enclosure_name }}"
       delegate_to: localhost
 
     - name: Makes the logical enclosure consistent with the enclosure group
@@ -65,7 +85,7 @@
         config: "{{ config }}"
         state: updated_from_group
         data:
-            name: "Encl1"
+            name: "{{ logical_enclosure_name }}"
       delegate_to: localhost
 
     - name: Update the Logical Enclosure changing the name attribute
@@ -73,8 +93,8 @@
         config: "{{ config }}"
         state: present
         data:
-            name: "Encl1"
-            newName: "Encl1 (renamed)"
+            name: "{{ logical_enclosure_name }}"
+            newName: "{{ logical_enclosure_name }} (renamed)"
       delegate_to: localhost
 
     - name: Rename the Logical Enclosure to its initial name
@@ -82,6 +102,6 @@
         config: "{{ config }}"
         state: present
         data:
-            name: "Encl1 (renamed)"
-            newName: "Encl1"
+            name: "{{ logical_enclosure_name }} (renamed)"
+            newName: "{{ logical_enclosure_name }}"
       delegate_to: localhost
