@@ -17,10 +17,9 @@ import unittest
 import mock
 
 from copy import deepcopy
-from mock import patch
-from test.utils import create_ansible_mock
+from test.utils import ModuleContructorTestCase
+from test.utils import PreloadedMocksBaseTestCase
 
-from hpOneView.oneview_client import OneViewClient
 from hpOneView.exceptions import HPOneViewTaskError
 from oneview_server_profile import ServerProfileModule
 from oneview_server_profile import MAKE_COMPLIANT_NOT_SUPPORTED, SERVER_PROFILE_CREATED, REMEDIATED_COMPLIANCE, \
@@ -102,7 +101,7 @@ AVAILABLE_TARGETS = dict(
 )
 
 
-def gather_facts(mock_ov_instance, created=False, online_update=True):
+def gather_facts(mock_ov_client, created=False, online_update=True):
     compliance_preview = {
         'automaticUpdates': ['fake change.'],
         'isOnlineUpdate': online_update,
@@ -110,8 +109,8 @@ def gather_facts(mock_ov_instance, created=False, online_update=True):
         'type': 'ServerProfileCompliancePreviewV1'
     }
 
-    mock_ov_instance.server_profiles.get_compliance_preview.return_value = compliance_preview
-    mock_ov_instance.server_hardware.get.return_value = {}
+    mock_ov_client.server_profiles.get_compliance_preview.return_value = compliance_preview
+    mock_ov_client.server_hardware.get.return_value = {}
     facts = {
         'serial_number': CREATED_BASIC_PROFILE.get('serialNumber'),
         'server_profile': CREATED_BASIC_PROFILE,
@@ -123,189 +122,128 @@ def gather_facts(mock_ov_instance, created=False, online_update=True):
     return facts
 
 
-class ServerProfileClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class ServerProfileClientConfigurationSpec(unittest.TestCase, ModuleContructorTestCase):
+    """
+    Test the module constructor
+    ModuleContructorTestCase has common tests for class constructor and main function
+    """
 
-        ServerProfileModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        ServerProfileModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
+    def setUp(self):
+        self.configure_mocks(self, ServerProfileModule)
 
 
-class ServerProfileCompliantStateSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_fail_when_server_not_associated_with_template(
-            self, mock_ansible_module, mock_ov_from_file):
-        mock_server = deepcopy(CREATED_BASIC_PROFILE)
-        mock_server['templateCompliance'] = 'Unknown'
-        mock_server['serverProfileTemplateUri'] = ''
+class ServerProfileCompliantStateSpec(PreloadedMocksBaseTestCase):
+    def setUp(self):
+        self.configure_mocks(ServerProfileModule)
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = mock_server
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_COMPLIANT)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_server_not_associated_with_template(self):
+        fake_server = deepcopy(CREATED_BASIC_PROFILE)
+        fake_server['templateCompliance'] = 'Unknown'
+        fake_server['serverProfileTemplateUri'] = ''
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = fake_server
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_COMPLIANT)
 
         ServerProfileModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=MESSAGE_COMPLIANT_ERROR)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=MESSAGE_COMPLIANT_ERROR)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_not_update_when_already_compliant(self, mock_ansible_module, mock_ov_from_file):
-        mock_server = deepcopy(CREATED_BASIC_PROFILE)
+    def test_should_not_update_when_already_compliant(self):
+        fake_server = deepcopy(CREATED_BASIC_PROFILE)
+        mock_facts = gather_facts(self.mock_ov_client)
 
-        params_compliant = deepcopy(PARAMS_FOR_COMPLIANT)
-
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = mock_server
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_facts = gather_facts(mock_ov_instance)
-        mock_ansible_instance = create_ansible_mock(params_compliant)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_COMPLIANT)
+        self.mock_ov_client.server_profiles.get_by_name.return_value = fake_server
 
         ServerProfileModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False, msg=ALREADY_COMPLIANT, ansible_facts=mock_facts)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_update_when_not_compliant(self, mock_ansible_module, mock_ov_from_file):
-        mock_server = deepcopy(CREATED_BASIC_PROFILE)
-        mock_server['templateCompliance'] = 'NonCompliant'
+    def test_should_update_when_not_compliant(self):
+        fake_server = deepcopy(CREATED_BASIC_PROFILE)
+        fake_server['templateCompliance'] = 'NonCompliant'
+        mock_facts = gather_facts(self.mock_ov_client)
 
-        params_compliant = deepcopy(PARAMS_FOR_COMPLIANT)
-
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = mock_server
-        mock_ov_instance.server_profiles.patch.return_value = CREATED_BASIC_PROFILE
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_facts = gather_facts(mock_ov_instance)
-        mock_ansible_instance = create_ansible_mock(params_compliant)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ov_client.server_profiles.get_by_name.return_value = fake_server
+        self.mock_ov_client.server_profiles.patch.return_value = CREATED_BASIC_PROFILE
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_COMPLIANT)
 
         ServerProfileModule().run()
 
-        mock_ov_instance.server_profiles.patch.assert_called_once_with(
+        self.mock_ov_client.server_profiles.patch.assert_called_once_with(
             CREATED_BASIC_PROFILE['uri'], 'replace', '/templateCompliance', 'Compliant')
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True, msg=REMEDIATED_COMPLIANCE, ansible_facts=mock_facts)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_power_off_when_is_offline_update(self, mock_ansible_module, mock_ov_from_file):
-        mock_server = deepcopy(CREATED_BASIC_PROFILE)
-        mock_server['templateCompliance'] = 'NonCompliant'
+    def test_should_power_off_when_is_offline_update(self):
+        fake_server = deepcopy(CREATED_BASIC_PROFILE)
+        fake_server['templateCompliance'] = 'NonCompliant'
 
-        params_compliant = deepcopy(PARAMS_FOR_COMPLIANT)
+        self.mock_ov_client.server_profiles.get_by_name.return_value = fake_server
+        self.mock_ov_client.server_profiles.patch.return_value = CREATED_BASIC_PROFILE
+        self.mock_ov_client.server_hardware.update_power_state.return_value = {}
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = mock_server
-        mock_ov_instance.server_profiles.patch.return_value = CREATED_BASIC_PROFILE
-        mock_ov_instance.server_hardware.update_power_state.return_value = {}
-        mock_ov_from_file.return_value = mock_ov_instance
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_COMPLIANT)
 
         # shoud power off server to update
-        mock_facts = gather_facts(mock_ov_instance, online_update=False)
-
-        mock_ansible_instance = create_ansible_mock(params_compliant)
-        mock_ansible_module.return_value = mock_ansible_instance
+        mock_facts = gather_facts(self.mock_ov_client, online_update=False)
 
         ServerProfileModule().run()
 
-        mock_ov_instance.server_profiles.patch.assert_called_once_with(
+        self.mock_ov_client.server_profiles.patch.assert_called_once_with(
             CREATED_BASIC_PROFILE['uri'], 'replace', '/templateCompliance', 'Compliant')
 
         power_set_calls = [
-            mock.call(dict(powerState='Off', powerControl='PressAndHold'), mock_server['serverHardwareUri']),
-            mock.call(dict(powerState='On', powerControl='MomentaryPress'), mock_server['serverHardwareUri'])]
-        mock_ov_instance.server_hardware.update_power_state.assert_has_calls(power_set_calls)
+            mock.call(dict(powerState='Off', powerControl='PressAndHold'), fake_server['serverHardwareUri']),
+            mock.call(dict(powerState='On', powerControl='MomentaryPress'), fake_server['serverHardwareUri'])]
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ov_client.server_hardware.update_power_state.assert_has_calls(power_set_calls)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True, msg=REMEDIATED_COMPLIANCE, ansible_facts=mock_facts)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
     def test_should_fail_when_oneview_client_raises_exception(self, mock_ansible_module, mock_ov_from_file):
-        mock_server = deepcopy(CREATED_BASIC_PROFILE)
-        mock_server['templateCompliance'] = 'NonCompliant'
+        fake_server = deepcopy(CREATED_BASIC_PROFILE)
+        fake_server['templateCompliance'] = 'NonCompliant'
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = mock_server
-        mock_ov_instance.server_profiles.patch.side_effect = Exception(FAKE_MSG_ERROR)
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_COMPLIANT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ov_client.server_profiles.get_by_name.return_value = fake_server
+        self.mock_ov_client.server_profiles.patch.side_effect = Exception(FAKE_MSG_ERROR)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_COMPLIANT)
 
         self.assertRaises(Exception, ServerProfileModule().run())
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=FAKE_MSG_ERROR)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=FAKE_MSG_ERROR)
 
 
-class ServerProfileCreateSpec(unittest.TestCase):
-    @mock.patch('time.sleep', return_value=None)
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_create_with_automatically_selected_hardware_when_not_exists(
-            self, mock_module, mock_ov_from_file, mock_sleep):
+class ServerProfileCreateSpec(PreloadedMocksBaseTestCase):
+    def setUp(self):
+        self.configure_mocks(ServerProfileModule)
+
+    def test_should_create_with_automatically_selected_hardware_when_not_exists(self):
         profile_data = deepcopy(BASIC_PROFILE)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
-        params_for_present = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_profiles.create.return_value = CREATED_BASIC_PROFILE
+        self.mock_ov_client.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = None
-        mock_ov_instance.server_profiles.create.return_value = CREATED_BASIC_PROFILE
-        mock_ov_instance.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(params_for_present)
-        mock_module.return_value = mock_ansible_instance
-        mock_facts = gather_facts(mock_ov_instance, created=True)
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
 
         ServerProfileModule().run()
 
-        mock_ov_instance.server_profiles.create.assert_called_once_with(profile_data)
+        self.mock_ov_client.server_profiles.create.assert_called_once_with(profile_data)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_PROFILE_CREATED,
             ansible_facts=mock_facts
         )
 
-    @mock.patch('time.sleep', return_value=None)
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_create_from_template_with_automatically_selected_hardware_when_not_exists(
-            self, mock_ansible_module, mock_ov_from_file, mock_sleep):
+    def test_should_create_from_template_with_automatically_selected_hardware_when_not_exists(self):
         template = deepcopy(BASIC_TEMPLATE)
-
         profile_from_template = deepcopy(BASIC_PROFILE)
 
         profile_data = deepcopy(BASIC_PROFILE)
@@ -314,35 +252,28 @@ class ServerProfileCreateSpec(unittest.TestCase):
         param_for_present = deepcopy(PARAMS_FOR_PRESENT)
         param_for_present['data']['server_template'] = 'Server-Template-7000'
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = None
-        mock_ov_instance.server_profiles.create.return_value = CREATED_BASIC_PROFILE
-        mock_ov_instance.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
-        mock_ov_instance.server_profile_templates.get_by_name.return_value = template
-        mock_ov_instance.server_profile_templates.get_new_profile.return_value = profile_from_template
-        mock_ov_instance.server_hardware.update_power_state.return_value = {}
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(param_for_present)
-        mock_ansible_module.return_value = mock_ansible_instance
-        mock_facts = gather_facts(mock_ov_instance, created=True)
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_profiles.create.return_value = CREATED_BASIC_PROFILE
+        self.mock_ov_client.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
+        self.mock_ov_client.server_profiles.server_profile_templates.get_by_name.return_value = template
+        self.mock_ov_client.server_profiles.server_profile_templates.get_new_profile.return_value = \
+            profile_from_template
+        self.mock_ov_client.server_profiles.server_hardware.update_power_state.return_value = {}
+        self.mock_ansible_module.params = param_for_present
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
 
         ServerProfileModule().run()
 
-        mock_ov_instance.server_profiles.create.assert_called_once_with(profile_data)
+        self.mock_ov_client.server_profiles.create.assert_called_once_with(profile_data)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_PROFILE_CREATED,
             ansible_facts=mock_facts
         )
 
-    @mock.patch('time.sleep', return_value=None)
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_create_from_template_uri_with_automatically_selected_hardware_when_not_exists(
-            self, mock_ansible_module, mock_ov_from_file, mock_sleep):
+    def test_should_create_from_template_uri_with_automatically_selected_hardware_when_not_exists(self):
         template = deepcopy(BASIC_TEMPLATE)
-
         profile_from_template = deepcopy(BASIC_PROFILE)
 
         profile_data = deepcopy(BASIC_PROFILE)
@@ -352,62 +283,49 @@ class ServerProfileCreateSpec(unittest.TestCase):
         param_for_present['data']['serverProfileTemplateUri'] \
             = '/rest/server-profile-templates/31393736-3831-4753-567h-30335837524E'
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = None
-        mock_ov_instance.server_profiles.create.return_value = CREATED_BASIC_PROFILE
-        mock_ov_instance.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
-        mock_ov_instance.server_profile_templates.get.return_value = template
-        mock_ov_instance.server_profile_templates.get_new_profile.return_value = profile_from_template
-        mock_ov_instance.server_hardware.update_power_state.return_value = {}
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(param_for_present)
-        mock_ansible_module.return_value = mock_ansible_instance
-        mock_facts = gather_facts(mock_ov_instance, created=True)
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_profiles.create.return_value = CREATED_BASIC_PROFILE
+        self.mock_ov_client.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
+        self.mock_ov_client.server_profile_templates.get.return_value = template
+        self.mock_ov_client.server_profile_templates.get_new_profile.return_value = profile_from_template
+        self.mock_ov_client.server_hardware.update_power_state.return_value = {}
+        self.mock_ansible_module.params = param_for_present
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
 
         ServerProfileModule().run()
 
-        mock_ov_instance.server_profiles.create.assert_called_once_with(profile_data)
+        self.mock_ov_client.server_profiles.create.assert_called_once_with(profile_data)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_PROFILE_CREATED,
             ansible_facts=mock_facts
         )
 
-    @mock.patch('time.sleep', return_value=None)
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_create_with_informed_hardware_when_not_exists(self, mock_module, mock_ov_from_file, mock_sleep):
+    def test_should_create_with_informed_hardware_when_not_exists(self):
         profile_data = deepcopy(BASIC_PROFILE)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
-        present = deepcopy(PARAMS_FOR_PRESENT)
-        present['data']['server_hardware'] = "ServerHardwareName"
+        param_for_present = deepcopy(PARAMS_FOR_PRESENT)
+        param_for_present['data']['server_hardware'] = "ServerHardwareName"
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = None
-        mock_ov_instance.server_profiles.create.return_value = CREATED_BASIC_PROFILE
-        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(present)
-        mock_module.return_value = mock_ansible_instance
-        mock_facts = gather_facts(mock_ov_instance, created=True)
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_profiles.create.return_value = CREATED_BASIC_PROFILE
+        self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.mock_ansible_module.params = param_for_present
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
 
         ServerProfileModule().run()
 
-        mock_ov_instance.server_profiles.create.assert_called_once_with(profile_data)
+        self.mock_ov_client.server_profiles.create.assert_called_once_with(profile_data)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_PROFILE_CREATED,
             ansible_facts=mock_facts
         )
 
-    @mock.patch('time.sleep', return_value=None)
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_create_with_informed_hardware_and_template_when_not_exists(
-            self, mock_module, mock_ov_from_file, mock_sleep):
+    def test_should_create_with_informed_hardware_and_template_when_not_exists(self):
         profile_data = deepcopy(BASIC_PROFILE)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
@@ -415,378 +333,285 @@ class ServerProfileCreateSpec(unittest.TestCase):
 
         profile_from_template = deepcopy(BASIC_PROFILE)
 
-        present = deepcopy(PARAMS_FOR_PRESENT)
-        present['data']['server_hardware'] = "ServerHardwareName"
-        present['data']['server_template'] = "TemplateA200"
+        param_for_present = deepcopy(PARAMS_FOR_PRESENT)
+        param_for_present['data']['server_hardware'] = "ServerHardwareName"
+        param_for_present['data']['server_template'] = "TemplateA200"
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = None
-        mock_ov_instance.server_profiles.create.return_value = CREATED_BASIC_PROFILE
-        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
-        mock_ov_instance.server_profile_templates.get_by_name.return_value = template
-        mock_ov_instance.server_profile_templates.get_new_profile.return_value = profile_from_template
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(present)
-        mock_module.return_value = mock_ansible_instance
-        mock_facts = gather_facts(mock_ov_instance, created=True)
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_profiles.create.return_value = CREATED_BASIC_PROFILE
+        self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.mock_ov_client.server_profile_templates.get_by_name.return_value = template
+        self.mock_ov_client.server_profile_templates.get_new_profile.return_value = profile_from_template
+        self.mock_ansible_module.params = param_for_present
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
 
         ServerProfileModule().run()
 
-        mock_ov_instance.server_profiles.create.assert_called_once_with(profile_data)
+        self.mock_ov_client.server_profiles.create.assert_called_once_with(profile_data)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_PROFILE_CREATED,
             ansible_facts=mock_facts
         )
 
-    @mock.patch('time.sleep', return_value=None)
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_try_create_with_informed_hardware_25_times_when_not_exists(
-            self, mock_module, mock_ov_from_file, mock_sleep):
-        present = deepcopy(PARAMS_FOR_PRESENT)
-        present['data']['server_hardware'] = "ServerHardwareName"
+    def test_should_try_create_with_informed_hardware_25_times_when_not_exists(self):
+        param_for_present = deepcopy(PARAMS_FOR_PRESENT)
+        param_for_present['data']['server_hardware'] = "ServerHardwareName"
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = None
-        mock_ov_instance.server_profiles.create.side_effect = TASK_ERROR
-        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(present)
-        mock_module.return_value = mock_ansible_instance
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_profiles.create.side_effect = TASK_ERROR
+        self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.mock_ansible_module.params = param_for_present
 
         ServerProfileModule().run()
 
-        times_get_targets_called = mock_ov_instance.server_profiles.get_available_targets.call_count
+        times_get_targets_called = self.mock_ov_client.server_profiles.get_available_targets.call_count
         self.assertEqual(0, times_get_targets_called)
 
-        times_create_called = mock_ov_instance.server_profiles.create.call_count
+        times_create_called = self.mock_ov_client.server_profiles.create.call_count
         self.assertEqual(25, times_create_called)
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=ERROR_ALLOCATE_SERVER_HARDWARE
-
         )
 
-    @mock.patch('time.sleep', return_value=None)
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_try_create_with_informed_hardware_2_times_when_not_exists(
-            self, mock_module, mock_ov_from_file, mock_sleep):
+    def test_should_try_create_with_informed_hardware_2_times_when_not_exists(self):
         profile_data = deepcopy(BASIC_PROFILE)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
-        present = deepcopy(PARAMS_FOR_PRESENT)
-        present['data']['server_hardware'] = "ServerHardwareName"
+        param_for_present = deepcopy(PARAMS_FOR_PRESENT)
+        param_for_present['data']['server_hardware'] = "ServerHardwareName"
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = None
-        mock_ov_instance.server_profiles.create.side_effect = [TASK_ERROR, CREATED_BASIC_PROFILE]
-        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(present)
-        mock_module.return_value = mock_ansible_instance
-        mock_facts = gather_facts(mock_ov_instance, created=True)
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_profiles.create.side_effect = [TASK_ERROR, CREATED_BASIC_PROFILE]
+        self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.mock_ansible_module.params = self.param_for_present
+
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
 
         ServerProfileModule().run()
 
-        times_get_targets_called = mock_ov_instance.server_profiles.get_available_targets.call_count
+        times_get_targets_called = self.mock_ov_client.server_profiles.get_available_targets.call_count
         self.assertEqual(0, times_get_targets_called)
 
         create_calls = [mock.call(profile_data), mock.call(profile_data)]
-        mock_ov_instance.server_profiles.create.assert_has_calls(create_calls)
+        self.mock_ov_client.server_profiles.create.assert_has_calls(create_calls)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_PROFILE_CREATED,
             ansible_facts=mock_facts
         )
 
-    @mock.patch('time.sleep', return_value=None)
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_try_create_with_automatically_selected_hardware_25_times_when_not_exists(
-            self, mock_module, mock_ov_from_file, mock_sleep):
-        present = deepcopy(PARAMS_FOR_PRESENT)
-
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = None
-        mock_ov_instance.server_profiles.create.side_effect = TASK_ERROR
-        mock_ov_instance.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
-        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(present)
-        mock_module.return_value = mock_ansible_instance
+    def test_should_try_create_with_automatically_selected_hardware_25_times_when_not_exists(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_profiles.create.side_effect = TASK_ERROR
+        self.mock_ov_client.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
+        self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         ServerProfileModule().run()
 
-        times_get_targets_called = mock_ov_instance.server_profiles.get_available_targets.call_count
+        times_get_targets_called = self.mock_ov_client.server_profiles.get_available_targets.call_count
         self.assertEqual(25, times_get_targets_called)
 
-        times_create_called = mock_ov_instance.server_profiles.create.call_count
+        times_create_called = self.mock_ov_client.server_profiles.create.call_count
         self.assertEqual(25, times_create_called)
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=ERROR_ALLOCATE_SERVER_HARDWARE
-
         )
 
-    @mock.patch('time.sleep', return_value=None)
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_fail_when_exception_is_not_related_with_server_hardware(
-            self, mock_module, mock_ov_from_file, mock_sleep):
-        present = deepcopy(PARAMS_FOR_PRESENT)
-
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = None
-        mock_ov_instance.server_profiles.create.side_effect = Exception(FAKE_MSG_ERROR)
-        mock_ov_instance.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
-        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(present)
-        mock_module.return_value = mock_ansible_instance
+    def test_should_fail_when_exception_is_not_related_with_server_hardware(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_profiles.create.side_effect = Exception(FAKE_MSG_ERROR)
+        self.mock_ov_client.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
+        self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         ServerProfileModule().run()
 
-        times_get_targets_called = mock_ov_instance.server_profiles.get_available_targets.call_count
+        times_get_targets_called = self.mock_ov_client.server_profiles.get_available_targets.call_count
         self.assertEqual(1, times_get_targets_called)
 
-        times_create_called = mock_ov_instance.server_profiles.create.call_count
+        times_create_called = self.mock_ov_client.server_profiles.create.call_count
         self.assertEqual(1, times_create_called)
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
-
         )
 
-    @mock.patch('time.sleep', return_value=None)
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_fail_when_informed_template_not_exist(self, mock_module, mock_ov_from_file, mock_sleep):
-        present = deepcopy(PARAMS_FOR_PRESENT)
-        present['data']['server_hardware'] = "ServerHardwareName"
-        present['data']['server_template'] = "TemplateA200"
+    def test_fail_when_informed_template_not_exist(self):
+        params_for_present = deepcopy(PARAMS_FOR_PRESENT)
+        params_for_present['data']['server_hardware'] = "ServerHardwareName"
+        params_for_present['data']['server_template'] = "TemplateA200"
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = None
-        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
-        mock_ov_instance.server_profile_templates.get_by_name.return_value = None
-
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(present)
-        mock_module.return_value = mock_ansible_instance
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.mock_ov_client.server_profile_templates.get_by_name.return_value = None
+        self.mock_ansible_module.params = params_for_present
 
         ServerProfileModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg="Informed Server Profile Template 'TemplateA200' not found")
 
-    @mock.patch('time.sleep', return_value=None)
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_fail_when_informed_hardware_not_exist(self, mock_module, mock_ov_from_file, mock_sleep):
-        present = deepcopy(PARAMS_FOR_PRESENT)
-        present['data']['server_hardware'] = "ServerHardwareName"
-        present['data']['server_template'] = "TemplateA200"
+    def test_fail_when_informed_hardware_not_exist(self):
+        params_for_present = deepcopy(PARAMS_FOR_PRESENT)
+        params_for_present['data']['server_hardware'] = "ServerHardwareName"
+        params_for_present['data']['server_template'] = "TemplateA200"
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = None
-        mock_ov_instance.server_hardware.get_by.return_value = None
-        mock_ov_instance.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
-
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(present)
-        mock_module.return_value = mock_ansible_instance
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_hardware.get_by.return_value = None
+        self.mock_ov_client.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
+        self.mock_ansible_module.params = params_for_present
 
         ServerProfileModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg="Informed Server Hardware 'ServerHardwareName' not found")
 
-    @mock.patch('time.sleep', return_value=None)
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_create_without_hardware_when_there_are_any_available(
-            self, mock_ansible_module, mock_ov_from_file, mock_sleep):
+    def test_should_create_without_hardware_when_there_are_any_available(self):
         available_targets = deepcopy(AVAILABLE_TARGETS)
         available_targets['targets'] = []
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = None
-        mock_ov_instance.server_profiles.create.return_value = CREATED_BASIC_PROFILE
-        mock_ov_instance.server_profiles.get_available_targets.return_value = available_targets
-        mock_ov_instance.server_hardware.update_power_state.return_value = {}
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(deepcopy(PARAMS_FOR_PRESENT))
-        mock_ansible_module.return_value = mock_ansible_instance
-        mock_facts = gather_facts(mock_ov_instance, created=True)
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_profiles.create.return_value = CREATED_BASIC_PROFILE
+        self.mock_ov_client.server_profiles.get_available_targets.return_value = available_targets
+        self.mock_ov_client.server_hardware.update_power_state.return_value = {}
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
 
         ServerProfileModule().run()
 
-        mock_ov_instance.server_profiles.create.assert_called_once_with(deepcopy(BASIC_PROFILE))
-        power_set_calls = mock_ov_instance.server_hardware.update_power_state.call_count
+        self.mock_ov_client.server_profiles.create.assert_called_once_with(deepcopy(BASIC_PROFILE))
+        power_set_calls = self.mock_ov_client.server_hardware.update_power_state.call_count
         self.assertEqual(0, power_set_calls)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_PROFILE_CREATED,
             ansible_facts=mock_facts
         )
 
 
-class ServerProfileUpdateSpec(unittest.TestCase):
+class ServerProfileUpdateSpec(PreloadedMocksBaseTestCase):
+    def setUp(self):
+        self.configure_mocks(ServerProfileModule)
+
     @mock.patch('oneview_server_profile.resource_compare')
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_update_when_data_changed(self, mock_module, mock_ov_from_file, mock_resource_compare):
+    def test_should_update_when_data_changed(self, mock_resource_compare):
         profile_data = deepcopy(BASIC_PROFILE)
-
-        params_for_present = deepcopy(PARAMS_FOR_PRESENT)
-
         mock_resource_compare.return_value = False
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = profile_data
-        mock_ov_instance.server_profiles.update.return_value = CREATED_BASIC_PROFILE
-        mock_ov_instance.server_hardware.update_power_state.return_value = {}
+        self.mock_ov_client.server_profiles.get_by_name.return_value = profile_data
+        self.mock_ov_client.server_profiles.update.return_value = CREATED_BASIC_PROFILE
+        self.mock_ov_client.server_hardware.update_power_state.return_value = {}
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(params_for_present)
-        mock_module.return_value = mock_ansible_instance
-
-        mock_facts = gather_facts(mock_ov_instance)
+        mock_facts = gather_facts(self.mock_ov_client)
 
         ServerProfileModule().run()
 
-        mock_ov_instance.server_profiles.update.assert_called_once_with(profile_data, SERVER_PROFILE_URI)
+        self.mock_ov_client.server_profiles.update.assert_called_once_with(profile_data, SERVER_PROFILE_URI)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_PROFILE_UPDATED,
             ansible_facts=mock_facts
         )
 
     @mock.patch('oneview_server_profile.resource_compare')
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_power_off_before_update_when_data_changed(self, mock_module, mock_ov_from_file,
-                                                              mock_resource_compare):
-        mock_profile_data = deepcopy(BASIC_PROFILE)
-        mock_profile_data['serverHardwareUri'] = SHT_URI
-
-        params_for_present = deepcopy(PARAMS_FOR_PRESENT)
+    def test_should_power_off_before_update_when_data_changed(self, mock_resource_compare):
+        fake_profile_data = deepcopy(BASIC_PROFILE)
+        fake_profile_data['serverHardwareUri'] = SHT_URI
 
         mock_resource_compare.return_value = False
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = mock_profile_data
-        mock_ov_instance.server_profiles.update.return_value = CREATED_BASIC_PROFILE
-        mock_ov_instance.server_hardware.update_power_state.return_value = {}
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(params_for_present)
-        mock_module.return_value = mock_ansible_instance
-        mock_facts = gather_facts(mock_ov_instance)
+        self.mock_ov_client.server_profiles.get_by_name.return_value = fake_profile_data
+        self.mock_ov_client.server_profiles.update.return_value = CREATED_BASIC_PROFILE
+        self.mock_ov_client.server_hardware.update_power_state.return_value = {}
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+
+        mock_facts = gather_facts(self.mock_ov_client)
 
         ServerProfileModule().run()
 
         power_set_calls = [
             mock.call(dict(powerState='Off', powerControl='PressAndHold'), SHT_URI),
             mock.call(dict(powerState='On', powerControl='MomentaryPress'), SHT_URI)]
-        mock_ov_instance.server_hardware.update_power_state.assert_has_calls(power_set_calls)
+        self.mock_ov_client.server_hardware.update_power_state.assert_has_calls(power_set_calls)
 
-        mock_ov_instance.server_profiles.update.assert_called_once_with(mock_profile_data, SERVER_PROFILE_URI)
+        self.mock_ov_client.server_profiles.update.assert_called_once_with(fake_profile_data, SERVER_PROFILE_URI)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_PROFILE_UPDATED,
             ansible_facts=mock_facts
         )
 
     @mock.patch('oneview_server_profile.resource_compare')
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_not_update_when_data_is_equals(self, mock_module, mock_ov_from_file, mock_resource_compare):
+    def test_should_not_update_when_data_is_equals(self, mock_resource_compare):
         profile_data = deepcopy(CREATED_BASIC_PROFILE)
-        params_for_present = deepcopy(PARAMS_FOR_PRESENT)
 
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(params_for_present)
-        mock_module.return_value = mock_ansible_instance
         mock_resource_compare.return_value = True
-
-        mock_facts = gather_facts(mock_ov_instance)
-        mock_ov_instance.server_profiles.get_by_name.return_value = profile_data
+        mock_facts = gather_facts(self.mock_ov_client)
+        self.mock_ov_client.server_profiles.get_by_name.return_value = profile_data
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         ServerProfileModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=SERVER_ALREADY_UPDATED,
             ansible_facts=mock_facts
         )
 
     @mock.patch('oneview_server_profile.resource_compare')
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_fail_when_informed_template_not_exist(self, mock_module, mock_ov_from_file, mock_resource_compare):
+    def test_fail_when_informed_template_not_exist(self, mock_resource_compare):
         profile_data = deepcopy(CREATED_BASIC_PROFILE)
 
-        present = deepcopy(PARAMS_FOR_PRESENT)
-        present['data']['server_hardware'] = "ServerHardwareName"
-        present['data']['server_template'] = "TemplateA200"
+        params_for_present = deepcopy(PARAMS_FOR_PRESENT)
+        params_for_present['data']['server_hardware'] = "ServerHardwareName"
+        params_for_present['data']['server_template'] = "TemplateA200"
 
         mock_resource_compare.return_value = False
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = profile_data
-        mock_ov_instance.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
-        mock_ov_instance.server_profile_templates.get_by_name.return_value = None
+        self.mock_ov_client.server_profiles.get_by_name.return_value = profile_data
+        self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.mock_ov_client.server_profile_templates.get_by_name.return_value = None
 
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(present)
-        mock_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params_for_present
 
         ServerProfileModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg="Informed Server Profile Template 'TemplateA200' not found")
 
     @mock.patch('oneview_server_profile.resource_compare')
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_fail_when_informed_hardware_not_exist(self, mock_module, mock_ov_from_file, mock_resource_compare):
+    def test_fail_when_informed_hardware_not_exist(self, mock_resource_compare):
         profile_data = deepcopy(CREATED_BASIC_PROFILE)
 
-        present = deepcopy(PARAMS_FOR_PRESENT)
-        present['data']['server_hardware'] = "ServerHardwareName"
-        present['data']['server_template'] = "TemplateA200"
+        params_for_present = deepcopy(PARAMS_FOR_PRESENT)
+        params_for_present['data']['server_hardware'] = "ServerHardwareName"
+        params_for_present['data']['server_template'] = "TemplateA200"
 
         mock_resource_compare.return_value = False
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = profile_data
-        mock_ov_instance.server_hardware.get_by.return_value = None
-        mock_ov_instance.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
+        self.mock_ov_client.server_profiles.get_by_name.return_value = profile_data
+        self.mock_ov_client.server_hardware.get_by.return_value = None
+        self.mock_ov_client.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
 
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(present)
-        mock_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params_for_present
 
         ServerProfileModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg="Informed Server Hardware 'ServerHardwareName' not found")
 
 
-class ServerProfileDeepMergeSpec(unittest.TestCase):
+class ServerProfileDeepMergeSpec(PreloadedMocksBaseTestCase):
     boot_conn = dict(priority="NotBootable", chapLevel="none")
 
     connection_1 = dict(id=1, name="connection-1", mac="E2:4B:0D:30:00:29", boot=boot_conn)
@@ -809,32 +634,17 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
     profile_with_san_storage['sanStorage'] = san_storage
 
     def setUp(self):
-        self.patcher_ov_client_from_json_file = patch.object(OneViewClient, 'from_json_file')
-        mock_from_json_file = self.patcher_ov_client_from_json_file.start()
-
-        self.mock_ov_client = mock.Mock()
-        mock_from_json_file.return_value = self.mock_ov_client
-
-        self.patcher_ansible_module = patch('oneview_server_profile.AnsibleModule')
-        mock_ansible_module = self.patcher_ansible_module.start()
-
-        self.mock_ansible_instance = mock.Mock()
-        mock_ansible_module.return_value = self.mock_ansible_instance
-
+        self.configure_mocks(ServerProfileModule)
         self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
         self.mock_ov_client.server_profiles.update.return_value = deepcopy(self.profile_with_san_storage)
 
-    def tearDown(self):
-        self.patcher_ov_client_from_json_file.stop()
-        self.patcher_ansible_module.stop()
-
     def test_merge_when_data_is_equals(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     connections=[self.connection_1.copy(), self.connection_2.copy()])
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         ServerProfileModule().run()
 
@@ -844,12 +654,12 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
         connection_added = dict(id=3, name="new-connection")
 
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     connections=[self.connection_1_no_mac_basic_boot.copy(),
                                  self.connection_2_no_mac_basic_boot.copy(),
                                  connection_added.copy()])
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         ServerProfileModule().run()
         actual_connections = self.mock_ov_client.server_profiles.update.call_args[0][0]['connections']
@@ -859,10 +669,10 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
     def test_merge_connections_when_item_removed(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     connections=[self.connection_1.copy()])
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         ServerProfileModule().run()
         actual_connections = self.mock_ov_client.server_profiles.update.call_args[0][0]['connections']
@@ -874,10 +684,10 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
         connection_2_renamed = dict(id=2, name="connection-2-renamed", boot=dict(priority="NotBootable"))
 
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     connections=[self.connection_1.copy(), connection_2_renamed.copy()])
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         ServerProfileModule().run()
         actual_connections = self.mock_ov_client.server_profiles.update.call_args[0][0]['connections']
@@ -888,10 +698,10 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
     def test_merge_connections_when_connection_list_removed(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     connections=[])
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         ServerProfileModule().run()
         actual_merged_data = self.mock_ov_client.server_profiles.update.call_args[0][0]
@@ -900,12 +710,12 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
     def test_merge_san_storage_when_values_changed(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     sanStorage=deepcopy(self.san_storage))
         data['sanStorage'].pop('hostOSType')
         data['sanStorage']['newField'] = "123"
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         ServerProfileModule().run()
         actual_san_storage = self.mock_ov_client.server_profiles.update.call_args[0][0]['sanStorage']
@@ -916,10 +726,10 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
     def test_merge_san_storage_when_san_removed_from_profile_with_san(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     sanStorage=None)
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         ServerProfileModule().run()
         actual_merged_data = self.mock_ov_client.server_profiles.update.call_args[0][0]
@@ -930,11 +740,11 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
     def test_merge_san_storage_when_san_removed_from_basic_profile(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(CREATED_BASIC_PROFILE)
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     sanStorage=None,
                     newField="123")
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         ServerProfileModule().run()
         actual_merged_data = self.mock_ov_client.server_profiles.update.call_args[0][0]
@@ -943,11 +753,11 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
     def test_merge_volume_attachments_removed(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     sanStorage=deepcopy(self.san_storage))
         data['sanStorage']['volumeAttachments'] = None
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         ServerProfileModule().run()
         actual_volumes = self.mock_ov_client.server_profiles.update.call_args[0][0]['sanStorage']['volumeAttachments']
@@ -956,11 +766,11 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
     def test_merge_volume_attachments_when_item_changed(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     sanStorage=deepcopy(self.san_storage))
         data['sanStorage']['volumeAttachments'][0]['newField'] = "123"
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         expected_volumes = [deepcopy(self.volume_1), deepcopy(self.volume_2)]
         expected_volumes[0]['newField'] = "123"
@@ -972,11 +782,11 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
     def test_merge_storage_paths_when_item_changed(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     sanStorage=deepcopy(self.san_storage))
         data['sanStorage']['volumeAttachments'][0]['storagePaths'][1]['newField'] = "123"
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         expected_paths_storage_1 = [deepcopy(self.path_1), deepcopy(self.path_2)]
         expected_paths_storage_1[1]['newField'] = "123"
@@ -997,12 +807,12 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
         profile['sanStorage']['volumeAttachments'][0]['storagePaths'][1] = deepcopy(self.path_1)  # connectionId = 1
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     sanStorage=deepcopy(self.san_storage))
         data['sanStorage']['volumeAttachments'][0]['storagePaths'][0]['newField'] = "123"  # connectionId = 1
 
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         path_1_changed = deepcopy(self.path_1)
         path_1_changed['newField'] = "123"
@@ -1018,11 +828,11 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
     def test_merge_storage_paths_removed(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     sanStorage=deepcopy(self.san_storage))
         data['sanStorage']['volumeAttachments'][0]['storagePaths'] = []
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         ServerProfileModule().run()
         actual_volumes = self.mock_ov_client.server_profiles.update.call_args[0][0]['sanStorage']['volumeAttachments']
@@ -1032,11 +842,11 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
     def test_merge_bios(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     sanStorage=deepcopy(self.san_storage))
         data['bios'] = dict(newField="123")
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         ServerProfileModule().run()
         actual_bios = self.mock_ov_client.server_profiles.update.call_args[0][0]['bios']
@@ -1046,11 +856,11 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
     def test_merge_boot(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     sanStorage=deepcopy(self.san_storage))
         data['boot'] = dict(newField="123")
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         ServerProfileModule().run()
         actual_boot = self.mock_ov_client.server_profiles.update.call_args[0][0]['boot']
@@ -1060,11 +870,11 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
 
     def test_merge_boot_mode(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(self.profile_with_san_storage)
-        self.mock_ansible_instance.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         data = dict(name="Profile101",
                     sanStorage=deepcopy(self.san_storage))
         data['bootMode'] = dict(newField="123")
-        self.mock_ansible_instance.params['data'] = data
+        self.mock_ansible_module.params['data'] = data
 
         ServerProfileModule().run()
         actual_boot_mode = self.mock_ov_client.server_profiles.update.call_args[0][0]['bootMode']
@@ -1073,71 +883,55 @@ class ServerProfileDeepMergeSpec(unittest.TestCase):
         self.assertEqual(expected_boot_mode, actual_boot_mode)
 
 
-class ServerProfileAbsentStateSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_fail_when_delete_raises_exception(
-            self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.side_effect = Exception(FAKE_MSG_ERROR)
+class ServerProfileAbsentStateSpec(PreloadedMocksBaseTestCase):
+    def setUp(self):
+        self.configure_mocks(ServerProfileModule)
 
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_delete_raises_exception(self):
+        self.mock_ov_client.server_profiles.get_by_name.side_effect = Exception(FAKE_MSG_ERROR)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_ABSENT)
 
         self.assertRaises(Exception, ServerProfileModule().run())
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=FAKE_MSG_ERROR)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=FAKE_MSG_ERROR)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_turn_off_hardware_before_delete(
-            self, mock_ansible_module, mock_ov_from_file):
+    def test_should_turn_off_hardware_before_delete(self):
         sh_uri = '/rest/server-hardware/37333036-3831-76jh-4831-303658389766'
         profile_data = deepcopy(BASIC_PROFILE)
         profile_data['serverHardwareUri'] = sh_uri
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = profile_data
-        mock_ov_instance.server_hardware.update_power_state.return_value = {}
+        self.mock_ov_client.server_profiles.get_by_name.return_value = profile_data
+        self.mock_ov_client.server_hardware.update_power_state.return_value = {}
 
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_ABSENT)
 
         self.assertRaises(Exception, ServerProfileModule().run())
 
-        mock_ov_instance.server_hardware.update_power_state.assert_called_once_with(
+        self.mock_ov_client.server_hardware.update_power_state.assert_called_once_with(
             {'powerControl': 'PressAndHold', 'powerState': 'Off'}, sh_uri)
 
-        mock_ov_instance.server_profiles.delete.assert_called_once_with(profile_data)
+        self.mock_ov_client.server_profiles.delete.assert_called_once_with(profile_data)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_PROFILE_DELETED
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile.AnsibleModule')
-    def test_should_not_turn_off_hardware_if_not_associated_before_delete(
-            self, mock_ansible_module, mock_ov_from_file):
+    def test_should_not_turn_off_hardware_if_not_associated_before_delete(self):
         profile_data = deepcopy(BASIC_PROFILE)
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = profile_data
+        self.mock_ov_client.server_profiles.get_by_name.return_value = profile_data
 
-        mock_ov_from_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_ABSENT)
 
         self.assertRaises(Exception, ServerProfileModule().run())
 
-        times_power_off_was_called = mock_ov_instance.server_hardware.update_power_state.call_count
+        times_power_off_was_called = self.mock_ov_client.server_hardware.update_power_state.call_count
         self.assertEqual(0, times_power_off_was_called)
 
-        mock_ov_instance.server_profiles.delete.assert_called_once_with(profile_data)
+        self.mock_ov_client.server_profiles.delete.assert_called_once_with(profile_data)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SERVER_PROFILE_DELETED
         )
