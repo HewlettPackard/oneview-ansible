@@ -17,7 +17,7 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    server_hardware_name: '0000A66102, bay 12'
+    server_hardware_name: 'Encl1, bay 2'
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
@@ -34,7 +34,6 @@
              configurationState: "Managed"
       delegate_to: localhost
 
-
     - name: Do nothing when the server hardware is already present
       oneview_server_hardware:
         config: "{{ config }}"
@@ -48,82 +47,74 @@
              configurationState: "Managed"
       delegate_to: localhost
 
-
     - name: Power Off the server hardware
       oneview_server_hardware:
         config: "{{ config }}"
         state: power_state_set
         data:
-            hostname : '{{ server_hardware_hostname }}'
+            name : '{{ server_hardware_name }}'
             powerStateData:
                 powerState: "Off"
                 powerControl: "MomentaryPress"
       delegate_to: localhost
-
 
     - name: Power On the server hardware
       oneview_server_hardware:
         config: "{{ config }}"
         state: power_state_set
         data:
-            hostname : '{{ server_hardware_hostname }}'
+            name : '{{ server_hardware_name }}'
             powerStateData:
                 powerState: "On"
                 powerControl: "MomentaryPress"
       delegate_to: localhost
-
 
     - name: Refresh the server hardware
       oneview_server_hardware:
         config: "{{ config }}"
         state: refresh_state_set
         data:
-            hostname : '{{ server_hardware_hostname }}'
+            name : '{{ server_hardware_name }}'
             refreshStateData:
                 refreshState : "RefreshPending"
       delegate_to: localhost
-
 
     - name: Update the Server Hardware iLO firmware version
       oneview_server_hardware:
         config: "{{ config }}"
         state: ilo_firmware_version_updated
         data:
-            hostname : '{{ server_hardware_hostname }}'
+            name : '{{ server_hardware_name }}'
       delegate_to: localhost
-
 
     - name: Reset the Server Hardware iLO State
       oneview_server_hardware:
         config: "{{ config }}"
         state: ilo_state_reset
         data:
-            hostname: '{{ server_hardware_name }}'
+            name: '{{ server_hardware_name }}'
       delegate_to: localhost
-
 
     - name: Set the server UID state off
       oneview_server_hardware:
         config: "{{ config }}"
         state: uid_state_off
         data:
-            hostname: '{{ server_hardware_name }}'
+            name: '{{ server_hardware_name }}'
       delegate_to: localhost
-
 
     - name: Remove the server hardware by its IP
       oneview_server_hardware:
         config: "{{ config }}"
         state: absent
         data:
-            hostname : '{{ server_hardware_hostname }}'
+            name : '{{ server_hardware_hostname }}'
       delegate_to: localhost
-
 
     - name: Do nothing when the server hardware is already removed
       oneview_server_hardware:
         config: "{{ config }}"
         state: absent
         data:
-            hostname : '{{ server_hardware_hostname }}'
+            name : '{{ server_hardware_hostname }}'
       delegate_to: localhost
