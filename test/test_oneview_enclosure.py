@@ -131,9 +131,9 @@ class EnclosureClientConfigurationSpec(unittest.TestCase, ModuleContructorTestCa
         self.configure_mocks(self, EnclosureModule)
 
 
-class EnclosurePresentStateSpec(PreloadedMocksBaseTestCase):
+class EnclosurePresentStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_create_new_enclosure(self):
@@ -299,9 +299,9 @@ class EnclosurePresentStateSpec(PreloadedMocksBaseTestCase):
             "/a/path", {"calibratedMaxPower": 1750})
 
 
-class EnclosureAbsentStateSpec(PreloadedMocksBaseTestCase):
+class EnclosureAbsentStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_remove_enclosure(self):
@@ -329,9 +329,9 @@ class EnclosureAbsentStateSpec(PreloadedMocksBaseTestCase):
         )
 
 
-class EnclosureReconfiguredStateSpec(PreloadedMocksBaseTestCase):
+class EnclosureReconfiguredStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_reconfigure_enclosure(self):
@@ -356,9 +356,9 @@ class EnclosureReconfiguredStateSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class EnclosureRefreshedStateSpec(PreloadedMocksBaseTestCase):
+class EnclosureRefreshedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_refresh_enclosure(self):
@@ -384,9 +384,9 @@ class EnclosureRefreshedStateSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class EnclosureErrorHandlingSpec(PreloadedMocksBaseTestCase):
+class EnclosureErrorHandlingSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_fail_when_add_raises_exception(self):
@@ -426,7 +426,7 @@ class EnclosureErrorHandlingSpec(PreloadedMocksBaseTestCase):
         )
 
 
-class EnclosureApplianceBaysPowerOnStateSpec(PreloadedMocksBaseTestCase):
+class EnclosureApplianceBaysPowerOnStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS_FOR_BAY_POWER_ON = dict(
         config='config.json',
         state='appliance_bays_powered_on',
@@ -435,7 +435,7 @@ class EnclosureApplianceBaysPowerOnStateSpec(PreloadedMocksBaseTestCase):
     )
 
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_power_on_appliance_bays(self):
@@ -507,7 +507,7 @@ class EnclosureApplianceBaysPowerOnStateSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class EnclosureUidOnStateSpec(PreloadedMocksBaseTestCase):
+class EnclosureUidOnStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS_FOR_UID_ON = """
         config: "{{ config_file_path }}"
         state: uid_on
@@ -516,7 +516,7 @@ class EnclosureUidOnStateSpec(PreloadedMocksBaseTestCase):
     """
 
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_turn_on_uid(self):
@@ -562,7 +562,7 @@ class EnclosureUidOnStateSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class EnclosureUidOffStateSpec(PreloadedMocksBaseTestCase):
+class EnclosureUidOffStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS_FOR_UID_OFF = """
         config: "{{ config_file_path }}"
         state: uid_off
@@ -571,7 +571,7 @@ class EnclosureUidOffStateSpec(PreloadedMocksBaseTestCase):
     """
 
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_turn_off_uid(self):
@@ -618,7 +618,7 @@ class EnclosureUidOffStateSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class EnclosureManagerBaysUidOnStateSpec(PreloadedMocksBaseTestCase):
+class EnclosureManagerBaysUidOnStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS_FOR_MANAGER_BAY_UID_ON = """
         config: "{{ config_file_path }}"
         state: manager_bays_uid_on
@@ -628,7 +628,7 @@ class EnclosureManagerBaysUidOnStateSpec(PreloadedMocksBaseTestCase):
     """
 
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_turn_on_uid(self):
@@ -701,7 +701,7 @@ class EnclosureManagerBaysUidOnStateSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class EnclosureManagerBaysUidOffStateSpec(PreloadedMocksBaseTestCase):
+class EnclosureManagerBaysUidOffStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS_FOR_MANAGER_BAY_UID_OFF = """
         config: "{{ config_file_path }}"
         state: manager_bays_uid_off
@@ -711,7 +711,7 @@ class EnclosureManagerBaysUidOffStateSpec(PreloadedMocksBaseTestCase):
     """
 
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_turn_off_uid(self):
@@ -784,7 +784,7 @@ class EnclosureManagerBaysUidOffStateSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class EnclosureManagerBaysPowerStateEFuseSpec(PreloadedMocksBaseTestCase):
+class EnclosureManagerBaysPowerStateEFuseSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS_FOR_MANAGER_BAY_POWER_STATE_E_FUSE = """
         config: "{{ config_file_path }}"
         state: manager_bays_power_state_e_fuse
@@ -794,7 +794,7 @@ class EnclosureManagerBaysPowerStateEFuseSpec(PreloadedMocksBaseTestCase):
     """
 
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_perform_an_e_fuse(self):
@@ -849,7 +849,7 @@ class EnclosureManagerBaysPowerStateEFuseSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class EnclosureManagerBaysPowerStateResetSpec(PreloadedMocksBaseTestCase):
+class EnclosureManagerBaysPowerStateResetSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS_FOR_MANAGER_BAY_POWER_STATE_RESET = """
         config: "{{ config_file_path }}"
         state: manager_bays_power_state_reset
@@ -859,7 +859,7 @@ class EnclosureManagerBaysPowerStateResetSpec(PreloadedMocksBaseTestCase):
     """
 
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_reset(self):
@@ -914,7 +914,7 @@ class EnclosureManagerBaysPowerStateResetSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class EnclosureApplianceBaysPowerStateEFuseSpec(PreloadedMocksBaseTestCase):
+class EnclosureApplianceBaysPowerStateEFuseSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS_FOR_APPLIANCE_BAY_POWER_STATE_E_FUSE = """
         config: "{{ config_file_path }}"
         state: appliance_bays_power_state_e_fuse
@@ -924,7 +924,7 @@ class EnclosureApplianceBaysPowerStateEFuseSpec(PreloadedMocksBaseTestCase):
     """
 
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_perform_an_e_fuse(self):
@@ -979,7 +979,7 @@ class EnclosureApplianceBaysPowerStateEFuseSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class DeviceBaysPowerStateEFuseSpec(PreloadedMocksBaseTestCase):
+class DeviceBaysPowerStateEFuseSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS_FOR_DEVICE_BAY_POWER_STATE_E_FUSE = """
         config: "{{ config_file_path }}"
         state: device_bays_power_state_e_fuse
@@ -989,7 +989,7 @@ class DeviceBaysPowerStateEFuseSpec(PreloadedMocksBaseTestCase):
     """
 
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_perform_an_e_fuse(self):
@@ -1044,7 +1044,7 @@ class DeviceBaysPowerStateEFuseSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class DeviceBaysPowerStateResetSpec(PreloadedMocksBaseTestCase):
+class DeviceBaysPowerStateResetSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS_FOR_DEVICE_BAY_POWER_STATE_RESET = """
         config: "{{ config_file_path }}"
         state: device_bays_power_state_reset
@@ -1054,7 +1054,7 @@ class DeviceBaysPowerStateResetSpec(PreloadedMocksBaseTestCase):
     """
 
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_reset(self):
@@ -1109,7 +1109,7 @@ class DeviceBaysPowerStateResetSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class InterconnectBaysPowerStateEFuseSpec(PreloadedMocksBaseTestCase):
+class InterconnectBaysPowerStateEFuseSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS_FOR_INTERCONNECT_BAY_POWER_STATE_E_FUSE = """
         config: "{{ config_file_path }}"
         state: interconnect_bays_power_state_e_fuse
@@ -1119,7 +1119,7 @@ class InterconnectBaysPowerStateEFuseSpec(PreloadedMocksBaseTestCase):
     """
 
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_perform_an_e_fuse(self):
@@ -1175,7 +1175,7 @@ class InterconnectBaysPowerStateEFuseSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class DeviceBaysIpv4RemovedStateSpec(PreloadedMocksBaseTestCase):
+class DeviceBaysIpv4RemovedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS_FOR_DEVICE_BAY_IPV4_RELEASE = """
         config: "{{ config_file_path }}"
         state: device_bays_ipv4_removed
@@ -1185,7 +1185,7 @@ class DeviceBaysIpv4RemovedStateSpec(PreloadedMocksBaseTestCase):
     """
 
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_remove_ipv4(self):
@@ -1240,7 +1240,7 @@ class DeviceBaysIpv4RemovedStateSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class InterconnectBaysIpv4RemovedStateSpec(PreloadedMocksBaseTestCase):
+class InterconnectBaysIpv4RemovedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS_FOR_DEVICE_BAY_IPV4_RELEASE = """
         config: "{{ config_file_path }}"
         state: interconnect_bays_ipv4_removed
@@ -1250,7 +1250,7 @@ class InterconnectBaysIpv4RemovedStateSpec(PreloadedMocksBaseTestCase):
     """
 
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_remove_ipv4(self):
@@ -1305,7 +1305,7 @@ class InterconnectBaysIpv4RemovedStateSpec(PreloadedMocksBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
 
 
-class SupportDataCollectionSetStateSpec(PreloadedMocksBaseTestCase):
+class SupportDataCollectionSetStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS = """
         config: "{{ config_file_path }}"
         state: support_data_collection_set
@@ -1315,7 +1315,7 @@ class SupportDataCollectionSetStateSpec(PreloadedMocksBaseTestCase):
     """
 
     def setUp(self):
-        self.configure_mocks(EnclosureModule)
+        self.configure_mocks(self, EnclosureModule)
         self.enclosures = self.mock_ov_client.enclosures
 
     def test_should_set_state(self):
