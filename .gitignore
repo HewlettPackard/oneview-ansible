@@ -6,3 +6,4 @@ oneview_config.json
 examples/vars/config.yml
 .idea/
 *~
+examples/vars/os_attributes.yaml
