@@ -38,25 +38,27 @@ PARAMS_GET_ALL = dict(
 PARAMS_GET_BY_NAME = dict(
     config='config.json',
     name=MANAGED_SAN_NAME,
-    wwn=None,
     options=[]
 )
 
 PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
     config='config.json',
     name=MANAGED_SAN_NAME,
-    wwn=None,
     options=['endpoints']
 )
 
 PARAMS_GET_ASSOCIATED_WWN = dict(
     config='config.json',
     name=None,
-    wwn=MANAGED_SAN_WWN,
-    options=[]
+    options=[
+        {'wwn': {
+            'locate': MANAGED_SAN_WWN
+        }
+        }
+    ]
 )
 
-MANAGED_SAN = dict(name=MANAGED_SAN_NAME, uri=MANAGED_SAN_URI, wwn=MANAGED_SAN_WWN)
+MANAGED_SAN = dict(name=MANAGED_SAN_NAME, uri=MANAGED_SAN_URI)
 
 ALL_MANAGED_SANS = [MANAGED_SAN,
                     dict(name='SAN1_1', uri='/rest/fc-sans/managed-sans/928374892-asd-34234234-asd23')]
@@ -215,7 +217,7 @@ class ManagedSanFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(managed_sans=MANAGED_SAN)
+            ansible_facts=dict(wwn_associated_sans=MANAGED_SAN)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')

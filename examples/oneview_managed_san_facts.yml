@@ -18,7 +18,7 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     - managed_san_name: "SAN1_0"  # Set the name of an existent Managed SAN to run this example
-    - managed_san_wwn: "20:00:4A:2B:21:E0:00:01"  # You must set the value of the WWN to run the API 300 example
+    - locate_wwn: "20:00:4A:2B:21:E0:00:01"  # You must set the value of the WWN to run the API 300 example
   tasks:
     - name: Gather facts about all Managed SANs
       oneview_managed_san_facts:
@@ -46,10 +46,13 @@
     - debug: var=managed_sans
     - debug: var=managed_san_endpoints
 
+    # Sinces OneView 300
     - name: Gather facts about Managed SANs for an associated WWN
       oneview_managed_san_facts:
         config: "{{ config }}"
-        wwn: "{{ managed_san_wwn }}"
+        options:
+          - wwn:
+             locate: "{{ locate_wwn }}"
       delegate_to: localhost
 
-    - debug: var=managed_sans
+    - debug: var=wwn_associated_sans
