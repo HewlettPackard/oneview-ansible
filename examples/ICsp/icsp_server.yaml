@@ -14,7 +14,7 @@
 # limitations under the License.
 ###
 
-# These variables contain sensitive information such as users and passwords, 
+# These variables contain sensitive information such as users and passwords,
 # and are presented here in order to keep the example simple.
 # In a production enviromnment, we strongly suggest the usage of Ansible Vault
 # to secure such information.
@@ -39,14 +39,14 @@
       - macAddress: "01:26:45:17:89:au"
         enabled: true
         dhcpv4: false
-        ipv6Autoconfig: 
+        ipv6Autoconfig:
         dnsServers:
         - "{{ dns_server }}"
         staticNetworks:
         - "16.123.123.39/255.255.255.0" #Desired IP address for the server
         vlanid: -1
         ipv4gateway: "{{ gateway }}"
-        ipv6gateway: 
+        ipv6gateway:
       virtualInterfaces:
 
   tasks:
@@ -66,7 +66,7 @@
       icsp_host: "{{ icsp }}"
       username: "{{ icsp_username }}"
       password: "{{ icsp_password }}"
-      server_ipAddress: "{{ server_ipAddress }}" 
+      server_ipAddress: "{{ server_ipAddress }}"
       server_username: "{{ server_username }}"
       server_password: "{{ server_password }}"
       server_personality_data: "{{ network_config }}"

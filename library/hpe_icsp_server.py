@@ -29,7 +29,6 @@ description:
     - This module allows to add, remove and configure servers in Insight Control Server Provisioning (ICsp). A server,
      often referred to as a Target Server, in ICsp is a physical ProLiant server or a virtual machine that can have
      actions taken upon it.
-
 requirements:
     - "python >= 2.7.9"
     - "hpICsp"
@@ -53,7 +52,7 @@ options:
   server_username:
     description:
       - The user name required to log into the server's iLO.
-     required: true
+    required: true
   server_password:
     description:
       - The password required to log into the server's iLO
@@ -113,164 +112,158 @@ target_server:
     type: complex
 '''
 
-
-def filter_by_ilo(seq, value):
-    for srv in seq:
-        if srv['ilo']['ipAddress'] == value:
-            return srv
-    return None
-
-
-def get_server_by_ilo_address(con, ilo):
-    servers = con.get("/rest/os-deployment-servers/?count=-1")
-    srv = filter_by_ilo(servers['members'], ilo)
-    return srv
+SERVER_CREATED = "Server created: '{}'"
+SERVER_ALREADY_PRESENT = "Server is already present."
+SERVER_ALREADY_ABSENT = "Target server is already absent in ICsp."
+SERVER_REMOVED = "Server '{}' removed successfully from ICsp."
+CUSTOM_ATTR_NETWORK_UPDATED = 'Network Custom Attribute Updated.'
+SERVER_NOT_FOUND = "Target server is not present in ICsp."
+SERVER_PERSONALITY_DATA_REQUIRED = 'server_personality_data must be informed.'
 
 
-def authenticate(module):
-    # Credentials
-    icsp_host = module.params['icsp_host']
-    username = module.params['username']
-    password = module.params['password']
+class ICspServerModule(object):
+    argument_spec = dict(
+        # connection
+        icsp_host=dict(required=True, type='str'),
+        username=dict(required=True, type='str'),
+        password=dict(required=True, type='str'),
+        # options
+        state=dict(
+            required=True,
+            choices=['present', 'absent', 'network_configured']
+        ),
+        # server data
+        server_ipAddress=dict(required=True, type='str'),
+        server_username=dict(required=True, type='str'),
+        server_password=dict(required=True, type='str'),
+        server_port=dict(required=False, type='int', default=443),
+        server_personality_data=dict(required=False, type='dict')
+    )
 
-    con = hpICsp.connection(icsp_host)
+    def __init__(self):
+        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        self.connection = self.__authenticate()
 
-    credential = {'userName': username, 'password': password}
-    con.login(credential)
-    return con
+    def run(self):
 
+        state = self.module.params['state']
+        ilo_address = self.module.params['server_ipAddress']
+        target_server = self.__get_server_by_ilo_address(ilo_address)
 
-def __absent(module):
+        if state == 'present':
+            self.__present(target_server)
 
-    ilo_address = module.params['server_ipAddress']
-    con = authenticate(module)
+        elif state == 'absent':
+            self.__absent(target_server)
 
-    # check if server exists
-    server = get_server_by_ilo_address(con, ilo_address)
-    if server is None:
-        return module.exit_json(changed=False, msg="Target server is already absent in ICsp.")
+        elif state == 'network_configured':
+            self.__configure_network(target_server)
 
-    server_uri = server['uri']
-    servers_service = hpICsp.servers(con)
+    def __authenticate(self):
+        # Credentials
+        icsp_host = self.module.params['icsp_host']
+        username = self.module.params['username']
+        password = self.module.params['password']
 
-    try:
-        servers_service.delete_server(server_uri)
-        return module.exit_json(changed=True,
-                                msg="Server " + server_uri + " removed successfully from ICsp.")
+        con = hpICsp.connection(icsp_host)
 
-    except Exception:
-        return module.fail_json(msg="Error removing server.")
+        credential = {'userName': username, 'password': password}
+        con.login(credential)
+        return con
 
+    def __present(self, target_server):
+        # check if server exists
+        if target_server:
+            return self.module.exit_json(changed=False,
+                                         msg=SERVER_ALREADY_PRESENT,
+                                         ansible_facts=dict(target_server=target_server))
 
-def __present(module):
+        return self._add_server()
 
-    connection = authenticate(module)
-    ilo_address = module.params['server_ipAddress']
+    def __absent(self, target_server):
+        # check if server exists
+        if not target_server:
+            return self.module.exit_json(changed=False, msg=SERVER_ALREADY_ABSENT)
 
-    # check if server exists
-    server = get_server_by_ilo_address(connection, ilo_address)
-    if server:
-        return module.exit_json(changed=False,
-                                msg="Server is already present.",
-                                ansible_facts=dict(target_server=server))
+        server_uri = target_server['uri']
+        servers_service = hpICsp.servers(self.connection)
 
-    return _add_server(connection, module)
+        try:
+            servers_service.delete_server(server_uri)
+            return self.module.exit_json(changed=True,
+                                         msg=SERVER_REMOVED.format(server_uri))
 
+        except HPICspException as icsp_exe:
+            self.module.fail_json(msg=json.dumps(icsp_exe.__dict__))
 
-def _add_server(connection, module):
+        except Exception as exception:
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
-    ilo_address = module.params['server_ipAddress']
+    def __configure_network(self, target_server):
+        personality_data = self.module.params.get('server_personality_data')
 
-    # Creates a JSON body for adding an iLo.
-    ilo_body = {'ipAddress': ilo_address,
-                'username': module.params['server_username'],
-                'password': module.params['server_password'],
-                'port': module.params['server_port']}
+        if not personality_data:
+            return self.module.fail_json(msg=SERVER_PERSONALITY_DATA_REQUIRED)
 
-    job_monitor = hpICsp.jobs(connection)
-    servers_service = hpICsp.servers(connection)
+        # check if server exists
+        if not target_server:
+            return self.module.exit_json(changed=False, msg=SERVER_NOT_FOUND)
 
-    # Monitor_execution is a utility method to watch job progress on the command line.
-    add_server_job = servers_service.add_server(ilo_body)
-    hpICsp.common.monitor_execution(add_server_job, job_monitor)
+        server_data = {"serverUri": target_server['uri'], "personalityData": personality_data, "skipReboot": True}
+        networkConfig = {"serverData": [server_data], "failMode": None, "osbpUris": []}
 
-    # Python bindings trhow an Exception when the status != ok
-    # So if we got this far the job execution finished as expected
+        # Save nework personalization attribute, without running the job
+        self.__add_write_only_job(networkConfig)
 
-    # gets the target server added to ICsp to return on ansible facts
-    target_server = get_server_by_ilo_address(connection, ilo_address)
-    return module.exit_json(changed=True,
-                            msg="Server created: " + target_server['uri'],
-                            ansible_facts=dict(target_server=target_server))
+        servers_service = hpICsp.servers(self.connection)
+        server = servers_service.get_server(target_server['uri'])
+        return self.module.exit_json(changed=True,
+                                     msg=CUSTOM_ATTR_NETWORK_UPDATED,
+                                     ansible_facts={'target_server': server})
 
+    def __add_write_only_job(self, body):
+        body = self.connection.post("/rest/os-deployment-jobs/?writeOnly=true", body)
+        return body
 
-def configure_network(module):
+    def __get_server_by_ilo_address(self, ilo):
+        servers = self.connection.get("/rest/os-deployment-servers/?count=-1")
+        srv = self.__filter_by_ilo(servers['members'], ilo)
+        return srv
 
-    personality_data = module.params['server_personality_data']
+    def __filter_by_ilo(self, seq, value):
+        for srv in seq:
+            if srv['ilo']['ipAddress'] == value:
+                return srv
+        return None
 
-    if personality_data is None:
-        return module.fail_json(msg='server_personality_data must be informed.')
+    def _add_server(self):
+        ilo_address = self.module.params['server_ipAddress']
 
-    connection = authenticate(module)
-    ilo_address = module.params['server_ipAddress']
+        # Creates a JSON body for adding an iLo.
+        ilo_body = {'ipAddress': ilo_address,
+                    'username': self.module.params['server_username'],
+                    'password': self.module.params['server_password'],
+                    'port': self.module.params['server_port']}
 
-    # check if server exists
-    server = get_server_by_ilo_address(connection, ilo_address)
-    if server is None:
-        return module.exit_json(changed=False, msg="Target server is not present in ICsp.")
+        job_monitor = hpICsp.jobs(self.connection)
+        servers_service = hpICsp.servers(self.connection)
 
-    server_data = {"serverUri": server['uri'], "personalityData": personality_data, "skipReboot": True}
-    networkConfig = {"serverData": [server_data], "failMode": None, "osbpUris": []}
+        # Monitor_execution is a utility method to watch job progress on the command line.
+        add_server_job = servers_service.add_server(ilo_body)
+        hpICsp.common.monitor_execution(add_server_job, job_monitor)
 
-    # Save nework personalization attribute, without running the job
-    add_write_only_job(connection, networkConfig)
+        # Python bindings trhow an Exception when the status != ok
+        # So if we got this far the job execution finished as expected
 
-    servers_service = hpICsp.servers(connection)
-    server = servers_service.get_server(server['uri'])
-    return module.exit_json(changed=True,
-                            msg='Network Custom Attribute Updated.',
-                            ansible_facts={'target_server': server})
-
-
-def add_write_only_job(connection, body):
-    body = connection.post("/rest/os-deployment-jobs/?writeOnly=true", body)
-    return body
+        # gets the target server added to ICsp to return on ansible facts
+        target_server = self.__get_server_by_ilo_address(ilo_address)
+        return self.module.exit_json(changed=True,
+                                     msg=SERVER_CREATED.format(target_server['uri']),
+                                     ansible_facts=dict(target_server=target_server))
 
 
 def main():
-    module = AnsibleModule(
-        argument_spec=dict(
-            # connection
-            icsp_host=dict(required=True, type='str'),
-            username=dict(required=True, type='str'),
-            password=dict(required=True, type='str'),
-            # options
-            state=dict(
-                required=True,
-                choices=['present', 'absent', 'network_configured']
-            ),
-            # server data
-            server_ipAddress=dict(required=True, type='str'),
-            server_username=dict(required=True, type='str'),
-            server_password=dict(required=True, type='str'),
-            server_port=dict(required=False, type='int', default=443),
-            server_personality_data=dict(required=False, type='dict')
-        ))
-
-#    try:
-    state = module.params['state']
-    if state == 'present':
-        __present(module)
-
-    elif state == 'absent':
-        __absent(module)
-
-    elif state == 'network_configured':
-        configure_network(module)
-
-
-#    except Exception, e:
-#        module.fail_json(msg=e.message)
+    ICspServerModule().run()
 
 
 if __name__ == '__main__':
