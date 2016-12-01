@@ -20,17 +20,29 @@ import logging
 from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import resource_compare
-    from hpOneView.common import merge_list_by_key
+    from hpOneView.common import resource_compare, merge_list_by_key
+    from hpOneView.exceptions import HPOneViewTaskError
     HAS_HPE_ONEVIEW = True
 except ImportError:
     HAS_HPE_ONEVIEW = False
 from copy import deepcopy
-from hpOneView.exceptions import HPOneViewTaskError
+
 
 ASSIGN_HARDWARE_ERROR_CODES = ['AssignProfileToDeviceBayError',
                                'EnclosureBayUnavailableForProfile',
                                'ProfileAlreadyExistsInServer']
+
+KEY_ID = 'id'
+KEY_CONNECTIONS = 'connections'
+KEY_OS_DEPLOYMENT = 'osDeploymentSettings'
+KEY_ATTRIBUTES = 'osCustomAttributes'
+KEY_SAN = 'sanStorage'
+KEY_VOLUMES = 'volumeAttachments'
+KEY_PATHS = 'storagePaths'
+KEY_CONN_ID = 'connectionId'
+KEY_BOOT = 'boot'
+KEY_BIOS = 'bios'
+KEY_BOOT_MODE = 'bootMode'
 
 TEMPLATE_NOT_FOUND = "Informed Server Profile Template '{}' not found"
 HARDWARE_NOT_FOUND = "Informed Server Hardware '{}' not found"
@@ -56,10 +68,11 @@ description:
       automatically based on the server profile configuration if no server hardware was provided.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 3.0.0"
 author:
     - "Chakravarthy Racharla"
     - "Camila Balestrin (@balestrinc)"
+    - "Mariana Kreisig (@marikrg)"
 options:
   config:
     description:
@@ -252,9 +265,10 @@ class ServerProfileModule(object):
             created = True
             msg = SERVER_PROFILE_CREATED
         else:
-            merged_data = self._merge_data(resource, data)
+            merged_data = ServerProfileMerger().merge_data(resource, data)
+            resource_for_comparation = self.__resource_with_paths_ordered(resource)
 
-            if not resource_compare(resource, merged_data):
+            if not resource_compare(resource_for_comparation, merged_data):
                 resource = self.__update_server_profile(merged_data)
                 changed = True
                 msg = SERVER_PROFILE_UPDATED
@@ -263,91 +277,15 @@ class ServerProfileModule(object):
 
         return created, changed, msg, resource
 
-    def _merge_data(self, resource, data):
-        merged_data = deepcopy(resource)
-        merged_data.update(data)
-
-        if self._is_merge_needed('bios', data, resource):
-            self._merge_by_key('bios', merged_data, resource, data)
-
-        if self._is_merge_needed('boot', data, resource):
-            self._merge_by_key('boot', merged_data, resource, data)
-
-        if self._is_merge_needed('bootMode', data, resource):
-            self._merge_by_key('bootMode', merged_data, resource, data)
-
-        if self._is_merge_needed('sanStorage', data, resource):
-            self._merge_by_key('sanStorage', merged_data, resource, data)
-            if self._is_merge_needed('volumeAttachments', data['sanStorage'], resource['sanStorage']):
-                self._merge_volumes(merged_data, resource, data)
-        elif self._san_was_removed(data, resource):
-            merged_data['sanStorage'] = dict(volumeAttachments=[], manageSanStorage=False)
-
-        if self._is_merge_needed('connections', data, resource):
-            self._merge_connections(merged_data, resource, data)
-            self._merge_boot_from_connections(merged_data, resource)
-
-        return merged_data
-
-    def _is_merge_needed(self, attribute, data, original_data):
-        return attribute in data and data[attribute] and attribute in original_data
-
-    def _san_was_removed(self, data, resource):
-        return 'sanStorage' in data and not data['sanStorage'] and 'sanStorage' in resource
-
-    def _merge_by_key(self, key, merged_data, resource, data):
-        merged_san_storage = deepcopy(resource[key])
-        merged_san_storage.update(deepcopy(data[key]))
-        merged_data[key] = merged_san_storage
-
-    def _merge_connections(self, merged_data, resource, data):
-        existent_connections = resource['connections']
-        provided_connections = data['connections']
-        merged_connections = merge_list_by_key(existent_connections, provided_connections, 'id')
-        merged_data['connections'] = merged_connections
-
-    def _merge_boot_from_connections(self, merged_data, resource):
-        existent_connection_map = {x['id']: x.copy() for x in resource['connections']}
-        merged_connections = merged_data['connections']
-        for merged_connection in merged_connections:
-            if merged_connection['id'] in existent_connection_map:
-                if 'boot' in merged_connection and 'boot' in existent_connection_map[merged_connection['id']]:
-                    current_connection = existent_connection_map[merged_connection['id']]
-                    boot_settings_merged = deepcopy(current_connection['boot'])
-                    boot_settings_merged.update(merged_connection['boot'])
-                    merged_connection['boot'] = boot_settings_merged
-
-    def _merge_volumes(self, merged_data, resource, data):
-        existent_volumes = resource['sanStorage']['volumeAttachments']
-        provided_volumes = data['sanStorage']['volumeAttachments']
-        merged_volumes = merge_list_by_key(existent_volumes, provided_volumes, 'id')
-        merged_data['sanStorage']['volumeAttachments'] = merged_volumes
-        self._merge_storage_paths(merged_data, resource, data)
-
-    def _merge_storage_paths(self, merged_data, resource, data):
-        existent_volumes_map = {x['id']: x for x in resource['sanStorage']['volumeAttachments']}  # can't be a copy here
-        merged_volumes = merged_data['sanStorage']['volumeAttachments']
-        for merged_volume in merged_volumes:
-            if merged_volume['id'] in existent_volumes_map:
-                if 'storagePaths' in merged_volume and 'storagePaths' in existent_volumes_map[merged_volume['id']]:
-                    # merge the volumes already created on OneView with storage paths
-                    existent_paths = existent_volumes_map[merged_volume['id']]['storagePaths']
-                    existent_paths = self._sort_by_key(existent_paths, 'connectionId')
-                    # it changes the original storage paths order, to ensure comparation will work properly
-                    existent_volumes_map[merged_volume['id']]['storagePaths'] = existent_paths
-
-                    paths_from_merged_volume = merged_volume['storagePaths']
-                    paths_from_merged_volume = self._sort_by_key(paths_from_merged_volume, 'connectionId')
-
-                    merged_paths = merge_list_by_key(existent_paths, paths_from_merged_volume, 'connectionId')
-
-                    merged_volume['storagePaths'] = merged_paths
-
-    def _sort_by_key(self, mylist, attribute):
-        return sorted(mylist, key=lambda k: k[attribute])
+    def __resource_with_paths_ordered(self, resource):
+        resource_changed = deepcopy(resource)
+        if KEY_SAN in resource_changed and KEY_VOLUMES in resource_changed[KEY_SAN]:
+            for volume in resource_changed[KEY_SAN][KEY_VOLUMES]:
+                if KEY_PATHS in volume:
+                    volume[KEY_PATHS] = sorted(volume[KEY_PATHS], key=lambda k: k[KEY_CONN_ID])
+        return resource_changed
 
     def __update_server_profile(self, profile_with_updates):
-
         logger.debug(msg="Updating Server Profile")
 
         if profile_with_updates.get('serverHardwareUri'):
@@ -513,6 +451,126 @@ class ServerProfileModule(object):
         else:
             self.oneview_client.server_hardware.update_power_state(
                 dict(powerState='Off', powerControl='PressAndHold'), hardware_uri)
+
+
+class ServerProfileMerger(object):
+    def merge_data(self, resource, data):
+        merged_data = deepcopy(resource)
+        merged_data.update(data)
+
+        merged_data = self._merge_bios_and_boot(merged_data, resource, data)
+        merged_data = self._merge_connections(merged_data, resource, data)
+        merged_data = self._merge_san_storage(merged_data, data, resource)
+        merged_data = self._merge_os_deployment_settings(merged_data, resource, data)
+
+        return merged_data
+
+    def _merge_bios_and_boot(self, merged_data, resource, data):
+        if self._should_merge(data, resource, key=KEY_BIOS):
+            merged_data = self._merge_dict(merged_data, resource, data, key=KEY_BIOS)
+        if self._should_merge(data, resource, key=KEY_BOOT):
+            merged_data = self._merge_dict(merged_data, resource, data, key=KEY_BOOT)
+        if self._should_merge(data, resource, key=KEY_BOOT_MODE):
+            merged_data = self._merge_dict(merged_data, resource, data, key=KEY_BOOT_MODE)
+        return merged_data
+
+    def _merge_connections(self, merged_data, resource, data):
+        if self._should_merge(data, resource, key=KEY_CONNECTIONS):
+            existing_connections = resource[KEY_CONNECTIONS]
+            params_connections = data[KEY_CONNECTIONS]
+            merged_data[KEY_CONNECTIONS] = merge_list_by_key(existing_connections, params_connections, KEY_ID)
+
+            # merge Boot from Connections
+            merged_data = self._merge_connections_boot(merged_data, resource)
+        return merged_data
+
+    def _merge_connections_boot(self, merged_data, resource):
+        existing_connection_map = {x[KEY_ID]: x.copy() for x in resource[KEY_CONNECTIONS]}
+        for merged_connection in merged_data[KEY_CONNECTIONS]:
+            conn_id = merged_connection[KEY_ID]
+            existing_conn_has_boot = conn_id in existing_connection_map and KEY_BOOT in existing_connection_map[conn_id]
+            if existing_conn_has_boot and KEY_BOOT in merged_connection:
+                current_connection = existing_connection_map[conn_id]
+                boot_settings_merged = deepcopy(current_connection[KEY_BOOT])
+                boot_settings_merged.update(merged_connection[KEY_BOOT])
+                merged_connection[KEY_BOOT] = boot_settings_merged
+        return merged_data
+
+    def _merge_san_storage(self, merged_data, data, resource):
+        if self._removed_data(data, resource, key=KEY_SAN):
+            merged_data[KEY_SAN] = dict(volumeAttachments=[], manageSanStorage=False)
+        elif self._should_merge(data, resource, key=KEY_SAN):
+            merged_data = self._merge_dict(merged_data, resource, data, key=KEY_SAN)
+
+            # Merge Volumes from SAN Storage
+            merged_data = self._merge_san_volumes(merged_data, resource, data)
+        return merged_data
+
+    def _merge_san_volumes(self, merged_data, resource, data):
+        if self._should_merge(data[KEY_SAN], resource[KEY_SAN], key=KEY_VOLUMES):
+            existing_volumes = resource[KEY_SAN][KEY_VOLUMES]
+            params_volumes = data[KEY_SAN][KEY_VOLUMES]
+            merged_volumes = merge_list_by_key(existing_volumes, params_volumes, KEY_ID)
+            merged_data[KEY_SAN][KEY_VOLUMES] = merged_volumes
+
+            # Merge Paths from SAN Storage Volumes
+            merged_data = self._merge_san_volumes_paths(merged_data, resource, data)
+        return merged_data
+
+    def _merge_san_volumes_paths(self, merged_data, resource, data):
+        existing_volumes_map = {x[KEY_ID]: x for x in resource[KEY_SAN][KEY_VOLUMES]}  # can't be a copy here
+        merged_volumes = merged_data[KEY_SAN][KEY_VOLUMES]
+        for merged_volume in merged_volumes:
+            volume_id = merged_volume[KEY_ID]
+            if volume_id in existing_volumes_map:
+                if KEY_PATHS in merged_volume and KEY_PATHS in existing_volumes_map[volume_id]:
+                    existent_paths = existing_volumes_map[volume_id][KEY_PATHS]
+                    existent_paths = sorted(existent_paths, key=lambda k: k[KEY_CONN_ID])
+
+                    paths_from_merged_volume = merged_volume[KEY_PATHS]
+                    paths_from_merged_volume = sorted(paths_from_merged_volume, key=lambda k: k[KEY_CONN_ID])
+
+                    merged_paths = merge_list_by_key(existent_paths, paths_from_merged_volume, KEY_CONN_ID)
+
+                    merged_volume[KEY_PATHS] = merged_paths
+        return merged_data
+
+    def _merge_os_deployment_settings(self, merged_data, resource, data):
+        if self._should_merge(data, resource, key=KEY_OS_DEPLOYMENT):
+            merged_data = self._merge_dict(merged_data, resource, data, key=KEY_OS_DEPLOYMENT)
+
+            # Merge Custom Attributes from OS Deployment Settings
+            merged_data = self._merge_os_deployment_custom_attr(merged_data, resource, data)
+        return merged_data
+
+    def _merge_os_deployment_custom_attr(self, merged_data, resource, data):
+        if KEY_ATTRIBUTES in data[KEY_OS_DEPLOYMENT]:
+            existing_os_deployment = resource[KEY_OS_DEPLOYMENT]
+            params_os_deployment = data[KEY_OS_DEPLOYMENT]
+            merged_os_deployment = merged_data[KEY_OS_DEPLOYMENT]
+
+            if self._removed_data(params_os_deployment, existing_os_deployment, key=KEY_ATTRIBUTES):
+                merged_os_deployment[KEY_ATTRIBUTES] = params_os_deployment[KEY_ATTRIBUTES]
+            else:
+                existing_attributes = existing_os_deployment[KEY_ATTRIBUTES]
+                params_attributes = params_os_deployment[KEY_ATTRIBUTES]
+
+                if sorted(list(existing_attributes)) == sorted(list(params_attributes)):
+                    merged_os_deployment[KEY_ATTRIBUTES] = existing_attributes
+
+        return merged_data
+
+    def _removed_data(self, data, resource, key):
+        return key in data and not data[key] and key in resource
+
+    def _should_merge(self, data, resource, key):
+        return key in data and data[key] and key in resource
+
+    def _merge_dict(self, merged_data, resource, data, key):
+        merged_dict = deepcopy(resource[key])
+        merged_dict.update(deepcopy(data[key]))
+        merged_data[key] = merged_dict
+        return merged_data
 
 
 def main():
