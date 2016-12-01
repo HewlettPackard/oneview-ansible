@@ -46,13 +46,15 @@
     - debug: var=managed_sans
     - debug: var=managed_san_endpoints
 
-    # Sinces OneView 300
+    # This resource is available for API version 300 or later.
     - name: Gather facts about Managed SANs for an associated WWN
       oneview_managed_san_facts:
         config: "{{ config }}"
+        name: "{{ managed_san_name }}"
         options:
           - wwn:
              locate: "{{ locate_wwn }}"
       delegate_to: localhost
 
+    - debug: var=managed_sans
     - debug: var=wwn_associated_sans

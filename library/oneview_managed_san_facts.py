@@ -93,7 +93,7 @@ EXAMPLES = '''
     config: "{{ config }}"
     options:
       - wwn:
-         locate: "20:00:4A:2B:21:E0:00:01"l
+         locate: "20:00:4A:2B:21:E0:00:01"
   delegate_to: localhost
 
 - debug: var=wwn_associated_sans
@@ -153,14 +153,14 @@ class ManagedSanFactsModule(object):
                         environmental_configuration = self.resource_client.get_endpoints(managed_san['uri'])
                         facts['managed_san_endpoints'] = environmental_configuration
 
-            elif options:
+            else:
+                facts['managed_sans'] = self.resource_client.get_all()
+
+            if options:
                 option = transform_list_to_dict(options)
                 if option.get('wwn'):
                     wwn = self.__get_sub_options(option['wwn'])
                     facts['wwn_associated_sans'] = self.resource_client.get_wwn(wwn['locate'])
-
-            else:
-                facts['managed_sans'] = self.resource_client.get_all()
 
             self.module.exit_json(changed=False, ansible_facts=facts)
 

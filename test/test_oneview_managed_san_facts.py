@@ -49,7 +49,7 @@ PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
 
 PARAMS_GET_ASSOCIATED_WWN = dict(
     config='config.json',
-    name=None,
+    name=MANAGED_SAN_NAME,
     options=[
         {'wwn': {
             'locate': MANAGED_SAN_WWN
@@ -205,6 +205,7 @@ class ManagedSanFactsSpec(unittest.TestCase):
     @mock.patch('oneview_managed_san_facts.AnsibleModule')
     def test_should_get_managed_san_for_an_associated_wwn(self, mock_ansible_module, mock_ov_from_file):
         mock_ov_instance = mock.Mock()
+        mock_ov_instance.managed_sans.get_by_name.return_value = MANAGED_SAN
         mock_ov_instance.managed_sans.get_wwn.return_value = MANAGED_SAN
         mock_ov_from_file.return_value = mock_ov_instance
 
@@ -217,13 +218,14 @@ class ManagedSanFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(wwn_associated_sans=MANAGED_SAN)
+            ansible_facts=dict(managed_sans=[MANAGED_SAN], wwn_associated_sans=MANAGED_SAN)
         )
 
     @mock.patch.object(OneViewClient, 'from_json_file')
     @mock.patch('oneview_managed_san_facts.AnsibleModule')
     def test_should_fail_when_get_wwn_raises_exception(self, mock_ansible_module, mock_ov_from_file):
         mock_ov_instance = mock.Mock()
+        mock_ov_instance.managed_sans.get_by_name.return_value = MANAGED_SAN
         mock_ov_instance.managed_sans.get_wwn.side_effect = Exception(ERROR_MSG)
         mock_ov_from_file.return_value = mock_ov_instance
 
