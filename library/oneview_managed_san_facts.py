@@ -19,6 +19,7 @@
 from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -31,8 +32,10 @@ description:
     - Retrieve facts about the OneView Managed SANs.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
-author: "Mariana Kreisig (@marikrg)"
+    - "hpOneView >= 3.0.0"
+author:
+    - "Mariana Kreisig (@marikrg)"
+    - "Abilio Parada (@abiliogp)"
 options:
     config:
       description:
@@ -48,7 +51,8 @@ options:
       description:
         - "List with options to gather additional facts about Managed SAN.
           Options allowed:
-          'endpoints' gets the list of endpoints in the SAN identified by name."
+          'endpoints' gets the list of endpoints in the SAN identified by name.
+          'wwn' gets the list of Managed SANs associated with an informed WWN 'locate'."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -83,6 +87,16 @@ EXAMPLES = '''
 
 - debug: var=managed_sans
 - debug: var=managed_san_endpoints
+
+- name: Gather facts about Managed SANs for an associated WWN
+  oneview_managed_san_facts:
+    config: "{{ config }}"
+    options:
+      - wwn:
+         locate: "20:00:4A:2B:21:E0:00:01"
+  delegate_to: localhost
+
+- debug: var=wwn_associated_sans
 '''
 
 RETURN = '''
@@ -93,6 +107,11 @@ managed_sans:
 
 managed_san_endpoints:
     description: The list of endpoints in the SAN identified by name.
+    returned: When requested, but can be null.
+    type: complex
+
+wwn_associated_sans:
+    description: The list of associations between provided WWNs and the SANs.
     returned: When requested, but can be null.
     type: complex
 '''
@@ -121,24 +140,35 @@ class ManagedSanFactsModule(object):
     def run(self):
         try:
             facts = dict()
-            name = self.module.params["name"]
+
+            name = self.module.params['name']
+            options = self.module.params.get('options') or []
 
             if name:
                 facts['managed_sans'] = [self.resource_client.get_by_name(name)]
-                options = self.module.params.get('options') or []
 
                 if facts['managed_sans'] and 'endpoints' in options:
                     managed_san = facts['managed_sans'][0]
                     if managed_san:
                         environmental_configuration = self.resource_client.get_endpoints(managed_san['uri'])
                         facts['managed_san_endpoints'] = environmental_configuration
+
             else:
                 facts['managed_sans'] = self.resource_client.get_all()
+
+            if options:
+                option = transform_list_to_dict(options)
+                if option.get('wwn'):
+                    wwn = self.__get_sub_options(option['wwn'])
+                    facts['wwn_associated_sans'] = self.resource_client.get_wwn(wwn['locate'])
 
             self.module.exit_json(changed=False, ansible_facts=facts)
 
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+
+    def __get_sub_options(self, option):
+        return option if type(option) is dict else {}
 
 
 def main():
