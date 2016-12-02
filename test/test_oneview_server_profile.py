@@ -27,6 +27,9 @@ from oneview_server_profile import ServerProfileMerger
 from oneview_server_profile import MAKE_COMPLIANT_NOT_SUPPORTED, SERVER_PROFILE_CREATED, REMEDIATED_COMPLIANCE, \
     ALREADY_COMPLIANT, SERVER_PROFILE_DELETED, SERVER_PROFILE_UPDATED, SERVER_ALREADY_UPDATED, \
     ERROR_ALLOCATE_SERVER_HARDWARE
+from oneview_server_profile import KEY_CONNECTIONS, KEY_OS_DEPLOYMENT, KEY_ATTRIBUTES, KEY_SAN, KEY_VOLUMES, \
+    KEY_PATHS, KEY_BOOT, KEY_BIOS, KEY_BOOT_MODE, KEY_LOCAL_STORAGE, KEY_SAS_LOGICAL_JBODS, KEY_CONTROLLERS, \
+    KEY_LOGICAL_DRIVES, KEY_SAS_LOGICAL_JBOD_URI
 
 SERVER_PROFILE_NAME = "Profile101"
 SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
@@ -125,6 +128,24 @@ OS_CUSTOM_ATTRIBUTES = [dict(name="hostname", value="newhostname"),
 OS_DEPLOYMENT_SETTINGS = dict(osDeploymentPlanUri="/rest/os-deployment-plans/81decf85-0dff-4a5e-8a95-52994eeb6493",
                               osVolumeUri="/rest/deployed-targets/a166c84a-4964-4f20-b4ba-ef2f154b8596",
                               osCustomAttributes=OS_CUSTOM_ATTRIBUTES)
+
+SAS_LOGICAL_JBOD_1 = dict(id=1, deviceSlot="Mezz 1", name="jbod-1", driveTechnology="SasHdd", status="OK",
+                          sasLogicalJBODUri="/rest/sas-logical-jbods/3128c9e6-e3de-43e7-b196-612707b54967")
+
+SAS_LOGICAL_JBOD_2 = dict(id=2, deviceSlot="Mezz 1", name="jbod-2", driveTechnology="SataHdd", status="Pending")
+
+DRIVES_CONTROLLER_EMBEDDED = [dict(name="drive-1", raidLevel="RAID1", bootable=False, sasLogicalJBODId=None),
+                              dict(name="drive-2", raidLevel="RAID1", bootable=False, sasLogicalJBODId=None)]
+CONTROLLER_EMBEDDED = dict(deviceSlot="Embedded", mode="RAID", initialize=False, importConfiguration=True,
+                           logicalDrives=DRIVES_CONTROLLER_EMBEDDED)
+
+DRIVES_CONTROLLER_MEZZ_1 = [dict(name=None, raidLevel="RAID1", bootable=False, sasLogicalJBODId=1),
+                            dict(name=None, raidLevel="RAID1", bootable=False, sasLogicalJBODId=2)]
+CONTROLLER_MEZZ_1 = dict(deviceSlot="Mezz 1", mode="RAID", initialize=False, importConfiguration=True,
+                         logicalDrives=DRIVES_CONTROLLER_MEZZ_1)
+
+INDEX_EMBED = 0
+INDEX_MEZZ = 1
 
 
 def gather_facts(mock_ov_client, created=False, online_update=True):
@@ -681,15 +702,15 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         mock_resource_compare.assert_called_once_with(server_profile, merged_data)
 
     @mock.patch('oneview_server_profile.resource_compare')
-    def test_should_order_paths_by_connection_id_for_comparison(self, mock_resource_compare):
+    def test_should_sort_paths_by_connection_id_for_comparison(self, mock_resource_compare):
         """
         When a resource is retrieved by OneView, the order of the storage paths sometimes differs from the order of the
-        storage paths saved. To ensure comparation will work properly, the paths must be ordered by connectionId.
+        storage paths saved. To ensure the comparison will work properly, the paths must be sorted by connectionId.
         """
         profile_data = deepcopy(BASIC_PROFILE)
-        profile_data['sanStorage'] = deepcopy(SAN_STORAGE)
-        profile_data['sanStorage']['volumeAttachments'][0]['storagePaths'][0] = deepcopy(PATH_2)  # connectionId = 2
-        profile_data['sanStorage']['volumeAttachments'][0]['storagePaths'][1] = deepcopy(PATH_1)  # connectionId = 1
+        profile_data[KEY_SAN] = deepcopy(SAN_STORAGE)
+        profile_data[KEY_SAN][KEY_VOLUMES][0][KEY_PATHS][0] = deepcopy(PATH_2)  # connectionId = 2
+        profile_data[KEY_SAN][KEY_VOLUMES][0][KEY_PATHS][1] = deepcopy(PATH_1)  # connectionId = 1
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = profile_data
         self.mock_ov_client.server_profiles.update.return_value = CREATED_BASIC_PROFILE
@@ -699,7 +720,32 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         ServerProfileModule().run()
 
         expected_data = deepcopy(BASIC_PROFILE)
-        expected_data['sanStorage'] = deepcopy(SAN_STORAGE)  # paths are ordered by connectionId
+        expected_data[KEY_SAN] = deepcopy(SAN_STORAGE)  # paths are ordered by connectionId
+        mock_resource_compare.assert_called_once_with(expected_data, mock.ANY)
+
+    @mock.patch('oneview_server_profile.resource_compare')
+    def test_should_sort_jbods_by_id_for_comparison(self, mock_resource_compare):
+        """
+        When a resource is retrieved by OneView, the order of the SAS Logical JBODs sometimes differs from the order of
+        the SAS Logical JBODs saved. To ensure the comparison will work properly, the SAS Logical JBODs must be sorted
+        by id.
+        """
+        profile_data = deepcopy(BASIC_PROFILE)
+        profile_data[KEY_LOCAL_STORAGE] = dict()
+        profile_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS] = [deepcopy(SAS_LOGICAL_JBOD_2),  # id = 2
+                                                                  deepcopy(SAS_LOGICAL_JBOD_1)]  # id = 1
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = profile_data
+        self.mock_ov_client.server_profiles.update.return_value = CREATED_BASIC_PROFILE
+        self.mock_ov_client.server_hardware.update_power_state.return_value = {}
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+
+        ServerProfileModule().run()
+
+        expected_data = deepcopy(BASIC_PROFILE)
+        expected_data[KEY_LOCAL_STORAGE] = dict()
+        expected_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS] = [deepcopy(SAS_LOGICAL_JBOD_1),  # id = 1
+                                                                   deepcopy(SAS_LOGICAL_JBOD_2)]  # id = 2
         mock_resource_compare.assert_called_once_with(expected_data, mock.ANY)
 
     def test_should_fail_when_delete_raises_exception(self):
@@ -754,11 +800,16 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
 class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     profile_with_san_storage = CREATED_BASIC_PROFILE.copy()
-    profile_with_san_storage['connections'] = [CONNECTION_1, CONNECTION_2]
-    profile_with_san_storage['sanStorage'] = SAN_STORAGE
+    profile_with_san_storage[KEY_CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
+    profile_with_san_storage[KEY_SAN] = SAN_STORAGE
 
     profile_with_os_deployment = CREATED_BASIC_PROFILE.copy()
-    profile_with_os_deployment['osDeploymentSettings'] = OS_DEPLOYMENT_SETTINGS
+    profile_with_os_deployment[KEY_OS_DEPLOYMENT] = OS_DEPLOYMENT_SETTINGS
+
+    profile_with_local_storage = CREATED_BASIC_PROFILE.copy()
+    profile_with_local_storage[KEY_LOCAL_STORAGE] = dict()
+    profile_with_local_storage[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS] = [SAS_LOGICAL_JBOD_2, SAS_LOGICAL_JBOD_1]
+    profile_with_local_storage[KEY_LOCAL_STORAGE][KEY_CONTROLLERS] = [CONTROLLER_MEZZ_1, CONTROLLER_EMBEDDED]
 
     def setUp(self):
         self.configure_mocks(self, ServerProfileModule)
@@ -786,7 +837,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_connections = [CONNECTION_1.copy(), CONNECTION_2.copy(), connection_added]
-        self.assertEqual(merged_data['connections'], expected_connections)
+        self.assertEqual(merged_data[KEY_CONNECTIONS], expected_connections)
 
     def test_merge_when_connections_have_removed_item(self):
         data = dict(name="Profile101",
@@ -796,7 +847,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_connections = [CONNECTION_1]
-        self.assertEqual(merged_data['connections'], expected_connections)
+        self.assertEqual(merged_data[KEY_CONNECTIONS], expected_connections)
 
     def test_merge_when_connections_have_changed_item(self):
         connection_2_renamed = dict(id=2, name="connection-2-renamed", boot=dict(priority="NotBootable"))
@@ -808,7 +859,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         connection_2_merged = dict(id=2, name="connection-2-renamed", mac="E2:4B:0D:30:00:2A", boot=BOOT_CONN)
         expected_connections = [CONNECTION_1.copy(), connection_2_merged.copy()]
-        self.assertEqual(merged_data['connections'], expected_connections)
+        self.assertEqual(merged_data[KEY_CONNECTIONS], expected_connections)
 
     def test_merge_when_connection_list_is_removed(self):
         data = dict(name="Profile101",
@@ -817,20 +868,20 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data['connections'])
+        self.assertFalse(merged_data[KEY_CONNECTIONS])
 
     def test_merge_when_san_storage_has_changes(self):
         data = dict(name="Profile101",
                     sanStorage=deepcopy(SAN_STORAGE))
-        data['sanStorage'].pop('hostOSType')
-        data['sanStorage']['newField'] = "123"
+        data[KEY_SAN].pop('hostOSType')
+        data[KEY_SAN]['newField'] = "123"
         resource = deepcopy(self.profile_with_san_storage)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_san_storage = deepcopy(SAN_STORAGE)
         expected_san_storage['newField'] = "123"
-        self.assertEqual(merged_data['sanStorage'], expected_san_storage)
+        self.assertEqual(merged_data[KEY_SAN], expected_san_storage)
 
     def test_merge_when_san_storage_is_removed_from_profile_with_san(self):
         data = dict(name="Profile101",
@@ -841,7 +892,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         expected_san_storage = dict(manageSanStorage=False,
                                     volumeAttachments=[])
-        self.assertEqual(merged_data['sanStorage'], expected_san_storage)
+        self.assertEqual(merged_data[KEY_SAN], expected_san_storage)
 
     def test_merge_when_san_storage_is_removed_from_basic_profile(self):
         data = dict(name="Profile101",
@@ -851,110 +902,106 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data['sanStorage'])
+        self.assertFalse(merged_data[KEY_SAN])
 
     def test_merge_when_volume_attachments_are_removed(self):
         data = dict(name="Profile101",
                     sanStorage=deepcopy(SAN_STORAGE))
-        data['sanStorage']['volumeAttachments'] = None
+        data[KEY_SAN][KEY_VOLUMES] = None
         resource = deepcopy(self.profile_with_san_storage)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data['sanStorage']['volumeAttachments'])
+        self.assertFalse(merged_data[KEY_SAN][KEY_VOLUMES])
 
     def test_merge_when_volume_attachments_has_changes(self):
         data = dict(name="Profile101",
                     sanStorage=deepcopy(SAN_STORAGE))
-        data['sanStorage']['volumeAttachments'][0]['newField'] = "123"
+        data[KEY_SAN][KEY_VOLUMES][0]['newField'] = "123"
         resource = deepcopy(self.profile_with_san_storage)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_volumes = [deepcopy(VOLUME_1), deepcopy(VOLUME_2)]
         expected_volumes[0]['newField'] = "123"
-        self.assertEqual(merged_data['sanStorage']['volumeAttachments'], expected_volumes)
+        self.assertEqual(merged_data[KEY_SAN][KEY_VOLUMES], expected_volumes)
 
     def test_merge_when_storage_paths_has_changes(self):
         data = dict(name="Profile101",
                     sanStorage=deepcopy(SAN_STORAGE))
-        data['sanStorage']['volumeAttachments'][0]['storagePaths'][1]['newField'] = "123"
+        data[KEY_SAN][KEY_VOLUMES][0][KEY_PATHS][1]['newField'] = "123"
         resource = deepcopy(self.profile_with_san_storage)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
-        merged_volumes = merged_data['sanStorage'].get('volumeAttachments')
+        merged_volumes = merged_data[KEY_SAN].get(KEY_VOLUMES)
 
         expected_paths_storage_1 = [deepcopy(PATH_1), deepcopy(PATH_2)]
         expected_paths_storage_1[1]['newField'] = "123"
-        self.assertEqual(expected_paths_storage_1, merged_volumes[0]['storagePaths'])
-        self.assertEqual([], merged_volumes[1]['storagePaths'])
+        self.assertEqual(expected_paths_storage_1, merged_volumes[0][KEY_PATHS])
+        self.assertEqual([], merged_volumes[1][KEY_PATHS])
 
-    def test_merge_should_order_paths_by_connection_id(self):
-        """
-        When a resource is retrieved by OneView, the order of the storage paths sometimes differs from the order of the
-        storage paths saved. To ensure comparation will work properly, the paths must be ordered by connectionId.
-        """
+    def test_merge_should_sort_paths_by_connection_id(self):
         profile = deepcopy(self.profile_with_san_storage)
-        profile['sanStorage']['volumeAttachments'][0]['storagePaths'][0] = deepcopy(PATH_2)  # connectionId = 2
-        profile['sanStorage']['volumeAttachments'][0]['storagePaths'][1] = deepcopy(PATH_1)  # connectionId = 1
+        profile[KEY_SAN][KEY_VOLUMES][0][KEY_PATHS][0] = deepcopy(PATH_2)  # connectionId = 2
+        profile[KEY_SAN][KEY_VOLUMES][0][KEY_PATHS][1] = deepcopy(PATH_1)  # connectionId = 1
 
         data = dict(name="Profile101",
                     sanStorage=deepcopy(SAN_STORAGE))
-        data['sanStorage']['volumeAttachments'][0]['storagePaths'][0]['newField'] = "123"  # connectionId = 1
+        data[KEY_SAN][KEY_VOLUMES][0][KEY_PATHS][0]['newField'] = "123"  # connectionId = 1
         resource = deepcopy(self.profile_with_san_storage)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
-        merged_volumes = merged_data['sanStorage'].get('volumeAttachments')
+        merged_volumes = merged_data[KEY_SAN].get(KEY_VOLUMES)
 
         path_1_changed = deepcopy(PATH_1)
         path_1_changed['newField'] = "123"
         expected_paths = [deepcopy(path_1_changed),  # connectionId = 1, with field added
-                          deepcopy(PATH_2)]  # connectionId = 2
-        self.assertEqual(expected_paths, merged_volumes[0]['storagePaths'])
-        self.assertEqual([], merged_volumes[1]['storagePaths'])
+                          deepcopy(PATH_2)]          # connectionId = 2
+        self.assertEqual(expected_paths, merged_volumes[0][KEY_PATHS])
+        self.assertEqual([], merged_volumes[1][KEY_PATHS])
 
     def test_merge_when_storage_paths_are_removed(self):
         data = dict(name="Profile101",
                     sanStorage=deepcopy(SAN_STORAGE))
-        data['sanStorage']['volumeAttachments'][0]['storagePaths'] = []
+        data[KEY_SAN][KEY_VOLUMES][0][KEY_PATHS] = []
         resource = deepcopy(self.profile_with_san_storage)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
-        merged_volumes = merged_data['sanStorage'].get('volumeAttachments')
+        merged_volumes = merged_data[KEY_SAN].get(KEY_VOLUMES)
 
-        self.assertEqual([], merged_volumes[1]['storagePaths'])
+        self.assertEqual([], merged_volumes[1][KEY_PATHS])
 
     def test_merge_when_bios_has_changes(self):
         data = dict(name="Profile101", sanStorage=deepcopy(SAN_STORAGE))
-        data['bios'] = dict(newField="123")
+        data[KEY_BIOS] = dict(newField="123")
         resource = deepcopy(self.profile_with_san_storage)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_bios = dict(manageBios=False, overriddenSettings=[], newField="123")
-        self.assertEqual(merged_data['bios'], expected_bios)
+        self.assertEqual(merged_data[KEY_BIOS], expected_bios)
 
     def test_merge_when_boot_has_changes(self):
         data = dict(name="Profile101",
                     sanStorage=deepcopy(SAN_STORAGE))
-        data['boot'] = dict(newField="123")
+        data[KEY_BOOT] = dict(newField="123")
         resource = deepcopy(self.profile_with_san_storage)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_boot = dict(manageBoot=False, order=[], newField="123")
-        self.assertEqual(merged_data['boot'], expected_boot)
+        self.assertEqual(merged_data[KEY_BOOT], expected_boot)
 
     def test_merge_when_boot_mode_has_changes(self):
         data = dict(name="Profile101",
                     sanStorage=deepcopy(SAN_STORAGE))
-        data['bootMode'] = dict(newField="123")
+        data[KEY_BOOT_MODE] = dict(newField="123")
         resource = deepcopy(self.profile_with_san_storage)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_boot_mode = dict(manageMode=False, mode=None, pxeBootPolicy=None, newField="123")
-        self.assertEqual(merged_data['bootMode'], expected_boot_mode)
+        self.assertEqual(merged_data[KEY_BOOT_MODE], expected_boot_mode)
 
     def test_merge_when_os_deployment_is_equals(self):
         data = dict(name="Profile101",
@@ -968,60 +1015,60 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     def test_merge_when_os_deployment_has_changes(self):
         data = dict(name="Profile101",
                     osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-        data['osDeploymentSettings']['osDeploymentPlanUri'] = "/rest/os-deployment-plans/other-id"
+        data[KEY_OS_DEPLOYMENT]['osDeploymentPlanUri'] = "/rest/os-deployment-plans/other-id"
         resource = deepcopy(self.profile_with_os_deployment)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_os_deployment = deepcopy(OS_DEPLOYMENT_SETTINGS)
         expected_os_deployment['osDeploymentPlanUri'] = "/rest/os-deployment-plans/other-id"
-        self.assertEqual(merged_data['osDeploymentSettings'], expected_os_deployment)
+        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT], expected_os_deployment)
 
     def test_merge_when_custom_attributes_have_changes(self):
         data = dict(name="Profile101",
                     osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-        data['osDeploymentSettings']['osCustomAttributes'][0]['hostname'] = 'updatedhostname'
+        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][0]['hostname'] = 'updatedhostname'
         resource = deepcopy(self.profile_with_os_deployment)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_os_deployment = deepcopy(OS_DEPLOYMENT_SETTINGS)
-        expected_os_deployment['osCustomAttributes'][0]['hostname'] = 'updatedhostname'
-        self.assertEqual(merged_data['osDeploymentSettings'], expected_os_deployment)
+        expected_os_deployment[KEY_ATTRIBUTES][0]['hostname'] = 'updatedhostname'
+        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT], expected_os_deployment)
 
     def test_merge_when_custom_attributes_have_new_item(self):
         new_item = dict(name="password", value="secret123")
         data = dict(name="Profile101",
                     osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-        data['osDeploymentSettings']['osCustomAttributes'].append(new_item.copy())
+        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES].append(new_item.copy())
 
         resource = deepcopy(self.profile_with_os_deployment)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_os_deployment = deepcopy(OS_DEPLOYMENT_SETTINGS)
-        expected_os_deployment['osCustomAttributes'].append(new_item.copy())
-        self.assertEqual(merged_data['osDeploymentSettings'], expected_os_deployment)
+        expected_os_deployment[KEY_ATTRIBUTES].append(new_item.copy())
+        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT], expected_os_deployment)
 
     def test_merge_when_custom_attributes_have_removed_item(self):
         data = dict(name="Profile101",
                     osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-        data['osDeploymentSettings']['osCustomAttributes'].pop()
+        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES].pop()
         resource = deepcopy(self.profile_with_os_deployment)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_os_deployment = deepcopy(OS_DEPLOYMENT_SETTINGS)
-        expected_os_deployment['osCustomAttributes'].pop()
-        self.assertEqual(merged_data['osDeploymentSettings'], expected_os_deployment)
+        expected_os_deployment[KEY_ATTRIBUTES].pop()
+        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT], expected_os_deployment)
 
     def test_merge_when_custom_attributes_are_equals_with_different_order(self):
         data = dict(name="Profile101",
                     osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-        first_attr = data['osDeploymentSettings']['osCustomAttributes'][0]
-        second_attr = data['osDeploymentSettings']['osCustomAttributes'][1]
-        data['osDeploymentSettings']['osCustomAttributes'][0] = second_attr
-        data['osDeploymentSettings']['osCustomAttributes'][1] = first_attr
+        first_attr = data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][0]
+        second_attr = data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][1]
+        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][0] = second_attr
+        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][1] = first_attr
         resource = deepcopy(self.profile_with_os_deployment)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
@@ -1032,12 +1079,12 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         data = dict(name="Profile101",
                     osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
 
-        first_attr = data['osDeploymentSettings']['osCustomAttributes'][0]
-        second_attr = data['osDeploymentSettings']['osCustomAttributes'][1]
+        first_attr = data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][0]
+        second_attr = data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][1]
 
         first_attr['value'] = 'newValue'
-        data['osDeploymentSettings']['osCustomAttributes'][0] = second_attr
-        data['osDeploymentSettings']['osCustomAttributes'][1] = first_attr
+        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][0] = second_attr
+        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][1] = first_attr
         resource = deepcopy(self.profile_with_os_deployment)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
@@ -1045,21 +1092,265 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         expected_os_attributes = [dict(name="username", value="administrator"),
                                   dict(name="hostname", value="newValue")]
         expected_os_deployment = deepcopy(OS_DEPLOYMENT_SETTINGS)
-        expected_os_deployment['osCustomAttributes'] = expected_os_attributes
-        self.assertEqual(merged_data['osDeploymentSettings'], expected_os_deployment)
+        expected_os_deployment[KEY_ATTRIBUTES] = expected_os_attributes
+        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT], expected_os_deployment)
 
     def test_merge_when_custom_attributes_are_removed(self):
         data = dict(name="Profile101",
                     osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-        data['osDeploymentSettings']['osCustomAttributes'] = None
+        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES] = None
         resource = deepcopy(self.profile_with_os_deployment)
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_os_deployment = deepcopy(OS_DEPLOYMENT_SETTINGS)
-        expected_os_deployment['osCustomAttributes'] = None
-        self.assertEqual(merged_data['osDeploymentSettings'], expected_os_deployment)
+        expected_os_deployment[KEY_ATTRIBUTES] = None
+        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT], expected_os_deployment)
 
+    def test_merge_when_local_storage_removed(self):
+        data = dict(name="Profile101",
+                    localStorage=None)
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        self.assertFalse(merged_data[KEY_LOCAL_STORAGE])
+
+    def test_merge_when_sas_logical_jbods_have_new_item(self):
+        sas_logical_jbod_added = dict(id=3, deviceSlot="Mezz 1", name="new-sas-logical-jbod", driveTechnology="SataHdd")
+        data = dict(name="Profile101",
+                    localStorage=dict(sasLogicalJBODs=[SAS_LOGICAL_JBOD_1.copy(),
+                                                       SAS_LOGICAL_JBOD_2.copy(),
+                                                       sas_logical_jbod_added.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        expected_sas_logical_jbods = [SAS_LOGICAL_JBOD_1.copy(), SAS_LOGICAL_JBOD_2.copy(), sas_logical_jbod_added]
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS], expected_sas_logical_jbods)
+
+    def test_merge_when_sas_logical_jbods_have_removed_item(self):
+        data = dict(name="Profile101",
+                    localStorage=dict(sasLogicalJBODs=[SAS_LOGICAL_JBOD_1.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        expected_sas_logical_jbods = [SAS_LOGICAL_JBOD_1.copy()]
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS], expected_sas_logical_jbods)
+
+    def test_merge_when_sas_logical_jbods_have_changed_item(self):
+        item_2_changed = dict(id=2, numPhysicalDrives=2)
+        data = dict(name="Profile101",
+                    localStorage=dict(sasLogicalJBODs=[SAS_LOGICAL_JBOD_1.copy(), item_2_changed.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        item_2_merged = dict(numPhysicalDrives=2,
+                             id=2, name="jbod-2", deviceSlot="Mezz 1", driveTechnology="SataHdd", status="Pending")
+        expected_sas_logical_jbods = [SAS_LOGICAL_JBOD_1.copy(), item_2_merged.copy()]
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS], expected_sas_logical_jbods)
+
+    def test_merge_should_sort_sas_logical_jbods_by_id(self):
+        data = dict(name="Profile101",
+                    localStorage=dict(sasLogicalJBODs=[SAS_LOGICAL_JBOD_2.copy(),  # id = 2
+                                                       SAS_LOGICAL_JBOD_1.copy()]))  # id = 1
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        expected_sas_logical_jbods = [SAS_LOGICAL_JBOD_1.copy(),  # id = 1
+                                      SAS_LOGICAL_JBOD_2.copy()]  # id = 2
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS], expected_sas_logical_jbods)
+
+    @mock.patch('oneview_server_profile.merge_list_by_key')
+    def test_merge_should_ignore_logical_jbod_uri_when_null(self, mock_merge_list):
+        data = dict(name="Profile101",
+                    localStorage=dict(sasLogicalJBODs=[SAS_LOGICAL_JBOD_1.copy(), SAS_LOGICAL_JBOD_2.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        ServerProfileMerger().merge_data(resource, data)
+
+        mock_merge_list.assert_called_once_with(mock.ANY, mock.ANY, key=mock.ANY,
+                                                ignore_when_null=[KEY_SAS_LOGICAL_JBOD_URI])
+
+    def test_merge_when_sas_logical_jbod_list_is_removed(self):
+        data = dict(name="Profile101",
+                    localStorage=dict(sasLogicalJBODs=[]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        self.assertFalse(merged_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS])
+
+    def test_merge_when_controllers_have_new_item(self):
+        controller_added = dict(deviceSlot="Device Slot Name", mode="RAID", initialize=False, importConfiguration=True)
+        data = dict(name="Profile101",
+                    localStorage=dict(controllers=[CONTROLLER_MEZZ_1.copy(),
+                                                   CONTROLLER_EMBEDDED.copy(),
+                                                   controller_added.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        expected_controllers = [CONTROLLER_MEZZ_1.copy(), CONTROLLER_EMBEDDED.copy(), controller_added]
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS], expected_controllers)
+
+    def test_merge_when_controllers_have_removed_item(self):
+        data = dict(name="Profile101",
+                    localStorage=dict(controllers=[CONTROLLER_MEZZ_1.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        expected_controllers = [CONTROLLER_MEZZ_1.copy()]
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS], expected_controllers)
+
+    def test_merge_when_controllers_have_changed_item(self):
+        controller_embedded_changed = dict(deviceSlot="Embedded", initialize=True)
+        data = dict(name="Profile101",
+                    localStorage=dict(controllers=[CONTROLLER_MEZZ_1.copy(),
+                                                   controller_embedded_changed.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        item_2_merged = dict(initialize=True,  # initialize value changed from False to True
+                             deviceSlot="Embedded", mode="RAID", importConfiguration=True,
+                             logicalDrives=DRIVES_CONTROLLER_EMBEDDED)
+        expected_controllers = [CONTROLLER_MEZZ_1.copy(), item_2_merged.copy()]
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS], expected_controllers)
+
+    def test_merge_when_controller_list_is_removed(self):
+        data = dict(name="Profile101",
+                    localStorage=dict(controllers=[]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        self.assertFalse(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS])
+
+    def test_merge_when_drives_from_embedded_controller_have_new_item(self):
+        new_drive = dict(name="drive-3", raidLevel="RAID1", bootable=False, sasLogicalJBODId=None)
+        controller_embedded = deepcopy(CONTROLLER_EMBEDDED)
+        controller_embedded[KEY_LOGICAL_DRIVES].append(new_drive)
+
+        data = dict(name="Profile101",
+                    localStorage=dict(controllers=[CONTROLLER_MEZZ_1.copy(),
+                                                   controller_embedded.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        expected_drives = [CONTROLLER_EMBEDDED[KEY_LOGICAL_DRIVES][0],
+                           CONTROLLER_EMBEDDED[KEY_LOGICAL_DRIVES][1],
+                           new_drive]
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_MEZZ][KEY_LOGICAL_DRIVES],
+                         expected_drives)
+
+    def test_merge_when_drives_from_embedded_controller_have_removed_item(self):
+        controller_embedded = deepcopy(CONTROLLER_EMBEDDED)
+        controller_embedded[KEY_LOGICAL_DRIVES].pop()
+
+        data = dict(name="Profile101",
+                    localStorage=dict(controllers=[CONTROLLER_MEZZ_1.copy(),
+                                                   controller_embedded.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        expected_drives = [CONTROLLER_EMBEDDED[KEY_LOGICAL_DRIVES][0]]
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_MEZZ][KEY_LOGICAL_DRIVES],
+                         expected_drives)
+
+    def test_merge_when_drives_from_embedded_controller_have_changed_item(self):
+        """
+        Test the drive merge, although it's not supported by OneView.
+        """
+        drive_changed = dict(name="drive-1", raidLevel="RAID0")
+        controller_embedded = deepcopy(CONTROLLER_EMBEDDED)
+        controller_embedded[KEY_LOGICAL_DRIVES][0] = drive_changed
+
+        data = dict(name="Profile101",
+                    localStorage=dict(controllers=[CONTROLLER_MEZZ_1.copy(),
+                                                   controller_embedded.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        drive_1_merged = dict(name="drive-1", raidLevel="RAID0", bootable=False, sasLogicalJBODId=None)
+        expected_drives = [drive_1_merged,
+                           CONTROLLER_EMBEDDED[KEY_LOGICAL_DRIVES][1]]
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_MEZZ][KEY_LOGICAL_DRIVES],
+                         expected_drives)
+
+    def test_merge_when_drives_from_mezz_controller_have_new_item(self):
+        new_drive = dict(name=None, raidLevel="RAID1", bootable=False, sasLogicalJBODId=3)
+        controller_mezz = deepcopy(CONTROLLER_MEZZ_1)
+        controller_mezz[KEY_LOGICAL_DRIVES].append(new_drive)
+
+        data = dict(name="Profile101",
+                    localStorage=dict(controllers=[controller_mezz.copy(),
+                                                   CONTROLLER_EMBEDDED.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        expected_drives = [CONTROLLER_MEZZ_1[KEY_LOGICAL_DRIVES][0],
+                           CONTROLLER_MEZZ_1[KEY_LOGICAL_DRIVES][1],
+                           new_drive]
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES],
+                         expected_drives)
+
+    def test_merge_when_drives_from_mezz_controller_have_removed_item(self):
+        controller_mezz = deepcopy(CONTROLLER_MEZZ_1)
+        controller_mezz[KEY_LOGICAL_DRIVES].pop()
+
+        data = dict(name="Profile101",
+                    localStorage=dict(controllers=[controller_mezz.copy(),
+                                                   CONTROLLER_EMBEDDED.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        expected_drives = [CONTROLLER_MEZZ_1[KEY_LOGICAL_DRIVES][INDEX_EMBED]]
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES],
+                         expected_drives)
+
+    def test_merge_when_drives_from_mezz_controller_have_changed_item(self):
+        """
+        Test the drive merge, although it's not supported by OneView.
+        """
+        drive_changed = dict(sasLogicalJBODId=1, raidLevel="RAID0")
+        controller_mezz = deepcopy(CONTROLLER_MEZZ_1)
+        controller_mezz[KEY_LOGICAL_DRIVES][0] = drive_changed
+
+        data = dict(name="Profile101",
+                    localStorage=dict(controllers=[controller_mezz.copy(),
+                                                   CONTROLLER_EMBEDDED.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        drive_1_merged = dict(name=None, raidLevel="RAID0", bootable=False, sasLogicalJBODId=1)
+        expected_drives = [drive_1_merged,
+                           CONTROLLER_MEZZ_1[KEY_LOGICAL_DRIVES][1]]
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES],
+                         expected_drives)
+
+    def test_merge_when_controller_drives_are_removed(self):
+        controller_mezz = deepcopy(CONTROLLER_MEZZ_1)
+        controller_mezz[KEY_LOGICAL_DRIVES] = []
+
+        data = dict(name="Profile101",
+                    localStorage=dict(controllers=[controller_mezz.copy(),
+                                                   CONTROLLER_EMBEDDED.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        self.assertFalse(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES])
 
 if __name__ == '__main__':
     unittest.main()
