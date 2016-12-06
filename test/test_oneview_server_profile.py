@@ -273,16 +273,13 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         template = deepcopy(BASIC_TEMPLATE)
         profile_from_template = deepcopy(BASIC_PROFILE)
 
-        profile_data = deepcopy(BASIC_PROFILE)
-        profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
-
         param_for_present = deepcopy(PARAMS_FOR_PRESENT)
         param_for_present['data']['server_template'] = 'Server-Template-7000'
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.server_profiles.create.return_value = CREATED_BASIC_PROFILE
         self.mock_ov_client.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
-        self.mock_ov_client.server_profiles.server_profile_templates.get_by_name.return_value = template
+        self.mock_ov_client.server_profile_templates.get_by_name.return_value = template
         self.mock_ov_client.server_profile_templates.get_new_profile.return_value = profile_from_template
         self.mock_ov_client.server_profiles.server_hardware.update_power_state.return_value = {}
         self.mock_ansible_module.params = param_for_present
@@ -290,7 +287,13 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         ServerProfileModule().run()
 
-        self.mock_ov_client.server_profiles.create.assert_called_once_with(profile_data)
+        expected_profile_data = deepcopy(BASIC_PROFILE)
+        expected_profile_data.update(PARAMS_FOR_PRESENT['data'])
+        expected_profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
+        expected_profile_data['serverProfileTemplateUri'] \
+            = '/rest/server-profile-templates/9a156b04-fce8-40b0-b0cd-92ced1311dda'
+
+        self.mock_ov_client.server_profiles.create.assert_called_once_with(expected_profile_data)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -301,9 +304,6 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     def test_should_create_from_template_uri_with_automatically_selected_hardware_when_not_exists(self):
         template = deepcopy(BASIC_TEMPLATE)
         profile_from_template = deepcopy(BASIC_PROFILE)
-
-        profile_data = deepcopy(BASIC_PROFILE)
-        profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
         param_for_present = deepcopy(PARAMS_FOR_PRESENT)
         param_for_present['data']['serverProfileTemplateUri'] \
@@ -320,7 +320,11 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         ServerProfileModule().run()
 
-        self.mock_ov_client.server_profiles.create.assert_called_once_with(profile_data)
+        expected_profile_data = deepcopy(BASIC_PROFILE)
+        expected_profile_data.update(param_for_present['data'])
+        expected_profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
+
+        self.mock_ov_client.server_profiles.create.assert_called_once_with(expected_profile_data)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -352,9 +356,6 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         )
 
     def test_should_create_with_informed_hardware_and_template_when_not_exists(self):
-        profile_data = deepcopy(BASIC_PROFILE)
-        profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
-
         template = deepcopy(BASIC_TEMPLATE)
 
         profile_from_template = deepcopy(BASIC_PROFILE)
@@ -373,7 +374,13 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         ServerProfileModule().run()
 
-        self.mock_ov_client.server_profiles.create.assert_called_once_with(profile_data)
+        expected_profile_data = deepcopy(BASIC_PROFILE)
+        expected_profile_data.update(PARAMS_FOR_PRESENT['data'])
+        expected_profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
+        expected_profile_data['serverProfileTemplateUri'] \
+            = '/rest/server-profile-templates/9a156b04-fce8-40b0-b0cd-92ced1311dda'
+
+        self.mock_ov_client.server_profiles.create.assert_called_once_with(expected_profile_data)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -746,7 +753,6 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
 
 class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-
     profile_with_san_storage = CREATED_BASIC_PROFILE.copy()
     profile_with_san_storage['connections'] = [CONNECTION_1, CONNECTION_2]
     profile_with_san_storage['sanStorage'] = SAN_STORAGE
@@ -903,7 +909,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         path_1_changed = deepcopy(PATH_1)
         path_1_changed['newField'] = "123"
         expected_paths = [deepcopy(path_1_changed),  # connectionId = 1, with field added
-                          deepcopy(PATH_2)]          # connectionId = 2
+                          deepcopy(PATH_2)]  # connectionId = 2
         self.assertEqual(expected_paths, merged_volumes[0]['storagePaths'])
         self.assertEqual([], merged_volumes[1]['storagePaths'])
 
