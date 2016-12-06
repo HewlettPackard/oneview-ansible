@@ -166,6 +166,8 @@ LOGICAL_ENCLOSURE_FIRMWARE_UPDATED = 'Logical Enclosure firmware updated.'
 LOGICAL_ENCLOSURE_CONFIGURATION_SCRIPT_UPDATED = 'Logical Enclosure configuration script updated.'
 LOGICAL_ENCLOSURE_DUMP_GENERATED = 'Logical Enclosure support dump generated.'
 LOGICAL_ENCLOSURE_RECONFIGURED = 'Logical Enclosure configuration reapplied.'
+LOGICAL_ENCLOSURE_DELETED = 'Logical Enclosure deleted'
+LOGICAL_ENCLOSURE_ALREADY_ABSENT = 'Logical Enclosure absent'
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
@@ -216,6 +218,8 @@ class LogicalEnclosureModule(object):
                 changed, msg, ansible_facts = self.__reconfigure(logical_enclosure_uri)
             elif state == 'updated_from_group':
                 changed, msg, ansible_facts = self.__update_from_group(logical_enclosure_uri)
+            elif state == 'create':
+                changed, msg, ansible = self.__create(logical_enclosure_uri)
 
             self.module.exit_json(changed=changed,
                                   msg=msg,
@@ -223,6 +227,24 @@ class LogicalEnclosureModule(object):
 
         except Exception as exception:
             self.module.fail_json(msg=exception.args[0])
+
+    def __create(self, data):
+        new_logical_enclosure = self.oneview_client.logical_enclosures.add(data)
+        return new_logical_enclosure
+
+    def __get_by_name(self, data):
+        result = self.oneview_client.logical_enclosures.get_by('name', data['name'])
+        return result[0] if result else None
+
+    def __absent(self, data):
+        resource = self.__get_by_name(data)
+
+        if resource:
+            self.oneview_client.logical_enclosures.delete(resource)
+            self.module.exit_json(changed=True,
+                                  msg=LOGICAL_ENCLOSURE_DELETED)
+        else:
+            self.module.exit_json(changed=False, msg=LOGICAL_ENCLOSURE_ALREADY_ABSENT)
 
     def __update(self, new_data, existent_resource):
         if "newName" in new_data:

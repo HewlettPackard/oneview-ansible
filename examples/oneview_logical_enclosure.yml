@@ -20,6 +20,27 @@
     logical_enclosure_name: "Encl1"  # Set the name of a Logical Enclosure
     firmware_baseline_uri: "/rest/firmware-drivers/SPPgen9snap6_2016_0405_87"  # Set the URI of a Firmware Driver
   tasks:
+#    - name: Create a Logical Enclosure
+#      oneview_logical_enclosure:
+#        config: "{{ config }}"
+#        state: create
+#        data:
+#            enclosureUris:
+#              - "/rest/enclosures/0000000000A66101"
+#              - "/rest/enclosures/0000000000A66102"
+#              - "/rest/enclosures/0000000000A66103"
+#            enclosureGroupUri: "/rest/enclosure-groups/e41118e4-2233-4b6b-9318-c9982dbf01fa"
+#            forceInstallFirmware: False
+#            name: "TestLogicalEnclosure"
+#      delegate_to: localhost
+
+#    - name: Delete a Logical Enclosure
+#      oneview_logical_enclosure:
+#        config: "{{ config }}"
+#        state: delete
+#        data: '{{ logical_enclosure }}'
+#      delegate_to: localhost
+
     - name: Update the firmware for the Logical Enclosure
       oneview_logical_enclosure:
         config: "{{ config }}"
