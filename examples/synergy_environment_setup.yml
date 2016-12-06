@@ -1,0 +1,97 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    permitted_interconnect_type_uri: "/rest/sas-interconnect-types/Synergy12GbSASConnectionModule"
+  vars_files:
+    # The hostnames and credentials of the enclosure and storage system must be defined in the file /vars/config.yml
+    - '{{ playbook_dir }}/vars/config.yml'
+
+  tasks:
+    - name: Create a SAS Logical Interconnect Group
+      oneview_sas_logical_interconnect_group:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: "Test SAS Logical Interconnect Group"
+          state: "Active"
+          interconnectMapTemplate:
+            interconnectMapEntryTemplates:
+              - logicalLocation:
+                  locationEntries:
+                    - type: "Bay"
+                      relativeValue: "1"
+                    - type: "Enclosure"
+                      relativeValue: "1"
+                enclosureIndex: "1"
+                permittedInterconnectTypeUri: "{{ permitted_interconnect_type_uri }}"
+              - logicalLocation:
+                  locationEntries:
+                    - type: "Bay"
+                      relativeValue: "4"
+                    - type: "Enclosure"
+                      relativeValue: "1"
+                enclosureIndex: "1"
+                permittedInterconnectTypeUri: "{{ permitted_interconnect_type_uri }}"
+          enclosureType: "SY12000"
+          enclosureIndexes: [1]
+          interconnectBaySet: "1"
+      delegate_to: localhost
+
+    - name: Create an Enclosure Group
+      oneview_enclosure_group:
+        config: "{{ config }}"
+        state: present
+        data:
+            name: "Test Enclosure Group"
+            stackingMode: "Test Enclosure"
+            ipAddressingMode: "DHCP"
+            enclosureCount: 3
+            interconnectBayMappingCount: 6
+            stackingMode : "Enclosure"
+            powerMode: "RedundantPowerFeed"
+            interconnectBayMappings:
+                - interconnectBay: 1
+                  enclosureIndex: 1
+                  logicalInterconnectGroupUri: '{{ sas_logical_interconnect_group.uri }}'
+                - interconnectBay: 4
+                  enclosureIndex: 1
+                  logicalInterconnectGroupUri: '{{ sas_logical_interconnect_group.uri }}'
+                - interconnectBay: 1
+                  enclosureIndex: 2
+                  logicalInterconnectGroupUri: '{{ sas_logical_interconnect_group.uri }}'
+                - interconnectBay: 4
+                  enclosureIndex: 2
+                  logicalInterconnectGroupUri: '{{ sas_logical_interconnect_group.uri }}'
+                - interconnectBay: 1
+                  enclosureIndex: 3
+                  logicalInterconnectGroupUri: '{{ sas_logical_interconnect_group.uri }}'
+                - interconnectBay: 4
+                  enclosureIndex: 3
+                  logicalInterconnectGroupUri: '{{ sas_logical_interconnect_group.uri }}'
+      delegate_to: localhost
+
+      #- name: Gather facts about all Server Hardwares
+      #oneview_server_hardware_facts:
+      #  config: "{{ config }}"
+      #delegate_to: localhost
+
+      #- name: 'Validate exist server hardwares'
+      #fail: msg="Please verify the hardware setup."
+      #when: (server_hardwares.0 is undefined or server_hardwares.0 is none)
+
