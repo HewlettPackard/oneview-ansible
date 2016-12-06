@@ -19,7 +19,7 @@
 from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
+    from hpOneView.common import resource_compare
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -27,14 +27,14 @@ except ImportError:
 
 DOCUMENTATION = '''
 ---
-module: oneview_fabric_facts
-short_description: Retrieve the facts about one or more of the OneView Fabrics.
+module: oneview_fabric
+short_description: Retrieve facts about one or more of the OneView Fabrics.
 description:
-    - Retrieve the facts about one or more of the Fabrics from OneView.
+    - Retrieve facts about one or more of the Fabrics from OneView.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
-author: "Camila Balestrin (@balestrinc)"
+    - "hpOneView >= 3.0.0"
+author: "Andressa Cruz (@asserdna)"
 options:
     config:
       description:
@@ -46,60 +46,47 @@ options:
       description:
         - Fabric name.
       required: false
-    options:
+    data:
       description:
-            - "List with options to gather additional facts about an Fabrics and related resources.
-          Options allowed: reservedVlanRange."
-      required: false
+        - List with Fabrics properties.
+      required: true
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
     - "Check how to use environment variables for configuration at:
        https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+    - "This module is only available on HPE Synergy."
 '''
 
 EXAMPLES = '''
-- name: Gather facts about all Fabrics
-  oneview_fabric_facts:
-    config: "{{ config_file_path }}"
-
-- debug: var=fabrics
-
-- name: Gather facts about a Fabric by name
-  oneview_fabric_facts:
-    config: "{{ config_file_path }}"
-    name: DefaultFabric
-
-- debug: var=fabrics
-
-- name: Gather facts about a Fabric by name with options
-  oneview_fabric_facts:
-    config: "{{ config }}"
-    name: DefaultFabric
-    options:
-      - reservedVlanRange          # optional
-
-- debug: var=fabrics
+- name: Update the range of the fabric
+  oneview_fabric:
+    config: '{{ config }}'
+    state: reserved_vlan_range_updated
+    data:
+      name: '{{ name }}'
+      reservedVlanRangeParameters:
+        start: '300'
+        length: '62'
 '''
 
 RETURN = '''
-fabrics:
+fabric:
     description: Has all the OneView facts about the Fabrics.
     returned: Always, but can be null.
     type: complex
-fabric_reserved_vlan_range:
-    description: Has all the OneView facts about the reserved VLAN range
-    returned: When requested, but can be null.
-    type: complex
 '''
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+EXCEPTION_NO_RESOURCE = "Resource not found"
+NO_CHANGE_FOUND = "No change found"
 
 
-class FabricFactsModule(object):
+class FabricModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        state=dict(required=True,
+                   choices=['reserved_vlan_range_updated']),
+        data=dict(required=True, type='dict')
     )
 
     def __init__(self):
@@ -114,39 +101,43 @@ class FabricFactsModule(object):
             self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def run(self):
+        state = self.module.params['state']
+        data = self.module.params['data']
         try:
-            ansible_facts = {}
-            name = self.module.params['name']
-            if name:
-                fabrics = self.oneview_client.fabrics.get_by('name', name)
-
-                if self.module.params.get('options') and fabrics:
-                    ansible_facts = self.__gather_optional_facts(self.module.params['options'], fabrics[0])
-            else:
-                fabrics = self.oneview_client.fabrics.get_all()
-
-            ansible_facts['fabrics'] = fabrics
-
-            self.module.exit_json(changed=False,
-                                  ansible_facts=dict(ansible_facts))
-
+            if state == 'reserved_vlan_range_updated':
+                self.__reserved_vlan_range_updated(data)
         except Exception as exception:
-            self.module.fail_json(msg=exception.args[0])
+            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
-    def __gather_optional_facts(self, options, fabric):
-        options = transform_list_to_dict(options)
+    def __reserved_vlan_range_updated(self, data):
+        resource = self.__get_by_name(data)
+        if not resource:
+            raise Exception(EXCEPTION_NO_RESOURCE)
+        resource_vlan_range = resource.get('reservedVlanRange')
+        merged_data = resource_vlan_range.copy()
+        merged_data.update(data['reservedVlanRangeParameters'])
 
-        fabric_client = self.oneview_client.fabrics
-        ansible_facts = {}
+        if resource_compare(resource_vlan_range, merged_data):
+            self.module.exit_json(changed=False,
+                                  msg=NO_CHANGE_FOUND,
+                                  ansible_facts=dict(fabric=resource))
+        else:
+            self.__update_vlan_range(data, resource)
 
-        if options.get('reservedVlanRange'):
-            ansible_facts['fabric_reserved_vlan_range'] = fabric_client.get_reserved_vlan_range(fabric['uri'])
+    def __get_by_name(self, data):
+        result = self.oneview_client.fabrics.get_by('name', data['name'])
+        return result[0] if result else None
 
-        return ansible_facts
+    def __update_vlan_range(self, data, resource):
+        fabric_update = self.oneview_client.fabrics.update_reserved_vlan_range(
+            resource["uri"],
+            data["reservedVlanRangeParameters"])
+        self.module.exit_json(changed=True,
+                              ansible_facts=dict(fabric=fabric_update))
 
 
 def main():
-    FabricFactsModule().run()
+    FabricModule().run()
 
 
 if __name__ == '__main__':

@@ -33,10 +33,32 @@ PARAMS_GET_BY_NAME = dict(
     name="DefaultFabric"
 )
 
+PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
+    config='config.json',
+    name="DefaultFabric",
+    options=['reservedVlanRange']
+)
+
 PRESENT_FABRICS = [{
     "name": "DefaultFabric",
     "uri": "/rest/fabrics/421fe408-589a-4a7e-91c5-a998e1cf3ec1"
 }]
+
+PRESENT_FABRIC_VLAN_RANGE = [{
+    "name": "DefaultFabric",
+    "uri": "/rest/fabrics/421fe408-589a-4a7e-91c5-a998e1cf3ec1",
+    "reservedVlanRangeParameters": {
+        "start": 300,
+        "length": 62
+    }
+}]
+
+FABRIC_RESERVED_VLAN_RANGE = 'a7896ce7-c11d-4658-829d-142bc66a85e4'
+
+DEFAULT_FABRIC_VLAN_RANGE = dict(
+    name='New FC Network 2',
+    reservedVlanRangeParameters=dict(start=300, length=62)
+)
 
 
 class FabricFactsClientConfigurationSpec(unittest.TestCase):
@@ -138,6 +160,26 @@ class FabricFactsSpec(unittest.TestCase):
         FabricFactsModule().run()
 
         mock_ansible_instance.fail_json.assert_called_once()
+
+    @mock.patch.object(OneViewClient, 'from_json_file')
+    @mock.patch('oneview_fabric_facts.AnsibleModule')
+    def test_should_get_fabric_by_name_with_options(self, mock_ansible_module, mock_ov_client_from_json_file):
+        mock_ov_instance = mock.Mock()
+        mock_ov_instance.fabrics.get_by.return_value = PRESENT_FABRICS
+        mock_ov_instance.fabrics.get_reserved_vlan_range.return_value = FABRIC_RESERVED_VLAN_RANGE
+
+        mock_ov_client_from_json_file.return_value = mock_ov_instance
+
+        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
+        mock_ansible_module.return_value = mock_ansible_instance
+
+        FabricFactsModule().run()
+
+        mock_ansible_instance.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(fabrics=PRESENT_FABRICS,
+                               fabric_reserved_vlan_range=FABRIC_RESERVED_VLAN_RANGE)
+        )
 
 
 if __name__ == '__main__':

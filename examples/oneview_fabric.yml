@@ -13,32 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-
 ---
+# This module is only available on HPE Synergy.
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     - name: "DefaultFabric"
   tasks:
-    - name: Gather facts about all Fabrics
-      oneview_fabric_facts:
-        config: "{{ config }}"
+    - name: Update the range of the fabric
+      oneview_fabric:
+        config: '{{ config }}'
+        state: reserved_vlan_range_updated
+        data:
+          name: '{{ name }}'
+          reservedVlanRangeParameters:
+            start: '300'
+            length: '62'
       delegate_to: localhost
-    - debug: var=fabrics
 
-    - name: Gather facts about a Fabric by name
-      oneview_fabric_facts:
-        config: "{{ config }}"
-        name: "{{ name }}"
-      delegate_to: localhost
-    - debug: var=fabrics
-
-    # This option is only available on HPE Synergy.
-    - name: Gather facts about a Fabric by name with options
-      oneview_fabric_facts:
-        config: "{{ config }}"
-        name: "{{ name }}"
-        options:
-          - reservedVlanRange          # optional
-      delegate_to: localhost
-    - debug: var=fabrics
