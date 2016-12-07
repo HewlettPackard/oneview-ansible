@@ -86,7 +86,6 @@ icsp_server:
 
 
 def get_build_plan(con, bp_name):
-
     search_uri = '/rest/index/resources?filter="name=\'' + urllib.quote(bp_name) + '\'"&category=osdbuildplan'
     search_result = con.get(search_uri)
 
@@ -130,7 +129,7 @@ def deploy_server(module):
     bp = get_build_plan(con, os_build_plan)
 
     if bp is None:
-        module.fail_json(msg='Cannot find OS Build plan: ' + os_build_plan)
+        return module.fail_json(msg='Cannot find OS Build plan: ' + os_build_plan)
 
     timeout = 600
     while True:
@@ -139,17 +138,19 @@ def deploy_server(module):
             break
         if timeout < 0:
             module.fail_json(msg='Cannot find server in ICSP.')
+            return
         timeout -= 30
         time.sleep(30)
 
     server = sv.get_server(server['uri'])
     if server['state'] == 'OK':
-        module.exit_json(changed=False, msg="Server already deployed.", ansible_facts={'icsp_server': server})
+        return module.exit_json(changed=False, msg="Server already deployed.", ansible_facts={'icsp_server': server})
 
     if custom_attributes:
         ca_list = [
-            {'key': ca.keys()[0],
-             'values': [{'scope': 'server', 'value': str(ca.values()[0])}]} for ca in custom_attributes
+            {
+                'key': ca.keys()[0],
+                'values': [{'scope': 'server', 'value': str(ca.values()[0])}]} for ca in custom_attributes
         ]
 
         ca_list.extend(server['customAttributes'])
@@ -158,16 +159,16 @@ def deploy_server(module):
 
     server_data = {"serverUri": server['uri'], "personalityData": None}
 
-    buildPlanBody = {"osbpUris": [bp['uri']], "serverData": [server_data], "stepNo": 1}
+    build_plan_body = {"osbpUris": [bp['uri']], "serverData": [server_data], "stepNo": 1}
 
-    hpICsp.common.monitor_execution(jb.add_job(buildPlanBody), jb)
+    hpICsp.common.monitor_execution(jb.add_job(build_plan_body), jb)
 
     # If the playbook included network personalization, update the server to include it
     if personality_data:
         server_data['personalityData'] = personality_data
-        networkConfig = {"serverData": [server_data]}
+        network_config = {"serverData": [server_data]}
         # Monitor the execution of a nework personalization job.
-        hpICsp.common.monitor_execution(jb.add_job(networkConfig), jb)
+        hpICsp.common.monitor_execution(jb.add_job(network_config), jb)
 
     server = sv.get_server(server['uri'])
     return module.exit_json(changed=True, msg='OS Deployed Successfully.', ansible_facts={'icsp_server': server})
@@ -185,10 +186,7 @@ def main():
             personality_data=dict(required=False, type='dict', default=None)
         ))
 
-#    try:
     deploy_server(module)
-#    except Exception, e:
-#        module.fail_json(msg=e.message)
 
 
 if __name__ == '__main__':

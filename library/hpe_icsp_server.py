@@ -33,6 +33,13 @@ requirements:
     - "python >= 2.7.9"
     - "hpICsp"
 options:
+  state:
+    description:
+      - Indicates the desired state for the ICsp server.
+        'present' will register the resource on ICsp.
+        'absent' will remove the resource from ICsp, if it exists.
+        'network_configured' will set the network configuration.
+    choices: ['present', 'absent', 'network_configured']
   icsp_host:
     description:
       - ICsp hostname.
@@ -123,7 +130,7 @@ SERVER_PERSONALITY_DATA_REQUIRED = 'server_personality_data must be informed.'
 
 class ICspServerModule(object):
     argument_spec = dict(
-        # connection
+        # Connection
         icsp_host=dict(required=True, type='str'),
         username=dict(required=True, type='str'),
         password=dict(required=True, type='str'),
@@ -210,10 +217,10 @@ class ICspServerModule(object):
             return self.module.exit_json(changed=False, msg=SERVER_NOT_FOUND)
 
         server_data = {"serverUri": target_server['uri'], "personalityData": personality_data, "skipReboot": True}
-        networkConfig = {"serverData": [server_data], "failMode": None, "osbpUris": []}
+        network_config = {"serverData": [server_data], "failMode": None, "osbpUris": []}
 
         # Save nework personalization attribute, without running the job
-        self.__add_write_only_job(networkConfig)
+        self.__add_write_only_job(network_config)
 
         servers_service = hpICsp.servers(self.connection)
         server = servers_service.get_server(target_server['uri'])
@@ -252,8 +259,8 @@ class ICspServerModule(object):
         add_server_job = servers_service.add_server(ilo_body)
         hpICsp.common.monitor_execution(add_server_job, job_monitor)
 
-        # Python bindings trhow an Exception when the status != ok
-        # So if we got this far the job execution finished as expected
+        # Python bindings throw an Exception when the status != ok
+        # So if we got this far, the job execution finished as expected
 
         # gets the target server added to ICsp to return on ansible facts
         target_server = self.__get_server_by_ilo_address(ilo_address)
