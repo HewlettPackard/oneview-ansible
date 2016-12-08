@@ -1,5 +1,4 @@
 #!/bin/bash
-
 ###
 # Copyright (2016) Hewlett Packard Enterprise Development LP
 #
@@ -27,6 +26,18 @@ exit_code_playbook_validation=0
 exit_code_tests=0
 exit_code_flake8=0
 
+# Change current path
+echo "Changing current directory to: ${BASH_SOURCE%/*}"
+cd ${BASH_SOURCE%/*}
+export ANSIBLE_LIBRARY=library
+
+# Checks PYTHON_SDK
+if [ -z ${PYTHON_SDK+x} ]; then
+  export PYTHON_SDK=../python-hpOneView
+  echo -e "\e[93mWARNING: PYTHON_SDK is unset. Defining: ${PYTHON_SDK}"
+fi
+
+export PYTHONPATH=$PYTHON_SDK:$ANSIBLE_LIBRARY:$PYTHONPATH
 
 print_summary () {
   if [ $2 -eq 0 ]; then
@@ -56,11 +67,6 @@ validate_modules () {
   fi
 }
 
-if [ -z ${ANSIBLE_LIBRARY+x} ]; then
-  echo "ANSIBLE_LIBRARY is unset. Your build exited with 1."
-  exit 1
-fi
-
 echo -e "\n${COLOR_START}Validating modules${COLOR_END}"
 validate_modules
 
@@ -81,11 +87,16 @@ else
   exit_code_flake8=1
 fi
 
+echo -e "\n${COLOR_START}Generating markdown documentation${COLOR_END}"
+build-doc/run-doc-generation.sh
+exit_code_doc_generation=$?
+
 echo -e "\n=== Summary =========================="
 print_summary "Modules validation" ${exit_code_module_validation}
 print_summary "Playboks validation" ${exit_code_playbook_validation}
 print_summary "Unit tests" ${exit_code_tests}
 print_summary "Flake8" ${exit_code_flake8}
+print_summary "Doc Generation" ${exit_code_doc_generation}
 
 echo "Done. Your build exited with ${exit_code_build_oneview_ansible}."
 exit ${exit_code_build_oneview_ansible}

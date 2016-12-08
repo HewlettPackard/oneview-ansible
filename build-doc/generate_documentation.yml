@@ -1,0 +1,38 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+- name: Create local markdown file from Ansible modules documentation
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    title: 'Ansible HPE OneView Modules'
+    # Uncomment the line below to add a subtitle
+    # subtitle: ''
+    template_file_name: 'oneview_ansible_documentation.j2'
+    generated_markdown_file: '../oneview-ansible.md'
+  tasks:
+    - name: Extract documentation, examples and returns from the Ansible modules
+      ansible_module_documentation:
+        path: '../library'
+        exclusion_filters: ['__init__.py']
+      register: result
+    - debug: var=result.errors # Shows occurred errors
+
+    - name: Build markdown file
+      template:
+        src: '{{ template_file_name }}'
+        dest: '{{ generated_markdown_file }}'
