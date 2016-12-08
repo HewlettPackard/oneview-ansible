@@ -79,7 +79,7 @@ description:
       automatically based on the server profile configuration if no server hardware was provided.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.0"
+    - "hpOneView >= 3.0.1"
 author:
     - "Chakravarthy Racharla"
     - "Camila Balestrin (@balestrinc)"
