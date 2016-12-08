@@ -1,0 +1,94 @@
+{###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###}
+{% if title is defined %}
+# {{ title }}
+{% endif %}
+{% if subtitle is defined %}
+### *{{ subtitle }}*
+{% endif %}
+
+### Modules
+
+{% for doc in result.modules_docs %}
+  * [{{ doc['module'] }} - {{ doc['short_description'] }}](#{{ doc['module'] }})
+{% endfor %}
+
+---
+{% for doc in result.modules_docs %}
+
+## {{ doc['module'] }}
+{{ doc['short_description'] }}
+
+#### Synopsis
+{% for each in doc['description'] %} {{ each }}
+{% endfor %}
+
+#### Requirements (on the host that executes the module)
+{% for each in doc['requirements'] %}
+  * {{ each }}
+{% endfor %}
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+{% for k,v in doc.iteritems() %}
+{% if k == 'options' %}
+{% for option,values in v.iteritems() %}
+| {{ option }}  |  {% if values.get('required') != None %} {{ values['required'] | replace('True','yes') | replace('False','no') }} {% endif %} | {% if values.get('default') != None %} {{ values['default'] | replace('None','')}} {% endif %} |{% if values.get('choices') != None %} <ul>{% for each in values['choices'] %} <li>{{ each }}</li> {% endfor %}</ul>{% endif %} | {% if values.get('description') != None %}{% for each in values['description'] %} {{ each }} {% endfor %}{% endif %} |
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+
+ {% if doc['examples'] is defined %}
+
+#### Examples
+
+```yaml
+{% for each in doc['examples'] %}
+{{ each | replace('{#','{{') | replace('#}','}}') }}
+{% endfor %}
+```
+{% endif %}
+
+
+{% if doc['returns'] is defined %}
+
+#### Return Values
+
+| Name          | Decription  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+{% for k,v in doc['returns'].iteritems() %}
+| {{ k }}   | {{ v.get('description') }} |  {{ v.get('returned') }} |  {{ v.get('type') }} |
+{% endfor %}
+
+{% endif %}
+
+{% for k,v in doc.iteritems() %}
+{% if k == 'notes' %}
+#### Notes
+
+{% for note in v %}
+- {{ note }}
+
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+---
+
+{% endfor %}
