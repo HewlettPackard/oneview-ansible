@@ -18,15 +18,16 @@
 import logging
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare, merge_list_by_key
     from hpOneView.exceptions import HPOneViewTaskError
+
     HAS_HPE_ONEVIEW = True
 except ImportError:
     HAS_HPE_ONEVIEW = False
 from copy import deepcopy
-
 
 ASSIGN_HARDWARE_ERROR_CODES = ['AssignProfileToDeviceBayError',
                                'EnclosureBayUnavailableForProfile',
@@ -341,9 +342,12 @@ class ServerProfileModule(object):
 
         if server_template:
             logger.debug(msg="Get new Profile from template")
-            profile_name = server_profile_data['name']
-            server_profile_data = self.oneview_client.server_profile_templates.get_new_profile(server_template['uri'])
-            server_profile_data['name'] = profile_name
+
+            server_profile_template = self.oneview_client.server_profile_templates.get_new_profile(
+                server_template['uri'])
+
+            server_profile_template.update(server_profile_data)
+            server_profile_data = server_profile_template
 
         if server_hardware_uri:
             server_profile_data['serverHardwareUri'] = server_hardware_uri
