@@ -29,12 +29,14 @@ DOCUMENTATION = '''
 module: oneview_logical_enclosure
 short_description: Manage OneView Logical Enclosure resources.
 description:
-    - Provides an interface to manage Logical Enclosure resources. Can update, update firmware, perform dump,
-      update configuration script, reapply configuration, or update from group.
+    - Provides an interface to manage Logical Enclosure resources. Can create, update, update firmware, perform dump,
+      update configuration script, reapply configuration, update from group, or delete.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
-author: "Gustavo Hennig (@GustavoHennig)"
+author:
+    - "Gustavo Hennig (@GustavoHennig)"
+    - "Mariana Kreisig (@marikrg)"
 options:
     config:
       description:
@@ -45,13 +47,16 @@ options:
     state:
         description:
             - Indicates the desired state for the Logical Enclosure resource.
-              'present' enable to change the Logical Enclosure name.
-              'firmware_updated' update the firmware for the Logical Enclosure.
-              'script_updated' update the Logical Enclosure configuration script.
+              'present' ensures data properties are compliant with OneView. You can rename the enclosure providing
+              an attribute 'newName'.
+              'firmware_updated' updates the firmware for the Logical Enclosure.
+              'script_updated' updates the Logical Enclosure configuration script.
               'dumped' generates a support dump for the Logical Enclosure.
-              'reconfigured' reconfigure all enclosures associated with logical enclosure.
+              'reconfigured' reconfigures all enclosures associated with a logical enclosure.
               'updated_from_group' makes the logical enclosure consistent with the enclosure group.
-        choices: ['present', 'firmware_updated', 'script_updated', 'dumped', 'reconfigured', 'updated_from_group']
+              'absent' will remove the resource from OneView, if it exists.
+        choices: ['present', 'firmware_updated', 'script_updated', 'dumped', 'reconfigured', 'updated_from_group',
+                  'absent']
         required: true
     data:
         description:
@@ -62,9 +67,23 @@ notes:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
     - "Check how to use environment variables for configuration at:
        https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+    - "The 'absent' state and the creation of a Logical Enclosure done through the 'present' state are available only
+       on HPE Synergy."
 '''
 
 EXAMPLES = '''
+- name: Create a Logical Enclosure (available only on HPE Synergy)
+  oneview_logical_enclosure:
+    config: "{{ config_file_name }}"
+    state: present
+    data:
+        enclosureUris:
+          - "/rest/enclosures/0000000000A66101"
+        enclosureGroupUri: "/rest/enclosure-groups/9fafc382-bbef-4a94-a9d1-05f77042f3ac"
+        name: "Encl1"
+  ignore_errors: true
+  delegate_to: localhost
+
 - name: Update the firmware for the Logical Enclosure
   oneview_logical_enclosure:
     config: "{{ config_file_name }}"
@@ -80,7 +99,7 @@ EXAMPLES = '''
 # This play is compatible with Synergy Enclosures
 - name: Update the firmware for the Logical Enclosure with the logical-interconnect validation set as true
   oneview_logical_enclosure:
-    config: "{{ config }}"
+    config: "{{ config_file_name }}"
     state: firmware_updated
     data:
         name: "Encl1"
@@ -139,12 +158,22 @@ EXAMPLES = '''
         name: "Encl1"
         newName: "Encl1 (renamed)"
   delegate_to: localhost
+
+- name: Delete a Logical Enclosure (available only on HPE Synergy)
+    oneview_logical_enclosure:
+      config: "{{ config_file_name }}"
+      state: absent
+      data:
+        name: 'Encl1'
+    ignore_errors: true
+  delegate_to: localhost
+
 '''
 
 RETURN = '''
 logical_enclosure:
     description: Has the facts about the OneView Logical Enclosure.
-    returned: On states 'present', 'firmware_updated', 'reconfigured', 'updated_from_group'. Can be null.
+    returned: On states 'present', 'firmware_updated', 'reconfigured', 'updated_from_group', and 'absent'. Can be null.
     type: complex
 
 configuration_script:
@@ -153,7 +182,7 @@ configuration_script:
     type: complex
 
 generated_dump_uri:
-    description: Has the facts about the Logical Enclosure generated support dump uri.
+    description: Has the facts about the Logical Enclosure generated support dump URI.
     returned: On state 'dumped'. Can be null.
     type: complex
 '''
