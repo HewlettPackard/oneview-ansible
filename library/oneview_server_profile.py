@@ -34,6 +34,8 @@ ASSIGN_HARDWARE_ERROR_CODES = ['AssignProfileToDeviceBayError',
                                'ProfileAlreadyExistsInServer']
 
 KEY_ID = 'id'
+KEY_NAME = 'name'
+KEY_DEVICE_SLOT = 'deviceSlot'
 KEY_CONNECTIONS = 'connections'
 KEY_OS_DEPLOYMENT = 'osDeploymentSettings'
 KEY_ATTRIBUTES = 'osCustomAttributes'
@@ -44,6 +46,14 @@ KEY_CONN_ID = 'connectionId'
 KEY_BOOT = 'boot'
 KEY_BIOS = 'bios'
 KEY_BOOT_MODE = 'bootMode'
+KEY_LOCAL_STORAGE = 'localStorage'
+KEY_SAS_LOGICAL_JBODS = 'sasLogicalJBODs'
+KEY_CONTROLLERS = 'controllers'
+KEY_LOGICAL_DRIVES = 'logicalDrives'
+KEY_SAS_LOGICAL_JBOD_URI = 'sasLogicalJBODUri'
+KEY_SAS_LOGICAL_JBOD_ID = 'sasLogicalJBODId'
+KEY_DEVICE_SLOT = 'deviceSlot'
+KEY_MODE = 'mode'
 
 TEMPLATE_NOT_FOUND = "Informed Server Profile Template '{}' not found"
 HARDWARE_NOT_FOUND = "Informed Server Hardware '{}' not found"
@@ -69,7 +79,7 @@ description:
       automatically based on the server profile configuration if no server hardware was provided.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.0"
+    - "hpOneView >= 3.0.1"
 author:
     - "Chakravarthy Racharla"
     - "Camila Balestrin (@balestrinc)"
@@ -86,7 +96,7 @@ options:
       - Indicates the desired state for the Server Profile resource by the end of the playbook execution.
         'present' will ensure data properties are compliant with OneView.
         'absent' will remove the resource from OneView, if it exists.
-        'compliant' will make the server profile complient with its server profile template, when this option was
+        'compliant' will make the server profile compliant with its server profile template, when this option was
         specified.
     default: present
     choices: ['present', 'absent', 'compliant']
@@ -267,9 +277,9 @@ class ServerProfileModule(object):
             msg = SERVER_PROFILE_CREATED
         else:
             merged_data = ServerProfileMerger().merge_data(resource, data)
-            resource_for_comparation = self.__resource_with_paths_ordered(resource)
+            resource_for_comparison = self.__resource_for_comparison(resource)
 
-            if not resource_compare(resource_for_comparation, merged_data):
+            if not resource_compare(resource_for_comparison, merged_data):
                 resource = self.__update_server_profile(merged_data)
                 changed = True
                 msg = SERVER_PROFILE_UPDATED
@@ -278,12 +288,20 @@ class ServerProfileModule(object):
 
         return created, changed, msg, resource
 
-    def __resource_with_paths_ordered(self, resource):
+    def __resource_for_comparison(self, resource):
         resource_changed = deepcopy(resource)
+
+        # Order paths from SAN Storage Volumes
         if KEY_SAN in resource_changed and KEY_VOLUMES in resource_changed[KEY_SAN]:
             for volume in resource_changed[KEY_SAN][KEY_VOLUMES]:
                 if KEY_PATHS in volume:
                     volume[KEY_PATHS] = sorted(volume[KEY_PATHS], key=lambda k: k[KEY_CONN_ID])
+
+        # Order SAS Logical JBODs from Local Storage
+        if KEY_LOCAL_STORAGE in resource_changed and KEY_SAS_LOGICAL_JBODS in resource_changed[KEY_LOCAL_STORAGE]:
+            jbods = resource_changed[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS]
+            resource_changed[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS] = sorted(jbods, key=lambda k: k[KEY_ID])
+
         return resource_changed
 
     def __update_server_profile(self, profile_with_updates):
@@ -458,6 +476,7 @@ class ServerProfileModule(object):
 
 
 class ServerProfileMerger(object):
+
     def merge_data(self, resource, data):
         merged_data = deepcopy(resource)
         merged_data.update(data)
@@ -466,6 +485,7 @@ class ServerProfileMerger(object):
         merged_data = self._merge_connections(merged_data, resource, data)
         merged_data = self._merge_san_storage(merged_data, data, resource)
         merged_data = self._merge_os_deployment_settings(merged_data, resource, data)
+        merged_data = self._merge_local_storage(merged_data, resource, data)
 
         return merged_data
 
@@ -482,7 +502,7 @@ class ServerProfileMerger(object):
         if self._should_merge(data, resource, key=KEY_CONNECTIONS):
             existing_connections = resource[KEY_CONNECTIONS]
             params_connections = data[KEY_CONNECTIONS]
-            merged_data[KEY_CONNECTIONS] = merge_list_by_key(existing_connections, params_connections, KEY_ID)
+            merged_data[KEY_CONNECTIONS] = merge_list_by_key(existing_connections, params_connections, key=KEY_ID)
 
             # merge Boot from Connections
             merged_data = self._merge_connections_boot(merged_data, resource)
@@ -514,7 +534,7 @@ class ServerProfileMerger(object):
         if self._should_merge(data[KEY_SAN], resource[KEY_SAN], key=KEY_VOLUMES):
             existing_volumes = resource[KEY_SAN][KEY_VOLUMES]
             params_volumes = data[KEY_SAN][KEY_VOLUMES]
-            merged_volumes = merge_list_by_key(existing_volumes, params_volumes, KEY_ID)
+            merged_volumes = merge_list_by_key(existing_volumes, params_volumes, key=KEY_ID)
             merged_data[KEY_SAN][KEY_VOLUMES] = merged_volumes
 
             # Merge Paths from SAN Storage Volumes
@@ -534,7 +554,7 @@ class ServerProfileMerger(object):
                     paths_from_merged_volume = merged_volume[KEY_PATHS]
                     paths_from_merged_volume = sorted(paths_from_merged_volume, key=lambda k: k[KEY_CONN_ID])
 
-                    merged_paths = merge_list_by_key(existent_paths, paths_from_merged_volume, KEY_CONN_ID)
+                    merged_paths = merge_list_by_key(existent_paths, paths_from_merged_volume, key=KEY_CONN_ID)
 
                     merged_volume[KEY_PATHS] = merged_paths
         return merged_data
@@ -563,6 +583,68 @@ class ServerProfileMerger(object):
                     merged_os_deployment[KEY_ATTRIBUTES] = existing_attributes
 
         return merged_data
+
+    def _merge_local_storage(self, merged_data, resource, data):
+        if self._should_merge(data, resource, key=KEY_LOCAL_STORAGE):
+            # Merge SAS Logical JBODs from Local Storage
+            merged_data = self._merge_sas_logical_jbods(merged_data, resource, data)
+            # Merge Controllers from Local Storage
+            merged_data = self._merge_controllers(merged_data, resource, data)
+        return merged_data
+
+    def _merge_sas_logical_jbods(self, merged_data, resource, data):
+        if self._should_merge(data[KEY_LOCAL_STORAGE], resource[KEY_LOCAL_STORAGE], key=KEY_SAS_LOGICAL_JBODS):
+            existing_items = resource[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS]
+            provided_items = merged_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS]
+            merged_jbods = merge_list_by_key(existing_items,
+                                             provided_items,
+                                             key=KEY_ID,
+                                             ignore_when_null=[KEY_SAS_LOGICAL_JBOD_URI])
+            merged_jbods = sorted(merged_jbods, key=lambda k: k[KEY_ID])
+            merged_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS] = merged_jbods
+        return merged_data
+
+    def _merge_controllers(self, merged_data, resource, data):
+        if self._should_merge(data[KEY_LOCAL_STORAGE], resource[KEY_LOCAL_STORAGE], key=KEY_CONTROLLERS):
+            existing_items = resource[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]
+            provided_items = merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]
+            merged_controllers = merge_list_by_key(existing_items, provided_items, key=KEY_DEVICE_SLOT)
+            merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS] = merged_controllers
+
+            # Merge Drives from Mezzanine and Embedded controllers
+            merged_data = self._merge_controller_drives(merged_data, resource)
+        return merged_data
+
+    def _merge_controller_drives(self, merged_data, resource):
+        for current_controller in merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]:
+            for existing_controller in resource[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]:
+                same_slot = current_controller.get(KEY_DEVICE_SLOT) == existing_controller.get(KEY_DEVICE_SLOT)
+                same_mode = existing_controller.get(KEY_MODE) == existing_controller.get(KEY_MODE)
+                if same_slot and same_mode and current_controller[KEY_LOGICAL_DRIVES]:
+
+                    key_merge = self._define_key_to_merge_drives(current_controller)
+
+                    if key_merge:
+                        merged_drives = merge_list_by_key(existing_controller[KEY_LOGICAL_DRIVES],
+                                                          current_controller[KEY_LOGICAL_DRIVES],
+                                                          key=key_merge)
+                        current_controller[KEY_LOGICAL_DRIVES] = merged_drives
+        return merged_data
+
+    def _define_key_to_merge_drives(self, controller):
+        has_name = True
+        has_logical_jbod_id = True
+        for drive in controller[KEY_LOGICAL_DRIVES]:
+            if not drive.get(KEY_NAME):
+                has_name = False
+            if not drive.get(KEY_SAS_LOGICAL_JBOD_ID):
+                has_logical_jbod_id = False
+
+        if has_name:
+            return KEY_NAME
+        elif has_logical_jbod_id:
+            return KEY_SAS_LOGICAL_JBOD_ID
+        return None
 
     def _removed_data(self, data, resource, key):
         return key in data and not data[key] and key in resource
