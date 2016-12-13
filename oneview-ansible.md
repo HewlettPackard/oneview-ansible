@@ -2,7 +2,9 @@
 
 ### Modules
 
-  * [hpe_icsp - Deploy the operating system on a server using HPE ICsp.](#hpe_icsp)
+  * [hpe_icsp_os_deployment - Deploy the operating system on a server using HPE ICsp.](#hpe_icsp_os_deployment)
+  * [hpe_icsp_server - Adds, removes and configures servers in ICsp.](#hpe_icsp_server)
+  * [image_streamer_golden_image - Manage Image Stream Golden Image resources.](#image_streamer_golden_image)
   * [oneview_alert_facts - Retrieve facts about the OneView Alerts.](#oneview_alert_facts)
   * [oneview_connection_template - Manage OneView Connection Template resources.](#oneview_connection_template)
   * [oneview_connection_template_facts - Retrieve facts about Connection Templates of the OneView.](#oneview_connection_template_facts)
@@ -92,7 +94,7 @@
 
 ---
 
-## hpe_icsp
+## hpe_icsp_os_deployment
 Deploy the operating system on a server using HPE ICsp.
 
 #### Synopsis
@@ -120,7 +122,7 @@ Deploy the operating system on a server using HPE ICsp.
 
 ```yaml
 - name: Deploy OS
-  hpe_icsp:
+  hpe_icsp_os_deployment:
     icsp_host: "{{ icsp }}"
     username: "{{ icsp_username }}"
     password: "{{ icsp_password }}"
@@ -128,12 +130,180 @@ Deploy the operating system on a server using HPE ICsp.
     os_build_plan: "{{ os_build_plan }}"
     custom_attributes: "{{ osbp_custom_attributes }}"
     personality_data: "{{ network_config }}"
-    when: created
   delegate_to: localhost
 
 ```
 
 
+
+#### Return Values
+
+| Name          | Decription  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| icsp_server   | Has the facts about the server that was provisioned with ICsp. |  When the module runs successfully. Can be null. |  complex |
+
+
+
+---
+
+
+## hpe_icsp_server
+Adds, removes and configures servers in ICsp.
+
+#### Synopsis
+ This module allows to add, remove and configure servers in Insight Control Server Provisioning (ICsp). A server, often referred to as a Target Server, in ICsp is a physical ProLiant server or a virtual machine that can have actions taken upon it.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpICsp
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| username  |   yes  |  | |  ICsp username.  |
+| server_password  |   yes  |  | |  The password required to log into the server's iLO  |
+| password  |   yes  |  | |  ICsp password.  |
+| icsp_host  |   yes  |  | |  ICsp hostname.  |
+| server_personality_data  |   no  |  | |  Aditional data to send to ICsp.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>network_configured</li> </ul> |  Indicates the desired state for the ICsp server. 'present' will register the resource on ICsp. 'absent' will remove the resource from ICsp, if it exists. 'network_configured' will set the network configuration.  |
+| server_port  |   no  |  [443]  | |  The iLO port to use when logging in.  |
+| server_ipAddress  |   yes  |  | |  The IP address of the iLO of the server.  |
+| server_username  |   yes  |  | |  The user name required to log into the server's iLO.  |
+
+
+ 
+#### Examples
+
+```yaml
+  - name: Ensure the server is registered in ICsp
+    hpe_icsp_server:
+      icsp_host: "{{icsp_host}}"
+      username: "{{icsp_username}}"
+      password: "{{icsp_password}}"
+      server_ipAddress: "{{server_iLO_ip}}"
+      server_username: "Admin"
+      server_password: "admin"
+      state: present
+    delegate_to: localhost
+
+  - name: Set the network configuration
+    hpe_icsp_server:
+      icsp_host: "{{ icsp }}"
+      username: "{{ icsp_username }}"
+      password: "{{ icsp_password }}"
+      server_ipAddress: "{{ server_ipAddress }}"
+      server_username: "{{ server_username }}"
+      server_password: "{{ server_password }}"
+      server_personality_data: "{{ network_config }}"
+      state: network_configured
+    delegate_to: localhost
+
+  - name: Ensure the server is removed from ICsp
+    hpe_icsp_server:
+      icsp_host: "{{icsp_host}}"
+      username: "{{icsp_username}}"
+      password: "{{icsp_password}}"
+      server_ipAddress: "{{server_iLO_ip}}"
+      server_username: "Admin"
+      server_password: "admin"
+      state: absent
+    delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Decription  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| target_server   | Has the facts about the server that was added to ICsp. |  On states 'present' and 'network_configured' . Can be null. |  complex |
+
+
+
+---
+
+
+## image_streamer_golden_image
+Manage Image Stream Golden Image resources.
+
+#### Synopsis
+ Provides an interface to manage Image Stream Golden Image. Can create, add, update, remove.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| data  |   yes  |  | |  List with Golden Image properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Golden Image resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+| config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Add a Golden Image from OS Volume
+  image_streamer_golden_image:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: 'Demo Golden Image creation'
+      description: "Test Description"
+      imageCapture: "true"
+      osVolumeName: 'OSVolume-20'
+      buildPlanName: 'Buld Plan name'
+  delegate_to: localhost
+
+- name: Create a Golden Image uploading from a local file
+  image_streamer_golden_image:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: 'Demo Golden Image upload'
+      description: "Test"
+      localImageFilePath: '~/image_file.zip'
+  delegate_to: localhost
+
+- name: Update the Golden Image description and name
+  image_streamer_golden_image:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: 'Demo Golden Image upload'
+      description: "New description"
+      newName: 'Golden Image Renamed'
+  delegate_to: localhost
+
+- name: Remove a Golden Image
+  image_streamer_golden_image:
+    config: "{{ config }}"
+    state: absent
+    data:
+        name: 'Golden Image name'
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Decription  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| golden_image   | Has the OneView facts about the Golden Image. |  On state 'present', upload an image returns null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 
 ---
@@ -5082,14 +5252,14 @@ Manage OneView Server Profile resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpOneView >= 3.0.1
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | data  |   yes  |  | |  List with Server Profile properties.  |
-| state  |   |  present  | <ul> <li>present</li>  <li>absent</li>  <li>compliant</li> </ul> |  Indicates the desired state for the Server Profile resource by the end of the playbook execution. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'compliant' will make the server profile complient with its server profile template, when this option was specified.  |
+| state  |   |  present  | <ul> <li>present</li>  <li>absent</li>  <li>compliant</li> </ul> |  Indicates the desired state for the Server Profile resource by the end of the playbook execution. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'compliant' will make the server profile compliant with its server profile template, when this option was specified.  |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 
 

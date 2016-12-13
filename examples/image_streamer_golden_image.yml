@@ -1,0 +1,72 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    golden_image_name_created: 'Demo Golden Image creation'
+    golden_image_name_uploaded: 'Demo Golden Image upload'
+    local_image_file_path:  '~/image_file.zip'
+    os_volume_name: "OSVolume-20"
+    build_plan_name: "Demo Build Plan"
+  tasks:
+    - name: Add a Golden Image from OS Volume
+      image_streamer_golden_image:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ golden_image_name_created }}'
+          description: "Test Description"
+          imageCapture: "true"
+          osVolumeName: '{{ os_volume_name }}'
+          buildPlanName: '{{ build_plan_name }}'
+      delegate_to: localhost
+
+    - name: Create a Golden Image uploading from a local file
+      image_streamer_golden_image:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ golden_image_name_uploaded }}'
+          description: "Test"
+          localImageFilePath: '{{ local_image_file_path }}'
+      delegate_to: localhost
+
+    - name: Update the Golden Image description and name
+      image_streamer_golden_image:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ golden_image_name_uploaded }}'
+          description: "New description"
+          newName: 'ready to delete'
+      delegate_to: localhost
+
+    - name: Remove the uploaded Golden Image
+      image_streamer_golden_image:
+        config: "{{ config }}"
+        state: absent
+        data:
+            name: 'ready to delete'
+      delegate_to: localhost
+
+    - name: Remove the created Golden Image
+      image_streamer_golden_image:
+        config: "{{ config }}"
+        state: absent
+        data:
+            name: '{{ golden_image_name_created }}'
+      delegate_to: localhost
