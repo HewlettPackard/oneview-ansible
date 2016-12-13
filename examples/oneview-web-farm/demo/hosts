@@ -14,12 +14,19 @@
 # limitations under the License.
 ###
 
-[webservers]
-demo-web[1:2]
+# default user and password generated on ICsp provisioning
+# If you set the SSH key during the server provisioning, you don't need to
+# specify the credentials
 
+# If you wish, you can specify manually the IP addres that ICsp will set
+# to the provisioned server ethernet adapter
 
 [lbservers]
-demo-lb
+demo-lb ansible_host=12.34.56.27 # ansible_user=root ansible_ssh_pass=ChangeMe123!
+
+[webservers]
+demo-web1 ansible_host=12.34.56.28 # ansible_user=root ansible_ssh_pass=ChangeMe123!
+demo-web2 ansible_host=12.34.56.29 # ansible_user=root ansible_ssh_pass=ChangeMe123!
 
 [all-servers:children]
 webservers

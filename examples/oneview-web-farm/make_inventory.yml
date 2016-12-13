@@ -15,6 +15,8 @@
 ###
 
 #optional, if you want to assign SH and IPs from a specific pool defined (see group_vars/all for examples)
+#you can also specify it directly in the inventory file
+
 - hosts: localhost
   tasks:
   - name: Assign IPs, Server HW to inventory

@@ -23,36 +23,47 @@ ntpserver: # NTP server IP address
 
 # OneView Settings
 
-ov_template: 'BL460c Gen8 1'# Name of the server profile template that will be used to provision the server profiles
+ov_template: 'Web Server'  # Name of the server profile template that will be used to provision the server profiles
+server_hardware_name: 'Enclosure1, bay 1'
 
 # ICsp Settings
 
-icsp: # ICsp IP or hostname
-icsp_username: # ICsp username
-icsp_password: # ICsp password
+icsp: 12.34.56.100 # ICsp appliance IP Address
+icsp_username: Administrator # ICsp user name
+icsp_password: admin # ICsp password
 
-os_build_plan : # OS Build plan
+os_build_plan: 'PHYSICAL - RHEL 7.2 x64' # name of the existing OS Build Plan in ICsp
 osbp_custom_attributes:
   - SSH_CERT: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
 
 # Server Settings
 
-ip_address_pool:
-  - # Server profile 1 IP address
-  - # Server profile 2 IP address
-  - # Server profile 3 IP address
+#iLO Credentials
+server_username: ServerAdministrator # iLO credentials for the target server that will be registered in ICsp
+server_password: admin #iLO password
 
-subnet_mask: # Subnet mask
-gateway: # Gateway IP address
+ip_address_pool:
+  - 12.34.56.27 # First server IP
+  - 12.34.56.28 # Second server IP
+  - 12.34.56.29 # Third server IP
+
+subnet_mask: 255.255.255.0
+gateway: 12.34.56.1
+dns_server: 12.34.56.2
 
 network_config:
-  hostName: "{{ inventory_hostname}}"
-  displayName: "{{ inventory_hostname}}"
-  domainName: "mgmt.local"
-  nics:
-  - mask: "{{subnet_mask}}"
-    dhcp: false
-    macAddress: "{{ server_profile.connections[0].mac }}"
-    ip4Address: "{{ ansible_ssh_host }}"
-    gateway: "{{ gateway }}"
-    dns: # DNS Server IP
+  hostname: "{{ inventory_hostname }}"
+  domain: "mycompany.local"
+  interfaces:
+  - macAddress: "{{ server_profile.connections[0].mac }}"
+    enabled: true
+    dhcpv4: false
+    ipv6Autoconfig: 
+    dnsServers:
+    - "{{ dns_server }}"
+    staticNetworks:
+    - "{{ ansible_host }}/{{ subnet_mask }}"
+    vlanid: -1
+    ipv4gateway: "{{ gateway }}"
+    ipv6gateway: 
+  virtualInterfaces:

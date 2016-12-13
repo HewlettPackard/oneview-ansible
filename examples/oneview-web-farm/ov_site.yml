@@ -23,6 +23,11 @@
   roles:
     - hpe-oneview-server
 
+# Add the RHEL Installation Media from ICsp Media Server as a YUM repository
+- hosts: all-servers
+  roles:
+  - local-yum-repo
+
 # Configure and deploy the web servers. Note that we include two roles here,
 # the 'base-apache' role which simply sets up Apache, and 'web' which includes
 # our example web application.

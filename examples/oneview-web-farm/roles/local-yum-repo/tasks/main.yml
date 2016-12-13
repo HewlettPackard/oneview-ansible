@@ -14,12 +14,8 @@
 # limitations under the License.
 ###
 
+---
+# This role contains common plays that will run on all nodes.
 
- # Create server profiles, Deploy OS
- - include: deploy.yml
-
- #Ensure servers are compliant to templates.
- - include: make_compliant.yml
-   delegate_to: localhost
-
-
+- name: Create the repository for RHEL Installation Media
+  copy: src=installmedia.repo dest=/etc/yum.repos.d/installmedia.repo

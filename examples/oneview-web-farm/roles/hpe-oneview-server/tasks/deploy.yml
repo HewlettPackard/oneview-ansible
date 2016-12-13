@@ -14,35 +14,56 @@
 # limitations under the License.
 ###
 
- - name : Create Server Profiles
-   oneview_server_profile:
-      config: "{{ playbook_dir }}/../oneview_config.json"
-      data:
-        server_template: "{{ ov_template }}"
-        name: "{{ inventory_hostname }}"
-        #server_hardware: "{{ server_hardware }}"  Optional - if ommited, select automatically
-   delegate_to: localhost
-
- - name: Power on the server hardware
-   oneview_server_hardware:
+- name : Create Server Profiles
+  oneview_server_profile:
      config: "{{ playbook_dir }}/../oneview_config.json"
-     state: power_state_set
      data:
-         hostname : "{{ server_hardware.name }}"
-         powerStateData:
-             powerState: "On"
-             powerControl: "MomentaryPress"
-   when: server_hardware.powerState == "Off"
-   delegate_to: localhost
+       server_template: "{{ ov_template }}"
+       name: "{{ inventory_hostname }}"
+       #server_hardware: "{{ server_hardware_name }}"
+  delegate_to: localhost
 
- - name : Deploy OS
-   hpe_icsp:
-     icsp_host: "{{ icsp }}"
-     username: "{{ icsp_username }}"
-     password: "{{ icsp_password }}"
-     server_id: "{{ server_profile.serialNumber }}"
-     os_build_plan: "{{ os_build_plan }}"
-     custom_attributes: "{{ osbp_custom_attributes }}"
-     personality_data: "{{ network_config }}"
-   when: created  #only if we just created the server. No re-deployment
-   delegate_to: localhost
+- name: Ensure the server is registered in ICsp
+  hpe_icsp_server:
+    icsp_host: "{{ icsp }}"
+    username: "{{ icsp_username }}"
+    password: "{{ icsp_password }}"
+    server_ipAddress: "{{ server_hardware.mpHostInfo.mpIpAddresses[0].address }}"  #iLO IP Address from server hardware
+    server_username: "{{ server_username }}"
+    server_password: "{{ server_password }}"
+    state: present
+  delegate_to: localhost
+
+- name: Set the network configuration
+  hpe_icsp_server:
+    icsp_host: "{{ icsp }}"
+    username: "{{ icsp_username }}"
+    password: "{{ icsp_password }}"
+    server_ipAddress: "{{ server_hardware.mpHostInfo.mpIpAddresses[0].address }}"  #iLO IP Address from server hardware
+    server_username: "{{ server_username }}"
+    server_password: "{{ server_password }}"
+    server_personality_data: "{{ network_config }}"
+    state: network_configured
+  delegate_to: localhost
+
+- name: Deploy OS to the server
+  hpe_icsp_os_deployment:
+    icsp_host: "{{ icsp }}"
+    username: "{{ icsp_username }}"
+    password: "{{ icsp_password }}"
+    server_id: "{{ server_profile.serialNumber }}"
+    os_build_plan: "{{ os_build_plan }}"
+    custom_attributes: "{{ osbp_custom_attributes }}"
+  delegate_to: localhost
+
+- name: Power on the server hardware
+  oneview_server_hardware:
+    config: "{{ playbook_dir }}/../oneview_config.json"
+    state: power_state_set
+    data:
+      hostname : "{{ server_hardware.name }}"
+      powerStateData:
+        powerState: "On"
+        powerControl: "MomentaryPress"
+  when: server_hardware.powerState == "Off"
+  delegate_to: localhost
