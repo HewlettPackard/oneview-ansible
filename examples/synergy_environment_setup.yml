@@ -18,17 +18,17 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     permitted_interconnect_type_uri: "/rest/sas-interconnect-types/Synergy12GbSASConnectionModule"
-  vars_files:
-    # The hostnames and credentials of the enclosure and storage system must be defined in the file /vars/config.yml
-    - '{{ playbook_dir }}/vars/config.yml'
-
+    sas_logical_interconnect_group_name: "SAS Logical Interconnect Group Oneview Ansible"
+    enclosure_group_name: "Enclosure Group Oneview Ansible"
+    enclosure_name: 'encl-oneview-ansible'
+    server_profile_name: 'Server Profile with Local Storage Oneview Ansible'
   tasks:
-    - name: Create a SAS Logical Interconnect Group
+    - name: Ensure the SAS Logical Interconnect Group is present
       oneview_sas_logical_interconnect_group:
         config: "{{ config }}"
         state: present
         data:
-          name: "Test SAS Logical Interconnect Group"
+          name: "{{ sas_logical_interconnect_group_name }}"
           state: "Active"
           interconnectMapTemplate:
             interconnectMapEntryTemplates:
@@ -53,13 +53,12 @@
           interconnectBaySet: "1"
       delegate_to: localhost
 
-    - name: Create an Enclosure Group
+    - name: Ensure the Enclosure Group is present
       oneview_enclosure_group:
         config: "{{ config }}"
         state: present
         data:
-            name: "Test Enclosure Group"
-            stackingMode: "Test Enclosure"
+            name: "{{ enclosure_group_name }}"
             ipAddressingMode: "DHCP"
             enclosureCount: 3
             interconnectBayMappingCount: 6
@@ -86,12 +85,90 @@
                   logicalInterconnectGroupUri: '{{ sas_logical_interconnect_group.uri }}'
       delegate_to: localhost
 
-      #- name: Gather facts about all Server Hardwares
-      #oneview_server_hardware_facts:
-      #  config: "{{ config }}"
-      #delegate_to: localhost
+    - name: Gather facts about all Enclosures
+      oneview_enclosure_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
 
-      #- name: 'Validate exist server hardwares'
-      #fail: msg="Please verify the hardware setup."
-      #when: (server_hardwares.0 is undefined or server_hardwares.0 is none)
+    - name: Validate the Enclosures
+      fail: msg="Three enclosures are required to run this example."
+      when: (enclosures|length < 3)
 
+    - name: Sort the enclosures by name
+      set_fact: enclosures_ordered="{{enclosures | sort(attribute='name') | list }}"
+
+    - name: Ensure the Logical Enclosure is present
+      oneview_logical_enclosure:
+        config: "{{ config }}"
+        state: present
+        data:
+            name: "{{ enclosure_name }}"
+            enclosureUris:
+              - "{{ enclosures_ordered.0.uri }}"
+              - "{{ enclosures_ordered.1.uri }}"
+              - "{{ enclosures_ordered.2.uri }}"
+            enclosureGroupUri: "{{ enclosure_group.uri }}"
+      delegate_to: localhost
+
+    - name: Gather facts about all Server Hardwares
+      oneview_server_hardware_facts:
+       config: "{{ config }}"
+      delegate_to: localhost
+
+    - name: Validate the Hardware Setup
+      fail: msg="No server hardware found. Please verify the Hardware Setup."
+      when: (server_hardwares.0 is undefined or server_hardwares.0 is none)
+
+    - name : Ensure the Server Profile with Local Storage is present
+      oneview_server_profile:
+         config: "{{ config }}"
+         state: "present"
+         data:
+           name: '{{  server_profile_name }}'
+           localStorage:
+             sasLogicalJBODs:
+               - id: 1
+                 deviceSlot: "Mezz 1"
+                 name: "Data Storage"
+                 numPhysicalDrives: 1
+                 driveMinSizeGB: 44
+                 driveMaxSizeGB: 4444
+                 driveTechnology: "SasHdd"
+                 sasLogicalJBODUri: null
+               - id: 2
+                 deviceSlot: "Mezz 1"
+                 name: "Recovery Volume"
+                 numPhysicalDrives: 2
+                 driveMinSizeGB: 44
+                 driveMaxSizeGB: 4444
+                 driveTechnology: "SasHdd"
+                 sasLogicalJBODUri: null
+             controllers:
+               - deviceSlot: "Embedded"
+                 mode: "RAID"
+                 initialize: False
+                 importConfiguration: false
+                 logicalDrives:
+                   - name: "Operating System"
+                     raidLevel: "RAID1"
+                     bootable: false
+                     numPhysicalDrives: 2
+                     driveTechnology: null
+                     sasLogicalJBODId: null
+               - deviceSlot: "Mezz 1"
+                 mode: "RAID"
+                 initialize: false
+                 importConfiguration: false
+                 logicalDrives:
+                   - name: null
+                     raidLevel: "RAID0"
+                     bootable: false
+                     numPhysicalDrives: null
+                     driveTechnology: null
+                     sasLogicalJBODId: 1
+                   - name: null
+                     raidLevel: "RAID1"
+                     bootable: false
+                     numPhysicalDrives: null
+                     driveTechnology: null
+                     sasLogicalJBODId: 2
