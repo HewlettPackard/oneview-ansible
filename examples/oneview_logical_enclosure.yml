@@ -19,7 +19,23 @@
     config: "{{ playbook_dir }}/oneview_config.json"
     logical_enclosure_name: "Encl1"  # Set the name of a Logical Enclosure
     firmware_baseline_uri: "/rest/firmware-drivers/SPPgen9snap6_2016_0405_87"  # Set the URI of a Firmware Driver
+    enclosure_uri: "/rest/enclosures/0000000000A66101" # Set the URI of an Enclosure
+    enclosure_group_uri: "/rest/enclosure-groups/9fafc382-bbef-4a94-a9d1-05f77042f3ac" # Set the URI of an Enclosure Group
+
   tasks:
+    # This operation is only available on HPE Synergy
+    - name: Create a Logical Enclosure (available only on HPE Synergy)
+      oneview_logical_enclosure:
+        config: "{{ config }}"
+        state: present
+        data:
+            enclosureUris:
+              - "{{ enclosure_uri }}"
+            enclosureGroupUri: "{{ enclosure_group_uri }}"
+            name: "{{ logical_enclosure_name }}"
+      ignore_errors: true
+      delegate_to: localhost
+
     - name: Update the firmware for the Logical Enclosure
       oneview_logical_enclosure:
         config: "{{ config }}"
@@ -57,6 +73,7 @@
         data:
             name: "{{ logical_enclosure_name }}"
             configurationScript: "# script (updated)"
+      ignore_errors: true
       delegate_to: localhost
 
     - name: Generates a support dump for the Logical Enclosure
@@ -104,4 +121,13 @@
         data:
             name: "{{ logical_enclosure_name }} (renamed)"
             newName: "{{ logical_enclosure_name }}"
+      delegate_to: localhost
+
+    # This state is only available on HPE Synergy
+    - name: Delete a Logical Enclosure (available only on HPE Synergy)
+      oneview_logical_enclosure:
+        config: "{{ config }}"
+        state: absent
+        data: '{{ logical_enclosure }}'
+      ignore_errors: true
       delegate_to: localhost
