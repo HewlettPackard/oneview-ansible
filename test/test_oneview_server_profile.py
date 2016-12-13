@@ -1194,7 +1194,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        expected_controllers = [CONTROLLER_MEZZ_1.copy(), CONTROLLER_EMBEDDED.copy(), controller_added]
+        expected_controllers = [controller_added, CONTROLLER_EMBEDDED.copy(), CONTROLLER_MEZZ_1.copy()]
         self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS], expected_controllers)
 
     def test_merge_when_controllers_have_removed_item(self):
@@ -1219,7 +1219,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         item_2_merged = dict(initialize=True,  # initialize value changed from False to True
                              deviceSlot="Embedded", mode="RAID", importConfiguration=True,
                              logicalDrives=DRIVES_CONTROLLER_EMBEDDED)
-        expected_controllers = [CONTROLLER_MEZZ_1.copy(), item_2_merged.copy()]
+        expected_controllers = [item_2_merged.copy(), CONTROLLER_MEZZ_1.copy()]
         self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS], expected_controllers)
 
     def test_merge_when_controller_list_is_removed(self):
@@ -1234,7 +1234,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     def test_merge_when_drives_from_embedded_controller_have_new_item(self):
         new_drive = dict(name="drive-3", raidLevel="RAID1", bootable=False, sasLogicalJBODId=None)
         controller_embedded = deepcopy(CONTROLLER_EMBEDDED)
-        controller_embedded[KEY_LOGICAL_DRIVES].append(new_drive)
+        controller_embedded[KEY_LOGICAL_DRIVES].append(new_drive.copy())
 
         data = dict(name="Profile101",
                     localStorage=dict(controllers=[CONTROLLER_MEZZ_1.copy(),
@@ -1246,7 +1246,8 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         expected_drives = [CONTROLLER_EMBEDDED[KEY_LOGICAL_DRIVES][0],
                            CONTROLLER_EMBEDDED[KEY_LOGICAL_DRIVES][1],
                            new_drive]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_MEZZ][KEY_LOGICAL_DRIVES],
+
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES],
                          expected_drives)
 
     def test_merge_when_drives_from_embedded_controller_have_removed_item(self):
@@ -1261,7 +1262,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_drives = [CONTROLLER_EMBEDDED[KEY_LOGICAL_DRIVES][0]]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_MEZZ][KEY_LOGICAL_DRIVES],
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES],
                          expected_drives)
 
     def test_merge_when_drives_from_embedded_controller_have_changed_item(self):
@@ -1282,7 +1283,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         drive_1_merged = dict(name="drive-1", raidLevel="RAID0", bootable=False, sasLogicalJBODId=None)
         expected_drives = [drive_1_merged,
                            CONTROLLER_EMBEDDED[KEY_LOGICAL_DRIVES][1]]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_MEZZ][KEY_LOGICAL_DRIVES],
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES],
                          expected_drives)
 
     def test_merge_when_drives_from_mezz_controller_have_new_item(self):
@@ -1300,7 +1301,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         expected_drives = [CONTROLLER_MEZZ_1[KEY_LOGICAL_DRIVES][0],
                            CONTROLLER_MEZZ_1[KEY_LOGICAL_DRIVES][1],
                            new_drive]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES],
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_MEZZ][KEY_LOGICAL_DRIVES],
                          expected_drives)
 
     def test_merge_when_drives_from_mezz_controller_have_removed_item(self):
@@ -1314,8 +1315,8 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        expected_drives = [CONTROLLER_MEZZ_1[KEY_LOGICAL_DRIVES][INDEX_EMBED]]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES],
+        expected_drives = [CONTROLLER_MEZZ_1[KEY_LOGICAL_DRIVES][0]]
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_MEZZ][KEY_LOGICAL_DRIVES],
                          expected_drives)
 
     def test_merge_when_drives_from_mezz_controller_have_changed_item(self):
@@ -1336,7 +1337,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         drive_1_merged = dict(name=None, raidLevel="RAID0", bootable=False, sasLogicalJBODId=1)
         expected_drives = [drive_1_merged,
                            CONTROLLER_MEZZ_1[KEY_LOGICAL_DRIVES][1]]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES],
+        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_MEZZ][KEY_LOGICAL_DRIVES],
                          expected_drives)
 
     def test_merge_when_controller_drives_are_removed(self):
@@ -1350,7 +1351,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES])
+        self.assertFalse(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_MEZZ][KEY_LOGICAL_DRIVES])
 
 
 if __name__ == '__main__':

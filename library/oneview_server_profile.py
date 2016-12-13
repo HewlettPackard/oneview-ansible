@@ -302,6 +302,11 @@ class ServerProfileModule(object):
             jbods = resource_changed[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS]
             resource_changed[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS] = sorted(jbods, key=lambda k: k[KEY_ID])
 
+        # Order Controllers from Local Storage
+        if KEY_LOCAL_STORAGE in resource_changed and KEY_CONTROLLERS in resource_changed[KEY_LOCAL_STORAGE]:
+            controllers = resource_changed[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]
+            resource_changed[KEY_LOCAL_STORAGE][KEY_CONTROLLERS] = sorted(controllers, key=lambda k: k[KEY_DEVICE_SLOT])
+
         return resource_changed
 
     def __update_server_profile(self, profile_with_updates):
@@ -609,6 +614,7 @@ class ServerProfileMerger(object):
             existing_items = resource[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]
             provided_items = merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]
             merged_controllers = merge_list_by_key(existing_items, provided_items, key=KEY_DEVICE_SLOT)
+            merged_controllers = sorted(merged_controllers, key=lambda k: k[KEY_DEVICE_SLOT])
             merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS] = merged_controllers
 
             # Merge Drives from Mezzanine and Embedded controllers
