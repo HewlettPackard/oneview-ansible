@@ -1,0 +1,43 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+# This resource is only available on HPE Synergy
+- hosts: all
+  vars:
+    - config: "{{ playbook_dir }}/oneview_config.json"
+    - name: "LOG_EN-LIG_SAS-1" # change for the desired Golden Image name
+  tasks:
+    - name: Gather facts about all Golden Images
+      image_streamer_golden_image_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+    - debug: var=golden_images
+
+    - name: Gather facts about a Golden Image by name
+      image_streamer_golden_image_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+      delegate_to: localhost
+    - debug: var=golden_images
+
+    - name: Gather facts about the details of the golden image capture logs
+      image_streamer_golden_image_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - archive
+      delegate_to: localhost
+    - debug: var=golden_image_archive

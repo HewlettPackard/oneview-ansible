@@ -18,7 +18,8 @@ import yaml
 
 from image_streamer_golden_image import GoldenImageModule, GOLDEN_IMAGE_ALREADY_UPDATED, GOLDEN_IMAGE_UPLOADED, \
     GOLDEN_IMAGE_ALREADY_ABSENT, GOLDEN_IMAGE_CREATED, GOLDEN_IMAGE_DELETED, EXAMPLES, I3S_BUILD_PLAN_WAS_NOT_FOUND, \
-    GOLDEN_IMAGE_UPDATED, I3S_CANT_CREATE_AND_UPLOAD, I3S_MISSING_MANDATORY_ATTRIBUTES, I3S_OS_VOLUME_WAS_NOT_FOUND
+    GOLDEN_IMAGE_UPDATED, I3S_CANT_CREATE_AND_UPLOAD, I3S_MISSING_MANDATORY_ATTRIBUTES, I3S_OS_VOLUME_WAS_NOT_FOUND, \
+    GOLDEN_IMAGE_DOWNLOADED
 from test.utils import ModuleContructorTestCase, PreloadedMocksBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -39,9 +40,10 @@ class GoldenImageSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedMock
         self.GOLDEN_IMAGE_CREATE = self.GOLDEN_IMAGE_EXAMPLES[0]['image_streamer_golden_image']
         self.GOLDEN_IMAGE_UPLOAD = self.GOLDEN_IMAGE_EXAMPLES[1]['image_streamer_golden_image']
         self.GOLDEN_IMAGE_UPDATE = self.GOLDEN_IMAGE_EXAMPLES[2]['image_streamer_golden_image']
-        self.GOLDEN_IMAGE_DELETE = self.GOLDEN_IMAGE_EXAMPLES[3]['image_streamer_golden_image']
+        self.GOLDEN_IMAGE_DOWNLOAD = self.GOLDEN_IMAGE_EXAMPLES[3]['image_streamer_golden_image']
+        self.GOLDEN_IMAGE_DELETE = self.GOLDEN_IMAGE_EXAMPLES[4]['image_streamer_golden_image']
 
-    def test_should_create_new_golden_image(self):
+    def test_create_new_golden_image(self):
         self.i3s.golden_images.get_by.return_value = []
         self.i3s.golden_images.create.return_value = {"name": "name"}
         self.i3s.os_volumes.get_by_name.return_value = {'uri': '/rest/os-volumes/1'}
@@ -64,7 +66,7 @@ class GoldenImageSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedMock
             ansible_facts=dict(golden_image={"name": "name"})
         )
 
-    def test_should_upload_a_golden_image(self):
+    def test_upload_a_golden_image(self):
         self.i3s.golden_images.get_by.return_value = []
         self.i3s.golden_images.upload.return_value = True
 
@@ -84,7 +86,7 @@ class GoldenImageSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedMock
             ansible_facts=dict(golden_image=None)
         )
 
-    def test_should_update_the_golden_image(self):
+    def test_update_golden_image(self):
         self.i3s.golden_images.get_by.return_value = [self.GOLDEN_IMAGE_CREATE['data']]
         self.i3s.golden_images.update.return_value = {"name": "name"}
 
@@ -97,6 +99,23 @@ class GoldenImageSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedMock
             msg=GOLDEN_IMAGE_UPDATED,
             ansible_facts=dict(golden_image={"name": "name"})
         )
+
+    def test_golden_image_download(self):
+        golden_image = self.GOLDEN_IMAGE_CREATE['data']
+        golden_image['uri'] = '/rest/golden-images/1'
+
+        self.i3s.golden_images.get_by.return_value = [golden_image]
+        self.mock_ansible_module.params = self.GOLDEN_IMAGE_DOWNLOAD
+
+        GoldenImageModule().run()
+
+        download_file = self.GOLDEN_IMAGE_DOWNLOAD['data']['destination_file_path']
+        self.i3s.golden_images.download.assert_called_once_with('/rest/golden-images/1', download_file)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=GOLDEN_IMAGE_DOWNLOADED,
+            ansible_facts={})
 
     def test_should_not_update_when_data_is_equals(self):
         self.i3s.golden_images.get_by.return_value = [self.GOLDEN_IMAGE_UPDATE['data']]
@@ -113,7 +132,7 @@ class GoldenImageSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedMock
             ansible_facts=dict(golden_image=self.GOLDEN_IMAGE_UPDATE['data'])
         )
 
-    def test_should_delete_the_golden_image(self):
+    def test_delete_golden_image(self):
         self.i3s.golden_images.get_by.return_value = [self.GOLDEN_IMAGE_CREATE['data']]
 
         self.mock_ansible_module.params = self.GOLDEN_IMAGE_DELETE

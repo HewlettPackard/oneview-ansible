@@ -5,6 +5,7 @@
   * [hpe_icsp_os_deployment - Deploy the operating system on a server using HPE ICsp.](#hpe_icsp_os_deployment)
   * [hpe_icsp_server - Adds, removes and configures servers in ICsp.](#hpe_icsp_server)
   * [image_streamer_golden_image - Manage Image Stream Golden Image resources.](#image_streamer_golden_image)
+  * [image_streamer_golden_image_facts - Retrieve facts about one or more of the Image Streamer Golden Image.](#image_streamer_golden_image_facts)
   * [oneview_alert_facts - Retrieve facts about the OneView Alerts.](#oneview_alert_facts)
   * [oneview_connection_template - Manage OneView Connection Template resources.](#oneview_connection_template)
   * [oneview_connection_template_facts - Retrieve facts about Connection Templates of the OneView.](#oneview_connection_template_facts)
@@ -242,6 +243,8 @@ Manage Image Stream Golden Image resources.
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Golden Image resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with Golden Image properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>downloaded</li> </ul> |  Indicates the desired state for the Golden Image resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'downloaded' will download the Golden Image to the file path provided.  |
+| config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 
 
  
@@ -280,6 +283,15 @@ Manage Image Stream Golden Image resources.
       newName: 'Golden Image Renamed'
   delegate_to: localhost
 
+- name: Download the Golden Image to the file path provided
+  image_streamer_golden_image:
+    config: "{{ config }}"
+    state: downloaded
+    data:
+      name: 'Demo Golden Image'
+      destination_file_path: '~/downloaded_image.zip'
+  delegate_to: localhost
+
 - name: Remove a Golden Image
   image_streamer_golden_image:
     config: "{{ config }}"
@@ -304,6 +316,77 @@ Manage Image Stream Golden Image resources.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- This resource is only available on HPE Synergy
+
+
+---
+
+
+## image_streamer_golden_image_facts
+Retrieve facts about one or more of the Image Streamer Golden Image.
+
+#### Synopsis
+ Retrieve facts about one or more of the Image Streamer Golden Image.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| name  |   no  |  | |  Golden Image name.  |
+| options  |   no  |  | |  List with options to gather additional facts about Golden Image. Options allowed: 'archive' get the details of the Golden Image captured logs. - These options are valid just when a 'name' is provided. Otherwise it will be ignored.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Gather facts about all Golden Images
+  image_streamer_golden_image_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=golden_images
+
+- name: Gather facts about a Golden Image by name
+  image_streamer_golden_image_facts:
+    config: "{{ config }}"
+    name: "{{ name }}"
+  delegate_to: localhost
+- debug: var=golden_images
+
+- name: Gather facts about the details of the golden image capture logs
+  image_streamer_golden_image_facts:
+    config: "{{ config }}"
+    name: "{{ name }}"
+    options:
+      - archive
+  delegate_to: localhost
+- debug: var=golden_image_archive
+
+```
+
+
+
+#### Return Values
+
+| Name          | Decription  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| golden_image_archive   | The installed firmware for a Golden Image. |  When requested, but can be null. |  complex |
+| golden_images   | The list of Golden Images. |  Always, but can be null. |  list |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- This resource is only available on HPE Synergy
 
 
 ---
