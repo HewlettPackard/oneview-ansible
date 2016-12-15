@@ -19,7 +19,6 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -47,19 +46,11 @@ options:
       description:
         - Golden Image name.
       required: false
-    options:
-      description:
-        - "List with options to gather additional facts about Golden Image.
-          Options allowed:
-          'archive' get the details of the Golden Image captured logs.
-        - These options are valid just when a 'name' is provided. Otherwise it will be ignored."
-      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
     - "Check how to use environment variables for configuration at:
        https://github.com/HewlettPackard/oneview-ansible#environment-variables"
-    - This resource is only available on HPE Synergy
 '''
 
 EXAMPLES = '''
@@ -75,15 +66,6 @@ EXAMPLES = '''
     name: "{{ name }}"
   delegate_to: localhost
 - debug: var=golden_images
-
-- name: Gather facts about the details of the golden image capture logs
-  image_streamer_golden_image_facts:
-    config: "{{ config }}"
-    name: "{{ name }}"
-    options:
-      - archive
-  delegate_to: localhost
-- debug: var=golden_image_archive
 '''
 
 RETURN = '''
@@ -91,11 +73,6 @@ golden_images:
     description: The list of Golden Images.
     returned: Always, but can be null.
     type: list
-
-golden_image_archive:
-    description: The installed firmware for a Golden Image.
-    returned: When requested, but can be null.
-    type: complex
 '''
 
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
@@ -128,13 +105,6 @@ class GoldenImageFactsModule(object):
 
             if name:
                 golden_images = self.i3s_client.golden_images.get_by("name", name)
-
-                if golden_images:
-                    options = self.module.params.get("options")
-
-                    if options:
-                        options_facts = self.__gather_option_facts(options, golden_images[0])
-                        ansible_facts.update(options_facts)
             else:
                 golden_images = self.i3s_client.golden_images.get_all()
 
@@ -144,16 +114,6 @@ class GoldenImageFactsModule(object):
 
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
-
-    def __gather_option_facts(self, options, resource):
-        ansible_facts = {}
-
-        options = transform_list_to_dict(options)
-
-        if options.get('archive'):
-            ansible_facts['golden_image_archive'] = self.i3s_client.golden_images.get_archive(resource['uri'])
-
-        return ansible_facts
 
 
 def main():

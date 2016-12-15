@@ -38,7 +38,6 @@ class GoldenImageFactsSpec(unittest.TestCase, ModuleContructorTestCase):
 
         self.TASK_GET_ALL = self.GOLDEN_IMAGE_FACTS_EXAMPLES[0]['image_streamer_golden_image_facts']
         self.TASK_GET_BY_NAME = self.GOLDEN_IMAGE_FACTS_EXAMPLES[2]['image_streamer_golden_image_facts']
-        self.TASK_GET_ARCHIVE = self.GOLDEN_IMAGE_FACTS_EXAMPLES[4]['image_streamer_golden_image_facts']
 
         self.GOLDEN_IMAGE = dict(
             name="Golden Image name",
@@ -64,22 +63,6 @@ class GoldenImageFactsSpec(unittest.TestCase, ModuleContructorTestCase):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(golden_images=[self.GOLDEN_IMAGE])
-        )
-
-    def test_get_a_golden_image_by_name_with_archive_option(self):
-        self.i3s.golden_images.get_by.return_value = [self.GOLDEN_IMAGE]
-        self.i3s.golden_images.get_archive.return_value = "Golden Image logs"
-
-        self.mock_ansible_module.params = self.TASK_GET_ARCHIVE
-
-        GoldenImageFactsModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            ansible_facts=dict(
-                golden_images=[self.GOLDEN_IMAGE],
-                golden_image_archive="Golden Image logs"
-            )
         )
 
     def test_should_fail_when_get_all_raises_an_exception(self):

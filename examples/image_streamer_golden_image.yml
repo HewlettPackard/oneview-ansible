@@ -19,9 +19,10 @@
     config: "{{ playbook_dir }}/oneview_config.json"
     golden_image_name_created: 'Demo Golden Image creation'
     golden_image_name_uploaded: 'Demo Golden Image upload'
-    local_image_file_path:  '~/image_file.zip'
-    image_download_path:  '~/downloaded_image.zip'
-    os_volume_name: "OSVolume-20"
+    local_image_file_path: '~/image_file.zip'
+    image_download_path: '~/downloaded_image.zip'
+    archive_download_path: '~/archive.log'
+    os_volume_name: "OSVolume-1"
     build_plan_name: "Demo Build Plan"
   tasks:
     - name: Add a Golden Image from OS Volume
@@ -63,6 +64,15 @@
         data:
           name: '{{ golden_image_name_uploaded }}'
           destination_file_path: '{{ image_download_path }}'
+      delegate_to: localhost
+
+    - name: Download the Golden Image archive log to the file path provided
+      image_streamer_golden_image:
+        config: "{{ config }}"
+        state: archive_downloaded
+        data:
+          name: '{{ golden_image_name_created }}'
+          destination_file_path: '{{ archive_download_path }}'
       delegate_to: localhost
 
     - name: Remove the uploaded Golden Image
