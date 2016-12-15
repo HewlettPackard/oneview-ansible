@@ -17,12 +17,18 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    permitted_interconnect_type_uri: "/rest/sas-interconnect-types/Synergy12GbSASConnectionModule"
+    permitted_interconnect_type: "Synergy 12Gb SAS Connection Module"
     sas_logical_interconnect_group_name: "SAS Logical Interconnect Group Oneview Ansible"
     enclosure_group_name: "Enclosure Group Oneview Ansible"
     enclosure_name: 'encl-oneview-ansible'
     server_profile_name: 'Server Profile with Local Storage Oneview Ansible'
   tasks:
+    - name: Gather facts about the SAS Interconnect Type {{ permitted_interconnect_type }}
+      oneview_sas_interconnect_type_facts:
+        config: "{{ config }}"
+        name: "{{ permitted_interconnect_type }}"
+      delegate_to: localhost
+
     - name: Ensure the SAS Logical Interconnect Group is present
       oneview_sas_logical_interconnect_group:
         config: "{{ config }}"
@@ -39,7 +45,7 @@
                     - type: "Enclosure"
                       relativeValue: "1"
                 enclosureIndex: "1"
-                permittedInterconnectTypeUri: "{{ permitted_interconnect_type_uri }}"
+                permittedInterconnectTypeUri: "{{ sas_interconnect_types.0.uri }}"
               - logicalLocation:
                   locationEntries:
                     - type: "Bay"
@@ -47,7 +53,7 @@
                     - type: "Enclosure"
                       relativeValue: "1"
                 enclosureIndex: "1"
-                permittedInterconnectTypeUri: "{{ permitted_interconnect_type_uri }}"
+                permittedInterconnectTypeUri: "{{ sas_interconnect_types.0.uri }}"
           enclosureType: "SY12000"
           enclosureIndexes: [1]
           interconnectBaySet: "1"
