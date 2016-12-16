@@ -1,0 +1,121 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+
+    local_to_upload:  '~/image_file.zip'
+    local_to_download: '~/destionation_file.zip'
+
+    artifact_bundle_name: 'Artifact Bundles Test',
+    artifact_bundle_update: 'Artifact Bundles Test Updated',
+    deployment_group: 'Deployment'
+    artifact_bundle_description: 'Description of Artifact Bundles Test',
+    artifact_bundle_build_plans: [
+        {
+            "resourceUri": "/rest/build-plans/bc2135ab-e8cf-4847-9bac-1c957073cfc2",
+            "readOnly": "false"
+        }
+    ]
+
+
+  tasks:
+    - name: Create an Artifact Bundole
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ artifact_bundle_name }}'
+          description: '{{ artifact_bundle_description }}'
+          build_plans: '{{ artifact_bundle_build_plans }}'
+      delegate_to: localhost
+
+    - name: Update the name of Artifact Bundole
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ artifact_bundle_name }}'
+          name_update: '{{ artifact_bundle_update }}'
+      delegate_to: localhost
+
+    - name: Remove the created Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: '{{ artifact_bundle_name }}'
+      delegate_to: localhost
+
+    - name: Download Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: '{{ artifact_bundle_name }}'
+          destination: '{{ local_to_download }}'
+      delegate_to: localhost
+
+    - name: Download Archive for Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: '{{ artifact_bundle_name }}'
+          destination: '{{ local_to_download }}'
+      delegate_to: localhost
+
+    - name: Create Backup
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: absent
+        data:
+          deployment: '{{ deployment_group }}'
+      delegate_to: localhost
+
+    - name: Upload Artifact
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: absent
+        data:
+          destination: '{{ local_to_download }}'
+      delegate_to: localhost
+
+    - name: Upload Backup Artifact
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: '{{ artifact_bundle_name }}'
+          destination: '{{ local_to_download }}'
+      delegate_to: localhost
+
+    - name: Extract Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: '{{ artifact_bundle_name }}'
+      delegate_to: localhost
+
+    - name: Extract from Bakcup an Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: absent
+        data:
+          deployment: '{{ deployment_group }}'
+      delegate_to: localhost
