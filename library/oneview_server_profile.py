@@ -61,6 +61,7 @@ SERVER_PROFILE_CREATED = "Server Profile created."
 SERVER_ALREADY_UPDATED = 'Server Profile is already updated.'
 SERVER_PROFILE_UPDATED = 'Server profile updated'
 SERVER_PROFILE_DELETED = 'Deleted profile'
+SERVER_PROFILE_ALREADY_ABSENT = 'Nothing do.'
 REMEDIATED_COMPLIANCE = "Remediated compliance issues"
 ALREADY_COMPLIANT = "Server Profile is already compliant."
 SERVER_PROFILE_NOT_FOUND = "Server Profile is required for this operation."
@@ -236,9 +237,9 @@ class ServerProfileModule(object):
                     changed=changed, msg=msg, ansible_facts=facts
                 )
             elif state == 'absent':
-                self.__delete_profile(server_profile)
+                changed, msg = self.__delete_profile(server_profile)
                 self.module.exit_json(
-                    changed=True, msg=SERVER_PROFILE_DELETED
+                    changed=changed, msg=msg
                 )
             elif state == "compliant":
                 changed, msg, server_profile = self.__make_compliant(server_profile)
@@ -301,6 +302,11 @@ class ServerProfileModule(object):
         if KEY_LOCAL_STORAGE in resource_changed and KEY_SAS_LOGICAL_JBODS in resource_changed[KEY_LOCAL_STORAGE]:
             jbods = resource_changed[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS]
             resource_changed[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS] = sorted(jbods, key=lambda k: k[KEY_ID])
+
+        # Order Controllers from Local Storage
+        if KEY_LOCAL_STORAGE in resource_changed and KEY_CONTROLLERS in resource_changed[KEY_LOCAL_STORAGE]:
+            controllers = resource_changed[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]
+            resource_changed[KEY_LOCAL_STORAGE][KEY_CONTROLLERS] = sorted(controllers, key=lambda k: k[KEY_DEVICE_SLOT])
 
         return resource_changed
 
@@ -398,12 +404,13 @@ class ServerProfileModule(object):
 
     def __delete_profile(self, server_profile):
         if not server_profile:
-            raise Exception(SERVER_PROFILE_NOT_FOUND)
+            return False, SERVER_PROFILE_ALREADY_ABSENT
 
         if server_profile.get('serverHardwareUri'):
             self.__set_server_hardware_power_state(server_profile['serverHardwareUri'], 'Off')
 
         self.oneview_client.server_profiles.delete(server_profile)
+        return True, SERVER_PROFILE_DELETED
 
     def __make_compliant(self, server_profile):
 
@@ -609,6 +616,7 @@ class ServerProfileMerger(object):
             existing_items = resource[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]
             provided_items = merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]
             merged_controllers = merge_list_by_key(existing_items, provided_items, key=KEY_DEVICE_SLOT)
+            merged_controllers = sorted(merged_controllers, key=lambda k: k[KEY_DEVICE_SLOT])
             merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS] = merged_controllers
 
             # Merge Drives from Mezzanine and Embedded controllers

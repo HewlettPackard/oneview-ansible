@@ -235,16 +235,20 @@ class LogicalEnclosureModule(object):
                 changed, msg, ansible_facts = self.__present(data, logical_enclosure)
             elif state == 'absent':
                 changed, msg, ansible_facts = self.__absent(logical_enclosure)
-            elif state == 'firmware_updated':
-                changed, msg, ansible_facts = self.__update_firmware(data, logical_enclosure)
-            elif state == 'script_updated':
-                changed, msg, ansible_facts = self.__update_script(data, logical_enclosure)
-            elif state == 'dumped':
-                changed, msg, ansible_facts = self.__support_dump(data, logical_enclosure)
-            elif state == 'reconfigured':
-                changed, msg, ansible_facts = self.__reconfigure(logical_enclosure)
-            elif state == 'updated_from_group':
-                changed, msg, ansible_facts = self.__update_from_group(logical_enclosure)
+            else:
+                if not logical_enclosure:
+                    raise Exception(LOGICAL_ENCLOSURE_REQUIRED)
+
+                if state == 'firmware_updated':
+                    changed, msg, ansible_facts = self.__update_firmware(data, logical_enclosure)
+                elif state == 'script_updated':
+                    changed, msg, ansible_facts = self.__update_script(data, logical_enclosure)
+                elif state == 'dumped':
+                    changed, msg, ansible_facts = self.__support_dump(data, logical_enclosure)
+                elif state == 'reconfigured':
+                    changed, msg, ansible_facts = self.__reconfigure(logical_enclosure)
+                elif state == 'updated_from_group':
+                    changed, msg, ansible_facts = self.__update_from_group(logical_enclosure)
 
             self.module.exit_json(changed=changed,
                                   msg=msg,
@@ -294,8 +298,6 @@ class LogicalEnclosureModule(object):
             return False, LOGICAL_ENCLOSURE_ALREADY_UPDATED, dict(logical_enclosure=existent_resource)
 
     def __update_script(self, data, logical_enclosure):
-        if not logical_enclosure:
-            raise Exception(LOGICAL_ENCLOSURE_REQUIRED)
         script = data.pop("configurationScript")
 
         # update the configuration script
@@ -303,8 +305,6 @@ class LogicalEnclosureModule(object):
         return True, LOGICAL_ENCLOSURE_CONFIGURATION_SCRIPT_UPDATED, dict(configuration_script=script)
 
     def __update_firmware(self, data, logical_enclosure):
-        if not logical_enclosure:
-            raise Exception(LOGICAL_ENCLOSURE_REQUIRED)
         logical_enclosure = self.oneview_client.logical_enclosures.patch(logical_enclosure['uri'],
                                                                          operation="replace",
                                                                          path="/firmware",
@@ -313,8 +313,6 @@ class LogicalEnclosureModule(object):
         return True, LOGICAL_ENCLOSURE_FIRMWARE_UPDATED, dict(logical_enclosure=logical_enclosure)
 
     def __support_dump(self, data, logical_enclosure):
-        if not logical_enclosure:
-            raise Exception(LOGICAL_ENCLOSURE_REQUIRED)
         generated_dump_uri = self.oneview_client.logical_enclosures.generate_support_dump(
             data['dump'],
             logical_enclosure['uri'])
@@ -322,15 +320,11 @@ class LogicalEnclosureModule(object):
         return True, LOGICAL_ENCLOSURE_DUMP_GENERATED, dict(generated_dump_uri=generated_dump_uri)
 
     def __reconfigure(self, logical_enclosure):
-        if not logical_enclosure:
-            raise Exception(LOGICAL_ENCLOSURE_REQUIRED)
         logical_enclosure = self.oneview_client.logical_enclosures.update_configuration(logical_enclosure['uri'])
 
         return True, LOGICAL_ENCLOSURE_RECONFIGURED, dict(logical_enclosure=logical_enclosure)
 
     def __update_from_group(self, logical_enclosure):
-        if not logical_enclosure:
-            raise Exception(LOGICAL_ENCLOSURE_REQUIRED)
         logical_enclosure = self.oneview_client.logical_enclosures.update_from_group(logical_enclosure['uri'])
 
         return True, LOGICAL_ENCLOSURE_UPDATED_FROM_GROUP, dict(logical_enclosure=logical_enclosure)
