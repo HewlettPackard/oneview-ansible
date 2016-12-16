@@ -47,7 +47,9 @@ options:
             - Indicates the desired state for the Golden Image resource.
               'present' will ensure data properties are compliant with OneView.
               'absent' will remove the resource from OneView, if it exists.
-        choices: ['present', 'absent']
+              'downloaded' will download the Golden Image to the file path provided.
+              'archive_downloaded' will download the Golden Image archive to the file path provided.
+        choices: ['present', 'absent', 'downloaded', 'archive_downloaded']
         required: true
     data:
         description:
@@ -58,6 +60,7 @@ notes:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
     - "Check how to use environment variables for configuration at:
        https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+    - This resource is only available on HPE Synergy
 '''
 
 EXAMPLES = '''
@@ -93,6 +96,24 @@ EXAMPLES = '''
       newName: 'Golden Image Renamed'
   delegate_to: localhost
 
+- name: Download the Golden Image to the file path provided
+  image_streamer_golden_image:
+    config: "{{ config }}"
+    state: downloaded
+    data:
+      name: 'Demo Golden Image'
+      destination_file_path: '~/downloaded_image.zip'
+  delegate_to: localhost
+
+- name: Download the Golden Image archive log to the file path provided
+  image_streamer_golden_image:
+    config: "{{ config }}"
+    state: archive_downloaded
+    data:
+      name: 'Demo Golden Image'
+      destination_file_path: '~/archive.log'
+  delegate_to: localhost
+
 - name: Remove a Golden Image
   image_streamer_golden_image:
     config: "{{ config }}"
@@ -114,6 +135,8 @@ GOLDEN_IMAGE_UPLOADED = 'Golden Image uploaded successfully.'
 GOLDEN_IMAGE_UPDATED = 'Golden Image updated successfully.'
 GOLDEN_IMAGE_ALREADY_UPDATED = 'Golden Image is already present.'
 GOLDEN_IMAGE_DELETED = 'Golden Image deleted successfully.'
+GOLDEN_IMAGE_DOWNLOADED = 'Golden Image downloaded successfully.'
+GOLDEN_IMAGE_ARCHIVE_DOWNLOADED = 'Golden Image archive downloaded successfully.'
 GOLDEN_IMAGE_ALREADY_ABSENT = 'Golden Image is already absent.'
 I3S_CANT_CREATE_AND_UPLOAD = "You can use an existent OS Volume or upload an Image, you cannot do both."
 I3S_MISSING_MANDATORY_ATTRIBUTES = 'Mandatory field is missing: osVolumeURI or localImageFilePath are required.'
@@ -127,7 +150,7 @@ class GoldenImageModule(object):
         config=dict(required=False, type='str'),
         state=dict(
             required=True,
-            choices=['present', 'absent']
+            choices=['present', 'absent', 'downloaded', 'archive_downloaded']
         ),
         data=dict(required=True, type='dict')
     )
@@ -156,6 +179,10 @@ class GoldenImageModule(object):
                 changed, msg, ansible_facts = self.__present(data, resource)
             elif state == 'absent':
                 changed, msg, ansible_facts = self.__absent(resource)
+            elif state == 'downloaded':
+                changed, msg, ansible_facts = self.__download(data, resource)
+            elif state == 'archive_downloaded':
+                changed, msg, ansible_facts = self.__download_archive(data, resource)
 
             self.module.exit_json(changed=changed,
                                   msg=msg,
@@ -233,6 +260,14 @@ class GoldenImageModule(object):
             return True, GOLDEN_IMAGE_DELETED, {}
         else:
             return False, GOLDEN_IMAGE_ALREADY_ABSENT, {}
+
+    def __download(self, data, resource):
+        self.i3s_client.golden_images.download(resource['uri'], data['destination_file_path'])
+        return True, GOLDEN_IMAGE_DOWNLOADED, {}
+
+    def __download_archive(self, data, resource):
+        self.i3s_client.golden_images.download_archive(resource['uri'], data['destination_file_path'])
+        return True, GOLDEN_IMAGE_ARCHIVE_DOWNLOADED, {}
 
 
 def main():

@@ -34,7 +34,6 @@ export ANSIBLE_LIBRARY=library
 # Checks PYTHON_SDK
 if [ -z ${PYTHON_SDK+x} ]; then
   export PYTHON_SDK=../python-hpOneView:dependencies/python-hpICsp
-  echo -e "\e[93mWARNING: PYTHON_SDK is unset. Defining: ${PYTHON_SDK}"
 fi
 
 export PYTHONPATH=$PYTHON_SDK:$ANSIBLE_LIBRARY:$PYTHONPATH
