@@ -4,6 +4,7 @@
 
   * [hpe_icsp_os_deployment - Deploy the operating system on a server using HPE ICsp.](#hpe_icsp_os_deployment)
   * [hpe_icsp_server - Adds, removes and configures servers in ICsp.](#hpe_icsp_server)
+  * [image_streamer_build_plan - Manage Image Stream OS Build Plan resources.](#image_streamer_build_plan)
   * [image_streamer_build_plan_facts - Retrieve facts about one or more of the Image Streamer Build Plans.](#image_streamer_build_plan_facts)
   * [image_streamer_golden_image - Manage Image Stream Golden Image resources.](#image_streamer_golden_image)
   * [image_streamer_golden_image_facts - Retrieve facts about one or more of the Image Streamer Golden Image.](#image_streamer_golden_image_facts)
@@ -224,6 +225,78 @@ Adds, removes and configures servers in ICsp.
 | ------------- |-------------| ---------|----------- |
 | target_server   | Has the facts about the server that was added to ICsp. |  On states 'present' and 'network_configured' . Can be null. |  complex |
 
+
+
+---
+
+
+## image_streamer_build_plan
+Manage Image Stream OS Build Plan resources.
+
+#### Synopsis
+ Provides an interface to manage Image Stream OS Build Plans. Can create, update, remove.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the OS Build Plan resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+| data  |   yes  |  | |  List with OS Build Plan properties and its associated states.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Create an OS Build Plan
+  image_streamer_build_plan:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: 'Demo OS Build Plan'
+      description: "oebuildplan"
+      oeBuildPlanType: "deploy"
+  delegate_to: localhost
+
+- name: Update the OS Build Plan description and name
+  image_streamer_build_plan:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: 'Demo OS Build Plan'
+      description: "New description"
+      newName: 'OS Build Plan Renamed'
+  delegate_to: localhost
+
+- name: Remove an OS Build Plan
+  image_streamer_build_plan:
+    config: "{{ config }}"
+    state: absent
+    data:
+        name: 'Demo OS Build Plan'
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Decription  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| build_plan   | Has the OneView facts about the OS Build Plan. |  On state 'present'. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 
 ---
