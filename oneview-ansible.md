@@ -113,13 +113,13 @@ Deploy the operating system on a server using HPE ICsp.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| username  |   yes  |  | |  ICsp username.  |
-| server_id  |   yes  |  | |  Server ID.  |
-| personality_data  |   no  |  | |  Personality Data.  |
-| os_build_plan  |   yes  |  | |  OS Build plan.  |
 | custom_attributes  |   no  |  | |  Custom Attributes.  |
-| password  |   yes  |  | |  ICsp password.  |
 | icsp_host  |   yes  |  | |  ICsp hostname.  |
+| os_build_plan  |   yes  |  | |  OS Build plan.  |
+| password  |   yes  |  | |  ICsp password.  |
+| personality_data  |   no  |  | |  Personality Data.  |
+| server_id  |   yes  |  | |  Server ID.  |
+| username  |   yes  |  | |  ICsp username.  |
 
 
  
@@ -166,15 +166,15 @@ Adds, removes and configures servers in ICsp.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| username  |   yes  |  | |  ICsp username.  |
-| server_password  |   yes  |  | |  The password required to log into the server's iLO  |
-| server_username  |   yes  |  | |  The user name required to log into the server's iLO.  |
-| server_personality_data  |   no  |  | |  Aditional data to send to ICsp.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>network_configured</li> </ul> |  Indicates the desired state for the ICsp server. 'present' will register the resource on ICsp. 'absent' will remove the resource from ICsp, if it exists. 'network_configured' will set the network configuration.  |
-| server_port  |   no  |  [443]  | |  The iLO port to use when logging in.  |
 | icsp_host  |   yes  |  | |  ICsp hostname.  |
-| server_ipAddress  |   yes  |  | |  The IP address of the iLO of the server.  |
 | password  |   yes  |  | |  ICsp password.  |
+| server_ipAddress  |   yes  |  | |  The IP address of the iLO of the server.  |
+| server_password  |   yes  |  | |  The password required to log into the server's iLO  |
+| server_personality_data  |   no  |  | |  Aditional data to send to ICsp.  |
+| server_port  |   no  |  [443]  | |  The iLO port to use when logging in.  |
+| server_username  |   yes  |  | |  The user name required to log into the server's iLO.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>network_configured</li> </ul> |  Indicates the desired state for the ICsp server. 'present' will register the resource on ICsp. 'absent' will remove the resource from ICsp, if it exists. 'network_configured' will set the network configuration.  |
+| username  |   yes  |  | |  ICsp username.  |
 
 
  
@@ -245,8 +245,8 @@ Manage Image Stream OS Build Plan resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the OS Build Plan resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with OS Build Plan properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the OS Build Plan resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -373,8 +373,8 @@ Manage Image Stream Golden Image resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>downloaded</li>  <li>archive_downloaded</li> </ul> |  Indicates the desired state for the Golden Image resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'downloaded' will download the Golden Image to the file path provided. 'archive_downloaded' will download the Golden Image archive to the file path provided.  |
 | data  |   yes  |  | |  List with Golden Image properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>downloaded</li>  <li>archive_downloaded</li> </ul> |  Indicates the desired state for the Golden Image resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'downloaded' will download the Golden Image to the file path provided. 'archive_downloaded' will download the Golden Image archive to the file path provided.  |
 
 
  
@@ -533,8 +533,8 @@ Manage Image Streamer Plan Script resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>differences_retrieved</li> </ul> |  Indicates the desired state for the Plan Script resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'differences_retrieved' will retrieve the modified contents of the Plan Script as per the selected attributes.  |
 | data  |   yes  |  | |  List with Plan Script properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>differences_retrieved</li> </ul> |  Indicates the desired state for the Plan Script resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'differences_retrieved' will retrieve the modified contents of the Plan Script as per the selected attributes.  |
 
 
  
@@ -744,8 +744,8 @@ Manage OneView Connection Template resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   yes  |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Connection Template resource. 'present' will ensure data properties are compliant with OneView.  |
 | data  |   yes  |  | |  List with Connection Template properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Connection Template resource. 'present' will ensure data properties are compliant with OneView.  |
 
 
  
@@ -867,8 +867,8 @@ Manage OneView Data Center resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Data Center resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with Data Center properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Data Center resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -1007,8 +1007,8 @@ Retrieve facts about Data Centers of the OneView.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| datacenters   | Has all the OneView facts about the Data Centers. |  Always, but can be null. |  complex |
 | datacenter_visual_content   | Has facts about the Data Center Visual Content. |  When requested, but can be null. |  complex |
+| datacenters   | Has all the OneView facts about the Data Centers. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -1036,8 +1036,8 @@ Manage OneView Drive Enclosure resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>power_state_set</li>  <li>uid_state_set</li>  <li>hard_reset_state_set</li>  <li>refresh_state_set</li> </ul> |  Indicates the desired state for the Drive Enclosure resource. 'power_state_set' will set the power state of the Drive Enclosure. 'uid_state_set' will set the uid state of the Drive Enclosure. 'hard_reset_state_set' will request a hard reset of the Drive Enclosure. 'refresh_state_set' will refresh a Drive Enclosure.  |
 | data  |   yes  |  | |  List with the Drive Enclosure properties.  |
+| state  |   |  | <ul> <li>power_state_set</li>  <li>uid_state_set</li>  <li>hard_reset_state_set</li>  <li>refresh_state_set</li> </ul> |  Indicates the desired state for the Drive Enclosure resource. 'power_state_set' will set the power state of the Drive Enclosure. 'uid_state_set' will set the uid state of the Drive Enclosure. 'hard_reset_state_set' will request a hard reset of the Drive Enclosure. 'refresh_state_set' will refresh a Drive Enclosure.  |
 
 
  
@@ -1150,8 +1150,8 @@ Retrieve the facts about one or more of the OneView Drive Enclosures.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| drive_enclosures   | Has all the OneView facts about the Drive Enclosures. |  Always, but can be null. |  complex |
 | drive_enclosure_port_map   | Has all the OneView facts about the Drive Enclosure Port Map. |  When requested, but can be null. |  complex |
+| drive_enclosures   | Has all the OneView facts about the Drive Enclosures. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -1179,8 +1179,8 @@ Manage OneView Enclosure resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li>  <li>appliance_bays_powered_on</li>  <li>uid_on</li>  <li>uid_off</li>  <li>manager_bays_uid_on</li>  <li>manager_bays_uid_off</li>  <li>manager_bays_power_state_e_fuse</li>  <li>manager_bays_power_state_reset</li>  <li>appliance_bays_power_state_e_fuse</li>  <li>device_bays_power_state_e_fuse</li>  <li>device_bays_power_state_reset</li>  <li>interconnect_bays_power_state_e_fuse</li>  <li>manager_bays_role_active</li>  <li>device_bays_ipv4_removed</li>  <li>interconnect_bays_ipv4_removed</li>  <li>support_data_collection_set</li> </ul> |  Indicates the desired state for the Enclosure resource. 'present' will ensure data properties are compliant with OneView. You can rename the enclosure providing an attribute 'newName'. You can also rename the rack providing an attribute 'rackName'. 'absent' will remove the resource from OneView, if it exists. 'reconfigured' will reapply the appliance's configuration on the enclosure. This includes running the same configuration steps that were performed as part of the enclosure add. 'refreshed' will refresh the enclosure along with all of its components, including interconnects and servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is removed. 'appliance_bays_powered_on' will set the appliance bay power state on. 'uid_on' will set the UID state on. 'uid_off' will set the UID state off. 'manager_bays_uid_on' will set the UID state on for the Synergy Frame Link Module. 'manager_bays_uid_off' will set the UID state off for the Synergy Frame Link Module. 'manager_bays_power_state_e_fuse' will E-Fuse the Synergy Frame Link Module bay in the path. 'manager_bays_power_state_reset' will Reset the Synergy Frame Link Module bay in the path. 'appliance_bays_power_state_e_fuse' will E-Fuse the appliance bay in the path. 'device_bays_power_state_e_fuse' will E-Fuse the device bay in the path. 'device_bays_power_state_reset' will Reset the device bay in the path. 'interconnect_bays_power_state_e_fuse' will E-Fuse the IC bay in the path. 'manager_bays_role_active' will set the active Synergy Frame Link Module. 'device_bays_ipv4_removed' will release IPv4 address in the device bay. 'interconnect_bays_ipv4_removed' will release IPv4 address in the interconnect bay. 'support_data_collection_set' will set the support data collection state for the enclosure. The supported values for this state are 'PendingCollection', 'Completed', 'Error' and 'NotSupported'  |
 | data  |   yes  |  | |  List with the Enclosure properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li>  <li>appliance_bays_powered_on</li>  <li>uid_on</li>  <li>uid_off</li>  <li>manager_bays_uid_on</li>  <li>manager_bays_uid_off</li>  <li>manager_bays_power_state_e_fuse</li>  <li>manager_bays_power_state_reset</li>  <li>appliance_bays_power_state_e_fuse</li>  <li>device_bays_power_state_e_fuse</li>  <li>device_bays_power_state_reset</li>  <li>interconnect_bays_power_state_e_fuse</li>  <li>manager_bays_role_active</li>  <li>device_bays_ipv4_removed</li>  <li>interconnect_bays_ipv4_removed</li>  <li>support_data_collection_set</li> </ul> |  Indicates the desired state for the Enclosure resource. 'present' will ensure data properties are compliant with OneView. You can rename the enclosure providing an attribute 'newName'. You can also rename the rack providing an attribute 'rackName'. 'absent' will remove the resource from OneView, if it exists. 'reconfigured' will reapply the appliance's configuration on the enclosure. This includes running the same configuration steps that were performed as part of the enclosure add. 'refreshed' will refresh the enclosure along with all of its components, including interconnects and servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is removed. 'appliance_bays_powered_on' will set the appliance bay power state on. 'uid_on' will set the UID state on. 'uid_off' will set the UID state off. 'manager_bays_uid_on' will set the UID state on for the Synergy Frame Link Module. 'manager_bays_uid_off' will set the UID state off for the Synergy Frame Link Module. 'manager_bays_power_state_e_fuse' will E-Fuse the Synergy Frame Link Module bay in the path. 'manager_bays_power_state_reset' will Reset the Synergy Frame Link Module bay in the path. 'appliance_bays_power_state_e_fuse' will E-Fuse the appliance bay in the path. 'device_bays_power_state_e_fuse' will E-Fuse the device bay in the path. 'device_bays_power_state_reset' will Reset the device bay in the path. 'interconnect_bays_power_state_e_fuse' will E-Fuse the IC bay in the path. 'manager_bays_role_active' will set the active Synergy Frame Link Module. 'device_bays_ipv4_removed' will release IPv4 address in the device bay. 'interconnect_bays_ipv4_removed' will release IPv4 address in the interconnect bay. 'support_data_collection_set' will set the support data collection state for the enclosure. The supported values for this state are 'PendingCollection', 'Completed', 'Error' and 'NotSupported'  |
 
 
  
@@ -1456,10 +1456,10 @@ Retrieve facts about one or more Enclosures.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
+| enclosure_environmental_configuration   | Has all the OneView facts about the environmental configuration of an Enclosure. |  When requested, but can be null. |  complex |
 | enclosure_script   | Has all the OneView facts about the script of an Enclosure. |  When requested, but can be null. |  complex |
 | enclosure_utilization   | Has all the OneView facts about the utilization of an Enclosure. |  When requested, but can be null. |  complex |
 | enclosures   | Has all the OneView facts about the Enclosures. |  Always, but can be null. |  complex |
-| enclosure_environmental_configuration   | Has all the OneView facts about the environmental configuration of an Enclosure. |  When requested, but can be null. |  complex |
 
 
 #### Notes
@@ -1487,8 +1487,8 @@ Manage OneView Enclosure Group resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Enclosure Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with Enclosure Group properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Enclosure Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -1629,8 +1629,8 @@ Manage OneView Ethernet Network resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>default_bandwidth_reset</li> </ul> |  Indicates the desired state for the Ethernet Network resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'default_bandwidth_reset' will reset the network connection template to the default.  |
 | data  |   yes  |  | |  List with Ethernet Network properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>default_bandwidth_reset</li> </ul> |  Indicates the desired state for the Ethernet Network resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'default_bandwidth_reset' will reset the network connection template to the default.  |
 
 
  
@@ -1702,9 +1702,9 @@ Manage OneView Ethernet Network resources.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
+| ethernet_network   | Has the facts about the Ethernet Networks. |  On state 'present'. Can be null. |  complex |
 | ethernet_network_bulk   | Has the facts about the Ethernet Networks affected by the bulk insert. |  When 'vlanIdRange' attribute is in data argument. Can be null. |  complex |
 | ethernet_network_connection_template   | Has the facts about the Ethernet Network Connection Template. |  On state 'default_bandwidth_reset'. Can be null. |  complex |
-| ethernet_network   | Has the facts about the Ethernet Networks. |  On state 'present'. Can be null. |  complex |
 
 
 #### Notes
@@ -1773,9 +1773,9 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| ethernet_networks   | Has all the OneView facts about the Ethernet Networks. |  Always, but can be null. |  complex |
 | enet_associated_profiles   | Has all the OneView facts about the profiles which are using the Ethernet network. |  When requested, but can be null. |  complex |
 | enet_associated_uplink_groups   | Has all the OneView facts about the uplink sets which are using the Ethernet network. |  When requested, but can be null. |  complex |
+| ethernet_networks   | Has all the OneView facts about the Ethernet Networks. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -1897,8 +1897,8 @@ Retrieve the facts about one or more of the OneView Fabrics.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| fabrics   | Has all the OneView facts about the Fabrics. |  Always, but can be null. |  complex |
 | fabric_reserved_vlan_range   | Has all the OneView facts about the reserved VLAN range |  When requested, but can be null. |  complex |
+| fabrics   | Has all the OneView facts about the Fabrics. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -1926,8 +1926,8 @@ Manage OneView Fibre Channel Network resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Fibre Channel Network resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with the Fibre Channel Network properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Fibre Channel Network resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -2048,8 +2048,8 @@ Manage OneView FCoE Network resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the FCoE Network resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with FCoE Network properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the FCoE Network resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -2162,9 +2162,9 @@ Upload OneView Firmware Bundle resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| state  |   |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Firmware Driver resource. 'present' will ensure that the firmware bundle is at OneView.  |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | file_path  |   yes  |  | |  The full path of a local file to be loaded.  |
+| state  |   |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Firmware Driver resource. 'present' will ensure that the firmware bundle is at OneView.  |
 
 
  
@@ -2213,9 +2213,9 @@ Provides an interface to remove Firmware Driver resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| state  |   |  | <ul> <li>absent</li> </ul> |  Indicates the desired state for the Firmware Driver. 'absent' will remove the resource from OneView, if it exists.  |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   yes  |  | |  Firmware driver name.  |
+| state  |   |  | <ul> <li>absent</li> </ul> |  Indicates the desired state for the Firmware Driver. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -2312,11 +2312,11 @@ Manage the OneView Interconnect resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| ip  |   no  |  | |  Interconnect IP add  |
-| state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>device_reset</li>  <li>update_ports</li>  <li>reset_port_protection</li> </ul> |  Indicates the desired state for the Interconnect resource. 'powered_on' turns the power on. 'powered_off' turns the power off. 'uid_on' turns the UID light on. 'uid_off' turns the UID light off. 'device_reset' perform a device reset. 'update_ports' updates the interconnect ports. 'reset_port_protection' triggers a reset of port protection.  |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| ip  |   no  |  | |  Interconnect IP add  |
 | name  |   no  |  | |  Interconnect name  |
 | ports  |   no  |  | |  List with ports to update. This option should be used together with 'update_ports' state.  |
+| state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>device_reset</li>  <li>update_ports</li>  <li>reset_port_protection</li> </ul> |  Indicates the desired state for the Interconnect resource. 'powered_on' turns the power on. 'powered_off' turns the power off. 'uid_on' turns the UID light on. 'uid_off' turns the UID light off. 'device_reset' perform a device reset. 'update_ports' updates the interconnect ports. 'reset_port_protection' triggers a reset of port protection.  |
 
 
  
@@ -2450,11 +2450,11 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| interconnect_statistics   | Has all the OneView facts about the Interconnect Statistics. |  When requested, but can be null. |  dict |
 | interconnect_name_servers   | The named servers for an interconnect. |  When requested, but can be null. |  list |
 | interconnect_port_statistics   | Statistics for the specified port name on an interconnect. |  When requested, but can be null. |  dict |
-| interconnects   | The list of interconnects. |  Always, but can be null. |  list |
+| interconnect_statistics   | Has all the OneView facts about the Interconnect Statistics. |  When requested, but can be null. |  dict |
 | interconnect_subport_statistics   | The subport statistics on an interconnect |  When requested, but can be null. |  dict |
+| interconnects   | The list of interconnects. |  Always, but can be null. |  list |
 
 
 #### Notes
@@ -2723,8 +2723,8 @@ Manage OneView Logical Enclosure resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>firmware_updated</li>  <li>script_updated</li>  <li>dumped</li>  <li>reconfigured</li>  <li>updated_from_group</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Enclosure resource. 'present' ensures data properties are compliant with OneView. You can rename the enclosure providing an attribute 'newName'. 'firmware_updated' updates the firmware for the Logical Enclosure. 'script_updated' updates the Logical Enclosure configuration script. 'dumped' generates a support dump for the Logical Enclosure. 'reconfigured' reconfigures all enclosures associated with a logical enclosure. 'updated_from_group' makes the logical enclosure consistent with the enclosure group. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with Logical Enclosure properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>firmware_updated</li>  <li>script_updated</li>  <li>dumped</li>  <li>reconfigured</li>  <li>updated_from_group</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Enclosure resource. 'present' ensures data properties are compliant with OneView. You can rename the enclosure providing an attribute 'newName'. 'firmware_updated' updates the firmware for the Logical Enclosure. 'script_updated' updates the Logical Enclosure configuration script. 'dumped' generates a support dump for the Logical Enclosure. 'reconfigured' reconfigures all enclosures associated with a logical enclosure. 'updated_from_group' makes the logical enclosure consistent with the enclosure group. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -2836,9 +2836,9 @@ Manage OneView Logical Enclosure resources.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| logical_enclosure   | Has the facts about the OneView Logical Enclosure. |  On states 'present', 'firmware_updated', 'reconfigured', 'updated_from_group', and 'absent'. Can be null. |  complex |
 | configuration_script   | Has the facts about the Logical Enclosure configuration script. |  On state 'script_updated'. Can be null. |  complex |
 | generated_dump_uri   | Has the facts about the Logical Enclosure generated support dump URI. |  On state 'dumped'. Can be null. |  complex |
+| logical_enclosure   | Has the facts about the OneView Logical Enclosure. |  On states 'present', 'firmware_updated', 'reconfigured', 'updated_from_group', and 'absent'. Can be null. |  complex |
 
 
 #### Notes
@@ -2910,8 +2910,8 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| logical_enclosures   | Has all the OneView facts about the Logical Enclosures. |  Always, but can be null. |  complex |
 | logical_enclosure_script   | Has the facts about the script of a Logical Enclosure. |  When required, but can be null. |  complex |
+| logical_enclosures   | Has all the OneView facts about the Logical Enclosures. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -2939,8 +2939,8 @@ Manage OneView Logical Interconnect resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>compliant</li>  <li>ethernet_settings_updated</li>  <li>internal_networks_updated</li>  <li>settings_updated</li>  <li>forwarding_information_base_generated</li>  <li>qos_aggregated_configuration_updated</li>  <li>snmp_configuration_updated</li>  <li>port_monitor_updated</li>  <li>configuration_updated</li>  <li>firmware_installed</li> </ul> |  Indicates the desired state for the Logical Interconnect resource. 'compliant' brings the logical interconnect back to a consistent state. 'ethernet_settings_updated' updates the Ethernet interconnect settings for the logical interconnect. 'internal_networks_updated' updates the internal networks on the logical interconnect. This operation is non-idempotent. 'settings_updated' updates the Logical Interconnect settings. 'forwarding_information_base_generated' generates the forwarding information base dump file for the logical interconnect. This operation is non-idempotent and asynchronous. 'qos_aggregated_configuration_updated' updates the QoS aggregated configuration for the logical interconnect. 'snmp_configuration_updated' updates the SNMP configuration for the logical interconnect. 'port_monitor_updated' updates the port monitor configuration of a logical interconnect. 'configuration_updated' asynchronously applies or re-applies the logical interconnect configuration to all managed interconnects. This operation is non-idempotent. 'firmware_installed' installs firmware to a logical interconnect. The three operations that are supported for the firmware update are Stage (uploads firmware to the interconnect), Activate (installs firmware on the interconnect) and Update (which does a Stage and Activate in a sequential manner). All of them are non-idempotent.  |
 | data  |   yes  |  | |  List with the options.  |
+| state  |   |  | <ul> <li>compliant</li>  <li>ethernet_settings_updated</li>  <li>internal_networks_updated</li>  <li>settings_updated</li>  <li>forwarding_information_base_generated</li>  <li>qos_aggregated_configuration_updated</li>  <li>snmp_configuration_updated</li>  <li>port_monitor_updated</li>  <li>configuration_updated</li>  <li>firmware_installed</li> </ul> |  Indicates the desired state for the Logical Interconnect resource. 'compliant' brings the logical interconnect back to a consistent state. 'ethernet_settings_updated' updates the Ethernet interconnect settings for the logical interconnect. 'internal_networks_updated' updates the internal networks on the logical interconnect. This operation is non-idempotent. 'settings_updated' updates the Logical Interconnect settings. 'forwarding_information_base_generated' generates the forwarding information base dump file for the logical interconnect. This operation is non-idempotent and asynchronous. 'qos_aggregated_configuration_updated' updates the QoS aggregated configuration for the logical interconnect. 'snmp_configuration_updated' updates the SNMP configuration for the logical interconnect. 'port_monitor_updated' updates the port monitor configuration of a logical interconnect. 'configuration_updated' asynchronously applies or re-applies the logical interconnect configuration to all managed interconnects. This operation is non-idempotent. 'firmware_installed' installs firmware to a logical interconnect. The three operations that are supported for the firmware update are Stage (uploads firmware to the interconnect), Activate (installs firmware on the interconnect) and Update (which does a Stage and Activate in a sequential manner). All of them are non-idempotent.  |
 
 
  
@@ -3048,12 +3048,12 @@ Manage OneView Logical Interconnect resources.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| storage_volume_template   | Has the OneView facts about the Logical Interconnect. |  On 'compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',               and 'configuration_updated' states, but can be null. |  complex |
 | interconnect_fib   | Has the OneView facts about the Forwarding information Base. |  On 'forwarding_information_base_generated' state, but can be null. |  complex |
 | li_firmware   | Has the OneView facts about the installed Firmware. |  On 'firmware_installed' state, but can be null. |  complex |
-| snmp_configuration   | Has the OneView facts about the SNMP Configuration. |  On 'snmp_configuration_updated' state, but can be null. |  complex |
 | port_monitor   | Has the OneView facts about the Port Monitor Configuration. |  On 'port_monitor_updated' state, but can be null. |  complex |
 | qos_configuration   | Has the OneView facts about the QoS Configuration. |  On 'qos_aggregated_configuration_updated' state, but can be null. |  complex |
+| snmp_configuration   | Has the OneView facts about the SNMP Configuration. |  On 'snmp_configuration_updated' state, but can be null. |  complex |
+| storage_volume_template   | Has the OneView facts about the Logical Interconnect. |  On 'compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',               and 'configuration_updated' states, but can be null. |  complex |
 
 
 #### Notes
@@ -3137,15 +3137,15 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| logical_interconnects   | The list of logical interconnects. |  Always, but can be null. |  list |
-| forwarding_information_base   | The forwarding information base data for a logical interconnect. |  When requested, but can be null. |  complex |
-| snmp_configuration   | The SNMP configuration for a logical interconnect. |  When requested, but can be null. |  complex |
 | firmware   | The installed firmware for a logical interconnect. |  When requested, but can be null. |  complex |
+| forwarding_information_base   | The forwarding information base data for a logical interconnect. |  When requested, but can be null. |  complex |
 | internal_vlans   | The internal VLAN IDs for the provisioned networks on a logical interconnect. |  When requested, but can be null. |  complex |
-| unassigned_uplink_ports   | A collection of uplink ports from the member interconnects which are eligible for assignment to an analyzer port on a logical interconnect. |  When requested, but can be null. |  complex |
-| telemetry_configuration   | The telemetry configuration of the logical interconnect. |  When requested, but can be null. |  complex |
-| qos_aggregated_configuration   | The QoS aggregated configuration for the logical interconnect. |  When requested, but can be null. |  complex |
+| logical_interconnects   | The list of logical interconnects. |  Always, but can be null. |  list |
 | port_monitor   | The port monitor configuration of a logical interconnect. |  When requested, but can be null. |  complex |
+| qos_aggregated_configuration   | The QoS aggregated configuration for the logical interconnect. |  When requested, but can be null. |  complex |
+| snmp_configuration   | The SNMP configuration for a logical interconnect. |  When requested, but can be null. |  complex |
+| telemetry_configuration   | The telemetry configuration of the logical interconnect. |  When requested, but can be null. |  complex |
+| unassigned_uplink_ports   | A collection of uplink ports from the member interconnects which are eligible for assignment to an analyzer port on a logical interconnect. |  When requested, but can be null. |  complex |
 
 
 #### Notes
@@ -3173,8 +3173,8 @@ Manage OneView Logical Interconnect Group resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Interconnect Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with the Logical Interconnect Group properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Interconnect Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -3308,8 +3308,8 @@ Manage OneView Logical Switch resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>updated</li>  <li>absent</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Logical Switch resource. 'present' creates a Logical Switch, if it doesn't exist. To update the Logical Switch, use the 'updated' state instead. 'updated' ensures the Logical Switch is updated. Currently OneView only supports updating the credentials and name of the Logical Switch. To change the name of the Logical Switch, a 'newName' in the data must be provided. The update operation is non-idempotent. 'absent' removes the resource from OneView, if it exists. 'refreshed' reclaims the top-of-rack switches in the logical switch. This operation is non-idempotent.  |
 | data  |   yes  |  | |  List with the Logical Switches properties. You can choose set the Logical Switch Group by logicalSwitchGroupName or logicalSwitchGroupUri.  |
+| state  |   |  | <ul> <li>present</li>  <li>updated</li>  <li>absent</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Logical Switch resource. 'present' creates a Logical Switch, if it doesn't exist. To update the Logical Switch, use the 'updated' state instead. 'updated' ensures the Logical Switch is updated. Currently OneView only supports updating the credentials and name of the Logical Switch. To change the name of the Logical Switch, a 'newName' in the data must be provided. The update operation is non-idempotent. 'absent' removes the resource from OneView, if it exists. 'refreshed' reclaims the top-of-rack switches in the logical switch. This operation is non-idempotent.  |
 
 
  
@@ -3497,8 +3497,8 @@ Manage OneView Logical Switch Group resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Switch Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with Logical Switch Group properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Switch Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -3644,8 +3644,8 @@ Manage OneView Managed SAN resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>refresh_state_set</li>  <li>endpoints_csv_file_created</li>  <li>issues_report_created</li> </ul> |  Indicates the desired state for the Managed SAN resource. 'present' ensures data properties are compliant with OneView. 'refresh_state_set' updates the refresh state of the Managed SAN. 'endpoints_csv_file_created' creates a SAN endpoints CSV file. 'issues_report_created' creates an unexpected zoning report for a SAN.  |
 | data  |   yes  |  | |  List with Managed SAN properties and its associated states. Warning: For the 'present' state, the contents of the publicAttributes will replace the existing list, so leaving out a public attribute from the given list will effectively delete it.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>refresh_state_set</li>  <li>endpoints_csv_file_created</li>  <li>issues_report_created</li> </ul> |  Indicates the desired state for the Managed SAN resource. 'present' ensures data properties are compliant with OneView. 'refresh_state_set' updates the refresh state of the Managed SAN. 'endpoints_csv_file_created' creates a SAN endpoints CSV file. 'issues_report_created' creates an unexpected zoning report for a SAN.  |
 
 
  
@@ -3706,9 +3706,9 @@ Manage OneView Managed SAN resources.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| managed_san_issues   | Has the OneView facts about the unexpected zoning report created. |  On state 'issues_report_created'. Can be null. |  complex |
-| managed_san_endpoints   | Has the OneView facts about the Endpoints CSV File created. |  On state 'endpoints_csv_file_created'. Can be null. |  complex |
 | managed_san   | Has the OneView facts about the Managed SAN. |  On states 'present' and 'refresh_state_set'. Can be null. |  complex |
+| managed_san_endpoints   | Has the OneView facts about the Endpoints CSV File created. |  On state 'endpoints_csv_file_created'. Can be null. |  complex |
+| managed_san_issues   | Has the OneView facts about the unexpected zoning report created. |  On state 'issues_report_created'. Can be null. |  complex |
 
 
 #### Notes
@@ -3789,8 +3789,8 @@ Retrieve facts about the OneView Managed SANs.
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | managed_san_endpoints   | The list of endpoints in the SAN identified by name. |  When requested, but can be null. |  complex |
-| wwn_associated_sans   | The list of associations between provided WWNs and the SANs. |  When requested, but can be null. |  complex |
 | managed_sans   | The list of Managed SANs. |  Always, but can be null. |  list |
+| wwn_associated_sans   | The list of associations between provided WWNs and the SANs. |  When requested, but can be null. |  complex |
 
 
 #### Notes
@@ -3818,8 +3818,8 @@ Manage OneView Network Set resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Network Set resource. 'present' ensures data properties are compliant with OneView. 'absent' removes the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with the Network Set properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Network Set resource. 'present' ensures data properties are compliant with OneView. 'absent' removes the resource from OneView, if it exists.  |
 
 
  
@@ -4006,8 +4006,8 @@ Retrieve facts about one or more Os Deployment Plans.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| os_deployment_plans   | Has all the OneView facts about the Os Deployment Plans. |  Always, but can be null. |  complex |
 | os_deployment_plan_custom_attributes   | Has the editable Custom Attribute facts of the Os Deployment Plans in the Server Profiles format. |  When requested, but can be empty. |  complex |
+| os_deployment_plans   | Has all the OneView facts about the Os Deployment Plans. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -4035,8 +4035,8 @@ Manage OneView Power Device resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>discovered</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>uid_state_set</li> </ul> |  Indicates the desired state for the Power Device resource. 'present' will ensure data properties are compliant with OneView. 'discovered' will add an iPDU to the OneView. 'absent' will remove the resource from OneView, if it exists. 'power_state_set' will set the power state of the Power Device. 'refresh_state_set' will set the refresh state of the Power Device. 'uid_state_set' will set the UID state of the Power Device.  |
 | data  |   yes  |  | |  List with Power Device properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>discovered</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>uid_state_set</li> </ul> |  Indicates the desired state for the Power Device resource. 'present' will ensure data properties are compliant with OneView. 'discovered' will add an iPDU to the OneView. 'absent' will remove the resource from OneView, if it exists. 'power_state_set' will set the power state of the Power Device. 'refresh_state_set' will set the refresh state of the Power Device. 'uid_state_set' will set the UID state of the Power Device.  |
 
 
  
@@ -4195,9 +4195,9 @@ Retrieve facts about the OneView Power Devices.
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | power_device_power_state   | Has all the facts about the Power state of the Power Device. |  When requested, but can be null. |  complex |
+| power_device_uid_state   | Has all the facts about the Power Device UID state. |  When requested, but can be null. |  complex |
 | power_device_utilization   | Has all the facts about the Power Device utilization. |  When requested, but can be null. |  complex |
 | power_devices   | Has all the OneView facts about the Power Device. |  Always, but can be null. |  complex |
-| power_device_uid_state   | Has all the facts about the Power Device UID state. |  When requested, but can be null. |  complex |
 
 
 #### Notes
@@ -4225,8 +4225,8 @@ Manage OneView Racks resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Rack resource. 'present' will ensure data properties are compliant with OneView. To change the name of the Rack, a 'newName' in the data must be provided. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with the Rack properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Rack resource. 'present' will ensure data properties are compliant with OneView. To change the name of the Rack, a 'newName' in the data must be provided. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -4378,8 +4378,8 @@ Manage OneView SAN Manager resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Uplink Set resource. 'present' ensures data properties are compliant with OneView. 'absent' removes the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with SAN Manager properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Uplink Set resource. 'present' ensures data properties are compliant with OneView. 'absent' removes the resource from OneView, if it exists.  |
 
 
  
@@ -4454,8 +4454,8 @@ Retrieve facts about one or more of the OneView SAN Managers.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| provider_display_name  |   no  |  | |  Provider Display Name.  |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| provider_display_name  |   no  |  | |  Provider Display Name.  |
 
 
  
@@ -4510,9 +4510,9 @@ Manage the OneView SAS Interconnect resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>soft_reset</li>  <li>hard_reset</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Switch. 'powered_on' turns the power on. 'powered_off' turns the power off. 'uid_on' turns the UID light on. 'uid_off' turns the UID light off. 'soft_reset' perform a soft reset. 'hard_reset' perform a hard reset. 'refreshed' perform a refresh.  |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   yes  |  | |  The SAS Interconnect name.  |
+| state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>soft_reset</li>  <li>hard_reset</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Switch. 'powered_on' turns the power on. 'powered_off' turns the power off. 'uid_on' turns the UID light on. 'uid_off' turns the UID light off. 'soft_reset' perform a soft reset. 'hard_reset' perform a hard reset. 'refreshed' perform a refresh.  |
 
 
  
@@ -4681,8 +4681,8 @@ Manage OneView SAS Logical Interconnect resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>compliant</li>  <li>drive_enclosure_replaced</li>  <li>configuration_updated</li>  <li>firmware_updated</li> </ul> |  Indicates the desired state for the SAS Logical Interconnect resource. 'compliant' brings the list of SAS Logical Interconnect back to a consistent state. 'configuration_updated' asynchronously applies or re-applies the SAS Logical Interconnect configuration to all managed interconnects. 'firmware_updated' installs firmware to a SAS Logical Interconnect. 'drive_enclosure_replaced' replacement operation of a drive enclosure. * All of them are non-idempotent.  |
 | data  |   yes  |  | |  List with the options.  |
+| state  |   |  | <ul> <li>compliant</li>  <li>drive_enclosure_replaced</li>  <li>configuration_updated</li>  <li>firmware_updated</li> </ul> |  Indicates the desired state for the SAS Logical Interconnect resource. 'compliant' brings the list of SAS Logical Interconnect back to a consistent state. 'configuration_updated' asynchronously applies or re-applies the SAS Logical Interconnect configuration to all managed interconnects. 'firmware_updated' installs firmware to a SAS Logical Interconnect. 'drive_enclosure_replaced' replacement operation of a drive enclosure. * All of them are non-idempotent.  |
 
 
  
@@ -4816,8 +4816,8 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnects.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| sas_logical_interconnects   | The list of SAS Logical Interconnects. |  Always, but can be null. |  list |
 | sas_logical_interconnect_firmware   | The installed firmware for a SAS Logical Interconnect. |  When requested, but can be null. |  complex |
+| sas_logical_interconnects   | The list of SAS Logical Interconnects. |  Always, but can be null. |  list |
 
 
 #### Notes
@@ -4847,8 +4847,8 @@ Manage OneView SAS Logical Interconnect Group resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the SAS Logical Interconnect Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with the SAS Logical Interconnect Group properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the SAS Logical Interconnect Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -5123,8 +5123,8 @@ Manage OneView Scope resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>resource_assignments_updated</li> </ul> |  Indicates the desired state for the Scope resource. 'present' ensures data properties are compliant with OneView. 'absent' removes the resource from OneView, if it exists. 'resource_assignments_updated' modifies scope membership by adding or removing resource assignments. This operation is non-idempotent.  |
 | data  |   yes  |  | |  List with the Scopes properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>resource_assignments_updated</li> </ul> |  Indicates the desired state for the Scope resource. 'present' ensures data properties are compliant with OneView. 'absent' removes the resource from OneView, if it exists. 'resource_assignments_updated' modifies scope membership by adding or removing resource assignments. This operation is non-idempotent.  |
 
 
  
@@ -5277,8 +5277,8 @@ Manage OneView Server Hardware resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>ilo_firmware_version_updated</li>  <li>ilo_state_reset</li>  <li>uid_state_on</li>  <li>uid_state_off</li>  <li>environmental_configuration_set</li> </ul> |  Indicates the desired state for the Server Hardware resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'power_state_set' will set the power state of the Server Hardware. 'refresh_state_set will set the refresh state of the Server Hardware. 'ilo_firmware_version_updated' will update the iLO firmware version of the Server Hardware. 'ilo_state_reset' will reset the iLo state. 'uid_state_on' will set on the UID state if necessary. 'uid_state_off' will set on the UID state if necessary. 'environmental_configuration_set' will set the environmental configuration of the Server Hardware.  |
 | data  |   yes  |  | |  List with Server Hardware properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>ilo_firmware_version_updated</li>  <li>ilo_state_reset</li>  <li>uid_state_on</li>  <li>uid_state_off</li>  <li>environmental_configuration_set</li> </ul> |  Indicates the desired state for the Server Hardware resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'power_state_set' will set the power state of the Server Hardware. 'refresh_state_set will set the refresh state of the Server Hardware. 'ilo_firmware_version_updated' will update the iLO firmware version of the Server Hardware. 'ilo_state_reset' will reset the iLo state. 'uid_state_on' will set on the UID state if necessary. 'uid_state_off' will set on the UID state if necessary. 'environmental_configuration_set' will set the environmental configuration of the Server Hardware.  |
 
 
  
@@ -5470,15 +5470,15 @@ Retrieve facts about the OneView Server Hardwares.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| server_hardware_firmware   | Has all the facts about the Server Hardware firmware. |  When requested, but can be null. |  complex |
-| server_hardware_remote_console_url   | Has the facts about the Server Hardware remote console url. |  When requested, but can be null. |  complex |
 | server_hardware_bios   | Has all the facts about the Server Hardware BIOS. |  When requested, but can be null. |  complex |
-| server_hardware_ilo_sso_url   | Has the facts about the Server Hardware iLO SSO url. |  When requested, but can be null. |  complex |
-| server_hardwares   | Has all the OneView facts about the Server Hardware. |  Always, but can be null. |  complex |
-| server_hardware_utilization   | Has all the facts about the Server Hardware utilization. |  When requested, but can be null. |  complex |
-| server_hardware_java_remote_console_url   | Has the facts about the Server Hardware java console url. |  When requested, but can be null. |  complex |
-| server_hardware_firmwares   | Has all the facts about the firmwares inventory across all servers. |  When requested, but can be null. |  complex |
 | server_hardware_env_config   | Has all the facts about the Server Hardware environmental configuration. |  When requested, but can be null. |  complex |
+| server_hardware_firmware   | Has all the facts about the Server Hardware firmware. |  When requested, but can be null. |  complex |
+| server_hardware_firmwares   | Has all the facts about the firmwares inventory across all servers. |  When requested, but can be null. |  complex |
+| server_hardware_ilo_sso_url   | Has the facts about the Server Hardware iLO SSO url. |  When requested, but can be null. |  complex |
+| server_hardware_java_remote_console_url   | Has the facts about the Server Hardware java console url. |  When requested, but can be null. |  complex |
+| server_hardware_remote_console_url   | Has the facts about the Server Hardware remote console url. |  When requested, but can be null. |  complex |
+| server_hardware_utilization   | Has all the facts about the Server Hardware utilization. |  When requested, but can be null. |  complex |
+| server_hardwares   | Has all the OneView facts about the Server Hardware. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -5508,8 +5508,8 @@ Manage OneView Server Hardware Type resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Server Hardware Type resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with Server Hardware Type properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Server Hardware Type resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -5634,8 +5634,8 @@ Manage OneView Server Profile resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  present  | <ul> <li>present</li>  <li>absent</li>  <li>compliant</li> </ul> |  Indicates the desired state for the Server Profile resource by the end of the playbook execution. 'present' will ensure data properties are compliant with OneView. This operation power off the Server Hardware before configuring Server Profile. After complete, the Server Hardware is powered on. 'absent' will remove the resource from OneView, if it exists. 'compliant' will make the server profile compliant with its server profile template, when this option was specified. If there are Offline updates, the Server Hardware is turned off before remediate compliance issues and turned on after that.  |
 | data  |   yes  |  | |  List with Server Profile properties.  |
+| state  |   |  present  | <ul> <li>present</li>  <li>absent</li>  <li>compliant</li> </ul> |  Indicates the desired state for the Server Profile resource by the end of the playbook execution. 'present' will ensure data properties are compliant with OneView. This operation power off the Server Hardware before configuring Server Profile. After complete, the Server Hardware is powered on. 'absent' will remove the resource from OneView, if it exists. 'compliant' will make the server profile compliant with its server profile template, when this option was specified. If there are Offline updates, the Server Hardware is turned off before remediate compliance issues and turned on after that.  |
 
 
  
@@ -5684,11 +5684,11 @@ Manage OneView Server Profile resources.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| serial_number   | Has the Server Profile serial number. |  On states 'present' and 'compliant'. |  complex |
 | compliance_preview   | Has the OneView facts about the manual and automatic updates required to make the server profile consistent with its template. |  On states 'present' and 'compliant'. |  complex |
+| created   | Indicates if the Server Profile was created. |  On states 'present' and 'compliant'. |  bool |
+| serial_number   | Has the Server Profile serial number. |  On states 'present' and 'compliant'. |  complex |
 | server_hardware   | Has the OneView facts about the Server Hardware. |  On states 'present' and 'compliant'. |  complex |
 | server_profile   | Has the OneView facts about the Server Profile. |  On states 'present' and 'compliant'. |  complex |
-| created   | Indicates if the Server Profile was created. |  On states 'present' and 'compliant'. |  bool |
 
 
 #### Notes
@@ -5802,17 +5802,17 @@ Retrieve facts about the OneView Server Profiles.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| server_profile_available_targets   | Has the facts about the target servers and empty device bays that are available for assignment to the server profile. |  When requested, but can be null. |  complex |
-| server_profile_schema   | Has the facts about the Server Profile schema. |  When requested, but can be null. |  complex |
-| server_profile_available_storage_system   | Has the facts about a specific storage system and its associated volumes that are available to the server profile. |  When requested, but can be null. |  complex |
-| server_profile_messages   | Has the facts about the profile status messages associated with the profile. |  When requested, but can be null. |  complex |
+| server_profile_available_networks   | Has all the facts about the list of Ethernet networks, Fibre Channel networks and network sets that are available to the server profile along with their respective ports. |  When requested, but can be null. |  complex |
 | server_profile_available_servers   | Has the facts about the list of available servers. |  When requested, but can be null. |  complex |
+| server_profile_available_storage_system   | Has the facts about a specific storage system and its associated volumes that are available to the server profile. |  When requested, but can be null. |  complex |
+| server_profile_available_storage_systems   | Has the facts about the list of the storage systems and their associated volumes that are available to the server profile. |  When requested, but can be null. |  complex |
+| server_profile_available_targets   | Has the facts about the target servers and empty device bays that are available for assignment to the server profile. |  When requested, but can be null. |  complex |
+| server_profile_compliance_preview   | Has all the facts about the manual and automatic updates required to make the server profile compliant with its template. |  When requested, but can be null. |  complex |
+| server_profile_messages   | Has the facts about the profile status messages associated with the profile. |  When requested, but can be null. |  complex |
+| server_profile_profile_ports   | Has the facts about the port model associated. |  When requested, but can be null. |  complex |
+| server_profile_schema   | Has the facts about the Server Profile schema. |  When requested, but can be null. |  complex |
 | server_profile_transformation   | Has the facts about the transformation of an existing profile by supplying a new server hardware type and/or enclosure group. |  When requested, but can be null. |  complex |
 | server_profiles   | Has all the OneView facts about the Server Profiles. |  Always, but can be null. |  complex |
-| server_profile_profile_ports   | Has the facts about the port model associated. |  When requested, but can be null. |  complex |
-| server_profile_available_storage_systems   | Has the facts about the list of the storage systems and their associated volumes that are available to the server profile. |  When requested, but can be null. |  complex |
-| server_profile_available_networks   | Has all the facts about the list of Ethernet networks, Fibre Channel networks and network sets that are available to the server profile along with their respective ports. |  When requested, but can be null. |  complex |
-| server_profile_compliance_preview   | Has all the facts about the manual and automatic updates required to make the server profile compliant with its template. |  When requested, but can be null. |  complex |
 
 
 #### Notes
@@ -5840,8 +5840,8 @@ Manage OneView Server Profile Template resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Server Profile Template. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  Dict with Server Profile Template properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Server Profile Template. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -5934,8 +5934,8 @@ Retrieve facts about the Server Profile Templates from OneView.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| server_profile_templates   | Has all the OneView facts about the Server Profile Templates. |  Always, but can be null. |  complex |
 | new_profile   | A profile object with the configuration based on this template. |  When requested, but can be null. |  complex |
+| server_profile_templates   | Has all the OneView facts about the Server Profile Templates. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -5965,8 +5965,8 @@ Manage OneView Storage Pool resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage Pool resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with Storage Pool properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage Pool resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -6084,8 +6084,8 @@ Manage OneView Storage System resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage System resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with Storage System properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage System resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -6155,8 +6155,8 @@ Retrieve facts about the OneView Storage Systems.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| name  |   no  |  | |  Storage System name.  |
 | ip_hostname  |   no  |  | |  Storage System IP or hostname.  |
+| name  |   no  |  | |  Storage System name.  |
 | options  |   no  |  | |  List with options to gather additional facts about a Storage System and related resources. Options allowed: 'hostTypes' gets the list of supported host types. 'storagePools' gets a list of storage pools belonging to the specified storage system.  To gather facts about 'storagePools' it is required inform either the argument 'name' or 'ip_hostname'. Otherwise, this option will be ignored.  |
 
 
@@ -6240,9 +6240,9 @@ Provides an interface to remove extra presentations from a specified server prof
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| state  |   yes  |  | <ul> <li>extra_presentations_removed</li> </ul> |  Indicates the desired state for the Storage Volume Attachment 'extra_presentations_removed' will remove extra presentations from a specified server profile.  |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | server_profile  |   yes  |  | |  Server Profile name or Server Profile URI  |
+| state  |   yes  |  | <ul> <li>extra_presentations_removed</li> </ul> |  Indicates the desired state for the Storage Volume Attachment 'extra_presentations_removed' will remove extra presentations from a specified server profile.  |
 
 
  
@@ -6303,12 +6303,12 @@ Retrieve facts about Storage Volume Attachments of the OneView.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| storageVolumeAttachmentUri  |   no  |  | |  Storage Volume Attachment uri.  |
-| serverProfileName  |   no  |  | |  Server Profile name.  |
-| storageVolumeName  |   no  |  | |  Storage Volume name.  |
-| storageVolumeUri  |   no  |  | |  Storage Volume uri.  |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | options  |   no  |  | |  Retrieve additional facts. Options available: 'extraUnmanagedStorageVolumes' retrieve the list of extra unmanaged storage volumes. 'paths' retrieve all paths or a specific attachment path for the specified volume attachment. To retrieve a specific path a 'pathUri' or a 'pathId' must be informed  |
+| serverProfileName  |   no  |  | |  Server Profile name.  |
+| storageVolumeAttachmentUri  |   no  |  | |  Storage Volume Attachment uri.  |
+| storageVolumeName  |   no  |  | |  Storage Volume name.  |
+| storageVolumeUri  |   no  |  | |  Storage Volume uri.  |
 
 
  
@@ -6384,8 +6384,8 @@ Retrieve facts about Storage Volume Attachments of the OneView.
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | extra_unmanaged_storage_volumes   | Has facts about the extra unmanaged storage volumes. |  When requested, but can be null. |  complex |
-| storage_volume_attachments   | Has all the OneView facts about the Storage Volume Attachments. |  Always, but can be null. |  complex |
 | storage_volume_attachment_paths   | Has facts about all paths or a specific attachment path for the specified volume attachment. |  When requested, but can be null. |  complex |
+| storage_volume_attachments   | Has all the OneView facts about the Storage Volume Attachments. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -6413,8 +6413,8 @@ Manage OneView Storage Volume Template resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage Volume Template resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with Storage Volume Template properties and its associated states.  |
+| state  |   yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage Volume Template resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -6557,9 +6557,9 @@ Provides an interface to remove ToR Switch resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| state  |   |  | <ul> <li>absent</li>  <li>ports_updated</li> </ul> |  Indicates the desired state for the Switch. 'absent' will remove the resource from OneView, if it exists. 'ports_updated' will update the switch ports  |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   yes  |  | |  Switch name.  |
+| state  |   |  | <ul> <li>absent</li>  <li>ports_updated</li> </ul> |  Indicates the desired state for the Switch. 'absent' will remove the resource from OneView, if it exists. 'ports_updated' will update the switch ports  |
 
 
  
@@ -6635,8 +6635,8 @@ Retrieve facts about the OneView Switches.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| switches   | The list of switches. |  Always, but can be null. |  list |
 | switch_environmental_configuration   | The environmental configuration for a switch. |  When requested, but can be null. |  complex |
+| switches   | The list of switches. |  Always, but can be null. |  list |
 
 
 #### Notes
@@ -6783,8 +6783,8 @@ Manage OneView Unmanaged Device resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Unmanaged Device resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 | data  |   yes  |  | |  List with Unmanaged Device properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Unmanaged Device resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
 
 
  
@@ -6915,8 +6915,8 @@ Retrieve facts about one or more of the OneView Unmanaged Device.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| unmanaged_devices   | The list of unmanaged devices. |  Always, but can be null. |  list |
 | unmanaged_device_environmental_configuration   | The description of the environmental configuration for the logical interconnect. |  When requested, but can be null. |  complex |
+| unmanaged_devices   | The list of unmanaged devices. |  Always, but can be null. |  list |
 
 
 #### Notes
@@ -6944,8 +6944,8 @@ Manage OneView Uplink Set resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Uplink Set resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. The key used to find the resource to perform the operation is a compound key, that consists of the name of the uplink set and the URI (or name) of the Logical Interconnect combined. You can choose set the Logical Interconnect by logicalInterconnectUri or logicalInterconnectName.  |
 | data  |   yes  |  | |  List with Uplink Set properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Uplink Set resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. The key used to find the resource to perform the operation is a compound key, that consists of the name of the uplink set and the URI (or name) of the Logical Interconnect combined. You can choose set the Logical Interconnect by logicalInterconnectUri or logicalInterconnectName.  |
 
 
  
@@ -7083,10 +7083,10 @@ Manage OneView Volume resources.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| export_only  |   |  False  | |  If set to True, when the status is 'absent' and the resource exists, it will be removed only from OneView.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>repaired</li>  <li>snapshot_created</li>  <li>snapshot_deleted</li> </ul> |  Indicates the desired state for the Volume resource. 'present' creates/adds the resource when it does not exist, otherwise it updates the resource. When the resource already exists, the update operation is non-idempotent, since it is always called even though the given options are compliant with the existent data. To change the name of the volume, a 'newName' in the data must be provided. 'absent' by default deletes a volume from OneView and storage system. When export_only is True, the volume is removed only from OneView. 'repaired' removes extra presentations from a specified volume on the storage system. This operation is non-idempotent. 'snapshot_created' creates a snapshot for the volume specified. This operation is non-idempotent. 'snapshot_deleted' deletes a snapshot from OneView and storage system.  |
 | config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   yes  |  | |  Volume or snapshot data.  |
+| export_only  |   |  False  | |  If set to True, when the status is 'absent' and the resource exists, it will be removed only from OneView.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>repaired</li>  <li>snapshot_created</li>  <li>snapshot_deleted</li> </ul> |  Indicates the desired state for the Volume resource. 'present' creates/adds the resource when it does not exist, otherwise it updates the resource. When the resource already exists, the update operation is non-idempotent, since it is always called even though the given options are compliant with the existent data. To change the name of the volume, a 'newName' in the data must be provided. 'absent' by default deletes a volume from OneView and storage system. When export_only is True, the volume is removed only from OneView. 'repaired' removes extra presentations from a specified volume on the storage system. This operation is non-idempotent. 'snapshot_created' creates a snapshot for the volume specified. This operation is non-idempotent. 'snapshot_deleted' deletes a snapshot from OneView and storage system.  |
 
 
  
@@ -7290,9 +7290,9 @@ Retrieve facts about the OneView Volumes.
 
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| storage_volumes   | Has all the OneView facts about the Volumes. |  Always, but can be null. |  complex |
 | attachable_volumes   | Has all the facts about the attachable volumes managed by the appliance. |  When requested, but can be null. |  complex |
 | extra_managed_volume_paths   | Has all the facts about the extra managed storage volume paths from the appliance |  When requested, but can be null. |  complex |
+| storage_volumes   | Has all the OneView facts about the Volumes. |  Always, but can be null. |  complex |
 
 
 #### Notes
