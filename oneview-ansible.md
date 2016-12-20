@@ -8,6 +8,7 @@
   * [image_streamer_build_plan_facts - Retrieve facts about one or more of the Image Streamer Build Plans.](#image_streamer_build_plan_facts)
   * [image_streamer_golden_image - Manage Image Stream Golden Image resources.](#image_streamer_golden_image)
   * [image_streamer_golden_image_facts - Retrieve facts about one or more of the Image Streamer Golden Image.](#image_streamer_golden_image_facts)
+  * [image_streamer_os_volume_facts - Retrieve facts about the Image Streamer OS Volumes.](#image_streamer_os_volume_facts)
   * [image_streamer_plan_script - Manage Image Streamer Plan Script resources.](#image_streamer_plan_script)
   * [image_streamer_plan_script_facts - Retrieve facts about the Image Streamer Plan Scripts.](#image_streamer_plan_script_facts)
   * [oneview_alert_facts - Retrieve facts about the OneView Alerts.](#oneview_alert_facts)
@@ -506,6 +507,64 @@ Retrieve facts about one or more of the Image Streamer Golden Image.
 | Name          | Decription  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | golden_images   | The list of Golden Images. |  Always, but can be null. |  list |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+
+---
+
+
+## image_streamer_os_volume_facts
+Retrieve facts about the Image Streamer OS Volumes.
+
+#### Synopsis
+ Retrieve facts about the Image Streamer OS Volumes.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the filepath is not provided, the configuration will be loaded from environment variables.  |
+| name  |   no  |  | |  Name of the OS Volume.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Gather facts about all OS Volumes
+  image_streamer_os_volume_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=os_volumes
+
+- name: Gather facts about an OS Volume by name
+  image_streamer_os_volume_facts:
+    config: "{{ config_path }}"
+    name: "Test Volume"
+  delegate_to: localhost
+
+- debug: var=os_volumes
+
+```
+
+
+
+#### Return Values
+
+| Name          | Decription  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| os_volumes   | The list of OS Volumes |  Always, but can be empty. |  list |
 
 
 #### Notes
