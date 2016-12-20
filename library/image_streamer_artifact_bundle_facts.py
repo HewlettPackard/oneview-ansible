@@ -52,7 +52,7 @@ options:
         - "List with options to gather additional facts about Artifact Bundle.
           Options allowed:
           'allBackups' gets the list of backups for Artifact Bundles.
-          'backupForAnArtifactBundle' gets the list of backup for the Artifact Bundle."
+          'backupForAnArtifactBundle' gets the list of backups for the Artifact Bundle."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
