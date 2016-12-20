@@ -28,9 +28,9 @@ except ImportError:
 DOCUMENTATION = '''
 ---
 module: oneview_fabric
-short_description: Retrieve facts about one or more of the OneView Fabrics.
+short_description: Manage OneView Fabric resources.
 description:
-    - Retrieve facts about one or more of the Fabrics from OneView.
+    - Provides an interface for managing fabrics in OneView.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.0"
