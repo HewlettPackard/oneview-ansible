@@ -19,7 +19,6 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import resource_compare
     from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
@@ -28,14 +27,15 @@ except ImportError:
 
 DOCUMENTATION = '''
 ---
-module: image_streamer_golden_image
-short_description: Manage Image Stream Golden Image resources.
+module: image_streamer_artifact_bundle_facts
+short_description: Retrieve facts about Artifact Bundle.
 description:
-    - "Provides an interface to manage Image Stream Golden Image. Can create, add, update, remove."
+    - "Retrieve facts about Artifact Bundle."
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.1"
-author: "Gustavo Hennig (@GustavoHennig)"
+author:
+    - "Abilio Parada (@abiliogp)"
 options:
     config:
       description:
@@ -43,17 +43,17 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
-    state:
-        description:
-            - Indicates the desired state for the Golden Image resource.
-              'present' will ensure data properties are compliant with OneView.
-              'absent' will remove the resource from OneView, if it exists.
-        choices: ['present', 'absent']
-        required: true
-    data:
-        description:
-            - List with Golden Image properties and its associated states.
-        required: true
+    name:
+      description:
+        - Name of the Artifact Bundle.
+      required: false
+    options:
+      description:
+        - "List with options to gather additional facts about Artifact Bundle.
+          Options allowed:
+          'allBackups' gets the list of backups for Artifact Bundles.
+          'backupForAnArtifactBundle' gets the list of backup for the Artifact Bundle."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -62,75 +62,65 @@ notes:
 '''
 
 EXAMPLES = '''
-- name: Add a Golden Image from OS Volume
-  image_streamer_golden_image:
+- name: Gather facts about all Artifact Bundles
+  image_streamer_artifact_bundle_facts:
     config: "{{ config }}"
-    state: present
-    data:
-      name: 'Demo Golden Image creation'
-      description: "Test Description"
-      imageCapture: "true"
-      osVolumeName: 'OSVolume-20'
-      buildPlanName: 'Buld Plan name'
   delegate_to: localhost
+- debug: var=artifact_bundles
 
-- name: Create a Golden Image uploading from a local file
-  image_streamer_golden_image:
+- name: Gather facts about an Artifact Bundle by name
+  image_streamer_artifact_bundle_facts:
     config: "{{ config }}"
-    state: present
-    data:
-      name: 'Demo Golden Image upload'
-      description: "Test"
-      localImageFilePath: '~/image_file.zip'
+    name: "Artifact Bundles Test"
   delegate_to: localhost
+- debug: var=artifact_bundles
 
-- name: Update the Golden Image description and name
-  image_streamer_golden_image:
+- name: Gather facts about all Backups for Artifact Bundle
+  image_streamer_artifact_bundle_facts:
     config: "{{ config }}"
-    state: present
-    data:
-      name: 'Demo Golden Image upload'
-      description: "New description"
-      newName: 'Golden Image Renamed'
+    name: "Artifact Bundles Test"
+    options:
+      - allBackups
   delegate_to: localhost
+- debug: var=artifact_bundles
+- debug: var=artifact_bundle_backups
 
-- name: Remove a Golden Image
-  image_streamer_golden_image:
+- name: Gather facts about Backup for an Artifact Bundle
+  image_streamer_artifact_bundle_facts:
     config: "{{ config }}"
-    state: absent
-    data:
-        name: 'Golden Image name'
+    name: "Artifact Bundles Test"
+    options:
+      - backupForAnArtifactBundle
   delegate_to: localhost
+- debug: var=artifact_bundles
+- debug: var=backup_for_artifact_bundle
 '''
 
 RETURN = '''
-golden_image:
-    description: Has the OneView facts about the Golden Image.
-    returned: On state 'present', upload an image returns null.
-    type: complex
+artifact_bundles:
+    description: The list of Artifact Bundles.
+    returned: Always, but can be null.
+    type: list
+
+artifact_bundle_backups:
+    description: The list of backups for Artifact Bundles.
+    returned: When requested, but can be null.
+    type: list
+
+backup_for_artifact_bundle:
+    description: The backup for an Artifact Bundle.
+    returned: When requested, but can be null.
+    type: list
 '''
 
-GOLDEN_IMAGE_CREATED = 'Golden Image created successfully.'
-GOLDEN_IMAGE_UPLOADED = 'Golden Image uploaded successfully.'
-GOLDEN_IMAGE_UPDATED = 'Golden Image updated successfully.'
-GOLDEN_IMAGE_ALREADY_UPDATED = 'Golden Image is already present.'
-GOLDEN_IMAGE_DELETED = 'Golden Image deleted successfully.'
-GOLDEN_IMAGE_ALREADY_ABSENT = 'Golden Image is already absent.'
-I3S_CANT_CREATE_AND_UPLOAD = "You can use an existent OS Volume or upload an Image, you cannot do both."
-I3S_MISSING_MANDATORY_ATTRIBUTES = 'Mandatory field is missing: osVolumeURI or localImageFilePath are required.'
-I3S_OS_VOLUME_WAS_NOT_FOUND = 'OS Volume was not found.'
-I3S_BUILD_PLAN_WAS_NOT_FOUND = 'OS Build Plan was not found.'
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
-class ArtifactBundleModule(object):
+class ArtifactBundleFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        state=dict(
-            required=True,
-            choices=['present', 'absent']
-        ),
-        data=dict(required=True, type='dict')
+        name=dict(required=False, type='str'),
+        options=dict(required=False, type='list')
     )
 
     def __init__(self):
@@ -148,7 +138,8 @@ class ArtifactBundleModule(object):
     def run(self):
         try:
             ansible_facts = {}
-            if self.module.params['name']:
+
+            if self.module.params.get('name'):
                 artifact_bundles = self.__get_by_name(self.module.params['name'])
 
                 if self.module.params.get('options') and artifact_bundles:
@@ -156,7 +147,7 @@ class ArtifactBundleModule(object):
             else:
                 artifact_bundles = self.__get_all()
 
-            ansible_facts['artifact_bundle'] = artifact_bundles
+            ansible_facts['artifact_bundles'] = artifact_bundles
 
             self.module.exit_json(changed=False, ansible_facts=ansible_facts)
 
@@ -182,15 +173,15 @@ class ArtifactBundleModule(object):
         return self.i3s_client.artifact_bundles.get_by('name', name)
 
     def __get_backups(self):
-        return self.i3s_client.artifact_bundles.get_backups()
+        return self.i3s_client.artifact_bundles.get_all_backups()
 
     def __get_backup_for_an_artifact_bundle(self, artifact_bundle):
-        return self.i3s_client.artifact_bundles.get_backups_by_id(artifact_bundle['uri'])
+        return self.i3s_client.artifact_bundles.get_backup(artifact_bundle['uri'])
 
 
 def main():
 
-    ArtifactBundleModule().run()
+    ArtifactBundleFactsModule().run()
 
 
 if __name__ == '__main__':

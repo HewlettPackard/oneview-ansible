@@ -16,8 +16,8 @@
 ---
 - hosts: all
   vars:
-    - config: "{{ playbook_dir }}/oneview_config.json"
-    - artifact_bundle_name: 'name2139069875-1471287701836'
+    config: "{{ playbook_dir }}/oneview_config.json"
+    artifact_bundle_name: 'HPE-ImageStreamer-Developer-2016-09-12'
   tasks:
     - name: Gather facts about all Artifact Bundles
       image_streamer_artifact_bundle_facts:
@@ -31,27 +31,26 @@
         config: "{{ config }}"
         name: '{{ artifact_bundle_name }}'
       delegate_to: localhost
-    - debug: var=artifact_bundle
+    - debug: var=artifact_bundles
 
 
     - name: Gather facts about all Backups for Artifact Bundle
       image_streamer_artifact_bundle_facts:
         config: "{{ config }}"
         name: '{{ artifact_bundle_name }}'
-      delegate_to: localhost
-      options:
+        options:
           - allBackups
-    - debug: var=artifact_bundle
+      delegate_to: localhost
+    - debug: var=artifact_bundles
     - debug: var=artifact_bundle_backups
 
 
-    - name: Gather facts about a Backups for an Artifact Bundle
+    - name: Gather facts about Backup for an Artifact Bundle
       image_streamer_artifact_bundle_facts:
         config: "{{ config }}"
         name: '{{ artifact_bundle_name }}'
-      delegate_to: localhost
-      options:
+        options:
           - backupForAnArtifactBundle
-
-    - debug: var=artifact_bundle
+      delegate_to: localhost
+    - debug: var=artifact_bundles
     - debug: var=backup_for_artifact_bundle
