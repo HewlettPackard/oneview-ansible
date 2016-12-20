@@ -48,7 +48,7 @@
 {% for k,v in doc.iteritems() %}
 {% if k == 'options' %}
 {% for option,values in v.iteritems() | sort %}
-| {{ option }}  |  {% if values.get('required') != None %} {{ values['required'] | replace('True','yes') | replace('False','no') }} {% endif %} | {% if values.get('default') != None %} {{ values['default'] | replace('None','')}} {% endif %} |{% if values.get('choices') != None %} <ul>{% for each in values['choices'] %} <li>{{ each }}</li> {% endfor %}</ul>{% endif %} | {% if values.get('description') != None %}{% for each in values['description'] %} {{ each }} {% endfor %}{% endif %} |
+| {{ option }}  |  {% if values.get('required') != None %} {{ values['required'] | replace('True','Yes') | replace('False','No') }} {% endif %} | {% if values.get('default') != None %} {{ values['default'] | replace('None','')}} {% endif %} |{% if values.get('choices') != None %} <ul>{% for each in values['choices'] %} <li>{{ each }}</li> {% endfor %}</ul>{% endif %} | {% if values.get('description') != None %}{% for each in values['description'] %} {{ each }} {% endfor %}{% endif %} |
 {% endfor %}
 {% endif %}
 {% endfor %}
@@ -70,7 +70,7 @@
 
 #### Return Values
 
-| Name          | Decription  | Returned | Type       |
+| Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 {% for k,v in doc['returns'].iteritems() | sort %}
 | {{ k }}   | {{ v.get('description') }} |  {{ v.get('returned') }} |  {{ v.get('type') }} |
