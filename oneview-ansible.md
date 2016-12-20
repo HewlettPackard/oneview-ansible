@@ -246,9 +246,15 @@ Retrieve facts about Artifact Bundle.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
+<<<<<<< 3f38ef99eaed01ee07035996d6278d91dd4e2017
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Artifact Bundle.  |
 | options  |   No  |  | |  List with options to gather additional facts about Artifact Bundle. Options allowed: 'allBackups' gets the list of backups for Artifact Bundles. 'backupForAnArtifactBundle' gets the list of backup for the Artifact Bundle.  |
+=======
+| config  |   no  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| name  |   no  |  | |  Name of the Artifact Bundle.  |
+| options  |   no  |  | |  List with options to gather additional facts about Artifact Bundle. Options allowed: 'allBackups' gets the list of backups for Artifact Bundles. 'backupForAnArtifactBundle' gets the list of backups for the Artifact Bundle.  |
+>>>>>>> Fixed some issues pointed in review
 
 
  
