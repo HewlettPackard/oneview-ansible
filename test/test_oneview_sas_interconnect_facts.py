@@ -135,5 +135,6 @@ class SasInterconnectsFactsClientConfigurationSpec(unittest.TestCase):
         mock_ov_client_from_env_vars.assert_called_once()
         mock_ov_client_from_json_file.not_been_called()
 
+
 if __name__ == '__main__':
     unittest.main()

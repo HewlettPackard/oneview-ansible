@@ -236,5 +236,6 @@ class ManagedSanFactsSpec(unittest.TestCase):
 
         mock_ansible_instance.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
+
 if __name__ == '__main__':
     unittest.main()

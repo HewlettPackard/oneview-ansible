@@ -35,8 +35,8 @@ def create_params(state):
         name=SAS_INTERCONNECT_NAME
     )
 
-REFRESH_CONFIGURATION = dict(refreshState="RefreshPending")
 
+REFRESH_CONFIGURATION = dict(refreshState="RefreshPending")
 PARAMS_FOR_REFRESH = create_params('refreshed')
 PARAMS_FOR_UID_ON = create_params('uid_on')
 PARAMS_FOR_UID_OFF = create_params('uid_off')
