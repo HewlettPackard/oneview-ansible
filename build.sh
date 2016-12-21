@@ -20,6 +20,7 @@ COLOR_SUCCESS="\e[32m"
 COLOR_FAILURE="\e[31m"
 COLOR_END="[00m"
 
+exit_code_doc_generation=0
 exit_code_build_oneview_ansible=0
 exit_code_module_validation=0
 exit_code_playbook_validation=0
@@ -86,9 +87,11 @@ else
   exit_code_flake8=1
 fi
 
-echo -e "\n${COLOR_START}Generating markdown documentation${COLOR_END}"
-build-doc/run-doc-generation.sh
-exit_code_doc_generation=$?
+if [ -z "$TRAVIS" ]; then
+  echo -e "\n${COLOR_START}Generating markdown documentation${COLOR_END}"
+  build-doc/run-doc-generation.sh
+  exit_code_doc_generation=$?
+fi
 
 echo -e "\n=== Summary =========================="
 print_summary "Modules validation" ${exit_code_module_validation}
