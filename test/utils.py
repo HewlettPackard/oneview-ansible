@@ -16,7 +16,9 @@
 ###
 
 import yaml
-from mock import mock, patch
+import mock
+
+from mock import patch
 from hpOneView.oneview_client import OneViewClient
 
 
