@@ -17,19 +17,15 @@ import unittest
 import mock
 
 from copy import deepcopy
-from mock import patch
-from test.utils import ModuleContructorTestCase
-from test.utils import PreloadedMocksBaseTestCase
-
+from test.utils import ModuleContructorTestCase, PreloadedMocksBaseTestCase
 from hpOneView.exceptions import HPOneViewTaskError
 from oneview_server_profile import ServerProfileModule
 from oneview_server_profile import ServerProfileMerger
 from oneview_server_profile import MAKE_COMPLIANT_NOT_SUPPORTED, SERVER_PROFILE_CREATED, REMEDIATED_COMPLIANCE, \
     ALREADY_COMPLIANT, SERVER_PROFILE_DELETED, SERVER_PROFILE_UPDATED, SERVER_ALREADY_UPDATED, \
-    ERROR_ALLOCATE_SERVER_HARDWARE, SERVER_PROFILE_ALREADY_ABSENT
-from oneview_server_profile import KEY_CONNECTIONS, KEY_OS_DEPLOYMENT, KEY_ATTRIBUTES, KEY_SAN, KEY_VOLUMES, \
-    KEY_PATHS, KEY_BOOT, KEY_BIOS, KEY_BOOT_MODE, KEY_LOCAL_STORAGE, KEY_SAS_LOGICAL_JBODS, KEY_CONTROLLERS, \
-    KEY_LOGICAL_DRIVES, KEY_SAS_LOGICAL_JBOD_URI
+    ERROR_ALLOCATE_SERVER_HARDWARE, SERVER_PROFILE_ALREADY_ABSENT, KEY_CONNECTIONS, KEY_OS_DEPLOYMENT, KEY_ATTRIBUTES, \
+    KEY_SAN, KEY_VOLUMES, KEY_PATHS, KEY_BOOT, KEY_BIOS, KEY_BOOT_MODE, KEY_LOCAL_STORAGE, KEY_SAS_LOGICAL_JBODS, \
+    KEY_CONTROLLERS, KEY_LOGICAL_DRIVES, KEY_SAS_LOGICAL_JBOD_URI
 
 SERVER_PROFILE_NAME = "Profile101"
 SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
@@ -182,7 +178,7 @@ class ServerProfileClientConfigurationSpec(unittest.TestCase, ModuleContructorTe
 class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     def setUp(self):
         self.configure_mocks(self, ServerProfileModule)
-        self.sleep_patch = patch('time.sleep')
+        self.sleep_patch = mock.patch('time.sleep')
         self.sleep_patch.start()
         self.sleep_patch.return_value = None
 
@@ -200,6 +196,24 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         ServerProfileModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=MESSAGE_COMPLIANT_ERROR)
+
+    def test_should_validate_etag_when_set_as_true(self):
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params['validate_etag'] = True
+
+        ServerProfileModule().run()
+
+        self.mock_ov_client.connection.enable_etag_validation.not_been_called()
+        self.mock_ov_client.connection.disable_etag_validation.not_been_called()
+
+    def test_should_not_validate_etag_when_set_as_false(self):
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params['validate_etag'] = False
+
+        ServerProfileModule().run()
+
+        self.mock_ov_client.connection.enable_etag_validation.not_been_called()
+        self.mock_ov_client.connection.disable_etag_validation.assert_called_once()
 
     def test_should_not_update_when_already_compliant(self):
         fake_server = deepcopy(CREATED_BASIC_PROFILE)
