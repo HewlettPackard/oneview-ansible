@@ -4,6 +4,7 @@
 
   * [hpe_icsp_os_deployment - Deploy the operating system on a server using HPE ICsp.](#hpe_icsp_os_deployment)
   * [hpe_icsp_server - Adds, removes and configures servers in ICsp.](#hpe_icsp_server)
+  * [image_streamer_artifact_bundle_facts - Retrieve facts about Artifact Bundle.](#image_streamer_artifact_bundle_facts)
   * [image_streamer_build_plan - Manage Image Stream OS Build Plan resources.](#image_streamer_build_plan)
   * [image_streamer_build_plan_facts - Retrieve facts about one or more of the Image Streamer Build Plans.](#image_streamer_build_plan_facts)
   * [image_streamer_golden_image - Manage Image Streamer Golden Image resources.](#image_streamer_golden_image)
@@ -226,6 +227,85 @@ Adds, removes and configures servers in ICsp.
 | ------------- |-------------| ---------|----------- |
 | target_server   | Has the facts about the server that was added to ICsp. |  On states 'present' and 'network_configured' . Can be null. |  complex |
 
+
+
+---
+
+
+## image_streamer_artifact_bundle_facts
+Retrieve facts about Artifact Bundle.
+
+#### Synopsis
+ Retrieve facts about Artifact Bundle.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| name  |   No  |  | |  Name of the Artifact Bundle.  |
+| options  |   No  |  | |  List with options to gather additional facts about Artifact Bundle. Options allowed: 'allBackups' gets the list of backups for Artifact Bundles. 'backupForAnArtifactBundle' gets the list of backups for the Artifact Bundle.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Gather facts about all Artifact Bundles
+  image_streamer_artifact_bundle_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=artifact_bundles
+
+- name: Gather facts about an Artifact Bundle by name
+  image_streamer_artifact_bundle_facts:
+    config: "{{ config }}"
+    name: "Artifact Bundles Test"
+  delegate_to: localhost
+- debug: var=artifact_bundles
+
+- name: Gather facts about all Backups for Artifact Bundle
+  image_streamer_artifact_bundle_facts:
+    config: "{{ config }}"
+    name: "Artifact Bundles Test"
+    options:
+      - allBackups
+  delegate_to: localhost
+- debug: var=artifact_bundles
+- debug: var=artifact_bundle_backups
+
+- name: Gather facts about Backup for an Artifact Bundle
+  image_streamer_artifact_bundle_facts:
+    config: "{{ config }}"
+    name: "Artifact Bundles Test"
+    options:
+      - backupForAnArtifactBundle
+  delegate_to: localhost
+- debug: var=artifact_bundles
+- debug: var=backup_for_artifact_bundle
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| artifact_bundle_backups   | The list of backups for Artifact Bundles. |  When requested, but can be null. |  list |
+| artifact_bundles   | The list of Artifact Bundles. |  Always, but can be null. |  list |
+| backup_for_artifact_bundle   | The backup for an Artifact Bundle. |  When requested, but can be null. |  list |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 
 ---

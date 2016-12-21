@@ -1,0 +1,56 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    artifact_bundle_name: 'HPE-ImageStreamer-Developer-2016-09-12'
+  tasks:
+    - name: Gather facts about all Artifact Bundles
+      image_streamer_artifact_bundle_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+    - debug: var=artifact_bundles
+
+
+    - name: Gather facts about an Artifact Bundle by name
+      image_streamer_artifact_bundle_facts:
+        config: "{{ config }}"
+        name: '{{ artifact_bundle_name }}'
+      delegate_to: localhost
+    - debug: var=artifact_bundles
+
+
+    - name: Gather facts about all Backups for Artifact Bundle
+      image_streamer_artifact_bundle_facts:
+        config: "{{ config }}"
+        name: '{{ artifact_bundle_name }}'
+        options:
+          - allBackups
+      delegate_to: localhost
+    - debug: var=artifact_bundles
+    - debug: var=artifact_bundle_backups
+
+
+    - name: Gather facts about Backup for an Artifact Bundle
+      image_streamer_artifact_bundle_facts:
+        config: "{{ config }}"
+        name: '{{ artifact_bundle_name }}'
+        options:
+          - backupForAnArtifactBundle
+      delegate_to: localhost
+    - debug: var=artifact_bundles
+    - debug: var=backup_for_artifact_bundle
