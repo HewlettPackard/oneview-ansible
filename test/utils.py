@@ -16,20 +16,18 @@
 ###
 
 import yaml
-import mock
-
-from mock import patch
+from mock import Mock, patch
 from hpOneView.oneview_client import OneViewClient
 
 
 def create_ansible_mock(params):
-    mock_ansible = mock.Mock()
+    mock_ansible = Mock()
     mock_ansible.params = params
     return mock_ansible
 
 
 def create_ansible_mock_yaml(yaml_config):
-    mock_ansible = mock.Mock()
+    mock_ansible = Mock()
     mock_ansible.params = yaml.load(yaml_config)
     return mock_ansible
 
@@ -69,7 +67,7 @@ class PreloadedMocksBaseTestCase(object):
         patcher_ansible = patch(self._testing_module + '.AnsibleModule')
         test_case.addCleanup(patcher_ansible.stop)
         mock_ansible_module = patcher_ansible.start()
-        self.mock_ansible_module = mock.Mock()
+        self.mock_ansible_module = Mock()
         mock_ansible_module.return_value = self.mock_ansible_module
 
 
@@ -110,7 +108,7 @@ class ModuleContructorTestCase(PreloadedMocksBaseTestCase):
         self.__validations()
         self.mock_ansible_module.params = {'config': 'config.json'}
 
-        with mock.patch(self._testing_module + ".HAS_HPE_ONEVIEW", False):
+        with patch(self._testing_module + ".HAS_HPE_ONEVIEW", False):
             self._testing_class()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
@@ -123,6 +121,6 @@ class ModuleContructorTestCase(PreloadedMocksBaseTestCase):
         module = __import__(self._testing_module)
         main_func = getattr(module, 'main')
 
-        with mock.patch.object(self._testing_class, "run") as mock_run:
+        with patch.object(self._testing_class, "run") as mock_run:
             main_func()
             mock_run.assert_called_once()

@@ -25,8 +25,8 @@ ERROR_MSG = 'Fake message error'
 
 class BuildPlanFactsSpec(unittest.TestCase, ModuleContructorTestCase):
     """
-    Test the module constructor
-    ModuleContructorTestCase has common tests for class constructor and main function
+    ModuleContructorTestCase has common tests for class constructor and main function,
+    also provides the mocks used in this test case
     """
 
     def setUp(self):
