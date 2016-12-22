@@ -38,6 +38,8 @@ KEY_NAME = 'name'
 KEY_DEVICE_SLOT = 'deviceSlot'
 KEY_CONNECTIONS = 'connections'
 KEY_OS_DEPLOYMENT = 'osDeploymentSettings'
+KEY_OS_DEPLOYMENT_URI = 'osDeploymentPlanUri'
+KEY_OS_DEPLOYMENT_NAME = 'osDeploymentPlanName'
 KEY_ATTRIBUTES = 'osCustomAttributes'
 KEY_SAN = 'sanStorage'
 KEY_VOLUMES = 'volumeAttachments'
@@ -68,6 +70,7 @@ SERVER_PROFILE_NOT_FOUND = "Server Profile is required for this operation."
 ERROR_ALLOCATE_SERVER_HARDWARE = 'Could not allocate server hardware'
 MAKE_COMPLIANT_NOT_SUPPORTED = "Update from template is not supported for server profile '{}' because it is not " \
                                "associated with a server profile template."
+OS_DEPLOYMENT_NOT_FOUND = 'OS Deployment Plan not found.'
 
 CONCURRENCY_FAILOVER_RETRIES = 25
 
@@ -97,6 +100,7 @@ options:
       - Indicates the desired state for the Server Profile resource by the end of the playbook execution.
         'present' will ensure data properties are compliant with OneView. This operation power off the Server Hardware
         before configuring Server Profile. After complete, the Server Hardware is powered on.
+        For the osDeploymentSettings, you can provide an osDeploymentPlanName instead of osDeploymentPlanUri.
         'absent' will remove the resource from OneView, if it exists.
         'compliant' will make the server profile compliant with its server profile template, when this option was
         specified. If there are Offline updates, the Server Hardware is turned off before remediate compliance issues
@@ -271,6 +275,8 @@ class ServerProfileModule(object):
         server_template = None
         changed = False
         created = False
+
+        self.__replace_os_deployment_name_by_uri(data)
 
         if server_hardware_name:
             selected_server_hardware = self.__get_server_hardware_by_name(server_hardware_name)
@@ -496,6 +502,18 @@ class ServerProfileModule(object):
             self.oneview_client.server_hardware.update_power_state(
                 dict(powerState='Off', powerControl='PressAndHold'), hardware_uri)
 
+    def __replace_os_deployment_name_by_uri(self, data):
+        if KEY_OS_DEPLOYMENT in data and data[KEY_OS_DEPLOYMENT]:
+            if KEY_OS_DEPLOYMENT_NAME in data[KEY_OS_DEPLOYMENT]:
+                os_deployment = self.__get_os_deployment_by_name(data[KEY_OS_DEPLOYMENT].pop(KEY_OS_DEPLOYMENT_NAME))
+                data[KEY_OS_DEPLOYMENT][KEY_OS_DEPLOYMENT_URI] = os_deployment['uri']
+
+    def __get_os_deployment_by_name(self, name):
+        os_deployment = self.oneview_client.os_deployment_plans.get_by_name(name)
+        if not os_deployment:
+            raise Exception(OS_DEPLOYMENT_NOT_FOUND)
+        return os_deployment
+
 
 class ServerProfileMerger(object):
 
@@ -676,8 +694,11 @@ class ServerProfileMerger(object):
         return key in data and data[key] and key in resource
 
     def _merge_dict(self, merged_data, resource, data, key):
-        merged_dict = deepcopy(resource[key])
-        merged_dict.update(deepcopy(data[key]))
+        if resource[key]:
+            merged_dict = deepcopy(resource[key])
+            merged_dict.update(deepcopy(data[key]))
+        else:  # resource has the key defined but it is null
+            merged_dict = deepcopy(data[key])
         merged_data[key] = merged_dict
         return merged_data
 

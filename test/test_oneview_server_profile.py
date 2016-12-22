@@ -23,9 +23,9 @@ from oneview_server_profile import ServerProfileModule
 from oneview_server_profile import ServerProfileMerger
 from oneview_server_profile import MAKE_COMPLIANT_NOT_SUPPORTED, SERVER_PROFILE_CREATED, REMEDIATED_COMPLIANCE, \
     ALREADY_COMPLIANT, SERVER_PROFILE_DELETED, SERVER_PROFILE_UPDATED, SERVER_ALREADY_UPDATED, \
-    ERROR_ALLOCATE_SERVER_HARDWARE, SERVER_PROFILE_ALREADY_ABSENT, KEY_CONNECTIONS, KEY_OS_DEPLOYMENT, KEY_ATTRIBUTES, \
-    KEY_SAN, KEY_VOLUMES, KEY_PATHS, KEY_BOOT, KEY_BIOS, KEY_BOOT_MODE, KEY_LOCAL_STORAGE, KEY_SAS_LOGICAL_JBODS, \
-    KEY_CONTROLLERS, KEY_LOGICAL_DRIVES, KEY_SAS_LOGICAL_JBOD_URI
+    ERROR_ALLOCATE_SERVER_HARDWARE, SERVER_PROFILE_ALREADY_ABSENT, OS_DEPLOYMENT_NOT_FOUND, KEY_CONNECTIONS, \
+    KEY_OS_DEPLOYMENT, KEY_ATTRIBUTES, KEY_SAN, KEY_VOLUMES, KEY_PATHS, KEY_BOOT, KEY_BIOS, KEY_BOOT_MODE, \
+    KEY_LOCAL_STORAGE, KEY_SAS_LOGICAL_JBODS, KEY_CONTROLLERS, KEY_LOGICAL_DRIVES, KEY_SAS_LOGICAL_JBOD_URI
 
 SERVER_PROFILE_NAME = "Profile101"
 SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
@@ -563,6 +563,33 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
             ansible_facts=mock_facts
         )
 
+    def test_should_replace_os_deployment_name_by_uri_on_creation(self):
+        uri = '/rest/os-deployment-plans/81decf85-0dff-4a5e-8a95-52994eeb6493'
+
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.os_deployment_plans.get_by_name.return_value = dict(uri=uri)
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0][KEY_OS_DEPLOYMENT], dict(osDeploymentPlanUri=uri))
+
+    def test_should_fail_when_deployment_plan_not_found_on_creation(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.os_deployment_plans.get_by_name.return_value = None
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=OS_DEPLOYMENT_NOT_FOUND)
+
     @mock.patch('oneview_server_profile.resource_compare')
     def test_should_update_when_data_changed(self, mock_resource_compare):
         profile_data = deepcopy(BASIC_PROFILE)
@@ -761,6 +788,35 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         expected_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS] = [deepcopy(SAS_LOGICAL_JBOD_1),  # id = 1
                                                                    deepcopy(SAS_LOGICAL_JBOD_2)]  # id = 2
         mock_resource_compare.assert_called_once_with(expected_data, mock.ANY)
+
+    @mock.patch('oneview_server_profile.resource_compare')
+    def test_should_replace_os_deployment_name_by_uri_on_update(self, mock_resource_compare):
+        uri = '/rest/os-deployment-plans/81decf85-0dff-4a5e-8a95-52994eeb6493'
+        mock_resource_compare.return_value = False
+
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.mock_ov_client.os_deployment_plans.get_by_name.return_value = dict(uri=uri)
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.update.call_args
+        self.assertEqual(args[0][KEY_OS_DEPLOYMENT], dict(osDeploymentPlanUri=uri))
+
+    def test_should_fail_when_deployment_plan_not_found_on_update(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.mock_ov_client.os_deployment_plans.get_by_name.return_value = None
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=OS_DEPLOYMENT_NOT_FOUND)
 
     def test_should_fail_when_delete_raises_exception(self):
         self.mock_ov_client.server_profiles.get_by_name.side_effect = Exception(FAKE_MSG_ERROR)
