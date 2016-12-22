@@ -20,15 +20,15 @@ from image_streamer_golden_image import GoldenImageModule, GOLDEN_IMAGE_ALREADY_
     GOLDEN_IMAGE_ALREADY_ABSENT, GOLDEN_IMAGE_CREATED, GOLDEN_IMAGE_DELETED, EXAMPLES, I3S_BUILD_PLAN_WAS_NOT_FOUND, \
     GOLDEN_IMAGE_UPDATED, I3S_CANT_CREATE_AND_UPLOAD, I3S_MISSING_MANDATORY_ATTRIBUTES, I3S_OS_VOLUME_WAS_NOT_FOUND, \
     GOLDEN_IMAGE_DOWNLOADED, GOLDEN_IMAGE_ARCHIVE_DOWNLOADED
-from test.utils import ModuleContructorTestCase, PreloadedMocksBaseTestCase
+from test.utils import ModuleContructorTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
-class GoldenImageSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedMocksBaseTestCase):
+class GoldenImageSpec(unittest.TestCase, ModuleContructorTestCase):
     """
-    Test the module constructor
-    ModuleContructorTestCase has common tests for class constructor and main function
+    ModuleContructorTestCase has common tests for class constructor and main function,
+    also provides the mocks used in this test case
     """
 
     def setUp(self):

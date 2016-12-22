@@ -18,15 +18,15 @@ import yaml
 
 from image_streamer_build_plan import BuildPlanModule, EXAMPLES, BUILD_PLAN_CREATED, BUILD_PLAN_UPDATED, \
     BUILD_PLAN_ALREADY_UPDATED, BUILD_PLAN_DELETED, BUILD_PLAN_ALREADY_ABSENT
-from test.utils import ModuleContructorTestCase, PreloadedMocksBaseTestCase
+from test.utils import ModuleContructorTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
-class BuildPlanSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedMocksBaseTestCase):
+class BuildPlanSpec(unittest.TestCase, ModuleContructorTestCase):
     """
-    Test the module constructor
-    ModuleContructorTestCase has common tests for class constructor and main function
+    ModuleContructorTestCase has common tests for class constructor and main function,
+    also provides the mocks used in this test case
     """
 
     def setUp(self):
