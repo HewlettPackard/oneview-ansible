@@ -1,0 +1,50 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    deployment_plan_name: "Demo Deployment Plan"
+    deployment_plan_name_changed: "Demo Deployment Plan (changed)"
+  tasks:
+    - name: Create a Deployment Plan
+      image_streamer_deployment_plan:
+        config: "{{ config }}"
+        state: present
+        data:
+          description: "Description of this Deployment Plan"
+          name: '{{ deployment_plan_name }}'
+          hpProvided: 'false'
+          oeBuildPlanName: "Demo Build Plan"
+      delegate_to: localhost
+
+    - name: Update the Deployment Plan
+      image_streamer_deployment_plan:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ deployment_plan_name }}'
+          newName:  '{{ deployment_plan_name_changed }}'
+          description: "New description"
+      delegate_to: localhost
+
+    - name: Remove the Deployment Plan
+      image_streamer_deployment_plan:
+        config: "{{ config }}"
+        state: absent
+        data:
+            name: '{{ deployment_plan_name_changed }}'
+      delegate_to: localhost

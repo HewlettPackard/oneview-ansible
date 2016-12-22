@@ -7,6 +7,9 @@
   * [image_streamer_artifact_bundle_facts - Retrieve facts about Artifact Bundle.](#image_streamer_artifact_bundle_facts)
   * [image_streamer_build_plan - Manage Image Stream OS Build Plan resources.](#image_streamer_build_plan)
   * [image_streamer_build_plan_facts - Retrieve facts about one or more of the Image Streamer Build Plans.](#image_streamer_build_plan_facts)
+
+
+  * [image_streamer_deployment_plan - Manage Image Streamer Deployment Plan resources.](#image_streamer_deployment_plan)
   * [image_streamer_deployment_plan_facts - Retrieve facts about the Image Streamer Deployment Plans.](#image_streamer_deployment_plan_facts)
   * [image_streamer_golden_image - Manage Image Streamer Golden Image resources.](#image_streamer_golden_image)
   * [image_streamer_golden_image_facts - Retrieve facts about one or more of the Image Streamer Golden Image.](#image_streamer_golden_image_facts)
@@ -484,6 +487,79 @@ Retrieve facts about the Image Streamer Deployment Plans.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | deployment_plans   | The list of Deployment Plans. |  Always, but can be null. |  list |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+
+---
+
+
+## image_streamer_deployment_plan
+Manage Image Streamer Deployment Plan resources.
+
+#### Synopsis
+ Provides an interface to manage Image Streamer Deployment Plans. Can create, update, remove.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with Deployment Plan properties and its associated states.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Deployment Plan resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Create a Deployment Plan
+  image_streamer_deployment_plan:
+    config: "{{ config }}"
+    state: present
+    data:
+      description: "Description of this Deployment Plan"
+      name: 'Demo Deployment Plan'
+      hpProvided: 'false'
+      oeBuildPlanName: "Demo Build Plan"
+  delegate_to: localhost
+
+- name: Update the Deployment Plan
+  image_streamer_deployment_plan:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: 'Demo Deployment Plan'
+      newName:  'Demo Deployment Plan (changed)'
+      description: "New description"
+  delegate_to: localhost
+
+- name: Remove the Deployment Plan
+  image_streamer_deployment_plan:
+    config: "{{ config }}"
+    state: absent
+    data:
+        name: 'Demo Deployment Plan'
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| deployment_plan   | Has the facts about the Image Streamer Deployment Plan. |  On state 'present', but can be null. |  complex |
 
 
 #### Notes
