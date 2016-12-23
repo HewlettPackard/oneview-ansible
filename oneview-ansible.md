@@ -4,6 +4,7 @@
 
   * [hpe_icsp_os_deployment - Deploy the operating system on a server using HPE ICsp.](#hpe_icsp_os_deployment)
   * [hpe_icsp_server - Adds, removes and configures servers in ICsp.](#hpe_icsp_server)
+  * [image_streamer_artifact_bundle - Retrieve facts about Artifact Bundle.](#image_streamer_artifact_bundle)
   * [image_streamer_artifact_bundle_facts - Retrieve facts about Artifact Bundle.](#image_streamer_artifact_bundle_facts)
   * [image_streamer_build_plan - Manage Image Stream OS Build Plan resources.](#image_streamer_build_plan)
   * [image_streamer_build_plan_facts - Retrieve facts about one or more of the Image Streamer Build Plans.](#image_streamer_build_plan_facts)
@@ -231,6 +232,138 @@ Adds, removes and configures servers in ICsp.
 | ------------- |-------------| ---------|----------- |
 | target_server   | Has the facts about the server that was added to ICsp. |  On states 'present' and 'network_configured' . Can be null. |  complex |
 
+
+
+---
+
+
+## image_streamer_artifact_bundle
+Retrieve facts about Artifact Bundle.
+
+#### Synopsis
+ Retrieve facts about Artifact Bundle.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| name  |   No  |  | |  Name of the Artifact Bundle.  |
+| options  |   No  |  | |  List with options to gather additional facts about Artifact Bundle. Options allowed: 'allBackups' gets the list of backups for Artifact Bundles. 'backupForAnArtifactBundle' gets the list of backups for the Artifact Bundle.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Create an Artifact Bundle
+  image_streamer_artifact_bundle:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: 'Artifact Bundle'
+      description: 'Description of Artifact Bundles Test'
+      buildPlans:
+        resourceUri: '/rest/build-plans/ab65bb06-4387-48a0-9a5d-0b0da2888508'
+        readOnly: 'false'
+  delegate_to: localhost
+
+- name: Download the Artifact Bundle to the file path provided
+  image_streamer_artifact_bundle:
+    config: "{{ config }}"
+    state: downloaded
+    data:
+      name: 'Artifact Bundle'
+      destinationFilePath: '~/downloaded_artifact.zip'
+  delegate_to: localhost
+
+- name: Download the Archive for Artifact Bundle to the file path provided
+  image_streamer_artifact_bundle:
+    config: "{{ config }}"
+    state: archive_downloaded
+    data:
+      name: 'Artifact Bundle'
+      destinationFilePath: '~/downloaded_archive.zip'
+  delegate_to: localhost
+
+- name: Upload an Artifact Bundle
+  image_streamer_artifact_bundle:
+    config: "{{ config }}"
+    state: present
+    data:
+      localArtifactBundleFilePath: '~/uploaded_artifact.zip'
+  delegate_to: localhost
+
+- name: Upload Backup an Artifact Bundle
+  image_streamer_artifact_bundle:
+    config: "{{ config }}"
+    state: backup_uploaded
+    data:
+      deploymentGroupsUri: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
+      localBackupArtifactBundleFilePath: '~/uploaded_backup.zip'
+  delegate_to: localhost
+
+- name: Create Backup for Artifact Bundle
+  image_streamer_artifact_bundle:
+    config: "{{ config }}"
+    state: backup_created
+    data:
+      deploymentGroupsUri: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
+  delegate_to: localhost
+
+- name: Extract an Artifact Bundle
+  image_streamer_artifact_bundle:
+    config: "{{ config }}"
+    state: extracted
+    data:
+      name: 'Artifact Bundle'
+  delegate_to: localhost
+
+- name: Extract Backup an Artifact Bundle
+  image_streamer_artifact_bundle:
+    config: "{{ config }}"
+    state: backup_extracted
+    data:
+      deploymentGroupsUri: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
+  delegate_to: localhost
+
+- name: Update an Artifact Bundle
+  image_streamer_artifact_bundle:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: 'Artifact Bundle'
+      newName: 'Artifact Bundle Updated'
+  delegate_to: localhost
+
+- name: Remove an Artifact Bundle
+  image_streamer_artifact_bundle:
+    config: "{{ config }}"
+    state: absent
+    data:
+      name: 'Artifact Bundle'
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| artifact_bundle   | Has the OneView facts about the Artifact Bundles. |  On state 'backup_created', 'backup_extracted' and 'present', upload an artifact bundle returns null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 
 ---

@@ -1,0 +1,117 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    artifact_bundle_name: 'Artifact Bundle'
+    artifact_bundle_name_update: 'Artifact Bundle Updated'
+    artifact_bundle_description: 'Description of Artifact Bundles Test'
+    artifact_download_path: '~/downloaded_artifact.zip'
+    artifact_archive_download_path: '~/downloaded_archive.zip'
+    deployment_groups_uri: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
+    local_artifact_path: '~/uploaded_artifact.zip'
+    local_backup_artifact_bundle_path: '~/uploaded_backup.zip'
+    build_plans_uri: '/rest/build-plans/ab65bb06-4387-48a0-9a5d-0b0da2888508'
+    build_plans_read_only: 'false'
+  tasks:
+    - name: Create an Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ artifact_bundle_name }}'
+          description: '{{ artifact_bundle_description }}'
+          buildPlans:
+            resourceUri: '{{ build_plans_uri }}'
+            readOnly: '{{ build_plans_read_only }}'
+      delegate_to: localhost
+
+    - name: Download the Artifact Bundle to the file path provided
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: downloaded
+        data:
+          name: '{{ artifact_bundle_name }}'
+          destinationFilePath: '{{ artifact_download_path }}'
+      delegate_to: localhost
+
+    - name: Download the Archive for Artifact Bundle to the file path provided
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: archive_downloaded
+        data:
+          name: '{{ artifact_bundle_name }}'
+          destinationFilePath: '{{ artifact_archive_download_path }}'
+      delegate_to: localhost
+
+    - name: Upload an Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: present
+        data:
+          localArtifactBundleFilePath: '{{ local_artifact_path }}'
+      delegate_to: localhost
+
+    - name: Upload Backup an Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: backup_uploaded
+        data:
+          deploymentGroupsUri: '{{ deployment_groups_uri }}'
+          localBackupArtifactBundleFilePath: '{{ local_backup_artifact_bundle_path }}'
+      delegate_to: localhost
+
+    - name: Create Backup for Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: backup_created
+        data:
+          deploymentGroupsUri: '{{ deployment_groups_uri }}'
+      delegate_to: localhost
+
+    - name: Extract an Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: extracted
+        data:
+          name: '{{ artifact_bundle_name }}'
+      delegate_to: localhost
+
+    - name: Extract Backup an Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: backup_extracted
+        data:
+          deploymentGroupsUri: '{{ deployment_groups_uri }}'
+      delegate_to: localhost
+
+    - name: Update an Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ artifact_bundle_name }}'
+          newName: '{{ artifact_bundle_name_update }}'
+      delegate_to: localhost
+
+    - name: Remove an Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: '{{ artifact_bundle_name_update }}'
+      delegate_to: localhost
