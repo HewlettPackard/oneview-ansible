@@ -25,7 +25,9 @@ from oneview_server_profile import MAKE_COMPLIANT_NOT_SUPPORTED, SERVER_PROFILE_
     ALREADY_COMPLIANT, SERVER_PROFILE_DELETED, SERVER_PROFILE_UPDATED, SERVER_ALREADY_UPDATED, \
     ERROR_ALLOCATE_SERVER_HARDWARE, SERVER_PROFILE_ALREADY_ABSENT, OS_DEPLOYMENT_NOT_FOUND, KEY_CONNECTIONS, \
     KEY_OS_DEPLOYMENT, KEY_ATTRIBUTES, KEY_SAN, KEY_VOLUMES, KEY_PATHS, KEY_BOOT, KEY_BIOS, KEY_BOOT_MODE, \
-    KEY_LOCAL_STORAGE, KEY_SAS_LOGICAL_JBODS, KEY_CONTROLLERS, KEY_LOGICAL_DRIVES, KEY_SAS_LOGICAL_JBOD_URI
+    KEY_LOCAL_STORAGE, KEY_SAS_LOGICAL_JBODS, KEY_CONTROLLERS, KEY_LOGICAL_DRIVES, KEY_SAS_LOGICAL_JBOD_URI, \
+    KEY_MAC_TYPE, KEY_MAC, KEY_SERIAL_NUMBER_TYPE, KEY_SERIAL_NUMBER, KEY_UUID, KEY_WWPN_TYPE, KEY_LUN, KEY_WWNN, \
+    KEY_WWPN, KEY_DRIVE_NUMBER
 
 SERVER_PROFILE_NAME = "Profile101"
 SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
@@ -106,14 +108,19 @@ BOOT_CONN = dict(priority="NotBootable", chapLevel="none")
 CONNECTION_1 = dict(id=1, name="connection-1", mac="E2:4B:0D:30:00:29", boot=BOOT_CONN)
 CONNECTION_2 = dict(id=2, name="connection-2", mac="E2:4B:0D:30:00:2A", boot=BOOT_CONN)
 
+CONNECTION_1_WITH_WWPN = dict(name="connection-1", wwpnType="Virtual",
+                              wwnn="10:00:3a:43:88:50:00:01", wwpn="10:00:3a:43:88:50:00:00")
+CONNECTION_2_WITH_WWPN = dict(name="connection-2", wwpnType="Physical",
+                              wwnn="10:00:3a:43:88:50:00:03", wwpn="10:00:3a:43:88:50:00:02")
+
 CONN_1_NO_MAC_BASIC_BOOT = dict(id=1, name="connection-1", boot=dict(priority="NotBootable"))
 CONN_2_NO_MAC_BASIC_BOOT = dict(id=2, name="connection-2", boot=dict(priority="NotBootable"))
 
 PATH_1 = dict(isEnabled=True, connectionId=1, storageTargets=["20:00:00:02:AC:00:08:D6"])
 PATH_2 = dict(isEnabled=True, connectionId=2, storageTargetType="Auto")
 
-VOLUME_1 = dict(id=1, volumeUri="/rest/volume/id1", lunType="Auto", storagePaths=[PATH_1, PATH_2])
-VOLUME_2 = dict(id=2, volumeUri="/rest/volume/id2", lunType="Auto", storagePaths=[])
+VOLUME_1 = dict(id=1, volumeUri="/rest/volume/id1", lun=123, lunType="Auto", storagePaths=[PATH_1, PATH_2])
+VOLUME_2 = dict(id=2, volumeUri="/rest/volume/id2", lun=345, lunType="Auto", storagePaths=[])
 
 SAN_STORAGE = dict(hostOSType="Windows 2012 / WS2012 R2",
                    volumeAttachments=[VOLUME_1, VOLUME_2])
@@ -130,8 +137,11 @@ SAS_LOGICAL_JBOD_1 = dict(id=1, deviceSlot="Mezz 1", name="jbod-1", driveTechnol
 
 SAS_LOGICAL_JBOD_2 = dict(id=2, deviceSlot="Mezz 1", name="jbod-2", driveTechnology="SataHdd", status="Pending")
 
-DRIVES_CONTROLLER_EMBEDDED = [dict(name="drive-1", raidLevel="RAID1", bootable=False, sasLogicalJBODId=None),
-                              dict(name="drive-2", raidLevel="RAID1", bootable=False, sasLogicalJBODId=None)]
+DRIVES_CONTROLLER_EMBEDDED = [dict(driveNumber=1, name="drive-1", raidLevel="RAID1", bootable=False,
+                                   sasLogicalJBODId=None),
+                              dict(driveNumber=2, name="drive-2", raidLevel="RAID1", bootable=False,
+                                   sasLogicalJBODId=None)]
+
 CONTROLLER_EMBEDDED = dict(deviceSlot="Embedded", mode="RAID", initialize=False, importConfiguration=True,
                            logicalDrives=DRIVES_CONTROLLER_EMBEDDED)
 
@@ -590,6 +600,146 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=OS_DEPLOYMENT_NOT_FOUND)
 
+    def test_should_remove_mac_from_connections_before_create_when_mac_is_virtual(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
+        params['data'][KEY_MAC_TYPE] = 'Virtual'
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_connections = [deepcopy(CONNECTION_1), deepcopy(CONNECTION_2)]
+        expected_connections[0].pop(KEY_MAC)
+        expected_connections[1].pop(KEY_MAC)
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0][KEY_CONNECTIONS], expected_connections)
+
+    def test_should_remove_mac_from_connections_before_create_when_mac_is_physical(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
+        params['data'][KEY_MAC_TYPE] = 'Physical'
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_connections = [deepcopy(CONNECTION_1), deepcopy(CONNECTION_2)]
+        expected_connections[0].pop(KEY_MAC)
+        expected_connections[1].pop(KEY_MAC)
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0][KEY_CONNECTIONS], expected_connections)
+
+    def test_should_remove_serial_number_before_create_when_serial_number_type_is_virtual(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_SERIAL_NUMBER_TYPE] = 'Virtual'
+        params['data'][KEY_UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
+        params['data'][KEY_SERIAL_NUMBER] = 'VCGNC3V000'
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertTrue(KEY_UUID not in args[0])
+        self.assertTrue(KEY_SERIAL_NUMBER not in args[0])
+
+    def test_should_remove_serial_number_before_create_when_serial_number_type_is_physical(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_SERIAL_NUMBER_TYPE] = 'Physical'
+        params['data'][KEY_UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
+        params['data'][KEY_SERIAL_NUMBER] = 'VCGNC3V000'
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertTrue(KEY_UUID not in args[0])
+        self.assertTrue(KEY_SERIAL_NUMBER not in args[0])
+
+    def test_should_remove_wwpn_from_conns_before_create_when_wwpn_is_virtual_or_physical(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_CONNECTIONS] = [CONNECTION_1_WITH_WWPN, CONNECTION_2_WITH_WWPN]
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_connections = [deepcopy(CONNECTION_1_WITH_WWPN), deepcopy(CONNECTION_2_WITH_WWPN)]
+        expected_connections[0].pop(KEY_WWNN)
+        expected_connections[0].pop(KEY_WWPN)
+        expected_connections[1].pop(KEY_WWNN)
+        expected_connections[1].pop(KEY_WWPN)
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0][KEY_CONNECTIONS], expected_connections)
+
+    def test_should_remove_drive_number_from_controller_drives_before_create(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_LOCAL_STORAGE] = dict(controllers=[CONTROLLER_EMBEDDED.copy()])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_drives = deepcopy(DRIVES_CONTROLLER_EMBEDDED)
+        expected_drives[0].pop(KEY_DRIVE_NUMBER)
+        expected_drives[1].pop(KEY_DRIVE_NUMBER)
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0][KEY_LOCAL_STORAGE][KEY_CONTROLLERS][0][KEY_LOGICAL_DRIVES], expected_drives)
+
+    def test_should_remove_lun_from_san_volumes_before_create_when_luntype_is_auto(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_SAN] = SAN_STORAGE
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_volumes = [deepcopy(VOLUME_1), deepcopy(VOLUME_2)]
+        expected_volumes[0].pop(KEY_LUN)
+        expected_volumes[1].pop(KEY_LUN)
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertFalse(args[0][KEY_SAN][KEY_VOLUMES][0].get(KEY_LUN))
+        self.assertFalse(args[0][KEY_SAN][KEY_VOLUMES][1].get(KEY_LUN))
+
+    def test_should_not_fail_creating_basic_server_profile_when_assignment_types_are_virtual(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_MAC_TYPE] = 'Virtual'
+        params['data'][KEY_SERIAL_NUMBER_TYPE] = 'Virtual'
+        params['data'][KEY_WWPN_TYPE] = 'Virtual'
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        self.mock_ov_client.server_profiles.create.assert_called_once()
+
+    def test_should_not_fail_creating_basic_server_profile_when_assignment_types_are_physical(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_MAC_TYPE] = 'Physical'
+        params['data'][KEY_SERIAL_NUMBER_TYPE] = 'Physical'
+        params['data'][KEY_WWPN_TYPE] = 'Physical'
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        self.mock_ov_client.server_profiles.create.assert_called_once()
+
     @mock.patch('oneview_server_profile.resource_compare')
     def test_should_update_when_data_changed(self, mock_resource_compare):
         profile_data = deepcopy(BASIC_PROFILE)
@@ -817,6 +967,137 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         ServerProfileModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=OS_DEPLOYMENT_NOT_FOUND)
+
+    @mock.patch('oneview_server_profile.resource_compare')
+    def test_should_not_remove_mac_from_connections_before_update_when_mac_is_virtual(self, mock_resource_compare):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
+        params['data'][KEY_MAC_TYPE] = 'Virtual'
+
+        mock_resource_compare.return_value = False
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_connections = [CONNECTION_1, CONNECTION_2]
+        args, _ = self.mock_ov_client.server_profiles.update.call_args
+        self.assertEqual(args[0][KEY_CONNECTIONS], expected_connections)
+
+    @mock.patch('oneview_server_profile.resource_compare')
+    def test_should_not_remove_mac_from_connections_before_update_when_mac_is_physical(self, mock_resource_compare):
+        mock_resource_compare.return_value = False
+
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
+        params['data'][KEY_MAC_TYPE] = 'Physical'
+
+        mock_resource_compare.return_value = False
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_connections = [CONNECTION_1, CONNECTION_2]
+        args, _ = self.mock_ov_client.server_profiles.update.call_args
+        self.assertEqual(args[0][KEY_CONNECTIONS], expected_connections)
+
+    @mock.patch('oneview_server_profile.resource_compare')
+    def test_should_not_remove_serial_number_before_update_when_serial_number_type_is_virtual(self,
+                                                                                              mock_resource_compare):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_SERIAL_NUMBER_TYPE] = 'Virtual'
+        params['data'][KEY_UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
+        params['data'][KEY_SERIAL_NUMBER] = 'VCGNC3V000'
+
+        mock_resource_compare.return_value = False
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.update.call_args
+        self.assertEqual(args[0][KEY_UUID], 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806')
+        self.assertEqual(args[0][KEY_SERIAL_NUMBER], 'VCGNC3V000')
+
+    @mock.patch('oneview_server_profile.resource_compare')
+    def test_should_not_remove_serial_number_before_update_when_serial_number_type_is_physical(self,
+                                                                                               mock_resource_compare):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_SERIAL_NUMBER_TYPE] = 'Physical'
+        params['data'][KEY_UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
+        params['data'][KEY_SERIAL_NUMBER] = 'VCGNC3V000'
+
+        mock_resource_compare.return_value = False
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.update.call_args
+        self.assertEqual(args[0][KEY_UUID], 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806')
+        self.assertEqual(args[0][KEY_SERIAL_NUMBER], 'VCGNC3V000')
+
+    @mock.patch('oneview_server_profile.resource_compare')
+    def test_should_not_remove_wwpn_from_conns_before_update_when_wwpn_is_virtual(self, mock_resource_compare):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_CONNECTIONS] = [CONNECTION_1_WITH_WWPN]
+
+        mock_resource_compare.return_value = False
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_connections = [CONNECTION_1_WITH_WWPN]
+        args, _ = self.mock_ov_client.server_profiles.update.call_args
+        self.assertEqual(args[0][KEY_CONNECTIONS], expected_connections)
+
+    @mock.patch('oneview_server_profile.resource_compare')
+    def test_should_not_remove_wwpn_from_conns_before_update_when_wwpn_is_physical(self, mock_resource_compare):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_CONNECTIONS] = [CONNECTION_2_WITH_WWPN]
+
+        mock_resource_compare.return_value = False
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_connections = [CONNECTION_2_WITH_WWPN]
+        args, _ = self.mock_ov_client.server_profiles.update.call_args
+        self.assertEqual(args[0][KEY_CONNECTIONS], expected_connections)
+
+    @mock.patch('oneview_server_profile.resource_compare')
+    def test_should_not_remove_drive_number_from_controller_drives_before_update(self, mock_resource_compare):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_LOCAL_STORAGE] = dict(controllers=[CONTROLLER_EMBEDDED.copy()])
+
+        mock_resource_compare.return_value = False
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_drives = DRIVES_CONTROLLER_EMBEDDED
+        args, _ = self.mock_ov_client.server_profiles.update.call_args
+        self.assertEqual(args[0][KEY_LOCAL_STORAGE][KEY_CONTROLLERS][0][KEY_LOGICAL_DRIVES], expected_drives)
+
+    @mock.patch('oneview_server_profile.resource_compare')
+    def test_should_not_remove_lun_from_san_volumes_before_update_when_luntype_is_auto(self,
+                                                                                       mock_resource_compare):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_SAN] = SAN_STORAGE
+
+        mock_resource_compare.return_value = False
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.update.call_args
+        self.assertEqual(args[0][KEY_SAN][KEY_VOLUMES][0], VOLUME_1)
+        self.assertEqual(args[0][KEY_SAN][KEY_VOLUMES][1], VOLUME_2)
 
     def test_should_fail_when_delete_raises_exception(self):
         self.mock_ov_client.server_profiles.get_by_name.side_effect = Exception(FAKE_MSG_ERROR)
@@ -1365,7 +1646,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        drive_1_merged = dict(name="drive-1", raidLevel="RAID0", bootable=False, sasLogicalJBODId=None)
+        drive_1_merged = dict(driveNumber=1, name="drive-1", raidLevel="RAID0", bootable=False, sasLogicalJBODId=None)
         expected_drives = [drive_1_merged,
                            CONTROLLER_EMBEDDED[KEY_LOGICAL_DRIVES][1]]
         self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES],
