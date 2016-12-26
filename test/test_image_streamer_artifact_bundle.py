@@ -254,5 +254,6 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
             msg=ERROR_MSG
         )
 
+
 if __name__ == '__main__':
     unittest.main()
