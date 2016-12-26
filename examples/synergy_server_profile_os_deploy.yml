@@ -99,6 +99,7 @@
            # OS Deployment Settings
            osDeploymentSettings:
               # This came from the oneview_os_deployment_plan_facts module
+              # If you prefer, you may provide an osDeploymentPlanName attribute instead.
               osDeploymentPlanUri: "{{ os_deployment_plans.0.uri }}"
               # os_custom_attributes_for_server_profile may have been loaded from the file or
               # from the oneview_os_deployment_plan_facts output variable
