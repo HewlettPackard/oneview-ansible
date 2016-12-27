@@ -22,11 +22,11 @@
     artifact_bundle_description: 'Description of Artifact Bundles Test'
     artifact_download_path: '~/downloaded_artifact.zip'
     artifact_archive_download_path: '~/downloaded_archive.zip'
-    deployment_groups_uri: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
+    deployment_group_uri: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
     local_artifact_path: '~/uploaded_artifact.zip'
     local_backup_artifact_bundle_path: '~/uploaded_backup.zip'
-    build_plans_uri: '/rest/build-plans/ab65bb06-4387-48a0-9a5d-0b0da2888508'
-    build_plans_read_only: 'false'
+    build_plan_uri: '/rest/build-plans/ab65bb06-4387-48a0-9a5d-0b0da2888508'
+    build_plan_read_only: 'false'
   tasks:
     - name: Create an Artifact Bundle
       image_streamer_artifact_bundle:
@@ -36,8 +36,8 @@
           name: '{{ artifact_bundle_name }}'
           description: '{{ artifact_bundle_description }}'
           buildPlans:
-            resourceUri: '{{ build_plans_uri }}'
-            readOnly: '{{ build_plans_read_only }}'
+            resourceUri: '{{ build_plan_uri }}'
+            readOnly: '{{ build_plan_read_only }}'
       delegate_to: localhost
 
     - name: Download the Artifact Bundle to the file path provided
@@ -71,7 +71,7 @@
         config: "{{ config }}"
         state: backup_uploaded
         data:
-          deploymentGroupsUri: '{{ deployment_groups_uri }}'
+          deploymentGroupsUri: '{{ deployment_group_uri }}'
           localBackupArtifactBundleFilePath: '{{ local_backup_artifact_bundle_path }}'
       delegate_to: localhost
 
@@ -80,7 +80,7 @@
         config: "{{ config }}"
         state: backup_created
         data:
-          deploymentGroupsUri: '{{ deployment_groups_uri }}'
+          deploymentGroupsUri: '{{ deployment_group_uri }}'
       delegate_to: localhost
 
     - name: Extract an Artifact Bundle
@@ -96,7 +96,7 @@
         config: "{{ config }}"
         state: backup_extracted
         data:
-          deploymentGroupsUri: '{{ deployment_groups_uri }}'
+          deploymentGroupsUri: '{{ deployment_group_uri }}'
       delegate_to: localhost
 
     - name: Update an Artifact Bundle

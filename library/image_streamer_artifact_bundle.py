@@ -28,9 +28,9 @@ except ImportError:
 DOCUMENTATION = '''
 ---
 module: image_streamer_artifact_bundle
-short_description: Retrieve facts about Artifact Bundle.
+short_description: Manage Artifact Bundle resource.
 description:
-    - "Retrieve facts about Artifact Bundle."
+    - "Provides an interface to manage Artifact Bundle. Can create, update, remove, and also, download, upload, extract"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.1"
@@ -43,17 +43,24 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
-    name:
+    state:
       description:
-        - Name of the Artifact Bundle.
-      required: false
-    options:
+        - Indicates the desired state for the Artifact Bundle resource.
+          'present' will ensure data properties are compliant with OneView.
+          'absent' will remove the resource from OneView, if it exists.
+          'downloaded' will download the Artifact Bundle to the file path provided.
+          'archive_downloaded' will download the Artifact Bundle archive to the file path provided.
+          'backup_uploaded' will upload the Backup of Artifact Bundle from the file path provided.
+          'backup_created' will create a Backup for Artifact Bundle.
+          'extracted' will extract an Artifact Bundle.
+          'backup_extracted' will extract an Artifact Bundle from Backup.
+      choices: ['present', 'absent', 'downloaded', 'archive_downloaded',
+                'backup_uploaded', 'backup_created', 'extracted','backup_extracted']
+      required: true
+    data:
       description:
-        - "List with options to gather additional facts about Artifact Bundle.
-          Options allowed:
-          'allBackups' gets the list of backups for Artifact Bundles.
-          'backupForAnArtifactBundle' gets the list of backups for the Artifact Bundle."
-      required: false
+        - List with Artifact Bundle properties and its associated states.
+      required: true
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"

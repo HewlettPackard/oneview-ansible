@@ -4,7 +4,7 @@
 
   * [hpe_icsp_os_deployment - Deploy the operating system on a server using HPE ICsp.](#hpe_icsp_os_deployment)
   * [hpe_icsp_server - Adds, removes and configures servers in ICsp.](#hpe_icsp_server)
-  * [image_streamer_artifact_bundle - Retrieve facts about Artifact Bundle.](#image_streamer_artifact_bundle)
+  * [image_streamer_artifact_bundle - Manage Artifact Bundle resource.](#image_streamer_artifact_bundle)
   * [image_streamer_artifact_bundle_facts - Retrieve facts about Artifact Bundle.](#image_streamer_artifact_bundle_facts)
   * [image_streamer_build_plan - Manage Image Stream OS Build Plan resources.](#image_streamer_build_plan)
   * [image_streamer_build_plan_facts - Retrieve facts about one or more of the Image Streamer Build Plans.](#image_streamer_build_plan_facts)
@@ -238,10 +238,10 @@ Adds, removes and configures servers in ICsp.
 
 
 ## image_streamer_artifact_bundle
-Retrieve facts about Artifact Bundle.
+Manage Artifact Bundle resource.
 
 #### Synopsis
- Retrieve facts about Artifact Bundle.
+ Provides an interface to manage Artifact Bundle. Can create, update, remove, and also, download, upload, extract
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -252,8 +252,8 @@ Retrieve facts about Artifact Bundle.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| name  |   No  |  | |  Name of the Artifact Bundle.  |
-| options  |   No  |  | |  List with options to gather additional facts about Artifact Bundle. Options allowed: 'allBackups' gets the list of backups for Artifact Bundles. 'backupForAnArtifactBundle' gets the list of backups for the Artifact Bundle.  |
+| data  |   Yes  |  | |  List with Artifact Bundle properties and its associated states.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>downloaded</li>  <li>archive_downloaded</li>  <li>backup_uploaded</li>  <li>backup_created</li>  <li>extracted</li>  <li>backup_extracted</li> </ul> |  Indicates the desired state for the Artifact Bundle resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'downloaded' will download the Artifact Bundle to the file path provided. 'archive_downloaded' will download the Artifact Bundle archive to the file path provided. 'backup_uploaded' will upload the Backup of Artifact Bundle from the file path provided. 'backup_created' will create a Backup for Artifact Bundle. 'extracted' will extract an Artifact Bundle. 'backup_extracted' will extract an Artifact Bundle from Backup.  |
 
 
  
