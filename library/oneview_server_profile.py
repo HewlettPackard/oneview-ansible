@@ -56,6 +56,17 @@ KEY_SAS_LOGICAL_JBOD_URI = 'sasLogicalJBODUri'
 KEY_SAS_LOGICAL_JBOD_ID = 'sasLogicalJBODId'
 KEY_DEVICE_SLOT = 'deviceSlot'
 KEY_MODE = 'mode'
+KEY_MAC_TYPE = 'macType'
+KEY_MAC = 'mac'
+KEY_SERIAL_NUMBER_TYPE = 'serialNumberType'
+KEY_UUID = 'uuid'
+KEY_SERIAL_NUMBER = 'serialNumber'
+KEY_DRIVE_NUMBER = 'driveNumber'
+KEY_WWPN_TYPE = 'wwpnType'
+KEY_WWNN = 'wwnn'
+KEY_WWPN = 'wwpn'
+KEY_LUN_TYPE = 'lunType'
+KEY_LUN = 'lun'
 
 TEMPLATE_NOT_FOUND = "Informed Server Profile Template '{}' not found"
 HARDWARE_NOT_FOUND = "Informed Server Hardware '{}' not found"
@@ -348,6 +359,8 @@ class ServerProfileModule(object):
 
     def __create_profile(self, data, server_profile_template):
         tries = 0
+        self.__remove_inconsistent_data(data)
+
         while tries < CONCURRENCY_FAILOVER_RETRIES:
             try:
                 tries += 1
@@ -398,6 +411,42 @@ class ServerProfileModule(object):
             server_profile_data['serverHardwareUri'] = server_hardware_uri
 
         return server_profile_data
+
+    def __remove_inconsistent_data(self, data):
+        def is_virtual_or_physical(defined_type):
+            return defined_type == 'Virtual' or defined_type == 'Physical'
+
+        # Remove the MAC from connections when MAC type is Virtual or Physical
+        mac_type = data.get(KEY_MAC_TYPE, None)
+        if mac_type and is_virtual_or_physical(mac_type):
+            for conn in data.get(KEY_CONNECTIONS, []):
+                conn.pop(KEY_MAC, None)
+
+        # Remove the UUID when Serial Number Type is Virtual or Physical
+        serial_number_type = data.get(KEY_SERIAL_NUMBER_TYPE, None)
+        if serial_number_type and is_virtual_or_physical(serial_number_type):
+            data.pop(KEY_UUID, None)
+            data.pop(KEY_SERIAL_NUMBER, None)
+
+        # Remove the WWPN and WWNN when WWPN Type is Virtual or Physical
+        for conn in data.get(KEY_CONNECTIONS, []):
+            wwpn_type = conn.get(KEY_WWPN_TYPE, None)
+            if is_virtual_or_physical(wwpn_type):
+                conn.pop(KEY_WWNN, None)
+                conn.pop(KEY_WWPN, None)
+
+        # Remove the driveNumber from the Controllers Drives
+        if KEY_LOCAL_STORAGE in data:
+            for controller in data[KEY_LOCAL_STORAGE].get(KEY_CONTROLLERS, []):
+                for drive in controller.get(KEY_LOGICAL_DRIVES, []):
+                    drive.pop(KEY_DRIVE_NUMBER, None)
+
+        # Remove the Lun when Lun Type from SAN Storage Volume is Auto
+        if KEY_SAN in data and data[KEY_SAN]:
+            if KEY_VOLUMES in data[KEY_SAN]:
+                for volume in data[KEY_SAN].get(KEY_VOLUMES, []):
+                    if volume.get(KEY_LUN_TYPE) == 'Auto':
+                        volume.pop(KEY_LUN, None)
 
     def __get_available_server_hardware_uri(self, server_profile, server_template):
 
