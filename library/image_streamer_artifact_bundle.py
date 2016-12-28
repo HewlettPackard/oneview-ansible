@@ -16,6 +16,7 @@
 # limitations under the License.
 ###
 from ansible.module_utils.basic import *
+import os.path
 
 try:
     from hpOneView.oneview_client import OneViewClient
@@ -299,9 +300,10 @@ class ArtifactBundleModule(object):
 
     def __upload(self, data):
         file_name = data['localArtifactBundleFilePath']
-        file_name = file_name.split('/')[-1].split('.')[0]
-        if self.__get_by_name(file_name) is None:
-            self.i3s_client.artifact_bundles.upload_bundle_from_file(data['localArtifactBundleFilePath'])
+        file_name_path = os.path.basename(file_name)
+        file_name_wo_ext = os.path.splitext(file_name_path)[0]
+        if self.__get_by_name(file_name_wo_ext) is None:
+            self.i3s_client.artifact_bundles.upload_bundle_from_file(file_name)
             changed = True
             msg = ARTIFACT_BUNDLE_UPLOADED
         else:
