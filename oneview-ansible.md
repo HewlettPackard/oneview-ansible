@@ -8,8 +8,6 @@
   * [image_streamer_artifact_bundle_facts - Retrieve facts about Artifact Bundle.](#image_streamer_artifact_bundle_facts)
   * [image_streamer_build_plan - Manage Image Stream OS Build Plan resources.](#image_streamer_build_plan)
   * [image_streamer_build_plan_facts - Retrieve facts about one or more of the Image Streamer Build Plans.](#image_streamer_build_plan_facts)
-
-
   * [image_streamer_deployment_plan - Manage Image Streamer Deployment Plan resources.](#image_streamer_deployment_plan)
   * [image_streamer_deployment_plan_facts - Retrieve facts about the Image Streamer Deployment Plans.](#image_streamer_deployment_plan_facts)
   * [image_streamer_golden_image - Manage Image Streamer Golden Image resources.](#image_streamer_golden_image)
@@ -576,62 +574,6 @@ Retrieve facts about one or more of the Image Streamer Build Plans.
 ---
 
 
-## image_streamer_deployment_plan_facts
-Retrieve facts about the Image Streamer Deployment Plans.
-
-#### Synopsis
- Retrieve facts about one or more of the Image Streamer Deployment Plan.
-
-#### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView >= 3.0.1
-
-#### Options
-
-| Parameter     | Required    | Default  | Choices    | Comments |
-| ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| name  |   No  |  | |  Deployment Plan name.  |
-
-
- 
-#### Examples
-
-```yaml
-- name: Gather facts about all Deployment Plans
-  image_streamer_deployment_plan_facts:
-    config: "{{ config }}"
-  delegate_to: localhost
-- debug: var=deployment_plans
-
-- name: Gather facts about a Deployment Plan by name
-  image_streamer_deployment_plan_facts:
-    config: "{{ config }}"
-    name: "Demo Deployment Plan"
-  delegate_to: localhost
-- debug: var=deployment_plans
-
-```
-
-
-
-#### Return Values
-
-| Name          | Description  | Returned | Type       |
-| ------------- |-------------| ---------|----------- |
-| deployment_plans   | The list of Deployment Plans. |  Always, but can be null. |  list |
-
-
-#### Notes
-
-- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
-
-- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
-
-
----
-
-
 ## image_streamer_deployment_plan
 Manage Image Streamer Deployment Plan resources.
 
@@ -693,6 +635,62 @@ Manage Image Streamer Deployment Plan resources.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | deployment_plan   | Has the facts about the Image Streamer Deployment Plan. |  On state 'present', but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+
+---
+
+
+## image_streamer_deployment_plan_facts
+Retrieve facts about the Image Streamer Deployment Plans.
+
+#### Synopsis
+ Retrieve facts about one or more of the Image Streamer Deployment Plan.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| name  |   No  |  | |  Deployment Plan name.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Gather facts about all Deployment Plans
+  image_streamer_deployment_plan_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=deployment_plans
+
+- name: Gather facts about a Deployment Plan by name
+  image_streamer_deployment_plan_facts:
+    config: "{{ config }}"
+    name: "Demo Deployment Plan"
+  delegate_to: localhost
+- debug: var=deployment_plans
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| deployment_plans   | The list of Deployment Plans. |  Always, but can be null. |  list |
 
 
 #### Notes
@@ -794,7 +792,7 @@ Manage Image Streamer Golden Image resources.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| golden_image   | Has the OneView facts about the Golden Image. |  On state 'present', upload an image returns null. |  complex |
+| golden_image   | Has the OneView facts about the Golden Image. |  On state 'present'. |  complex |
 
 
 #### Notes
