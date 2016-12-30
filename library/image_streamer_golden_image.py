@@ -126,7 +126,7 @@ EXAMPLES = '''
 RETURN = '''
 golden_image:
     description: Has the OneView facts about the Golden Image.
-    returned: On state 'present', upload an image returns null.
+    returned: On state 'present'.
     type: complex
 '''
 
@@ -214,8 +214,9 @@ class GoldenImageModule(object):
                 msg = GOLDEN_IMAGE_CREATED
                 changed = True
             elif file_path:
-                changed = self.i3s_client.golden_images.upload(file_path, data)
+                resource = self.i3s_client.golden_images.upload(file_path, data)
                 msg = GOLDEN_IMAGE_UPLOADED
+                changed = True
             else:
                 raise Exception(I3S_MISSING_MANDATORY_ATTRIBUTES)
         else:

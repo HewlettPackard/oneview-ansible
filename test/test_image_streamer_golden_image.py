@@ -69,7 +69,7 @@ class GoldenImageSpec(unittest.TestCase, ModuleContructorTestCase):
 
     def test_upload_a_golden_image(self):
         self.i3s.golden_images.get_by.return_value = []
-        self.i3s.golden_images.upload.return_value = True
+        self.i3s.golden_images.upload.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = self.GOLDEN_IMAGE_UPLOAD
 
@@ -84,7 +84,7 @@ class GoldenImageSpec(unittest.TestCase, ModuleContructorTestCase):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=GOLDEN_IMAGE_UPLOADED,
-            ansible_facts=dict(golden_image=None)
+            ansible_facts=dict(golden_image={"name": "name"})
         )
 
     def test_update_golden_image(self):
