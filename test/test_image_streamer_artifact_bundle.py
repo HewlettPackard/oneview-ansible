@@ -13,11 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-
+import mock
 import unittest
 import yaml
 
-from image_streamer_artifact_bundle import ArtifactBundleModule, EXAMPLES
+from copy import deepcopy
+from image_streamer_artifact_bundle import ArtifactBundleModule, EXAMPLES, ARTIFACT_BUNDLE_CREATED, \
+    ARTIFACT_BUNDLE_UPDATED, ARTIFACT_BUNDLE_DELETED, ARTIFACT_BUNDLE_ABSENT, ARTIFACT_BUNDLE_ALREADY_EXIST, \
+    ARTIFACT_BUNDLE_DOWNLOADED, ARTIFACT_BUNDLE_UPLOADED, BACKUP_UPLOADED, ARCHIVE_DOWNLOADED, BACKUP_CREATED, \
+    ARTIFACT_BUNDLE_EXTRACTED, BACKUP_EXTRACTED
+
 from test.utils import ModuleContructorTestCase, PreloadedMocksBaseTestCase
 
 
@@ -54,6 +59,11 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
             buildPlans=[self.BUILD_PLANS]
         )
 
+        self.DEPLOYMENT_GROUP = dict(
+            resourceUri="/rest/deployment-groups/asd32232132-444-423a0-92dd-025asd234df508",
+            name="Deployment Group Name"
+        )
+
     def test_create_artifact_bundle(self):
         self.i3s.artifact_bundles.get_by.return_value = []
         self.i3s.artifact_bundles.create.return_value = self.ARTIFACT_BUNDLE
@@ -67,7 +77,8 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts=dict(self.ARTIFACT_BUNDLE)
+            msg=ARTIFACT_BUNDLE_CREATED,
+            ansible_facts=dict(artifact_bundle=self.ARTIFACT_BUNDLE)
         )
 
     def test_download_artifact_bundle(self):
@@ -87,6 +98,7 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
+            msg=ARTIFACT_BUNDLE_DOWNLOADED,
             ansible_facts={})
 
     def test_download_archives_artifact_bundle(self):
@@ -106,11 +118,12 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
+            msg=ARCHIVE_DOWNLOADED,
             ansible_facts={})
 
-    def test_upload_artifact_bundle(self):
+    def test_upload_artifact_bundle_should_upload_when_file_not_uploaded_yet(self):
         self.i3s.artifact_bundles.get_by.return_value = []
-        self.i3s.artifact_bundles.upload_bundle_from_file.return_value = True
+        self.i3s.artifact_bundles.upload_bundle_from_file.return_value = self.ARTIFACT_BUNDLE
 
         self.mock_ansible_module.params = self.TASK_UPLOAD
 
@@ -121,11 +134,27 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts={})
+            msg=ARTIFACT_BUNDLE_UPLOADED,
+            ansible_facts=dict(artifact_bundle=self.ARTIFACT_BUNDLE))
+
+    def test_upload_artifact_bundle_should_do_nothing_when_file_already_uploaded(self):
+        self.i3s.artifact_bundles.get_by.return_value = [self.ARTIFACT_BUNDLE]
+        self.i3s.artifact_bundles.upload_bundle_from_file.return_value = self.ARTIFACT_BUNDLE
+
+        self.mock_ansible_module.params = self.TASK_UPLOAD
+
+        ArtifactBundleModule().run()
+
+        self.i3s.artifact_bundles.get_by.assert_called_once_with('name', 'uploaded_artifact')
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ARTIFACT_BUNDLE_ALREADY_EXIST,
+            ansible_facts=dict(artifact_bundle=self.ARTIFACT_BUNDLE))
 
     def test_upload_backup_artifact_bundle(self):
         self.i3s.artifact_bundles.get_by.return_value = []
-        self.i3s.artifact_bundles.upload_backup_bundle_from_file.return_value = True
+        self.i3s.artifact_bundles.upload_backup_bundle_from_file.return_value = self.DEPLOYMENT_GROUP
 
         self.mock_ansible_module.params = self.TASK_BACKUP_UPLOAD
 
@@ -137,13 +166,14 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts={})
+            msg=BACKUP_UPLOADED,
+            ansible_facts=dict(artifact_bundle_deployment_group=self.DEPLOYMENT_GROUP))
 
     def test_create_backup_artifact_bundle(self):
         artifact_bundle = self.TASK_CREATE['data']
         artifact_bundle['uri'] = '/rest/artifact-bundles/1'
 
-        self.i3s.artifact_bundles.create_backup.return_value = artifact_bundle
+        self.i3s.artifact_bundles.create_backup.return_value = self.DEPLOYMENT_GROUP
 
         self.mock_ansible_module.params = self.TASK_CREATE_BACKUP
 
@@ -154,7 +184,8 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=artifact_bundle)
+            msg=BACKUP_CREATED,
+            ansible_facts=dict(artifact_bundle_deployment_group=self.DEPLOYMENT_GROUP))
 
     def test_extract_artifact_bundle(self):
         artifact_bundle = self.TASK_CREATE['data']
@@ -173,7 +204,8 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts={})
+            msg=ARTIFACT_BUNDLE_EXTRACTED,
+            ansible_facts=dict(artifact_bundle=artifact_bundle))
 
     def test_backup_extract_artifact_bundle(self):
         artifact_bundle = self.TASK_CREATE['data']
@@ -181,7 +213,7 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
 
         self.i3s.artifact_bundles.get_by.return_value = [artifact_bundle]
 
-        self.i3s.artifact_bundles.extract_backup_bundle.return_value = artifact_bundle
+        self.i3s.artifact_bundles.extract_backup_bundle.return_value = self.DEPLOYMENT_GROUP
 
         self.mock_ansible_module.params = self.TASK_BACKUP_EXTRACT
 
@@ -192,25 +224,62 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts=artifact_bundle)
+            msg=BACKUP_EXTRACTED,
+            ansible_facts=dict(artifact_bundle_deployment_group=self.DEPLOYMENT_GROUP))
 
     def test_update_artifact_bundle(self):
+
+        artifact_bundle_updated = deepcopy(self.ARTIFACT_BUNDLE)
+        artifact_bundle_updated['name'] = 'Artifact Bundle Updated'
+
         self.i3s.artifact_bundles.get_by.return_value = [self.ARTIFACT_BUNDLE]
-        self.i3s.artifact_bundles.update.return_value = self.ARTIFACT_BUNDLE
+        self.i3s.artifact_bundles.update.return_value = artifact_bundle_updated
 
         self.mock_ansible_module.params = self.TASK_UPDATE
 
         ArtifactBundleModule().run()
 
-        self.ARTIFACT_BUNDLE['name'] = 'Artifact Bundle Updated'
-
         self.i3s.artifact_bundles.update.assert_called_once_with(
-            self.ARTIFACT_BUNDLE
+            artifact_bundle_updated
         )
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts=dict(self.ARTIFACT_BUNDLE)
+            msg=ARTIFACT_BUNDLE_UPDATED,
+            ansible_facts=dict(artifact_bundle=artifact_bundle_updated)
+        )
+
+    @mock.patch('image_streamer_artifact_bundle.resource_compare')
+    def test_should_do_nothing_when_no_changes_provided(self, mock_resource_compare):
+        mock_resource_compare.return_value = True
+
+        self.i3s.artifact_bundles.get_by.return_value = [self.ARTIFACT_BUNDLE]
+        self.mock_ansible_module.params = self.TASK_UPDATE
+
+        ArtifactBundleModule().run()
+
+        self.i3s.artifact_bundles.create.not_been_called()
+        self.i3s.artifact_bundles.update.not_been_called()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ARTIFACT_BUNDLE_ALREADY_EXIST,
+            ansible_facts=dict(artifact_bundle=self.ARTIFACT_BUNDLE)
+        )
+
+    def test_should_do_nothing_when_no_newname_provided(self):
+        self.i3s.artifact_bundles.get_by.return_value = [self.ARTIFACT_BUNDLE]
+        self.mock_ansible_module.params = self.TASK_CREATE
+
+        ArtifactBundleModule().run()
+
+        self.i3s.artifact_bundles.create.not_been_called()
+        self.i3s.artifact_bundles.update.not_been_called()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ARTIFACT_BUNDLE_ALREADY_EXIST,
+            ansible_facts=dict(artifact_bundle=self.ARTIFACT_BUNDLE)
         )
 
     def test_delete_artifact_bundle(self):
@@ -227,6 +296,22 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
+            msg=ARTIFACT_BUNDLE_DELETED,
+            ansible_facts={}
+        )
+
+    def test_should_do_nothing_when_already_absent(self):
+        self.i3s.artifact_bundles.get_by.return_value = []
+
+        self.mock_ansible_module.params = self.TASK_REMOVE
+
+        ArtifactBundleModule().run()
+
+        self.i3s.artifact_bundles.delete.not_been_called()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ARTIFACT_BUNDLE_ABSENT,
             ansible_facts={}
         )
 

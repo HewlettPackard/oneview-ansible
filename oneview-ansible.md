@@ -354,7 +354,8 @@ Manage Artifact Bundle resource.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| artifact_bundle   | Has the OneView facts about the Artifact Bundles. |  On state 'backup_created', 'backup_extracted' and 'present', upload an artifact bundle returns null. |  complex |
+| artifact_bundle   | Has the OneView facts about the Artifact Bundles. |  On state 'present' and 'extracted'. |  complex |
+| artifact_bundle_deployment_group   | Has the OneView facts about the Deployment Group. |  On state 'backup_extracted', 'backup_uploaded', and 'backup_created'. |  complex |
 
 
 #### Notes
