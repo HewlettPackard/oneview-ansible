@@ -162,8 +162,12 @@ EXAMPLES = '''
 RETURN = '''
 artifact_bundle:
     description: Has the OneView facts about the Artifact Bundles.
-    returned: On state 'backup_created', 'backup_extracted' and 'present',
-        upload an artifact bundle returns null.
+    returned: On state 'present' and 'extracted'.
+    type: complex
+
+artifact_bundle_deployment_group:
+    description: Has the OneView facts about the Deployment Group.
+    returned: On state 'backup_extracted', 'backup_uploaded', and 'backup_created'.
     type: complex
 '''
 
@@ -238,7 +242,7 @@ class ArtifactBundleModule(object):
             elif state == 'backup_extracted':
                 changed, msg, ansible_facts = self.__extract_backup(data)
 
-            self.module.exit_json(changed=changed, ansible_facts=ansible_facts)
+            self.module.exit_json(msg=msg, changed=changed, ansible_facts=ansible_facts)
 
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
@@ -250,15 +254,16 @@ class ArtifactBundleModule(object):
 
     def __present(self, data, resource):
         if data.get('newName'):
-            changed, msg, resource = self.__update(data, resource)
+            changed, msg, facts = self.__update(data, resource)
         elif data.get('localArtifactBundleFilePath'):
-            changed, msg, resource = self.__upload(data)
+            changed, msg, facts = self.__upload(data)
         elif not resource:
-            changed, msg, resource = self.__create(data)
+            changed, msg, facts = self.__create(data)
         else:
             changed = False
             msg = ARTIFACT_BUNDLE_ALREADY_EXIST
-        return changed, msg, resource
+            facts = dict(artifact_bundle=resource)
+        return changed, msg, facts
 
     def __absent(self, resource):
         if resource:
@@ -273,7 +278,7 @@ class ArtifactBundleModule(object):
     def __create(self, data):
         data['buildPlans'] = [data['buildPlans']]
         resource = self.i3s_client.artifact_bundles.create(data)
-        return True, ARTIFACT_BUNDLE_CREATED, resource
+        return True, ARTIFACT_BUNDLE_CREATED, dict(artifact_bundle=resource)
 
     def __update(self, data, resource):
         if resource is None:
@@ -281,6 +286,7 @@ class ArtifactBundleModule(object):
         data["name"] = data.pop("newName")
         merged_data = resource.copy()
         merged_data.update(data)
+
         if not resource_compare(resource, merged_data):
             resource = self.i3s_client.artifact_bundles.update(merged_data)
             changed = True
@@ -288,7 +294,7 @@ class ArtifactBundleModule(object):
         else:
             changed = False
             msg = ARTIFACT_BUNDLE_ALREADY_EXIST
-        return changed, msg, resource
+        return changed, msg, dict(artifact_bundle=resource)
 
     def __download(self, data, resource):
         self.i3s_client.artifact_bundles.download_artifact_bundle(resource['uri'], data['destinationFilePath'])
@@ -302,31 +308,32 @@ class ArtifactBundleModule(object):
         file_name = data['localArtifactBundleFilePath']
         file_name_path = os.path.basename(file_name)
         file_name_wo_ext = os.path.splitext(file_name_path)[0]
-        if self.__get_by_name(file_name_wo_ext) is None:
-            self.i3s_client.artifact_bundles.upload_bundle_from_file(file_name)
+        artifact_bundle = self.__get_by_name(file_name_wo_ext)
+        if artifact_bundle is None:
+            artifact_bundle = self.i3s_client.artifact_bundles.upload_bundle_from_file(file_name)
             changed = True
             msg = ARTIFACT_BUNDLE_UPLOADED
         else:
             changed = False
             msg = ARTIFACT_BUNDLE_ALREADY_EXIST
-        return changed, msg, {}
+        return changed, msg, dict(artifact_bundle=artifact_bundle)
 
     def __upload_backup(self, data):
-        self.i3s_client.artifact_bundles.upload_backup_bundle_from_file(
+        deployment_group = self.i3s_client.artifact_bundles.upload_backup_bundle_from_file(
             data['localBackupArtifactBundleFilePath'], data['deploymentGroupsUri'])
-        return True, BACKUP_UPLOADED, {}
+        return True, BACKUP_UPLOADED, dict(artifact_bundle_deployment_group=deployment_group)
 
     def __create_backup(self, data):
         resource = self.i3s_client.artifact_bundles.create_backup(data['deploymentGroupsUri'])
-        return False, BACKUP_CREATED, resource
+        return False, BACKUP_CREATED, dict(artifact_bundle_deployment_group=resource)
 
     def __extract(self, resource):
-        self.i3s_client.artifact_bundles.extract_bundle(resource['uri'])
-        return True, ARTIFACT_BUNDLE_EXTRACTED, {}
+        resource = self.i3s_client.artifact_bundles.extract_bundle(resource['uri'])
+        return True, ARTIFACT_BUNDLE_EXTRACTED, dict(artifact_bundle=resource)
 
     def __extract_backup(self, data):
         resource = self.i3s_client.artifact_bundles.extract_backup_bundle(data['deploymentGroupsUri'])
-        return True, BACKUP_EXTRACTED, resource
+        return True, BACKUP_EXTRACTED, dict(artifact_bundle_deployment_group=resource)
 
 
 def main():
