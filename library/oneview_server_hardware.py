@@ -154,8 +154,8 @@ SERVER_HARDWARE_REFRESH_STATE_UPDATED = 'Server Hardware refresh state changed s
 SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED = 'Server Hardware iLO firmware version updated successfully.'
 SERVER_HARDWARE_ENV_CONFIG_UPDATED = 'Server Hardware calibrated max power updated successfully.'
 SERVER_HARDWARE_NOT_FOUND = 'Server Hardware is required for this operation.'
-SERVER_HARDWARE_UID_STATE_CHANGED = 'Server Hardware UID state changed successfuly.'
-SERVER_HARDWARE_ILO_STATE_RESET = 'Server Hardware iLO state changed successfuly.'
+SERVER_HARDWARE_UID_STATE_CHANGED = 'Server Hardware UID state changed successfully.'
+SERVER_HARDWARE_ILO_STATE_RESET = 'Server Hardware iLO state changed successfully.'
 NOTHING_TO_DO = 'Nothing to do.'
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
