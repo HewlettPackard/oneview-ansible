@@ -310,7 +310,7 @@ class ServerProfileModule(object):
             msg = SERVER_PROFILE_CREATED
         else:
             merged_data = ServerProfileMerger().merge_data(resource, data)
-            resource_for_comparison = self.__resource_for_comparison(resource)
+            resource_for_comparison = self.__prepare_resource_for_comparison(resource)
 
             if not resource_compare(resource_for_comparison, merged_data):
                 resource = self.__update_server_profile(merged_data)
@@ -321,7 +321,7 @@ class ServerProfileModule(object):
 
         return created, changed, msg, resource
 
-    def __resource_for_comparison(self, resource):
+    def __prepare_resource_for_comparison(self, resource):
         resource_changed = deepcopy(resource)
 
         # Order paths from SAN Storage Volumes
@@ -674,7 +674,9 @@ class ServerProfileMerger(object):
         return merged_data
 
     def _merge_local_storage(self, merged_data, resource, data):
-        if self._should_merge(data, resource, key=KEY_LOCAL_STORAGE):
+        if self._removed_data(data, resource, key=KEY_LOCAL_STORAGE):
+            merged_data[KEY_LOCAL_STORAGE] = dict(sasLogicalJBODs=[], controllers=[])
+        elif self._should_merge(data, resource, key=KEY_LOCAL_STORAGE):
             # Merge SAS Logical JBODs from Local Storage
             merged_data = self._merge_sas_logical_jbods(merged_data, resource, data)
             # Merge Controllers from Local Storage
@@ -740,14 +742,14 @@ class ServerProfileMerger(object):
         return key in data and not data[key] and key in resource
 
     def _should_merge(self, data, resource, key):
-        return key in data and data[key] and key in resource
+        data_has_value = key in data and data[key]
+        existing_resource_has_value = key in resource and resource[key]
+        return data_has_value and existing_resource_has_value
 
     def _merge_dict(self, merged_data, resource, data, key):
         if resource[key]:
             merged_dict = deepcopy(resource[key])
             merged_dict.update(deepcopy(data[key]))
-        else:  # resource has the key defined but it is null
-            merged_dict = deepcopy(data[key])
         merged_data[key] = merged_dict
         return merged_data
 
