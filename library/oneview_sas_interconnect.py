@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
 # Copyright (2016) Hewlett Packard Enterprise Development LP
 #
@@ -17,6 +17,7 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
 
@@ -85,10 +86,21 @@ EXAMPLES = '''
     name: "0000A66101, interconnect 1"
 '''
 
+SAS_INTERCONNECT_NOT_FOUND = 'SAS Interconnect not found.'
+SAS_INTERCONNECT_NOTHING_TO_DO = 'Nothing to do.'
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class SasInterconnectModule(object):
+    states_success_message = dict(
+        refreshed='SAS Interconnect refreshed successfully.',
+        powered_on='SAS Interconnect powered on successfully.',
+        powered_off='SAS Interconnect powered off successfully.',
+        uid_on='SAS Interconnect UID state turned on successfully.',
+        uid_off='SAS Interconnect UID state turned off successfully.',
+        soft_reset='SAS Interconnect soft reset successfully.',
+        hard_reset='SAS Interconnect hard reset successfully.'
+    )
 
     states = dict(
         refreshed=dict(),
@@ -142,10 +154,11 @@ class SasInterconnectModule(object):
                     configuration=dict(refreshState="RefreshPending")
                 )
                 changed = True
+                msg = self.states_success_message[state_name]
             else:
-                changed, facts['sas_interconnect'] = self.change_state(state_name, sas_interconnect)
+                changed, msg, facts['sas_interconnect'] = self.change_state(state_name, sas_interconnect)
 
-            self.module.exit_json(changed=changed, ansible_facts=facts)
+            self.module.exit_json(changed=changed, msg=msg, ansible_facts=facts)
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
@@ -153,7 +166,7 @@ class SasInterconnectModule(object):
         sas_interconnects = self.resource_client.get_by('name', name)
 
         if not sas_interconnects:
-            raise Exception("SAS Interconnect not found.")
+            raise Exception(SAS_INTERCONNECT_NOT_FOUND)
 
         return sas_interconnects[0]
 
@@ -164,9 +177,12 @@ class SasInterconnectModule(object):
 
         if state_name in self.actions or resource[property_name] != state['value']:
             resource = self.resource_client.patch(id_or_uri=resource["uri"], **state)
+            msg = self.states_success_message[state_name]
             changed = True
+        else:
+            msg = SAS_INTERCONNECT_NOTHING_TO_DO
 
-        return changed, resource
+        return changed, msg, resource
 
 
 def main():
