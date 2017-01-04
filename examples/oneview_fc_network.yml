@@ -22,6 +22,7 @@
       oneview_fc_network:
         config: "{{ config }}"
         state: present
+        validate_etag: False
         data:
           name: 'Test FC Network'
           fabricType: 'FabricAttach'
