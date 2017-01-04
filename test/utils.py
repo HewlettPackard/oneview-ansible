@@ -124,3 +124,35 @@ class ModuleContructorTestCase(PreloadedMocksBaseTestCase):
         with patch.object(self._testing_class, "run") as mock_run:
             main_func()
             mock_run.assert_called_once()
+
+
+class ValidateEtagTestCase(PreloadedMocksBaseTestCase):
+    """
+    ValidateEtagTestCase has common tests for modules tha handle validate_etag attribute.
+
+    When inheriting this class, validate_etag implementation tests are added to your test case.
+    """
+
+    PARAMS_FOR_PRESENT = dict(
+        config='config.json',
+        state='present',
+        data={'name', 'resource name'}
+    )
+
+    def test_should_validate_etag_when_set_as_true(self):
+        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
+        self.mock_ansible_module.params['validate_etag'] = True
+
+        self._testing_class().run()
+
+        self.mock_ov_client.connection.enable_etag_validation.not_been_called()
+        self.mock_ov_client.connection.disable_etag_validation.not_been_called()
+
+    def test_should_not_validate_etag_when_set_as_false(self):
+        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
+        self.mock_ansible_module.params['validate_etag'] = False
+
+        self._testing_class().run()
+
+        self.mock_ov_client.connection.enable_etag_validation.not_been_called()
+        self.mock_ov_client.connection.disable_etag_validation.assert_called_once()
