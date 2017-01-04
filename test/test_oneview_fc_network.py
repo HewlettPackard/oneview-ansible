@@ -51,6 +51,7 @@ class FcNetworkPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, Val
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
+    ValidateEtagTestCase has common tests for the validate_etag attribute.
     """
 
     def setUp(self):
@@ -69,7 +70,6 @@ class FcNetworkPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, Val
             changed=True,
             msg=FC_NETWORK_CREATED,
             ansible_facts=dict(fc_network=DEFAULT_FC_NETWORK_TEMPLATE)
-
         )
 
     def test_should_not_update_when_data_is_equals(self):
@@ -83,7 +83,6 @@ class FcNetworkPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, Val
             changed=False,
             msg=FC_NETWORK_ALREADY_EXIST,
             ansible_facts=dict(fc_network=DEFAULT_FC_NETWORK_TEMPLATE)
-
         )
 
     def test_update_when_data_has_modified_attributes(self):
@@ -138,7 +137,6 @@ class FcNetworkPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, Val
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
-
         )
 
     def test_should_fail_when_update_raises_exception(self):
@@ -151,7 +149,6 @@ class FcNetworkPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, Val
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
-
         )
 
     def test_should_fail_when_delete_raises_exception(self):

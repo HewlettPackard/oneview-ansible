@@ -128,7 +128,7 @@ class ModuleContructorTestCase(PreloadedMocksBaseTestCase):
 
 class ValidateEtagTestCase(PreloadedMocksBaseTestCase):
     """
-    ValidateEtagTestCase has common tests for modules tha handle validate_etag attribute.
+    ValidateEtagTestCase has common tests for modules that handle validate_etag attribute.
 
     When inheriting this class, validate_etag implementation tests are added to your test case.
     """
