@@ -8,6 +8,7 @@
   * [image_streamer_artifact_bundle_facts - Retrieve facts about Artifact Bundle.](#image_streamer_artifact_bundle_facts)
   * [image_streamer_build_plan - Manage Image Stream OS Build Plan resources.](#image_streamer_build_plan)
   * [image_streamer_build_plan_facts - Retrieve facts about one or more of the Image Streamer Build Plans.](#image_streamer_build_plan_facts)
+  * [image_streamer_deployment_group_facts - Retrieve facts about the Image Streamer Deployment Group.](#image_streamer_deployment_group_facts)
   * [image_streamer_deployment_plan - Manage Image Streamer Deployment Plan resources.](#image_streamer_deployment_plan)
   * [image_streamer_deployment_plan_facts - Retrieve facts about the Image Streamer Deployment Plans.](#image_streamer_deployment_plan_facts)
   * [image_streamer_golden_image - Manage Image Streamer Golden Image resources.](#image_streamer_golden_image)
@@ -563,6 +564,64 @@ Retrieve facts about one or more of the Image Streamer Build Plans.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | build_plans   | The list of Build Plans. |  Always, but can be null. |  list |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+
+---
+
+
+## image_streamer_deployment_group_facts
+Retrieve facts about the Image Streamer Deployment Group.
+
+#### Synopsis
+ Retrieve facts about the Image Streamer Deployment Group.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the filepath is not provided, the configuration will be loaded from environment variables.  |
+| name  |   No  |  | |  Name of the Deployment Group.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Gather facts about all Deployment Groups
+  image_streamer_deployment_group_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=deployment_groups
+
+- name: Gather facts about a Deployment Group by name
+  image_streamer_deployment_group_facts:
+    config: "{{ config_path }}"
+    name: "OSS"
+  delegate_to: localhost
+
+- debug: var=deployment_groups
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| deployment_groups   | The list of Deployment Groups |  Always, but can be empty. |  list |
 
 
 #### Notes
