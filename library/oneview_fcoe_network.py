@@ -16,6 +16,7 @@
 # limitations under the License.
 ###
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
@@ -48,9 +49,15 @@ options:
               'absent' will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
     data:
-      description:
-        - List with FCoE Network properties.
-      required: true
+        description:
+            - List with FCoE Network properties.
+        required: true
+    validate_etag:
+        description:
+            - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
+              for the resource matches the ETag provided in the data.
+        default: true
+        choices: ['true', 'false']
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -97,7 +104,11 @@ class FcoeNetworkModule(object):
             required=True,
             choices=['present', 'absent']
         ),
-        data=dict(required=True, type='dict')
+        data=dict(required=True, type='dict'),
+        validate_etag=dict(
+            required=False,
+            type='bool',
+            default=True)
     )
 
     def __init__(self):
@@ -115,59 +126,57 @@ class FcoeNetworkModule(object):
         data = self.module.params['data']
 
         try:
+
+            if not self.module.params.get('validate_etag'):
+                self.oneview_client.connection.disable_etag_validation()
+
+            changed, msg, ansible_facts = False, '', {}
+
             if state == 'present':
-                self.__present(data)
+                changed, msg, ansible_facts = self.__present(data)
             elif state == 'absent':
-                self.__absent(data)
+                changed, msg, ansible_facts = self.__absent(data)
+
+            self.module.exit_json(changed=changed,
+                                  msg=msg,
+                                  ansible_facts=ansible_facts)
 
         except Exception as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data):
         resource = self.__get_by_name(data)
+        changed = False
 
         if "newName" in data:
             data["name"] = data["newName"]
             del data["newName"]
 
         if not resource:
-            self.__create(data)
+            resource = self.oneview_client.fcoe_networks.create(data)
+            msg = FCOE_NETWORK_CREATED
+            changed = True
         else:
-            self.__update(data, resource)
+            merged_data = resource.copy()
+            merged_data.update(data)
+
+            if resource_compare(resource, merged_data):
+                msg = FCOE_NETWORK_ALREADY_EXIST
+            else:
+                resource = self.oneview_client.fcoe_networks.update(merged_data)
+                changed = True
+                msg = FCOE_NETWORK_UPDATED
+
+        return changed, msg, dict(fcoe_network=resource)
 
     def __absent(self, data):
         resource = self.__get_by_name(data)
 
         if resource:
             self.oneview_client.fcoe_networks.delete(resource)
-            self.module.exit_json(changed=True,
-                                  msg=FCOE_NETWORK_DELETED)
+            return True, FCOE_NETWORK_DELETED, {}
         else:
-            self.module.exit_json(changed=False, msg=FCOE_NETWORK_ALREADY_ABSENT)
-
-    def __create(self, data):
-        new_fcoe_network = self.oneview_client.fcoe_networks.create(data)
-
-        self.module.exit_json(changed=True,
-                              msg=FCOE_NETWORK_CREATED,
-                              ansible_facts=dict(fcoe_network=new_fcoe_network))
-
-    def __update(self, new_data, existent_resource):
-        merged_data = existent_resource.copy()
-        merged_data.update(new_data)
-
-        if resource_compare(existent_resource, merged_data):
-
-            self.module.exit_json(changed=False,
-                                  msg=FCOE_NETWORK_ALREADY_EXIST,
-                                  ansible_facts=dict(fcoe_network=existent_resource))
-
-        else:
-            updated_fcoe_network = self.oneview_client.fcoe_networks.update(merged_data)
-
-            self.module.exit_json(changed=True,
-                                  msg=FCOE_NETWORK_UPDATED,
-                                  ansible_facts=dict(fcoe_network=updated_fcoe_network))
+            return False, FCOE_NETWORK_ALREADY_ABSENT, {}
 
     def __get_by_name(self, data):
         result = self.oneview_client.fcoe_networks.get_by('name', data['name'])
