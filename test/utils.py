@@ -156,3 +156,45 @@ class ValidateEtagTestCase(PreloadedMocksBaseTestCase):
 
         self.mock_ov_client.connection.enable_etag_validation.not_been_called()
         self.mock_ov_client.connection.disable_etag_validation.assert_called_once()
+
+
+class ParamsTestCase(PreloadedMocksBaseTestCase):
+    """
+    ParamsTestCase has common test for classes that support pass additional parameters when retrieving all resources.
+    """
+
+    def configure_client_mock(self, resorce_client):
+        """
+        Args:
+             resorce_client: Resource client that is being called
+        """
+        self.__resorce_client = resorce_client
+
+    def __validations(self):
+        if not self._testing_class:
+            raise Exception("Mocks are not configured, you must call 'configure_mocks' before running this test.")
+
+        if not self.__resorce_client:
+            raise Exception(
+                "Mock for the client not configured, you must call 'configure_client_mock' before running this test.")
+
+    def test_should_get_all_using_filters(self):
+        self.__validations()
+        self.__resorce_client.get_all.return_value = []
+
+        params_get_all_with_filters = dict(
+            config='config.json',
+            name=None,
+            params=[
+                {'start': 1,
+                 'count': 3,
+                 'sort': 'name:descending',
+                 'filter': 'purpose=General'}
+            ]
+        )
+        self.mock_ansible_module.params = params_get_all_with_filters
+
+        self._testing_class().run()
+
+        self.__resorce_client.get_all.assert_called_once_with(start=1, count=3, sort='name:descending',
+                                                              filter='purpose=General')

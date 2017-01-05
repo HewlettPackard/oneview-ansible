@@ -2199,6 +2199,7 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Ethernet Network name.  |
 | options  |   No  |  | |  List with options to gather additional facts about an Ethernet Network and related resources. Options allowed: associatedProfiles and associatedUplinkGroups.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -2208,6 +2209,17 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
 - name: Gather facts about all Ethernet Networks
   oneview_ethernet_network_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=ethernet_networks
+
+- name: Gather paginated and filtered facts about Ethernet Networks
+  oneview_ethernet_network_facts:
+    config: "{{ config_file_path }}"
+    params:
+      - start: 1
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'purpose=General'
 
 - debug: var=ethernet_networks
 
