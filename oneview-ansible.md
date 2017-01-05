@@ -8,7 +8,7 @@
   * [image_streamer_artifact_bundle_facts - Retrieve facts about Artifact Bundle.](#image_streamer_artifact_bundle_facts)
   * [image_streamer_build_plan - Manage Image Stream OS Build Plan resources.](#image_streamer_build_plan)
   * [image_streamer_build_plan_facts - Retrieve facts about one or more of the Image Streamer Build Plans.](#image_streamer_build_plan_facts)
-  * [image_streamer_deployment_group_facts - Retrieve facts about the Image Streamer Deployment Group.](#image_streamer_deployment_group_facts)
+  * [image_streamer_deployment_group_facts - Retrieve facts about the Image Streamer Deployment Groups.](#image_streamer_deployment_group_facts)
   * [image_streamer_deployment_plan - Manage Image Streamer Deployment Plan resources.](#image_streamer_deployment_plan)
   * [image_streamer_deployment_plan_facts - Retrieve facts about the Image Streamer Deployment Plans.](#image_streamer_deployment_plan_facts)
   * [image_streamer_golden_image - Manage Image Streamer Golden Image resources.](#image_streamer_golden_image)
@@ -577,10 +577,10 @@ Retrieve facts about one or more of the Image Streamer Build Plans.
 
 
 ## image_streamer_deployment_group_facts
-Retrieve facts about the Image Streamer Deployment Group.
+Retrieve facts about the Image Streamer Deployment Groups.
 
 #### Synopsis
- Retrieve facts about the Image Streamer Deployment Group.
+ Retrieve facts about the Image Streamer Deployment Groups.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9

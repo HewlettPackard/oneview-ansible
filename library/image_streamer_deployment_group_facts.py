@@ -25,9 +25,9 @@ except ImportError:
 
 DOCUMENTATION = '''
 module: image_streamer_deployment_group_facts
-short_description: Retrieve facts about the Image Streamer Deployment Group.
+short_description: Retrieve facts about the Image Streamer Deployment Groups.
 description:
-    - Retrieve facts about the Image Streamer Deployment Group.
+    - Retrieve facts about the Image Streamer Deployment Groups.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.1"
