@@ -14,17 +14,13 @@
 # limitations under the License.
 ###
 import unittest
-import mock
 import yaml
 
-from hpOneView.oneview_client import OneViewClient
-from oneview_ethernet_network import EthernetNetworkModule
-from oneview_ethernet_network import ETHERNET_NETWORK_CREATED, ETHERNET_NETWORK_ALREADY_EXIST, \
+from oneview_ethernet_network import EthernetNetworkModule, ETHERNET_NETWORK_CREATED, ETHERNET_NETWORK_ALREADY_EXIST, \
     ETHERNET_NETWORK_UPDATED, ETHERNET_NETWORK_DELETED, ETHERNET_NETWORK_ALREADY_ABSENT, \
     ETHERNET_NETWORKS_CREATED, MISSING_ETHERNET_NETWORKS_CREATED, ETHERNET_NETWORKS_ALREADY_EXIST, \
     ETHERNET_NETWORK_CONNECTION_TEMPLATE_RESET, ETHERNET_NETWORK_NOT_FOUND
-from test.utils import create_ansible_mock
-from test.utils import create_ansible_mock_yaml
+from test.utils import ModuleContructorTestCase, ValidateEtagTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 DEFAULT_ETHERNET_NAME = 'Test Ethernet Network'
@@ -95,408 +91,294 @@ DEFAULT_BULK_ENET_TEMPLATE = [
 DICT_PARAMS_WITH_CHANGES = yaml.load(YAML_PARAMS_WITH_CHANGES)["data"]
 
 
-class EthernetNetworkClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class EthernetNetworkModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+    """
+    ModuleContructorTestCase has common tests for class constructor and main function,
+    also provides the mocks used in this test case
+    ValidateEtagTestCase has common tests for the validate_etag attribute.
+    """
 
-        EthernetNetworkModule()
+    def setUp(self):
+        self.configure_mocks(self, EthernetNetworkModule)
+        self.resource = self.mock_ov_client.ethernet_networks
 
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
+    def test_should_create_new_ethernet_network(self):
+        self.resource.get_by.return_value = []
+        self.resource.create.return_value = DEFAULT_ENET_TEMPLATE
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        EthernetNetworkModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class EthernetNetworkPresentStateSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_create_new_ethernet_network(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = []
-        mock_ov_instance.ethernet_networks.create.return_value = DEFAULT_ENET_TEMPLATE
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         EthernetNetworkModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ETHERNET_NETWORK_CREATED,
             ansible_facts=dict(ethernet_network=DEFAULT_ENET_TEMPLATE)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_not_update_when_data_is_equals(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
+    def test_should_not_update_when_data_is_equals(self):
+        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         EthernetNetworkModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=ETHERNET_NETWORK_ALREADY_EXIST,
             ansible_facts=dict(ethernet_network=DEFAULT_ENET_TEMPLATE)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_update_when_data_has_modified_attributes(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_update_when_data_has_modified_attributes(self):
         data_merged = DEFAULT_ENET_TEMPLATE.copy()
         data_merged['purpose'] = 'Management'
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
-        mock_ov_instance.ethernet_networks.update.return_value = data_merged
-        mock_ov_instance.connection_templates.get.return_value = {"uri": "uri"}
+        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
+        self.resource.update.return_value = data_merged
+        self.mock_ov_client.connection_templates.get.return_value = {"uri": "uri"}
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_PARAMS_WITH_CHANGES)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
 
         EthernetNetworkModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ETHERNET_NETWORK_UPDATED,
             ansible_facts=dict(ethernet_network=data_merged)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_update_when_only_bandwidth_has_modified_attributes(self, mock_ansible_module,
-                                                                mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = [DICT_PARAMS_WITH_CHANGES]
-        mock_ov_instance.connection_templates.get.return_value = {"uri": "uri"}
+    def test_update_when_only_bandwidth_has_modified_attributes(self):
+        self.resource.get_by.return_value = [DICT_PARAMS_WITH_CHANGES]
+        self.mock_ov_client.connection_templates.get.return_value = {"uri": "uri"}
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_PARAMS_WITH_CHANGES)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
 
         EthernetNetworkModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ETHERNET_NETWORK_UPDATED,
             ansible_facts=dict(ethernet_network=DICT_PARAMS_WITH_CHANGES)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_update_when_data_has_modified_attributes_but_bandwidth_is_equal(self, mock_ansible_module,
-                                                                             mock_ov_client_from_json_file):
+    def test_update_when_data_has_modified_attributes_but_bandwidth_is_equal(self):
         data_merged = DEFAULT_ENET_TEMPLATE.copy()
         data_merged['purpose'] = 'Management'
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
-        mock_ov_instance.ethernet_networks.update.return_value = data_merged
-        mock_ov_instance.connection_templates.get.return_value = {
+        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
+        self.resource.update.return_value = data_merged
+        self.mock_ov_client.connection_templates.get.return_value = {
             "bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_PARAMS_WITH_CHANGES)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
 
         EthernetNetworkModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ETHERNET_NETWORK_UPDATED,
             ansible_facts=dict(ethernet_network=data_merged)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_update_successfully_even_when_connection_template_uri_not_exists(self, mock_ansible_module,
-                                                                              mock_ov_client_from_json_file):
+    def test_update_successfully_even_when_connection_template_uri_not_exists(self):
         data_merged = DEFAULT_ENET_TEMPLATE.copy()
         del data_merged['connectionTemplateUri']
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
-        mock_ov_instance.ethernet_networks.update.return_value = data_merged
+        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
+        self.resource.update.return_value = data_merged
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_PARAMS_WITH_CHANGES)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
 
         EthernetNetworkModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ETHERNET_NETWORK_UPDATED,
             ansible_facts=dict(ethernet_network=data_merged)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_rename_when_resource_exists(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_rename_when_resource_exists(self):
         data_merged = DEFAULT_ENET_TEMPLATE.copy()
         data_merged['name'] = RENAMED_ETHERNET
         params_to_rename = PARAMS_TO_RENAME.copy()
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
-        mock_ov_instance.ethernet_networks.update.return_value = data_merged
+        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
+        self.resource.update.return_value = data_merged
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(params_to_rename)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params_to_rename
 
         EthernetNetworkModule().run()
 
-        mock_ov_instance.ethernet_networks.update.assert_called_once_with(data_merged)
+        self.resource.update.assert_called_once_with(data_merged)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_create_with_new_name_when_resource_not_exists(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_create_with_new_name_when_resource_not_exists(self):
         data_merged = DEFAULT_ENET_TEMPLATE.copy()
         data_merged['name'] = RENAMED_ETHERNET
         params_to_rename = PARAMS_TO_RENAME.copy()
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = []
-        mock_ov_instance.ethernet_networks.create.return_value = DEFAULT_ENET_TEMPLATE
+        self.resource.get_by.return_value = []
+        self.resource.create.return_value = DEFAULT_ENET_TEMPLATE
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(params_to_rename)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params_to_rename
 
         EthernetNetworkModule().run()
 
-        mock_ov_instance.ethernet_networks.create.assert_called_once_with(PARAMS_TO_RENAME['data'])
+        self.resource.create.assert_called_once_with(PARAMS_TO_RENAME['data'])
 
+    def test_should_remove_ethernet_network(self):
+        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
 
-class EthernetNetworkAbsentStateSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_remove_ethernet_network(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         EthernetNetworkModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts={},
             msg=ETHERNET_NETWORK_DELETED
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_do_nothing_when_ethernet_network_not_exist(self, mock_ansible_module,
-                                                               mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = []
+    def test_should_do_nothing_when_ethernet_network_not_exist(self):
+        self.resource.get_by.return_value = []
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         EthernetNetworkModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             ansible_facts={},
             changed=False,
             msg=ETHERNET_NETWORK_ALREADY_ABSENT
         )
 
+    def test_should_fail_when_create_raises_exception(self):
+        self.resource.get_by.return_value = []
+        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
 
-class EthernetNetworkErrorHandlingSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_fail_when_create_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = []
-        mock_ov_instance.ethernet_networks.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         self.assertRaises(Exception, EthernetNetworkModule().run())
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_fail_when_update_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
-        mock_ov_instance.ethernet_networks.update.side_effect = Exception(FAKE_MSG_ERROR)
+    def test_should_fail_when_update_raises_exception(self):
+        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
+        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_PARAMS_WITH_CHANGES)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
 
         self.assertRaises(Exception, EthernetNetworkModule().run())
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_fail_when_delete_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
-        mock_ov_instance.ethernet_networks.delete.side_effect = Exception(FAKE_MSG_ERROR)
+    def test_should_fail_when_delete_raises_exception(self):
+        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
+        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_ABSENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         self.assertRaises(Exception, EthernetNetworkModule().run())
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
         )
 
+    def test_should_create_all_ethernet_networks(self):
+        self.resource.get_range.return_value = []
+        self.resource.create_bulk.return_value = DEFAULT_BULK_ENET_TEMPLATE
 
-class EthernetNetworkStateBulkSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_create_all_ethernet_networks(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_range.return_value = []
-        mock_ov_instance.ethernet_networks.create_bulk.return_value = DEFAULT_BULK_ENET_TEMPLATE
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_BULK_CREATED)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_BULK_CREATED
 
         EthernetNetworkModule().run()
 
-        mock_ov_instance.ethernet_networks.create_bulk.assert_called_once_with(
+        self.resource.create_bulk.assert_called_once_with(
             dict(namePrefix="TestNetwork", vlanIdRange="1-2,5,9-10"))
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ETHERNET_NETWORKS_CREATED,
             ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_create_missing_ethernet_networks(self, mock_ansible_module, mock_ov_client_from_json_file):
+    def test_should_create_missing_ethernet_networks(self):
         enet_get_range_return = [
             {'name': 'TestNetwork_1', 'vlanId': 1},
             {'name': 'TestNetwork_2', 'vlanId': 2},
         ]
 
-        enet_bulk_create_return = [
-            {'name': 'TestNetwork_5', 'vlanId': 5},
-            {'name': 'TestNetwork_9', 'vlanId': 9},
-            {'name': 'TestNetwork_10', 'vlanId': 10},
-        ]
+        self.resource.get_range.side_effect = [enet_get_range_return, DEFAULT_BULK_ENET_TEMPLATE]
+        self.resource.dissociate_values_or_ranges.return_value = [1, 2, 5, 9, 10]
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_range = mock.MagicMock(
-            side_effect=[enet_get_range_return, DEFAULT_BULK_ENET_TEMPLATE])
-        mock_ov_instance.ethernet_networks.create_bulk.return_value = enet_bulk_create_return
-        mock_ov_instance.ethernet_networks.dissociate_values_or_ranges.return_value = [1, 2, 5, 9, 10]
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_BULK_CREATED)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_BULK_CREATED
 
         EthernetNetworkModule().run()
 
-        mock_ov_instance.ethernet_networks.create_bulk.assert_called_once_with(
+        self.resource.create_bulk.assert_called_once_with(
             dict(namePrefix="TestNetwork", vlanIdRange="5,9,10"))
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True, msg=MISSING_ETHERNET_NETWORKS_CREATED,
             ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_do_nothing_when_ethernet_networks_already_exist(self, mock_ansible_module, from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_range.return_value = DEFAULT_BULK_ENET_TEMPLATE
-        mock_ov_instance.ethernet_networks.dissociate_values_or_ranges.return_value = [1, 2, 5, 9, 10]
+    def test_should_create_missing_ethernet_networks_with_just_one_difference(self):
+        enet_get_range_return = [
+            {'name': 'TestNetwork_1', 'vlanId': 1},
+            {'name': 'TestNetwork_2', 'vlanId': 2},
+        ]
 
-        from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_BULK_CREATED)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.resource.get_range.side_effect = [enet_get_range_return, DEFAULT_BULK_ENET_TEMPLATE]
+        self.resource.dissociate_values_or_ranges.return_value = [1, 2, 5]
+
+        self.mock_ansible_module.params = PARAMS_FOR_BULK_CREATED
 
         EthernetNetworkModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.resource.create_bulk.assert_called_once_with({'vlanIdRange': '5-5', 'namePrefix': 'TestNetwork'})
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=MISSING_ETHERNET_NETWORKS_CREATED,
+            ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
+
+    def test_should_do_nothing_when_ethernet_networks_already_exist(self):
+        self.resource.get_range.return_value = DEFAULT_BULK_ENET_TEMPLATE
+        self.resource.dissociate_values_or_ranges.return_value = [1, 2, 5, 9, 10]
+
+        self.mock_ansible_module.params = PARAMS_FOR_BULK_CREATED
+
+        EthernetNetworkModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False, msg=ETHERNET_NETWORKS_ALREADY_EXIST,
             ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
 
-
-class EthernetNetworkResetConnectionTemplateSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_reset_successfully(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = [DICT_PARAMS_WITH_CHANGES]
-        mock_ov_instance.connection_templates.update.return_value = {'result': 'success'}
-        mock_ov_instance.connection_templates.get.return_value = {
+    def test_reset_successfully(self):
+        self.resource.get_by.return_value = [DICT_PARAMS_WITH_CHANGES]
+        self.mock_ov_client.connection_templates.update.return_value = {'result': 'success'}
+        self.mock_ov_client.connection_templates.get.return_value = {
             "bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
 
-        mock_ov_instance.connection_templates.get_default.return_value = {"bandwidth": {
+        self.mock_ov_client.connection_templates.get_default.return_value = {"bandwidth": {
             "max": 1
         }}
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_RESET_CONNECTION_TEMPLATE)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = yaml.load(YAML_RESET_CONNECTION_TEMPLATE)
 
         EthernetNetworkModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True, msg=ETHERNET_NETWORK_CONNECTION_TEMPLATE_RESET,
             ansible_facts=dict(ethernet_network_connection_template={'result': 'success'}))
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_ethernet_network.AnsibleModule')
-    def test_should_fail_when_reset_not_existing_ethernet_network(self, mock_ansible_module,
-                                                                  mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.ethernet_networks.get_by.return_value = [None]
+    def test_should_fail_when_reset_not_existing_ethernet_network(self):
+        self.resource.get_by.return_value = [None]
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_RESET_CONNECTION_TEMPLATE)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = yaml.load(YAML_RESET_CONNECTION_TEMPLATE)
 
         EthernetNetworkModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=ETHERNET_NETWORK_NOT_FOUND
         )
 

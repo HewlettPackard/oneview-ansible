@@ -49,9 +49,15 @@ options:
               'default_bandwidth_reset' will reset the network connection template to the default.
         choices: ['present', 'absent', 'default_bandwidth_reset']
     data:
-      description:
-        - List with Ethernet Network properties.
-      required: true
+        description:
+            - List with Ethernet Network properties.
+        required: true
+    validate_etag:
+        description:
+            - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
+              for the resource matches the ETag provided in the data.
+        default: true
+        choices: ['true', 'false']
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -155,7 +161,11 @@ class EthernetNetworkModule(object):
             required=True,
             choices=['present', 'absent', 'default_bandwidth_reset']
         ),
-        data=dict(required=True, type='dict')
+        data=dict(required=True, type='dict'),
+        validate_etag=dict(
+            required=False,
+            type='bool',
+            default=True)
     )
 
     def __init__(self):
@@ -174,6 +184,9 @@ class EthernetNetworkModule(object):
         changed, msg, ansible_facts = False, '', {}
 
         try:
+            if not self.module.params.get('validate_etag'):
+                self.oneview_client.connection.disable_etag_validation()
+
             if state == 'present':
                 if data.get('vlanIdRange'):
                     changed, msg, ansible_facts = self.__bulk_present(data)
@@ -234,8 +247,9 @@ class EthernetNetworkModule(object):
             return False, ETHERNET_NETWORK_ALREADY_ABSENT, {}
 
     def __bulk_present(self, data):
-        ethernet_networks = self.oneview_client.ethernet_networks.get_range(data['namePrefix'], data['vlanIdRange'])
         vlan_id_range = data['vlanIdRange']
+
+        ethernet_networks = self.oneview_client.ethernet_networks.get_range(data['namePrefix'], vlan_id_range)
 
         if not ethernet_networks:
             ethernet_networks = self.oneview_client.ethernet_networks.create_bulk(data)
