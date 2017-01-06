@@ -162,7 +162,7 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
 
         self.i3s.artifact_bundles.upload_backup_bundle_from_file.assert_called_once_with(
             self.TASK_BACKUP_UPLOAD['data']['localBackupArtifactBundleFilePath'],
-            self.TASK_BACKUP_UPLOAD['data']['deploymentGroupsUri'])
+            self.TASK_BACKUP_UPLOAD['data']['deploymentGroupURI'])
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -180,7 +180,7 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
         ArtifactBundleModule().run()
 
         self.i3s.artifact_bundles.create_backup.assert_called_once_with(
-            self.TASK_CREATE_BACKUP['data']['deploymentGroupsUri'])
+            self.TASK_CREATE_BACKUP['data'])
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -199,8 +199,7 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
 
         ArtifactBundleModule().run()
 
-        self.i3s.artifact_bundles.extract_bundle.assert_called_once_with(
-            artifact_bundle['uri'])
+        self.i3s.artifact_bundles.extract_bundle.assert_called_once_with(artifact_bundle)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -220,7 +219,7 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
         ArtifactBundleModule().run()
 
         self.i3s.artifact_bundles.extract_backup_bundle.assert_called_once_with(
-            self.TASK_CREATE_BACKUP['data']['deploymentGroupsUri'])
+            self.TASK_CREATE_BACKUP['data'])
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,

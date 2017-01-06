@@ -20,13 +20,13 @@
     artifact_bundle_name: 'Artifact Bundle'
     artifact_bundle_name_update: 'Artifact Bundle Updated'
     artifact_bundle_description: 'Description of Artifact Bundles Test'
+    deployment_group_uri: '/rest/deployment-groups/beb9081a-1494-459c-b037-24fa838c7440'
+    build_plan_uri: '/rest/build-plans/e48052b0-2944-4579-8e81-730efffcfe81'
+    build_plan_read_only: 'false'
     artifact_download_path: '~/downloaded_artifact.zip'
     artifact_archive_download_path: '~/downloaded_archive.zip'
-    deployment_group_uri: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
     local_artifact_path: '~/uploaded_artifact.zip'
     local_backup_artifact_bundle_path: '~/uploaded_backup.zip'
-    build_plan_uri: '/rest/build-plans/ab65bb06-4387-48a0-9a5d-0b0da2888508'
-    build_plan_read_only: 'false'
   tasks:
     - name: Create an Artifact Bundle
       image_streamer_artifact_bundle:
@@ -66,12 +66,12 @@
           localArtifactBundleFilePath: '{{ local_artifact_path }}'
       delegate_to: localhost
 
-    - name: Upload Backup an Artifact Bundle
+    - name: Upload an Artifact Bundle Backup
       image_streamer_artifact_bundle:
         config: "{{ config }}"
         state: backup_uploaded
         data:
-          deploymentGroupsUri: '{{ deployment_group_uri }}'
+          deploymentGroupURI: '{{ deployment_group_uri }}'
           localBackupArtifactBundleFilePath: '{{ local_backup_artifact_bundle_path }}'
       delegate_to: localhost
 
@@ -80,7 +80,7 @@
         config: "{{ config }}"
         state: backup_created
         data:
-          deploymentGroupsUri: '{{ deployment_group_uri }}'
+          deploymentGroupURI: '{{ deployment_group_uri }}'
       delegate_to: localhost
 
     - name: Extract an Artifact Bundle
@@ -91,12 +91,12 @@
           name: '{{ artifact_bundle_name }}'
       delegate_to: localhost
 
-    - name: Extract Backup an Artifact Bundle
+    - name: Extract an Artifact Bundle Backup
       image_streamer_artifact_bundle:
         config: "{{ config }}"
         state: backup_extracted
         data:
-          deploymentGroupsUri: '{{ deployment_group_uri }}'
+          deploymentGroupURI: '{{ deployment_group_uri }}'
       delegate_to: localhost
 
     - name: Update an Artifact Bundle
