@@ -47,16 +47,6 @@
           localImageFilePath: '{{ local_image_file_path }}'
       delegate_to: localhost
 
-    - name: Update the Golden Image description and name
-      image_streamer_golden_image:
-        config: "{{ config }}"
-        state: present
-        data:
-          name: '{{ golden_image_name_uploaded }}'
-          description: "New description"
-          newName: 'ready to delete'
-      delegate_to: localhost
-
     - name: Download the Golden Image to the file path provided
       image_streamer_golden_image:
         config: "{{ config }}"
@@ -73,6 +63,16 @@
         data:
           name: '{{ golden_image_name_created }}'
           destination_file_path: '{{ archive_download_path }}'
+      delegate_to: localhost
+
+    - name: Update the Golden Image description and name
+      image_streamer_golden_image:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ golden_image_name_uploaded }}'
+          description: "New description"
+          newName: 'ready to delete'
       delegate_to: localhost
 
     - name: Remove the uploaded Golden Image

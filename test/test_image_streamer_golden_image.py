@@ -19,7 +19,7 @@ import yaml
 from image_streamer_golden_image import GoldenImageModule, GOLDEN_IMAGE_ALREADY_UPDATED, GOLDEN_IMAGE_UPLOADED, \
     GOLDEN_IMAGE_ALREADY_ABSENT, GOLDEN_IMAGE_CREATED, GOLDEN_IMAGE_DELETED, EXAMPLES, I3S_BUILD_PLAN_WAS_NOT_FOUND, \
     GOLDEN_IMAGE_UPDATED, I3S_CANT_CREATE_AND_UPLOAD, I3S_MISSING_MANDATORY_ATTRIBUTES, I3S_OS_VOLUME_WAS_NOT_FOUND, \
-    GOLDEN_IMAGE_DOWNLOADED, GOLDEN_IMAGE_ARCHIVE_DOWNLOADED
+    GOLDEN_IMAGE_DOWNLOADED, GOLDEN_IMAGE_ARCHIVE_DOWNLOADED, GOLDEN_IMAGE_WAS_NOT_FOUND
 from test.utils import ModuleContructorTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -118,6 +118,16 @@ class GoldenImageSpec(unittest.TestCase, ModuleContructorTestCase):
             msg=GOLDEN_IMAGE_DOWNLOADED,
             ansible_facts={})
 
+    def test_golden_image_download_nonexistent(self):
+        self.i3s.golden_images.get_by.return_value = []
+        self.mock_ansible_module.params = self.GOLDEN_IMAGE_DOWNLOAD
+
+        GoldenImageModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=GOLDEN_IMAGE_WAS_NOT_FOUND,
+        )
+
     def test_golden_image_archive_download(self):
         golden_image = self.GOLDEN_IMAGE_CREATE['data']
         golden_image['uri'] = '/rest/golden-images/1'
@@ -134,6 +144,16 @@ class GoldenImageSpec(unittest.TestCase, ModuleContructorTestCase):
             changed=True,
             msg=GOLDEN_IMAGE_ARCHIVE_DOWNLOADED,
             ansible_facts={})
+
+    def test_golden_image_archive_download_nonexistent(self):
+        self.i3s.golden_images.get_by.return_value = []
+        self.mock_ansible_module.params = self.GOLDEN_IMAGE_ARCHIVE_DOWNLOAD
+
+        GoldenImageModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=GOLDEN_IMAGE_WAS_NOT_FOUND,
+        )
 
     def test_should_not_update_when_data_is_equals(self):
         self.i3s.golden_images.get_by.return_value = [self.GOLDEN_IMAGE_UPDATE['data']]
