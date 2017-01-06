@@ -302,7 +302,7 @@ Manage Artifact Bundle resource.
     config: "{{ config }}"
     state: backup_uploaded
     data:
-      deploymentGroupsUri: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
+      deploymentGroupURI: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
       localBackupArtifactBundleFilePath: '~/uploaded_backup.zip'
   delegate_to: localhost
 
@@ -311,7 +311,7 @@ Manage Artifact Bundle resource.
     config: "{{ config }}"
     state: backup_created
     data:
-      deploymentGroupsUri: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
+      deploymentGroupURI: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
   delegate_to: localhost
 
 - name: Extract an Artifact Bundle
@@ -327,7 +327,7 @@ Manage Artifact Bundle resource.
     config: "{{ config }}"
     state: backup_extracted
     data:
-      deploymentGroupsUri: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
+      deploymentGroupURI: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
   delegate_to: localhost
 
 - name: Update an Artifact Bundle

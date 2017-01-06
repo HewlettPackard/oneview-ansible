@@ -113,7 +113,7 @@ EXAMPLES = '''
     config: "{{ config }}"
     state: backup_uploaded
     data:
-      deploymentGroupsUri: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
+      deploymentGroupURI: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
       localBackupArtifactBundleFilePath: '~/uploaded_backup.zip'
   delegate_to: localhost
 
@@ -122,7 +122,7 @@ EXAMPLES = '''
     config: "{{ config }}"
     state: backup_created
     data:
-      deploymentGroupsUri: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
+      deploymentGroupURI: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
   delegate_to: localhost
 
 - name: Extract an Artifact Bundle
@@ -138,7 +138,7 @@ EXAMPLES = '''
     config: "{{ config }}"
     state: backup_extracted
     data:
-      deploymentGroupsUri: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
+      deploymentGroupURI: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
   delegate_to: localhost
 
 - name: Update an Artifact Bundle
@@ -320,19 +320,19 @@ class ArtifactBundleModule(object):
 
     def __upload_backup(self, data):
         deployment_group = self.i3s_client.artifact_bundles.upload_backup_bundle_from_file(
-            data['localBackupArtifactBundleFilePath'], data['deploymentGroupsUri'])
+            data['localBackupArtifactBundleFilePath'], data['deploymentGroupURI'])
         return True, BACKUP_UPLOADED, dict(artifact_bundle_deployment_group=deployment_group)
 
     def __create_backup(self, data):
-        resource = self.i3s_client.artifact_bundles.create_backup(data['deploymentGroupsUri'])
+        resource = self.i3s_client.artifact_bundles.create_backup(data)
         return False, BACKUP_CREATED, dict(artifact_bundle_deployment_group=resource)
 
     def __extract(self, resource):
-        resource = self.i3s_client.artifact_bundles.extract_bundle(resource['uri'])
+        resource = self.i3s_client.artifact_bundles.extract_bundle(resource)
         return True, ARTIFACT_BUNDLE_EXTRACTED, dict(artifact_bundle=resource)
 
     def __extract_backup(self, data):
-        resource = self.i3s_client.artifact_bundles.extract_backup_bundle(data['deploymentGroupsUri'])
+        resource = self.i3s_client.artifact_bundles.extract_backup_bundle(data)
         return True, BACKUP_EXTRACTED, dict(artifact_bundle_deployment_group=resource)
 
 

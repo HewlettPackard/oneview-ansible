@@ -17,7 +17,8 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    artifact_bundle_name: 'HPE-ImageStreamer-Developer-2016-09-12'
+    artifact_bundle_name: 'HPE-ESXi-2016-11-25'
+    backup_artifact_bundle_name: 'ci-9cb654980018backup2017-01-06T12:40:07.161Z'
   tasks:
     - name: Gather facts about all Artifact Bundles
       image_streamer_artifact_bundle_facts:
@@ -48,7 +49,7 @@
     - name: Gather facts about Backup for an Artifact Bundle
       image_streamer_artifact_bundle_facts:
         config: "{{ config }}"
-        name: '{{ artifact_bundle_name }}'
+        name: '{{ backup_artifact_bundle_name }}'
         options:
           - backupForAnArtifactBundle
       delegate_to: localhost
