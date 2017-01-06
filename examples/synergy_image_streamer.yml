@@ -1,0 +1,90 @@
+###
+# Copyright (2016) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+  ###
+  # This playbook upload an Artifact Bundle, extracts its content and uses the
+  ###
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    server_profile_name: Server profile with OS Deployment Plan
+    # Set the filepath of the Artifact Bundle to upload
+    artifact_bundle_filepath: '{{ playbook_dir }}/files/HPE-ImageStreamer-Developer-2016-09-12.zip'
+    # Set the URI of the enclosure group to asscciate with the Server Profile
+    enclosure_group_uri:  /rest/enclosure-groups/3a04dea8-e02c-41f7-a5cd-aaea2ddf9b60
+    # Set the URI of the ethernet networks to associate with the Server Profile
+    network_1_uri: /rest/ethernet-networks/fb9f0351-9103-4592-85f2-b650d46a0224
+    network_2_uri: /rest/ethernet-networks/ef12d6ff-62c8-415a-b40e-fae2907a9957
+  tasks:
+    - name: Ensure the Artifact Bundle is present
+      image_streamer_artifact_bundle:
+        config: '{{ config }}'
+        state: present
+        data:
+          localArtifactBundleFilePath: '{{ artifact_bundle_filepath }}'
+      delegate_to: localhost
+
+    - name: 'Validate the Artifact Bundle'
+      fail: msg="An Artifact Bundle with at least one Deployment Plan is required to run this example."
+      when: (artifact_bundle.deploymentPlans.0 is undefined or artifact_bundle.deploymentPlans.0 is none)
+
+    - name: Extract the Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: extracted
+        data:
+          name: '{{ artifact_bundle.name }}'
+      delegate_to: localhost
+
+    - debug: var=artifact_bundle
+
+    - name: Ensure the Server Profile is present with the OS Deployment Plan '{{ artifact_bundle.deploymentPlans.0.deploymentplanName }}'
+      oneview_server_profile:
+         config: "{{ config }}"
+         data:
+           name: "{{ server_profile_name }}"
+           enclosureGroupUri: "{{ enclosure_group_uri }}"
+           boot:
+              manageBoot: true
+              order:
+              - HardDisk
+           bootMode:
+              manageMode: true
+              mode: UEFIOptimized
+              pxeBootPolicy: Auto
+           connections:
+            - id: 1
+              name: connection1
+              functionType: Ethernet
+              networkUri: '{{ network_1_uri }}'
+              requestedMbps: 2500
+              requestedVFs: Auto
+              boot:
+                priority: Primary
+                initiatorNameSource: ProfileInitiatorName
+            - id: 2
+              name: connection2
+              functionType: Ethernet
+              networkUri: '{{ network_2_uri }}'
+              requestedMbps: 2500
+              requestedVFs: Auto
+              boot:
+                priority: NotBootable
+           osDeploymentSettings:
+              osDeploymentPlanName: '{{ artifact_bundle.deploymentPlans.0.deploymentplanName }}'
+      delegate_to: localhost
+
+    - debug: var=server_profile
