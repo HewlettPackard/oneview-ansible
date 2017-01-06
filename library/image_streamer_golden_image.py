@@ -138,6 +138,7 @@ GOLDEN_IMAGE_DELETED = 'Golden Image deleted successfully.'
 GOLDEN_IMAGE_DOWNLOADED = 'Golden Image downloaded successfully.'
 GOLDEN_IMAGE_ARCHIVE_DOWNLOADED = 'Golden Image archive downloaded successfully.'
 GOLDEN_IMAGE_ALREADY_ABSENT = 'Golden Image is already absent.'
+GOLDEN_IMAGE_WAS_NOT_FOUND = 'Golden Image was not found.'
 I3S_CANT_CREATE_AND_UPLOAD = "You can use an existent OS Volume or upload an Image, you cannot do both."
 I3S_MISSING_MANDATORY_ATTRIBUTES = 'Mandatory field is missing: osVolumeURI or localImageFilePath are required.'
 I3S_OS_VOLUME_WAS_NOT_FOUND = 'OS Volume was not found.'
@@ -179,10 +180,14 @@ class GoldenImageModule(object):
                 changed, msg, ansible_facts = self.__present(data, resource)
             elif state == 'absent':
                 changed, msg, ansible_facts = self.__absent(resource)
-            elif state == 'downloaded':
-                changed, msg, ansible_facts = self.__download(data, resource)
-            elif state == 'archive_downloaded':
-                changed, msg, ansible_facts = self.__download_archive(data, resource)
+            else:
+                if not resource:
+                    raise Exception(GOLDEN_IMAGE_WAS_NOT_FOUND)
+
+                if state == 'downloaded':
+                    changed, msg, ansible_facts = self.__download(data, resource)
+                elif state == 'archive_downloaded':
+                    changed, msg, ansible_facts = self.__download_archive(data, resource)
 
             self.module.exit_json(changed=changed,
                                   msg=msg,
