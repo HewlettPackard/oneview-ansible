@@ -212,6 +212,7 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
                                                     format='%(asctime)s %(levelname)s %(name)s %(message)s',
                                                     filename='/path/log.txt', filemode='a')
 
+    @mock.patch.dict('os.environ', dict())
     @mock.patch.object(logging, 'getLogger')
     @mock.patch.object(logging, 'basicConfig')
     @mock.patch.object(logging, 'NullHandler')
