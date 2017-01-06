@@ -4504,6 +4504,7 @@ Manage OneView Power Device resources.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Power Device properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>discovered</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>uid_state_set</li> </ul> |  Indicates the desired state for the Power Device resource. 'present' will ensure data properties are compliant with OneView. 'discovered' will add an iPDU to the OneView. 'absent' will remove the resource from OneView, if it exists. 'power_state_set' will set the power state of the Power Device. 'refresh_state_set' will set the refresh state of the Power Device. 'uid_state_set' will set the UID state of the Power Device.  |
+| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
