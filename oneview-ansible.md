@@ -1612,6 +1612,17 @@ Retrieve the facts about one or more of the OneView Drive Enclosures.
 
 - debug: var=drive_enclosures
 
+- name: Gather paginated, filtered and sorted facts about Drive Enclosures
+  oneview_drive_enclosure_facts:
+    config: "{{ config_file_path }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'status=Warning'
+
+- debug: var=drive_enclosures
+
 - name: Gather facts about a Drive Enclosure by name
   oneview_drive_enclosure_facts:
     config: "{{ config_file_path }}"

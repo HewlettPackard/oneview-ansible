@@ -15,11 +15,10 @@
 ###
 
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_drive_enclosure_facts import DriveEnclosureFactsModule
-from test.utils import create_ansible_mock
+from test.utils import ParamsTestCase
+from test.utils import ModuleContructorTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -62,141 +61,77 @@ PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
 )
 
 
-class DriveEnclosureFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_drive_enclosure_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class DriveEnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, ParamsTestCase):
+    def setUp(self):
+        self.configure_mocks(self, DriveEnclosureFactsModule)
+        self.drive_enclosures = self.mock_ov_client.drive_enclosures
+        ParamsTestCase.configure_client_mock(self, self.drive_enclosures)
 
-        DriveEnclosureFactsModule()
+    def test_should_get_all(self):
+        self.drive_enclosures.get_all.return_value = MOCK_DRIVE_ENCLOSURES
 
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_drive_enclosure_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        DriveEnclosureFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class DriveEnclosureFactsSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_drive_enclosure_facts.AnsibleModule')
-    def test_should_get_all(self, mock_ansible_module, mock_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.drive_enclosures.get_all.return_value = MOCK_DRIVE_ENCLOSURES
-
-        mock_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         DriveEnclosureFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(drive_enclosures=(MOCK_DRIVE_ENCLOSURES))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_drive_enclosure_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.drive_enclosures.get_all.side_effect = Exception(ERROR_MSG)
+    def test_should_fail_when_get_all_raises_exception(self):
+        self.drive_enclosures.get_all.side_effect = Exception(ERROR_MSG)
 
-        mock_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         DriveEnclosureFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_drive_enclosure_facts.AnsibleModule')
-    def test_should_get_by_name(self, mock_ansible_module, mock_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
+    def test_should_get_by_name(self):
+        self.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
 
-        mock_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         DriveEnclosureFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(drive_enclosures=[DICT_DEFAULT_DRIVE_ENCLOSURE])
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_drive_enclosure_facts.AnsibleModule')
-    def test_should_fail_when_get_by_name_raises_exception(self, mock_ansible_module, mock_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.drive_enclosures.get_by.side_effect = Exception(ERROR_MSG)
+    def test_should_fail_when_get_by_name_raises_exception(self):
+        self.drive_enclosures.get_by.side_effect = Exception(ERROR_MSG)
 
-        mock_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         DriveEnclosureFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_drive_enclosure_facts.AnsibleModule')
-    def test_should_get_by_name_with_options(self, mock_ansible_module, mock_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
-        mock_ov_instance.drive_enclosures.get_port_map.return_value = MOCK_PORT_MAP
+    def test_should_get_by_name_with_options(self):
+        self.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
+        self.drive_enclosures.get_port_map.return_value = MOCK_PORT_MAP
 
-        mock_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         DriveEnclosureFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(drive_enclosures=[DICT_DEFAULT_DRIVE_ENCLOSURE],
                                drive_enclosure_port_map=MOCK_PORT_MAP)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_drive_enclosure_facts.AnsibleModule')
-    def test_should_fail_when_get_port_map_raises_exception(self, mock_ansible_module, mock_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.drive_enclosures.get_by.return_value = MOCK_DRIVE_ENCLOSURES
-        mock_ov_instance.drive_enclosures.get_port_map.side_effect = Exception(ERROR_MSG)
+    def test_should_fail_when_get_port_map_raises_exception(self):
+        self.drive_enclosures.get_by.return_value = MOCK_DRIVE_ENCLOSURES
+        self.drive_enclosures.get_port_map.side_effect = Exception(ERROR_MSG)
 
-        mock_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         DriveEnclosureFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

@@ -67,6 +67,17 @@ EXAMPLES = '''
 
 - debug: var=drive_enclosures
 
+- name: Gather paginated, filtered and sorted facts about Drive Enclosures
+  oneview_drive_enclosure_facts:
+    config: "{{ config_file_path }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'status=Warning'
+
+- debug: var=drive_enclosures
+
 - name: Gather facts about a Drive Enclosure by name
   oneview_drive_enclosure_facts:
     config: "{{ config_file_path }}"
@@ -103,7 +114,8 @@ class DriveEnclosureFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='list')
     )
 
     def __init__(self):
@@ -132,7 +144,9 @@ class DriveEnclosureFactsModule(object):
                             facts['drive_enclosure_port_map'] = \
                                 self.oneview_client.drive_enclosures.get_port_map(drive_enclosures_uri)
             else:
-                drive_enclosures = self.oneview_client.drive_enclosures.get_all()
+                params = self.module.params.get('params')
+                get_all_params = transform_list_to_dict(params) if params else {}
+                drive_enclosures = self.oneview_client.drive_enclosures.get_all(**get_all_params)
 
             facts['drive_enclosures'] = drive_enclosures
 
