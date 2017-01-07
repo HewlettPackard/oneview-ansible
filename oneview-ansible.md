@@ -2611,6 +2611,17 @@ Retrieve the facts about one or more of the OneView FCoE Networks.
 
 - debug: var=fcoe_networks
 
+- name: Gather paginated, filtered and sorted facts about FCoE Networks
+  oneview_fcoe_network_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'vlanId=2'
+
+- debug: var=fcoe_networks
+
 - name: Gather facts about a FCoE Network by name
   oneview_fcoe_network_facts:
     config: "{{ config_file_path }}"
