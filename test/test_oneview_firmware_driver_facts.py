@@ -15,11 +15,10 @@
 ###
 
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_firmware_driver_facts import FirmwareDriverFactsModule
-from test.utils import create_ansible_mock
+from test.utils import ParamsTestCase
+from test.utils import ModuleContructorTestCase
 
 FIRMWARE_DRIVER_NAME = "Service Pack for ProLiant.iso"
 
@@ -40,98 +39,45 @@ FIRMWARE_DRIVER = dict(
 )
 
 
-def define_mocks(mock_ov_client_from_json_file, mock_ansible_module, params):
-    mock_ov_instance = mock.Mock()
-    mock_ov_client_from_json_file.return_value = mock_ov_instance
+class FirmwareDriverFactsSpec(unittest.TestCase, ModuleContructorTestCase, ParamsTestCase):
+    def setUp(self):
+        self.configure_mocks(self, FirmwareDriverFactsModule)
+        self.firmware_drivers = self.mock_ov_client.firmware_drivers
+        ParamsTestCase.configure_client_mock(self, self.firmware_drivers)
 
-    mock_ansible_instance = create_ansible_mock(params)
-    mock_ansible_module.return_value = mock_ansible_instance
-    return mock_ov_instance, mock_ansible_instance
-
-
-class FirmwareDriverFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_firmware_driver_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        FirmwareDriverFactsModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_firmware_driver_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        FirmwareDriverFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class FirmwareDriverFactsSpec(unittest.TestCase):
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_firmware_driver_facts.AnsibleModule')
-    def test_should_get_all_firmware_drivers(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance, mock_ansible_instance = define_mocks(mock_ov_client_from_json_file,
-                                                               mock_ansible_module,
-                                                               PARAMS_GET_ALL)
-
+    def test_should_get_all_firmware_drivers(self):
         firmwares = [FIRMWARE_DRIVER]
+        self.firmware_drivers.get_all.return_value = firmwares
 
-        mock_ov_instance.firmware_drivers.get_all.return_value = firmwares
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         FirmwareDriverFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(firmware_drivers=firmwares)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_firmware_driver_facts.AnsibleModule')
-    def test_should_get_by_name(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance, mock_ansible_instance = define_mocks(mock_ov_client_from_json_file,
-                                                               mock_ansible_module,
-                                                               PARAMS_GET_BY_NAME)
-
+    def test_should_get_by_name(self):
         firmwares = [FIRMWARE_DRIVER]
+        self.firmware_drivers.get_by.return_value = firmwares
 
-        mock_ov_instance.firmware_drivers.get_by.return_value = firmwares
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         FirmwareDriverFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(firmware_drivers=firmwares)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_firmware_driver_facts.AnsibleModule')
-    def test_should_fail_when_oneview_client_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance, mock_ansible_instance = define_mocks(mock_ov_client_from_json_file,
-                                                               mock_ansible_module,
-                                                               PARAMS_GET_BY_NAME)
-
-        mock_ov_instance.firmware_drivers.get_by.side_effect = Exception()
+    def test_should_fail_when_oneview_client_raises_exception(self):
+        self.firmware_drivers.get_by.side_effect = Exception()
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         FirmwareDriverFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

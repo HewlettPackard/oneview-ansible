@@ -17,8 +17,10 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -41,6 +43,14 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Firmware driver name.
@@ -56,6 +66,16 @@ EXAMPLES = '''
 - name: Gather facts about all Firmware Drivers
   oneview_firmware_driver_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=firmware_drivers
+
+- name: Gather paginated, filtered and sorted facts about Firmware Drivers
+  oneview_firmware_driver_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
 
 - debug: var=firmware_drivers
 
@@ -77,10 +97,11 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class FirmwareDriverFactsModule(object):
-
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='list')
+
     )
 
     def __init__(self):
@@ -105,7 +126,9 @@ class FirmwareDriverFactsModule(object):
             if name:
                 result = self.resource_client.get_by('name', name)
             else:
-                result = self.resource_client.get_all()
+                params = self.module.params.get('params')
+                get_all_params = transform_list_to_dict(params) if params else {}
+                result = self.resource_client.get_all(**get_all_params)
 
             self.module.exit_json(
                 changed=False,
