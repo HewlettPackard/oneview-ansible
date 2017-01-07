@@ -2962,6 +2962,7 @@ Retrieve facts about one or more of the OneView Interconnects.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Interconnect name  |
 | options  |   No  |  | |  List with options to gather additional facts about Interconnect. Options allowed: 'nameServers' gets the named servers for an interconnect. 'statistics' gets the statistics from an interconnect. 'portStatistics' gets the statistics for the specified port name on an interconnect. 'subPortStatistics' gets the subport statistics on an interconnect.  To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be ignored.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -2974,6 +2975,16 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 - debug: var=interconnects
 
+- name: Gather paginated, filtered and sorted facts about Interconnects
+  oneview_interconnect_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 5
+      - sort: 'name:descending'
+      - filter: "enclosureName='0000A66101'"
+
+- debug: var=interconnects
 
 - name: Gather facts about the interconnect that matches the specified name
   oneview_interconnect_facts:

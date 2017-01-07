@@ -42,6 +42,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Interconnect name
@@ -71,6 +80,16 @@ EXAMPLES = '''
 
 - debug: var=interconnects
 
+- name: Gather paginated, filtered and sorted facts about Interconnects
+  oneview_interconnect_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 5
+      - sort: 'name:descending'
+      - filter: "enclosureName='0000A66101'"
+
+- debug: var=interconnects
 
 - name: Gather facts about the interconnect that matches the specified name
   oneview_interconnect_facts:
@@ -156,7 +175,8 @@ class InterconnectFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='list'),
     )
 
     def __init__(self):
@@ -182,7 +202,9 @@ class InterconnectFactsModule(object):
                     self.__get_options(interconnects, facts)
 
             else:
-                facts['interconnects'] = self.oneview_client.interconnects.get_all()
+                params = self.module.params.get('params')
+                get_all_params = transform_list_to_dict(params) if params else {}
+                facts['interconnects'] = self.oneview_client.interconnects.get_all(**get_all_params)
 
             self.module.exit_json(
                 changed=False,
