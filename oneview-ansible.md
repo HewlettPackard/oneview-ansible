@@ -1893,6 +1893,7 @@ Retrieve facts about one or more Enclosures.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Enclosure name.  |
 | options  |   No  |  | |  List with options to gather additional facts about an Enclosure and related resources. Options allowed: script, environmentalConfiguration, and utilization. For the option utilization, you can provide specific parameters.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -1902,6 +1903,17 @@ Retrieve facts about one or more Enclosures.
 - name: Gather facts about all Enclosures
   oneview_enclosure_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=enclosures
+
+- name: Gather paginated, filtered and sorted facts about Enclosures
+  oneview_enclosure_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'status=OK'
 
 - debug: var=enclosures
 

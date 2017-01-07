@@ -43,6 +43,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Enclosure name.
@@ -64,6 +73,17 @@ EXAMPLES = '''
 - name: Gather facts about all Enclosures
   oneview_enclosure_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=enclosures
+
+- name: Gather paginated, filtered and sorted facts about Enclosures
+  oneview_enclosure_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'status=OK'
 
 - debug: var=enclosures
 
@@ -138,7 +158,8 @@ class EnclosureFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='list'),
     )
 
     def __init__(self):
@@ -208,7 +229,9 @@ class EnclosureFactsModule(object):
         return self.oneview_client.enclosures.get_by('name', name)
 
     def __get_all(self):
-        return self.oneview_client.enclosures.get_all()
+        params = self.module.params.get('params')
+        get_all_params = transform_list_to_dict(params) if params else {}
+        return self.oneview_client.enclosures.get_all(**get_all_params)
 
 
 def main():
