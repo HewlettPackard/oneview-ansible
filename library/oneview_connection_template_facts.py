@@ -16,8 +16,10 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -40,6 +42,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Connection Template name.
@@ -61,6 +72,17 @@ EXAMPLES = '''
   oneview_connection_template_facts:
     config: "{{ config }}"
   delegate_to: localhost
+- debug: var=connection_templates
+
+- name: Gather paginated, filtered and sorted facts about Connection Templates
+  oneview_connection_template_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'name=defaultConnectionTemplate'
+
 - debug: var=connection_templates
 
 - name: Gather facts about a Connection Template by name
@@ -106,7 +128,12 @@ class ConnectionTemplateFactsModule(object):
         "options": {
             "required": False,
             "type": 'list'
-        }}
+        },
+        "params": {
+            "required": False,
+            "type": 'list'
+        }
+    }
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
@@ -129,7 +156,9 @@ class ConnectionTemplateFactsModule(object):
             elif self.module.params.get('name'):
                 ansible_facts['connection_templates'] = client.get_by('name', self.module.params['name'])
             else:
-                ansible_facts['connection_templates'] = client.get_all()
+                params = self.module.params.get('params')
+                get_all_params = transform_list_to_dict(params) if params else {}
+                ansible_facts['connection_templates'] = client.get_all(**get_all_params)
 
             self.module.exit_json(changed=False,
                                   ansible_facts=ansible_facts)
