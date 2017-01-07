@@ -26,16 +26,6 @@ PARAMS_GET_ALL = dict(
     config='config.json',
     name=None
 )
-PARAMS_GET_ALL_WITH_FILTERS = dict(
-    config='config.json',
-    name=None,
-    params=[
-        {'start': 1,
-         'count': 3,
-         'sort': 'name:descending',
-         'filter': 'purpose=General'}
-    ]
-)
 
 PARAMS_GET_BY_NAME = dict(
     config='config.json',

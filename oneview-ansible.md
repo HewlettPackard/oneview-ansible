@@ -2471,6 +2471,7 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Fibre Channel Network name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -2481,6 +2482,16 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks.
   oneview_fc_network_facts:
     config: "{{ config_file_path }}"
 
+- debug: var=fc_networks
+
+- name: Gather paginated, filtered and sorted facts about Fibre Channel Networks
+  oneview_fc_network_facts:
+    config: "{{ config }}"
+    params:
+      - start: 1
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'fabricType=FabricAttach'
 - debug: var=fc_networks
 
 - name: Gather facts about a Fibre Channel Network by name
@@ -2587,6 +2598,7 @@ Retrieve the facts about one or more of the OneView FCoE Networks.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  FCoE Network name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  

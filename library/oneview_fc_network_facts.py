@@ -17,13 +17,14 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
     HAS_HPE_ONEVIEW = False
-
 
 DOCUMENTATION = '''
 ---
@@ -34,13 +35,23 @@ description:
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
-author: "Mariana Kreisig (@marikrg)"
+author:
+    "Mariana Kreisig (@marikrg)"
 options:
     config:
       description:
         - Path to a .json configuration file containing the OneView client configuration.
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
+      required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
       required: false
     name:
       description:
@@ -58,6 +69,16 @@ EXAMPLES = '''
   oneview_fc_network_facts:
     config: "{{ config_file_path }}"
 
+- debug: var=fc_networks
+
+- name: Gather paginated, filtered and sorted facts about Fibre Channel Networks
+  oneview_fc_network_facts:
+    config: "{{ config }}"
+    params:
+      - start: 1
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'fabricType=FabricAttach'
 - debug: var=fc_networks
 
 - name: Gather facts about a Fibre Channel Network by name
@@ -78,10 +99,10 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class FcNetworkFactsModule(object):
-
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='list')
     )
 
     def __init__(self):
@@ -112,7 +133,10 @@ class FcNetworkFactsModule(object):
                               ansible_facts=dict(fc_networks=fc_network))
 
     def __get_all(self):
-        fc_networks = self.oneview_client.fc_networks.get_all()
+        params = self.module.params.get('params')
+        get_all_params = transform_list_to_dict(params) if params else {}
+
+        fc_networks = self.oneview_client.fc_networks.get_all(**get_all_params)
 
         self.module.exit_json(changed=False,
                               ansible_facts=dict(fc_networks=fc_networks))
