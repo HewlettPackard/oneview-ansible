@@ -42,6 +42,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Fabric name.
@@ -62,6 +71,17 @@ EXAMPLES = '''
 - name: Gather facts about all Fabrics
   oneview_fabric_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=fabrics
+
+- name: Gather paginated, filtered and sorted facts about Fabrics
+  oneview_fabric_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'name=DefaultFabric'
 
 - debug: var=fabrics
 
@@ -99,7 +119,8 @@ class FabricFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='list')
     )
 
     def __init__(self):
@@ -123,7 +144,10 @@ class FabricFactsModule(object):
                 if self.module.params.get('options') and fabrics:
                     ansible_facts = self.__gather_optional_facts(self.module.params['options'], fabrics[0])
             else:
-                fabrics = self.oneview_client.fabrics.get_all()
+                params = self.module.params.get('params')
+                get_all_params = transform_list_to_dict(params) if params else {}
+
+                fabrics = self.oneview_client.fabrics.get_all(**get_all_params)
 
             ansible_facts['fabrics'] = fabrics
 
