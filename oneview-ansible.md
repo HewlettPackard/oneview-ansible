@@ -3077,6 +3077,7 @@ Retrieve facts about the OneView Interconnect Link Topologies.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Interconnect Link Topology.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -3089,6 +3090,16 @@ Retrieve facts about the OneView Interconnect Link Topologies.
 
 - debug: var=interconnect_link_topologies
 
+- name: Gather paginated, filtered and sorted facts about Interconnect Link Topologies
+  oneview_interconnect_link_topology_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: "name='name1900571853-1483553596802'"
+
+- debug: var=interconnect_link_topologies
 
 - name: Gather facts about an Interconnect Link Topology by name
   oneview_interconnect_link_topology_facts:

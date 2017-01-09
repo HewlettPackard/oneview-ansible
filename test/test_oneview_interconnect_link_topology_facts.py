@@ -15,11 +15,10 @@
 ###
 
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_interconnect_link_topology_facts import InterconnectLinkTopologyFactsModule
-from test.utils import create_ansible_mock
+from test.utils import ParamsTestCase
+from test.utils import ModuleContructorTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -38,106 +37,53 @@ INTERCONNECT_LINK_TOPOLOGIES = [{"name": "Interconnect Link Topology 1"},
                                 {"name": "Interconnect Link Topology 3"}]
 
 
-class InterconnectLinkTopologyFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_interconnect_link_topology_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class InterconnectLinkTopologyFactsSpec(unittest.TestCase, ModuleContructorTestCase, ParamsTestCase):
+    def setUp(self):
+        self.configure_mocks(self, InterconnectLinkTopologyFactsModule)
+        self.interconnect_link_topologies = self.mock_ov_client.interconnect_link_topologies
+        ParamsTestCase.configure_client_mock(self, self.interconnect_link_topologies)
 
-        InterconnectLinkTopologyFactsModule()
+    def test_should_get_all_interconnect_link_topologies(self):
+        self.interconnect_link_topologies.get_all.return_value = INTERCONNECT_LINK_TOPOLOGIES
 
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_interconnect_link_topology_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        InterconnectLinkTopologyFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class InterconnectLinkTopologyFactsSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect_link_topology_facts.AnsibleModule')
-    def test_should_get_all_interconnect_link_topologies(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.interconnect_link_topologies.get_all.return_value = INTERCONNECT_LINK_TOPOLOGIES
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         InterconnectLinkTopologyFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(interconnect_link_topologies=(INTERCONNECT_LINK_TOPOLOGIES))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect_link_topology_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.interconnect_link_topologies.get_all.side_effect = Exception(ERROR_MSG)
+    def test_should_fail_when_get_all_raises_exception(self):
+        self.interconnect_link_topologies.get_all.side_effect = Exception(ERROR_MSG)
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         InterconnectLinkTopologyFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect_link_topology_facts.AnsibleModule')
-    def test_should_get_all_interconnect_link_topology_by_name(self, mock_ansible_module,
-                                                               mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.interconnect_link_topologies.get_by.return_value = [INTERCONNECT_LINK_TOPOLOGIES[1]]
+    def test_should_get_all_interconnect_link_topology_by_name(self):
+        self.interconnect_link_topologies.get_by.return_value = [INTERCONNECT_LINK_TOPOLOGIES[1]]
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         InterconnectLinkTopologyFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(interconnect_link_topologies=([INTERCONNECT_LINK_TOPOLOGIES[1]]))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect_link_topology_facts.AnsibleModule')
-    def test_should_fail_when_get_by_name_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.interconnect_link_topologies.get_by.side_effect = Exception(ERROR_MSG)
+    def test_should_fail_when_get_by_name_raises_exception(self):
+        self.interconnect_link_topologies.get_by.side_effect = Exception(ERROR_MSG)
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         InterconnectLinkTopologyFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
