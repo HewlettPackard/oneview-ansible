@@ -16,7 +16,7 @@
 import unittest
 
 from oneview_sas_interconnect import SasInterconnectModule, SAS_INTERCONNECT_NOT_FOUND, SAS_INTERCONNECT_NOTHING_TO_DO
-from utils import ModuleContructorTestCase
+from utils import ModuleContructorTestCase, ValidateEtagTestCase
 
 SAS_INTERCONNECT_NAME = "0000A66103, interconnect 4"
 SAS_INTERCONNECT_URI = '/rest/sas-interconnects/3518be0e-17c1-4189-8f81-83f3724f6155'
@@ -40,7 +40,7 @@ class StateCheck(object):
         )
 
 
-class SasInterconnectModuleSpec(unittest.TestCase, ModuleContructorTestCase):
+class SasInterconnectModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
