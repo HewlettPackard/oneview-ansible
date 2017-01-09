@@ -26,6 +26,17 @@
 
     - debug: var=ethernet_networks
 
+    - name: Gather paginated, sorted and filtered facts about Ethernet Networks
+      oneview_ethernet_network_facts:
+        config: "{{ config }}"
+        params:
+          - start: 0
+          - count: 3
+          - sort: 'name:descending'
+          - filter: "purpose=General"
+
+    - debug: var=ethernet_networks
+
     - name: Gather facts about an Ethernet Network by name
       oneview_ethernet_network_facts:
         config: "{{ config }}"
@@ -45,3 +56,4 @@
 
     - debug: var=enet_associated_profiles
     - debug: var=enet_associated_uplink_groups
+

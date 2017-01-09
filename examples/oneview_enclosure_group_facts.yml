@@ -26,6 +26,17 @@
 
     - debug: var=enclosure_groups
 
+    - name: Gather paginated, filtered and sorted facts about Enclosure Groups
+      oneview_enclosure_group_facts:
+        config: "{{ config }}"
+        params:
+          - start: 0
+          - count: 3
+          - sort: 'name:descending'
+          - filter: 'status=OK'
+
+    - debug: var=enclosure_groups
+
     - name: Gather facts about an Enclosure Group by name
       oneview_enclosure_group_facts:
         config: "{{ config }}"

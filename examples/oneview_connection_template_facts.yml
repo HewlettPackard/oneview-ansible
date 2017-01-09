@@ -26,6 +26,16 @@
 
     - debug: var=connection_templates
 
+    - name: Gather paginated, filtered and sorted facts about  Connection Template
+      oneview_connection_template_facts:
+        config: "{{ config }}"
+        params:
+          - start: 0
+          - count: 3
+          - sort: 'name:descending'
+          - filter: 'name=defaultConnectionTemplate'
+
+    - debug: var=connection_templates
 
     - name: Gather facts about a Connection Template by name
       oneview_connection_template_facts:

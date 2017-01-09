@@ -32,6 +32,16 @@
 
     - debug: msg="{{interconnects | map(attribute='name') | list }}"
 
+    - name: Gather paginated, filtered and sorted facts about Interconnects
+      oneview_interconnect_facts:
+        config: "{{ config }}"
+        params:
+          - start: 0
+          - count: 5
+          - sort: 'name:descending'
+          - filter: "enclosureName='0000A66101'"
+
+    - debug: var=interconnects
 
     - name: Gather facts about the interconnect that matches the specified name
       oneview_interconnect_facts:

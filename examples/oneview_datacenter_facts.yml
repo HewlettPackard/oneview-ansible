@@ -26,6 +26,16 @@
 
     - debug: var=datacenters
 
+    - name: Gather paginated, filtered and sorted facts about Data Centers
+      oneview_datacenter_facts:
+        config: "{{ config }}"
+        params:
+          - start: 0
+          - count: 3
+          - sort: 'name:descending'
+          - filter: 'state=Unmanaged'
+
+    - debug: var=datacenters
 
     - name: Gather facts about a Data Center by name
       oneview_datacenter_facts:

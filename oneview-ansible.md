@@ -1266,6 +1266,7 @@ Retrieve facts about Connection Templates of the OneView.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Connection Template name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Connection Template related resources. Options allowed: defaultConnectionTemplate  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -1276,6 +1277,17 @@ Retrieve facts about Connection Templates of the OneView.
   oneview_connection_template_facts:
     config: "{{ config }}"
   delegate_to: localhost
+- debug: var=connection_templates
+
+- name: Gather paginated, filtered and sorted facts about Connection Templates
+  oneview_connection_template_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'name=defaultConnectionTemplate'
+
 - debug: var=connection_templates
 
 - name: Gather facts about a Connection Template by name
@@ -1429,6 +1441,7 @@ Retrieve facts about Data Centers of the OneView.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Data Center name.  |
 | options  |   No  |  | |  Retrieve additional facts. Options available: 'visualContent'  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -1442,6 +1455,16 @@ Retrieve facts about Data Centers of the OneView.
 
 - debug: var=datacenters
 
+- name: Gather paginated, filtered and sorted facts about Data Centers
+  oneview_datacenter_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'state=Unmanaged'
+
+- debug: var=datacenters
 
 - name: Gather facts about a Data Center by name
   oneview_datacenter_facts:
@@ -1586,6 +1609,17 @@ Retrieve the facts about one or more of the OneView Drive Enclosures.
 - name: Gather facts about all Drive Enclosures
   oneview_drive_enclosure_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=drive_enclosures
+
+- name: Gather paginated, filtered and sorted facts about Drive Enclosures
+  oneview_drive_enclosure_facts:
+    config: "{{ config_file_path }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'status=Warning'
 
 - debug: var=drive_enclosures
 
@@ -1859,6 +1893,7 @@ Retrieve facts about one or more Enclosures.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Enclosure name.  |
 | options  |   No  |  | |  List with options to gather additional facts about an Enclosure and related resources. Options allowed: script, environmentalConfiguration, and utilization. For the option utilization, you can provide specific parameters.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -1868,6 +1903,17 @@ Retrieve facts about one or more Enclosures.
 - name: Gather facts about all Enclosures
   oneview_enclosure_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=enclosures
+
+- name: Gather paginated, filtered and sorted facts about Enclosures
+  oneview_enclosure_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'status=OK'
 
 - debug: var=enclosures
 
@@ -2032,6 +2078,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Enclosure Group name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Enclosure Group. Options allowed: 'configuration_script' Gets the configuration script for an Enclosure Group.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -2042,6 +2089,17 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
   oneview_enclosure_group_facts:
     config: "{{ config_file_path }}"
   delegate_to: localhost
+
+- debug: var=enclosure_groups
+
+- name: Gather paginated, filtered and sorted facts about Enclosure Groups
+  oneview_enclosure_group_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'status=OK'
 
 - debug: var=enclosure_groups
 
@@ -2199,6 +2257,7 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Ethernet Network name.  |
 | options  |   No  |  | |  List with options to gather additional facts about an Ethernet Network and related resources. Options allowed: associatedProfiles and associatedUplinkGroups.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -2208,6 +2267,17 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
 - name: Gather facts about all Ethernet Networks
   oneview_ethernet_network_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=ethernet_networks
+
+- name: Gather paginated and filtered facts about Ethernet Networks
+  oneview_ethernet_network_facts:
+    config: "{{ config_file_path }}"
+    params:
+      - start: 1
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'purpose=General'
 
 - debug: var=ethernet_networks
 
@@ -2326,6 +2396,7 @@ Retrieve the facts about one or more of the OneView Fabrics.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Fabric name.  |
 | options  |   No  |  | |  List with options to gather additional facts about an Fabrics and related resources. Options allowed: reservedVlanRange.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -2335,6 +2406,17 @@ Retrieve the facts about one or more of the OneView Fabrics.
 - name: Gather facts about all Fabrics
   oneview_fabric_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=fabrics
+
+- name: Gather paginated, filtered and sorted facts about Fabrics
+  oneview_fabric_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'name=DefaultFabric'
 
 - debug: var=fabrics
 
@@ -2459,6 +2541,7 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Fibre Channel Network name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -2469,6 +2552,16 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks.
   oneview_fc_network_facts:
     config: "{{ config_file_path }}"
 
+- debug: var=fc_networks
+
+- name: Gather paginated, filtered and sorted facts about Fibre Channel Networks
+  oneview_fc_network_facts:
+    config: "{{ config }}"
+    params:
+      - start: 1
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'fabricType=FabricAttach'
 - debug: var=fc_networks
 
 - name: Gather facts about a Fibre Channel Network by name
@@ -2575,6 +2668,7 @@ Retrieve the facts about one or more of the OneView FCoE Networks.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  FCoE Network name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -2584,6 +2678,17 @@ Retrieve the facts about one or more of the OneView FCoE Networks.
 - name: Gather facts about all FCoE Networks
   oneview_fcoe_network_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=fcoe_networks
+
+- name: Gather paginated, filtered and sorted facts about FCoE Networks
+  oneview_fcoe_network_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'vlanId=2'
 
 - debug: var=fcoe_networks
 
@@ -2725,6 +2830,7 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Firmware driver name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -2734,6 +2840,16 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 - name: Gather facts about all Firmware Drivers
   oneview_firmware_driver_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=firmware_drivers
+
+- name: Gather paginated, filtered and sorted facts about Firmware Drivers
+  oneview_firmware_driver_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
 
 - debug: var=firmware_drivers
 
@@ -2846,6 +2962,7 @@ Retrieve facts about one or more of the OneView Interconnects.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Interconnect name  |
 | options  |   No  |  | |  List with options to gather additional facts about Interconnect. Options allowed: 'nameServers' gets the named servers for an interconnect. 'statistics' gets the statistics from an interconnect. 'portStatistics' gets the statistics for the specified port name on an interconnect. 'subPortStatistics' gets the subport statistics on an interconnect.  To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be ignored.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -2858,6 +2975,16 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 - debug: var=interconnects
 
+- name: Gather paginated, filtered and sorted facts about Interconnects
+  oneview_interconnect_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 5
+      - sort: 'name:descending'
+      - filter: "enclosureName='0000A66101'"
+
+- debug: var=interconnects
 
 - name: Gather facts about the interconnect that matches the specified name
   oneview_interconnect_facts:

@@ -16,8 +16,10 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -39,6 +41,15 @@ options:
         - Path to a .json configuration file containing the OneView client configuration.
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
+      required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
       required: false
     name:
       description:
@@ -63,6 +74,16 @@ EXAMPLES = '''
 
 - debug: var=datacenters
 
+- name: Gather paginated, filtered and sorted facts about Data Centers
+  oneview_datacenter_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'state=Unmanaged'
+
+- debug: var=datacenters
 
 - name: Gather facts about a Data Center by name
   oneview_datacenter_facts:
@@ -112,7 +133,12 @@ class DatacenterFactsModule(object):
         "options": {
             "required": False,
             "type": 'list'
-        }}
+        },
+        "params": {
+            "required": False,
+            "type": 'list'
+        },
+    }
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
@@ -140,7 +166,9 @@ class DatacenterFactsModule(object):
 
                 ansible_facts['datacenters'] = datacenters
             else:
-                ansible_facts['datacenters'] = client.get_all()
+                params = self.module.params.get('params')
+                get_all_params = transform_list_to_dict(params) if params else {}
+                ansible_facts['datacenters'] = client.get_all(**get_all_params)
 
             self.module.exit_json(changed=False,
                                   ansible_facts=ansible_facts)

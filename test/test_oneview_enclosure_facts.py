@@ -15,11 +15,10 @@
 ###
 
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_enclosure_facts import EnclosureFactsModule
-from utils import create_ansible_mock
+from test.utils import ParamsTestCase
+from test.utils import ModuleContructorTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -66,233 +65,133 @@ ENCLOSURE_ENVIRONMENTAL_CONFIG = {
 }
 
 
-class EnclosureFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_enclosure_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class EnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, ParamsTestCase):
+    def setUp(self):
+        self.configure_mocks(self, EnclosureFactsModule)
+        self.enclosures = self.mock_ov_client.enclosures
+        ParamsTestCase.configure_client_mock(self, self.enclosures)
 
-        EnclosureFactsModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_enclosure_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        EnclosureFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class EnclosureFactsSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_enclosure_facts.AnsibleModule')
-    def test_should_get_all_enclosures(self, mock_ansible_module,
-                                       mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.enclosures.get_all.return_value = PRESENT_ENCLOSURES
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_all_enclosures(self):
+        self.enclosures.get_all.return_value = PRESENT_ENCLOSURES
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         EnclosureFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(enclosures=(PRESENT_ENCLOSURES))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_enclosure_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.enclosures.get_all.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_all_raises_exception(self):
+        self.enclosures.get_all.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         EnclosureFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_enclosure_facts.AnsibleModule')
-    def test_should_get_enclosure_by_name(self, mock_ansible_module,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.enclosures.get_by.return_value = PRESENT_ENCLOSURES
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_enclosure_by_name(self):
+        self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         EnclosureFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(enclosures=(PRESENT_ENCLOSURES))
+
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_enclosure_facts.AnsibleModule')
-    def test_should_fail_when_get_by_name_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.enclosures.get_by.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_by_name_raises_exception(self):
+        self.enclosures.get_by.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         EnclosureFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_enclosure_facts.AnsibleModule')
-    def test_should_get_enclosure_by_name_with_options(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.enclosures.get_by.return_value = PRESENT_ENCLOSURES
-        mock_ov_instance.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
-        mock_ov_instance.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
-        mock_ov_instance.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
+    def test_should_get_enclosure_by_name_with_options(self):
+        self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
+        self.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
+        self.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
+        self.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         EnclosureFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(enclosures=PRESENT_ENCLOSURES,
                                enclosure_script=ENCLOSURE_SCRIPT,
                                enclosure_environmental_configuration=ENCLOSURE_ENVIRONMENTAL_CONFIG,
                                enclosure_utilization=ENCLOSURE_UTILIZATION)
+
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_enclosure_facts.AnsibleModule')
-    def test_should_fail_when_get_script_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.enclosures.get_by.return_value = PRESENT_ENCLOSURES
-        mock_ov_instance.enclosures.get_script.side_effect = Exception(ERROR_MSG)
-        mock_ov_instance.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
-        mock_ov_instance.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
+    def test_should_fail_when_get_script_raises_exception(self):
+        self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
+        self.enclosures.get_script.side_effect = Exception(ERROR_MSG)
+        self.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
+        self.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         EnclosureFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_enclosure_facts.AnsibleModule')
-    def test_should_fail_when_get_utilization_raises_exception(self, mock_ansible_module,
-                                                               mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.enclosures.get_by.return_value = PRESENT_ENCLOSURES
-        mock_ov_instance.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
-        mock_ov_instance.enclosures.get_utilization.side_effect = Exception(ERROR_MSG)
-        mock_ov_instance.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
+    def test_should_fail_when_get_utilization_raises_exception(self):
+        self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
+        self.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
+        self.enclosures.get_utilization.side_effect = Exception(ERROR_MSG)
+        self.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         EnclosureFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_enclosure_facts.AnsibleModule')
-    def test_should_fail_when_get_environmental_configuration_raises_exception(self, mock_ansible_module,
-                                                                               mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.enclosures.get_by.return_value = PRESENT_ENCLOSURES
-        mock_ov_instance.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
-        mock_ov_instance.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
-        mock_ov_instance.enclosures.get_environmental_configuration.side_effect = Exception(ERROR_MSG)
+    def test_should_fail_when_get_environmental_configuration_raises_exception(self):
+        self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
+        self.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
+        self.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
+        self.enclosures.get_environmental_configuration.side_effect = Exception(ERROR_MSG)
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         EnclosureFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_enclosure_facts.AnsibleModule')
-    def test_should_get_all_utilization_data(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.enclosures.get_by.return_value = PRESENT_ENCLOSURES
-        mock_ov_instance.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
-        mock_ov_instance.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
-        mock_ov_instance.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
+    def test_should_get_all_utilization_data(self):
+        self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
+        self.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
+        self.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
+        self.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         EnclosureFactsModule().run()
 
-        mock_ov_instance.enclosures.get_utilization.assert_called_once_with(PRESENT_ENCLOSURES[0]['uri'],
-                                                                            fields='',
-                                                                            filter='',
-                                                                            view='',
-                                                                            refresh='')
+        self.enclosures.get_utilization.assert_called_once_with(PRESENT_ENCLOSURES[0]['uri'], fields='', filter='',
+                                                                view='', refresh='')
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_enclosure_facts.AnsibleModule')
-    def test_should_get_utilization_with_parameters(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.enclosures.get_by.return_value = PRESENT_ENCLOSURES
-        mock_ov_instance.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
-        mock_ov_instance.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
-        mock_ov_instance.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
+    def test_should_get_utilization_with_parameters(self):
+        self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
+        self.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
+        self.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
+        self.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_UTILIZATION_WITH_PARAMS)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_UTILIZATION_WITH_PARAMS
 
         EnclosureFactsModule().run()
 
         date_filter = ["startDate=2016-06-30T03:29:42.000Z", "endDate=2016-07-01T03:29:42.000Z"]
 
-        mock_ov_instance.enclosures.get_utilization.assert_called_once_with(PRESENT_ENCLOSURES[0]['uri'],
-                                                                            fields='AveragePower',
-                                                                            filter=date_filter,
-                                                                            view='day',
-                                                                            refresh=True)
+        self.enclosures.get_utilization.assert_called_once_with(
+            PRESENT_ENCLOSURES[0]['uri'], fields='AveragePower', filter=date_filter, view='day', refresh=True)
 
 
 if __name__ == '__main__':

@@ -17,6 +17,7 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import transform_list_to_dict
@@ -44,6 +45,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Ethernet Network name.
@@ -64,6 +74,17 @@ EXAMPLES = '''
 - name: Gather facts about all Ethernet Networks
   oneview_ethernet_network_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=ethernet_networks
+
+- name: Gather paginated and filtered facts about Ethernet Networks
+  oneview_ethernet_network_facts:
+    config: "{{ config_file_path }}"
+    params:
+      - start: 1
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'purpose=General'
 
 - debug: var=ethernet_networks
 
@@ -110,7 +131,8 @@ class EthernetNetworkFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='list')
     )
 
     def __init__(self):
@@ -172,7 +194,10 @@ class EthernetNetworkFactsModule(object):
         return self.oneview_client.ethernet_networks.get_by('name', name)
 
     def __get_all(self):
-        return self.oneview_client.ethernet_networks.get_all()
+        get_all_params = {}
+        if self.module.params.get('params'):
+            get_all_params = transform_list_to_dict(self.module.params['params'])
+        return self.oneview_client.ethernet_networks.get_all(**get_all_params)
 
 
 def main():

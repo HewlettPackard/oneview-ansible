@@ -26,6 +26,17 @@
       delegate_to: localhost
     - debug: var=fabrics
 
+    - name: Gather paginated, filtered and sorted facts about Fabrics
+      oneview_fabric_facts:
+        config: "{{ config }}"
+        params:
+          - start: 0
+          - count: 3
+          - sort: 'name:descending'
+          - filter: 'name=DefaultFabric'
+
+    - debug: var=fabrics
+
     - name: Gather facts about a Fabric by name
       oneview_fabric_facts:
         config: "{{ config }}"

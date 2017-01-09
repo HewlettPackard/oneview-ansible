@@ -19,6 +19,7 @@
 from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -42,6 +43,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - FCoE Network name.
@@ -57,6 +67,17 @@ EXAMPLES = '''
 - name: Gather facts about all FCoE Networks
   oneview_fcoe_network_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=fcoe_networks
+
+- name: Gather paginated, filtered and sorted facts about FCoE Networks
+  oneview_fcoe_network_facts:
+    config: "{{ config }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: 'vlanId=2'
 
 - debug: var=fcoe_networks
 
@@ -81,7 +102,8 @@ class FcoeNetworkFactsModule(object):
 
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='list')
     )
 
     def __init__(self):
@@ -112,7 +134,10 @@ class FcoeNetworkFactsModule(object):
                               ansible_facts=dict(fcoe_networks=fcoe_network))
 
     def __get_all(self):
-        fcoe_network = self.oneview_client.fcoe_networks.get_all()
+        params = self.module.params.get('params')
+        get_all_params = transform_list_to_dict(params) if params else {}
+
+        fcoe_network = self.oneview_client.fcoe_networks.get_all(**get_all_params)
 
         self.module.exit_json(changed=False,
                               ansible_facts=dict(fcoe_networks=fcoe_network))
