@@ -16,10 +16,14 @@
 import unittest
 from copy import deepcopy
 
-from oneview_logical_interconnect_group import LogicalInterconnectGroupModule, LIG_CREATED, LIG_ALREADY_EXIST, \
-    LIG_UPDATED, LIG_DELETED, \
-    LIG_ALREADY_ABSENT, INTERCONNECT_TYPE_NOT_FOUND
-from test.utils import PreloadedMocksBaseTestCase, ModuleContructorTestCase
+from oneview_logical_interconnect_group import (LogicalInterconnectGroupModule,
+                                                LIG_CREATED,
+                                                LIG_ALREADY_EXIST,
+                                                LIG_UPDATED,
+                                                LIG_DELETED,
+                                                LIG_ALREADY_ABSENT,
+                                                INTERCONNECT_TYPE_NOT_FOUND)
+from test.utils import PreloadedMocksBaseTestCase, ModuleContructorTestCase, ValidateEtagTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -90,10 +94,13 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class LogicalInterconnectGroupClientConfigurationSpec(unittest.TestCase, ModuleContructorTestCase):
+class LogicalInterconnectGroupClientConfigurationSpec(unittest.TestCase,
+                                                      ModuleContructorTestCase,
+                                                      ValidateEtagTestCase):
     """
-    Test the module constructor
     ModuleContructorTestCase has common tests for class constructor and main function
+    ValidateEtagTestCase has common tests for the validate_etag attribute, also provides the mocks used in this test
+    case.
     """
 
     def setUp(self):

@@ -47,8 +47,10 @@ LOGICAL_INTERCONNECT = {'uri': '/rest/logical-interconnects/id',
 
 class LogicalInterconnectModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
     """
-    Test the module constructor
+    Test the module constructor and shared functions
     ModuleContructorTestCase has common tests for class constructor and main function
+    ValidateEtagTestCase has common tests for the validate_etag attribute, also provides the mocks used in this test
+    case.
     """
 
     def setUp(self):
@@ -71,8 +73,7 @@ class LogicalInterconnectModuleSpec(unittest.TestCase, ModuleContructorTestCase,
 
 class LogicalInterconnectCompliantStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     """
-    ValidateEtagTestCase has common tests for the validate_etag attribute,
-    also provides the mocks used in this test case.
+    PreloadedMocksBaseTestCase provides the mocks used in this test case.
     """
     PARAMS_COMPLIANCE = dict(
         config='config.json',
