@@ -17,6 +17,7 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
@@ -66,9 +67,15 @@ options:
                   'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
                   'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated', 'firmware_installed']
     data:
-      description:
-        - List with the options.
-      required: true
+        description:
+            - List with the options.
+        required: true
+    validate_etag:
+        description:
+            - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
+              for the resource matches the ETag provided in the data.
+        default: true
+        choices: ['true', 'false']
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -230,7 +237,11 @@ class LogicalInterconnectModule(object):
                      'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated',
                      'firmware_installed']
         ),
-        data=dict(required=True, type='dict')
+        data=dict(required=True, type='dict'),
+        validate_etag=dict(
+            required=False,
+            type='bool',
+            default=True)
     )
 
     def __init__(self):
@@ -248,6 +259,9 @@ class LogicalInterconnectModule(object):
         data = self.module.params['data']
 
         try:
+            if not self.module.params.get('validate_etag'):
+                self.oneview_client.connection.disable_etag_validation()
+
             resource = self.__get_by_name(data)
 
             if not resource:
@@ -328,8 +342,7 @@ class LogicalInterconnectModule(object):
         if resource_compare(resource['ethernetSettings'], ethernet_settings_merged) and \
                 resource_compare(resource['fcoeSettings'], fcoe_settings_merged):
 
-            self.module.exit_json(changed=False,
-                                  msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
+            return False, LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED, dict(logical_interconnect=resource)
         else:
             settings = {
                 'ethernetSettings': ethernet_settings_merged,
