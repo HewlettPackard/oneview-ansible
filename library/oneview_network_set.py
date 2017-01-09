@@ -43,15 +43,21 @@ options:
           environment variables.
       required: false
     state:
-        description:
-            - Indicates the desired state for the Network Set resource.
-              'present' ensures data properties are compliant with OneView.
-              'absent' removes the resource from OneView, if it exists.
-        choices: ['present', 'absent']
+      description:
+        - Indicates the desired state for the Network Set resource.
+          'present' ensures data properties are compliant with OneView.
+          'absent' removes the resource from OneView, if it exists.
+      choices: ['present', 'absent']
     data:
       description:
         - List with the Network Set properties.
       required: true
+    validate_etag:
+      description:
+        - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
+          for the resource matches the ETag provided in the data.
+      default: true
+      choices: ['true', 'false']
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -112,7 +118,11 @@ class NetworkSetModule(object):
             required=True,
             choices=['present', 'absent']
         ),
-        data=dict(required=True, type='dict')
+        data=dict(required=True, type='dict'),
+        validate_etag=dict(
+            required=False,
+            type='bool',
+            default=True)
     )
 
     def __init__(self):
@@ -130,6 +140,9 @@ class NetworkSetModule(object):
         data = self.module.params['data'].copy()
 
         try:
+            if not self.module.params.get('validate_etag'):
+                self.oneview_client.connection.disable_etag_validation()
+
             if state == 'present':
                 self.__present(data)
             elif state == 'absent':

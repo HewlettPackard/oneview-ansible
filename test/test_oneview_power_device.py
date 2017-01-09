@@ -96,7 +96,7 @@ PARAMS_FOR_UID_STATE_SET = dict(
 )
 
 
-class PowerDevicePresentStateSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class PowerDeviceModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
