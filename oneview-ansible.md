@@ -3147,6 +3147,7 @@ Retrieve facts about one or more of the OneView Interconnect Types.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Interconnect Type name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -3156,6 +3157,17 @@ Retrieve facts about one or more of the OneView Interconnect Types.
 - name: Gather facts about all Interconnect Types
   oneview_interconnect_type_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=interconnect_types
+
+- name: Gather paginated, filtered and sorted facts about Interconnect Types
+  oneview_interconnect_type_facts:
+    config: "{{ config_file_path }}"
+    params:
+      - start: 0
+      - count: 3
+      - sort: 'name:descending'
+      - filter: "maximumFirmwareVersion='4000.99'"
 
 - debug: var=interconnect_types
 
