@@ -28,7 +28,7 @@ DOCUMENTATION = '''
 module: oneview_server_hardware_type
 short_description: Manage OneView Server Hardware Type resources.
 description:
-    - "Provides an interface to manage Server Hardware Type resources. Can update, remove."
+    - "Provides an interface to manage Server Hardware Type resources. Can update, and remove."
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"

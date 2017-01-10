@@ -56,7 +56,7 @@ options:
           Options allowed:
           'hostTypes' gets the list of supported host types.
           'storagePools' gets a list of storage pools belonging to the specified storage system."
-        - "To gather facts about 'storagePools' it is required inform either the argument 'name' or 'ip_hostname'.
+        - "To gather facts about 'storagePools' it is required to inform either the argument 'name' or 'ip_hostname'.
           Otherwise, this option will be ignored."
       required: false
 notes:

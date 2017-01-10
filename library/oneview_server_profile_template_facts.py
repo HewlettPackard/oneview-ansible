@@ -50,7 +50,7 @@ options:
     options:
       description:
         - "List with options to gather additional facts about Server Profile Template resources.
-          Options allowed: new_profile and transformation"
+          Options allowed: new_profile and transformation."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:

@@ -27,12 +27,12 @@ except ImportError:
 DOCUMENTATION = '''
 ---
 module: oneview_storage_volume_attachment_facts
-short_description: Retrieve facts about Storage Volume Attachments of the OneView.
+short_description: Retrieve facts about the OneView Storage Volume Attachments.
 description:
-    - "Retrieve facts about Storage Volume Attachments of the OneView. To gather facts about a specific Storage Volume
-      Attachment is required inform the param 'storageVolumeAttachmentUri'. It is also possible retrieve a specific
-      Storage Volume Attachment by the Server Profile and the Volume. For this option is required inform the param
-      'serverProfileName' and the param 'storageVolumeName' or 'storageVolumeUri'."
+    - "Retrieve facts about the OneView Storage Volume Attachments. To gather facts about a specific Storage Volume
+      Attachment it is required to inform the param 'storageVolumeAttachmentUri'. It is also possible to retrieve a
+      specific Storage Volume Attachment by the Server Profile and the Volume. For this option, it is required to inform
+      the param 'serverProfileName' and the param 'storageVolumeName' or 'storageVolumeUri'."
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"

@@ -46,7 +46,7 @@ options:
       required: false
     options:
       description:
-        - "Retrieve additional facts. Options available: 'connectableVolumeTemplates'"
+        - "Retrieve additional facts. Options available: 'connectableVolumeTemplates'."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:

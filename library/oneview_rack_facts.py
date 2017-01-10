@@ -29,7 +29,7 @@ module: oneview_rack_facts
 short_description: Retrieve facts about Rack resources.
 description:
     - Gets a list of rack resources. Filter by name can be used to get a specific Rack. If a name is specified, it
-      is  allowed retrieve information about the device topology.
+      is  allowed to retrieve information about the device topology.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
@@ -47,7 +47,7 @@ options:
       required: false
     options:
       description:
-        - "Retrieve additional facts. Options available: 'deviceTopology'"
+        - "Retrieve additional facts. Options available: 'deviceTopology'."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:

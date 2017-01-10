@@ -47,8 +47,8 @@ options:
               'present' will ensure data properties are compliant with OneView.
               'absent' will remove the resource from OneView, if it exists.
               The key used to find the resource to perform the operation is a compound key, that consists of
-              the name of the uplink set and the URI (or name) of the Logical Interconnect combined. You can choose set
-              the Logical Interconnect by logicalInterconnectUri or logicalInterconnectName.
+              the name of the uplink set and the URI (or name) of the Logical Interconnect combined. You can choose to
+              set the Logical Interconnect by logicalInterconnectUri or logicalInterconnectName.
         choices: ['present', 'absent']
     data:
       description:

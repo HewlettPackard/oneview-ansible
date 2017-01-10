@@ -28,9 +28,9 @@ except ImportError:
 DOCUMENTATION = '''
 ---
 module: image_streamer_plan_script
-short_description: Manage Image Streamer Plan Script resources.
+short_description: Manage the Image Streamer Plan Script resources.
 description:
-    - "Provides an interface to manage Image Streamer Plan Script. Can create, update, remove."
+    - "Provides an interface to manage the Image Streamer Plan Script. Can create, update, and remove."
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.1"

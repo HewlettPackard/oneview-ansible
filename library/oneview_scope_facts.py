@@ -26,7 +26,7 @@ except ImportError:
 DOCUMENTATION = '''
 ---
 module: oneview_scope_facts
-short_description: Retrieve facts about one or more of the OneView Scope.
+short_description: Retrieve facts about one or more of the OneView Scopes.
 description:
     - Retrieve facts about one or more of the Scopes from OneView.
 requirements:

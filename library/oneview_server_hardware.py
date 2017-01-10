@@ -49,9 +49,9 @@ options:
               'power_state_set' will set the power state of the Server Hardware.
               'refresh_state_set will set the refresh state of the Server Hardware.
               'ilo_firmware_version_updated' will update the iLO firmware version of the Server Hardware.
-              'ilo_state_reset' will reset the iLo state.
-              'uid_state_on' will set on the UID state if necessary.
-              'uid_state_off' will set on the UID state if necessary.
+              'ilo_state_reset' will reset the iLO state.
+              'uid_state_on' will set on the UID state, if necessary.
+              'uid_state_off' will set on the UID state, if necessary.
               'environmental_configuration_set' will set the environmental configuration of the Server Hardware.
         choices: ['present', 'absent', 'power_state_set', 'refresh_state_set', 'ilo_firmware_version_updated',
                   'ilo_state_reset','uid_state_on', 'uid_state_off', environmental_configuration_set]
@@ -140,7 +140,8 @@ EXAMPLES = '''
 RETURN = '''
 server_hardware:
     description: Has the OneView facts about the Server Hardware.
-    returned: On states 'present', 'power_state_set', 'refresh_state_set', 'ilo_firmware_version_updated'. Can be null.
+    returned: On states 'present', 'power_state_set', 'refresh_state_set', and 'ilo_firmware_version_updated'.
+              Can be null.
     type: complex
 '''
 

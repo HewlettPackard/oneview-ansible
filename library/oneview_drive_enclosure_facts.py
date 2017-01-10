@@ -50,9 +50,8 @@ options:
     options:
       description:
         - "List with options to gather additional facts about Drive Enclosure related resources.
-          Options allowed: portMap"
-        - "To gather additional facts it is required inform the Drive Enclosure name. Otherwise, these options will be
-          ignored."
+          Options allowed: portMap. To gather additional facts it is required to inform the Drive Enclosure name.
+          Otherwise, these options will be ignored."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:

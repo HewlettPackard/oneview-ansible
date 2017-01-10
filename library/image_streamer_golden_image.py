@@ -30,7 +30,7 @@ DOCUMENTATION = '''
 module: image_streamer_golden_image
 short_description: Manage Image Streamer Golden Image resources.
 description:
-    - "Provides an interface to manage Image Streamer Golden Image. Can create, add, update, remove."
+    - "Provides an interface to manage Image Streamer Golden Image. Can create, add, update, and remove."
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.1"

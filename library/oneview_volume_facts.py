@@ -115,7 +115,7 @@ attachable_volumes:
     type: complex
 
 extra_managed_volume_paths:
-    description: Has all the facts about the extra managed storage volume paths from the appliance
+    description: Has all the facts about the extra managed storage volume paths from the appliance.
     returned: When requested, but can be null.
     type: complex
 '''

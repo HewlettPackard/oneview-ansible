@@ -43,7 +43,7 @@ options:
       required: false
     name:
       description:
-        - Logical Downlink name
+        - Logical Downlink name.
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:

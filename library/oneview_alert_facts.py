@@ -43,7 +43,7 @@ options:
     params:
       description:
         - "List with parameters to help filter the alerts.
-          Params allowed: count, fields, filter, query, sort, start, and view"
+          Params allowed: count, fields, filter, query, sort, start, and view."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:

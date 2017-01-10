@@ -29,7 +29,7 @@ DOCUMENTATION = '''
 module: image_streamer_deployment_plan_facts
 short_description: Retrieve facts about the Image Streamer Deployment Plans.
 description:
-    - Retrieve facts about one or more of the Image Streamer Deployment Plan.
+    - Retrieve facts about one or more of the Image Streamer Deployment Plans.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.1"

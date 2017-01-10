@@ -44,7 +44,7 @@ options:
       required: false
     state:
         description:
-            - Indicates the desired state for the SAS Logical Interconnect resource.
+            - Indicates the desired state for the SAS Logical Interconnect resources.
               'compliant' brings the list of SAS Logical Interconnect back to a consistent state.
               'configuration_updated' asynchronously applies or re-applies the SAS Logical Interconnect configuration
               to all managed interconnects.

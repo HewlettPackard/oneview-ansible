@@ -27,9 +27,9 @@ except ImportError:
 DOCUMENTATION = '''
 ---
 module: oneview_connection_template
-short_description: Manage OneView Connection Template resources.
+short_description: Manage the OneView Connection Template resources.
 description:
-    - "Provides an interface to manage Connection Template resources. Can just update."
+    - "Provides an interface to manage the Connection Template resources. Can update."
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"

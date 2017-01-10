@@ -50,7 +50,7 @@ options:
       description:
         - "List with options to gather additional facts about Server Hardware related resources.
           Options allowed: bios, javaRemoteConsoleUrl, environmentalConfig, iloSsoUrl, remoteConsoleUrl,
-          utilization, firmware, firmwares"
+          utilization, firmware, and firmwares."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -144,7 +144,7 @@ server_hardware_env_config:
     type: complex
 
 server_hardware_java_remote_console_url:
-    description: Has the facts about the Server Hardware java console url.
+    description: Has the facts about the Server Hardware java remote console url.
     returned: When requested, but can be null.
     type: complex
 

@@ -28,9 +28,9 @@ except ImportError:
 DOCUMENTATION = '''
 ---
 module: image_streamer_artifact_bundle_facts
-short_description: Retrieve facts about Artifact Bundle.
+short_description: Retrieve facts about the Artifact Bundle.
 description:
-    - "Retrieve facts about Artifact Bundle."
+    - "Retrieve facts about the Artifact Bundle."
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.1"
@@ -49,9 +49,9 @@ options:
       required: false
     options:
       description:
-        - "List with options to gather additional facts about Artifact Bundle.
+        - "List with options to gather additional facts about the Artifact Bundle.
           Options allowed:
-          'allBackups' gets the list of backups for Artifact Bundles.
+          'allBackups' gets the list of backups for the Artifact Bundles.
           'backupForAnArtifactBundle' gets the list of backups for the Artifact Bundle."
       required: false
 notes:
@@ -99,17 +99,17 @@ EXAMPLES = '''
 RETURN = '''
 artifact_bundles:
     description: The list of Artifact Bundles.
-    returned: Always, but can be null.
+    returned: Always, but can be also null.
     type: list
 
 artifact_bundle_backups:
-    description: The list of backups for Artifact Bundles.
-    returned: When requested, but can be null.
+    description: The list of backups for the Artifact Bundles.
+    returned: When requested, but can also be null.
     type: list
 
 backup_for_artifact_bundle:
     description: The backup for an Artifact Bundle.
-    returned: When requested, but can be null.
+    returned: When requested, but can also be null.
     type: list
 '''
 

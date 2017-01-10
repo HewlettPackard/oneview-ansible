@@ -49,12 +49,12 @@ options:
               resource already exists, the update operation is non-idempotent, since it is always called even though
               the given options are compliant with the existent data. To change the name of the volume, a 'newName' in
               the data must be provided.
-              'absent' by default deletes a volume from OneView and storage system. When export_only is True, the
+              'absent' by default deletes a volume from OneView and the storage system. When export_only is True, the
               volume is removed only from OneView.
               'repaired' removes extra presentations from a specified volume on the storage system. This operation is
               non-idempotent.
               'snapshot_created' creates a snapshot for the volume specified. This operation is non-idempotent.
-              'snapshot_deleted' deletes a snapshot from OneView and storage system.
+              'snapshot_deleted' deletes a snapshot from OneView and the storage system.
         choices: ['present', 'absent', 'repaired', 'snapshot_created', 'snapshot_deleted']
     data:
       description:

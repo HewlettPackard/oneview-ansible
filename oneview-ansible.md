@@ -4,9 +4,9 @@
 
   * [hpe_icsp_os_deployment - Deploy the operating system on a server using HPE ICsp.](#hpe_icsp_os_deployment)
   * [hpe_icsp_server - Adds, removes and configures servers in ICsp.](#hpe_icsp_server)
-  * [image_streamer_artifact_bundle - Manage Artifact Bundle resource.](#image_streamer_artifact_bundle)
-  * [image_streamer_artifact_bundle_facts - Retrieve facts about Artifact Bundle.](#image_streamer_artifact_bundle_facts)
-  * [image_streamer_build_plan - Manage Image Stream OS Build Plan resources.](#image_streamer_build_plan)
+  * [image_streamer_artifact_bundle - Manage the Artifact Bundle resource.](#image_streamer_artifact_bundle)
+  * [image_streamer_artifact_bundle_facts - Retrieve facts about the Artifact Bundle.](#image_streamer_artifact_bundle_facts)
+  * [image_streamer_build_plan - Manages Image Stream OS Build Plan resources.](#image_streamer_build_plan)
   * [image_streamer_build_plan_facts - Retrieve facts about one or more of the Image Streamer Build Plans.](#image_streamer_build_plan_facts)
   * [image_streamer_deployment_group_facts - Retrieve facts about the Image Streamer Deployment Groups.](#image_streamer_deployment_group_facts)
   * [image_streamer_deployment_plan - Manage Image Streamer Deployment Plan resources.](#image_streamer_deployment_plan)
@@ -14,13 +14,13 @@
   * [image_streamer_golden_image - Manage Image Streamer Golden Image resources.](#image_streamer_golden_image)
   * [image_streamer_golden_image_facts - Retrieve facts about one or more of the Image Streamer Golden Image.](#image_streamer_golden_image_facts)
   * [image_streamer_os_volume_facts - Retrieve facts about the Image Streamer OS Volumes.](#image_streamer_os_volume_facts)
-  * [image_streamer_plan_script - Manage Image Streamer Plan Script resources.](#image_streamer_plan_script)
+  * [image_streamer_plan_script - Manage the Image Streamer Plan Script resources.](#image_streamer_plan_script)
   * [image_streamer_plan_script_facts - Retrieve facts about the Image Streamer Plan Scripts.](#image_streamer_plan_script_facts)
   * [oneview_alert_facts - Retrieve facts about the OneView Alerts.](#oneview_alert_facts)
-  * [oneview_connection_template - Manage OneView Connection Template resources.](#oneview_connection_template)
-  * [oneview_connection_template_facts - Retrieve facts about Connection Templates of the OneView.](#oneview_connection_template_facts)
+  * [oneview_connection_template - Manage the OneView Connection Template resources.](#oneview_connection_template)
+  * [oneview_connection_template_facts - Retrieve facts about the OneView Connection Templates.](#oneview_connection_template_facts)
   * [oneview_datacenter - Manage OneView Data Center resources.](#oneview_datacenter)
-  * [oneview_datacenters_facts - Retrieve facts about Data Centers of the OneView.](#oneview_datacenters_facts)
+  * [oneview_datacenters_facts - Retrieve facts about the OneView Data Centers.](#oneview_datacenters_facts)
   * [oneview_drive_enclosure - Manage OneView Drive Enclosure resources.](#oneview_drive_enclosure)
   * [oneview_drive_enclosure_facts - Retrieve the facts about one or more of the OneView Drive Enclosures.](#oneview_drive_enclosure_facts)
   * [oneview_enclosure - Manage OneView Enclosure resources.](#oneview_enclosure)
@@ -75,7 +75,7 @@
   * [oneview_sas_logical_jbod_attachment_facts - Retrieve facts about one or more of the OneView SAS Logical JBOD Attachments.](#oneview_sas_logical_jbod_attachment_facts)
   * [oneview_sas_logical_jbod_facts - Retrieve facts about one or more of the OneView SAS Logical JBODs.](#oneview_sas_logical_jbod_facts)
   * [oneview_scope - Manage OneView Scope resources.](#oneview_scope)
-  * [oneview_scope_facts - Retrieve facts about one or more of the OneView Scope.](#oneview_scope_facts)
+  * [oneview_scope_facts - Retrieve facts about one or more of the OneView Scopes.](#oneview_scope_facts)
   * [oneview_server_hardware - Manage OneView Server Hardware resources.](#oneview_server_hardware)
   * [oneview_server_hardware_facts - Retrieve facts about the OneView Server Hardwares.](#oneview_server_hardware_facts)
   * [oneview_server_hardware_type - Manage OneView Server Hardware Type resources.](#oneview_server_hardware_type)
@@ -89,7 +89,7 @@
   * [oneview_storage_system - Manage OneView Storage System resources.](#oneview_storage_system)
   * [oneview_storage_system_facts - Retrieve facts about the OneView Storage Systems.](#oneview_storage_system_facts)
   * [oneview_storage_volume_attachment - Provides an interface to remove extra presentations from a specified server profile.](#oneview_storage_volume_attachment)
-  * [oneview_storage_volume_attachment_facts - Retrieve facts about Storage Volume Attachments of the OneView.](#oneview_storage_volume_attachment_facts)
+  * [oneview_storage_volume_attachment_facts - Retrieve facts about the OneView Storage Volume Attachments.](#oneview_storage_volume_attachment_facts)
   * [oneview_storage_volume_template - Manage OneView Storage Volume Template resources.](#oneview_storage_volume_template)
   * [oneview_storage_volume_templates_facts - Retrieve facts about Storage Volume Templates of the OneView.](#oneview_storage_volume_templates_facts)
   * [oneview_switch - Provides an interface to remove ToR Switch resources.](#oneview_switch)
@@ -151,7 +151,7 @@ Deploy the operating system on a server using HPE ICsp.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| icsp_server   | Has the facts about the server that was provisioned with ICsp. |  When the module runs successfully. Can be null. |  complex |
+| icsp_server   | Has the facts about the server that was provisioned with ICsp. |  When the module runs successfully, but can be null. |  complex |
 
 
 
@@ -162,7 +162,7 @@ Deploy the operating system on a server using HPE ICsp.
 Adds, removes and configures servers in ICsp.
 
 #### Synopsis
- This module allows to add, remove and configure servers in Insight Control Server Provisioning (ICsp). A server, often referred to as a Target Server, in ICsp is a physical ProLiant server or a virtual machine that can have actions taken upon it.
+ This module allows you to add, remove and configure servers in the Insight Control Server Provisioning (ICsp). In ICsp, a server, often referred to as a Target Server, is a physical ProLiant server or a virtual machine that can have actions taken upon it.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -176,9 +176,9 @@ Adds, removes and configures servers in ICsp.
 | password  |   Yes  |  | |  ICsp password.  |
 | server_ipAddress  |   Yes  |  | |  The IP address of the iLO of the server.  |
 | server_password  |   Yes  |  | |  The password required to log into the server's iLO  |
-| server_personality_data  |   No  |  | |  Aditional data to send to ICsp.  |
+| server_personality_data  |   No  |  | |  Additional data to send to ICsp.  |
 | server_port  |   No  |  [443]  | |  The iLO port to use when logging in.  |
-| server_username  |   Yes  |  | |  The user name required to log into the server's iLO.  |
+| server_username  |   Yes  |  | |  The username required to log into the server's iLO.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>network_configured</li> </ul> |  Indicates the desired state for the ICsp server. 'present' will register the resource on ICsp. 'absent' will remove the resource from ICsp, if it exists. 'network_configured' will set the network configuration.  |
 | username  |   Yes  |  | |  ICsp username.  |
 
@@ -237,10 +237,10 @@ Adds, removes and configures servers in ICsp.
 
 
 ## image_streamer_artifact_bundle
-Manage Artifact Bundle resource.
+Manage the Artifact Bundle resource.
 
 #### Synopsis
- Provides an interface to manage Artifact Bundle. Can create, update, remove, and also, download, upload, extract
+ Provides an interface to manage the Artifact Bundle. Can create, update, remove, and download, upload, extract
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -252,7 +252,7 @@ Manage Artifact Bundle resource.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Artifact Bundle properties and its associated states.  |
-| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>downloaded</li>  <li>archive_downloaded</li>  <li>backup_uploaded</li>  <li>backup_created</li>  <li>extracted</li>  <li>backup_extracted</li> </ul> |  Indicates the desired state for the Artifact Bundle resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'downloaded' will download the Artifact Bundle to the file path provided. 'archive_downloaded' will download the Artifact Bundle archive to the file path provided. 'backup_uploaded' will upload the Backup of Artifact Bundle from the file path provided. 'backup_created' will create a Backup for Artifact Bundle. 'extracted' will extract an Artifact Bundle. 'backup_extracted' will extract an Artifact Bundle from Backup.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>downloaded</li>  <li>archive_downloaded</li>  <li>backup_uploaded</li>  <li>backup_created</li>  <li>extracted</li>  <li>backup_extracted</li> </ul> |  Indicates the desired state for the Artifact Bundle resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'downloaded' will download the Artifact Bundle to the file path provided. 'archive_downloaded' will download the Artifact Bundle archive to the file path provided. 'backup_uploaded' will upload the Backup for the Artifact Bundle from the file path provided. 'backup_created' will create a Backup for the Artifact Bundle. 'extracted' will extract an Artifact Bundle. 'backup_extracted' will extract an Artifact Bundle from the Backup.  |
 
 
  
@@ -370,10 +370,10 @@ Manage Artifact Bundle resource.
 
 
 ## image_streamer_artifact_bundle_facts
-Retrieve facts about Artifact Bundle.
+Retrieve facts about the Artifact Bundle.
 
 #### Synopsis
- Retrieve facts about Artifact Bundle.
+ Retrieve facts about the Artifact Bundle.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -385,7 +385,7 @@ Retrieve facts about Artifact Bundle.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Artifact Bundle.  |
-| options  |   No  |  | |  List with options to gather additional facts about Artifact Bundle. Options allowed: 'allBackups' gets the list of backups for Artifact Bundles. 'backupForAnArtifactBundle' gets the list of backups for the Artifact Bundle.  |
+| options  |   No  |  | |  List with options to gather additional facts about the Artifact Bundle. Options allowed: 'allBackups' gets the list of backups for the Artifact Bundles. 'backupForAnArtifactBundle' gets the list of backups for the Artifact Bundle.  |
 
 
  
@@ -433,9 +433,9 @@ Retrieve facts about Artifact Bundle.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| artifact_bundle_backups   | The list of backups for Artifact Bundles. |  When requested, but can be null. |  list |
-| artifact_bundles   | The list of Artifact Bundles. |  Always, but can be null. |  list |
-| backup_for_artifact_bundle   | The backup for an Artifact Bundle. |  When requested, but can be null. |  list |
+| artifact_bundle_backups   | The list of backups for the Artifact Bundles. |  When requested, but can also be null. |  list |
+| artifact_bundles   | The list of Artifact Bundles. |  Always, but can be also null. |  list |
+| backup_for_artifact_bundle   | The backup for an Artifact Bundle. |  When requested, but can also be null. |  list |
 
 
 #### Notes
@@ -449,10 +449,10 @@ Retrieve facts about Artifact Bundle.
 
 
 ## image_streamer_build_plan
-Manage Image Stream OS Build Plan resources.
+Manages Image Stream OS Build Plan resources.
 
 #### Synopsis
- Provides an interface to manage Image Stream OS Build Plans. Can create, update, remove.
+ Provides an interface to manage Image Stream OS Build Plans. Can create, update, and remove.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -638,7 +638,7 @@ Retrieve facts about the Image Streamer Deployment Groups.
 Manage Image Streamer Deployment Plan resources.
 
 #### Synopsis
- Provides an interface to manage Image Streamer Deployment Plans. Can create, update, remove.
+ Provides an interface to manage Image Streamer Deployment Plans. Can create, update, and remove.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -711,7 +711,7 @@ Manage Image Streamer Deployment Plan resources.
 Retrieve facts about the Image Streamer Deployment Plans.
 
 #### Synopsis
- Retrieve facts about one or more of the Image Streamer Deployment Plan.
+ Retrieve facts about one or more of the Image Streamer Deployment Plans.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -767,7 +767,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
 Manage Image Streamer Golden Image resources.
 
 #### Synopsis
- Provides an interface to manage Image Streamer Golden Image. Can create, add, update, remove.
+ Provides an interface to manage Image Streamer Golden Image. Can create, add, update, and remove.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -982,10 +982,10 @@ Retrieve facts about the Image Streamer OS Volumes.
 
 
 ## image_streamer_plan_script
-Manage Image Streamer Plan Script resources.
+Manage the Image Streamer Plan Script resources.
 
 #### Synopsis
- Provides an interface to manage Image Streamer Plan Script. Can create, update, remove.
+ Provides an interface to manage the Image Streamer Plan Script. Can create, update, and remove.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -1138,7 +1138,7 @@ Retrieve facts about the OneView Alerts.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| params  |   No  |  | |  List with parameters to help filter the alerts. Params allowed: count, fields, filter, query, sort, start, and view  |
+| params  |   No  |  | |  List with parameters to help filter the alerts. Params allowed: count, fields, filter, query, sort, start, and view.  |
 
 
  
@@ -1193,10 +1193,10 @@ Retrieve facts about the OneView Alerts.
 
 
 ## oneview_connection_template
-Manage OneView Connection Template resources.
+Manage the OneView Connection Template resources.
 
 #### Synopsis
- Provides an interface to manage Connection Template resources. Can just update.
+ Provides an interface to manage the Connection Template resources. Can update.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -1250,10 +1250,10 @@ Manage OneView Connection Template resources.
 
 
 ## oneview_connection_template_facts
-Retrieve facts about Connection Templates of the OneView.
+Retrieve facts about the OneView Connection Templates.
 
 #### Synopsis
- Retrieve facts about Connection Templates of the OneView.
+ Retrieve facts about the OneView Connection Templates.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -1265,7 +1265,7 @@ Retrieve facts about Connection Templates of the OneView.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Connection Template name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Connection Template related resources. Options allowed: defaultConnectionTemplate  |
+| options  |   No  |  | |  List with options to gather additional facts about Connection Template related resources. Options allowed: defaultConnectionTemplate.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
@@ -1331,7 +1331,7 @@ Retrieve facts about Connection Templates of the OneView.
 Manage OneView Data Center resources.
 
 #### Synopsis
- Provides an interface to manage Data Center resources. Can add, update, remove.
+ Provides an interface to manage Data Center resources. Can add, update, and remove.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -1425,10 +1425,10 @@ Manage OneView Data Center resources.
 
 
 ## oneview_datacenters_facts
-Retrieve facts about Data Centers of the OneView.
+Retrieve facts about the OneView Data Centers.
 
 #### Synopsis
- Retrieve facts about Data Centers of the OneView.
+ Retrieve facts about the OneView Data Centers.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -1440,7 +1440,7 @@ Retrieve facts about Data Centers of the OneView.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Data Center name.  |
-| options  |   No  |  | |  Retrieve additional facts. Options available: 'visualContent'  |
+| options  |   No  |  | |  Retrieve additional facts. Options available: 'visualContent'.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
@@ -1524,7 +1524,7 @@ Manage OneView Drive Enclosure resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the Drive Enclosure properties.  |
-| state  |   |  | <ul> <li>power_state_set</li>  <li>uid_state_set</li>  <li>hard_reset_state_set</li>  <li>refresh_state_set</li> </ul> |  Indicates the desired state for the Drive Enclosure resource. 'power_state_set' will set the power state of the Drive Enclosure. 'uid_state_set' will set the uid state of the Drive Enclosure. 'hard_reset_state_set' will request a hard reset of the Drive Enclosure. 'refresh_state_set' will refresh a Drive Enclosure.  |
+| state  |   |  | <ul> <li>power_state_set</li>  <li>uid_state_set</li>  <li>hard_reset_state_set</li>  <li>refresh_state_set</li> </ul> |  Indicates the desired state for the Drive Enclosure resource. 'power_state_set' will set the power state for the Drive Enclosure. 'uid_state_set' will set the uid state for the Drive Enclosure. 'hard_reset_state_set' will request a hard reset of the Drive Enclosure. 'refresh_state_set' will refresh a Drive Enclosure.  |
 
 
  
@@ -1599,7 +1599,7 @@ Retrieve the facts about one or more of the OneView Drive Enclosures.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Drive Enclosure name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Drive Enclosure related resources. Options allowed: portMap  To gather additional facts it is required inform the Drive Enclosure name. Otherwise, these options will be ignored.  |
+| options  |   No  |  | |  List with options to gather additional facts about Drive Enclosure related resources. Options allowed: portMap. To gather additional facts it is required to inform the Drive Enclosure name. Otherwise, these options will be ignored.  |
 
 
  
@@ -1678,7 +1678,7 @@ Manage OneView Enclosure resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the Enclosure properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li>  <li>appliance_bays_powered_on</li>  <li>uid_on</li>  <li>uid_off</li>  <li>manager_bays_uid_on</li>  <li>manager_bays_uid_off</li>  <li>manager_bays_power_state_e_fuse</li>  <li>manager_bays_power_state_reset</li>  <li>appliance_bays_power_state_e_fuse</li>  <li>device_bays_power_state_e_fuse</li>  <li>device_bays_power_state_reset</li>  <li>interconnect_bays_power_state_e_fuse</li>  <li>manager_bays_role_active</li>  <li>device_bays_ipv4_removed</li>  <li>interconnect_bays_ipv4_removed</li>  <li>support_data_collection_set</li> </ul> |  Indicates the desired state for the Enclosure resource. 'present' will ensure data properties are compliant with OneView. You can rename the enclosure providing an attribute 'newName'. You can also rename the rack providing an attribute 'rackName'. 'absent' will remove the resource from OneView, if it exists. 'reconfigured' will reapply the appliance's configuration on the enclosure. This includes running the same configuration steps that were performed as part of the enclosure add. 'refreshed' will refresh the enclosure along with all of its components, including interconnects and servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is removed. 'appliance_bays_powered_on' will set the appliance bay power state on. 'uid_on' will set the UID state on. 'uid_off' will set the UID state off. 'manager_bays_uid_on' will set the UID state on for the Synergy Frame Link Module. 'manager_bays_uid_off' will set the UID state off for the Synergy Frame Link Module. 'manager_bays_power_state_e_fuse' will E-Fuse the Synergy Frame Link Module bay in the path. 'manager_bays_power_state_reset' will Reset the Synergy Frame Link Module bay in the path. 'appliance_bays_power_state_e_fuse' will E-Fuse the appliance bay in the path. 'device_bays_power_state_e_fuse' will E-Fuse the device bay in the path. 'device_bays_power_state_reset' will Reset the device bay in the path. 'interconnect_bays_power_state_e_fuse' will E-Fuse the IC bay in the path. 'manager_bays_role_active' will set the active Synergy Frame Link Module. 'device_bays_ipv4_removed' will release IPv4 address in the device bay. 'interconnect_bays_ipv4_removed' will release IPv4 address in the interconnect bay. 'support_data_collection_set' will set the support data collection state for the enclosure. The supported values for this state are 'PendingCollection', 'Completed', 'Error' and 'NotSupported'  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li>  <li>appliance_bays_powered_on</li>  <li>uid_on</li>  <li>uid_off</li>  <li>manager_bays_uid_on</li>  <li>manager_bays_uid_off</li>  <li>manager_bays_power_state_e_fuse</li>  <li>manager_bays_power_state_reset</li>  <li>appliance_bays_power_state_e_fuse</li>  <li>device_bays_power_state_e_fuse</li>  <li>device_bays_power_state_reset</li>  <li>interconnect_bays_power_state_e_fuse</li>  <li>manager_bays_role_active</li>  <li>device_bays_ipv4_removed</li>  <li>interconnect_bays_ipv4_removed</li>  <li>support_data_collection_set</li> </ul> |  Indicates the desired state for the Enclosure resource. 'present' will ensure data properties are compliant with OneView. You can rename the enclosure providing an attribute 'newName'. You can also rename the rack providing an attribute 'rackName'. 'absent' will remove the resource from OneView, if it exists. 'reconfigured' will reapply the appliance's configuration on the enclosure. This includes running the same configuration steps that were performed as part of the enclosure add. 'refreshed' will refresh the enclosure along with all of its components, including interconnects and servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is removed. 'appliance_bays_powered_on' will set the appliance bay power state on. 'uid_on' will set the UID state on. 'uid_off' will set the UID state off. 'manager_bays_uid_on' will set the UID state on for the Synergy Frame Link Module. 'manager_bays_uid_off' will set the UID state off for the Synergy Frame Link Module. 'manager_bays_power_state_e_fuse' will E-Fuse the Synergy Frame Link Module bay in the path. 'manager_bays_power_state_reset' will Reset the Synergy Frame Link Module bay in the path. 'appliance_bays_power_state_e_fuse' will E-Fuse the appliance bay in the path. 'device_bays_power_state_e_fuse' will E-Fuse the device bay in the path. 'device_bays_power_state_reset' will Reset the device bay in the path. 'interconnect_bays_power_state_e_fuse' will E-Fuse the IC bay in the path. 'manager_bays_role_active' will set the active Synergy Frame Link Module. 'device_bays_ipv4_removed' will release the IPv4 address in the device bay. 'interconnect_bays_ipv4_removed' will release the IPv4 address in the interconnect bay. 'support_data_collection_set' will set the support data collection state for the enclosure. The supported values for this state are 'PendingCollection', 'Completed', 'Error' and 'NotSupported'  |
 
 
  
@@ -1861,7 +1861,7 @@ Manage OneView Enclosure resources.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| enclosure   | Has all the facts about the enclosure. |  On states 'present', 'reconfigured', 'refreshed'. Can be null. |  complex |
+| enclosure   | Has all the facts about the enclosure. |  On states 'present', 'reconfigured', and 'refreshed'. Can be null. |  complex |
 
 
 #### Notes
@@ -2462,7 +2462,7 @@ Retrieve the facts about one or more of the OneView Fabrics.
 Manage OneView Fibre Channel Network resources.
 
 #### Synopsis
- Provides an interface to manage Fibre Channel Network resources. Can create, update, delete.
+ Provides an interface to manage Fibre Channel Network resources. Can create, update, and delete.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -2896,8 +2896,8 @@ Manage the OneView Interconnect resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| ip  |   No  |  | |  Interconnect IP add  |
-| name  |   No  |  | |  Interconnect name  |
+| ip  |   No  |  | |  Interconnect IP address.  |
+| name  |   No  |  | |  Interconnect name.  |
 | ports  |   No  |  | |  List with ports to update. This option should be used together with 'update_ports' state.  |
 | state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>device_reset</li>  <li>update_ports</li>  <li>reset_port_protection</li> </ul> |  Indicates the desired state for the Interconnect resource. 'powered_on' turns the power on. 'powered_off' turns the power off. 'uid_on' turns the UID light on. 'uid_off' turns the UID light off. 'device_reset' perform a device reset. 'update_ports' updates the interconnect ports. 'reset_port_protection' triggers a reset of port protection.  |
 
@@ -2960,7 +2960,7 @@ Retrieve facts about one or more of the OneView Interconnects.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| name  |   No  |  | |  Interconnect name  |
+| name  |   No  |  | |  Interconnect name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Interconnect. Options allowed: 'nameServers' gets the named servers for an interconnect. 'statistics' gets the statistics from an interconnect. 'portStatistics' gets the statistics for the specified port name on an interconnect. 'subPortStatistics' gets the subport statistics on an interconnect.  To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be ignored.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
@@ -3250,7 +3250,7 @@ Retrieve facts about one or more of the OneView Logical Downlinks.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| name  |   No  |  | |  Logical Downlink name  |
+| name  |   No  |  | |  Logical Downlink name.  |
 
 
  
@@ -4814,7 +4814,7 @@ Retrieve facts about the OneView Power Devices.
 Manage OneView Racks resources.
 
 #### Synopsis
- Provides an interface to manage Rack resources. Can create, update, delete.
+ Provides an interface to manage Rack resources. Can create, update, and delete.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -4895,7 +4895,7 @@ Manage OneView Racks resources.
 Retrieve facts about Rack resources.
 
 #### Synopsis
- Gets a list of rack resources. Filter by name can be used to get a specific Rack. If a name is specified, it is  allowed retrieve information about the device topology.
+ Gets a list of rack resources. Filter by name can be used to get a specific Rack. If a name is specified, it is  allowed to retrieve information about the device topology.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -4907,7 +4907,7 @@ Retrieve facts about Rack resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Rack name.  |
-| options  |   No  |  | |  Retrieve additional facts. Options available: 'deviceTopology'  |
+| options  |   No  |  | |  Retrieve additional facts. Options available: 'deviceTopology'.  |
 
 
  
@@ -5113,7 +5113,7 @@ Manage the OneView SAS Interconnect resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   Yes  |  | |  The SAS Interconnect name.  |
-| state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>soft_reset</li>  <li>hard_reset</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Switch. 'powered_on' turns the power on. 'powered_off' turns the power off. 'uid_on' turns the UID light on. 'uid_off' turns the UID light off. 'soft_reset' perform a soft reset. 'hard_reset' perform a hard reset. 'refreshed' perform a refresh.  |
+| state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>soft_reset</li>  <li>hard_reset</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Switch. 'powered_on' turns the power on. 'powered_off' turns the power off. 'uid_on' turns the UID light on. 'uid_off' turns the UID light off. 'soft_reset' performs a soft reset. 'hard_reset' performs a hard reset. 'refreshed' performs a refresh.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
@@ -5284,7 +5284,7 @@ Manage OneView SAS Logical Interconnect resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the options.  |
-| state  |   |  | <ul> <li>compliant</li>  <li>drive_enclosure_replaced</li>  <li>configuration_updated</li>  <li>firmware_updated</li> </ul> |  Indicates the desired state for the SAS Logical Interconnect resource. 'compliant' brings the list of SAS Logical Interconnect back to a consistent state. 'configuration_updated' asynchronously applies or re-applies the SAS Logical Interconnect configuration to all managed interconnects. 'firmware_updated' installs firmware to a SAS Logical Interconnect. 'drive_enclosure_replaced' replacement operation of a drive enclosure. * All of them are non-idempotent.  |
+| state  |   |  | <ul> <li>compliant</li>  <li>drive_enclosure_replaced</li>  <li>configuration_updated</li>  <li>firmware_updated</li> </ul> |  Indicates the desired state for the SAS Logical Interconnect resources. 'compliant' brings the list of SAS Logical Interconnect back to a consistent state. 'configuration_updated' asynchronously applies or re-applies the SAS Logical Interconnect configuration to all managed interconnects. 'firmware_updated' installs firmware to a SAS Logical Interconnect. 'drive_enclosure_replaced' replacement operation of a drive enclosure. * All of them are non-idempotent.  |
 
 
  
@@ -5808,7 +5808,7 @@ Manage OneView Scope resources.
 
 
 ## oneview_scope_facts
-Retrieve facts about one or more of the OneView Scope.
+Retrieve facts about one or more of the OneView Scopes.
 
 #### Synopsis
  Retrieve facts about one or more of the Scopes from OneView.
@@ -5881,7 +5881,7 @@ Manage OneView Server Hardware resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Server Hardware properties and its associated states.  |
-| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>ilo_firmware_version_updated</li>  <li>ilo_state_reset</li>  <li>uid_state_on</li>  <li>uid_state_off</li>  <li>environmental_configuration_set</li> </ul> |  Indicates the desired state for the Server Hardware resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'power_state_set' will set the power state of the Server Hardware. 'refresh_state_set will set the refresh state of the Server Hardware. 'ilo_firmware_version_updated' will update the iLO firmware version of the Server Hardware. 'ilo_state_reset' will reset the iLo state. 'uid_state_on' will set on the UID state if necessary. 'uid_state_off' will set on the UID state if necessary. 'environmental_configuration_set' will set the environmental configuration of the Server Hardware.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>ilo_firmware_version_updated</li>  <li>ilo_state_reset</li>  <li>uid_state_on</li>  <li>uid_state_off</li>  <li>environmental_configuration_set</li> </ul> |  Indicates the desired state for the Server Hardware resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'power_state_set' will set the power state of the Server Hardware. 'refresh_state_set will set the refresh state of the Server Hardware. 'ilo_firmware_version_updated' will update the iLO firmware version of the Server Hardware. 'ilo_state_reset' will reset the iLO state. 'uid_state_on' will set on the UID state, if necessary. 'uid_state_off' will set on the UID state, if necessary. 'environmental_configuration_set' will set the environmental configuration of the Server Hardware.  |
 
 
  
@@ -5964,7 +5964,7 @@ Manage OneView Server Hardware resources.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| server_hardware   | Has the OneView facts about the Server Hardware. |  On states 'present', 'power_state_set', 'refresh_state_set', 'ilo_firmware_version_updated'. Can be null. |  complex |
+| server_hardware   | Has the OneView facts about the Server Hardware. |  On states 'present', 'power_state_set', 'refresh_state_set', and 'ilo_firmware_version_updated'. Can be null. |  complex |
 
 
 #### Notes
@@ -5993,7 +5993,7 @@ Retrieve facts about the OneView Server Hardwares.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Server Hardware name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Server Hardware related resources. Options allowed: bios, javaRemoteConsoleUrl, environmentalConfig, iloSsoUrl, remoteConsoleUrl, utilization, firmware, firmwares  |
+| options  |   No  |  | |  List with options to gather additional facts about Server Hardware related resources. Options allowed: bios, javaRemoteConsoleUrl, environmentalConfig, iloSsoUrl, remoteConsoleUrl, utilization, firmware, and firmwares.  |
 
 
  
@@ -6078,7 +6078,7 @@ Retrieve facts about the OneView Server Hardwares.
 | server_hardware_firmware   | Has all the facts about the Server Hardware firmware. |  When requested, but can be null. |  complex |
 | server_hardware_firmwares   | Has all the facts about the firmwares inventory across all servers. |  When requested, but can be null. |  complex |
 | server_hardware_ilo_sso_url   | Has the facts about the Server Hardware iLO SSO url. |  When requested, but can be null. |  complex |
-| server_hardware_java_remote_console_url   | Has the facts about the Server Hardware java console url. |  When requested, but can be null. |  complex |
+| server_hardware_java_remote_console_url   | Has the facts about the Server Hardware java remote console url. |  When requested, but can be null. |  complex |
 | server_hardware_remote_console_url   | Has the facts about the Server Hardware remote console url. |  When requested, but can be null. |  complex |
 | server_hardware_utilization   | Has all the facts about the Server Hardware utilization. |  When requested, but can be null. |  complex |
 | server_hardwares   | Has all the OneView facts about the Server Hardware. |  Always, but can be null. |  complex |
@@ -6100,7 +6100,7 @@ Retrieve facts about the OneView Server Hardwares.
 Manage OneView Server Hardware Type resources.
 
 #### Synopsis
- Provides an interface to manage Server Hardware Type resources. Can update, remove.
+ Provides an interface to manage Server Hardware Type resources. Can update, and remove.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -6238,7 +6238,7 @@ Manage OneView Server Profile resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Server Profile properties.  |
-| state  |   |  present  | <ul> <li>present</li>  <li>absent</li>  <li>compliant</li> </ul> |  Indicates the desired state for the Server Profile resource by the end of the playbook execution. 'present' will ensure data properties are compliant with OneView. This operation power off the Server Hardware before configuring Server Profile. After complete, the Server Hardware is powered on. For the osDeploymentSettings, you can provide an osDeploymentPlanName instead of osDeploymentPlanUri. 'absent' will remove the resource from OneView, if it exists. 'compliant' will make the server profile compliant with its server profile template, when this option was specified. If there are Offline updates, the Server Hardware is turned off before remediate compliance issues and turned on after that.  |
+| state  |   |  present  | <ul> <li>present</li>  <li>absent</li>  <li>compliant</li> </ul> |  Indicates the desired state for the Server Profile resource by the end of the playbook execution. 'present' will ensure data properties are compliant with OneView. This operation will power off the Server Hardware before configuring the Server Profile. After it completes, the Server Hardware is powered on. For the osDeploymentSettings, you can provide an osDeploymentPlanName instead of osDeploymentPlanUri. 'absent' will remove the resource from OneView, if it exists. 'compliant' will make the server profile compliant with its server profile template, when this option was specified. If there are Offline updates, the Server Hardware is turned off before remediate compliance issues and turned on after that.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
@@ -6323,7 +6323,7 @@ Retrieve facts about the OneView Server Profiles.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Server Profile name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Server Profile related resources. Options allowed: schema, compliancePreview, profilePorts, messages, transformation, available_networks, available_servers, available_storage_system, available_storage_systems, available_targets  To gather facts about 'compliancePreview', 'messages' and 'transformation' it is required inform the Server Profile name. Otherwise, these options will be ignored.  |
+| options  |   No  |  | |  List with options to gather additional facts about Server Profile related resources. Options allowed: schema, compliancePreview, profilePorts, messages, transformation, available_networks, available_servers, available_storage_system, available_storage_systems, available_targets  To gather facts about 'compliancePreview', 'messages' and 'transformation' it is required to inform the Server Profile name. Otherwise, these options will be ignored.  |
 
 
  
@@ -6415,7 +6415,7 @@ Retrieve facts about the OneView Server Profiles.
 | server_profile_available_targets   | Has the facts about the target servers and empty device bays that are available for assignment to the server profile. |  When requested, but can be null. |  complex |
 | server_profile_compliance_preview   | Has all the facts about the manual and automatic updates required to make the server profile compliant with its template. |  When requested, but can be null. |  complex |
 | server_profile_messages   | Has the facts about the profile status messages associated with the profile. |  When requested, but can be null. |  complex |
-| server_profile_profile_ports   | Has the facts about the port model associated. |  When requested, but can be null. |  complex |
+| server_profile_profile_ports   | Has the facts about the port model associated with the profile. |  When requested, but can be null. |  complex |
 | server_profile_schema   | Has the facts about the Server Profile schema. |  When requested, but can be null. |  complex |
 | server_profile_transformation   | Has the facts about the transformation of an existing profile by supplying a new server hardware type and/or enclosure group. |  When requested, but can be null. |  complex |
 | server_profiles   | Has all the OneView facts about the Server Profiles. |  Always, but can be null. |  complex |
@@ -6510,7 +6510,7 @@ Retrieve facts about the Server Profile Templates from OneView.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Server Profile Template name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Server Profile Template resources. Options allowed: new_profile and transformation  |
+| options  |   No  |  | |  List with options to gather additional facts about Server Profile Template resources. Options allowed: new_profile and transformation.  |
 
 
  
@@ -6764,7 +6764,7 @@ Retrieve facts about the OneView Storage Systems.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | ip_hostname  |   No  |  | |  Storage System IP or hostname.  |
 | name  |   No  |  | |  Storage System name.  |
-| options  |   No  |  | |  List with options to gather additional facts about a Storage System and related resources. Options allowed: 'hostTypes' gets the list of supported host types. 'storagePools' gets a list of storage pools belonging to the specified storage system.  To gather facts about 'storagePools' it is required inform either the argument 'name' or 'ip_hostname'. Otherwise, this option will be ignored.  |
+| options  |   No  |  | |  List with options to gather additional facts about a Storage System and related resources. Options allowed: 'hostTypes' gets the list of supported host types. 'storagePools' gets a list of storage pools belonging to the specified storage system.  To gather facts about 'storagePools' it is required to inform either the argument 'name' or 'ip_hostname'. Otherwise, this option will be ignored.  |
 
 
  
@@ -6897,10 +6897,10 @@ Provides an interface to remove extra presentations from a specified server prof
 
 
 ## oneview_storage_volume_attachment_facts
-Retrieve facts about Storage Volume Attachments of the OneView.
+Retrieve facts about the OneView Storage Volume Attachments.
 
 #### Synopsis
- Retrieve facts about Storage Volume Attachments of the OneView. To gather facts about a specific Storage Volume Attachment is required inform the param 'storageVolumeAttachmentUri'. It is also possible retrieve a specific Storage Volume Attachment by the Server Profile and the Volume. For this option is required inform the param 'serverProfileName' and the param 'storageVolumeName' or 'storageVolumeUri'.
+ Retrieve facts about the OneView Storage Volume Attachments. To gather facts about a specific Storage Volume Attachment it is required to inform the param 'storageVolumeAttachmentUri'. It is also possible to retrieve a specific Storage Volume Attachment by the Server Profile and the Volume. For this option, it is required to inform the param 'serverProfileName' and the param 'storageVolumeName' or 'storageVolumeUri'.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -7093,7 +7093,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Storage Volume Template name.  |
-| options  |   No  |  | |  Retrieve additional facts. Options available: 'connectableVolumeTemplates'  |
+| options  |   No  |  | |  Retrieve additional facts. Options available: 'connectableVolumeTemplates'.  |
 
 
  
@@ -7166,7 +7166,7 @@ Provides an interface to remove ToR Switch resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   Yes  |  | |  Switch name.  |
-| state  |   |  | <ul> <li>absent</li>  <li>ports_updated</li> </ul> |  Indicates the desired state for the Switch. 'absent' will remove the resource from OneView, if it exists. 'ports_updated' will update the switch ports  |
+| state  |   |  | <ul> <li>absent</li>  <li>ports_updated</li> </ul> |  Indicates the desired state for the Switch. 'absent' will remove the resource from OneView, if it exists. 'ports_updated' will update the switch ports.  |
 
 
  
@@ -7330,7 +7330,7 @@ Retrieve facts about the OneView Tasks.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| params  |   No  |  | |  List with parameters to help filter the tasks. Params allowed: count, fields, filter, query, sort, start, and view  |
+| params  |   No  |  | |  List with parameters to help filter the tasks. Params allowed: count, fields, filter, query, sort, start, and view.  |
 
 
  
@@ -7485,7 +7485,7 @@ Retrieve facts about one or more of the OneView Unmanaged Device.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Unmanaged Device name.  |
-| options  |   |  | |  List with options to gather additional facts about Unmanaged Device. Options allowed: 'environmental_configuration' gets a description of the environmental configuration for the Unmnaged Device.  |
+| options  |   |  | |  List with options to gather additional facts about the Unmanaged Device. Options allowed: 'environmental_configuration' gets a description of the environmental configuration for the Unmnaged Device.  |
 
 
  
@@ -7552,7 +7552,7 @@ Manage OneView Uplink Set resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Uplink Set properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Uplink Set resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. The key used to find the resource to perform the operation is a compound key, that consists of the name of the uplink set and the URI (or name) of the Logical Interconnect combined. You can choose set the Logical Interconnect by logicalInterconnectUri or logicalInterconnectName.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Uplink Set resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. The key used to find the resource to perform the operation is a compound key, that consists of the name of the uplink set and the URI (or name) of the Logical Interconnect combined. You can choose to set the Logical Interconnect by logicalInterconnectUri or logicalInterconnectName.  |
 
 
  
@@ -7693,7 +7693,7 @@ Manage OneView Volume resources.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  Volume or snapshot data.  |
 | export_only  |   |  False  | |  If set to True, when the status is 'absent' and the resource exists, it will be removed only from OneView.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>repaired</li>  <li>snapshot_created</li>  <li>snapshot_deleted</li> </ul> |  Indicates the desired state for the Volume resource. 'present' creates/adds the resource when it does not exist, otherwise it updates the resource. When the resource already exists, the update operation is non-idempotent, since it is always called even though the given options are compliant with the existent data. To change the name of the volume, a 'newName' in the data must be provided. 'absent' by default deletes a volume from OneView and storage system. When export_only is True, the volume is removed only from OneView. 'repaired' removes extra presentations from a specified volume on the storage system. This operation is non-idempotent. 'snapshot_created' creates a snapshot for the volume specified. This operation is non-idempotent. 'snapshot_deleted' deletes a snapshot from OneView and storage system.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>repaired</li>  <li>snapshot_created</li>  <li>snapshot_deleted</li> </ul> |  Indicates the desired state for the Volume resource. 'present' creates/adds the resource when it does not exist, otherwise it updates the resource. When the resource already exists, the update operation is non-idempotent, since it is always called even though the given options are compliant with the existent data. To change the name of the volume, a 'newName' in the data must be provided. 'absent' by default deletes a volume from OneView and the storage system. When export_only is True, the volume is removed only from OneView. 'repaired' removes extra presentations from a specified volume on the storage system. This operation is non-idempotent. 'snapshot_created' creates a snapshot for the volume specified. This operation is non-idempotent. 'snapshot_deleted' deletes a snapshot from OneView and the storage system.  |
 
 
  
@@ -7898,7 +7898,7 @@ Retrieve facts about the OneView Volumes.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | attachable_volumes   | Has all the facts about the attachable volumes managed by the appliance. |  When requested, but can be null. |  complex |
-| extra_managed_volume_paths   | Has all the facts about the extra managed storage volume paths from the appliance |  When requested, but can be null. |  complex |
+| extra_managed_volume_paths   | Has all the facts about the extra managed storage volume paths from the appliance. |  When requested, but can be null. |  complex |
 | storage_volumes   | Has all the OneView facts about the Volumes. |  Always, but can be null. |  complex |
 
 

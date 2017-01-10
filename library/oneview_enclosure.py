@@ -65,8 +65,8 @@ options:
           'device_bays_power_state_reset' will Reset the device bay in the path.
           'interconnect_bays_power_state_e_fuse' will E-Fuse the IC bay in the path.
           'manager_bays_role_active' will set the active Synergy Frame Link Module.
-          'device_bays_ipv4_removed' will release IPv4 address in the device bay.
-          'interconnect_bays_ipv4_removed' will release IPv4 address in the interconnect bay.
+          'device_bays_ipv4_removed' will release the IPv4 address in the device bay.
+          'interconnect_bays_ipv4_removed' will release the IPv4 address in the interconnect bay.
           'support_data_collection_set' will set the support data collection state for the enclosure. The supported
           values for this state are 'PendingCollection', 'Completed', 'Error' and 'NotSupported'
       choices: [
@@ -265,7 +265,7 @@ EXAMPLES = '''
 RETURN = '''
 enclosure:
     description: Has all the facts about the enclosure.
-    returned: On states 'present', 'reconfigured', 'refreshed'. Can be null.
+    returned: On states 'present', 'reconfigured', and 'refreshed'. Can be null.
     type: complex
 '''
 
