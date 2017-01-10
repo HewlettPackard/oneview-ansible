@@ -136,7 +136,7 @@ class ValidateEtagTestCase(PreloadedMocksBaseTestCase):
     PARAMS_FOR_PRESENT = dict(
         config='config.json',
         state='present',
-        data={'name', 'resource name'}
+        data={'name': 'resource name'}
     )
 
     def test_should_validate_etag_when_set_as_true(self):
