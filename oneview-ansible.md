@@ -3596,6 +3596,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Enclosure name.  |
 | options  |   No  |  | |  List with options to gather additional facts about a Logical Enclosure and related resources. Options allowed: script.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -3606,6 +3607,17 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
   oneview_logical_enclosure_facts:
     config: "{{ config_file_path }}"
   delegate_to: localhost
+
+- debug: var=logical_enclosures
+
+- name: Gather paginated, filtered and sorted facts about Logical Enclosures
+  oneview_logical_enclosure_facts:
+    config: "{{ config_file_path }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'status=OK'
 
 - debug: var=logical_enclosures
 
