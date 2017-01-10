@@ -19,7 +19,6 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -78,10 +77,10 @@ EXAMPLES = '''
   oneview_datacenter_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'state=Unmanaged'
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'state=Unmanaged'
 
 - debug: var=datacenters
 
@@ -136,7 +135,7 @@ class DatacenterFactsModule(object):
         },
         "params": {
             "required": False,
-            "type": 'list'
+            "type": 'dict'
         },
     }
 
@@ -166,9 +165,8 @@ class DatacenterFactsModule(object):
 
                 ansible_facts['datacenters'] = datacenters
             else:
-                params = self.module.params.get('params')
-                get_all_params = transform_list_to_dict(params) if params else {}
-                ansible_facts['datacenters'] = client.get_all(**get_all_params)
+                params = self.module.params.get('params') or {}
+                ansible_facts['datacenters'] = client.get_all(**params)
 
             self.module.exit_json(changed=False,
                                   ansible_facts=ansible_facts)

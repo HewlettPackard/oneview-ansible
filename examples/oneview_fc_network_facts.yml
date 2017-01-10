@@ -29,10 +29,10 @@
       oneview_fc_network_facts:
         config: "{{ config }}"
         params:
-          - start: 0
-          - count: 3
-          - sort: 'name:descending'
-          - filter: 'fabricType=FabricAttach'
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: 'fabricType=FabricAttach'
     - debug: var=fc_networks
 
     - name: Gather facts about a Fibre Channel Network by name

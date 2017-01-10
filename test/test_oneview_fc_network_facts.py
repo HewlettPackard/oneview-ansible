@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_fc_network_facts import FcNetworkFactsModule
-from test.utils import ParamsTestCase
+from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
 
 ERROR_MSG = 'Fake message error'
@@ -38,11 +38,11 @@ PRESENT_NETWORKS = [{
 }]
 
 
-class FcNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, ParamsTestCase):
+class FcNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, FcNetworkFactsModule)
         self.fc_networks = self.mock_ov_client.fc_networks
-        ParamsTestCase.configure_client_mock(self, self.fc_networks)
+        FactsParamsTestCase.configure_client_mock(self, self.fc_networks)
 
     def test_should_get_all_fc_networks(self):
         self.fc_networks.get_all.return_value = PRESENT_NETWORKS

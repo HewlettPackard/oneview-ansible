@@ -30,10 +30,10 @@
       oneview_datacenter_facts:
         config: "{{ config }}"
         params:
-          - start: 0
-          - count: 3
-          - sort: 'name:descending'
-          - filter: 'state=Unmanaged'
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: 'state=Unmanaged'
 
     - debug: var=datacenters
 

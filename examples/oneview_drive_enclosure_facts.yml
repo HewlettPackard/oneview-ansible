@@ -31,10 +31,10 @@
       oneview_drive_enclosure_facts:
         config: "{{ config }}"
         params:
-          - start: 0
-          - count: 3
-          - sort: 'name:descending'
-          - filter: 'status=Warning'
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: 'status=Warning'
 
     - debug: var=drive_enclosures
 

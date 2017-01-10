@@ -17,9 +17,9 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -73,10 +73,10 @@ EXAMPLES = '''
   oneview_interconnect_type_facts:
     config: "{{ config_file_path }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: "maximumFirmwareVersion='4000.99'"
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: "maximumFirmwareVersion='4000.99'"
 
 - debug: var=interconnect_types
 
@@ -101,7 +101,7 @@ class InterconnectTypeFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        params=dict(required=False, type='list'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -132,10 +132,9 @@ class InterconnectTypeFactsModule(object):
                               ansible_facts=dict(interconnect_types=interconnect_types))
 
     def __get_all(self):
-        params = self.module.params.get('params')
-        get_all_params = transform_list_to_dict(params) if params else {}
+        params = self.module.params.get('params') or {}
 
-        interconnect_types = self.oneview_client.interconnect_types.get_all(**get_all_params)
+        interconnect_types = self.oneview_client.interconnect_types.get_all(**params)
 
         self.module.exit_json(changed=False,
                               ansible_facts=dict(interconnect_types=interconnect_types))

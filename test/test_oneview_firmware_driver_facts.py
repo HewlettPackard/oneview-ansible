@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_firmware_driver_facts import FirmwareDriverFactsModule
-from test.utils import ParamsTestCase
+from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
 
 FIRMWARE_DRIVER_NAME = "Service Pack for ProLiant.iso"
@@ -39,11 +39,11 @@ FIRMWARE_DRIVER = dict(
 )
 
 
-class FirmwareDriverFactsSpec(unittest.TestCase, ModuleContructorTestCase, ParamsTestCase):
+class FirmwareDriverFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, FirmwareDriverFactsModule)
         self.firmware_drivers = self.mock_ov_client.firmware_drivers
-        ParamsTestCase.configure_client_mock(self, self.firmware_drivers)
+        FactsParamsTestCase.configure_client_mock(self, self.firmware_drivers)
 
     def test_should_get_all_firmware_drivers(self):
         firmwares = [FIRMWARE_DRIVER]

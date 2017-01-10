@@ -28,9 +28,9 @@
       oneview_firmware_driver_facts:
         config: "{{ config }}"
         params:
-          - start: 0
-          - count: 3
-          - sort: 'name:descending'
+          start: 0
+          count: 3
+          sort: 'name:descending'
 
     - debug: var=firmware_drivers
 

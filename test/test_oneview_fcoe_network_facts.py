@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_fcoe_network_facts import FcoeNetworkFactsModule
-from test.utils import ParamsTestCase
+from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
 
 ERROR_MSG = 'Fake message error'
@@ -38,11 +38,11 @@ PRESENT_NETWORKS = [{
 }]
 
 
-class FcoeNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, ParamsTestCase):
+class FcoeNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, FcoeNetworkFactsModule)
         self.fcoe_networks = self.mock_ov_client.fcoe_networks
-        ParamsTestCase.configure_client_mock(self, self.fcoe_networks)
+        FactsParamsTestCase.configure_client_mock(self, self.fcoe_networks)
 
     def test_should_get_all_fcoe_network(self):
         self.fcoe_networks.get_all.return_value = PRESENT_NETWORKS

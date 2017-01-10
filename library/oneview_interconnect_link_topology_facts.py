@@ -17,9 +17,9 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -74,10 +74,10 @@ EXAMPLES = '''
   oneview_interconnect_link_topology_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: "name='name1900571853-1483553596802'"
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: "name='name1900571853-1483553596802'"
 
 - debug: var=interconnect_link_topologies
 
@@ -102,7 +102,7 @@ class InterconnectLinkTopologyFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        params=dict(required=False, type='list'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -121,8 +121,7 @@ class InterconnectLinkTopologyFactsModule(object):
                 name = self.module.params.get('name')
                 interconnect_link_topologies = self.oneview_client.interconnect_link_topologies.get_by('name', name)
             else:
-                params_list = self.module.params.get('params')
-                params = transform_list_to_dict(params_list) if params_list else {}
+                params = self.module.params.get('params') or {}
                 interconnect_link_topologies = self.oneview_client.interconnect_link_topologies.get_all(**params)
 
             self.module.exit_json(changed=False,

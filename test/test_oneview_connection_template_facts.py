@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_connection_template_facts import ConnectionTemplateFactsModule
-from test.utils import ParamsTestCase
+from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
 
 ERROR_MSG = 'Fake message error'
@@ -41,11 +41,11 @@ PARAMS_GET_DEFAULT = dict(
 )
 
 
-class ConnectionTemplatesFactsSpec(unittest.TestCase, ModuleContructorTestCase, ParamsTestCase):
+class ConnectionTemplatesFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, ConnectionTemplateFactsModule)
         self.connection_templates = self.mock_ov_client.connection_templates
-        ParamsTestCase.configure_client_mock(self, self.connection_templates)
+        FactsParamsTestCase.configure_client_mock(self, self.connection_templates)
 
     def test_should_get_all_connection_templates(self):
         self.connection_templates.get_all.return_value = {"name": "Storage System Name"}

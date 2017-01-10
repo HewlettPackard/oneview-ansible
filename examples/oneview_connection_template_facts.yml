@@ -30,10 +30,10 @@
       oneview_connection_template_facts:
         config: "{{ config }}"
         params:
-          - start: 0
-          - count: 3
-          - sort: 'name:descending'
-          - filter: 'name=defaultConnectionTemplate'
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: 'name=defaultConnectionTemplate'
 
     - debug: var=connection_templates
 

@@ -28,10 +28,10 @@
       oneview_interconnect_type_facts:
         config: "{{ config }}"
         params:
-          - start: 0
-          - count: 3
-          - sort: 'name:descending'
-          - filter: "maximumFirmwareVersion='4000.99'"
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: "maximumFirmwareVersion='4000.99'"
     - debug:  msg="{{interconnect_types | map(attribute='name') | list }}"
 
     - name: Gather facts about an Interconnect Type by name {{ interconnect_types.0.name }}

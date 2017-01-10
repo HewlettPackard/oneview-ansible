@@ -15,13 +15,9 @@
 ###
 
 import unittest
-import mock
-
-from utils import create_ansible_mock
-
-from hpOneView.oneview_client import OneViewClient
 from oneview_logical_downlinks_facts import LogicalDownlinksFactsModule
-
+from test.utils import FactsParamsTestCase
+from test.utils import ModuleContructorTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -55,161 +51,96 @@ PARAMS_FOR_GET_WITHOUT_ETHERNET = dict(
 )
 
 
-class LogicalDownlinkFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_logical_downlinks_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class LogicalDownlinksFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+    def setUp(self):
+        self.configure_mocks(self, LogicalDownlinksFactsModule)
+        self.logical_downlinks = self.mock_ov_client.logical_downlinks
+        self.configure_client_mock(self.logical_downlinks)
 
-        LogicalDownlinksFactsModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_logical_downlinks_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        LogicalDownlinksFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class LogicalDownlinksFactsSpec(unittest.TestCase):
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_downlinks_facts.AnsibleModule')
-    def test_should_get_all_logical_downlinks(self, mock_ansible_module, mock_ov_from_file):
+    def test_should_get_all_logical_downlinks(self):
         logical_downlinks = [
             dict(name="test1"),
             dict(name="test2")
         ]
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_downlinks.get_all.return_value = logical_downlinks
+        self.logical_downlinks.get_all.return_value = logical_downlinks
 
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_GET_ALL
 
         LogicalDownlinksFactsModule().run()
 
-        mock_ov_instance.logical_downlinks.get_all.assert_called_once()
+        self.logical_downlinks.get_all.assert_called_once()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(logical_downlinks=logical_downlinks)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_downlinks_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_downlinks.get_all.side_effect = Exception(ERROR_MSG)
+    def test_should_fail_when_get_all_raises_exception(self):
+        self.logical_downlinks.get_all.side_effect = Exception(ERROR_MSG)
 
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_GET_ALL
 
         LogicalDownlinksFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=ERROR_MSG)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_downlinks_facts.AnsibleModule')
-    def test_should_get_by_name(self, mock_ansible_module, mock_ov_from_file):
+    def test_should_get_by_name(self):
         logical_downlinks = [LOGICAL_DOWNLINK]
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_downlinks.get_by.return_value = logical_downlinks
+        self.logical_downlinks.get_by.return_value = logical_downlinks
 
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_GET_BY_NAME
 
         LogicalDownlinksFactsModule().run()
 
-        mock_ov_instance.logical_downlinks.get_by.assert_called_once_with("name", LOGICAL_DOWNLINK_NAME)
+        self.logical_downlinks.get_by.assert_called_once_with("name", LOGICAL_DOWNLINK_NAME)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(logical_downlinks=logical_downlinks)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_downlinks_facts.AnsibleModule')
-    def test_should_fail_when_get_by_raises_exception(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_downlinks.get_by.side_effect = Exception(ERROR_MSG)
+    def test_should_fail_when_get_by_raises_exception(self):
+        self.logical_downlinks.get_by.side_effect = Exception(ERROR_MSG)
 
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_GET_BY_NAME
 
         LogicalDownlinksFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=ERROR_MSG)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_downlinks_facts.AnsibleModule')
-    def test_should_get_all_without_ethernet(self, mock_ansible_module, mock_ov_from_file):
+    def test_should_get_all_without_ethernet(self):
         logical_downlinks = [LOGICAL_DOWNLINK]
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_downlinks.get_all_without_ethernet.return_value = logical_downlinks
+        self.logical_downlinks.get_all_without_ethernet.return_value = logical_downlinks
 
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_GET_ALL_WITHOUT_ETHERNET)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_GET_ALL_WITHOUT_ETHERNET
 
         LogicalDownlinksFactsModule().run()
 
-        mock_ov_instance.logical_downlinks.get_all_without_ethernet.assert_called_once()
+        self.logical_downlinks.get_all_without_ethernet.assert_called_once()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(logical_downlinks=logical_downlinks)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_downlinks_facts.AnsibleModule')
-    def test_should_get_without_ethernet(self, mock_ansible_module, mock_ov_from_file):
+    def test_should_get_without_ethernet(self):
         logical_downlinks = [LOGICAL_DOWNLINK]
         logical_downlinks_without_ethernet = []
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_downlinks.get_by.return_value = logical_downlinks
-        mock_ov_instance.logical_downlinks.get_without_ethernet.return_value = logical_downlinks_without_ethernet
+        self.logical_downlinks.get_by.return_value = logical_downlinks
+        self.logical_downlinks.get_without_ethernet.return_value = logical_downlinks_without_ethernet
 
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_GET_WITHOUT_ETHERNET)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_GET_WITHOUT_ETHERNET
 
         LogicalDownlinksFactsModule().run()
 
-        mock_ov_instance.logical_downlinks.get_by.assert_called_once_with('name', LOGICAL_DOWNLINK_NAME)
-        mock_ov_instance.logical_downlinks.get_without_ethernet.assert_called_once_with(id_or_uri=LOGICAL_DOWNLINK_URI)
+        self.logical_downlinks.get_by.assert_called_once_with('name', LOGICAL_DOWNLINK_NAME)
+        self.logical_downlinks.get_without_ethernet.assert_called_once_with(id_or_uri=LOGICAL_DOWNLINK_URI)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(logical_downlinks=logical_downlinks_without_ethernet)
         )

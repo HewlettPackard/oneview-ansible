@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_fabric_facts import FabricFactsModule
-from test.utils import ParamsTestCase
+from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
 
 ERROR_MSG = 'Fake message error'
@@ -60,11 +60,11 @@ DEFAULT_FABRIC_VLAN_RANGE = dict(
 )
 
 
-class FabricFactsSpec(unittest.TestCase, ModuleContructorTestCase, ParamsTestCase):
+class FabricFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, FabricFactsModule)
         self.fabrics = self.mock_ov_client.fabrics
-        ParamsTestCase.configure_client_mock(self, self.fabrics)
+        FactsParamsTestCase.configure_client_mock(self, self.fabrics)
 
     def test_should_get_all(self):
         self.fabrics.get_all.return_value = PRESENT_FABRICS

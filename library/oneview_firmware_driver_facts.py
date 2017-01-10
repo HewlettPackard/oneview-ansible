@@ -20,7 +20,6 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -73,9 +72,9 @@ EXAMPLES = '''
   oneview_firmware_driver_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
+      start: 0
+      count: 3
+      sort: 'name:descending'
 
 - debug: var=firmware_drivers
 
@@ -100,7 +99,7 @@ class FirmwareDriverFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        params=dict(required=False, type='list')
+        params=dict(required=False, type='dict')
 
     )
 
@@ -126,9 +125,9 @@ class FirmwareDriverFactsModule(object):
             if name:
                 result = self.resource_client.get_by('name', name)
             else:
-                params = self.module.params.get('params')
-                get_all_params = transform_list_to_dict(params) if params else {}
-                result = self.resource_client.get_all(**get_all_params)
+                params = self.module.params.get('params') or {}
+
+                result = self.resource_client.get_all(**params)
 
             self.module.exit_json(
                 changed=False,

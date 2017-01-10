@@ -20,7 +20,6 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -83,10 +82,10 @@ EXAMPLES = '''
   oneview_enclosure_group_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'status=OK'
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'status=OK'
 
 - debug: var=enclosure_groups
 
@@ -130,7 +129,7 @@ class EnclosureGroupFactsModule(object):
         },
         "params": {
             "required": False,
-            "type": "list"
+            "type": "dict"
         }}
 
     def __init__(self):
@@ -155,10 +154,9 @@ class EnclosureGroupFactsModule(object):
                 if enclosure_groups and "configuration_script" in options:
                     facts["enclosure_group_script"] = self.__get_script(enclosure_groups)
             else:
-                params = self.module.params.get('params')
-                get_all_params = transform_list_to_dict(params) if params else {}
+                params = self.module.params.get('params') or {}
 
-                enclosure_groups = self.oneview_client.enclosure_groups.get_all(**get_all_params)
+                enclosure_groups = self.oneview_client.enclosure_groups.get_all(**params)
 
             facts["enclosure_groups"] = enclosure_groups
             self.module.exit_json(changed=False, ansible_facts=facts)

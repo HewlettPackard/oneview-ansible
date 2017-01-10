@@ -31,10 +31,10 @@
       oneview_interconnect_link_topology_facts:
         config: "{{ config }}"
         params:
-          - start: 0
-          - count: 3
-          - sort: 'name:descending'
-          - filter: "name='name1900571853-1483553596802'"
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: "name='name1900571853-1483553596802'"
 
     - debug: var=interconnect_link_topologies
 

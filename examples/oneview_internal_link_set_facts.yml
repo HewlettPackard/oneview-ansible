@@ -32,9 +32,9 @@
       oneview_internal_link_set_facts:
         config: "{{ config }}"
         params:
-          - start: 0
-          - count: 3
-          - sort: 'name:ascending'
+          start: 0
+          count: 3
+          sort: 'name:ascending'
 
     - debug: var=internal_link_sets
 

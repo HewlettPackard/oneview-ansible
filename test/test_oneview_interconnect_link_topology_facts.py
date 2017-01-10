@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_interconnect_link_topology_facts import InterconnectLinkTopologyFactsModule
-from test.utils import ParamsTestCase
+from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
 
 ERROR_MSG = 'Fake message error'
@@ -37,11 +37,11 @@ INTERCONNECT_LINK_TOPOLOGIES = [{"name": "Interconnect Link Topology 1"},
                                 {"name": "Interconnect Link Topology 3"}]
 
 
-class InterconnectLinkTopologyFactsSpec(unittest.TestCase, ModuleContructorTestCase, ParamsTestCase):
+class InterconnectLinkTopologyFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, InterconnectLinkTopologyFactsModule)
         self.interconnect_link_topologies = self.mock_ov_client.interconnect_link_topologies
-        ParamsTestCase.configure_client_mock(self, self.interconnect_link_topologies)
+        FactsParamsTestCase.configure_client_mock(self, self.interconnect_link_topologies)
 
     def test_should_get_all_interconnect_link_topologies(self):
         self.interconnect_link_topologies.get_all.return_value = INTERCONNECT_LINK_TOPOLOGIES
