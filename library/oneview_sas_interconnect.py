@@ -55,9 +55,15 @@ options:
               'refreshed' perform a refresh.
         choices: ['powered_on', 'powered_off', 'uid_on', 'uid_off', 'soft_reset', 'hard_reset', 'refreshed']
     name:
-      description:
-        - The SAS Interconnect name.
-      required: True
+        description:
+            - The SAS Interconnect name.
+        required: True
+    validate_etag:
+        description:
+            - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
+              for the resource matches the ETag provided in the data.
+        default: true
+        choices: ['true', 'false']
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -118,7 +124,11 @@ class SasInterconnectModule(object):
             required=True,
             choices=states.keys()
         ),
-        name=dict(required=True, type='str')
+        name=dict(required=True, type='str'),
+        validate_etag=dict(
+            required=False,
+            type='bool',
+            default=True)
     )
 
     actions = ['soft_reset', 'hard_reset']
@@ -134,14 +144,17 @@ class SasInterconnectModule(object):
         config = self.module.params['config']
 
         if config:
-            oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
         else:
-            oneview_client = OneViewClient.from_environment_variables()
+            self.oneview_client = OneViewClient.from_environment_variables()
 
-        self.resource_client = oneview_client.sas_interconnects
+        self.resource_client = self.oneview_client.sas_interconnects
 
     def run(self):
         try:
+            if not self.module.params.get('validate_etag'):
+                self.oneview_client.connection.disable_etag_validation()
+
             name = self.module.params.get('name')
             state_name = self.module.params.get('state')
 
