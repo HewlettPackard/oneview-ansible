@@ -76,7 +76,7 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class ServerProfileTemplatePresentStateSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class ServerProfileTemplateModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
 
     def setUp(self):
         self.configure_mocks(self, ServerProfileTemplateModule)
