@@ -20,7 +20,6 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -75,10 +74,10 @@ EXAMPLES = '''
   oneview_fc_network_facts:
     config: "{{ config }}"
     params:
-      - start: 1
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'fabricType=FabricAttach'
+      start: 1
+      count: 3
+      sort: 'name:descending'
+      filter: 'fabricType=FabricAttach'
 - debug: var=fc_networks
 
 - name: Gather facts about a Fibre Channel Network by name
@@ -102,7 +101,7 @@ class FcNetworkFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        params=dict(required=False, type='list')
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -133,10 +132,8 @@ class FcNetworkFactsModule(object):
                               ansible_facts=dict(fc_networks=fc_network))
 
     def __get_all(self):
-        params = self.module.params.get('params')
-        get_all_params = transform_list_to_dict(params) if params else {}
-
-        fc_networks = self.oneview_client.fc_networks.get_all(**get_all_params)
+        params = self.module.params.get('params') or {}
+        fc_networks = self.oneview_client.fc_networks.get_all(**params)
 
         self.module.exit_json(changed=False,
                               ansible_facts=dict(fc_networks=fc_networks))

@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_enclosure_group_facts import EnclosureGroupFactsModule
-from test.utils import ParamsTestCase
+from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
 
 ERROR_MSG = 'Fake message error'
@@ -48,11 +48,11 @@ ENCLOSURE_GROUPS = [{
 }]
 
 
-class EnclosureGroupFactsSpec(unittest.TestCase, ModuleContructorTestCase, ParamsTestCase):
+class EnclosureGroupFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, EnclosureGroupFactsModule)
         self.enclosure_groups = self.mock_ov_client.enclosure_groups
-        ParamsTestCase.configure_client_mock(self, self.enclosure_groups)
+        FactsParamsTestCase.configure_client_mock(self, self.enclosure_groups)
 
     def test_should_get_all_enclosure_group(self):
         self.enclosure_groups.get_all.return_value = ENCLOSURE_GROUPS

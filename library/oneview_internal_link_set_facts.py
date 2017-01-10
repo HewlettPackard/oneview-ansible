@@ -17,6 +17,7 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
 
@@ -42,6 +43,19 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set.
+          'query': A general query string to narrow the list of resources returned.
+          'fields': Specifies which fields should be returned in the result set.
+          'view': Return a specific subset of the attributes of the resource or collection, by specifying the name
+          of a predefined view."
+      required: false
     name:
       description:
         - Name of the Internal Link Set.
@@ -61,6 +75,15 @@ EXAMPLES = '''
 
 - debug: var=internal_link_sets
 
+- name: Gather paginated and sorted facts about Internal Link Sets
+  oneview_internal_link_set_facts:
+    config: "{{ config_path }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:ascending'
+
+- debug: var=internal_link_sets
 
 - name: Gather facts about an Internal Link Set by name
   oneview_internal_link_set_facts:
@@ -83,7 +106,9 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 class InternalLinkSetFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict')
+
     )
 
     def __init__(self):
@@ -101,7 +126,9 @@ class InternalLinkSetFactsModule(object):
             if self.module.params.get('name'):
                 internal_links = self.oneview_client.internal_link_sets.get_by('name', self.module.params.get('name'))
             else:
-                internal_links = self.oneview_client.internal_link_sets.get_all()
+                params = self.module.params.get('params') or {}
+
+                internal_links = self.oneview_client.internal_link_sets.get_all(**params)
 
             self.module.exit_json(changed=False,
                                   ansible_facts=dict(internal_link_sets=internal_links))

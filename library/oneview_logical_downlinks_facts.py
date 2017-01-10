@@ -17,6 +17,7 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
 
@@ -41,6 +42,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Logical Downlink name.
@@ -57,6 +67,17 @@ EXAMPLES = '''
   oneview_logical_downlinks_facts:
     config: "{{ config }}"
     delegate_to: localhost
+
+- debug: var=logical_downlinks
+
+- name: Gather paginated, filtered and sorted facts about Logical Downlinks
+  oneview_logical_downlinks_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: "name='LDa4c64fd9-0b76-46c3-8335-0bbb76459aff (Cisco Fabric Extender for HP BladeSystem)'"
 
 - debug: var=logical_downlinks
 
@@ -88,11 +109,11 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class LogicalDownlinksFactsModule(object):
-
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        excludeEthernet=dict(type='bool', default=False)
+        excludeEthernet=dict(type='bool', default=False),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -109,19 +130,23 @@ class LogicalDownlinksFactsModule(object):
 
     def run(self):
         try:
-            name = self.module.params["name"]
-            excludeEthernet = self.module.params["excludeEthernet"]
+            name = self.module.params.get("name")
+            excludeEthernet = self.module.params.get("excludeEthernet")
             logical_downlinks = None
 
             if name and excludeEthernet:
-                logical_downlink = self.__get_by_name(name)[0]
-                logical_downlinks = self.resource_client.get_without_ethernet(id_or_uri=logical_downlink["uri"])
+                logical_downlinks_by_name = self.__get_by_name(name)
+                logical_downlinks = []
+                if logical_downlinks_by_name:
+                    logical_downlink = logical_downlinks_by_name[0]
+                    logical_downlinks = self.resource_client.get_without_ethernet(id_or_uri=logical_downlink["uri"])
             elif name:
                 logical_downlinks = self.__get_by_name(name)
             elif excludeEthernet:
                 logical_downlinks = self.resource_client.get_all_without_ethernet()
             else:
-                logical_downlinks = self.resource_client.get_all()
+                params = self.module.params.get('params') or {}
+                logical_downlinks = self.resource_client.get_all(**params)
 
             self.module.exit_json(changed=False, ansible_facts=dict(logical_downlinks=logical_downlinks))
         except Exception as exception:

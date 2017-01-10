@@ -30,10 +30,10 @@
       oneview_ethernet_network_facts:
         config: "{{ config }}"
         params:
-          - start: 0
-          - count: 3
-          - sort: 'name:descending'
-          - filter: "purpose=General"
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: "purpose=General"
 
     - debug: var=ethernet_networks
 

@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_interconnect_facts import InterconnectFactsModule
-from test.utils import ParamsTestCase
+from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
 
 ERROR_MSG = 'Fake message error'
@@ -67,11 +67,11 @@ MOCK_INTERCONNECTS = [
 ]
 
 
-class InterconnectFactsSpec(unittest.TestCase, ModuleContructorTestCase, ParamsTestCase):
+class InterconnectFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, InterconnectFactsModule)
         self.interconnects = self.mock_ov_client.interconnects
-        ParamsTestCase.configure_client_mock(self, self.interconnects)
+        FactsParamsTestCase.configure_client_mock(self, self.interconnects)
 
     def test_should_get_all_interconnects(self):
         fake_interconnects = [dict(uidState='On', name=INTERCONNECT_NAME)]

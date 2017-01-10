@@ -27,6 +27,17 @@
 
     - debug: var=interconnect_link_topologies
 
+    - name: Gather paginated, filtered and sorted facts about Interconnect Link Topologies
+      oneview_interconnect_link_topology_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: "name='name1900571853-1483553596802'"
+
+    - debug: var=interconnect_link_topologies
+
     - name: Gather facts about an Interconnect Link Topology by name
       oneview_interconnect_link_topology_facts:
         config: "{{ config }}"

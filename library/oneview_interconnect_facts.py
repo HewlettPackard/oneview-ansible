@@ -84,10 +84,10 @@ EXAMPLES = '''
   oneview_interconnect_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 5
-      - sort: 'name:descending'
-      - filter: "enclosureName='0000A66101'"
+      start: 0
+      count: 5
+      sort: 'name:descending'
+      filter: "enclosureName='0000A66101'"
 
 - debug: var=interconnects
 
@@ -176,7 +176,7 @@ class InterconnectFactsModule(object):
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
-        params=dict(required=False, type='list'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -202,9 +202,9 @@ class InterconnectFactsModule(object):
                     self.__get_options(interconnects, facts)
 
             else:
-                params = self.module.params.get('params')
-                get_all_params = transform_list_to_dict(params) if params else {}
-                facts['interconnects'] = self.oneview_client.interconnects.get_all(**get_all_params)
+                params = self.module.params.get('params') or {}
+
+                facts['interconnects'] = self.oneview_client.interconnects.get_all(**params)
 
             self.module.exit_json(
                 changed=False,

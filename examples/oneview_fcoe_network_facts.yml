@@ -29,10 +29,10 @@
       oneview_fcoe_network_facts:
         config: "{{ config }}"
         params:
-          - start: 0
-          - count: 3
-          - sort: 'name:descending'
-          - filter: 'vlanId=2'
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: 'vlanId=2'
 
     - debug: var=fcoe_networks
 

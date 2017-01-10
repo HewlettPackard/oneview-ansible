@@ -28,6 +28,15 @@
 
     - debug: var=internal_link_sets
 
+    - name: Gather paginated and sorted facts about Internal Link Sets
+      oneview_internal_link_set_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: 'name:ascending'
+
+    - debug: var=internal_link_sets
 
     - name: Gather facts about an Internal Link Set by name
       oneview_internal_link_set_facts:

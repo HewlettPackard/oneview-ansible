@@ -17,6 +17,7 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
 
@@ -41,6 +42,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Name of the Interconnect Link Topology.
@@ -60,6 +70,16 @@ EXAMPLES = '''
 
 - debug: var=interconnect_link_topologies
 
+- name: Gather paginated, filtered and sorted facts about Interconnect Link Topologies
+  oneview_interconnect_link_topology_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: "name='name1900571853-1483553596802'"
+
+- debug: var=interconnect_link_topologies
 
 - name: Gather facts about an Interconnect Link Topology by name
   oneview_interconnect_link_topology_facts:
@@ -81,7 +101,8 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 class InterconnectLinkTopologyFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -100,7 +121,8 @@ class InterconnectLinkTopologyFactsModule(object):
                 name = self.module.params.get('name')
                 interconnect_link_topologies = self.oneview_client.interconnect_link_topologies.get_by('name', name)
             else:
-                interconnect_link_topologies = self.oneview_client.interconnect_link_topologies.get_all()
+                params = self.module.params.get('params') or {}
+                interconnect_link_topologies = self.oneview_client.interconnect_link_topologies.get_all(**params)
 
             self.module.exit_json(changed=False,
                                   ansible_facts=dict(interconnect_link_topologies=interconnect_link_topologies))

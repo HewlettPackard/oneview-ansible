@@ -1283,10 +1283,10 @@ Retrieve facts about the OneView Connection Templates.
   oneview_connection_template_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'name=defaultConnectionTemplate'
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'name=defaultConnectionTemplate'
 
 - debug: var=connection_templates
 
@@ -1459,10 +1459,10 @@ Retrieve facts about the OneView Data Centers.
   oneview_datacenter_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'state=Unmanaged'
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'state=Unmanaged'
 
 - debug: var=datacenters
 
@@ -1600,6 +1600,7 @@ Retrieve the facts about one or more of the OneView Drive Enclosures.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Drive Enclosure name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Drive Enclosure related resources. Options allowed: portMap. To gather additional facts it is required to inform the Drive Enclosure name. Otherwise, these options will be ignored.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -1616,10 +1617,10 @@ Retrieve the facts about one or more of the OneView Drive Enclosures.
   oneview_drive_enclosure_facts:
     config: "{{ config_file_path }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'status=Warning'
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'status=Warning'
 
 - debug: var=drive_enclosures
 
@@ -1910,10 +1911,10 @@ Retrieve facts about one or more Enclosures.
   oneview_enclosure_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'status=OK'
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'status=OK'
 
 - debug: var=enclosures
 
@@ -2096,10 +2097,10 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
   oneview_enclosure_group_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'status=OK'
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'status=OK'
 
 - debug: var=enclosure_groups
 
@@ -2274,10 +2275,10 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
   oneview_ethernet_network_facts:
     config: "{{ config_file_path }}"
     params:
-      - start: 1
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'purpose=General'
+      start: 1
+      count: 3
+      sort: 'name:descending'
+      filter: 'purpose=General'
 
 - debug: var=ethernet_networks
 
@@ -2413,10 +2414,10 @@ Retrieve the facts about one or more of the OneView Fabrics.
   oneview_fabric_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'name=DefaultFabric'
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'name=DefaultFabric'
 
 - debug: var=fabrics
 
@@ -2558,10 +2559,10 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks.
   oneview_fc_network_facts:
     config: "{{ config }}"
     params:
-      - start: 1
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'fabricType=FabricAttach'
+      start: 1
+      count: 3
+      sort: 'name:descending'
+      filter: 'fabricType=FabricAttach'
 - debug: var=fc_networks
 
 - name: Gather facts about a Fibre Channel Network by name
@@ -2685,10 +2686,10 @@ Retrieve the facts about one or more of the OneView FCoE Networks.
   oneview_fcoe_network_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'vlanId=2'
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'vlanId=2'
 
 - debug: var=fcoe_networks
 
@@ -2847,9 +2848,9 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
   oneview_firmware_driver_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
+      start: 0
+      count: 3
+      sort: 'name:descending'
 
 - debug: var=firmware_drivers
 
@@ -2979,10 +2980,10 @@ Retrieve facts about one or more of the OneView Interconnects.
   oneview_interconnect_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 5
-      - sort: 'name:descending'
-      - filter: "enclosureName='0000A66101'"
+      start: 0
+      count: 5
+      sort: 'name:descending'
+      filter: "enclosureName='0000A66101'"
 
 - debug: var=interconnects
 
@@ -3077,6 +3078,7 @@ Retrieve facts about the OneView Interconnect Link Topologies.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Interconnect Link Topology.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -3089,6 +3091,16 @@ Retrieve facts about the OneView Interconnect Link Topologies.
 
 - debug: var=interconnect_link_topologies
 
+- name: Gather paginated, filtered and sorted facts about Interconnect Link Topologies
+  oneview_interconnect_link_topology_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: "name='name1900571853-1483553596802'"
+
+- debug: var=interconnect_link_topologies
 
 - name: Gather facts about an Interconnect Link Topology by name
   oneview_interconnect_link_topology_facts:
@@ -3136,6 +3148,7 @@ Retrieve facts about one or more of the OneView Interconnect Types.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Interconnect Type name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -3145,6 +3158,17 @@ Retrieve facts about one or more of the OneView Interconnect Types.
 - name: Gather facts about all Interconnect Types
   oneview_interconnect_type_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=interconnect_types
+
+- name: Gather paginated, filtered and sorted facts about Interconnect Types
+  oneview_interconnect_type_facts:
+    config: "{{ config_file_path }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: "maximumFirmwareVersion='4000.99'"
 
 - debug: var=interconnect_types
 
@@ -3192,6 +3216,7 @@ Retrieve facts about the OneView Internal Link Sets.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Internal Link Set.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set. 'query': A general query string to narrow the list of resources returned. 'fields': Specifies which fields should be returned in the result set. 'view': Return a specific subset of the attributes of the resource or collection, by specifying the name of a predefined view.  |
 
 
  
@@ -3204,6 +3229,15 @@ Retrieve facts about the OneView Internal Link Sets.
 
 - debug: var=internal_link_sets
 
+- name: Gather paginated and sorted facts about Internal Link Sets
+  oneview_internal_link_set_facts:
+    config: "{{ config_path }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:ascending'
+
+- debug: var=internal_link_sets
 
 - name: Gather facts about an Internal Link Set by name
   oneview_internal_link_set_facts:
@@ -3251,6 +3285,7 @@ Retrieve facts about one or more of the OneView Logical Downlinks.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Downlink name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -3261,6 +3296,17 @@ Retrieve facts about one or more of the OneView Logical Downlinks.
   oneview_logical_downlinks_facts:
     config: "{{ config }}"
     delegate_to: localhost
+
+- debug: var=logical_downlinks
+
+- name: Gather paginated, filtered and sorted facts about Logical Downlinks
+  oneview_logical_downlinks_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: "name='LDa4c64fd9-0b76-46c3-8335-0bbb76459aff (Cisco Fabric Extender for HP BladeSystem)'"
 
 - debug: var=logical_downlinks
 

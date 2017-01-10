@@ -80,10 +80,10 @@ EXAMPLES = '''
   oneview_enclosure_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'status=OK'
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'status=OK'
 
 - debug: var=enclosures
 
@@ -159,7 +159,7 @@ class EnclosureFactsModule(object):
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
-        params=dict(required=False, type='list'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -229,9 +229,9 @@ class EnclosureFactsModule(object):
         return self.oneview_client.enclosures.get_by('name', name)
 
     def __get_all(self):
-        params = self.module.params.get('params')
-        get_all_params = transform_list_to_dict(params) if params else {}
-        return self.oneview_client.enclosures.get_all(**get_all_params)
+        params = self.module.params.get('params') or {}
+
+        return self.oneview_client.enclosures.get_all(**params)
 
 
 def main():

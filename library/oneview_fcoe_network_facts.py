@@ -17,14 +17,13 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
     HAS_HPE_ONEVIEW = False
-
 
 DOCUMENTATION = '''
 ---
@@ -74,10 +73,10 @@ EXAMPLES = '''
   oneview_fcoe_network_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'vlanId=2'
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'vlanId=2'
 
 - debug: var=fcoe_networks
 
@@ -99,11 +98,10 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class FcoeNetworkFactsModule(object):
-
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        params=dict(required=False, type='list')
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -134,10 +132,9 @@ class FcoeNetworkFactsModule(object):
                               ansible_facts=dict(fcoe_networks=fcoe_network))
 
     def __get_all(self):
-        params = self.module.params.get('params')
-        get_all_params = transform_list_to_dict(params) if params else {}
+        params = self.module.params.get('params') or {}
 
-        fcoe_network = self.oneview_client.fcoe_networks.get_all(**get_all_params)
+        fcoe_network = self.oneview_client.fcoe_networks.get_all(**params)
 
         self.module.exit_json(changed=False,
                               ansible_facts=dict(fcoe_networks=fcoe_network))

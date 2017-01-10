@@ -43,6 +43,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Drive Enclosure name.
@@ -70,10 +79,10 @@ EXAMPLES = '''
   oneview_drive_enclosure_facts:
     config: "{{ config_file_path }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'status=Warning'
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'status=Warning'
 
 - debug: var=drive_enclosures
 
@@ -114,7 +123,7 @@ class DriveEnclosureFactsModule(object):
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
-        params=dict(required=False, type='list')
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -143,9 +152,9 @@ class DriveEnclosureFactsModule(object):
                             facts['drive_enclosure_port_map'] = \
                                 self.oneview_client.drive_enclosures.get_port_map(drive_enclosures_uri)
             else:
-                params = self.module.params.get('params')
-                get_all_params = transform_list_to_dict(params) if params else {}
-                drive_enclosures = self.oneview_client.drive_enclosures.get_all(**get_all_params)
+                params = self.module.params.get('params') or {}
+
+                drive_enclosures = self.oneview_client.drive_enclosures.get_all(**params)
 
             facts['drive_enclosures'] = drive_enclosures
 

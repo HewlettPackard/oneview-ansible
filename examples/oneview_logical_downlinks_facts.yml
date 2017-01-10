@@ -26,6 +26,17 @@
 
     - debug: var=logical_downlinks
 
+    - name: Gather paginated, filtered and sorted facts about Logical Downlinks
+      oneview_logical_downlinks_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: "name='LDa4c64fd9-0b76-46c3-8335-0bbb76459aff (Cisco Fabric Extender for HP BladeSystem)'"
+
+    - debug: var=logical_downlinks
+
     - name: Gather facts about all Logical Downlinks excluding any existing Ethernet networks
       oneview_logical_downlinks_facts:
         config: "{{ config }}"

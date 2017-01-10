@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_drive_enclosure_facts import DriveEnclosureFactsModule
-from test.utils import ParamsTestCase
+from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
 
 ERROR_MSG = 'Fake message error'
@@ -61,11 +61,11 @@ PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
 )
 
 
-class DriveEnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, ParamsTestCase):
+class DriveEnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, DriveEnclosureFactsModule)
         self.drive_enclosures = self.mock_ov_client.drive_enclosures
-        ParamsTestCase.configure_client_mock(self, self.drive_enclosures)
+        FactsParamsTestCase.configure_client_mock(self, self.drive_enclosures)
 
     def test_should_get_all(self):
         self.drive_enclosures.get_all.return_value = MOCK_DRIVE_ENCLOSURES

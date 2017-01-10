@@ -18,7 +18,7 @@ import unittest
 
 from oneview_ethernet_network_facts import EthernetNetworkFactsModule
 from test.utils import ModuleContructorTestCase
-from test.utils import ParamsTestCase
+from test.utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -61,11 +61,11 @@ ENET_ASSOCIATED_PROFILES = [dict(uri=ENET_ASSOCIATED_PROFILE_URIS[0], name='Serv
                             dict(uri=ENET_ASSOCIATED_PROFILE_URIS[1], name='Server Profile 2')]
 
 
-class EthernetNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, ParamsTestCase):
+class EthernetNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, EthernetNetworkFactsModule)
         self.ethernet_networks = self.mock_ov_client.ethernet_networks
-        ParamsTestCase.configure_client_mock(self, self.ethernet_networks)
+        FactsParamsTestCase.configure_client_mock(self, self.ethernet_networks)
 
     def test_should_get_all_enets(self):
         self.ethernet_networks.get_all.return_value = PRESENT_ENETS

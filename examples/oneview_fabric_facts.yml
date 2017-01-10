@@ -30,10 +30,10 @@
       oneview_fabric_facts:
         config: "{{ config }}"
         params:
-          - start: 0
-          - count: 3
-          - sort: 'name:descending'
-          - filter: 'name=DefaultFabric'
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: 'name=DefaultFabric'
 
     - debug: var=fabrics
 

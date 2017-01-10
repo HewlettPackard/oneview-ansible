@@ -19,7 +19,6 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -78,10 +77,10 @@ EXAMPLES = '''
   oneview_connection_template_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'name=defaultConnectionTemplate'
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'name=defaultConnectionTemplate'
 
 - debug: var=connection_templates
 
@@ -131,7 +130,7 @@ class ConnectionTemplateFactsModule(object):
         },
         "params": {
             "required": False,
-            "type": 'list'
+            "type": 'dict'
         }
     }
 
@@ -156,9 +155,8 @@ class ConnectionTemplateFactsModule(object):
             elif self.module.params.get('name'):
                 ansible_facts['connection_templates'] = client.get_by('name', self.module.params['name'])
             else:
-                params = self.module.params.get('params')
-                get_all_params = transform_list_to_dict(params) if params else {}
-                ansible_facts['connection_templates'] = client.get_all(**get_all_params)
+                params = self.module.params.get('params') or {}
+                ansible_facts['connection_templates'] = client.get_all(**params)
 
             self.module.exit_json(changed=False,
                                   ansible_facts=ansible_facts)

@@ -17,6 +17,7 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import transform_list_to_dict
@@ -78,10 +79,10 @@ EXAMPLES = '''
   oneview_fabric_facts:
     config: "{{ config }}"
     params:
-      - start: 0
-      - count: 3
-      - sort: 'name:descending'
-      - filter: 'name=DefaultFabric'
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'name=DefaultFabric'
 
 - debug: var=fabrics
 
@@ -120,7 +121,7 @@ class FabricFactsModule(object):
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
-        params=dict(required=False, type='list')
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -144,10 +145,9 @@ class FabricFactsModule(object):
                 if self.module.params.get('options') and fabrics:
                     ansible_facts = self.__gather_optional_facts(self.module.params['options'], fabrics[0])
             else:
-                params = self.module.params.get('params')
-                get_all_params = transform_list_to_dict(params) if params else {}
+                params = self.module.params.get('params') or {}
 
-                fabrics = self.oneview_client.fabrics.get_all(**get_all_params)
+                fabrics = self.oneview_client.fabrics.get_all(**params)
 
             ansible_facts['fabrics'] = fabrics
 

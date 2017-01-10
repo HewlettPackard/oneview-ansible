@@ -36,10 +36,10 @@
       oneview_interconnect_facts:
         config: "{{ config }}"
         params:
-          - start: 0
-          - count: 5
-          - sort: 'name:descending'
-          - filter: "enclosureName='0000A66101'"
+          start: 0
+          count: 5
+          sort: 'name:descending'
+          filter: "enclosureName='0000A66101'"
 
     - debug: var=interconnects
 
