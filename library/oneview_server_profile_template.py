@@ -52,6 +52,12 @@ options:
         description:
             - Dict with Server Profile Template properties.
         required: true
+    validate_etag:
+        description:
+            - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
+              for the resource matches the ETag provided in the data.
+        default: true
+        choices: ['true', 'false']
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -101,7 +107,11 @@ class ServerProfileTemplateModule(object):
             required=True,
             choices=['present', 'absent']
         ),
-        data=dict(required=True, type='dict')
+        data=dict(required=True, type='dict'),
+        validate_etag=dict(
+            required=False,
+            type='bool',
+            default=True)
     )
 
     def __init__(self):
@@ -113,17 +123,20 @@ class ServerProfileTemplateModule(object):
             self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
 
         if not self.module.params['config']:
-            oneview_client = OneViewClient.from_environment_variables()
+            self.oneview_client = OneViewClient.from_environment_variables()
         else:
-            oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
-        self.resource_client = oneview_client.server_profile_templates
+        self.resource_client = self.oneview_client.server_profile_templates
 
     def run(self):
         try:
             state = self.module.params["state"]
             data = self.module.params["data"]
             template = self.resource_client.get_by_name(data["name"])
+
+            if not self.module.params.get('validate_etag'):
+                self.oneview_client.connection.disable_etag_validation()
 
             if state == 'present':
                 result = self.__present(data, template)
