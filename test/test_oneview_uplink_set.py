@@ -20,13 +20,14 @@ from oneview_uplink_set import UplinkSetModule, UPLINK_SET_ALREADY_ABSENT, UPLIN
     UPLINK_SET_CREATED, UPLINK_SET_DELETED, UPLINK_SET_UPDATED, UPLINK_SET_KEY_REQUIRED, \
     UPLINK_SET_LOGICAL_INTERCONNECT_NOT_FOUND
 from test.utils import ModuleContructorTestCase
+from test.utils import ValidateEtagTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 DEFAULT_UPLINK_NAME = 'Test Uplink Set'
 RENAMED_UPLINK_SET = 'Renamed Uplink Set'
 
 
-class UplinkSetStateSpec(unittest.TestCase, ModuleContructorTestCase):
+class UplinkSetModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
     def setUp(self):
         self.configure_mocks(self, UplinkSetModule)
         self.resource = self.mock_ov_client.uplink_sets
