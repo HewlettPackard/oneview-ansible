@@ -39,7 +39,6 @@ KEY_DEVICE_SLOT = 'deviceSlot'
 KEY_CONNECTIONS = 'connections'
 KEY_OS_DEPLOYMENT = 'osDeploymentSettings'
 KEY_OS_DEPLOYMENT_URI = 'osDeploymentPlanUri'
-KEY_OS_DEPLOYMENT_NAME = 'osDeploymentPlanName'
 KEY_ATTRIBUTES = 'osCustomAttributes'
 KEY_SAN = 'sanStorage'
 KEY_VOLUMES = 'volumeAttachments'
@@ -81,7 +80,9 @@ SERVER_PROFILE_NOT_FOUND = "Server Profile is required for this operation."
 ERROR_ALLOCATE_SERVER_HARDWARE = 'Could not allocate server hardware'
 MAKE_COMPLIANT_NOT_SUPPORTED = "Update from template is not supported for server profile '{}' because it is not " \
                                "associated with a server profile template."
-OS_DEPLOYMENT_NOT_FOUND = 'OS Deployment Plan not found.'
+SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND = 'OS Deployment Plan not found: '
+SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND = 'Enclosure Group not found: '
+SERVER_PROFILE_NETWORK_NOT_FOUND = 'Network not found: '
 
 CONCURRENCY_FAILOVER_RETRIES = 25
 
@@ -133,6 +134,9 @@ notes:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
     - "Check how to use environment variables for configuration at:
        https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+    - "For the following data, you can provide a name instead of a URI: enclosureGroupName instead of enclosureGroupUri,
+       osDeploymentPlanName instead of osDeploymentPlanUri (on the osDeploymentSettings), and networkName instead of a
+       networkUri (on the connections list)"
 '''
 
 EXAMPLES = '''
@@ -287,7 +291,7 @@ class ServerProfileModule(object):
         changed = False
         created = False
 
-        self.__replace_os_deployment_name_by_uri(data)
+        self.__replace_names_by_uris(data)
 
         if server_hardware_name:
             selected_server_hardware = self.__get_server_hardware_by_name(server_hardware_name)
@@ -551,17 +555,50 @@ class ServerProfileModule(object):
             self.oneview_client.server_hardware.update_power_state(
                 dict(powerState='Off', powerControl='PressAndHold'), hardware_uri)
 
+    def __replace_names_by_uris(self, data):
+        self.__replace_os_deployment_name_by_uri(data)
+        self.__replace_enclosure_group_name_by_uri(data)
+        self.__replace_networks_name_by_uri(data)
+
     def __replace_os_deployment_name_by_uri(self, data):
         if KEY_OS_DEPLOYMENT in data and data[KEY_OS_DEPLOYMENT]:
-            if KEY_OS_DEPLOYMENT_NAME in data[KEY_OS_DEPLOYMENT]:
-                os_deployment = self.__get_os_deployment_by_name(data[KEY_OS_DEPLOYMENT].pop(KEY_OS_DEPLOYMENT_NAME))
+            if 'osDeploymentPlanName' in data[KEY_OS_DEPLOYMENT]:
+                os_deployment = self.__get_os_deployment_by_name(data[KEY_OS_DEPLOYMENT].pop('osDeploymentPlanName'))
                 data[KEY_OS_DEPLOYMENT][KEY_OS_DEPLOYMENT_URI] = os_deployment['uri']
+
+    def __replace_enclosure_group_name_by_uri(self, data):
+        if 'enclosureGroupName' in data:
+            enclosure_group = self.__get_enclosure_group_by_name(data.pop('enclosureGroupName'))
+            data['enclosureGroupUri'] = enclosure_group['uri']
+
+    def __replace_networks_name_by_uri(self, data):
+        if KEY_CONNECTIONS in data:
+            for connection in data[KEY_CONNECTIONS]:
+                if 'networkName' in connection:
+                    name = connection.pop('networkName', None)
+                    connection['networkUri'] = self.__get_network_by_name(name)['uri']
 
     def __get_os_deployment_by_name(self, name):
         os_deployment = self.oneview_client.os_deployment_plans.get_by_name(name)
         if not os_deployment:
-            raise Exception(OS_DEPLOYMENT_NOT_FOUND)
+            raise Exception(SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND + name)
         return os_deployment
+
+    def __get_enclosure_group_by_name(self, name):
+        enclosure_group = self.oneview_client.enclosure_groups.get_by('name', name)
+        if not enclosure_group:
+            raise Exception(SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND + name)
+        return enclosure_group[0]
+
+    def __get_network_by_name(self, name):
+        fc_networks = self.oneview_client.fc_networks.get_by('name', name)
+        if fc_networks:
+            return fc_networks[0]
+
+        ethernet_networks = self.oneview_client.ethernet_networks.get_by('name', name)
+        if not ethernet_networks:
+            raise Exception(SERVER_PROFILE_NETWORK_NOT_FOUND + name)
+        return ethernet_networks[0]
 
 
 class ServerProfileMerger(object):

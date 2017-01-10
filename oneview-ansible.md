@@ -6300,6 +6300,8 @@ Manage OneView Server Profile resources.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- For the following data, you can provide a name instead of a URI: enclosureGroupName instead of enclosureGroupUri, osDeploymentPlanName instead of osDeploymentPlanUri (on the osDeploymentSettings), and networkName instead of a networkUri (on the connections list)
+
 
 ---
 

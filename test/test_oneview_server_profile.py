@@ -25,11 +25,12 @@ from oneview_server_profile import ServerProfileModule
 from oneview_server_profile import ServerProfileMerger
 from oneview_server_profile import MAKE_COMPLIANT_NOT_SUPPORTED, SERVER_PROFILE_CREATED, REMEDIATED_COMPLIANCE, \
     ALREADY_COMPLIANT, SERVER_PROFILE_DELETED, SERVER_PROFILE_UPDATED, SERVER_ALREADY_UPDATED, \
-    ERROR_ALLOCATE_SERVER_HARDWARE, SERVER_PROFILE_ALREADY_ABSENT, OS_DEPLOYMENT_NOT_FOUND, KEY_CONNECTIONS, \
+    ERROR_ALLOCATE_SERVER_HARDWARE, SERVER_PROFILE_ALREADY_ABSENT, KEY_CONNECTIONS, \
     KEY_OS_DEPLOYMENT, KEY_ATTRIBUTES, KEY_SAN, KEY_VOLUMES, KEY_PATHS, KEY_BOOT, KEY_BIOS, KEY_BOOT_MODE, \
     KEY_LOCAL_STORAGE, KEY_SAS_LOGICAL_JBODS, KEY_CONTROLLERS, KEY_LOGICAL_DRIVES, KEY_SAS_LOGICAL_JBOD_URI, \
     KEY_MAC_TYPE, KEY_MAC, KEY_SERIAL_NUMBER_TYPE, KEY_SERIAL_NUMBER, KEY_UUID, KEY_WWPN_TYPE, KEY_LUN, KEY_WWNN, \
-    KEY_WWPN, KEY_DRIVE_NUMBER
+    KEY_WWPN, KEY_DRIVE_NUMBER, SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND, SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND, \
+    SERVER_PROFILE_NETWORK_NOT_FOUND
 
 SERVER_PROFILE_NAME = "Profile101"
 SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
@@ -630,7 +631,75 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         ServerProfileModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=OS_DEPLOYMENT_NOT_FOUND)
+        expected_error = SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND + "Deployment Plan Name"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_enclosure_group_name_by_uri_on_creation(self):
+        uri = '/rest/enclosure-groups/81decf85-0dff-4a5e-8a95-52994eeb6493'
+
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['enclosureGroupName'] = "Enclosure Group Name"
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.enclosure_groups.get_by.return_value = [dict(uri=uri)]
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0].get('enclosureGroupUri'), uri)
+        self.assertFalse(args[0].get('enclosureGroupName'))
+
+    def test_should_fail_when_enclosure_group_not_found_on_creation(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['enclosureGroupName'] = "Enclosure Group Name"
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.enclosure_groups.get_by.return_value = []
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_error = SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND + "Enclosure Group Name"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_connections_name_by_uri_on_creation(self):
+        conn_1 = dict(name="connection-1", networkUri='/rest/fc-networks/98')
+        conn_2 = dict(name="connection-2", networkName='FC Network')
+        conn_3 = dict(name="connection-3", networkName='Ethernet Network')
+
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_CONNECTIONS] = [conn_1, conn_2, conn_3]
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], []]
+        self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_connections = [dict(name="connection-1", networkUri='/rest/fc-networks/98'),
+                                dict(name="connection-2", networkUri='/rest/fc-networks/14'),
+                                dict(name="connection-3", networkUri='/rest/ethernet-networks/18')]
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0].get(KEY_CONNECTIONS), expected_connections)
+
+    def test_should_fail_when_network_not_found_on_creation(self):
+        conn = dict(name="connection-1", networkName='FC Network')
+
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_CONNECTIONS] = [conn]
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.fc_networks.get_by.return_value = []
+        self.mock_ov_client.ethernet_networks.get_by.return_value = []
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_error = SERVER_PROFILE_NETWORK_NOT_FOUND + "FC Network"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_remove_mac_from_connections_before_create_when_mac_is_virtual(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
@@ -1023,7 +1092,75 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         ServerProfileModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=OS_DEPLOYMENT_NOT_FOUND)
+        expected_error = SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND + "Deployment Plan Name"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_enclosure_group_name_by_uri_on_update(self):
+        uri = '/rest/enclosure-groups/81decf85-0dff-4a5e-8a95-52994eeb6493'
+
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['enclosureGroupName'] = "Enclosure Group Name"
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.mock_ov_client.enclosure_groups.get_by.return_value = [dict(uri=uri)]
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.update.call_args
+        self.assertEqual(args[0].get('enclosureGroupUri'), uri)
+        self.assertFalse(args[0].get('enclosureGroupName'))
+
+    def test_should_fail_when_enclosure_group_not_found_on_update(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['enclosureGroupName'] = "Enclosure Group Name"
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.mock_ov_client.enclosure_groups.get_by.return_value = []
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_error = SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND + "Enclosure Group Name"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_connections_name_by_uri_on_update(self):
+        conn_1 = dict(name="connection-1", networkUri='/rest/fc-networks/98')
+        conn_2 = dict(name="connection-2", networkName='FC Network')
+        conn_3 = dict(name="connection-3", networkName='Ethernet Network')
+
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_CONNECTIONS] = [conn_1, conn_2, conn_3]
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], []]
+        self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_connections = [dict(name="connection-1", networkUri='/rest/fc-networks/98'),
+                                dict(name="connection-2", networkUri='/rest/fc-networks/14'),
+                                dict(name="connection-3", networkUri='/rest/ethernet-networks/18')]
+
+        args, _ = self.mock_ov_client.server_profiles.update.call_args
+        self.assertEqual(args[0].get(KEY_CONNECTIONS), expected_connections)
+
+    def test_should_fail_when_network_not_found_on_update(self):
+        conn = dict(name="connection-1", networkName='FC Network')
+
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data'][KEY_CONNECTIONS] = [conn]
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.mock_ov_client.fc_networks.get_by.return_value = []
+        self.mock_ov_client.ethernet_networks.get_by.return_value = []
+        self.mock_ansible_module.params = deepcopy(params)
+
+        ServerProfileModule().run()
+
+        expected_error = SERVER_PROFILE_NETWORK_NOT_FOUND + "FC Network"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     @mock.patch('oneview_server_profile.resource_compare')
     def test_should_not_remove_mac_from_connections_before_update_when_mac_is_virtual(self, mock_resource_compare):

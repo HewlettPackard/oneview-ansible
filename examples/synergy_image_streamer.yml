@@ -23,11 +23,11 @@
     server_profile_name: Server profile with OS Deployment Plan
     # Set the filepath of the Artifact Bundle to upload
     artifact_bundle_filepath: '{{ playbook_dir }}/files/HPE-ImageStreamer-Developer-2016-09-12.zip'
-    # Set the URI of the enclosure group to asscciate with the Server Profile
-    enclosure_group_uri:  /rest/enclosure-groups/3a04dea8-e02c-41f7-a5cd-aaea2ddf9b60
-    # Set the URI of the ethernet networks to associate with the Server Profile
-    network_1_uri: /rest/ethernet-networks/fb9f0351-9103-4592-85f2-b650d46a0224
-    network_2_uri: /rest/ethernet-networks/ef12d6ff-62c8-415a-b40e-fae2907a9957
+    # Set the name of the Enclosure Group to associate with the Server Profile
+    enclosure_group_name:  EG1a
+    # Set the name of the Ethernet networks to associate with the Server Profile
+    network_1_name: i3s-nw
+    network_2_name: lab-nw
   tasks:
     - name: Ensure the Artifact Bundle is present
       image_streamer_artifact_bundle:
@@ -56,7 +56,7 @@
          config: "{{ config }}"
          data:
            name: "{{ server_profile_name }}"
-           enclosureGroupUri: "{{ enclosure_group_uri }}"
+           enclosureGroupName: "{{ enclosure_group_name }}"
            boot:
               manageBoot: true
               order:
@@ -69,7 +69,7 @@
             - id: 1
               name: connection1
               functionType: Ethernet
-              networkUri: '{{ network_1_uri }}'
+              networkName: '{{ network_1_name }}'
               requestedMbps: 2500
               requestedVFs: Auto
               boot:
@@ -78,7 +78,7 @@
             - id: 2
               name: connection2
               functionType: Ethernet
-              networkUri: '{{ network_2_uri }}'
+              networkName: '{{ network_2_name }}'
               requestedMbps: 2500
               requestedVFs: Auto
               boot:
