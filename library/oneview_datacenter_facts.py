@@ -28,9 +28,9 @@ except ImportError:
 DOCUMENTATION = '''
 ---
 module: oneview_datacenters_facts
-short_description: Retrieve facts about Data Centers of the OneView.
+short_description: Retrieve facts about the OneView Data Centers.
 description:
-    - Retrieve facts about Data Centers of the OneView.
+    - Retrieve facts about the OneView Data Centers.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
@@ -57,7 +57,7 @@ options:
       required: false
     options:
       description:
-        - "Retrieve additional facts. Options available: 'visualContent'"
+        - "Retrieve additional facts. Options available: 'visualContent'."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:

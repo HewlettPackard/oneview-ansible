@@ -28,9 +28,9 @@ except ImportError:
 DOCUMENTATION = '''
 ---
 module: oneview_connection_template_facts
-short_description: Retrieve facts about Connection Templates of the OneView.
+short_description: Retrieve facts about the OneView Connection Templates.
 description:
-    - Retrieve facts about Connection Templates of the OneView.
+    - Retrieve facts about the OneView Connection Templates.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
@@ -58,7 +58,7 @@ options:
     options:
       description:
         - "List with options to gather additional facts about Connection Template related resources.
-           Options allowed: defaultConnectionTemplate"
+           Options allowed: defaultConnectionTemplate."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:

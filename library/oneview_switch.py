@@ -48,7 +48,7 @@ options:
         description:
             - Indicates the desired state for the Switch.
               'absent' will remove the resource from OneView, if it exists.
-              'ports_updated' will update the switch ports
+              'ports_updated' will update the switch ports.
         choices: ['absent', 'ports_updated']
     name:
       description:

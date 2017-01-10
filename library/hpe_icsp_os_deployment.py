@@ -80,7 +80,7 @@ EXAMPLES = '''
 RETURN = '''
 icsp_server:
     description: Has the facts about the server that was provisioned with ICsp.
-    returned: When the module runs successfully. Can be null.
+    returned: When the module runs successfully, but can be null.
     type: complex
 '''
 

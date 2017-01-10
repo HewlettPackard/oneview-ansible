@@ -26,9 +26,9 @@ DOCUMENTATION = '''
 module: hpe_icsp_server
 short_description: Adds, removes and configures servers in ICsp.
 description:
-    - This module allows to add, remove and configure servers in Insight Control Server Provisioning (ICsp). A server,
-     often referred to as a Target Server, in ICsp is a physical ProLiant server or a virtual machine that can have
-     actions taken upon it.
+    - This module allows you to add, remove and configure servers in the Insight Control Server Provisioning (ICsp).
+      In ICsp, a server, often referred to as a Target Server, is a physical ProLiant server or a virtual machine that
+      can have actions taken upon it.
 requirements:
     - "python >= 2.7.9"
     - "hpICsp"
@@ -58,7 +58,7 @@ options:
     required: true
   server_username:
     description:
-      - The user name required to log into the server's iLO.
+      - The username required to log into the server's iLO.
     required: true
   server_password:
     description:
@@ -72,7 +72,7 @@ options:
     required: false
   server_personality_data:
     description:
-      - Aditional data to send to ICsp.
+      - Additional data to send to ICsp.
     required: false
 '''
 

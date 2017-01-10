@@ -47,7 +47,7 @@ options:
       required: false
     options:
       description:
-        - "List with options to gather additional facts about Unmanaged Device.
+        - "List with options to gather additional facts about the Unmanaged Device.
           Options allowed:
           'environmental_configuration' gets a description of the environmental configuration for the Unmnaged Device."
 notes:

@@ -110,8 +110,8 @@ options:
   state:
     description:
       - Indicates the desired state for the Server Profile resource by the end of the playbook execution.
-        'present' will ensure data properties are compliant with OneView. This operation power off the Server Hardware
-        before configuring Server Profile. After complete, the Server Hardware is powered on.
+        'present' will ensure data properties are compliant with OneView. This operation will power off the Server
+        Hardware before configuring the Server Profile. After it completes, the Server Hardware is powered on.
         For the osDeploymentSettings, you can provide an osDeploymentPlanName instead of osDeploymentPlanUri.
         'absent' will remove the resource from OneView, if it exists.
         'compliant' will make the server profile compliant with its server profile template, when this option was

@@ -30,7 +30,7 @@ DOCUMENTATION = '''
 module: image_streamer_deployment_plan
 short_description: Manage Image Streamer Deployment Plan resources.
 description:
-    - "Provides an interface to manage Image Streamer Deployment Plans. Can create, update, remove."
+    - "Provides an interface to manage Image Streamer Deployment Plans. Can create, update, and remove."
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.1"

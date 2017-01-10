@@ -63,11 +63,11 @@ options:
         ]
     name:
       description:
-        - Interconnect name
+        - Interconnect name.
       required: false
     ip:
       description:
-        - Interconnect IP add
+        - Interconnect IP address.
       required: false
     ports:
       description:

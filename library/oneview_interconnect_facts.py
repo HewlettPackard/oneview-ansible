@@ -53,7 +53,7 @@ options:
       required: false
     name:
       description:
-        - Interconnect name
+        - Interconnect name.
       required: false
     options:
       description:

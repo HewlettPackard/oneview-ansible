@@ -51,8 +51,8 @@ options:
         - "List with options to gather additional facts about Server Profile related resources.
           Options allowed: schema, compliancePreview, profilePorts, messages, transformation, available_networks,
           available_servers, available_storage_system, available_storage_systems, available_targets"
-        - "To gather facts about 'compliancePreview', 'messages' and 'transformation' it is required inform the Server
-          Profile name. Otherwise, these options will be ignored."
+        - "To gather facts about 'compliancePreview', 'messages' and 'transformation' it is required to inform the
+          Server Profile name. Otherwise, these options will be ignored."
       required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
@@ -152,7 +152,7 @@ server_profile_compliance_preview:
     type: complex
 
 server_profile_profile_ports:
-    description: Has the facts about the port model associated.
+    description: Has the facts about the port model associated with the profile.
     returned: When requested, but can be null.
     type: complex
 

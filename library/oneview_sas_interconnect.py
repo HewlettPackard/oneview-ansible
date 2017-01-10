@@ -50,9 +50,9 @@ options:
               'powered_off' turns the power off.
               'uid_on' turns the UID light on.
               'uid_off' turns the UID light off.
-              'soft_reset' perform a soft reset.
-              'hard_reset' perform a hard reset.
-              'refreshed' perform a refresh.
+              'soft_reset' performs a soft reset.
+              'hard_reset' performs a hard reset.
+              'refreshed' performs a refresh.
         choices: ['powered_on', 'powered_off', 'uid_on', 'uid_off', 'soft_reset', 'hard_reset', 'refreshed']
     name:
         description:

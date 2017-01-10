@@ -28,9 +28,9 @@ except ImportError:
 DOCUMENTATION = '''
 ---
 module: image_streamer_build_plan
-short_description: Manage Image Stream OS Build Plan resources.
+short_description: Manages Image Stream OS Build Plan resources.
 description:
-    - "Provides an interface to manage Image Stream OS Build Plans. Can create, update, remove."
+    - "Provides an interface to manage Image Stream OS Build Plans. Can create, update, and remove."
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.1"

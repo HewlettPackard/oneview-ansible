@@ -30,7 +30,7 @@ DOCUMENTATION = '''
 module: oneview_rack
 short_description: Manage OneView Racks resources.
 description:
-    - Provides an interface to manage Rack resources. Can create, update, delete.
+    - Provides an interface to manage Rack resources. Can create, update, and delete.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"

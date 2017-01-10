@@ -44,8 +44,8 @@ options:
     state:
         description:
             - Indicates the desired state for the Drive Enclosure resource.
-              'power_state_set' will set the power state of the Drive Enclosure.
-              'uid_state_set' will set the uid state of the Drive Enclosure.
+              'power_state_set' will set the power state for the Drive Enclosure.
+              'uid_state_set' will set the uid state for the Drive Enclosure.
               'hard_reset_state_set' will request a hard reset of the Drive Enclosure.
               'refresh_state_set' will refresh a Drive Enclosure.
         choices: ['power_state_set', 'uid_state_set', 'hard_reset_state_set', 'refresh_state_set']

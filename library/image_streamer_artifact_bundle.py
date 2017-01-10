@@ -29,9 +29,9 @@ except ImportError:
 DOCUMENTATION = '''
 ---
 module: image_streamer_artifact_bundle
-short_description: Manage Artifact Bundle resource.
+short_description: Manage the Artifact Bundle resource.
 description:
-    - "Provides an interface to manage Artifact Bundle. Can create, update, remove, and also, download, upload, extract"
+    - "Provides an interface to manage the Artifact Bundle. Can create, update, remove, and download, upload, extract"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.1"
@@ -51,12 +51,12 @@ options:
           'absent' will remove the resource from OneView, if it exists.
           'downloaded' will download the Artifact Bundle to the file path provided.
           'archive_downloaded' will download the Artifact Bundle archive to the file path provided.
-          'backup_uploaded' will upload the Backup of Artifact Bundle from the file path provided.
-          'backup_created' will create a Backup for Artifact Bundle.
+          'backup_uploaded' will upload the Backup for the Artifact Bundle from the file path provided.
+          'backup_created' will create a Backup for the Artifact Bundle.
           'extracted' will extract an Artifact Bundle.
-          'backup_extracted' will extract an Artifact Bundle from Backup.
+          'backup_extracted' will extract an Artifact Bundle from the Backup.
       choices: ['present', 'absent', 'downloaded', 'archive_downloaded',
-                'backup_uploaded', 'backup_created', 'extracted','backup_extracted']
+                'backup_uploaded', 'backup_created', 'extracted', 'backup_extracted']
       required: true
     data:
       description:

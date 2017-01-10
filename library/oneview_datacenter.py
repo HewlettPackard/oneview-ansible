@@ -29,7 +29,7 @@ DOCUMENTATION = '''
 module: oneview_datacenter
 short_description: Manage OneView Data Center resources.
 description:
-    - "Provides an interface to manage Data Center resources. Can add, update, remove."
+    - "Provides an interface to manage Data Center resources. Can add, update, and remove."
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
