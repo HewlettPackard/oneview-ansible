@@ -932,6 +932,7 @@ Retrieve facts about one or more of the Image Streamer Golden Image.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Golden Image name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -941,6 +942,17 @@ Retrieve facts about one or more of the Image Streamer Golden Image.
 - name: Gather facts about all Golden Images
   image_streamer_golden_image_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=golden_images
+
+- name: Gather paginated, filtered and sorted facts about Golden Images
+  image_streamer_golden_image_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: importedFromBundle=true
   delegate_to: localhost
 - debug: var=golden_images
 

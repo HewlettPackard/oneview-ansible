@@ -25,6 +25,17 @@
       delegate_to: localhost
     - debug: var=golden_images
 
+    - name: Gather paginated, filtered and sorted facts about Golden Images
+      image_streamer_golden_image_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          filter: importedFromBundle=true
+      delegate_to: localhost
+    - debug: var=golden_images
+
     - name: Gather facts about a Golden Image by name
       image_streamer_golden_image_facts:
         config: "{{ config }}"
