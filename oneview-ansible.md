@@ -548,6 +548,7 @@ Retrieve facts about one or more of the Image Streamer Build Plans.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Build Plan name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -557,6 +558,17 @@ Retrieve facts about one or more of the Image Streamer Build Plans.
 - name: Gather facts about all Build Plans
   image_streamer_build_plan_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=build_plans
+
+- name: Gather paginated, filtered and sorted facts about Build Plans
+  image_streamer_build_plan_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: oeBuildPlanType=capture
   delegate_to: localhost
 - debug: var=build_plans
 

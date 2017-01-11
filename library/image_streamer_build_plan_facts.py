@@ -46,6 +46,15 @@ options:
       description:
         - Build Plan name.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+           'start': The first item to return, using 0-based indexing.
+           'count': The number of resources to return.
+           'filter': A general filter/query string to narrow the list of items returned.
+           'sort': The sort order of the returned data set."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -57,6 +66,17 @@ EXAMPLES = '''
 - name: Gather facts about all Build Plans
   image_streamer_build_plan_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=build_plans
+
+- name: Gather paginated, filtered and sorted facts about Build Plans
+  image_streamer_build_plan_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: oeBuildPlanType=capture
   delegate_to: localhost
 - debug: var=build_plans
 
@@ -82,7 +102,8 @@ class BuildPlanFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -104,7 +125,8 @@ class BuildPlanFactsModule(object):
             if name:
                 build_plans = self.i3s_client.build_plans.get_by("name", name)
             else:
-                build_plans = self.i3s_client.build_plans.get_all()
+                params = self.module.params.get('params') or {}
+                build_plans = self.i3s_client.build_plans.get_all(**params)
 
             self.module.exit_json(changed=False, ansible_facts=dict(build_plans=build_plans))
 
