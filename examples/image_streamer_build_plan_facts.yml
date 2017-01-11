@@ -25,6 +25,17 @@
       delegate_to: localhost
     - debug: var=build_plans
 
+    - name: Gather paginated, filtered and sorted facts about Build Plans
+      image_streamer_build_plan_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          filter: oeBuildPlanType=capture
+      delegate_to: localhost
+    - debug: var=build_plans
+
     - name: Gather facts about a Build Plan by name
       image_streamer_build_plan_facts:
         config: "{{ config }}"

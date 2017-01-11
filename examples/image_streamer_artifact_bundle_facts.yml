@@ -26,6 +26,17 @@
       delegate_to: localhost
     - debug: var=artifact_bundles
 
+    - name: Gather paginated, filtered and sorted facts about Artifact Bundles
+      image_streamer_artifact_bundle_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          filter: state=OK
+      delegate_to: localhost
+
+    - debug: msg="{{artifact_bundles | map(attribute='name') | list }}"
 
     - name: Gather facts about an Artifact Bundle by name
       image_streamer_artifact_bundle_facts:

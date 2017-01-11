@@ -18,26 +18,29 @@ import unittest
 import yaml
 
 from image_streamer_deployment_plan_facts import DeploymentPlanFactsModule, EXAMPLES
-from utils import ModuleContructorTestCase
+from utils import ModuleContructorTestCase, FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
-class DeploymentPlanFactsSpec(unittest.TestCase, ModuleContructorTestCase):
+class DeploymentPlanFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-    """
+    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
+    mocks used in this test class.
 
+    FactsParamsTestCase has common tests for the parameters support.
+    """
     def setUp(self):
         self.configure_mocks(self, DeploymentPlanFactsModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
+
+        FactsParamsTestCase.configure_client_mock(self, self.i3s.deployment_plans)
 
         # Load scenarios from module examples
         self.DEPLOYMENT_PLAN_FACTS_EXAMPLES = yaml.load(EXAMPLES)
 
         self.TASK_GET_ALL = self.DEPLOYMENT_PLAN_FACTS_EXAMPLES[0]['image_streamer_deployment_plan_facts']
-        self.TASK_GET_BY_NAME = self.DEPLOYMENT_PLAN_FACTS_EXAMPLES[2]['image_streamer_deployment_plan_facts']
+        self.TASK_GET_BY_NAME = self.DEPLOYMENT_PLAN_FACTS_EXAMPLES[4]['image_streamer_deployment_plan_facts']
 
         self.DEPLOYMENT_PLAN = dict(
             name="Deployment Plan name",

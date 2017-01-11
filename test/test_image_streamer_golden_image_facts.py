@@ -18,26 +18,29 @@ import unittest
 import yaml
 
 from image_streamer_golden_image_facts import GoldenImageFactsModule, EXAMPLES
-from utils import ModuleContructorTestCase
+from utils import ModuleContructorTestCase, FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
-class GoldenImageFactsSpec(unittest.TestCase, ModuleContructorTestCase):
+class GoldenImageFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-    """
+    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
+    mocks used in this test class.
 
+    FactsParamsTestCase has common tests for the parameters support.
+    """
     def setUp(self):
         self.configure_mocks(self, GoldenImageFactsModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
+
+        FactsParamsTestCase.configure_client_mock(self, self.i3s.golden_images)
 
         # Load scenarios from module examples
         self.GOLDEN_IMAGE_FACTS_EXAMPLES = yaml.load(EXAMPLES)
 
         self.TASK_GET_ALL = self.GOLDEN_IMAGE_FACTS_EXAMPLES[0]['image_streamer_golden_image_facts']
-        self.TASK_GET_BY_NAME = self.GOLDEN_IMAGE_FACTS_EXAMPLES[2]['image_streamer_golden_image_facts']
+        self.TASK_GET_BY_NAME = self.GOLDEN_IMAGE_FACTS_EXAMPLES[4]['image_streamer_golden_image_facts']
 
         self.GOLDEN_IMAGE = dict(
             name="Golden Image name",

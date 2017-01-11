@@ -18,24 +18,33 @@ import unittest
 import yaml
 
 from image_streamer_artifact_bundle_facts import ArtifactBundleFactsModule, EXAMPLES
-from test.utils import ModuleContructorTestCase, PreloadedMocksBaseTestCase
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase
 
 
 ERROR_MSG = 'Fake message error'
 
 
-class ArtifactBundleFactsSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedMocksBaseTestCase):
+class ArtifactBundleFactsSpec(unittest.TestCase,
+                              ModuleContructorTestCase,
+                              FactsParamsTestCase):
+    """
+    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
+    mocks used in this test class.
 
+    FactsParamsTestCase has common tests for the parameters support.
+    """
     def setUp(self):
         self.configure_mocks(self, ArtifactBundleFactsModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
 
+        FactsParamsTestCase.configure_client_mock(self, self.i3s.artifact_bundles)
+
         self.ARTIFACT_BUNDLE_EXAMPLES = yaml.load(EXAMPLES)
 
         self.TASK_GET_ALL = self.ARTIFACT_BUNDLE_EXAMPLES[0]['image_streamer_artifact_bundle_facts']
-        self.TASK_GET_BY_NAME = self.ARTIFACT_BUNDLE_EXAMPLES[2]['image_streamer_artifact_bundle_facts']
-        self.TASK_GET_ALL_BACKUPS = self.ARTIFACT_BUNDLE_EXAMPLES[4]['image_streamer_artifact_bundle_facts']
-        self.TASK_GET_BACKUP = self.ARTIFACT_BUNDLE_EXAMPLES[7]['image_streamer_artifact_bundle_facts']
+        self.TASK_GET_BY_NAME = self.ARTIFACT_BUNDLE_EXAMPLES[4]['image_streamer_artifact_bundle_facts']
+        self.TASK_GET_ALL_BACKUPS = self.ARTIFACT_BUNDLE_EXAMPLES[6]['image_streamer_artifact_bundle_facts']
+        self.TASK_GET_BACKUP = self.ARTIFACT_BUNDLE_EXAMPLES[9]['image_streamer_artifact_bundle_facts']
 
         self.ARTIFACT_BUNDLE = dict(
             name="HPE-ImageStreamer-Developer-2016-09-12",

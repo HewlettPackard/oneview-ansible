@@ -44,6 +44,15 @@ options:
       description:
         - Name of the OS Volume.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+           'start': The first item to return, using 0-based indexing.
+           'count': The number of resources to return.
+           'filter': A general filter/query string to narrow the list of items returned.
+           'sort': The sort order of the returned data set."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -55,6 +64,18 @@ EXAMPLES = '''
 - name: Gather facts about all OS Volumes
   image_streamer_os_volume_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=os_volumes
+
+- name: Gather paginated, filtered and sorted facts about OS Volumes
+  image_streamer_os_volume_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: status=OK
   delegate_to: localhost
 
 - debug: var=os_volumes
@@ -80,7 +101,8 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 class OsVolumeFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -102,7 +124,8 @@ class OsVolumeFactsModule(object):
             if name:
                 os_volumes = self.i3s_client.os_volumes.get_by('name', name)
             else:
-                os_volumes = self.i3s_client.os_volumes.get_all()
+                params = self.module.params.get('params') or {}
+                os_volumes = self.i3s_client.os_volumes.get_all(**params)
 
             self.module.exit_json(changed=False, ansible_facts=dict(os_volumes=os_volumes))
 

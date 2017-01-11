@@ -386,6 +386,7 @@ Retrieve facts about the Artifact Bundle.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Artifact Bundle.  |
 | options  |   No  |  | |  List with options to gather additional facts about the Artifact Bundle. Options allowed: 'allBackups' gets the list of backups for the Artifact Bundles. 'backupForAnArtifactBundle' gets the list of backups for the Artifact Bundle.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -395,6 +396,17 @@ Retrieve facts about the Artifact Bundle.
 - name: Gather facts about all Artifact Bundles
   image_streamer_artifact_bundle_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=artifact_bundles
+
+- name: Gather paginated, filtered and sorted facts about Artifact Bundles
+  image_streamer_artifact_bundle_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: state=OK
   delegate_to: localhost
 - debug: var=artifact_bundles
 
@@ -536,6 +548,7 @@ Retrieve facts about one or more of the Image Streamer Build Plans.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Build Plan name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -545,6 +558,17 @@ Retrieve facts about one or more of the Image Streamer Build Plans.
 - name: Gather facts about all Build Plans
   image_streamer_build_plan_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=build_plans
+
+- name: Gather paginated, filtered and sorted facts about Build Plans
+  image_streamer_build_plan_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: oeBuildPlanType=capture
   delegate_to: localhost
 - debug: var=build_plans
 
@@ -592,6 +616,7 @@ Retrieve facts about the Image Streamer Deployment Groups.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the filepath is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Deployment Group.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -601,6 +626,18 @@ Retrieve facts about the Image Streamer Deployment Groups.
 - name: Gather facts about all Deployment Groups
   image_streamer_deployment_group_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=deployment_groups
+
+- name: Gather paginated, filtered and sorted facts about Deployment Groups
+  image_streamer_deployment_group_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: state=OK
   delegate_to: localhost
 
 - debug: var=deployment_groups
@@ -723,6 +760,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Deployment Plan name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -732,6 +770,17 @@ Retrieve facts about the Image Streamer Deployment Plans.
 - name: Gather facts about all Deployment Plans
   image_streamer_deployment_plan_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=deployment_plans
+
+- name: Gather paginated, filtered and sorted facts about Deployment Plans
+  image_streamer_deployment_plan_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: state=active
   delegate_to: localhost
 - debug: var=deployment_plans
 
@@ -883,6 +932,7 @@ Retrieve facts about one or more of the Image Streamer Golden Image.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Golden Image name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -892,6 +942,17 @@ Retrieve facts about one or more of the Image Streamer Golden Image.
 - name: Gather facts about all Golden Images
   image_streamer_golden_image_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=golden_images
+
+- name: Gather paginated, filtered and sorted facts about Golden Images
+  image_streamer_golden_image_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: importedFromBundle=true
   delegate_to: localhost
 - debug: var=golden_images
 
@@ -939,6 +1000,7 @@ Retrieve facts about the Image Streamer OS Volumes.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the filepath is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the OS Volume.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -948,6 +1010,18 @@ Retrieve facts about the Image Streamer OS Volumes.
 - name: Gather facts about all OS Volumes
   image_streamer_os_volume_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=os_volumes
+
+- name: Gather paginated, filtered and sorted facts about OS Volumes
+  image_streamer_os_volume_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: status=OK
   delegate_to: localhost
 
 - debug: var=os_volumes
@@ -1083,6 +1157,7 @@ Retrieve facts about the Image Streamer Plan Scripts.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Plan Script name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -1092,6 +1167,17 @@ Retrieve facts about the Image Streamer Plan Scripts.
 - name: Gather facts about all Plan Scripts
   image_streamer_plan_script_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=plan_scripts
+
+- name: Gather paginated, filtered and sorted facts about Plan Scripts
+  image_streamer_plan_script_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: planType=capture
   delegate_to: localhost
 - debug: var=plan_scripts
 

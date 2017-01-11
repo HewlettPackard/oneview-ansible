@@ -26,6 +26,17 @@
       delegate_to: localhost
     - debug: var=plan_scripts
 
+    - name: Gather paginated, filtered and sorted facts about Plan Scripts
+      image_streamer_plan_script_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          filter: planType=capture
+      delegate_to: localhost
+    - debug: var=plan_scripts
+
     - name: Gather facts about a Plan Script by name
       image_streamer_plan_script_facts:
         config: "{{ config }}"

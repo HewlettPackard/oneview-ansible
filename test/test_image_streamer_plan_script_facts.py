@@ -18,26 +18,29 @@ import unittest
 import yaml
 
 from image_streamer_plan_script_facts import PlanScriptFactsModule, EXAMPLES
-from utils import ModuleContructorTestCase
+from utils import ModuleContructorTestCase, FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
-class PlanScriptFactsSpec(unittest.TestCase, ModuleContructorTestCase):
+class PlanScriptFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     """
-    Test the module constructor
-    ModuleContructorTestCase has common tests for class constructor and main function
-    """
+    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
+    mocks used in this test class.
 
+    FactsParamsTestCase has common tests for the parameters support.
+    """
     def setUp(self):
         self.configure_mocks(self, PlanScriptFactsModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
+
+        FactsParamsTestCase.configure_client_mock(self, self.i3s.plan_scripts)
 
         # Load scenarios from module examples
         self.PLAN_SCRIPT_FACTS_EXAMPLES = yaml.load(EXAMPLES)
 
         self.TASK_GET_ALL = self.PLAN_SCRIPT_FACTS_EXAMPLES[0]['image_streamer_plan_script_facts']
-        self.TASK_GET_BY_NAME = self.PLAN_SCRIPT_FACTS_EXAMPLES[2]['image_streamer_plan_script_facts']
+        self.TASK_GET_BY_NAME = self.PLAN_SCRIPT_FACTS_EXAMPLES[4]['image_streamer_plan_script_facts']
 
         self.PLAN_SCRIPT = dict(
             name="Plan Script name",

@@ -26,6 +26,18 @@
 
     - debug: var=deployment_groups
 
+    - name: Gather paginated, filtered and sorted facts about Deployment Groups
+      image_streamer_deployment_group_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          filter: state=OK
+      delegate_to: localhost
+
+    - debug: var=deployment_groups
+
     - name: Gather facts about a Deployment Group by name
       image_streamer_deployment_group_facts:
         config: "{{ config }}"
