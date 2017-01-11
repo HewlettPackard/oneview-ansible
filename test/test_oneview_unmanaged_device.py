@@ -16,9 +16,13 @@
 import unittest
 import mock
 
-from utils import ModuleContructorTestCase
-from oneview_unmanaged_device import UnmanagedDeviceModule, UNMANAGED_DEVICE_ADDED, UNMANAGED_DEVICE_UPDATED, \
-    UNMANAGED_DEVICE_REMOVED, UNMANAGED_DEVICE_SET_REMOVED, NOTHING_TO_DO
+from utils import ModuleContructorTestCase, ValidateEtagTestCase
+from oneview_unmanaged_device import (UnmanagedDeviceModule,
+                                      UNMANAGED_DEVICE_ADDED,
+                                      UNMANAGED_DEVICE_UPDATED,
+                                      UNMANAGED_DEVICE_REMOVED,
+                                      UNMANAGED_DEVICE_SET_REMOVED,
+                                      NOTHING_TO_DO)
 
 ERROR_MSG = "Fake message error"
 
@@ -64,10 +68,11 @@ UNMANAGED_DEVICE = dict(
 )
 
 
-class UnmanagedDeviceSpec(unittest.TestCase, ModuleContructorTestCase):
+class UnmanagedDeviceSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
+    ModuleContructorTestCase has common tests for class constructor and main function
+    ValidateEtagTestCase has common tests for the validate_etag attribute, also provides the mocks used in this test
+    case.
     """
 
     def setUp(self):
