@@ -17,13 +17,13 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
     HAS_HPE_ONEVIEW = False
-
 
 DOCUMENTATION = '''
 ---
@@ -42,6 +42,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Logical Switch name.
@@ -58,6 +67,17 @@ EXAMPLES = '''
 - name: Gather facts about all Logical Switches
   oneview_logical_switch_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=logical_switches
+
+- name: Gather paginated, filtered and sorted facts about Logical Switches
+  oneview_logical_switch_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'status=OK'
 
 - debug: var=logical_switches
 
@@ -79,10 +99,10 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class LogicalSwitchFactsModule(object):
-
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -98,7 +118,7 @@ class LogicalSwitchFactsModule(object):
 
     def run(self):
         try:
-            if self.module.params['name']:
+            if self.module.params.get('name'):
                 self.__get_by_name(self.module.params['name'])
             else:
                 self.__get_all()
@@ -109,14 +129,13 @@ class LogicalSwitchFactsModule(object):
     def __get_by_name(self, name):
         logical_switches = self.oneview_client.logical_switches.get_by('name', name)
 
-        self.module.exit_json(changed=False,
-                              ansible_facts=dict(logical_switches=logical_switches))
+        self.module.exit_json(changed=False, ansible_facts=dict(logical_switches=logical_switches))
 
     def __get_all(self):
-        logical_switches = self.oneview_client.logical_switches.get_all()
+        params = self.module.params.get('params') or {}
+        logical_switches = self.oneview_client.logical_switches.get_all(**params)
 
-        self.module.exit_json(changed=False,
-                              ansible_facts=dict(logical_switches=logical_switches))
+        self.module.exit_json(changed=False, ansible_facts=dict(logical_switches=logical_switches))
 
 
 def main():
