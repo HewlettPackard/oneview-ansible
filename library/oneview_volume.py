@@ -64,6 +64,12 @@ options:
       description:
         - If set to True, when the status is 'absent' and the resource exists, it will be removed only from OneView.
       default: False
+    validate_etag:
+      description:
+          - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
+            for the resource matches the ETag provided in the data.
+      default: true
+      choices: ['true', 'false']
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -206,6 +212,10 @@ class VolumeModule(object):
         ),
         data=dict(required=True, type='dict'),
         export_only=dict(required=False, type='bool'),
+        validate_etag=dict(
+            required=False,
+            type='bool',
+            default=True)
     )
 
     def __init__(self):
@@ -223,6 +233,9 @@ class VolumeModule(object):
         data = self.module.params['data'].copy()
 
         try:
+            if not self.module.params.get('validate_etag'):
+                self.oneview_client.connection.disable_etag_validation()
+
             if state == 'present':
                 self.__present(data)
             elif state == 'absent':
