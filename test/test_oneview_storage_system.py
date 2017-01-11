@@ -19,7 +19,7 @@ import yaml
 from oneview_storage_system import StorageSystemModule, STORAGE_SYSTEM_ADDED, STORAGE_SYSTEM_ALREADY_UPDATED, \
     STORAGE_SYSTEM_UPDATED, STORAGE_SYSTEM_DELETED, STORAGE_SYSTEM_ALREADY_ABSENT, \
     STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING, STORAGE_SYSTEM_CREDENTIALS_MANDATORY
-from test.utils import ModuleContructorTestCase
+from test.utils import ModuleContructorTestCase, ValidateEtagTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -81,7 +81,13 @@ DICT_DEFAULT_STORAGE_SYSTEM = yaml.load(YAML_STORAGE_SYSTEM)["data"]
 del DICT_DEFAULT_STORAGE_SYSTEM['credentials']['password']
 
 
-class StorageSystemPresentStateSpec(unittest.TestCase, ModuleContructorTestCase):
+class StorageSystemModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+    """
+    ModuleContructorTestCase has common tests for class constructor and main function,
+    also provides the mocks used in this test case
+    ValidateEtagTestCase has common tests for the validate_etag attribute.
+    """
+
     def setUp(self):
         self.configure_mocks(self, StorageSystemModule)
         self.resource = self.mock_ov_client.storage_systems
