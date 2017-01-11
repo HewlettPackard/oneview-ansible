@@ -54,6 +54,12 @@ options:
       description:
         - List with Uplink Set properties.
       required: true
+    validate_etag:
+      description:
+        - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
+          for the resource matches the ETag provided in the data.
+      default: true
+      choices: ['true', 'false']
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -126,7 +132,11 @@ class UplinkSetModule(object):
             required=True,
             choices=['present', 'absent']
         ),
-        data=dict(required=True, type='dict')
+        data=dict(required=True, type='dict'),
+        validate_etag=dict(
+            required=False,
+            type='bool',
+            default=True)
     )
 
     def __init__(self):
@@ -144,6 +154,9 @@ class UplinkSetModule(object):
         data = self.module.params['data'].copy()
 
         try:
+            if not self.module.params.get('validate_etag'):
+                self.oneview_client.connection.disable_etag_validation()
+
             self.__validate_key(data)
             self.__replace_logical_interconnect_name_by_uri(data)
 
