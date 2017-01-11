@@ -12,7 +12,7 @@ Basically this playbook will:
 
 ## Requirements
 
-- Oneview 2.0 installed
+- Oneview 2.0 or 3.0 installed
 - Server profile templates must be created for use by the playbook.
 - Server hardware must be imported into OneView, so that OneView can deploy profiles on them.
 - Insight Control Provisioning 7.4 or later must be installed (if you need to install the OS).
@@ -40,7 +40,28 @@ Feel free to customize any argument – or remove them if using defaults.
 
 :lock: Tip: Check file permissions of the files inside the directory `demo/group_vars` since the passwords are stored in clear-text.
 
+### Custom Attributes
+
+In the `demo/group_vars/all` file, you'll find the `osbp_custom_attributes` map. In the custom attributes map, you can specify any data that you would like to pass into your ICsp build plan scripts or configuration files. For example, to specify a list of trusted public keys to be placed into the node's .ssh/authorized_keys file, add a custom attribute to the map:
+
+```yaml
+osbp_custom_attributes:
+  - SSH_CERT: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+```
+
+Then create/modify a custom build script in ICsp that will do something with this data. To access it, use the format: `@variable_name@` or `@variable_name:default_value@`. For our example, we could do something like:
+
+```bash
+#!/bin/bash
+authorized_keys = @SSH_CERT@
+if [ -n "$authorized_keys"]; then
+  echo -e "$authorized_keys" > /mnt/sysimage/root/.ssh/authorized_keys
+fi
+```
+
 This example passes the SSH keys from the current system to the ICsp build plan, so Ansible can pass the SSH keys into the newly deployed nodes.
+
+### OneView Appliance Connection
 
 **NOTE:** You should specify the HPE OneView hostname and credentials on a file. A sample configuration file is provided within the examples directory. To use it, execute the following steps:
 
