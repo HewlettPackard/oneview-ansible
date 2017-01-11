@@ -15,128 +15,62 @@
 ###
 
 import unittest
-import mock
-
-from hpOneView.oneview_client import OneViewClient
-from oneview_logical_switch_group_facts import LogicalSwitchGroupFactsModule
-from test.utils import create_ansible_mock
+import yaml
+from oneview_logical_switch_group_facts import LogicalSwitchGroupFactsModule, EXAMPLES
+from test.utils import FactsParamsTestCase
+from test.utils import ModuleContructorTestCase
 
 ERROR_MSG = 'Fake message error'
 
-PARAMS_GET_ALL = dict(
-    config='config.json',
-)
 
-PARAMS_GET_BY_NAME = dict(
-    config='config.json',
-    name="Logical Switch Group test"
-)
+class LogicalSwitchGroupFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+    def setUp(self):
+        self.configure_mocks(self, LogicalSwitchGroupFactsModule)
+        self.logical_switch_groups = self.mock_ov_client.logical_switch_groups
+        FactsParamsTestCase.configure_client_mock(self, self.logical_switch_groups)
 
+        LSG_EXAMPLES = yaml.load(EXAMPLES)
 
-class LogicalSwitchGroupFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_logical_switch_group_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.PARAMS_GET_ALL = LSG_EXAMPLES[0]['oneview_logical_switch_group_facts']
+        self.PARAMS_GET_BY_NAME = LSG_EXAMPLES[4]['oneview_logical_switch_group_facts']
 
-        LogicalSwitchGroupFactsModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_logical_switch_group_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        LogicalSwitchGroupFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class LogicalSwitchGroupFactsSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_switch_group_facts.AnsibleModule')
-    def test_should_get_logical_switch_group_by_name(self, mock_ansible_module,
-                                                     mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_switch_groups.get_by.return_value = {"name": "Logical Switch Group"}
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_logical_switch_group_by_name(self):
+        self.logical_switch_groups.get_by.return_value = {"name": "Logical Switch Group"}
+        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
 
         LogicalSwitchGroupFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(logical_switch_groups=({"name": "Logical Switch Group"}))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_switch_group_facts.AnsibleModule')
-    def test_should_fail_when_get_by_raises_error(self,
-                                                  mock_ansible_module,
-                                                  mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_switch_groups.get_by.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_by_raises_error(self):
+        self.logical_switch_groups.get_by.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
 
         LogicalSwitchGroupFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_switch_group_facts.AnsibleModule')
-    def test_should_get_all_logical_switch_groups(self, mock_ansible_module,
-                                                  mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_switch_groups.get_all.return_value = {"name": "Logical Switch Group"}
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_all_logical_switch_groups(self):
+        self.logical_switch_groups.get_all.return_value = {"name": "Logical Switch Group"}
+        self.mock_ansible_module.params = self.PARAMS_GET_ALL
 
         LogicalSwitchGroupFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(logical_switch_groups=({"name": "Logical Switch Group"}))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_switch_group_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_error(self, mock_ansible_module,
-                                                   mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_switch_groups.get_all.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_all_raises_error(self):
+        self.logical_switch_groups.get_all.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = self.PARAMS_GET_ALL
 
         LogicalSwitchGroupFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

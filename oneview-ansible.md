@@ -4362,6 +4362,7 @@ Retrieve facts about OneView Logical Switch Groups.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Switch Group name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -4372,6 +4373,17 @@ Retrieve facts about OneView Logical Switch Groups.
   oneview_logical_switch_group_facts:
     config: "{{ config }}"
   delegate_to: localhost
+
+- debug: var=logical_switch_groups
+
+- name: Gather paginated, filtered and sorted facts about Logical Switch Groups
+  oneview_logical_switch_group_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: "name='Logical_Switch_Group+56'"
 
 - debug: var=logical_switch_groups
 
