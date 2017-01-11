@@ -26,6 +26,16 @@
 
     - debug: var=logical_interconnects
 
+    - name: Gather paginated and sorted facts about Logical Interconnects
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: 'name:descending'
+
+    - debug: var=logical_interconnects
+
     - name: Gather facts about a Logical Interconnect by name
       oneview_logical_interconnect_facts:
         config: "{{ config }}"
