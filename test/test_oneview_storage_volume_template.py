@@ -15,11 +15,13 @@
 ###
 import unittest
 
-from oneview_storage_volume_template import StorageVolumeTemplateModule, STORAGE_VOLUME_TEMPLATE_CREATED, \
-    STORAGE_VOLUME_TEMPLATE_DELETED, STORAGE_VOLUME_TEMPLATE_ALREADY_ABSENT, \
-    STORAGE_VOLUME_TEMPLATE_ALREADY_UPDATED, STORAGE_VOLUME_TEMPLATE_UPDATED
-
 from utils import ModuleContructorTestCase, ValidateEtagTestCase
+
+from oneview_storage_volume_template import StorageVolumeTemplateModule, STORAGE_VOLUME_TEMPLATE_CREATED,\
+    STORAGE_VOLUME_TEMPLATE_DELETED, STORAGE_VOLUME_TEMPLATE_ALREADY_ABSENT,\
+    STORAGE_VOLUME_TEMPLATE_ALREADY_UPDATED, STORAGE_VOLUME_TEMPLATE_UPDATED,\
+    STORAGE_VOLUME_TEMPLATE_MANDATORY_FIELD_MISSING
+
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -58,6 +60,12 @@ PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
     data=dict(name=STORAGE_VOLUME_TEMPLATE['name'])
+)
+
+PARAMS_FOR_MISSING_KEY = dict(
+    config='config.json',
+    state='present',
+    data=dict(state='Configured')
 )
 
 
@@ -195,6 +203,18 @@ class StorageVolumeTemplateErrorHandlingSpec(unittest.TestCase, ModuleContructor
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
+        )
+
+    def test_should_raise_exception_when_key_is_missing(self):
+        self.resource.get_by.return_value = [STORAGE_VOLUME_TEMPLATE]
+        self.resource.remove.side_effect = Exception(FAKE_MSG_ERROR)
+
+        self.mock_ansible_module.params = PARAMS_FOR_MISSING_KEY
+
+        self.assertRaises(Exception, StorageVolumeTemplateModule().run())
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=STORAGE_VOLUME_TEMPLATE_MANDATORY_FIELD_MISSING
         )
 
 
