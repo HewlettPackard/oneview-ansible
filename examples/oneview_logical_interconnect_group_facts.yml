@@ -25,6 +25,17 @@
 
     - debug: var=logical_interconnect_groups
 
+    - name: Gather paginated, filtered, and sorted facts about Logical Interconnect Groups
+      oneview_logical_interconnect_group_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: 'name=LIGName'
+
+    - debug: var=logical_interconnect_groups
+
     - name: Gather facts about a Logical Interconnect Group by name
       oneview_logical_interconnect_group_facts:
         config: "{{ config }}"
