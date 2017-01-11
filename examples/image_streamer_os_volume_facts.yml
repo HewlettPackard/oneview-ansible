@@ -26,6 +26,18 @@
 
     - debug: var=os_volumes
 
+    - name: Gather paginated, filtered and sorted facts about OS Volumes
+      image_streamer_os_volume_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          filter: status=OK
+      delegate_to: localhost
+
+    - debug: var=os_volumes
+
     - name: Gather facts about an OS Volume by name
       image_streamer_os_volume_facts:
         config: "{{ config }}"

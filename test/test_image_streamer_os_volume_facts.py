@@ -18,26 +18,29 @@ import unittest
 import yaml
 
 from image_streamer_os_volume_facts import OsVolumeFactsModule, EXAMPLES
-from utils import ModuleContructorTestCase
+from utils import ModuleContructorTestCase, FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
-class OsVolumeFactsSpec(unittest.TestCase, ModuleContructorTestCase):
+class OsVolumeFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     """
-    Test the module constructor
-    ModuleContructorTestCase has common tests for class constructor and main function
-    """
+    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
+    mocks used in this test class.
 
+    FactsParamsTestCase has common tests for the parameters support.
+    """
     def setUp(self):
         self.configure_mocks(self, OsVolumeFactsModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
+
+        FactsParamsTestCase.configure_client_mock(self, self.i3s.os_volumes)
 
         # Load scenarios from module examples
         self.OS_VOLUME_FACTS_EXAMPLES = yaml.load(EXAMPLES)
 
         self.PLAY_GET_ALL = self.OS_VOLUME_FACTS_EXAMPLES[0]['image_streamer_os_volume_facts']
-        self.PLAY_GET_BY_NAME = self.OS_VOLUME_FACTS_EXAMPLES[2]['image_streamer_os_volume_facts']
+        self.PLAY_GET_BY_NAME = self.OS_VOLUME_FACTS_EXAMPLES[4]['image_streamer_os_volume_facts']
 
         self.OS_VOLUME = dict(
             name="OS Volume Name",
