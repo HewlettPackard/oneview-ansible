@@ -42,7 +42,7 @@ Feel free to customize any argument – or remove them if using defaults.
 
 ### Custom Attributes
 
-In the `demo/group_vars/all` file, you'll find the `osbp_custom_attributes` map. Insided the custom attributes map, you can specify any data that you would like to pass into your ICsp build plan scripts or configuration files. For example, to specify a list of trusted public keys to be placed into the node's .ssh/authorized_keys file, add a custom attribute to the map:
+In the `demo/group_vars/all` file, you'll find the `osbp_custom_attributes` map. In the custom attributes map, you can specify any data that you would like to pass into your ICsp build plan scripts or configuration files. For example, to specify a list of trusted public keys to be placed into the node's .ssh/authorized_keys file, add a custom attribute to the map:
 
 ```yaml
 osbp_custom_attributes:
@@ -61,7 +61,7 @@ fi
 
 This example passes the SSH keys from the current system to the ICsp build plan, so Ansible can pass the SSH keys into the newly deployed nodes.
 
-### OneView Applicance Connection
+### OneView Appliance Connection
 
 **NOTE:** You should specify the HPE OneView hostname and credentials on a file. A sample configuration file is provided within the examples directory. To use it, execute the following steps:
 
