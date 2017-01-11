@@ -44,6 +44,15 @@ options:
       description:
         - Name of the Deployment Group.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+           'start': The first item to return, using 0-based indexing.
+           'count': The number of resources to return.
+           'filter': A general filter/query string to narrow the list of items returned.
+           'sort': The sort order of the returned data set."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -55,6 +64,18 @@ EXAMPLES = '''
 - name: Gather facts about all Deployment Groups
   image_streamer_deployment_group_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=deployment_groups
+
+- name: Gather paginated, filtered and sorted facts about Deployment Groups
+  image_streamer_deployment_group_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: state=OK
   delegate_to: localhost
 
 - debug: var=deployment_groups
@@ -80,7 +101,8 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 class DeploymentGroupFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -102,7 +124,8 @@ class DeploymentGroupFactsModule(object):
             if name:
                 deployment_groups = self.i3s_client.deployment_groups.get_by('name', name)
             else:
-                deployment_groups = self.i3s_client.deployment_groups.get_all()
+                params = self.module.params.get('params') or {}
+                deployment_groups = self.i3s_client.deployment_groups.get_all(**params)
 
             self.module.exit_json(changed=False, ansible_facts=dict(deployment_groups=deployment_groups))
 
