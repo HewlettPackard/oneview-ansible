@@ -760,6 +760,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Deployment Plan name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -769,6 +770,17 @@ Retrieve facts about the Image Streamer Deployment Plans.
 - name: Gather facts about all Deployment Plans
   image_streamer_deployment_plan_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=deployment_plans
+
+- name: Gather paginated, filtered and sorted facts about Deployment Plans
+  image_streamer_deployment_plan_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: state=active
   delegate_to: localhost
 - debug: var=deployment_plans
 

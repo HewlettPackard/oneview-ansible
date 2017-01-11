@@ -26,6 +26,17 @@
       delegate_to: localhost
     - debug: var=deployment_plans
 
+    - name: Gather paginated, filtered and sorted facts about Deployment Plans
+      image_streamer_deployment_plan_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          filter: state=active
+      delegate_to: localhost
+    - debug: var=deployment_plans
+
     - name: Gather facts about a Deployment Plan by name
       image_streamer_deployment_plan_facts:
         config: "{{ config }}"
