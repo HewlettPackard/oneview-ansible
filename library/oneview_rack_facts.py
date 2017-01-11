@@ -41,6 +41,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Rack name.
@@ -64,6 +73,14 @@ EXAMPLES = '''
 
 - debug: var=racks
 
+- name: Gather paginated, filtered and sorted facts about Racks
+  oneview_rack_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 5
+      sort: 'name:descending'
+      filter: "depth=1000"
 
 - name: Gather facts about a Rack by name
   oneview_rack_facts:
@@ -113,7 +130,12 @@ class RackFactsModule(object):
         "options": {
             "required": False,
             "type": 'list'
-        }}
+        },
+        "params": {
+            "required": False,
+            "type": 'dict'
+        }
+    }
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
@@ -138,7 +160,8 @@ class RackFactsModule(object):
                 if options and 'deviceTopology' in options and len(storage_volume_template) > 0:
                     facts['rack_device_topology'] = client.get_device_topology(storage_volume_template[0]['uri'])
             else:
-                storage_volume_template = client.get_all()
+                params = self.module.params.get('params') or {}
+                storage_volume_template = client.get_all(**params)
 
             facts['racks'] = storage_volume_template
 

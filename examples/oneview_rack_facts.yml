@@ -17,25 +17,34 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - rack_name: "Rack101"  # set the name of an existent rack to run this example
+    - rack_name: "Rack-221"  # set the name of an existent rack to run this example
   tasks:
     - name: Gather facts about all Racks
       oneview_rack_facts:
         config: "{{ config }}"
       delegate_to: localhost
-    
+
     - debug: var=racks
-    
-    
+
+    - name: Gather paginated, filtered and sorted facts about Racks
+      oneview_rack_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 5
+          sort: 'name:descending'
+          filter: "depth=1000"
+
+    - debug: var=racks
+
     - name: Gather facts about a Rack by name
       oneview_rack_facts:
         config: "{{ config }}"
         name: "{{rack_name}}"
       delegate_to: localhost
-    
+
     - debug: var=racks
-    
-    
+
     - name: Gather facts about the topology information for the rack
       oneview_rack_facts:
         config: "{{ config }}"
@@ -43,6 +52,6 @@
         options:
           - deviceTopology
       delegate_to: localhost
-    
+
     - debug: var=racks
     - debug: var=rack_device_topology
