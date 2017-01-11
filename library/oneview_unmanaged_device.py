@@ -48,9 +48,15 @@ options:
               'absent' will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
     data:
-      description:
-        - List with Unmanaged Device properties.
-      required: true
+        description:
+            - List with Unmanaged Device properties.
+        required: true
+    validate_etag:
+        description:
+            - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
+              for the resource matches the ETag provided in the data.
+        default: true
+        choices: ['true', 'false']
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -132,7 +138,11 @@ class UnmanagedDeviceModule(object):
             required=True,
             choices=['present', 'absent']
         ),
-        data=dict(required=True, type='dict')
+        data=dict(required=True, type='dict'),
+        validate_etag=dict(
+            required=False,
+            type='bool',
+            default=True)
     )
 
     def __init__(self):
@@ -141,14 +151,17 @@ class UnmanagedDeviceModule(object):
             self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
 
         if not self.module.params['config']:
-            oneview_client = OneViewClient.from_environment_variables()
+            self.oneview_client = OneViewClient.from_environment_variables()
         else:
-            oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
-        self.resource_client = oneview_client.unmanaged_devices
+        self.resource_client = self.oneview_client.unmanaged_devices
 
     def run(self):
         try:
+            if not self.module.params.get('validate_etag'):
+                self.oneview_client.connection.disable_etag_validation()
+
             data = self.module.params["data"]
             state = self.module.params["state"]
             facts = dict()
