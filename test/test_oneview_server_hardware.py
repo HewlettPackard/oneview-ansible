@@ -21,7 +21,7 @@ from oneview_server_hardware import ServerHardwareModule, SERVER_HARDWARE_ADDED,
     SERVER_HARDWARE_POWER_STATE_UPDATED, SERVER_HARDWARE_NOT_FOUND, SERVER_HARDWARE_REFRESH_STATE_UPDATED, \
     SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED, SERVER_HARDWARE_ENV_CONFIG_UPDATED, NOTHING_TO_DO, \
     SERVER_HARDWARE_UID_STATE_CHANGED, SERVER_HARDWARE_ILO_STATE_RESET
-from test.utils import ModuleContructorTestCase, PreloadedMocksBaseTestCase
+from test.utils import ModuleContructorTestCase, ValidateEtagTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -105,10 +105,11 @@ SERVER_HARDWARE_HOSTNAME = "172.18.6.15"
 DICT_DEFAULT_SERVER_HARDWARE = yaml.load(YAML_SERVER_HARDWARE_PRESENT)["data"]
 
 
-class ServerHardwareModuleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedMocksBaseTestCase):
+class ServerHardwareModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
     """
     Test the module constructor
     ModuleContructorTestCase has common tests for class constructor and main function
+    ValidateEtagTestCase has common tests for the validate_etag attribute.
     """
 
     def setUp(self):
