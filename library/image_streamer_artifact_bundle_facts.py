@@ -54,6 +54,15 @@ options:
           'allBackups' gets the list of backups for the Artifact Bundles.
           'backupForAnArtifactBundle' gets the list of backups for the Artifact Bundle."
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+           'start': The first item to return, using 0-based indexing.
+           'count': The number of resources to return.
+           'filter': A general filter/query string to narrow the list of items returned.
+           'sort': The sort order of the returned data set."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -65,6 +74,17 @@ EXAMPLES = '''
 - name: Gather facts about all Artifact Bundles
   image_streamer_artifact_bundle_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=artifact_bundles
+
+- name: Gather paginated, filtered and sorted facts about Artifact Bundles
+  image_streamer_artifact_bundle_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: state=OK
   delegate_to: localhost
 - debug: var=artifact_bundles
 
@@ -120,7 +140,8 @@ class ArtifactBundleFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -167,7 +188,8 @@ class ArtifactBundleFactsModule(object):
         return ansible_facts
 
     def __get_all(self):
-        return self.i3s_client.artifact_bundles.get_all()
+        params = self.module.params.get('params') or {}
+        return self.i3s_client.artifact_bundles.get_all(**params)
 
     def __get_by_name(self, name):
         return self.i3s_client.artifact_bundles.get_by('name', name)
