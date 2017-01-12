@@ -55,6 +55,15 @@ options:
           The option 'osCustomAttributesForServerProfile' retrieves the list of editable OS Custom Atributes, prepared
           for Server Profile use."
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+           'start': The first item to return, using 0-based indexing.
+           'count': The number of resources to return.
+           'filter': A general filter/query string to narrow the list of items returned.
+           'sort': The sort order of the returned data set."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -66,6 +75,17 @@ EXAMPLES = '''
 - name: Gather facts about all OS Deployment Plans
   oneview_os_deployment_plan_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+- debug: var=os_deployment_plans
+
+- name: Gather paginated, filtered and sorted facts about OS Deployment Plans
+  oneview_os_deployment_plan_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: deploymentApplianceIpv4='15.212.171.216'
   delegate_to: localhost
 - debug: var=os_deployment_plans
 
@@ -107,6 +127,7 @@ class OsDeploymentPlanFactsModule(object):
         "config": {"required": False, "type": 'str'},
         "name": {"required": False, "type": 'str'},
         "options": {"required": False, "type": 'list'},
+        "params": {"required": False, "type": 'dict'},
     }
 
     def __init__(self):
@@ -130,7 +151,8 @@ class OsDeploymentPlanFactsModule(object):
                     ansible_facts.update(option_facts)
 
             else:
-                os_deployment_plans = self.oneview_client.os_deployment_plans.get_all()
+                params = self.module.params.get('params') or {}
+                os_deployment_plans = self.oneview_client.os_deployment_plans.get_all(**params)
 
             ansible_facts['os_deployment_plans'] = os_deployment_plans
 

@@ -24,6 +24,17 @@
       delegate_to: localhost
     - debug: var=os_deployment_plans
 
+    - name: Gather paginated, filtered and sorted facts about OS Deployment Plans
+      oneview_os_deployment_plan_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          filter: deploymentApplianceIpv4='15.212.171.216'
+      delegate_to: localhost
+    - debug: var=os_deployment_plans
+
     - name: Gather facts about an Os Deployment Plan by name
       oneview_os_deployment_plan_facts:
         config: "{{ config }}"
