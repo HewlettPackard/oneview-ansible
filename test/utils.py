@@ -189,11 +189,13 @@ class FactsParamsTestCase(PreloadedMocksBaseTestCase):
                 'start': 1,
                 'count': 3,
                 'sort': 'name:descending',
-                'filter': 'purpose=General'
+                'filter': 'purpose=General',
+                'query': 'imported eq true'
             })
         self.mock_ansible_module.params = params_get_all_with_filters
 
         self._testing_class().run()
 
         self._resource_client.get_all.assert_called_once_with(start=1, count=3, sort='name:descending',
-                                                              filter='purpose=General')
+                                                              filter='purpose=General',
+                                                              query='imported eq true')

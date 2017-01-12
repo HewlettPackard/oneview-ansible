@@ -54,6 +54,15 @@ options:
           'endpoints' gets the list of endpoints in the SAN identified by name.
           'wwn' gets the list of Managed SANs associated with an informed WWN 'locate'."
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+           'start': The first item to return, using 0-based indexing.
+           'count': The number of resources to return.
+           'query': A general query string to narrow the list of resources returned.
+           'sort': The sort order of the returned data set."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -64,7 +73,19 @@ notes:
 EXAMPLES = '''
 - name: Gather facts about all Managed SANs
   oneview_managed_san_facts:
-    config: "{{ config }}"
+    config: "{{ config_path }}"
+  delegate_to: localhost
+
+- debug: var=managed_sans
+
+- name: Gather paginated, filtered and sorted facts about Managed SANs
+  oneview_managed_san_facts:
+    config: "{{ config_path }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      query: imported eq true
   delegate_to: localhost
 
 - debug: var=managed_sans
@@ -90,7 +111,7 @@ EXAMPLES = '''
 
 - name: Gather facts about Managed SANs for an associated WWN
   oneview_managed_san_facts:
-    config: "{{ config }}"
+    config: "{{ config_path }}"
     options:
       - wwn:
          locate: "20:00:4A:2B:21:E0:00:01"
@@ -122,7 +143,8 @@ class ManagedSanFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -154,7 +176,8 @@ class ManagedSanFactsModule(object):
                         facts['managed_san_endpoints'] = environmental_configuration
 
             else:
-                facts['managed_sans'] = self.resource_client.get_all()
+                params = self.module.params.get('params') or {}
+                facts['managed_sans'] = self.resource_client.get_all(**params)
 
             if options:
                 option = transform_list_to_dict(options)

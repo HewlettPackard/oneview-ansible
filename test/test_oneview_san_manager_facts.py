@@ -13,134 +13,82 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_san_manager_facts import SanManagerFactsModule
-from test.utils import create_ansible_mock
-
-ERROR_MSG = 'Fake message error'
-
-PARAMS_GET_ALL = dict(
-    config='config.json',
-    provider_display_name=None
-)
-
-PARAMS_GET_BY_PROVIDER_DISPLAY_NAME = dict(
-    config='config.json',
-    provider_display_name="Brocade Network Advisor"
-)
-
-PRESENT_SAN_MANAGERS = [{
-    "providerDisplayName": "Brocade Network Advisor",
-    "uri": "/rest/fc-sans/device-managers//d60efc8a-15b8-470c-8470-738d16d6b319"
-}]
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase
 
 
-class SanManagerFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_san_manager_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class SanManagerFactsSpec(unittest.TestCase,
+                          ModuleContructorTestCase,
+                          FactsParamsTestCase):
+    """
+    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
+    mocks used in this test class.
 
-        SanManagerFactsModule()
+    FactsParamsTestCase has common tests for the parameters support.
+    """
 
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
+    ERROR_MSG = 'Fake message error'
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_san_manager_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
+    PARAMS_GET_ALL = dict(
+        config='config.json',
+        provider_display_name=None
+    )
 
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
+    PARAMS_GET_BY_PROVIDER_DISPLAY_NAME = dict(
+        config='config.json',
+        provider_display_name="Brocade Network Advisor"
+    )
 
-        SanManagerFactsModule()
+    PRESENT_SAN_MANAGERS = [{
+        "providerDisplayName": "Brocade Network Advisor",
+        "uri": "/rest/fc-sans/device-managers//d60efc8a-15b8-470c-8470-738d16d6b319"
+    }]
 
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
+    def setUp(self):
+        self.configure_mocks(self, SanManagerFactsModule)
+        self.san_managers = self.mock_ov_client.san_managers
 
+        FactsParamsTestCase.configure_client_mock(self, self.san_managers)
 
-class SanManagerFactsSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_san_manager_facts.AnsibleModule')
-    def test_should_get_all(self, mock_ansible_module,
-                            mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.san_managers.get_all.return_value = PRESENT_SAN_MANAGERS
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_all(self):
+        self.san_managers.get_all.return_value = self.PRESENT_SAN_MANAGERS
+        self.mock_ansible_module.params = self.PARAMS_GET_ALL
 
         SanManagerFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(san_managers=(PRESENT_SAN_MANAGERS))
+            ansible_facts=dict(san_managers=(self.PRESENT_SAN_MANAGERS))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_san_manager_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.san_managers.get_all.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_all_raises_exception(self):
+        self.san_managers.get_all.side_effect = Exception(self.ERROR_MSG)
+        self.mock_ansible_module.params = self.PARAMS_GET_ALL
 
         SanManagerFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_san_manager_facts.AnsibleModule')
-    def test_should_get_by_display_name(self, mock_ansible_module,
-                                        mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.san_managers.get_by_provider_display_name.return_value = PRESENT_SAN_MANAGERS[0]
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_PROVIDER_DISPLAY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_by_display_name(self):
+        self.san_managers.get_by_provider_display_name.return_value = self.PRESENT_SAN_MANAGERS[0]
+        self.mock_ansible_module.params = self.PARAMS_GET_BY_PROVIDER_DISPLAY_NAME
 
         SanManagerFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(san_managers=(PRESENT_SAN_MANAGERS))
+            ansible_facts=dict(san_managers=(self.PRESENT_SAN_MANAGERS))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_san_manager_facts.AnsibleModule')
-    def test_should_fail_when_get_by_provider_display_name_raises_exception(self, mock_ansible_module,
-                                                                            mock_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.san_managers.get_by_provider_display_name.side_effect = Exception(ERROR_MSG)
-
-        mock_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_PROVIDER_DISPLAY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_by_provider_display_name_raises_exception(self):
+        self.san_managers.get_by_provider_display_name.side_effect = Exception(self.ERROR_MSG)
+        self.mock_ansible_module.params = self.PARAMS_GET_BY_PROVIDER_DISPLAY_NAME
 
         SanManagerFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

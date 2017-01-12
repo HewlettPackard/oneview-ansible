@@ -45,6 +45,15 @@ options:
       description:
         - Provider Display Name.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+           'start': The first item to return, using 0-based indexing.
+           'count': The number of resources to return.
+           'query': A general query string to narrow the list of resources returned.
+           'sort': The sort order of the returned data set."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -56,6 +65,18 @@ EXAMPLES = '''
 - name: Gather facts about all SAN Managers
     oneview_san_manager_facts:
     config: "{{ config_path }}"
+
+- debug: var=san_managers
+
+- name: Gather paginated, filtered and sorted facts about SAN Managers
+  oneview_san_manager_facts:
+  config: "{{ config_path }}"
+  params:
+    start: 0
+    count: 3
+    sort: name:ascending
+    query: isInternal eq false
+  delegate_to: localhost
 
 - debug: var=san_managers
 
@@ -79,7 +100,8 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 class SanManagerFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        provider_display_name=dict(required=False, type='str')
+        provider_display_name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -95,7 +117,7 @@ class SanManagerFactsModule(object):
 
     def run(self):
         try:
-            if self.module.params['provider_display_name']:
+            if self.module.params.get('provider_display_name'):
                 provider_display_name = self.module.params['provider_display_name']
                 san_manager = self.oneview_client.san_managers.get_by_provider_display_name(provider_display_name)
                 if san_manager:
@@ -103,7 +125,8 @@ class SanManagerFactsModule(object):
                 else:
                     resources = []
             else:
-                resources = self.oneview_client.san_managers.get_all()
+                params = self.module.params.get('params') or {}
+                resources = self.oneview_client.san_managers.get_all(**params)
 
             self.module.exit_json(changed=False,
                                   ansible_facts=dict(san_managers=resources))

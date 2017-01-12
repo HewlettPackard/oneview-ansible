@@ -27,6 +27,18 @@
 
     - debug: var=managed_sans
 
+    - name: Gather paginated, filtered and sorted facts about Managed SANs
+      oneview_managed_san_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          query: imported eq false
+      delegate_to: localhost
+
+    - debug: var=managed_sans
+
     - name: Gather facts about a Managed SAN by name
       oneview_managed_san_facts:
         config: "{{ config }}"
