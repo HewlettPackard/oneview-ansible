@@ -26,6 +26,17 @@
 
     - debug: var=sas_interconnects
 
+    - name: Gather paginated, filtered and sorted facts about SAS Interconnects
+      oneview_sas_interconnect_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: "softResetState='Normal'"
+
+    - debug: var=sas_interconnects
+
     - name: Gather facts about a SAS Interconnect by name
       oneview_sas_interconnect_facts:
         config: "{{ config }}"
