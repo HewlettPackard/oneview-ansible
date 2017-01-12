@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_os_deployment_plan_facts import OsDeploymentPlanFactsModule
-from test.utils import ModuleContructorTestCase, PreloadedMocksBaseTestCase
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -63,15 +63,19 @@ OS_DEPLOYMENT_PLAN_WITHOUT_EDITABLE = {
 }
 
 
-class OsDeploymentPlanFactsSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedMocksBaseTestCase):
+class OsDeploymentPlanFactsSpec(unittest.TestCase,
+                                ModuleContructorTestCase,
+                                FactsParamsTestCase):
     """
-    - ModuleContructorTestCase has common tests for class constructor and main function
-    - PreloadedMocksBaseTestCase creates the mocks used in this test case
-    """
+    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
+    mocks used in this test class.
 
+    FactsParamsTestCase has common tests for the parameters support.
+    """
     def setUp(self):
         self.configure_mocks(self, OsDeploymentPlanFactsModule)
         self.resource = self.mock_ov_client.os_deployment_plans
+        FactsParamsTestCase.configure_client_mock(self, self.resource)
 
     def test_should_get_all_os_deployment_plans(self):
         self.resource.get_all.return_value = [{"name": "Os Deployment Plan Name"}]
