@@ -5040,6 +5040,7 @@ Retrieve facts about Rack resources.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Rack name.  |
 | options  |   No  |  | |  Retrieve additional facts. Options available: 'deviceTopology'.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -5053,6 +5054,14 @@ Retrieve facts about Rack resources.
 
 - debug: var=racks
 
+- name: Gather paginated, filtered and sorted facts about Racks
+  oneview_rack_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 5
+      sort: 'name:descending'
+      filter: "depth=1000"
 
 - name: Gather facts about a Rack by name
   oneview_rack_facts:
