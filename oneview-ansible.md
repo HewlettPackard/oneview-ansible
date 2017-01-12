@@ -4468,6 +4468,7 @@ Retrieve facts about the OneView Managed SANs.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Managed SAN.  |
 | options  |   No  |  | |  List with options to gather additional facts about Managed SAN. Options allowed: 'endpoints' gets the list of endpoints in the SAN identified by name. 'wwn' gets the list of Managed SANs associated with an informed WWN 'locate'.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'query': A general query string to narrow the list of resources returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -4476,7 +4477,19 @@ Retrieve facts about the OneView Managed SANs.
 ```yaml
 - name: Gather facts about all Managed SANs
   oneview_managed_san_facts:
-    config: "{{ config }}"
+    config: "{{ config_path }}"
+  delegate_to: localhost
+
+- debug: var=managed_sans
+
+- name: Gather paginated, filtered and sorted facts about Managed SANs
+  oneview_managed_san_facts:
+    config: "{{ config_path }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      query: imported eq true
   delegate_to: localhost
 
 - debug: var=managed_sans
@@ -4502,7 +4515,7 @@ Retrieve facts about the OneView Managed SANs.
 
 - name: Gather facts about Managed SANs for an associated WWN
   oneview_managed_san_facts:
-    config: "{{ config }}"
+    config: "{{ config_path }}"
     options:
       - wwn:
          locate: "20:00:4A:2B:21:E0:00:01"
