@@ -42,6 +42,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Name of the SAS Logical Interconnect Group.
@@ -58,6 +67,17 @@ EXAMPLES = '''
 - name: Gather facts about all SAS Logical Interconnect Groups
     oneview_sas_logical_interconnect_group_facts:
     config: "{{ config_path }}"
+
+- debug: var=sas_logical_interconnect_groups
+
+- name: Gather paginated, filtered and sorted facts about SAS Logical Interconnect Groups
+    oneview_sas_logical_interconnect_group_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 5
+      sort: 'name:descending'
+      filter: "state='Active'"
 
 - debug: var=sas_logical_interconnect_groups
 
@@ -81,7 +101,8 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 class SasLogicalInterconnectGroupFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -100,7 +121,8 @@ class SasLogicalInterconnectGroupFactsModule(object):
                 name = self.module.params['name']
                 resources = self.oneview_client.sas_logical_interconnect_groups.get_by('name', name)
             else:
-                resources = self.oneview_client.sas_logical_interconnect_groups.get_all()
+                params = self.module.params.get('params') or {}
+                resources = self.oneview_client.sas_logical_interconnect_groups.get_all(**params)
 
             self.module.exit_json(changed=False, ansible_facts=dict(sas_logical_interconnect_groups=resources))
 
