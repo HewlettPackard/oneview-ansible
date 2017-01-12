@@ -41,6 +41,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Name of the SAS Interconnect Type.
@@ -60,6 +69,16 @@ EXAMPLES = '''
 
 - debug: var=sas_interconnect_types
 
+- name: Gather paginated, filtered and sorted facts about SAS Interconnect Types
+  oneview_sas_interconnect_type_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: "enclosureType='SY12000'"
+
+- debug: var=sas_interconnect_types
 
 - name: Gather facts about a SAS Interconnect Type by name
   oneview_sas_interconnect_type_facts:
@@ -82,7 +101,8 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 class SasInterconnectTypeFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -100,7 +120,8 @@ class SasInterconnectTypeFactsModule(object):
             if self.module.params.get('name'):
                 types = self.oneview_client.sas_interconnect_types.get_by('name', self.module.params.get('name'))
             else:
-                types = self.oneview_client.sas_interconnect_types.get_all()
+                params = self.module.params.get('params') or {}
+                types = self.oneview_client.sas_interconnect_types.get_all(**params)
 
             self.module.exit_json(changed=False,
                                   ansible_facts=dict(sas_interconnect_types=types))
