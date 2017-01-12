@@ -27,6 +27,15 @@
 
     - debug: var=switches
 
+    - name: Gather paginated facts about switches
+      oneview_switch_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+
+    - debug: var=switches
+
     - name: Gather facts about the switch that matches the specified switch name
       oneview_switch_facts:
         config: "{{ config }}"

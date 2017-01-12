@@ -40,6 +40,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Switch name.
@@ -62,6 +71,15 @@ EXAMPLES = '''
 - name: Gather facts about all switches
   oneview_switch_facts:
     config: "{{ config }}"
+
+- name: Gather paginated facts about switches
+  oneview_switch_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+
+- debug: var=switches
 
 - name: Gather facts about the switch that matches the specified switch name
   oneview_switch_facts:
@@ -94,7 +112,8 @@ class SwitchFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -123,7 +142,8 @@ class SwitchFactsModule(object):
                     environmental_configuration = self.resource_client.get_environmental_configuration(id_or_uri=uri)
                     facts['switch_environmental_configuration'] = environmental_configuration
             else:
-                facts['switches'] = self.resource_client.get_all()
+                params = self.module.params.get('params') or {}
+                facts['switches'] = self.resource_client.get_all(**params)
 
             self.module.exit_json(changed=False, ansible_facts=facts)
 
