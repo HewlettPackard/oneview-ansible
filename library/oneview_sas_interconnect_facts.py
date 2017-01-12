@@ -45,6 +45,17 @@ options:
       description:
         - SAS Interconnect name.
       required: false
+    options:
+      description:
+        - "List with options to gather additional facts about Interconnect.
+          Options allowed:
+          'nameServers' gets the named servers for an interconnect.
+          'statistics' gets the statistics from an interconnect.
+          'portStatistics' gets the statistics for the specified port name on an interconnect.
+          'subPortStatistics' gets the subport statistics on an interconnect."
+        - "To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be
+          ignored."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -57,6 +68,15 @@ EXAMPLES = '''
 - name: Gather facts about all SAS Interconnects
   oneview_sas_interconnect_facts:
     config: "{{ config }}"
+
+- name: Gather paginated, filtered and sorted facts about SAS Interconnects
+  oneview_sas_interconnect_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: "softResetState='Normal'"
 
 - name: Gather facts about a SAS Interconnect by name
   oneview_sas_interconnect_facts:
@@ -77,7 +97,8 @@ class SasInterconnectFactsModule(object):
 
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -100,7 +121,8 @@ class SasInterconnectFactsModule(object):
             if name:
                 facts['sas_interconnects'] = self.resource_client.get_by('name', name)
             else:
-                facts['sas_interconnects'] = self.resource_client.get_all()
+                params = self.module.params.get('params') or {}
+                facts['sas_interconnects'] = self.resource_client.get_all(**params)
 
             self.module.exit_json(ansible_facts=facts)
 

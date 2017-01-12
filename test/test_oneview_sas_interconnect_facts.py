@@ -15,11 +15,9 @@
 ###
 
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_sas_interconnect_facts import SasInterconnectFactsModule
-from utils import create_ansible_mock
+from utils import ModuleContructorTestCase, FactsParamsTestCase
 
 
 SAS_INTERCONNECT_1_NAME = '0000A66103, interconnect 1'
@@ -45,95 +43,47 @@ PARAMS_GET_BY_NAME = dict(
 )
 
 
-class SasInterconnectFactsSpec(unittest.TestCase):
+class SasInterconnectFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+    def setUp(self):
+        self.configure_mocks(self, SasInterconnectFactsModule)
+        self.resource = self.mock_ov_client.sas_interconnects
+        FactsParamsTestCase.configure_client_mock(self, self.resource)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_sas_interconnect_facts.AnsibleModule')
-    def test_get_all_sas_interconnects(self, mock_ansible_module, mock_ov_from_file):
+    def test_get_all_sas_interconnects(self):
         all_sas_interconnects = [SAS_INTERCONNECT_1, SAS_INTERCONNECT_4]
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_from_file.return_value = mock_ov_instance
+        self.resource.get_all.return_value = all_sas_interconnects
 
-        mock_ov_instance.sas_interconnects.get_all.return_value = all_sas_interconnects
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         SasInterconnectFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             ansible_facts=dict(sas_interconnects=all_sas_interconnects)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_sas_interconnect_facts.AnsibleModule')
-    def test_get_sas_interconnects_by_name(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_from_file.return_value = mock_ov_instance
+    def test_get_sas_interconnects_by_name(self):
+        self.resource.get_by.return_value = [SAS_INTERCONNECT_1]
 
-        mock_ov_instance.sas_interconnects.get_by.return_value = [SAS_INTERCONNECT_1]
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         SasInterconnectFactsModule().run()
 
-        mock_ov_instance.sas_interconnects.get_by.assert_called_once_with('name', SAS_INTERCONNECT_1_NAME)
+        self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_1_NAME)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             ansible_facts=dict(sas_interconnects=[SAS_INTERCONNECT_1])
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_sas_interconnect_facts.AnsibleModule')
-    def test_error_handling(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_from_file.return_value = mock_ov_instance
-
+    def test_error_handling(self):
         error_msg = "Fake Error"
-        mock_ov_instance.sas_interconnects.get_by.side_effect = Exception(error_msg)
+        self.resource.get_by.side_effect = Exception(error_msg)
 
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         SasInterconnectFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=error_msg)
-
-
-class SasInterconnectsFactsClientConfigurationSpec(unittest.TestCase):
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_sas_interconnect_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        SasInterconnectFactsModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_sas_interconnect_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        SasInterconnectFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=error_msg)
 
 
 if __name__ == '__main__':
