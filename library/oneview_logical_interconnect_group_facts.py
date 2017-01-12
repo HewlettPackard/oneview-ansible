@@ -41,6 +41,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter, and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Logical Interconnect Group name.
@@ -56,6 +65,17 @@ EXAMPLES = '''
 - name: Gather facts about all Logical Interconnect Groups
   oneview_logical_interconnect_group_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=logical_interconnect_groups
+
+- name: Gather paginated, filtered and sorted facts about Logical Interconnect Groups
+  oneview_logical_interconnect_group_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'name=LIGName'
 
 - debug: var=logical_interconnect_groups
 
@@ -79,7 +99,8 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 class LogicalInterconnectGroupFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -110,7 +131,8 @@ class LogicalInterconnectGroupFactsModule(object):
                               ansible_facts=dict(logical_interconnect_groups=logical_interconnect_groups))
 
     def __get_all(self):
-        logical_interconnect_groups = self.oneview_client.logical_interconnect_groups.get_all()
+        params = self.module.params.get('params') or {}
+        logical_interconnect_groups = self.oneview_client.logical_interconnect_groups.get_all(**params)
 
         self.module.exit_json(changed=False,
                               ansible_facts=dict(logical_interconnect_groups=logical_interconnect_groups))

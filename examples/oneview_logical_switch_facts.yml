@@ -26,6 +26,17 @@
 
     - debug: var=logical_switches
 
+    - name: Gather paginated, filtered and sorted facts about Logical Switches
+      oneview_logical_switch_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: 'status=OK'
+
+    - debug: var=logical_switches
+
     - name: Gather facts about a Logical Switch by name
       oneview_logical_switch_facts:
         config: "{{ config }}"

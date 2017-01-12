@@ -15,12 +15,11 @@
 ###
 
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_logical_interconnect_facts import LogicalInterconnectFactsModule
 from oneview_logical_interconnect_facts import LOGICAL_INTERCONNECT_NOT_FOUND
-from test.utils import create_ansible_mock
+from test.utils import FactsParamsTestCase
+from test.utils import ModuleContructorTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -101,112 +100,54 @@ LOGICAL_INTERCONNECT = dict(
 ALL_INTERCONNECTS = [LOGICAL_INTERCONNECT]
 
 
-def define_mocks_for_get_by_name(mock_ov_from_file, mock_ansible_module, PARAMS):
-    mock_ov_instance = mock.Mock()
-    mock_ov_instance.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
-    mock_ov_from_file.return_value = mock_ov_instance
-
-    mock_ansible_instance = create_ansible_mock(PARAMS)
-    mock_ansible_module.return_value = mock_ansible_instance
-
-    return mock_ov_instance, mock_ansible_instance
-
-
 def create_params(options=[]):
     return dict(config='config.json', name=LOGICAL_INTERCONNECT_NAME, options=options)
 
 
-class LogicalInterconnectFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class LogicalInterconnectFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+    def setUp(self):
+        self.configure_mocks(self, LogicalInterconnectFactsModule)
+        self.logical_interconnects = self.mock_ov_client.logical_interconnects
+        FactsParamsTestCase.configure_client_mock(self, self.logical_interconnects)
 
-        LogicalInterconnectFactsModule()
+    def test_should_get_all_logical_interconnects(self):
+        self.logical_interconnects.get_all.return_value = ALL_INTERCONNECTS
 
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        LogicalInterconnectFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class LogicalInterconnectFactsSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_get_all_logical_interconnects(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_interconnects.get_all.return_value = ALL_INTERCONNECTS
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         LogicalInterconnectFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(logical_interconnects=ALL_INTERCONNECTS)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_get_a_logical_interconnects_by_name(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance, mock_ansible_instance = define_mocks_for_get_by_name(
-            mock_ov_from_file,
-            mock_ansible_module,
-            create_params()
-        )
+    def test_should_get_a_logical_interconnects_by_name(self):
+        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.mock_ansible_module.params = create_params()
 
         LogicalInterconnectFactsModule().run()
 
-        mock_ov_instance.logical_interconnects.get_by_name.assert_called_once_with(name=LOGICAL_INTERCONNECT_NAME)
+        self.logical_interconnects.get_by_name.assert_called_once_with(name=LOGICAL_INTERCONNECT_NAME)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(logical_interconnects=LOGICAL_INTERCONNECT)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_get_a_logical_interconnects_by_name_with_qos_configuration(self,
-                                                                               mock_ansible_module,
-                                                                               mock_ov_from_file):
-        params = create_params(['qos_aggregated_configuration'])
+    def test_should_get_a_logical_interconnects_by_name_with_qos_configuration(self):
+        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.logical_interconnects.get_qos_aggregated_configuration.return_value = QOS_CONFIGURATION
 
-        mock_ov_instance, mock_ansible_instance = define_mocks_for_get_by_name(
-            mock_ov_from_file,
-            mock_ansible_module,
-            params
-        )
-
-        mock_ov_instance.logical_interconnects.get_qos_aggregated_configuration.return_value = QOS_CONFIGURATION
+        self.mock_ansible_module.params = create_params(['qos_aggregated_configuration'])
 
         LogicalInterconnectFactsModule().run()
 
-        mock_ov_instance.logical_interconnects.get_qos_aggregated_configuration.assert_called_once_with(
+        self.logical_interconnects.get_qos_aggregated_configuration.assert_called_once_with(
             id_or_uri=LOGICAL_INTERCONNECT_URI
         )
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 logical_interconnects=LOGICAL_INTERCONNECT,
@@ -214,28 +155,18 @@ class LogicalInterconnectFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_get_a_logical_interconnects_by_name_with_snmp_configuration(self,
-                                                                                mock_ansible_module,
-                                                                                mock_ov_from_file):
-        params = create_params(['snmp_configuration'])
-
-        mock_ov_instance, mock_ansible_instance = define_mocks_for_get_by_name(
-            mock_ov_from_file,
-            mock_ansible_module,
-            params
-        )
-
-        mock_ov_instance.logical_interconnects.get_snmp_configuration.return_value = SNMP_CONFIGURATION
+    def test_should_get_a_logical_interconnects_by_name_with_snmp_configuration(self):
+        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.logical_interconnects.get_snmp_configuration.return_value = SNMP_CONFIGURATION
+        self.mock_ansible_module.params = create_params(['snmp_configuration'])
 
         LogicalInterconnectFactsModule().run()
 
-        mock_ov_instance.logical_interconnects.get_snmp_configuration.assert_called_once_with(
+        self.logical_interconnects.get_snmp_configuration.assert_called_once_with(
             id_or_uri=LOGICAL_INTERCONNECT_URI
         )
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 logical_interconnects=LOGICAL_INTERCONNECT,
@@ -243,26 +174,18 @@ class LogicalInterconnectFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_get_a_logical_interconnects_by_name_with_port_monitor(self, mock_ansible_module, mock_ov_from_file):
-        params = create_params(['port_monitor'])
-
-        mock_ov_instance, mock_ansible_instance = define_mocks_for_get_by_name(
-            mock_ov_from_file,
-            mock_ansible_module,
-            params
-        )
-
-        mock_ov_instance.logical_interconnects.get_port_monitor.return_value = PORT_MONITOR
+    def test_should_get_a_logical_interconnects_by_name_with_port_monitor(self):
+        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.logical_interconnects.get_port_monitor.return_value = PORT_MONITOR
+        self.mock_ansible_module.params = create_params(['port_monitor'])
 
         LogicalInterconnectFactsModule().run()
 
-        mock_ov_instance.logical_interconnects.get_port_monitor.assert_called_once_with(
+        self.logical_interconnects.get_port_monitor.assert_called_once_with(
             id_or_uri=LOGICAL_INTERCONNECT_URI
         )
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 logical_interconnects=LOGICAL_INTERCONNECT,
@@ -270,28 +193,18 @@ class LogicalInterconnectFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_get_a_logical_interconnects_by_name_with_internal_vlans(self,
-                                                                            mock_ansible_module,
-                                                                            mock_ov_from_file):
-        params = create_params(['internal_vlans'])
-
-        mock_ov_instance, mock_ansible_instance = define_mocks_for_get_by_name(
-            mock_ov_from_file,
-            mock_ansible_module,
-            params
-        )
-
-        mock_ov_instance.logical_interconnects.get_internal_vlans.return_value = INTERNAL_VLANS
+    def test_should_get_a_logical_interconnects_by_name_with_internal_vlans(self):
+        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.logical_interconnects.get_internal_vlans.return_value = INTERNAL_VLANS
+        self.mock_ansible_module.params = create_params(['internal_vlans'])
 
         LogicalInterconnectFactsModule().run()
 
-        mock_ov_instance.logical_interconnects.get_internal_vlans.assert_called_once_with(
+        self.logical_interconnects.get_internal_vlans.assert_called_once_with(
             id_or_uri=LOGICAL_INTERCONNECT_URI
         )
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 logical_interconnects=LOGICAL_INTERCONNECT,
@@ -299,28 +212,18 @@ class LogicalInterconnectFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_get_a_logical_interconnects_by_name_with_forwarding_information_base(self,
-                                                                                         mock_ansible_module,
-                                                                                         mock_ov_from_file):
-        params = create_params(['internal_vlans'])
-
-        mock_ov_instance, mock_ansible_instance = define_mocks_for_get_by_name(
-            mock_ov_from_file,
-            mock_ansible_module,
-            params
-        )
-
-        mock_ov_instance.logical_interconnects.get_internal_vlans.return_value = INTERNAL_VLANS
+    def test_should_get_a_logical_interconnects_by_name_with_forwarding_information_base(self):
+        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.logical_interconnects.get_internal_vlans.return_value = INTERNAL_VLANS
+        self.mock_ansible_module.params = create_params(['internal_vlans'])
 
         LogicalInterconnectFactsModule().run()
 
-        mock_ov_instance.logical_interconnects.get_internal_vlans.assert_called_once_with(
+        self.logical_interconnects.get_internal_vlans.assert_called_once_with(
             id_or_uri=LOGICAL_INTERCONNECT_URI
         )
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 logical_interconnects=LOGICAL_INTERCONNECT,
@@ -328,24 +231,16 @@ class LogicalInterconnectFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_get_a_logical_interconnects_by_name_with_firmware(self, mock_ansible_module, mock_ov_from_file):
-        params = create_params(['firmware'])
-
-        mock_ov_instance, mock_ansible_instance = define_mocks_for_get_by_name(
-            mock_ov_from_file,
-            mock_ansible_module,
-            params
-        )
-
-        mock_ov_instance.logical_interconnects.get_firmware.return_value = FIRMWARE
+    def test_should_get_a_logical_interconnects_by_name_with_firmware(self):
+        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.logical_interconnects.get_firmware.return_value = FIRMWARE
+        self.mock_ansible_module.params = create_params(['firmware'])
 
         LogicalInterconnectFactsModule().run()
 
-        mock_ov_instance.logical_interconnects.get_firmware.assert_called_once_with(id_or_uri=LOGICAL_INTERCONNECT_URI)
+        self.logical_interconnects.get_firmware.assert_called_once_with(id_or_uri=LOGICAL_INTERCONNECT_URI)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 logical_interconnects=LOGICAL_INTERCONNECT,
@@ -353,28 +248,18 @@ class LogicalInterconnectFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_get_a_logical_interconnects_by_name_with_unassigned_uplink_ports(self,
-                                                                                     mock_ansible_module,
-                                                                                     mock_ov_from_file):
-        params = create_params(['unassigned_uplink_ports'])
-
-        mock_ov_instance, mock_ansible_instance = define_mocks_for_get_by_name(
-            mock_ov_from_file,
-            mock_ansible_module,
-            params
-        )
-
-        mock_ov_instance.logical_interconnects.get_unassigned_uplink_ports.return_value = UNASSIGNED_UPLINK_PORTS
+    def test_should_get_a_logical_interconnects_by_name_with_unassigned_uplink_ports(self):
+        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.logical_interconnects.get_unassigned_uplink_ports.return_value = UNASSIGNED_UPLINK_PORTS
+        self.mock_ansible_module.params = create_params(['unassigned_uplink_ports'])
 
         LogicalInterconnectFactsModule().run()
 
-        mock_ov_instance.logical_interconnects.get_unassigned_uplink_ports.assert_called_once_with(
+        self.logical_interconnects.get_unassigned_uplink_ports.assert_called_once_with(
             id_or_uri=LOGICAL_INTERCONNECT_URI
         )
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 logical_interconnects=LOGICAL_INTERCONNECT,
@@ -382,28 +267,18 @@ class LogicalInterconnectFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_get_a_logical_interconnects_by_name_with_telemetry_configuration(self,
-                                                                                     mock_ansible_module,
-                                                                                     mock_ov_from_file):
-        params = create_params(['telemetry_configuration'])
-
-        mock_ov_instance, mock_ansible_instance = define_mocks_for_get_by_name(
-            mock_ov_from_file,
-            mock_ansible_module,
-            params
-        )
-
-        mock_ov_instance.logical_interconnects.get_telemetry_configuration.return_value = TELEMETRY_CONFIGURATION
+    def test_should_get_a_logical_interconnects_by_name_with_telemetry_configuration(self):
+        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.logical_interconnects.get_telemetry_configuration.return_value = TELEMETRY_CONFIGURATION
+        self.mock_ansible_module.params = create_params(['telemetry_configuration'])
 
         LogicalInterconnectFactsModule().run()
 
-        mock_ov_instance.logical_interconnects.get_telemetry_configuration.assert_called_once_with(
+        self.logical_interconnects.get_telemetry_configuration.assert_called_once_with(
             telemetry_configuration_uri=TELEMETRY_CONF_URI
         )
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 logical_interconnects=LOGICAL_INTERCONNECT,
@@ -411,25 +286,17 @@ class LogicalInterconnectFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_get_a_logical_interconnects_by_name_with_multiple_options(self,
-                                                                              mock_ansible_module,
-                                                                              mock_ov_from_file):
+    def test_should_get_a_logical_interconnects_by_name_with_multiple_options(self):
         params = create_params(['qos_aggregated_configuration', 'snmp_configuration', 'port_monitor',
                                 'unassigned_uplink_ports', 'telemetry_configuration'])
 
-        mock_ov_instance, mock_ansible_instance = define_mocks_for_get_by_name(
-            mock_ov_from_file,
-            mock_ansible_module,
-            params
-        )
-
-        mock_ov_instance.logical_interconnects.get_qos_aggregated_configuration.return_value = QOS_CONFIGURATION
-        mock_ov_instance.logical_interconnects.get_snmp_configuration.return_value = SNMP_CONFIGURATION
-        mock_ov_instance.logical_interconnects.get_port_monitor.return_value = PORT_MONITOR
-        mock_ov_instance.logical_interconnects.get_unassigned_uplink_ports.return_value = UNASSIGNED_UPLINK_PORTS
-        mock_ov_instance.logical_interconnects.get_telemetry_configuration.return_value = TELEMETRY_CONFIGURATION
+        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.logical_interconnects.get_qos_aggregated_configuration.return_value = QOS_CONFIGURATION
+        self.logical_interconnects.get_snmp_configuration.return_value = SNMP_CONFIGURATION
+        self.logical_interconnects.get_port_monitor.return_value = PORT_MONITOR
+        self.logical_interconnects.get_unassigned_uplink_ports.return_value = UNASSIGNED_UPLINK_PORTS
+        self.logical_interconnects.get_telemetry_configuration.return_value = TELEMETRY_CONFIGURATION
+        self.mock_ansible_module.params = params
 
         LogicalInterconnectFactsModule().run()
 
@@ -437,15 +304,15 @@ class LogicalInterconnectFactsSpec(unittest.TestCase):
         telemetry_uri = dict(telemetry_configuration_uri=TELEMETRY_CONF_URI)
 
         # validate the calls to the OneView SDK
-        mock_ov_instance.logical_interconnects.get_by_name.assert_called_once_with(name=LOGICAL_INTERCONNECT_NAME)
-        mock_ov_instance.logical_interconnects.get_qos_aggregated_configuration.assert_called_once_with(**expected_uri)
-        mock_ov_instance.logical_interconnects.get_snmp_configuration.assert_called_once_with(**expected_uri)
-        mock_ov_instance.logical_interconnects.get_port_monitor.assert_called_once_with(**expected_uri)
-        mock_ov_instance.logical_interconnects.get_unassigned_uplink_ports.assert_called_once_with(**expected_uri)
-        mock_ov_instance.logical_interconnects.get_telemetry_configuration.assert_called_once_with(**telemetry_uri)
+        self.logical_interconnects.get_by_name.assert_called_once_with(name=LOGICAL_INTERCONNECT_NAME)
+        self.logical_interconnects.get_qos_aggregated_configuration.assert_called_once_with(**expected_uri)
+        self.logical_interconnects.get_snmp_configuration.assert_called_once_with(**expected_uri)
+        self.logical_interconnects.get_port_monitor.assert_called_once_with(**expected_uri)
+        self.logical_interconnects.get_unassigned_uplink_ports.assert_called_once_with(**expected_uri)
+        self.logical_interconnects.get_telemetry_configuration.assert_called_once_with(**telemetry_uri)
 
         # Validate the result data
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 logical_interconnects=LOGICAL_INTERCONNECT,
@@ -457,39 +324,24 @@ class LogicalInterconnectFactsSpec(unittest.TestCase):
             )
         )
 
+    def test_should_fail_when_get_all_raises_an_exception(self):
+        self.logical_interconnects.get_all.side_effect = Exception(ERROR_MSG)
 
-class LogicalInterconnectFactsErrorHandlingSpec(unittest.TestCase):
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_an_exception(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_interconnects.get_all.side_effect = Exception(ERROR_MSG)
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         LogicalInterconnectFactsModule().run()
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=ERROR_MSG)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_logical_interconnect_facts.AnsibleModule')
-    def test_should_fail_when_logical_interconnect_not_exist(self,
-                                                             mock_ansible_module,
-                                                             mock_ov_from_file):
+    def test_should_fail_when_logical_interconnect_not_exist(self):
         params = create_params(['unassigned_uplink_ports'])
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.logical_interconnects.get_by_name.return_value = None
-        mock_ov_from_file.return_value = mock_ov_instance
+        self.logical_interconnects.get_by_name.return_value = None
 
-        mock_ansible_instance = create_ansible_mock(params)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params
 
         LogicalInterconnectFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=LOGICAL_INTERCONNECT_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LOGICAL_INTERCONNECT_NOT_FOUND)
 
 
 if __name__ == '__main__':

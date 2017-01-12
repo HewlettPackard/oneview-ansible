@@ -17,6 +17,7 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import transform_list_to_dict
@@ -42,6 +43,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Network Set name.
@@ -66,6 +76,16 @@ EXAMPLES = '''
 
 - debug: var=network_sets
 
+- name: Gather paginated, filtered, and sorted facts about Network Sets
+  oneview_network_set_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: name='netset001'
+
+- debug: var=network_sets
 
 - name: Gather facts about all Network Sets, excluding Ethernet networks
   oneview_network_set_facts:
@@ -107,7 +127,8 @@ class NetworkSetFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -140,7 +161,8 @@ class NetworkSetFactsModule(object):
         if 'withoutEthernet' in options:
             return self.oneview_client.network_sets.get_all_without_ethernet()
         else:
-            return self.oneview_client.network_sets.get_all()
+            params = self.module.params.get('params') or {}
+            return self.oneview_client.network_sets.get_all(**params)
 
     def __get_network_set_by_name(self, options):
         name = self.module.params['name']

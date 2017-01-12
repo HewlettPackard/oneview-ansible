@@ -44,6 +44,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Logical Enclosure name.
@@ -65,6 +74,17 @@ EXAMPLES = '''
   oneview_logical_enclosure_facts:
     config: "{{ config_file_path }}"
   delegate_to: localhost
+
+- debug: var=logical_enclosures
+
+- name: Gather paginated, filtered and sorted facts about Logical Enclosures
+  oneview_logical_enclosure_facts:
+    config: "{{ config_file_path }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'status=OK'
 
 - debug: var=logical_enclosures
 
@@ -103,18 +123,12 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class LogicalEnclosureFactsModule(object):
-    argument_spec = {
-        "config": {
-            "required": False,
-            "type": 'str'},
-        "name": {
-            "required": False,
-            "type": 'str'
-        },
-        "options": {
-            "required": False,
-            "type": 'list'
-        }}
+    argument_spec = dict(
+        config=dict(required=False, type='str'),
+        name=dict(required=False, type='str'),
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict'),
+    )
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec,
@@ -137,7 +151,8 @@ class LogicalEnclosureFactsModule(object):
                 if self.module.params.get('options') and logical_enclosures:
                     ansible_facts = self.__gather_optional_facts(self.module.params['options'], logical_enclosures[0])
             else:
-                logical_enclosures = self.oneview_client.logical_enclosures.get_all()
+                params = self.module.params.get('params') or {}
+                logical_enclosures = self.oneview_client.logical_enclosures.get_all(**params)
 
             ansible_facts['logical_enclosures'] = logical_enclosures
 

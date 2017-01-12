@@ -3596,6 +3596,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Enclosure name.  |
 | options  |   No  |  | |  List with options to gather additional facts about a Logical Enclosure and related resources. Options allowed: script.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -3606,6 +3607,17 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
   oneview_logical_enclosure_facts:
     config: "{{ config_file_path }}"
   delegate_to: localhost
+
+- debug: var=logical_enclosures
+
+- name: Gather paginated, filtered and sorted facts about Logical Enclosures
+  oneview_logical_enclosure_facts:
+    config: "{{ config_file_path }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'status=OK'
 
 - debug: var=logical_enclosures
 
@@ -3810,6 +3822,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Interconnect name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Logical Interconnect. Options allowed: 'qos_aggregated_configuration' gets the QoS aggregated configuration for the logical interconnect. 'snmp_configuration' gets the SNMP configuration for a logical interconnect. 'port_monitor' gets the port monitor configuration of a logical interconnect. 'internal_vlans' gets the internal VLAN IDs for the provisioned networks on a logical interconnect. 'forwarding_information_base' gets the forwarding information base data for a logical interconnect. 'firmware' get the installed firmware for a logical interconnect. 'unassigned_uplink_ports' gets a collection of uplink ports from the member interconnects which are eligible for assignment to an analyzer port. 'telemetry_configuration' gets the telemetry configuration of the logical interconnect. - These options are valid just when a 'name' is provided. Otherwise it will be ignored.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -3819,6 +3832,16 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 - name: Gather facts about all Logical Interconnects
   oneview_logical_interconnect_facts:
   config: "{{ config }}"
+
+- debug: var=logical_interconnects
+
+- name: Gather paginated and sorted facts about Logical Interconnects
+  oneview_logical_interconnect_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
 
 - debug: var=logical_interconnects
 
@@ -3981,6 +4004,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Interconnect Group name.  |
+| params  |   No  |  | |  List of params to delimit, filter, and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -3990,6 +4014,17 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups.
 - name: Gather facts about all Logical Interconnect Groups
   oneview_logical_interconnect_group_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=logical_interconnect_groups
+
+- name: Gather paginated, filtered and sorted facts about Logical Interconnect Groups
+  oneview_logical_interconnect_group_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'name=LIGName'
 
 - debug: var=logical_interconnect_groups
 
@@ -4169,6 +4204,7 @@ Retrieve the facts about one or more of the OneView Logical Switches.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Switch name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -4178,6 +4214,17 @@ Retrieve the facts about one or more of the OneView Logical Switches.
 - name: Gather facts about all Logical Switches
   oneview_logical_switch_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=logical_switches
+
+- name: Gather paginated, filtered and sorted facts about Logical Switches
+  oneview_logical_switch_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: 'status=OK'
 
 - debug: var=logical_switches
 
@@ -4315,6 +4362,7 @@ Retrieve facts about OneView Logical Switch Groups.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Switch Group name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -4325,6 +4373,17 @@ Retrieve facts about OneView Logical Switch Groups.
   oneview_logical_switch_group_facts:
     config: "{{ config }}"
   delegate_to: localhost
+
+- debug: var=logical_switch_groups
+
+- name: Gather paginated, filtered and sorted facts about Logical Switch Groups
+  oneview_logical_switch_group_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: "name='Logical_Switch_Group+56'"
 
 - debug: var=logical_switch_groups
 
@@ -4635,6 +4694,7 @@ Retrieve facts about the OneView Network Sets.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Network Set name.  |
 | options  |   No  |  | |  List with options to gather facts about Network Set. Option allowed: withoutEthernet The option 'withoutEthernet' retrieves the list of network_sets excluding Ethernet networks.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -4647,6 +4707,16 @@ Retrieve facts about the OneView Network Sets.
 
 - debug: var=network_sets
 
+- name: Gather paginated, filtered, and sorted facts about Network Sets
+  oneview_network_set_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: name='netset001'
+
+- debug: var=network_sets
 
 - name: Gather facts about all Network Sets, excluding Ethernet networks
   oneview_network_set_facts:

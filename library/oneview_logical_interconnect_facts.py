@@ -42,6 +42,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Logical Interconnect name.
@@ -72,6 +81,16 @@ EXAMPLES = '''
 - name: Gather facts about all Logical Interconnects
   oneview_logical_interconnect_facts:
   config: "{{ config }}"
+
+- debug: var=logical_interconnects
+
+- name: Gather paginated and sorted facts about Logical Interconnects
+  oneview_logical_interconnect_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
 
 - debug: var=logical_interconnects
 
@@ -167,7 +186,8 @@ class LogicalInterconnectFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -198,7 +218,8 @@ class LogicalInterconnectFactsModule(object):
             if name:
                 facts = self.__get_by_name(name)
             else:
-                logical_interconnects = self.resource_client.get_all()
+                params = self.module.params.get('params') or {}
+                logical_interconnects = self.resource_client.get_all(**params)
                 facts = dict(logical_interconnects=logical_interconnects)
 
             self.module.exit_json(changed=False, ansible_facts=facts)

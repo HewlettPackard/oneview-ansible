@@ -26,6 +26,17 @@
 
     - debug: var=logical_enclosures
 
+    - name: Gather paginated, filtered and sorted facts about Logical Enclosures
+      oneview_logical_enclosure_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: 'status=OK'
+
+    - debug: var=logical_enclosures
+
     - name: Gather facts about a Logical Enclosure by name
       oneview_logical_enclosure_facts:
         config: "{{ config }}"
