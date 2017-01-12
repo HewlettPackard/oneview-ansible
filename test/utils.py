@@ -160,7 +160,8 @@ class ValidateEtagTestCase(PreloadedMocksBaseTestCase):
 
 class FactsParamsTestCase(PreloadedMocksBaseTestCase):
     """
-    ParamsTestCase has common test for classes that support pass additional parameters when retrieving all resources.
+    FactsParamsTestCase has common test for classes that support pass additional
+        parameters when retrieving all resources.
     """
 
     def configure_client_mock(self, resorce_client):

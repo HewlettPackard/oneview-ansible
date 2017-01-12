@@ -26,6 +26,16 @@
       delegate_to: localhost
     - debug: var=sas_logical_interconnects
 
+    - name: Gather paginated, filtered and sorted facts about SAS Logical Interconnects
+      oneview_sas_logical_interconnect_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 2
+          sort: 'name:descending'
+          filter: "status='OK'"
+    - debug: var=sas_logical_interconnects
+
     - name: Gather facts about a SAS Logical Interconnect by name
       oneview_sas_logical_interconnect_facts:
         config: "{{ config }}"
