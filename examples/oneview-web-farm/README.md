@@ -53,9 +53,11 @@ Then create/modify a custom build script in ICsp that will do something with thi
 
 ```bash
 #!/bin/bash
-authorized_keys = @SSH_CERT@
-if [ -n "$authorized_keys"]; then
-  echo -e "$authorized_keys" > /mnt/sysimage/root/.ssh/authorized_keys
+authorized_keys="@SSH_CERT@"
+if [ -n "$authorized_keys" ]; then
+  mkdir -p /root/.ssh/
+  touch /root/.ssh/authorized_keys
+  echo -e "$authorized_keys" > /root/.ssh/authorized_keys
 fi
 ```
 
