@@ -44,6 +44,17 @@ options:
       description:
         - Name of the scope.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+           'start': The first item to return, using 0-based indexing.
+           'count': The number of resources to return.
+           'query': A general query string to narrow the list of resources returned.
+           'sort': The sort order of the returned data set.
+           'view': Returns a specific subset of the attributes of the resource or collection, by specifying the name
+           of a predefined view."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json"
@@ -56,6 +67,18 @@ EXAMPLES = '''
 - name: Gather facts about all Scopes
     oneview_scope_facts:
     config: "{{ config_path }}"
+
+- debug: var=scopes
+
+- name: Gather paginated, filtered and sorted facts about Scopes
+  oneview_scope_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      query: name eq 'SampleScope'
+  delegate_to: localhost
 
 - debug: var=scopes
 
@@ -79,7 +102,8 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 class ScopeFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -100,7 +124,8 @@ class ScopeFactsModule(object):
                 scope = self.oneview_client.scopes.get_by_name(self.module.params['name'])
                 scopes = [scope] if scope else []
             else:
-                scopes = self.oneview_client.scopes.get_all()
+                params = self.module.params.get('params') or {}
+                scopes = self.oneview_client.scopes.get_all(**params)
 
             self.module.exit_json(changed=False,
                                   ansible_facts=dict(scopes=scopes))

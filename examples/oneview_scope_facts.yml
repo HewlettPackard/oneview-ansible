@@ -29,6 +29,18 @@
 
     - debug: var=scopes
 
+    - name: Gather paginated, filtered and sorted facts about Scopes
+      oneview_scope_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          query: name eq 'SampleScope'
+      delegate_to: localhost
+
+    - debug: var=scopes
+
     - name: Gather facts about a Scope by name
       oneview_scope_facts:
         config: "{{ config }}"

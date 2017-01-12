@@ -5970,6 +5970,7 @@ Retrieve facts about one or more of the OneView Scopes.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the scope.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'query': A general query string to narrow the list of resources returned. 'sort': The sort order of the returned data set. 'view': Returns a specific subset of the attributes of the resource or collection, by specifying the name of a predefined view.  |
 
 
  
@@ -5979,6 +5980,18 @@ Retrieve facts about one or more of the OneView Scopes.
 - name: Gather facts about all Scopes
     oneview_scope_facts:
     config: "{{ config_path }}"
+
+- debug: var=scopes
+
+- name: Gather paginated, filtered and sorted facts about Scopes
+  oneview_scope_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      query: name eq 'SampleScope'
+  delegate_to: localhost
 
 - debug: var=scopes
 
