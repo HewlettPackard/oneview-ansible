@@ -25,6 +25,18 @@
 
     - debug: var=san_managers
 
+    - name: Gather paginated, filtered and sorted facts about SAN Managers
+      oneview_san_manager_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          query: isInternal eq false
+      delegate_to: localhost
+
+    - debug: var=san_managers
+
     - name: Gather facts about a San Manager by provider display name
       oneview_san_manager_facts:
         config: "{{ config }}"
