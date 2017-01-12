@@ -51,6 +51,16 @@ options:
         - "List with options to gather additional facts about Power Device.
           Options allowed: powerState, uidState, utilization"
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+           'start': The first item to return, using 0-based indexing.
+           'count': The number of resources to return.
+           'filter': A general filter/query string to narrow the list of items returned.
+           'query': A general query string to narrow the list of resources returned.
+           'sort': The sort order of the returned data set."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -64,6 +74,18 @@ EXAMPLES = '''
     config: "{{ config }}"
   delegate_to: localhost
 - debug: msg="{{power_devices | map(attribute='name') | list }}"
+
+- name:  Gather paginated, filtered and sorted facts about Power Devices
+  oneview_power_device_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: state='Unmanaged'
+      query: feedIdentifier eq 'A'
+  delegate_to: localhost
+- debug: var=power_devices
 
 - name: Gather facts about a Power Device by name
   oneview_power_device_facts:
@@ -126,20 +148,12 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class PowerDeviceFactsModule(object):
-    argument_spec = {
-        "config": {
-            "required": False,
-            "type": 'str'
-        },
-        "name": {
-            "required": False,
-            "type": 'str'
-        },
-        "options": {
-            "required": False,
-            "type": 'list'
-        }
-    }
+    argument_spec = dict(
+        config=dict(required=False, type='str'),
+        name=dict(required=False, type='str'),
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict')
+    )
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
@@ -161,9 +175,9 @@ class PowerDeviceFactsModule(object):
 
                 if self.module.params.get('options') and power_devices:
                     ansible_facts = self.gather_option_facts(self.module.params['options'], power_devices[0])
-
             else:
-                power_devices = self.oneview_client.power_devices.get_all()
+                params = self.module.params.get('params') or {}
+                power_devices = self.oneview_client.power_devices.get_all(**params)
 
             ansible_facts["power_devices"] = power_devices
 

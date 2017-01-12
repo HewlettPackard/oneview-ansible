@@ -15,140 +15,86 @@
 ###
 
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_power_device_facts import PowerDeviceFactsModule
-from test.utils import create_ansible_mock
-
-ERROR_MSG = 'Fake message error'
-
-PARAMS_GET_ALL = dict(
-    config='config.json',
-    name=None
-)
-
-PARAMS_GET_BY_NAME = dict(
-    config='config.json',
-    name="Test Power Device"
-)
-
-PARAMS_WITH_OPTIONS = dict(
-    config='config.json',
-    name="Test Power Device",
-    options=[
-        'powerState', 'uidState',
-        {"utilization": {"fields": 'AveragePower',
-                         "filter": 'startDate=2016-05-30T03:29:42.000Z',
-                         "view": 'day'}}]
-)
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase
 
 
-class PowerDeviceFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_power_device_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class PowerDeviceFactsModuleSpec(unittest.TestCase,
+                                 ModuleContructorTestCase,
+                                 FactsParamsTestCase):
+    """
+    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
+    mocks used in this test class.
+    FactsParamsTestCase has common tests for the parameters support.
+    """
+    ERROR_MSG = 'Fake message error'
 
-        PowerDeviceFactsModule()
+    PARAMS_GET_ALL = dict(
+        config='config.json',
+        name=None
+    )
 
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
+    PARAMS_GET_BY_NAME = dict(
+        config='config.json',
+        name="Test Power Device"
+    )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_power_device_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
+    PARAMS_WITH_OPTIONS = dict(
+        config='config.json',
+        name="Test Power Device",
+        options=[
+            'powerState', 'uidState',
+            {"utilization": {"fields": 'AveragePower',
+                             "filter": 'startDate=2016-05-30T03:29:42.000Z',
+                             "view": 'day'}}]
+    )
 
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
+    def setUp(self):
+        self.configure_mocks(self, PowerDeviceFactsModule)
+        self.power_devices = self.mock_ov_client.power_devices
+        FactsParamsTestCase.configure_client_mock(self, self.power_devices)
 
-        PowerDeviceFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class PowerDeviceFactsSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_power_device_facts.AnsibleModule')
-    def test_should_get_all_power_devices(self, mock_ansible_module,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.power_devices.get_all.return_value = {"name": "Power Device Name"}
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_all_power_devices(self):
+        self.power_devices.get_all.return_value = {"name": "Power Device Name"}
+        self.mock_ansible_module.params = self.PARAMS_GET_ALL
 
         PowerDeviceFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(power_devices=({"name": "Power Device Name"}))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_power_device_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.power_devices.get_all.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_all_raises_exception(self):
+        self.power_devices.get_all.side_effect = Exception(self.ERROR_MSG)
+        self.mock_ansible_module.params = self.PARAMS_GET_ALL
 
         PowerDeviceFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_power_device_facts.AnsibleModule')
-    def test_should_get_power_device_by_name(self, mock_ansible_module,
-                                             mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.power_devices.get_by.return_value = {"name": "Power Device Name"}
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_power_device_by_name(self):
+        self.power_devices.get_by.return_value = {"name": "Power Device Name"}
+        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
 
         PowerDeviceFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(power_devices=({"name": "Power Device Name"}))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_power_device_facts.AnsibleModule')
-    def test_should_get_power_device_by_name_with_options(self, mock_ansible_module,
-                                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.power_devices.get_by.return_value = [{"name": "Power Device Name", "uri": "resuri"}]
-        mock_ov_instance.power_devices.get_power_state.return_value = {'subresource': 'ps'}
-        mock_ov_instance.power_devices.get_uid_state.return_value = {'subresource': 'uid'}
-        mock_ov_instance.power_devices.get_utilization.return_value = {'subresource': 'util'}
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_WITH_OPTIONS)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_power_device_by_name_with_options(self):
+        self.power_devices.get_by.return_value = [{"name": "Power Device Name", "uri": "resuri"}]
+        self.power_devices.get_power_state.return_value = {'subresource': 'ps'}
+        self.power_devices.get_uid_state.return_value = {'subresource': 'uid'}
+        self.power_devices.get_utilization.return_value = {'subresource': 'util'}
+        self.mock_ansible_module.params = self.PARAMS_WITH_OPTIONS
 
         PowerDeviceFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts={'power_devices': [{'name': 'Power Device Name', 'uri': 'resuri'}],
                            'power_device_power_state': {'subresource': 'ps'},
@@ -157,20 +103,13 @@ class PowerDeviceFactsSpec(unittest.TestCase):
                            }
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_power_device_facts.AnsibleModule')
-    def test_should_fail_when_get_by_name_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.power_devices.get_by.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_by_name_raises_exception(self):
+        self.power_devices.get_by.side_effect = Exception(self.ERROR_MSG)
+        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
 
         PowerDeviceFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
