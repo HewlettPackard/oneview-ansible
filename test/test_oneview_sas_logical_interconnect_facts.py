@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_sas_logical_interconnect_facts import SasLogicalInterconnectFactsModule
-from utils import ModuleContructorTestCase
+from utils import ModuleContructorTestCase, FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -45,16 +45,18 @@ SAS_LOGICAL_INTERCONNECT = dict(
 ALL_INTERCONNECTS = [SAS_LOGICAL_INTERCONNECT]
 
 
-class SasLogicalInterconnectFactsSpec(unittest.TestCase, ModuleContructorTestCase):
+class SasLogicalInterconnectFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     """
     Test the module constructor
     ModuleContructorTestCase has common tests for class constructor and main function
+    FactsParamsTestCase has common test for classes that support pass additional
+        parameters when retrieving all resources.
     """
 
     def setUp(self):
         self.configure_mocks(self, SasLogicalInterconnectFactsModule)
-
         self.resource = self.mock_ov_client.sas_logical_interconnects
+        FactsParamsTestCase.configure_client_mock(self, self.resource)
 
     def test_should_get_all_sas_logical_interconnects(self):
         self.resource.get_all.return_value = ALL_INTERCONNECTS

@@ -43,6 +43,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - SAS Logical Interconnect name.
@@ -67,6 +76,16 @@ EXAMPLES = '''
   oneview_sas_logical_interconnect_facts:
     config: "{{ config }}"
   delegate_to: localhost
+- debug: var=sas_logical_interconnects
+
+- name: Gather paginated, filtered and sorted facts about SAS Logical Interconnects
+  oneview_sas_logical_interconnect_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 2
+      sort: 'name:descending'
+      filter: "status='OK'"
 - debug: var=sas_logical_interconnects
 
 - name: Gather facts about a SAS Logical Interconnect by name
@@ -105,7 +124,8 @@ class SasLogicalInterconnectFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -136,7 +156,8 @@ class SasLogicalInterconnectFactsModule(object):
                         options_facts = self.__gather_option_facts(options, sas_logical_interconnects[0])
                         ansible_facts.update(options_facts)
             else:
-                sas_logical_interconnects = self.resource_client.get_all()
+                params = self.module.params.get('params') or {}
+                sas_logical_interconnects = self.resource_client.get_all(**params)
 
             ansible_facts['sas_logical_interconnects'] = sas_logical_interconnects
 
