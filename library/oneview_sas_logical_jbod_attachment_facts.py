@@ -41,6 +41,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Name of SAS Logical JBOD Attachment.
@@ -59,6 +68,18 @@ EXAMPLES = '''
     config: "{{ config_path }}"
 
 - debug: var=sas_logical_jbod_attachments
+
+- name: Gather paginated, filtered and sorted facts about SAS Logical JBOD Attachment
+    oneview_sas_logical_jbod_attachment_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 2
+      sort: 'name:descending'
+      filter: "state=Deployed"
+
+- debug: var=sas_logical_jbod_attachments
+
 
 - name: Gather facts about a SAS Logical JBOD Attachment by name
     oneview_sas_logical_jbod_attachment_facts:
@@ -80,7 +101,8 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 class SasLogicalJbodAttachmentFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -100,7 +122,8 @@ class SasLogicalJbodAttachmentFactsModule(object):
                 name = self.module.params['name']
                 resources = self.oneview_client.sas_logical_jbod_attachments.get_by('name', name)
             else:
-                resources = self.oneview_client.sas_logical_jbod_attachments.get_all()
+                params = self.module.params.get('params') or {}
+                resources = self.oneview_client.sas_logical_jbod_attachments.get_all(**params)
 
             self.module.exit_json(changed=False,
                                   ansible_facts=dict(sas_logical_jbod_attachments=resources))
