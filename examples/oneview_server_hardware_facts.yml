@@ -18,7 +18,7 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     # name examples: "172.18.6.15", "Encl1, bay 1"
-    - server_hardware_name: "0000A66102, bay 12"
+    - server_hardware_name: "0000A66101, bay 3"
   tasks:
     - name: Gather facts about all Server Hardwares
       oneview_server_hardware_facts:
@@ -26,6 +26,19 @@
       delegate_to: localhost
 
     - debug: var=server_hardwares
+
+
+    - name: Gather paginated, filtered and sorted facts about Server Hardware
+      oneview_server_hardware_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          filter: uidState='Off'
+      delegate_to: localhost
+
+    - debug: msg="{{server_hardwares | map(attribute='name') | list }}"
 
 
     - name: Gather facts about a Server Hardware by name

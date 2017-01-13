@@ -15,11 +15,9 @@
 ###
 
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_server_hardware_facts import ServerHardwareFactsModule
-from test.utils import create_ansible_mock
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -59,115 +57,65 @@ PARAMS_WITH_ALL_FIRMWARES_WITH_FILTERS = dict(
 )
 
 
-class ServerHardwareFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_server_hardware_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class ServerHardwareFactsSpec(unittest.TestCase,
+                              ModuleContructorTestCase,
+                              FactsParamsTestCase):
+    """
+    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
+    mocks used in this test class.
 
-        ServerHardwareFactsModule()
+    FactsParamsTestCase has common tests for the parameters support.
+    """
+    def setUp(self):
+        self.configure_mocks(self, ServerHardwareFactsModule)
+        self.server_hardware = self.mock_ov_client.server_hardware
 
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
+        FactsParamsTestCase.configure_client_mock(self, self.server_hardware)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_server_hardware_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        ServerHardwareFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class ServerHardwareFactsSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_hardware_facts.AnsibleModule')
-    def test_should_get_all_server_hardware(self, mock_ansible_module,
-                                            mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_hardware.get_all.return_value = {"name": "Server Hardware Name"}
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_all_server_hardware(self):
+        self.server_hardware.get_all.return_value = {"name": "Server Hardware Name"}
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         ServerHardwareFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(server_hardwares=({"name": "Server Hardware Name"}))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_hardware_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_hardware.get_all.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_all_raises_exception(self):
+        self.server_hardware.get_all.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         ServerHardwareFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_hardware_facts.AnsibleModule')
-    def test_should_get_server_hardware_by_name(self, mock_ansible_module,
-                                                mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_hardware.get_by.return_value = {"name": "Server Hardware Name"}
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_server_hardware_by_name(self):
+        self.server_hardware.get_by.return_value = {"name": "Server Hardware Name"}
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         ServerHardwareFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(server_hardwares=({"name": "Server Hardware Name"}))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_hardware_facts.AnsibleModule')
-    def test_should_get_server_hardware_by_name_with_options(self, mock_ansible_module,
-                                                             mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_hardware.get_by.return_value = [{"name": "Server Hardware Name", "uri": "resuri"}]
-        mock_ov_instance.server_hardware.get_bios.return_value = {'subresource': 'value'}
-        mock_ov_instance.server_hardware.get_environmental_configuration.return_value = {'subresource': 'value'}
-        mock_ov_instance.server_hardware.get_java_remote_console_url.return_value = {'subresource': 'value'}
-        mock_ov_instance.server_hardware.get_ilo_sso_url.return_value = {'subresource': 'value'}
-        mock_ov_instance.server_hardware.get_remote_console_url.return_value = {'subresource': 'value'}
-        mock_ov_instance.server_hardware.get_utilization.return_value = {'subresource': 'value'}
-        mock_ov_instance.server_hardware.get_firmware.return_value = {'subresource': 'firmware'}
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_WITH_OPTIONS)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_server_hardware_by_name_with_options(self):
+        self.server_hardware.get_by.return_value = [{"name": "Server Hardware Name", "uri": "resuri"}]
+        self.server_hardware.get_bios.return_value = {'subresource': 'value'}
+        self.server_hardware.get_environmental_configuration.return_value = {'subresource': 'value'}
+        self.server_hardware.get_java_remote_console_url.return_value = {'subresource': 'value'}
+        self.server_hardware.get_ilo_sso_url.return_value = {'subresource': 'value'}
+        self.server_hardware.get_remote_console_url.return_value = {'subresource': 'value'}
+        self.server_hardware.get_utilization.return_value = {'subresource': 'value'}
+        self.server_hardware.get_firmware.return_value = {'subresource': 'firmware'}
+        self.mock_ansible_module.params = PARAMS_WITH_OPTIONS
 
         ServerHardwareFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts={'server_hardwares': [{'name': 'Server Hardware Name', 'uri': 'resuri'}],
                            'server_hardware_remote_console_url': {'subresource': 'value'},
@@ -179,22 +127,15 @@ class ServerHardwareFactsSpec(unittest.TestCase):
                            'server_hardware_firmware': {'subresource': 'firmware'}}
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_hardware_facts.AnsibleModule')
-    def test_should_get_all_firmwares_across_the_servers(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_hardware.get_all.return_value = []
-        mock_ov_instance.server_hardware.get_all_firmwares.return_value = [{'subresource': 'firmware'}]
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_WITH_ALL_FIRMWARES_WITHOUT_FILTER)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_all_firmwares_across_the_servers(self):
+        self.server_hardware.get_all.return_value = []
+        self.server_hardware.get_all_firmwares.return_value = [{'subresource': 'firmware'}]
+        self.mock_ansible_module.params = PARAMS_WITH_ALL_FIRMWARES_WITHOUT_FILTER
 
         ServerHardwareFactsModule().run()
 
-        mock_ov_instance.server_hardware.get_all_firmwares.assert_called_once_with()
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.server_hardware.get_all_firmwares.assert_called_once_with()
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts={
                 'server_hardwares': [],
@@ -202,22 +143,15 @@ class ServerHardwareFactsSpec(unittest.TestCase):
             }
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_hardware_facts.AnsibleModule')
-    def test_should_get_all_firmwares_with_filters(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_hardware.get_all.return_value = []
-        mock_ov_instance.server_hardware.get_all_firmwares.return_value = [{'subresource': 'firmware'}]
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_WITH_ALL_FIRMWARES_WITH_FILTERS)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_all_firmwares_with_filters(self):
+        self.server_hardware.get_all.return_value = []
+        self.server_hardware.get_all_firmwares.return_value = [{'subresource': 'firmware'}]
+        self.mock_ansible_module.params = PARAMS_WITH_ALL_FIRMWARES_WITH_FILTERS
 
         ServerHardwareFactsModule().run()
 
-        mock_ov_instance.server_hardware.get_all_firmwares.assert_called_once_with(filters=FIRMWARE_FILTERS)
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.server_hardware.get_all_firmwares.assert_called_once_with(filters=FIRMWARE_FILTERS)
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts={
                 'server_hardwares': [],
@@ -225,20 +159,13 @@ class ServerHardwareFactsSpec(unittest.TestCase):
             }
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_hardware_facts.AnsibleModule')
-    def test_should_fail_when_get_by_name_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_hardware.get_by.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_by_name_raises_exception(self):
+        self.server_hardware.get_by.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         ServerHardwareFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

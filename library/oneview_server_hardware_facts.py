@@ -52,6 +52,15 @@ options:
           Options allowed: bios, javaRemoteConsoleUrl, environmentalConfig, iloSsoUrl, remoteConsoleUrl,
           utilization, firmware, and firmwares."
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+           'start': The first item to return, using 0-based indexing.
+           'count': The number of resources to return.
+           'filter': A general filter/query string to narrow the list of items returned.
+           'sort': The sort order of the returned data set."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -67,6 +76,19 @@ EXAMPLES = '''
   delegate_to: localhost
 
 - debug: var=server_hardwares
+
+
+- name: Gather paginated, filtered and sorted facts about Server Hardware
+  oneview_server_hardware_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: uidState='Off'
+  delegate_to: localhost
+
+- debug: msg="{{server_hardwares | map(attribute='name') | list }}"
 
 
 - name: Gather facts about a Server Hardware by name
@@ -177,20 +199,12 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class ServerHardwareFactsModule(object):
-    argument_spec = {
-        "config": {
-            "required": False,
-            "type": 'str'
-        },
-        "name": {
-            "required": False,
-            "type": 'str'
-        },
-        "options": {
-            "required": False,
-            "type": 'list'
-        }
-    }
+    argument_spec = dict(
+        config=dict(required=False, type='str'),
+        name=dict(required=False, type='str'),
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict')
+    )
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
@@ -216,7 +230,8 @@ class ServerHardwareFactsModule(object):
                     ansible_facts = self.gather_option_facts(options, server_hardwares[0])
 
             else:
-                server_hardwares = self.oneview_client.server_hardware.get_all()
+                params = self.module.params.get('params') or {}
+                server_hardwares = self.oneview_client.server_hardware.get_all(**params)
 
                 if options and options.get('firmwares'):
                     ansible_facts['server_hardware_firmwares'] = self.get_all_firmwares(options)
