@@ -15,11 +15,9 @@
 ###
 
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_sas_logical_interconnect_group_facts import SasLogicalInterconnectGroupFactsModule
-from test.utils import create_ansible_mock
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -36,95 +34,49 @@ PARAMS_GET_BY_NAME = dict(
 SAS_LIGS = [{"name": "SAS LIG 1"}, {"name": "SAS LIG 2"}]
 
 
-class SasLogicalInterconnectGroupFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_sas_logical_interconnect_group_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        SasLogicalInterconnectGroupFactsModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_sas_logical_interconnect_group_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        SasLogicalInterconnectGroupFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class SasLogicalInterconnectGroupFactsModuleSpec(unittest.TestCase):
+class SasLogicalInterconnectGroupFactsModuleSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
     def setUp(self):
-        self.patcher_ansible_module = mock.patch('oneview_sas_logical_interconnect_group_facts.AnsibleModule')
-        self.mock_ansible_module = self.patcher_ansible_module.start()
-
-        self.patcher_ov_client_from_json_file = mock.patch.object(OneViewClient, 'from_json_file')
-        self.mock_ov_client_from_json_file = self.patcher_ov_client_from_json_file.start()
-
-        self.mock_ov_instance = mock.Mock()
-        self.mock_ov_client_from_json_file.return_value = self.mock_ov_instance
-
-    def tearDown(self):
-        self.patcher_ansible_module.stop()
-        self.patcher_ov_client_from_json_file.stop()
+        self.configure_mocks(self, SasLogicalInterconnectGroupFactsModule)
+        self.resource = self.mock_ov_client.sas_logical_interconnect_groups
+        FactsParamsTestCase.configure_client_mock(self, self.resource)
 
     def test_should_get_all(self):
-        self.mock_ov_instance.sas_logical_interconnect_groups.get_all.return_value = SAS_LIGS
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.resource.get_all.return_value = SAS_LIGS
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         SasLogicalInterconnectGroupFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(sas_logical_interconnect_groups=(SAS_LIGS))
         )
 
     def test_should_fail_when_get_all_raises_exception(self):
-        self.mock_ov_instance.sas_logical_interconnect_groups.get_all.side_effect = Exception(ERROR_MSG)
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.resource.get_all.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         SasLogicalInterconnectGroupFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_by_name(self):
-        self.mock_ov_instance.sas_logical_interconnect_groups.get_by.return_value = [SAS_LIGS[1]]
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.resource.get_by.return_value = [SAS_LIGS[1]]
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         SasLogicalInterconnectGroupFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(sas_logical_interconnect_groups=([SAS_LIGS[1]]))
         )
 
     def test_should_fail_when_get_by_name_raises_exception(self):
-        self.mock_ov_instance.sas_logical_interconnect_groups.get_by.side_effect = Exception(ERROR_MSG)
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.resource.get_by.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         SasLogicalInterconnectGroupFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
