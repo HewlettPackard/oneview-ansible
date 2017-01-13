@@ -27,6 +27,20 @@
     - debug: msg="{{power_devices | map(attribute='name') | list }}"
 
 
+    - name:  Gather paginated, filtered and sorted facts about Power Devices
+      oneview_power_device_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          filter: state='Unmanaged'
+          query: feedIdentifier eq 'A'
+      delegate_to: localhost
+
+    - debug: var=power_devices
+
+
     - name: Gather facts about a Power Device by name
       oneview_power_device_facts:
         config: "{{ config }}"

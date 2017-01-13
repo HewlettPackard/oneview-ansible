@@ -16,12 +16,9 @@
 
 import copy
 import unittest
-import mock
-from mock import patch
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_scope_facts import ScopeFactsModule
-from test.utils import create_ansible_mock
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -41,96 +38,58 @@ SCOPE_2 = dict(name="Scope 2", uri='/rest/scopes/b3213123-44sd-y334-d111-asd34sd
 ALL_SCOPES = [SCOPE_1, SCOPE_2]
 
 
-class ScopeFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_scope_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class ScopeFactsSpec(unittest.TestCase,
+                     ModuleContructorTestCase,
+                     FactsParamsTestCase):
+    """
+    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
+    mocks used in this test class.
 
-        ScopeFactsModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_scope_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        ScopeFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class ScopeFactsSpec(unittest.TestCase):
+    FactsParamsTestCase has common tests for the parameters support.
+    """
     def setUp(self):
-        self.patcher_ov_client_from_json_file = patch.object(OneViewClient, 'from_json_file')
-        mock_from_json_file = self.patcher_ov_client_from_json_file.start()
+        self.configure_mocks(self, ScopeFactsModule)
+        self.resource = self.mock_ov_client.scopes
 
-        mock_ov_client = mock.Mock()
-        mock_from_json_file.return_value = mock_ov_client
-
-        self.resource = mock_ov_client.scopes
-
-        self.patcher_ansible_module = patch('oneview_scope_facts.AnsibleModule')
-        mock_ansible_module = self.patcher_ansible_module.start()
-
-        self.mock_ansible_instance = mock.Mock()
-        mock_ansible_module.return_value = self.mock_ansible_instance
-
-    def tearDown(self):
-        self.patcher_ov_client_from_json_file.stop()
-        self.patcher_ansible_module.stop()
+        FactsParamsTestCase.configure_client_mock(self, self.resource)
 
     def test_should_get_all_scopes(self):
         self.resource.get_all.return_value = ALL_SCOPES
-        self.mock_ansible_instance.params = copy.deepcopy(PARAMS_GET_ALL)
+        self.mock_ansible_module.params = copy.deepcopy(PARAMS_GET_ALL)
 
         ScopeFactsModule().run()
 
-        self.mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(scopes=ALL_SCOPES)
         )
 
     def test_should_fail_when_get_all_raises_exception(self):
         self.resource.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_instance.params = copy.deepcopy(PARAMS_GET_ALL)
+        self.mock_ansible_module.params = copy.deepcopy(PARAMS_GET_ALL)
 
         ScopeFactsModule().run()
 
-        self.mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_scope_by_name(self):
         self.resource.get_by_name.return_value = SCOPE_2
-        self.mock_ansible_instance.params = copy.deepcopy(PARAMS_GET_BY_NAME)
+        self.mock_ansible_module.params = copy.deepcopy(PARAMS_GET_BY_NAME)
 
         ScopeFactsModule().run()
 
-        self.mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(scopes=[SCOPE_2])
         )
 
     def test_should_fail_when_get_by_name_raises_exception(self):
         self.resource.get_by_name.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_instance.params = copy.deepcopy(PARAMS_GET_BY_NAME)
+        self.mock_ansible_module.params = copy.deepcopy(PARAMS_GET_BY_NAME)
 
         ScopeFactsModule().run()
 
-        self.mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
