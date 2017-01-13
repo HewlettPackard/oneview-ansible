@@ -7499,6 +7499,7 @@ Retrieve facts about the OneView Switches.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Switch name.  |
 | options  |   No  |  | |  List with options to gather additional facts about the Switch. Options allowed: 'environmentalConfiguration' gets the environmental configuration for a switch.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -7508,6 +7509,15 @@ Retrieve facts about the OneView Switches.
 - name: Gather facts about all switches
   oneview_switch_facts:
     config: "{{ config }}"
+
+- name: Gather paginated facts about switches
+  oneview_switch_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+
+- debug: var=switches
 
 - name: Gather facts about the switch that matches the specified switch name
   oneview_switch_facts:
