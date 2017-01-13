@@ -29,6 +29,17 @@
 
     - debug: var=sas_logical_jbod_attachments
 
+    - name: Gather paginated, filtered and sorted facts about SAS Logical JBOD Attachment
+      oneview_sas_logical_jbod_attachment_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 2
+          sort: 'name:descending'
+          filter: "state=Deployed"
+
+    - debug: var=sas_logical_jbod_attachments
+
     - name: Gather facts about a SAS Logical JBOD Attachment by name
       oneview_sas_logical_jbod_attachment_facts:
         config: "{{ config }}"
