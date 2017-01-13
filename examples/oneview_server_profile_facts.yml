@@ -33,6 +33,20 @@
 
     - debug: msg="{{server_profiles | map(attribute='name') | list }}"
 
+
+    - name: Gather paginated, filtered and sorted facts about Server Profiles
+      oneview_server_profile_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          filter: macType='Virtual'
+      delegate_to: localhost
+
+    - debug: msg="{{server_profiles | map(attribute='name') | list }}"
+
+
     - name: Gather facts about a Server Profile by name
       oneview_server_profile_facts:
         config: "{{ config }}"

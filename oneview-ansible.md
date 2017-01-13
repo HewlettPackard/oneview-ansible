@@ -6672,6 +6672,7 @@ Retrieve facts about the OneView Server Profiles.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Server Profile name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Server Profile related resources. Options allowed: schema, compliancePreview, profilePorts, messages, transformation, available_networks, available_servers, available_storage_system, available_storage_systems, available_targets  To gather facts about 'compliancePreview', 'messages' and 'transformation' it is required to inform the Server Profile name. Otherwise, these options will be ignored.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -6681,6 +6682,18 @@ Retrieve facts about the OneView Server Profiles.
 - name: Gather facts about all Server Profiles
   oneview_server_profile_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=server_profiles
+
+- name: Gather paginated, filtered and sorted facts about Server Profiles
+  oneview_server_profile_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: macType='Virtual'
   delegate_to: localhost
 
 - debug: var=server_profiles
