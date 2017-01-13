@@ -5940,6 +5940,7 @@ Retrieve facts about one or more of the OneView SAS Logical JBODs.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of SAS Logical JBODs.  |
 | options  |   No  |  | |  List with options to gather additional facts about SAS Logical JBODs and related resources. Options allowed: drives.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -5949,6 +5950,17 @@ Retrieve facts about one or more of the OneView SAS Logical JBODs.
 - name: Gather facts about all SAS Logical JBODs
     oneview_sas_logical_jbod_facts:
     config: "{{ config_path }}"
+
+- debug: var=sas_logical_jbods
+
+- name: Gather paginated, filtered and sorted facts about SAS Logical JBODs
+    oneview_sas_logical_jbod_facts:
+      config: "{{ config }}"
+      params:
+        start: 0
+        count: 2
+        sort: 'name:descending'
+        filter: "state='Configured'"
 
 - debug: var=sas_logical_jbods
 
