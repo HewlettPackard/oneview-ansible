@@ -25,7 +25,7 @@ except ImportError:
 
 DOCUMENTATION = '''
 ---
-module: oneview_storage_volume_templates_facts
+module: oneview_storage_volume_template_facts
 short_description: Retrieve facts about Storage Volume Templates of the OneView.
 description:
     - Retrieve facts about Storage Volume Templates of the OneView.
@@ -39,6 +39,15 @@ options:
         - Path to a .json configuration file containing the OneView client configuration.
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
+      required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
       required: false
     name:
       description:
@@ -63,6 +72,16 @@ EXAMPLES = '''
 
 - debug: var=storage_volume_templates
 
+- name: Gather paginated, filtered and sorted facts about Storage Volume Templates
+  oneview_storage_volume_template_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: status='OK'
+
+- debug: var=storage_volume_templates
 
 - name: Gather facts about a Storage Volume Template by name
   oneview_storage_volume_template_facts:
@@ -100,19 +119,12 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class StorageVolumeTemplateFactsModule(object):
-    argument_spec = {
-        "config": {
-            "required": False,
-            "type": 'str'
-        },
-        "name": {
-            "required": False,
-            "type": 'str'
-        },
-        "options": {
-            "required": False,
-            "type": 'list'
-        }}
+    argument_spec = dict(
+        config=dict(required=False, type='str'),
+        name=dict(required=False, type='str'),
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict'),
+    )
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
@@ -131,7 +143,8 @@ class StorageVolumeTemplateFactsModule(object):
             if self.module.params.get('name'):
                 storage_volume_template = client.get_by('name', self.module.params['name'])
             else:
-                storage_volume_template = client.get_all()
+                params = self.module.params.get('params') or {}
+                storage_volume_template = client.get_all(**params)
 
             ansible_facts = dict(storage_volume_templates=storage_volume_template)
 
