@@ -200,3 +200,17 @@ class FactsParamsTestCase(PreloadedMocksBaseTestCase):
         self._resource_client.get_all.assert_called_once_with(start=1, count=3, sort='name:descending',
                                                               filter='purpose=General',
                                                               query='imported eq true')
+
+    def test_should_get_all_without_params(self):
+        self.__validations()
+        self._resource_client.get_all.return_value = []
+
+        params_get_all_with_filters = dict(
+            config='config.json',
+            name=None
+        )
+        self.mock_ansible_module.params = params_get_all_with_filters
+
+        self._testing_class().run()
+
+        self._resource_client.get_all.assert_called_once_with()
