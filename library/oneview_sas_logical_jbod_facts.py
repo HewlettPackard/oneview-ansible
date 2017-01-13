@@ -42,6 +42,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Name of SAS Logical JBODs.
@@ -63,6 +72,17 @@ EXAMPLES = '''
 - name: Gather facts about all SAS Logical JBODs
     oneview_sas_logical_jbod_facts:
     config: "{{ config_path }}"
+
+- debug: var=sas_logical_jbods
+
+- name: Gather paginated, filtered and sorted facts about SAS Logical JBODs
+    oneview_sas_logical_jbod_facts:
+      config: "{{ config }}"
+      params:
+        start: 0
+        count: 2
+        sort: 'name:descending'
+        filter: "state='Configured'"
 
 - debug: var=sas_logical_jbods
 
@@ -102,7 +122,8 @@ class SasLogicalJbodFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -128,7 +149,8 @@ class SasLogicalJbodFactsModule(object):
                 if self.module.params.get('options') and sas_logical_jbods:
                     ansible_facts = self.__gather_optional_facts(self.module.params['options'], sas_logical_jbods[0])
             else:
-                sas_logical_jbods = self.oneview_client.sas_logical_jbods.get_all()
+                params = self.module.params.get('params') or {}
+                sas_logical_jbods = self.oneview_client.sas_logical_jbods.get_all(**params)
 
             ansible_facts['sas_logical_jbods'] = sas_logical_jbods
 

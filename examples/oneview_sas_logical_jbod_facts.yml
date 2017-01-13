@@ -29,6 +29,17 @@
 
     - debug: var=sas_logical_jbods
 
+    - name: Gather paginated, filtered and sorted facts about SAS Logical JBODs
+      oneview_sas_logical_jbod_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 2
+          sort: 'name:descending'
+          filter: "state='Configured'"
+
+    - debug: var=sas_logical_jbods
+
     - name: Gather facts about a SAS Logical JBOD by name
       oneview_sas_logical_jbod_facts:
         config: "{{ config }}"
