@@ -25,6 +25,17 @@
 
     - debug: var=storage_pools
 
+    - name: Gather paginated, filtered and sorted facts about Storage Pools
+      oneview_storage_pool_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: status='OK'
+
+    - debug: var=storage_pools
+
     - name: Gather facts about a Storage Pool by name
       oneview_storage_pool_facts:
         config: "{{ config }}"

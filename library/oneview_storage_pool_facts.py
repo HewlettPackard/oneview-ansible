@@ -41,6 +41,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Storage Pool name.
@@ -57,6 +66,17 @@ EXAMPLES = '''
   oneview_storage_pool_facts:
     config: "{{ config }}"
   delegate_to: localhost
+
+- debug: var=storage_pools
+
+- name: Gather paginated, filtered and sorted facts about Storage Pools
+  oneview_storage_pool_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: status='OK'
 
 - debug: var=storage_pools
 
@@ -79,14 +99,11 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class StoragePoolFactsModule(object):
-    argument_spec = {
-        "config": {
-            "required": False,
-            "type": 'str'},
-        "name": {
-            "required": False,
-            "type": 'str'
-        }}
+    argument_spec = dict(
+        config=dict(required=False, type='str'),
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict'),
+    )
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
@@ -103,7 +120,8 @@ class StoragePoolFactsModule(object):
             if self.module.params.get('name'):
                 storage_pool = self.oneview_client.storage_pools.get_by('name', self.module.params['name'])
             else:
-                storage_pool = self.oneview_client.storage_pools.get_all()
+                params = self.module.params.get('params') or {}
+                storage_pool = self.oneview_client.storage_pools.get_all(**params)
 
             self.module.exit_json(changed=False,
                                   ansible_facts=dict(storage_pools=storage_pool))
