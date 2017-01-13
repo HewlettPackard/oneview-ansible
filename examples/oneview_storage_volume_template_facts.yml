@@ -25,6 +25,16 @@
 
     - debug: var=storage_volume_templates
 
+    - name: Gather paginated, filtered and sorted facts about Storage Volume Templates
+      oneview_storage_volume_template_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: status='OK'
+
+    - debug: var=storage_volume_templates
 
     - name: Gather facts about a Storage Volume Template by name
       oneview_storage_volume_template_facts:

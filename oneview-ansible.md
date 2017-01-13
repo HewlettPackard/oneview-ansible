@@ -91,7 +91,7 @@
   * [oneview_storage_volume_attachment - Provides an interface to remove extra presentations from a specified server profile.](#oneview_storage_volume_attachment)
   * [oneview_storage_volume_attachment_facts - Retrieve facts about the OneView Storage Volume Attachments.](#oneview_storage_volume_attachment_facts)
   * [oneview_storage_volume_template - Manage OneView Storage Volume Template resources.](#oneview_storage_volume_template)
-  * [oneview_storage_volume_templates_facts - Retrieve facts about Storage Volume Templates of the OneView.](#oneview_storage_volume_templates_facts)
+  * [oneview_storage_volume_template_facts - Retrieve facts about Storage Volume Templates of the OneView.](#oneview_storage_volume_template_facts)
   * [oneview_switch - Provides an interface to remove ToR Switch resources.](#oneview_switch)
   * [oneview_switch_facts - Retrieve facts about the OneView Switches.](#oneview_switch_facts)
   * [oneview_switch_type_facts - Retrieve facts about the OneView Switch Types.](#oneview_switch_type_facts)
@@ -7364,7 +7364,7 @@ Manage OneView Storage Volume Template resources.
 ---
 
 
-## oneview_storage_volume_templates_facts
+## oneview_storage_volume_template_facts
 Retrieve facts about Storage Volume Templates of the OneView.
 
 #### Synopsis
@@ -7381,6 +7381,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Storage Volume Template name.  |
 | options  |   No  |  | |  Retrieve additional facts. Options available: 'connectableVolumeTemplates'.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -7394,6 +7395,16 @@ Retrieve facts about Storage Volume Templates of the OneView.
 
 - debug: var=storage_volume_templates
 
+- name: Gather paginated, filtered and sorted facts about Storage Volume Templates
+  oneview_storage_volume_template_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: status='OK'
+
+- debug: var=storage_volume_templates
 
 - name: Gather facts about a Storage Volume Template by name
   oneview_storage_volume_template_facts:
