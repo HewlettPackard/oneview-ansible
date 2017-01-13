@@ -26,6 +26,16 @@
 
     - debug: var=storage_systems
 
+    - name: Gather paginated, filtered and sorted facts about Storage Systems
+      oneview_storage_system_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: managedDomain=TestDomain
+
+    - debug: var=storage_systems
 
     - name: Gather facts about a Storage System by IP
       oneview_storage_system_facts:
@@ -34,7 +44,6 @@
       delegate_to: localhost
 
     - debug: var=storage_systems
-
 
     - name: Gather facts about a Storage System by name
       oneview_storage_system_facts:

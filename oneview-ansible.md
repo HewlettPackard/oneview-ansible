@@ -7114,6 +7114,7 @@ Retrieve facts about the OneView Storage Systems.
 | ip_hostname  |   No  |  | |  Storage System IP or hostname.  |
 | name  |   No  |  | |  Storage System name.  |
 | options  |   No  |  | |  List with options to gather additional facts about a Storage System and related resources. Options allowed: 'hostTypes' gets the list of supported host types. 'storagePools' gets a list of storage pools belonging to the specified storage system.  To gather facts about 'storagePools' it is required to inform either the argument 'name' or 'ip_hostname'. Otherwise, this option will be ignored.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -7127,6 +7128,16 @@ Retrieve facts about the OneView Storage Systems.
 
 - debug: var=storage_systems
 
+- name: Gather paginated, filtered and sorted facts about Storage Systems
+  oneview_storage_system_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: managedDomain=TestDomain
+
+- debug: var=storage_systems
 
 - name: Gather facts about a Storage System by IP
   oneview_storage_system_facts:
