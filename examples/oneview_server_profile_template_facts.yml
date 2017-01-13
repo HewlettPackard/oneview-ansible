@@ -28,6 +28,18 @@
 
     - debug: var=server_profile_templates
 
+    - name: Gather paginated, filtered and sorted facts about Server Profile Templates
+      oneview_server_profile_template_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: name:ascending
+          filter: macType='Virtual'
+      delegate_to: localhost
+
+    - debug: var=server_profile_templates
+
     - name: Gather facts about a Server Profile Template by name
       oneview_server_profile_template_facts:
         config: "{{ config }}"

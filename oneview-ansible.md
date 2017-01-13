@@ -6872,6 +6872,7 @@ Retrieve facts about the Server Profile Templates from OneView.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Server Profile Template name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Server Profile Template resources. Options allowed: new_profile and transformation.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -6881,6 +6882,20 @@ Retrieve facts about the Server Profile Templates from OneView.
 - name: Gather facts about all Server Profile Templates
   oneview_server_profile_template_facts:
     config: "{{ config }}"
+
+- debug: var=server_profile_templates
+
+- name: Gather paginated, filtered and sorted facts about Server Profile Templates
+  oneview_server_profile_template_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: macType='Virtual'
+  delegate_to: localhost
+
+- debug: var=server_profile_templates
 
 - name: Gather facts about a Server Profile Template by name
   oneview_server_profile_template_facts:
