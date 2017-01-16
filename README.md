@@ -87,6 +87,9 @@ example:
 }
 ```
 
+The `api_version` specifies the version of the Rest API to invoke. When not defined, it will use `300` as the
+default value.
+
 If your environment requires a proxy, define the proxy properties in the JSON file using the following syntax:
 
 ```json
@@ -115,7 +118,7 @@ export ONEVIEWSDK_USERNAME='Administrator'
 export ONEVIEWSDK_PASSWORD='secret123'
 
 # Optional
-export ONEVIEWSDK_API_VERSION='200'
+export ONEVIEWSDK_API_VERSION='200'  # default value is 300
 export ONEVIEWSDK_AUTH_LOGIN_DOMAIN='authdomain'
 export ONEVIEWSDK_PROXY='<proxy_host>:<proxy_port>'
 ```
@@ -145,8 +148,6 @@ OR using the Environment variable:
 ```bash
 export ONEVIEWSDK_API_VERSION='300'
 ```
-
-If this property is not specified, it will fall back to the ```200``` default value.
 
 
 ## License
