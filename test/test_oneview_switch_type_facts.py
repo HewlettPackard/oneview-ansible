@@ -15,11 +15,9 @@
 ###
 
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_switch_type_facts import SwitchTypeFactsModule
-from test.utils import create_ansible_mock
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -36,105 +34,50 @@ PARAMS_GET_BY_NAME = dict(
 SWITCH_TYPES = [{"name": "Test Switch Type 1"}, {"name": "Test Switch Type 2"}, {"name": "Test Switch Type 3"}]
 
 
-class SwitchTypeFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_switch_type_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class SwitchTypeFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
 
-        SwitchTypeFactsModule()
+    def setUp(self):
+        self.configure_mocks(self, SwitchTypeFactsModule)
+        self.resource = self.mock_ov_client.switch_types
+        FactsParamsTestCase.configure_client_mock(self, self.resource)
 
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_switch_type_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        SwitchTypeFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class SwitchTypeFactsSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_switch_type_facts.AnsibleModule')
-    def test_should_get_all_switch_types(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.switch_types.get_all.return_value = SWITCH_TYPES
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_all_switch_types(self):
+        self.resource.get_all.return_value = SWITCH_TYPES
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         SwitchTypeFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(switch_types=(SWITCH_TYPES))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_switch_type_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.switch_types.get_all.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_all_raises_exception(self):
+        self.resource.get_all.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         SwitchTypeFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_switch_type_facts.AnsibleModule')
-    def test_should_get_switch_type_by_name(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.switch_types.get_by.return_value = [SWITCH_TYPES[1]]
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_switch_type_by_name(self):
+        self.resource.get_by.return_value = [SWITCH_TYPES[1]]
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         SwitchTypeFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(switch_types=([SWITCH_TYPES[1]]))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_switch_type_facts.AnsibleModule')
-    def test_should_fail_when_get_by_name_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.switch_types.get_by.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_by_name_raises_exception(self):
+        self.resource.get_by.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         SwitchTypeFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
