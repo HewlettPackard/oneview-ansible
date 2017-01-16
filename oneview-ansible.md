@@ -7733,6 +7733,7 @@ Retrieve facts about the OneView Switch Types.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Switch Type.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -7745,6 +7746,16 @@ Retrieve facts about the OneView Switch Types.
 
 - debug: var=switch_types
 
+- name: Gather paginated, filtered and sorted facts about Switch Types
+  oneview_switch_type_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 2
+      sort: 'name:descending'
+      filter: "partNumber='N5K-C56XX'"
+
+- debug: var=switch_types
 
 - name: Gather facts about a Switch Type by name
   oneview_switch_type_facts:

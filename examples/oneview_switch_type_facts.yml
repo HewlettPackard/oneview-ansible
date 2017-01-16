@@ -26,6 +26,16 @@
 
     - debug: msg="Name of the Switch Types found{{':'}} {{switch_types | map(attribute='name') | list }}"
 
+    - name: Gather paginated, filtered and sorted facts about Switch Types
+      oneview_switch_type_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 2
+          sort: 'name:descending'
+          filter: "partNumber='N5K-C56XX'"
+
+    - debug: var=switch_types
 
     - name: Gather facts about a Switch Type by name
       oneview_switch_type_facts:

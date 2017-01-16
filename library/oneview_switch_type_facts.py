@@ -41,6 +41,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Name of the Switch Type.
@@ -59,6 +68,16 @@ EXAMPLES = '''
 
 - debug: var=switch_types
 
+- name: Gather paginated, filtered and sorted facts about Switch Types
+  oneview_switch_type_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 2
+      sort: 'name:descending'
+      filter: "partNumber='N5K-C56XX'"
+
+- debug: var=switch_types
 
 - name: Gather facts about a Switch Type by name
   oneview_switch_type_facts:
@@ -80,7 +99,8 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 class SwitchTypeFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -98,7 +118,8 @@ class SwitchTypeFactsModule(object):
             if self.module.params.get('name'):
                 switch_types = self.oneview_client.switch_types.get_by('name', self.module.params.get('name'))
             else:
-                switch_types = self.oneview_client.switch_types.get_all()
+                params = self.module.params.get('params') or {}
+                switch_types = self.oneview_client.switch_types.get_all(**params)
 
             self.module.exit_json(changed=False,
                                   ansible_facts=dict(switch_types=switch_types))
