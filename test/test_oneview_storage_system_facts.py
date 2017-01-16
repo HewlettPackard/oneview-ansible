@@ -15,11 +15,10 @@
 ###
 
 import unittest
-import mock
-
-from hpOneView.oneview_client import OneViewClient
 from oneview_storage_system_facts import StorageSystemFactsModule
-from test.utils import create_ansible_mock
+from test.utils import FactsParamsTestCase
+from test.utils import ModuleContructorTestCase
+from test.utils import PreloadedMocksBaseTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -50,182 +49,97 @@ HOST_TYPES = [
 ]
 
 
-class StorageSystemFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class StorageSystemFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+    def setUp(self):
+        self.configure_mocks(self, StorageSystemFactsModule)
+        self.storage_systems = self.mock_ov_client.storage_systems
+        FactsParamsTestCase.configure_client_mock(self, self.storage_systems)
 
-        StorageSystemFactsModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        StorageSystemFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class StorageSystemFactsSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_get_all_storage_system(self, mock_ansible_module,
-                                           mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_systems.get_all.return_value = {"name": "Storage System Name"}
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_all_storage_system(self):
+        self.storage_systems.get_all.return_value = {"name": "Storage System Name"}
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         StorageSystemFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(storage_systems=({"name": "Storage System Name"}))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_systems.get_all.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_all_raises_exception(self):
+        self.storage_systems.get_all.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         StorageSystemFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_get_storage_system_by_name(self, mock_ansible_module,
-                                               mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_systems.get_by_name.return_value = {"name": "Storage System Name"}
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_storage_system_by_name(self):
+        self.storage_systems.get_by_name.return_value = {"name": "Storage System Name"}
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         StorageSystemFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(storage_systems=({"name": "Storage System Name"}))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_fail_when_get_by_name_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_systems.get_by_name.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_by_name_raises_exception(self):
+        self.storage_systems.get_by_name.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         StorageSystemFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_get_storage_system_by_ip_hostname(self, mock_ansible_module,
-                                                      mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_systems.get_by_ip_hostname.return_value = {"ip_hostname": "10.0.0.0"}
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_IP_HOSTNAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_storage_system_by_ip_hostname(self):
+        self.storage_systems.get_by_ip_hostname.return_value = {"ip_hostname": "10.0.0.0"}
+        self.mock_ansible_module.params = PARAMS_GET_BY_IP_HOSTNAME
 
         StorageSystemFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(storage_systems=({"ip_hostname": "10.0.0.0"}))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_fail_when_get_by_ip_hostname_raises_exception(self, mock_ansible_module,
-                                                                  mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_systems.get_by_ip_hostname.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_IP_HOSTNAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_by_ip_hostname_raises_exception(self):
+        self.storage_systems.get_by_ip_hostname.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_BY_IP_HOSTNAME
 
         StorageSystemFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
 
-class StorageSystemHostTypesFactsSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_get_all_host_types(self, mock_ansible_module,
-                                       mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_systems.get_host_types.return_value = HOST_TYPES
-        mock_ov_instance.storage_systems.get_all.return_value = [{"name": "Storage System Name"}]
+class StorageSystemHostTypesFactsSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
+    def setUp(self):
+        self.configure_mocks(self, StorageSystemFactsModule)
+        self.storage_systems = self.mock_ov_client.storage_systems
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_HOST_TYPES)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_all_host_types(self):
+        self.storage_systems.get_host_types.return_value = HOST_TYPES
+        self.storage_systems.get_all.return_value = [{"name": "Storage System Name"}]
+        self.mock_ansible_module.params = PARAMS_GET_HOST_TYPES
 
         StorageSystemFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 storage_system_host_types=HOST_TYPES,
                 storage_systems=[{"name": "Storage System Name"}])
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_fail_when_get_host_types_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_systems.get_host_types.side_effect = Exception(ERROR_MSG)
-        mock_ov_instance.storage_systems.get_all.return_value = [{"name": "Storage System Name"}]
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_HOST_TYPES)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_host_types_raises_exception(self):
+        self.storage_systems.get_host_types.side_effect = Exception(ERROR_MSG)
+        self.storage_systems.get_all.return_value = [{"name": "Storage System Name"}]
+        self.mock_ansible_module.params = PARAMS_GET_HOST_TYPES
 
         StorageSystemFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 PARAMS_GET_POOL_BY_NAME = dict(
@@ -241,22 +155,19 @@ PARAMS_GET_POOL_BY_IP_HOSTNAME = dict(
 )
 
 
-class StorageSystemPoolsFactsSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_get_storage_pools_system_by_name(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_systems.get_by_name.return_value = {"name": "Storage System Name", "uri": "uri"}
-        mock_ov_instance.storage_systems.get_storage_pools.return_value = {"name": "Storage Pool"}
+class StorageSystemPoolsFactsSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
+    def setUp(self):
+        self.configure_mocks(self, StorageSystemFactsModule)
+        self.storage_systems = self.mock_ov_client.storage_systems
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_POOL_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_storage_pools_system_by_name(self):
+        self.storage_systems.get_by_name.return_value = {"name": "Storage System Name", "uri": "uri"}
+        self.storage_systems.get_storage_pools.return_value = {"name": "Storage Pool"}
+        self.mock_ansible_module.params = PARAMS_GET_POOL_BY_NAME
 
         StorageSystemFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 storage_system_pools=({"name": "Storage Pool"}),
@@ -264,37 +175,22 @@ class StorageSystemPoolsFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_fail_when_get_by_name_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_systems.get_by_name.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_POOL_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_by_name_raises_exception(self):
+        self.storage_systems.get_by_name.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_POOL_BY_NAME
 
         StorageSystemFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_get_storage_system_pools_by_ip_hostname(self, mock_ansible_module,
-                                                            mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_systems.get_by_ip_hostname.return_value = {"ip_hostname": "10.0.0.0", "uri": "uri"}
-        mock_ov_instance.storage_systems.get_storage_pools.return_value = {"name": "Storage Pool"}
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_POOL_BY_IP_HOSTNAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_storage_system_pools_by_ip_hostname(self):
+        self.storage_systems.get_by_ip_hostname.return_value = {"ip_hostname": "10.0.0.0", "uri": "uri"}
+        self.storage_systems.get_storage_pools.return_value = {"name": "Storage Pool"}
+        self.mock_ansible_module.params = PARAMS_GET_POOL_BY_IP_HOSTNAME
 
         StorageSystemFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 storage_system_pools=({"name": "Storage Pool"}),
@@ -302,21 +198,13 @@ class StorageSystemPoolsFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_system_facts.AnsibleModule')
-    def test_should_fail_when_get_by_ip_hostname_raises_exception(self, mock_ansible_module,
-                                                                  mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_systems.get_by_ip_hostname.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_POOL_BY_IP_HOSTNAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_by_ip_hostname_raises_exception(self):
+        self.storage_systems.get_by_ip_hostname.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_POOL_BY_IP_HOSTNAME
 
         StorageSystemFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once()
+        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

@@ -17,6 +17,7 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import transform_list_to_dict
@@ -41,6 +42,15 @@ options:
         - Path to a .json configuration file containing the OneView client configuration.
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
+      required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
       required: false
     ip_hostname:
       description:
@@ -74,6 +84,16 @@ EXAMPLES = '''
 
 - debug: var=storage_systems
 
+- name: Gather paginated, filtered and sorted facts about Storage Systems
+  oneview_storage_system_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: managedDomain=TestDomain
+
+- debug: var=storage_systems
 
 - name: Gather facts about a Storage System by IP
   oneview_storage_system_facts:
@@ -127,23 +147,13 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class StorageSystemFactsModule(object):
-    argument_spec = {
-        "config": {
-            "required": False,
-            "type": 'str'
-        },
-        "name": {
-            "required": False,
-            "type": 'str'
-        },
-        "ip_hostname": {
-            "required": False,
-            "type": 'str'
-        },
-        "options": {
-            "required": False,
-            "type": 'list'
-        }}
+    argument_spec = dict(
+        config=dict(required=False, type='str'),
+        name=dict(required=False, type='str'),
+        ip_hostname=dict(required=False, type='str'),
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict'),
+    )
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
@@ -165,7 +175,8 @@ class StorageSystemFactsModule(object):
             elif self.module.params.get('name'):
                 storage_systems = self.oneview_client.storage_systems.get_by_name(self.module.params['name'])
             else:
-                storage_systems = self.oneview_client.storage_systems.get_all()
+                params = self.module.params.get('params') or {}
+                storage_systems = self.oneview_client.storage_systems.get_all(**params)
                 is_specific_storage_system = False
 
             self.__get_options(facts, storage_systems, is_specific_storage_system)
