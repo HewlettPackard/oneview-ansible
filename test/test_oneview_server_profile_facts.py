@@ -16,8 +16,8 @@
 
 import unittest
 
+from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
-from test.utils import PreloadedMocksBaseTestCase
 
 from oneview_server_profile_facts import ServerProfileFactsModule
 from copy import deepcopy
@@ -95,20 +95,19 @@ PARAMS_WITH_OPTIONS = dict(
 )
 
 
-class ServerProfileFactsClientConfigurationSpec(unittest.TestCase, ModuleContructorTestCase):
+class ServerProfileFactsSpec(unittest.TestCase,
+                             ModuleContructorTestCase,
+                             FactsParamsTestCase):
     """
-    Test the module constructor
-    ModuleContructorTestCase has common tests for class constructor and main function
-    """
+    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
+    mocks used in this test class.
 
+    FactsParamsTestCase has common tests for the parameters support.
+    """
     def setUp(self):
         self.configure_mocks(self, ServerProfileFactsModule)
 
-
-class ServerProfileFactsSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-
-    def setUp(self):
-        self.configure_mocks(self, ServerProfileFactsModule)
+        FactsParamsTestCase.configure_client_mock(self, self.mock_ov_client.server_profiles)
 
     def test_should_get_all_servers(self):
         server_profiles = [

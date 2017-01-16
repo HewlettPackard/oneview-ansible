@@ -15,11 +15,10 @@
 ###
 
 import unittest
-import mock
 
-from test.utils import create_ansible_mock
+from test.utils import FactsParamsTestCase
+from test.utils import ModuleContructorTestCase
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_server_profile_template_facts import ServerProfileTemplateFactsModule
 
 ERROR_MSG = 'Fake message error'
@@ -81,94 +80,56 @@ PROFILE = dict(
 TEMPLATES = [BASIC_TEMPLATE]
 
 
-class ServerProfileTemplateFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_server_profile_template_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class ServerProfileTemplateFactsSpec(unittest.TestCase,
+                                     ModuleContructorTestCase,
+                                     FactsParamsTestCase):
+    """
+    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
+    mocks used in this test class.
 
-        ServerProfileTemplateFactsModule()
+    FactsParamsTestCase has common tests for the parameters support.
+    """
+    def setUp(self):
+        self.configure_mocks(self, ServerProfileTemplateFactsModule)
 
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
+        FactsParamsTestCase.configure_client_mock(self, self.mock_ov_client.server_profile_templates)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_server_profile_template_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        ServerProfileTemplateFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class ServerProfileTemplateFactsSpec(unittest.TestCase):
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile_template_facts.AnsibleModule')
-    def test_should_get_all_templates(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profile_templates.get_all.return_value = TEMPLATES
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_all_templates(self):
+        self.mock_ov_client.server_profile_templates.get_all.return_value = TEMPLATES
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         ServerProfileTemplateFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(server_profile_templates=TEMPLATES)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile_template_facts.AnsibleModule')
-    def test_should_get_template_by_name(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_get_template_by_name(self):
+        self.mock_ov_client.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         ServerProfileTemplateFactsModule().run()
 
-        mock_ov_instance.server_profile_templates.get_by_name.assert_called_once_with(name=TEMPLATE_NAME)
+        self.mock_ov_client.server_profile_templates.get_by_name.assert_called_once_with(name=TEMPLATE_NAME)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(server_profile_templates=[BASIC_TEMPLATE])
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile_template_facts.AnsibleModule')
-    def test_should_get_template_by_name_with_new_profile(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
-        mock_ov_instance.server_profile_templates.get_new_profile.return_value = PROFILE
-        mock_ov_from_file.return_value = mock_ov_instance
+    def test_should_get_template_by_name_with_new_profile(self):
+        self.mock_ov_client.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
+        self.mock_ov_client.server_profile_templates.get_new_profile.return_value = PROFILE
 
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_NEW_PROFILE)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_NEW_PROFILE
 
         ServerProfileTemplateFactsModule().run()
 
-        mock_ov_instance.server_profile_templates.get_by_name.assert_called_once_with(name=TEMPLATE_NAME)
-        mock_ov_instance.server_profile_templates.get_new_profile.assert_called_once_with(id_or_uri=TEMPLATE_URI)
+        self.mock_ov_client.server_profile_templates.get_by_name.assert_called_once_with(name=TEMPLATE_NAME)
+        self.mock_ov_client.server_profile_templates.get_new_profile.assert_called_once_with(id_or_uri=TEMPLATE_URI)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 server_profile_templates=[BASIC_TEMPLATE],
@@ -176,29 +137,24 @@ class ServerProfileTemplateFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile_template_facts.AnsibleModule')
-    def test_should_get_template_by_name_with_options(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
-        mock_ov_instance.server_profile_templates.get_new_profile.return_value = PROFILE
-        mock_ov_instance.server_profile_templates.get_transformation.return_value = TRANSFORMATION_TEMPLATE
-        mock_ov_from_file.return_value = mock_ov_instance
+    def test_should_get_template_by_name_with_options(self):
+        self.mock_ov_client.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
+        self.mock_ov_client.server_profile_templates.get_new_profile.return_value = PROFILE
+        self.mock_ov_client.server_profile_templates.get_transformation.return_value = TRANSFORMATION_TEMPLATE
 
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         ServerProfileTemplateFactsModule().run()
 
-        mock_ov_instance.server_profile_templates.get_by_name.assert_called_once_with(name=TEMPLATE_NAME)
-        mock_ov_instance.server_profile_templates.get_new_profile.assert_called_once_with(id_or_uri=TEMPLATE_URI)
-        mock_ov_instance.server_profile_templates.get_transformation.assert_called_once_with(
+        self.mock_ov_client.server_profile_templates.get_by_name.assert_called_once_with(name=TEMPLATE_NAME)
+        self.mock_ov_client.server_profile_templates.get_new_profile.assert_called_once_with(id_or_uri=TEMPLATE_URI)
+        self.mock_ov_client.server_profile_templates.get_transformation.assert_called_once_with(
             id_or_uri=TEMPLATE_URI,
             server_hardware_type_uri=SERVER_HARDWARE_TYPE_FOR_TRANSFORMATION,
             enclosure_group_uri=ENCLOSURE_GROUP_FOR_TRANSFORMATION
         )
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 server_profile_templates=[BASIC_TEMPLATE],
@@ -207,18 +163,14 @@ class ServerProfileTemplateFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_server_profile_template_facts.AnsibleModule')
-    def test_should_fail_when_oneview_client_raises_an_exception(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profile_templates.get_all.side_effect = Exception(ERROR_MSG)
-        mock_ov_from_file.return_value = mock_ov_instance
+    def test_should_fail_when_oneview_client_raises_an_exception(self):
+        self.mock_ov_client.server_profile_templates.get_all.side_effect = Exception(ERROR_MSG)
 
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         ServerProfileTemplateFactsModule().run()
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=ERROR_MSG)
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':

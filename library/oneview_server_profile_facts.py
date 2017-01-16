@@ -54,6 +54,15 @@ options:
         - "To gather facts about 'compliancePreview', 'messages' and 'transformation' it is required to inform the
           Server Profile name. Otherwise, these options will be ignored."
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+           'start': The first item to return, using 0-based indexing.
+           'count': The number of resources to return.
+           'filter': A general filter/query string to narrow the list of items returned.
+           'sort': The sort order of the returned data set."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -65,6 +74,18 @@ EXAMPLES = '''
 - name: Gather facts about all Server Profiles
   oneview_server_profile_facts:
     config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=server_profiles
+
+- name: Gather paginated, filtered and sorted facts about Server Profiles
+  oneview_server_profile_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: macType='Virtual'
   delegate_to: localhost
 
 - debug: var=server_profiles
@@ -205,11 +226,12 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class ServerProfileFactsModule(object):
-    argument_spec = {
-        "config": {"required": False, "type": 'str'},
-        "name": {"required": False, "type": 'str'},
-        "options": {"required": False, "type": 'list'}
-    }
+    argument_spec = dict(
+        config=dict(required=False, type='str'),
+        name=dict(required=False, type='str'),
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict')
+    )
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
@@ -232,7 +254,8 @@ class ServerProfileFactsModule(object):
                 if len(server_profiles) > 0:
                     server_profile_uri = server_profiles[0]['uri']
             else:
-                server_profiles = self.oneview_client.server_profiles.get_all()
+                params = self.module.params.get('params') or {}
+                server_profiles = self.oneview_client.server_profiles.get_all(**params)
 
             if self.module.params.get('options'):
                 ansible_facts = self.__gather_option_facts(self.module.params['options'], server_profile_uri)

@@ -52,6 +52,15 @@ options:
         - "List with options to gather additional facts about Server Profile Template resources.
           Options allowed: new_profile and transformation."
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+           'start': The first item to return, using 0-based indexing.
+           'count': The number of resources to return.
+           'filter': A general filter/query string to narrow the list of items returned.
+           'sort': The sort order of the returned data set."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -64,6 +73,20 @@ EXAMPLES = '''
 - name: Gather facts about all Server Profile Templates
   oneview_server_profile_template_facts:
     config: "{{ config }}"
+
+- debug: var=server_profile_templates
+
+- name: Gather paginated, filtered and sorted facts about Server Profile Templates
+  oneview_server_profile_template_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: macType='Virtual'
+  delegate_to: localhost
+
+- debug: var=server_profile_templates
 
 - name: Gather facts about a Server Profile Template by name
   oneview_server_profile_template_facts:
@@ -96,7 +119,8 @@ class ServerProfileTemplateFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -149,7 +173,8 @@ class ServerProfileTemplateFactsModule(object):
         return facts
 
     def __get_all(self):
-        templates = self.resource_client.get_all()
+        params = self.module.params.get('params') or {}
+        templates = self.resource_client.get_all(**params)
         return dict(server_profile_templates=templates)
 
 
