@@ -44,6 +44,15 @@ options:
       description:
         - Server Hardware Type name.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+           'start': The first item to return, using 0-based indexing.
+           'count': The number of resources to return.
+           'filter': A general filter/query string to narrow the list of items returned.
+           'sort': The sort order of the returned data set."
+      required: false
 notes:
     - "A sample configuration file for the config parameter can be found at:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
@@ -57,6 +66,17 @@ EXAMPLES = '''
     config: "{{ config }}"
   delegate_to: localhost
 - debug: var=server_hardware_types
+
+- name: Gather paginated, filtered and sorted facts about Server Hardware Types
+  oneview_server_hardware_type_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 5
+      sort: name:ascending
+      filter: formFactor='HalfHeight'
+  delegate_to: localhost
+- debug: msg="{{server_hardware_types | map(attribute='name') | list }}"
 
 - name: Gather facts about a Server Hardware Type by name
   oneview_server_hardware_type_facts:
@@ -76,15 +96,11 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class ServerHardwareTypeFactsModule(object):
-    argument_spec = {
-        "config": {
-            "required": False,
-            "type": 'str'
-        },
-        "name": {
-            "required": False,
-            "type": 'str'
-        }}
+    argument_spec = dict(
+        config=dict(required=False, type='str'),
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict')
+    )
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
@@ -104,7 +120,8 @@ class ServerHardwareTypeFactsModule(object):
             if self.module.params.get('name'):
                 ansible_facts['server_hardware_types'] = client.get_by('name', self.module.params['name'])
             else:
-                ansible_facts['server_hardware_types'] = client.get_all()
+                params = self.module.params.get('params') or {}
+                ansible_facts['server_hardware_types'] = client.get_all(**params)
 
             self.module.exit_json(changed=False,
                                   ansible_facts=ansible_facts)
