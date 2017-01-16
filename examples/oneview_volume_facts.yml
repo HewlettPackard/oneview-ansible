@@ -27,6 +27,17 @@
 
     - debug: var=storage_volumes
 
+    - name: Gather paginated, filtered and sorted facts about Volumes
+      oneview_volume_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 2
+          sort: 'name:descending'
+          filter: "provisionType='Thin'"
+
+    - debug: var=storage_volumes
+
 
     - name: "Gather facts about all Volumes, the attachable volumes managed by the appliance and the extra managed
              storage volume paths"
