@@ -24,8 +24,18 @@
       delegate_to: localhost
 
     - debug: var=storage_volume_attachments
-    
-    
+
+    - name: Gather paginated, filtered and sorted facts about Storage Volume Attachments
+      oneview_storage_volume_attachment_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 2
+          sort: 'name:descending'
+          filter: "storageVolumeUri='/rest/storage-volumes/E5B84BC8-75CF-4305-8DB5-7585A2979351'"
+
+    - debug: var=storage_volume_attachments
+
     - name: Gather facts about a Storage Volume Attachment by Server Profile Name and Volume Uri
       oneview_storage_volume_attachment_facts:
         config: "{{ config }}"
@@ -34,8 +44,8 @@
       delegate_to: localhost
 
     - debug: var=storage_volume_attachments
-    
-    
+
+
     - name: Gather facts about extra unmanaged storage volumes
       oneview_storage_volume_attachment_facts:
         config: "{{ config }}"
