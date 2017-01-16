@@ -15,12 +15,10 @@
 ###
 
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_storage_volume_attachment_facts import StorageVolumeAttachmentFactsModule
 from oneview_storage_volume_attachment_facts import ATTACHMENT_KEY_REQUIRED
-from test.utils import create_ansible_mock
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -54,249 +52,168 @@ RETURN_GET_BY_PROFILE_AND_VOLUME = {
 }
 
 
-class StorageVolumeAttachmentFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class StorageVolumeAttachmentFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+    def setUp(self):
+        self.configure_mocks(self, StorageVolumeAttachmentFactsModule)
+        self.resource = self.mock_ov_client.storage_volume_attachments
+        FactsParamsTestCase.configure_client_mock(self, self.resource)
 
-        StorageVolumeAttachmentFactsModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        StorageVolumeAttachmentFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class StorageVolumeAttachmentFactsSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_get_all(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
+    def test_should_get_all(self):
         attachments = [ATTACHMENT, ATTACHMENT]
-        mock_ov_instance.storage_volume_attachments.get_all.return_value = attachments
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.resource.get_all.return_value = attachments
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         StorageVolumeAttachmentFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(storage_volume_attachments=attachments)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_volume_attachments.get_all.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_all_raises_exception(self):
+        self.resource.get_all.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         StorageVolumeAttachmentFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=ERROR_MSG)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_get_all_and_unmanaged_volumes(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
+    def test_should_get_all_and_unmanaged_volumes(self):
         attachments = [ATTACHMENT, ATTACHMENT]
-        mock_ov_instance.storage_volume_attachments.get_all.return_value = attachments
-        mock_ov_instance.storage_volume_attachments.get_extra_unmanaged_storage_volumes.return_value = {
+        self.resource.get_all.return_value = attachments
+        self.resource.get_extra_unmanaged_storage_volumes.return_value = {
             'subresource': 'value'}
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         params = dict(
             config='config.json',
             options=[{'extraUnmanagedStorageVolumes': {'start': 1, 'count': 5, 'filter': 'test', 'sort': 'test'}}]
         )
 
-        mock_ansible_instance = create_ansible_mock(params)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params
 
         StorageVolumeAttachmentFactsModule().run()
 
-        mock_ov_instance.storage_volume_attachments.get_extra_unmanaged_storage_volumes.assert_called_once_with(
+        self.resource.get_extra_unmanaged_storage_volumes.assert_called_once_with(
             start=1, count=5, filter='test', sort='test'
         )
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 storage_volume_attachments=attachments,
                 extra_unmanaged_storage_volumes={'subresource': 'value'})
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_get_all_and_unmanaged_volumes_without_params(self, mock_ansible_module,
-                                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
+    def test_should_get_all_and_unmanaged_volumes_without_params(self):
         attachments = [ATTACHMENT, ATTACHMENT]
-        mock_ov_instance.storage_volume_attachments.get_all.return_value = attachments
-        mock_ov_instance.storage_volume_attachments.get_extra_unmanaged_storage_volumes.return_value = {
+        self.resource.get_all.return_value = attachments
+        self.resource.get_extra_unmanaged_storage_volumes.return_value = {
             'subresource': 'value'}
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
 
         params = dict(
             config='config.json',
             options=['extraUnmanagedStorageVolumes']
         )
 
-        mock_ansible_instance = create_ansible_mock(params)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params
 
         StorageVolumeAttachmentFactsModule().run()
 
-        mock_ov_instance.storage_volume_attachments.get_extra_unmanaged_storage_volumes.assert_called_once_with()
+        self.resource.get_extra_unmanaged_storage_volumes.assert_called_once_with()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 storage_volume_attachments=attachments,
                 extra_unmanaged_storage_volumes={'subresource': 'value'})
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_get_by_server_name_and_volume_uri(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_volume_attachments.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
-        mock_ov_instance.storage_volume_attachments.URI = "/rest/storage-volume-attachments"
-        mock_from_json.return_value = mock_ov_instance
+    def test_should_get_by_server_name_and_volume_uri(self):
+        self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
+        self.resource.URI = "/rest/storage-volume-attachments"
 
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ONE)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_ONE
 
         StorageVolumeAttachmentFactsModule().run()
 
-        mock_ov_instance.storage_volume_attachments.get.assert_called_once_with(URI)
+        self.resource.get.assert_called_once_with(URI)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(storage_volume_attachments=([ATTACHMENT]))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_get_by_server_name_and_volume_name(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_volume_attachments.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
-        mock_ov_instance.storage_volume_attachments.URI = "/rest/storage-volume-attachments"
-        mock_from_json.return_value = mock_ov_instance
-        mock_ov_instance.volumes.get_by.return_value = [{"uri": "/rest/storage-volumes/12345-AAA-BBBB-CCCC-121212AA"}]
+    def test_should_get_by_server_name_and_volume_name(self):
+        self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
+        self.resource.URI = "/rest/storage-volume-attachments"
 
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ONE_VOLUME_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ov_client.volumes.get_by.return_value = [
+            {"uri": "/rest/storage-volumes/12345-AAA-BBBB-CCCC-121212AA"}
+        ]
+
+        self.mock_ansible_module.params = PARAMS_GET_ONE_VOLUME_NAME
 
         StorageVolumeAttachmentFactsModule().run()
 
-        mock_ov_instance.volumes.get_by.assert_called_once_with('name', 'VolumeTest')
-        mock_ov_instance.storage_volume_attachments.get.assert_called_once_with(URI)
+        self.mock_ov_client.volumes.get_by.assert_called_once_with('name', 'VolumeTest')
+        self.resource.get.assert_called_once_with(URI)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(storage_volume_attachments=([ATTACHMENT]))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_fail_when_get_by_volume_name_and_not_inform_server_name(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_volume_attachments.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
-        mock_ov_instance.storage_volume_attachments.URI = "/rest/storage-volume-attachments"
-        mock_from_json.return_value = mock_ov_instance
+    def test_should_fail_when_get_by_volume_name_and_not_inform_server_name(self):
+        self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
+        self.resource.URI = "/rest/storage-volume-attachments"
 
         params = PARAMS_GET_ONE_VOLUME_NAME.copy()
         params['serverProfileName'] = None
 
-        mock_ansible_instance = create_ansible_mock(params)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params
 
         StorageVolumeAttachmentFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=ATTACHMENT_KEY_REQUIRED
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_fail_when_get_by_server_name_and_not_inform_volume(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_volume_attachments.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
-        mock_from_json.return_value = mock_ov_instance
+    def test_should_fail_when_get_by_server_name_and_not_inform_volume(self):
+        self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
 
         params = PARAMS_GET_ONE_VOLUME_NAME.copy()
         params['storageVolumeName'] = None
 
-        mock_ansible_instance = create_ansible_mock(params)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params
 
         StorageVolumeAttachmentFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=ATTACHMENT_KEY_REQUIRED
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_get_by_storage_volume_attachment_uri(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_volume_attachments.get.return_value = {"name": "Storage Volume Attachment Name"}
-        mock_ov_instance.storage_volume_attachments.URI = "/rest/storage-volume-attachments"
-        mock_from_json.return_value = mock_ov_instance
+    def test_should_get_by_storage_volume_attachment_uri(self):
+        self.resource.get.return_value = {"name": "Storage Volume Attachment Name"}
+        self.resource.URI = "/rest/storage-volume-attachments"
 
         params_get_by_uri = dict(
             config='config.json',
             storageVolumeAttachmentUri="/rest/storage-volume-attachments/ED247E27-011B-44EB-9E1B-5891011"
         )
 
-        mock_ansible_instance = create_ansible_mock(params_get_by_uri)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params_get_by_uri
 
         StorageVolumeAttachmentFactsModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(storage_volume_attachments=([{"name": "Storage Volume Attachment Name"}]))
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_get_one_and_paths(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_volume_attachments.get_paths.return_value = [{'subresource': 'value'}]
-        mock_ov_instance.storage_volume_attachments.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
-        mock_ov_instance.storage_volume_attachments.URI = "/rest/storage-volume-attachments"
-        mock_from_json.return_value = mock_ov_instance
+    def test_should_get_one_and_paths(self):
+        self.resource.get_paths.return_value = [{'subresource': 'value'}]
+        self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
+        self.resource.URI = "/rest/storage-volume-attachments"
 
         params_get_paths = dict(
             config='config.json',
@@ -305,16 +222,15 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase):
             options=['paths']
         )
 
-        mock_ansible_instance = create_ansible_mock(params_get_paths)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params_get_paths
 
         StorageVolumeAttachmentFactsModule().run()
 
-        mock_ov_instance.storage_volume_attachments.get.assert_called_once_with(URI)
-        mock_ov_instance.storage_volume_attachments.get_paths.assert_called_once_with(
+        self.resource.get.assert_called_once_with(URI)
+        self.resource.get_paths.assert_called_once_with(
             "/rest/storage-volume-attachments/ED247E27")
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 storage_volume_attachments=[ATTACHMENT],
@@ -322,14 +238,10 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_get_one_and_path_id(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_volume_attachments.get_paths.return_value = {'subresource': 'value'}
-        mock_ov_instance.storage_volume_attachments.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
-        mock_ov_instance.storage_volume_attachments.URI = "/rest/storage-volume-attachments"
-        mock_from_json.return_value = mock_ov_instance
+    def test_should_get_one_and_path_id(self):
+        self.resource.get_paths.return_value = {'subresource': 'value'}
+        self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
+        self.resource.URI = "/rest/storage-volume-attachments"
 
         params_get_path = dict(
             config='config.json',
@@ -338,16 +250,15 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase):
             options=[{'paths': {'pathId': 'AAA-NNN-878787H'}}]
         )
 
-        mock_ansible_instance = create_ansible_mock(params_get_path)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params_get_path
 
         StorageVolumeAttachmentFactsModule().run()
 
-        mock_ov_instance.storage_volume_attachments.get.assert_called_once_with(URI)
-        mock_ov_instance.storage_volume_attachments.get_paths.assert_called_once_with(
+        self.resource.get.assert_called_once_with(URI)
+        self.resource.get_paths.assert_called_once_with(
             "/rest/storage-volume-attachments/ED247E27", 'AAA-NNN-878787H')
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 storage_volume_attachments=[ATTACHMENT],
@@ -355,14 +266,10 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_get_one_and_path_uri(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_volume_attachments.get_paths.return_value = {'subresource': 'value'}
-        mock_ov_instance.storage_volume_attachments.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
-        mock_ov_instance.storage_volume_attachments.URI = "/rest/storage-volume-attachments"
-        mock_from_json.return_value = mock_ov_instance
+    def test_should_get_one_and_path_uri(self):
+        self.resource.get_paths.return_value = {'subresource': 'value'}
+        self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
+        self.resource.URI = "/rest/storage-volume-attachments"
 
         params_get_path = dict(
             config='config.json',
@@ -371,16 +278,15 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase):
             options=[{'paths': {'pathUri': '/test/uri/AAA-NNN-878787H'}}]
         )
 
-        mock_ansible_instance = create_ansible_mock(params_get_path)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params_get_path
 
         StorageVolumeAttachmentFactsModule().run()
 
-        mock_ov_instance.storage_volume_attachments.get.assert_called_once_with(URI)
-        mock_ov_instance.storage_volume_attachments.get_paths.assert_called_once_with(
+        self.resource.get.assert_called_once_with(URI)
+        self.resource.get_paths.assert_called_once_with(
             "/rest/storage-volume-attachments/ED247E27", '/test/uri/AAA-NNN-878787H')
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 storage_volume_attachments=[ATTACHMENT],
@@ -388,14 +294,10 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_get_one_with_options(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_volume_attachments.URI = "/rest/storage-volume-attachments"
+    def test_should_get_one_with_options(self):
+        self.resource.URI = "/rest/storage-volume-attachments"
 
-        mock_ov_instance.storage_volume_attachments.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
-        mock_from_json.return_value = mock_ov_instance
+        self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
 
         params_get_all_options = dict(
             config='config.json',
@@ -404,18 +306,18 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase):
             options=['extraUnmanagedStorageVolumes', 'paths']
         )
 
-        mock_ansible_instance = create_ansible_mock(params_get_all_options)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = params_get_all_options
 
-        mock_ov_instance.storage_volume_attachments.get_extra_unmanaged_storage_volumes.return_value = {
+        self.resource.get_extra_unmanaged_storage_volumes.return_value = {
             'subresource': 'value'}
-        mock_ov_instance.storage_volume_attachments.get_paths.return_value = {'subresource': 'value'}
+
+        self.resource.get_paths.return_value = {'subresource': 'value'}
 
         StorageVolumeAttachmentFactsModule().run()
 
-        mock_ov_instance.storage_volume_attachments.get.assert_called_once_with(URI)
+        self.resource.get.assert_called_once_with(URI)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 storage_volume_attachments=([ATTACHMENT]),
@@ -424,20 +326,13 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase):
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment_facts.AnsibleModule')
-    def test_should_fail_when_get_one_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_volume_attachments.get.side_effect = Exception(ERROR_MSG)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ONE)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_one_raises_exception(self):
+        self.resource.get.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_ONE
 
         StorageVolumeAttachmentFactsModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=ERROR_MSG)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':

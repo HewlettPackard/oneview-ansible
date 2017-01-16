@@ -44,6 +44,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+        'start': The first item to return, using 0-based indexing.
+        'count': The number of resources to return.
+        'filter': A general filter/query string to narrow the list of items returned.
+        'sort': The sort order of the returned data set."
+      required: false
     storageVolumeAttachmentUri:
       description:
         - Storage Volume Attachment uri.
@@ -82,6 +91,16 @@ EXAMPLES = '''
 
 - debug: var=storage_volume_attachments
 
+- name: Gather paginated, filtered and sorted facts about Storage Volume Attachments
+  oneview_storage_volume_attachment_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 2
+      sort: 'name:descending'
+      filter: "storageVolumeUri='/rest/storage-volumes/E5B84BC8-75CF-4305-8DB5-7585A2979351'"
+
+- debug: var=storage_volume_attachments
 
 - name: Gather facts about a Storage Volume Attachment by Server Profile and Volume
   oneview_storage_volume_attachment_facts:
@@ -159,13 +178,15 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
 class StorageVolumeAttachmentFactsModule(object):
-    argument_spec = {
-        "config": {"required": False, "type": 'str'},
-        "serverProfileName": {"required": False, "type": 'str'},
-        "storageVolumeAttachmentUri": {"required": False, "type": 'str'},
-        "storageVolumeUri": {"required": False, "type": 'str'},
-        "storageVolumeName": {"required": False, "type": 'str'},
-        "options": {"required": False, "type": 'list'}}
+    argument_spec = dict(
+        config=dict(required=False, type='str'),
+        serverProfileName=dict(required=False, type='str'),
+        storageVolumeAttachmentUri=dict(required=False, type='str'),
+        storageVolumeUri=dict(required=False, type='str'),
+        storageVolumeName=dict(required=False, type='str'),
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict'),
+    )
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
@@ -196,7 +217,8 @@ class StorageVolumeAttachmentFactsModule(object):
                 attachments = self.__get_specific_attachment(params)
                 self.__get_paths(attachments, options, facts)
             else:
-                attachments = client.get_all()
+                params = self.module.params.get('params') or {}
+                attachments = client.get_all(**params)
 
             facts['storage_volume_attachments'] = attachments
 

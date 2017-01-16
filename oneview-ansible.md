@@ -7338,6 +7338,7 @@ Retrieve facts about the OneView Storage Volume Attachments.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | options  |   No  |  | |  Retrieve additional facts. Options available: 'extraUnmanagedStorageVolumes' retrieve the list of extra unmanaged storage volumes. 'paths' retrieve all paths or a specific attachment path for the specified volume attachment. To retrieve a specific path a 'pathUri' or a 'pathId' must be informed  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 | serverProfileName  |   No  |  | |  Server Profile name.  |
 | storageVolumeAttachmentUri  |   No  |  | |  Storage Volume Attachment uri.  |
 | storageVolumeName  |   No  |  | |  Storage Volume name.  |
@@ -7355,6 +7356,16 @@ Retrieve facts about the OneView Storage Volume Attachments.
 
 - debug: var=storage_volume_attachments
 
+- name: Gather paginated, filtered and sorted facts about Storage Volume Attachments
+  oneview_storage_volume_attachment_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 2
+      sort: 'name:descending'
+      filter: "storageVolumeUri='/rest/storage-volumes/E5B84BC8-75CF-4305-8DB5-7585A2979351'"
+
+- debug: var=storage_volume_attachments
 
 - name: Gather facts about a Storage Volume Attachment by Server Profile and Volume
   oneview_storage_volume_attachment_facts:
