@@ -18,23 +18,31 @@ import unittest
 import yaml
 
 from image_streamer_deployment_plan_facts import DeploymentPlanFactsModule, EXAMPLES
-from utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase
+from test.utils import FactsParamsTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
-class DeploymentPlanFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class DeploymentPlanFactsSpec(unittest.TestCase,
+                              ModuleContructorTestCase,
+                              FactsParamsTestCase,
+                              ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
     mocks used in this test class.
 
     FactsParamsTestCase has common tests for the parameters support.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
     def setUp(self):
         self.configure_mocks(self, DeploymentPlanFactsModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
 
         FactsParamsTestCase.configure_client_mock(self, self.i3s.deployment_plans)
+        ErrorHandlingTestCase.configure_client_mock(self, self.i3s.deployment_plans)
 
         # Load scenarios from module examples
         self.DEPLOYMENT_PLAN_FACTS_EXAMPLES = yaml.load(EXAMPLES)
@@ -67,14 +75,6 @@ class DeploymentPlanFactsSpec(unittest.TestCase, ModuleContructorTestCase, Facts
             changed=False,
             ansible_facts=dict(deployment_plans=[self.DEPLOYMENT_PLAN])
         )
-
-    def test_should_fail_when_get_all_raises_an_exception(self):
-        self.i3s.deployment_plans.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = self.TASK_GET_ALL
-
-        DeploymentPlanFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':

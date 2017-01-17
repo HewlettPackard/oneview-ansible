@@ -20,6 +20,8 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -146,7 +148,7 @@ class DeploymentPlanModule(object):
                                   msg=msg,
                                   ansible_facts=ansible_facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data, resource):
@@ -192,7 +194,7 @@ class DeploymentPlanModule(object):
         if build_plan:
             return build_plan[0]
         else:
-            raise Exception(I3S_BUILD_PLAN_WAS_NOT_FOUND)
+            raise HPOneViewResourceNotFound(I3S_BUILD_PLAN_WAS_NOT_FOUND)
 
 
 def main():
