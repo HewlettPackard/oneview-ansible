@@ -20,6 +20,9 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -182,7 +185,7 @@ class GoldenImageModule(object):
                 changed, msg, ansible_facts = self.__absent(resource)
             else:
                 if not resource:
-                    raise Exception(GOLDEN_IMAGE_WAS_NOT_FOUND)
+                    raise HPOneViewResourceNotFound(GOLDEN_IMAGE_WAS_NOT_FOUND)
 
                 if state == 'downloaded':
                     changed, msg, ansible_facts = self.__download(data, resource)
@@ -193,12 +196,12 @@ class GoldenImageModule(object):
                                   msg=msg,
                                   ansible_facts=ansible_facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __check_present_consistency(self, data):
         if data.get('osVolumeURI') and data.get('localImageFilePath'):
-            raise Exception(I3S_CANT_CREATE_AND_UPLOAD)
+            raise HPOneViewValueError(I3S_CANT_CREATE_AND_UPLOAD)
 
     def __present(self, data, resource):
 
@@ -223,7 +226,7 @@ class GoldenImageModule(object):
                 msg = GOLDEN_IMAGE_UPLOADED
                 changed = True
             else:
-                raise Exception(I3S_MISSING_MANDATORY_ATTRIBUTES)
+                raise HPOneViewValueError(I3S_MISSING_MANDATORY_ATTRIBUTES)
         else:
             merged_data = resource.copy()
             merged_data.update(data)
@@ -250,7 +253,7 @@ class GoldenImageModule(object):
     def __get_os_voume_by_name(self, name):
         os_volume = self.i3s_client.os_volumes.get_by_name(name)
         if not os_volume:
-            raise Exception(I3S_OS_VOLUME_WAS_NOT_FOUND)
+            raise HPOneViewResourceNotFound(I3S_OS_VOLUME_WAS_NOT_FOUND)
         return os_volume
 
     def __get_build_plan_by_name(self, name):
@@ -258,7 +261,7 @@ class GoldenImageModule(object):
         if build_plan:
             return build_plan[0]
         else:
-            raise Exception(I3S_BUILD_PLAN_WAS_NOT_FOUND)
+            raise HPOneViewResourceNotFound(I3S_BUILD_PLAN_WAS_NOT_FOUND)
 
     def __absent(self, resource):
         if resource:
