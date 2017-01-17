@@ -41,6 +41,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Uplink Set name.
@@ -56,6 +65,17 @@ EXAMPLES = '''
 - name: Gather facts about all Uplink Sets
   oneview_uplink_set_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=uplink_sets
+
+- name: Gather paginated, filtered and sorted facts about Uplink Sets
+  oneview_uplink_set_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 2
+      sort: 'name:descending'
+      filter: "logicalInterconnectUri='/rest/logical-interconnects/4a49ca0d-3782-4c11-b93e-79d8f90c5487'"
 
 - debug: var=uplink_sets
 
@@ -79,7 +99,8 @@ HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 class UplinkSetFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
-        name=dict(required=False, type='str')
+        name=dict(required=False, type='str'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -98,7 +119,8 @@ class UplinkSetFactsModule(object):
             if self.module.params['name']:
                 resources = self.oneview_client.uplink_sets.get_by('name', self.module.params['name'])
             else:
-                resources = self.oneview_client.uplink_sets.get_all()
+                params = self.module.params.get('params') or {}
+                resources = self.oneview_client.uplink_sets.get_all(**params)
 
             self.module.exit_json(changed=False,
                                   ansible_facts=dict(uplink_sets=resources))
