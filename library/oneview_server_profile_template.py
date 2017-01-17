@@ -17,6 +17,7 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
@@ -66,7 +67,7 @@ notes:
 '''
 
 EXAMPLES = '''
-- name: Create a basic connection-less server profile template
+- name: Create a basic connection-less server profile template (using URIs)
   oneview_server_profile_template:
     config: "{{ config }}"
     state: present
@@ -75,6 +76,16 @@ EXAMPLES = '''
       serverHardwareTypeUri: "/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B"
       enclosureGroupUri: "/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89"
     delegate_to: localhost
+
+- name: Create a basic connection-less server profile template (using names)
+  oneview_server_profile_template:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: "ProfileTemplate102"
+      serverHardwareTypeName: "BL460c Gen8 1"
+      enclosureGroupName: "EGSAS_3"
+  delegate_to: localhost
 
 - name: Delete the Server Profile Template
   oneview_server_profile_template:
@@ -92,11 +103,14 @@ server_profile_template:
     type: complex
 '''
 
-TEMPLATE_CREATED = 'Server Profile Template created successfully.'
-TEMPLATE_UPDATED = 'Server Profile Template updated successfully.'
-TEMPLATE_DELETED = 'Server Profile Template deleted successfully.'
-TEMPLATE_ALREADY_EXIST = 'Server Profile Template already exists.'
-TEMPLATE_ALREADY_ABSENT = 'Nothing to do.'
+SRV_PROFILE_TEMPLATE_CREATED = 'Server Profile Template created successfully.'
+SRV_PROFILE_TEMPLATE_UPDATED = 'Server Profile Template updated successfully.'
+SRV_PROFILE_TEMPLATE_DELETED = 'Server Profile Template deleted successfully.'
+SRV_PROFILE_TEMPLATE_ALREADY_EXIST = 'Server Profile Template already exists.'
+SRV_PROFILE_TEMPLATE_ALREADY_ABSENT = 'Nothing to do.'
+SRV_PROFILE_TEMPLATE_SRV_HW_TYPE_NOT_FOUND = 'Server Hardware Type not found: '
+SRV_PROFILE_TEMPLATE_ENCLOSURE_GROUP_NOT_FOUND = 'Enclosure Group not found: '
+
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
@@ -131,12 +145,12 @@ class ServerProfileTemplateModule(object):
 
     def run(self):
         try:
+            if not self.module.params.get('validate_etag'):
+                self.oneview_client.connection.disable_etag_validation()
+
             state = self.module.params["state"]
             data = self.module.params["data"]
             template = self.resource_client.get_by_name(data["name"])
-
-            if not self.module.params.get('validate_etag'):
-                self.oneview_client.connection.disable_etag_validation()
 
             if state == 'present':
                 result = self.__present(data, template)
@@ -148,6 +162,9 @@ class ServerProfileTemplateModule(object):
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data, template):
+
+        self.__replace_names_by_uris(data)
+
         if not template:
             changed, msg, resource = self.__create(data)
         else:
@@ -161,7 +178,7 @@ class ServerProfileTemplateModule(object):
 
     def __create(self, data):
         resource = self.resource_client.create(data)
-        return True, TEMPLATE_CREATED, resource
+        return True, SRV_PROFILE_TEMPLATE_CREATED, resource
 
     def __update(self, data, template):
         resource = template.copy()
@@ -169,24 +186,45 @@ class ServerProfileTemplateModule(object):
         equal = resource_compare(template, resource)
 
         if equal:
-            msg = TEMPLATE_ALREADY_EXIST
+            msg = SRV_PROFILE_TEMPLATE_ALREADY_EXIST
         else:
             resource = self.resource_client.update(resource=resource, id_or_uri=resource["uri"])
-            msg = TEMPLATE_UPDATED
+            msg = SRV_PROFILE_TEMPLATE_UPDATED
 
         changed = not equal
 
         return changed, msg, resource
 
     def __absent(self, template):
-        msg = TEMPLATE_ALREADY_ABSENT
+        msg = SRV_PROFILE_TEMPLATE_ALREADY_ABSENT
 
         if template:
             self.resource_client.delete(template)
-            msg = TEMPLATE_DELETED
+            msg = SRV_PROFILE_TEMPLATE_DELETED
 
         changed = template is not None
         return dict(changed=changed, msg=msg)
+
+    def __replace_names_by_uris(self, data):
+        if 'serverHardwareTypeName' in data:
+            svr_hw_type = self.__get_server_hardware_types_by_name(data.pop('serverHardwareTypeName'))
+            data['serverHardwareTypeUri'] = svr_hw_type['uri']
+
+        if 'enclosureGroupName' in data:
+            enclosure_group = self.__get_enclosure_group_by_name(data.pop('enclosureGroupName'))
+            data['enclosureGroupUri'] = enclosure_group['uri']
+
+    def __get_enclosure_group_by_name(self, name):
+        enclosure_group = self.oneview_client.enclosure_groups.get_by('name', name)
+        if not enclosure_group:
+            raise Exception(SRV_PROFILE_TEMPLATE_ENCLOSURE_GROUP_NOT_FOUND + name)
+        return enclosure_group[0]
+
+    def __get_server_hardware_types_by_name(self, name):
+        resources = self.oneview_client.server_hardware_types.get_by('name', name)
+        if not resources:
+            raise Exception(SRV_PROFILE_TEMPLATE_SRV_HW_TYPE_NOT_FOUND + name)
+        return resources[0]
 
 
 def main():

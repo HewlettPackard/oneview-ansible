@@ -14,16 +14,20 @@
 # limitations under the License.
 ###
 import unittest
+from copy import deepcopy
 
-from oneview_server_profile_template import ServerProfileTemplateModule
-from oneview_server_profile_template import TEMPLATE_CREATED, TEMPLATE_UPDATED, TEMPLATE_ALREADY_EXIST, \
-    TEMPLATE_DELETED, TEMPLATE_ALREADY_ABSENT
+from oneview_server_profile_template import (ServerProfileTemplateModule,
+                                             SRV_PROFILE_TEMPLATE_SRV_HW_TYPE_NOT_FOUND,
+                                             SRV_PROFILE_TEMPLATE_ENCLOSURE_GROUP_NOT_FOUND,
+                                             SRV_PROFILE_TEMPLATE_CREATED,
+                                             SRV_PROFILE_TEMPLATE_UPDATED,
+                                             SRV_PROFILE_TEMPLATE_ALREADY_EXIST,
+                                             SRV_PROFILE_TEMPLATE_DELETED,
+                                             SRV_PROFILE_TEMPLATE_ALREADY_ABSENT)
 
 from utils import ValidateEtagTestCase, ModuleContructorTestCase
 
-
 FAKE_MSG_ERROR = 'Fake message error'
-
 TEMPLATE_NAME = 'ProfileTemplate101'
 SHT_URI = '/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B'
 ENCLOSURE_GROUP_URI = '/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89'
@@ -69,6 +73,17 @@ PARAMS_FOR_UPDATE = dict(
     data=BASIC_TEMPLATE_MODIFIED
 )
 
+PARAMS_FOR_UPDATE_WITH_NAME = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name=TEMPLATE_NAME,
+        serverHardwareTypeName="Srv HW Type Name",
+        enclosureGroupName="EG Name",
+        serialNumberType="Private"
+    )
+)
+
 PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
@@ -77,7 +92,6 @@ PARAMS_FOR_ABSENT = dict(
 
 
 class ServerProfileTemplateModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
-
     def setUp(self):
         self.configure_mocks(self, ServerProfileTemplateModule)
         self.resource = self.mock_ov_client.server_profile_templates
@@ -92,7 +106,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase, ModuleContructorTestCas
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=TEMPLATE_CREATED,
+            msg=SRV_PROFILE_TEMPLATE_CREATED,
             ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE)
         )
 
@@ -106,7 +120,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase, ModuleContructorTestCas
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=TEMPLATE_ALREADY_EXIST,
+            msg=SRV_PROFILE_TEMPLATE_ALREADY_EXIST,
             ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE)
         )
 
@@ -127,8 +141,57 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase, ModuleContructorTestCas
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=TEMPLATE_UPDATED,
+            msg=SRV_PROFILE_TEMPLATE_UPDATED,
             ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE)
+        )
+
+    def test_update_using_names_for_dependecies(self):
+        self.resource.get_by_name.return_value = CREATED_BASIC_TEMPLATE
+        self.resource.update.return_value = CREATED_BASIC_TEMPLATE
+        self.mock_ov_client.enclosure_groups.get_by.return_value = [{'uri': ENCLOSURE_GROUP_URI}]
+        self.mock_ov_client.server_hardware_types.get_by.return_value = [{'uri': SHT_URI}]
+
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_UPDATE_WITH_NAME)
+
+        ServerProfileTemplateModule().run()
+
+        expected = CREATED_BASIC_TEMPLATE.copy()
+        expected.update(BASIC_TEMPLATE_MODIFIED)
+
+        self.resource.update.assert_called_once_with(resource=expected, id_or_uri=expected["uri"])
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=SRV_PROFILE_TEMPLATE_UPDATED,
+            ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE)
+        )
+
+    def test_should_fail_when_server_hardware_type_not_found(self):
+        self.resource.get_by_name.return_value = CREATED_BASIC_TEMPLATE
+        self.resource.update.return_value = CREATED_BASIC_TEMPLATE
+        self.mock_ov_client.enclosure_groups.get_by.return_value = [{'uri': ENCLOSURE_GROUP_URI}]
+        self.mock_ov_client.server_hardware_types.get_by.return_value = []
+
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_UPDATE_WITH_NAME)
+
+        ServerProfileTemplateModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=SRV_PROFILE_TEMPLATE_SRV_HW_TYPE_NOT_FOUND + 'Srv HW Type Name'
+        )
+
+    def test_should_fail_when_enclosure_group_not_found(self):
+        self.resource.get_by_name.return_value = CREATED_BASIC_TEMPLATE
+        self.resource.update.return_value = CREATED_BASIC_TEMPLATE
+        self.mock_ov_client.enclosure_groups.get_by.return_value = []
+        self.mock_ov_client.server_hardware_types.get_by.return_value = [{'uri': SHT_URI}]
+
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_UPDATE_WITH_NAME)
+
+        ServerProfileTemplateModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=SRV_PROFILE_TEMPLATE_ENCLOSURE_GROUP_NOT_FOUND + 'EG Name'
         )
 
     def test_should_delete_when_template_exists(self):
@@ -142,7 +205,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase, ModuleContructorTestCas
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=TEMPLATE_DELETED
+            msg=SRV_PROFILE_TEMPLATE_DELETED
         )
 
     def test_should_do_nothing_when_templates_not_exists(self):
@@ -154,7 +217,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase, ModuleContructorTestCas
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=TEMPLATE_ALREADY_ABSENT
+            msg=SRV_PROFILE_TEMPLATE_ALREADY_ABSENT
         )
 
     def test_should_fail_when_oneview_client_raises_exception(self):

@@ -6842,7 +6842,7 @@ Manage OneView Server Profile Template resources.
 #### Examples
 
 ```yaml
-- name: Create a basic connection-less server profile template
+- name: Create a basic connection-less server profile template (using URIs)
   oneview_server_profile_template:
     config: "{{ config }}"
     state: present
@@ -6851,6 +6851,16 @@ Manage OneView Server Profile Template resources.
       serverHardwareTypeUri: "/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B"
       enclosureGroupUri: "/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89"
     delegate_to: localhost
+
+- name: Create a basic connection-less server profile template (using names)
+  oneview_server_profile_template:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: "ProfileTemplate102"
+      serverHardwareTypeName: "BL460c Gen8 1"
+      enclosureGroupName: "EGSAS_3"
+  delegate_to: localhost
 
 - name: Delete the Server Profile Template
   oneview_server_profile_template:
