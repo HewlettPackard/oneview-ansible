@@ -87,6 +87,7 @@ MAKE_COMPLIANT_NOT_SUPPORTED = "Update from template is not supported for server
 SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND = 'OS Deployment Plan not found: '
 SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND = 'Enclosure Group not found: '
 SERVER_PROFILE_NETWORK_NOT_FOUND = 'Network not found: '
+SERVER_HARDWARE_TYPE_NOT_FOUND = 'Server Hardware Type not found: '
 
 CONCURRENCY_FAILOVER_RETRIES = 25
 
@@ -157,6 +158,10 @@ EXAMPLES = '''
         # get one available automatically
         # server_hardware: "Encl1, bay 12"
         # serverHardwareUri: "/rest/server-hardware/30303437-3933-4753-4831-30335835524E"
+
+        # You can choose either serverHardwareTypeUri or serverHardwareTypeName to inform the Server Hardware Type
+        # serverHardwareTypeUri: '/rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C'
+        # serverHardwareTypeName: 'SY 480 Gen9 1'
 
 - debug: var=server_profile
 - debug: var=serial_number
@@ -563,6 +568,7 @@ class ServerProfileModule(object):
         self.__replace_os_deployment_name_by_uri(data)
         self.__replace_enclosure_group_name_by_uri(data)
         self.__replace_networks_name_by_uri(data)
+        self.__replace_server_hardware_type_name_by_uri(data)
 
     def __replace_os_deployment_name_by_uri(self, data):
         if KEY_OS_DEPLOYMENT in data and data[KEY_OS_DEPLOYMENT]:
@@ -581,6 +587,14 @@ class ServerProfileModule(object):
                 if 'networkName' in connection:
                     name = connection.pop('networkName', None)
                     connection['networkUri'] = self.__get_network_by_name(name)['uri']
+
+    def __replace_server_hardware_type_name_by_uri(self, data):
+        if 'serverHardwareTypeName' in data:
+            name = data.pop('serverHardwareTypeName')
+            sh_types = self.oneview_client.server_hardware_types.get_by('name', name)
+            if not sh_types:
+                raise HPOneViewResourceNotFound(SERVER_HARDWARE_TYPE_NOT_FOUND + name)
+            data['serverHardwareTypeUri'] = sh_types[0]['uri']
 
     def __get_os_deployment_by_name(self, name):
         os_deployment = self.oneview_client.os_deployment_plans.get_by_name(name)

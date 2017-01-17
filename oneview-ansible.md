@@ -6634,6 +6634,10 @@ Manage OneView Server Profile resources.
         # server_hardware: "Encl1, bay 12"
         # serverHardwareUri: "/rest/server-hardware/30303437-3933-4753-4831-30335835524E"
 
+        # You can choose either serverHardwareTypeUri or serverHardwareTypeName to inform the Server Hardware Type
+        # serverHardwareTypeUri: '/rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C'
+        # serverHardwareTypeName: 'SY 480 Gen9 1'
+
 - debug: var=server_profile
 - debug: var=serial_number
 - debug: var=server_hardware

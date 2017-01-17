@@ -32,7 +32,7 @@ from oneview_server_profile import MAKE_COMPLIANT_NOT_SUPPORTED, SERVER_PROFILE_
     KEY_LOCAL_STORAGE, KEY_SAS_LOGICAL_JBODS, KEY_CONTROLLERS, KEY_LOGICAL_DRIVES, KEY_SAS_LOGICAL_JBOD_URI, \
     KEY_MAC_TYPE, KEY_MAC, KEY_SERIAL_NUMBER_TYPE, KEY_SERIAL_NUMBER, KEY_UUID, KEY_WWPN_TYPE, KEY_LUN, KEY_WWNN, \
     KEY_WWPN, KEY_DRIVE_NUMBER, SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND, SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND, \
-    SERVER_PROFILE_NETWORK_NOT_FOUND
+    SERVER_PROFILE_NETWORK_NOT_FOUND, SERVER_HARDWARE_TYPE_NOT_FOUND
 
 SERVER_PROFILE_NAME = "Profile101"
 SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
@@ -672,6 +672,36 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         expected_error = SERVER_PROFILE_NETWORK_NOT_FOUND + "FC Network"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_server_hardware_type_name_by_uri(self):
+        sht_uri = "/rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C"
+        sht = {"name": "SY 480 Gen9 1", "uri": sht_uri}
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['serverHardwareTypeName'] = "SY 480 Gen9 1"
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_hardware_types.get_by.return_value = [sht]
+
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0].get('serverHardwareTypeUri'), sht_uri)
+        self.assertEqual(args[0].get('serverHardwareTypeName'), None)
+
+    def test_should_fail_when_server_hardware_type_name_not_found(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['serverHardwareTypeName'] = "SY 480 Gen9 1"
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_hardware_types.get_by.return_value = []
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        expected_error = SERVER_HARDWARE_TYPE_NOT_FOUND + "SY 480 Gen9 1"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_remove_mac_from_connections_before_create_when_mac_is_virtual(self):
@@ -1529,7 +1559,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         path_1_changed = deepcopy(PATH_1)
         path_1_changed['newField'] = "123"
         expected_paths = [deepcopy(path_1_changed),  # connectionId = 1, with field added
-                          deepcopy(PATH_2)]          # connectionId = 2
+                          deepcopy(PATH_2)]  # connectionId = 2
         self.assertEqual(expected_paths, merged_volumes[0][KEY_PATHS])
         self.assertEqual([], merged_volumes[1][KEY_PATHS])
 
