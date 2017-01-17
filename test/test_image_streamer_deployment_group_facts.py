@@ -18,23 +18,31 @@ import unittest
 import yaml
 
 from image_streamer_deployment_group_facts import DeploymentGroupFactsModule, EXAMPLES
-from utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase
+from test.utils import FactsParamsTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
-class DeploymentGroupFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class DeploymentGroupFactsSpec(unittest.TestCase,
+                               ModuleContructorTestCase,
+                               FactsParamsTestCase,
+                               ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
     mocks used in this test class.
 
     FactsParamsTestCase has common tests for the parameters support.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
     def setUp(self):
         self.configure_mocks(self, DeploymentGroupFactsModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
 
         FactsParamsTestCase.configure_client_mock(self, self.i3s.deployment_groups)
+        ErrorHandlingTestCase.configure_client_mock(self, self.i3s.deployment_groups)
 
         # Load scenarios from module examples
         self.DEPLOYMENT_GROUP_FACTS_EXAMPLES = yaml.load(EXAMPLES)
@@ -67,14 +75,6 @@ class DeploymentGroupFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fact
             changed=False,
             ansible_facts=dict(deployment_groups=[self.DEPLOYMENT_GROUP])
         )
-
-    def test_should_fail_when_get_all_raises_an_exception(self):
-        self.i3s.deployment_groups.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = self.TASK_GET_ALL
-
-        DeploymentGroupFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':
