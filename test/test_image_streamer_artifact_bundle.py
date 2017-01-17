@@ -23,17 +23,28 @@ from image_streamer_artifact_bundle import ArtifactBundleModule, EXAMPLES, ARTIF
     ARTIFACT_BUNDLE_DOWNLOADED, ARTIFACT_BUNDLE_UPLOADED, BACKUP_UPLOADED, ARCHIVE_DOWNLOADED, BACKUP_CREATED, \
     ARTIFACT_BUNDLE_EXTRACTED, BACKUP_EXTRACTED
 
-from test.utils import ModuleContructorTestCase, PreloadedMocksBaseTestCase
+from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 
 ERROR_MSG = 'Fake message error'
 
 
-class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedMocksBaseTestCase):
+class ArtifactBundleSpec(unittest.TestCase,
+                         ModuleContructorTestCase,
+                         ErrorHandlingTestCase):
+    """
+    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
+    mocks used in this test class.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
+    """
 
     def setUp(self):
         self.configure_mocks(self, ArtifactBundleModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
+
+        ErrorHandlingTestCase.configure_client_mock(self, self.i3s.artifact_bundles)
 
         self.ARTIFACT_BUNDLE_EXAMPLES = yaml.load(EXAMPLES)
 
@@ -312,30 +323,6 @@ class ArtifactBundleSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedM
             changed=False,
             msg=ARTIFACT_BUNDLE_ABSENT,
             ansible_facts={}
-        )
-
-    def test_should_fail_when_create_raises_exception(self):
-        self.i3s.artifact_bundles.get_by.return_value = []
-        self.i3s.artifact_bundles.create.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = self.TASK_CREATE
-
-        ArtifactBundleModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ERROR_MSG
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.i3s.artifact_bundles.get_by.return_value = [self.TASK_CREATE]
-        self.i3s.artifact_bundles.delete.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = self.TASK_REMOVE
-
-        ArtifactBundleModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ERROR_MSG
         )
 
 
