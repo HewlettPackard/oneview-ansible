@@ -42,6 +42,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Volume name.
@@ -66,6 +75,16 @@ EXAMPLES = '''
 
 - debug: var=storage_volumes
 
+- name: Gather paginated, filtered and sorted facts about Volumes
+  oneview_volume_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 2
+      sort: 'name:descending'
+      filter: "provisionType='Thin'"
+
+- debug: var=storage_volumes
 
 - name: "Gather facts about all Volumes, the attachable volumes managed by the appliance and the extra managed
          storage volume paths"
@@ -126,7 +145,8 @@ class VolumeFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list')
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -174,7 +194,8 @@ class VolumeFactsModule(object):
 
     def __gather_facts_about_all_volumes(self):
         facts = {}
-        facts['storage_volumes'] = self.oneview_client.volumes.get_all()
+        params = self.module.params.get('params') or {}
+        facts['storage_volumes'] = self.oneview_client.volumes.get_all(**params)
         return facts
 
     def __gather_facts_about_one_volume(self, options):

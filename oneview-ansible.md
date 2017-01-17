@@ -8314,6 +8314,7 @@ Retrieve facts about the OneView Volumes.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Volume name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Volume and related resources. Options allowed: attachableVolumes, extraManagedVolumePaths, and snapshots. For the option snapshots, you may provide a name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -8326,6 +8327,16 @@ Retrieve facts about the OneView Volumes.
 
 - debug: var=storage_volumes
 
+- name: Gather paginated, filtered and sorted facts about Volumes
+  oneview_volume_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 2
+      sort: 'name:descending'
+      filter: "provisionType='Thin'"
+
+- debug: var=storage_volumes
 
 - name: "Gather facts about all Volumes, the attachable volumes managed by the appliance and the extra managed
          storage volume paths"
