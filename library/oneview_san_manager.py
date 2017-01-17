@@ -161,7 +161,7 @@ class SanManagerModule(object):
         if not resource:
             self.__add(provider_uri, data)
         else:
-            self.__update(provider_uri, resource, data)
+            self.__update(resource, data)
 
     def __add(self, provider_uri, data):
         san_manager = self.oneview_client.san_managers.add(data, provider_uri)
@@ -170,7 +170,7 @@ class SanManagerModule(object):
                               msg=SAN_MANAGER_CREATED,
                               ansible_facts=dict(san_manager=san_manager))
 
-    def __update(self, provider_uri, resource, data):
+    def __update(self, resource, data):
         merged_data = resource.copy()
         merged_data.update(data)
 

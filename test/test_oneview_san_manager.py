@@ -118,7 +118,7 @@ class SanManagerPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, Va
 
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
 
-        self.assertRaises(Exception, SanManagerModule().run())
+        SanManagerModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
@@ -130,7 +130,7 @@ class SanManagerPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, Va
 
         self.mock_ansible_module.params = self.PARAMS_WITH_CHANGES
 
-        self.assertRaises(Exception, SanManagerModule().run())
+        SanManagerModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=FAKE_MSG_ERROR
