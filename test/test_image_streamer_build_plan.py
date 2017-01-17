@@ -19,19 +19,25 @@ import yaml
 from image_streamer_build_plan import BuildPlanModule, EXAMPLES, BUILD_PLAN_CREATED, BUILD_PLAN_UPDATED, \
     BUILD_PLAN_ALREADY_UPDATED, BUILD_PLAN_DELETED, BUILD_PLAN_ALREADY_ABSENT
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
-class BuildPlanSpec(unittest.TestCase, ModuleContructorTestCase):
+class BuildPlanSpec(unittest.TestCase,
+                    ModuleContructorTestCase,
+                    ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, BuildPlanModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
+        ErrorHandlingTestCase.configure_client_mock(self, self.i3s.build_plans)
 
         # Load scenarios from module examples
         self.BUILD_PLAN_EXAMPLES = yaml.load(EXAMPLES)
@@ -111,30 +117,6 @@ class BuildPlanSpec(unittest.TestCase, ModuleContructorTestCase):
             ansible_facts={},
             changed=False,
             msg=BUILD_PLAN_ALREADY_ABSENT
-        )
-
-    def test_should_fail_when_create_raises_exception(self):
-        self.i3s.build_plans.get_by.return_value = []
-        self.i3s.build_plans.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.BUILD_PLAN_CREATE
-
-        BuildPlanModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.i3s.build_plans.get_by.return_value = [self.BUILD_PLAN_CREATE]
-        self.i3s.build_plans.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.BUILD_PLAN_DELETE
-
-        BuildPlanModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
