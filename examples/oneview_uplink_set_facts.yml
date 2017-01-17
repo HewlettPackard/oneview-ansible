@@ -25,6 +25,17 @@
 
     - debug: msg="{{uplink_sets | map(attribute='name') | list }}"
 
+    - name: Gather paginated, filtered and sorted facts about Uplink Sets
+      oneview_uplink_set_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 2
+          sort: 'name:descending'
+          filter: "logicalInterconnectUri='/rest/logical-interconnects/4a49ca0d-3782-4c11-b93e-79d8f90c5487'"
+
+    - debug: var=uplink_sets
+
     - name: Gather facts about a Uplink Set by name
       oneview_uplink_set_facts:
         config: "{{ config }}"
