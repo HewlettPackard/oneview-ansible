@@ -26,6 +26,17 @@
 
     - debug: msg="{{unmanaged_devices | map(attribute='name') | list }}"
 
+    - name: Gather paginated, filtered and sorted facts about Unmanaged Devices
+      oneview_unmanaged_device_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 2
+          sort: 'name:descending'
+          filter: "status='Disabled'"
+
+    - debug: var=unmanaged_devices
+
     - name: Gather facts about an Unmanaged Device by name
       oneview_unmanaged_device_facts:
         config: "{{ config }}"

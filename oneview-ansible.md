@@ -7957,6 +7957,7 @@ Retrieve facts about one or more of the OneView Unmanaged Device.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Unmanaged Device name.  |
 | options  |   |  | |  List with options to gather additional facts about the Unmanaged Device. Options allowed: 'environmental_configuration' gets a description of the environmental configuration for the Unmnaged Device.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
  
@@ -7966,6 +7967,17 @@ Retrieve facts about one or more of the OneView Unmanaged Device.
 - name: Gather facts about all Unmanaged Devices
   oneview_unmanaged_device_facts:
     config: "{{ config }}"
+
+- debug: var=unmanaged_devices
+
+- name: Gather paginated, filtered and sorted facts about Unmanaged Devices
+  oneview_unmanaged_device_facts:
+  config: "{{ config }}"
+  params:
+    start: 0
+    count: 2
+    sort: 'name:descending'
+    filter: "status='Disabled'"
 
 - debug: var=unmanaged_devices
 

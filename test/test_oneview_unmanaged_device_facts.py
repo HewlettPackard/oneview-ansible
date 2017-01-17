@@ -15,11 +15,9 @@
 ###
 
 import unittest
-import mock
 
-from utils import create_ansible_mock
-from hpOneView.oneview_client import OneViewClient
 from oneview_unmanaged_device_facts import UnmanagedDeviceFactsModule
+from utils import ModuleContructorTestCase, FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -65,133 +63,72 @@ ENVIRONMENTAL_CONFIGURATION = dict(
 )
 
 
-class UnmanagedDeviceFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_unmanaged_device_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class UnmanagedDeviceFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+    def setUp(self):
+        self.configure_mocks(self, UnmanagedDeviceFactsModule)
+        self.resource = self.mock_ov_client.unmanaged_devices
+        FactsParamsTestCase.configure_client_mock(self, self.resource)
 
-        UnmanagedDeviceFactsModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_unmanaged_device_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        UnmanagedDeviceFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class UnmanagedDeviceFactsSpec(unittest.TestCase):
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_unmanaged_device_facts.AnsibleModule')
-    def test_get_all(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_from_file.return_value = mock_ov_instance
-
+    def test_get_all(self):
         unmanaged_devices = [UNMANAGED_DEVICE]
-        mock_ov_instance.unmanaged_devices.get_all.return_value = unmanaged_devices
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.resource.get_all.return_value = unmanaged_devices
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         UnmanagedDeviceFactsModule().run()
 
-        mock_ov_instance.unmanaged_devices.get_all.assert_called_once()
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.resource.get_all.assert_called_once()
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             ansible_facts=dict(unmanaged_devices=unmanaged_devices)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_unmanaged_device_facts.AnsibleModule')
-    def test_get_by(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_from_file.return_value = mock_ov_instance
-
+    def test_get_by(self):
         unmanaged_devices = [UNMANAGED_DEVICE]
-        mock_ov_instance.unmanaged_devices.get_by.return_value = unmanaged_devices
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.resource.get_by.return_value = unmanaged_devices
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         UnmanagedDeviceFactsModule().run()
 
-        mock_ov_instance.unmanaged_devices.get_by.assert_called_once_with('name', UNMANAGED_DEVICE_NAME)
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.resource.get_by.assert_called_once_with('name', UNMANAGED_DEVICE_NAME)
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             ansible_facts=dict(unmanaged_devices=unmanaged_devices)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_unmanaged_device_facts.AnsibleModule')
-    def test_get_by_with_options(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_from_file.return_value = mock_ov_instance
-
+    def test_get_by_with_options(self):
         unmanaged_devices = [UNMANAGED_DEVICE]
-        mock_ov_instance.unmanaged_devices.get_by.return_value = unmanaged_devices
-        mock_ov_instance.unmanaged_devices.get_environmental_configuration.return_value = ENVIRONMENTAL_CONFIGURATION
+        self.resource.get_by.return_value = unmanaged_devices
+        self.resource.get_environmental_configuration.return_value = ENVIRONMENTAL_CONFIGURATION
 
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME_WITH_OPTIONS)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         UnmanagedDeviceFactsModule().run()
 
-        mock_ov_instance.unmanaged_devices.get_by.assert_called_once_with('name', UNMANAGED_DEVICE_NAME)
-        mock_ov_instance.unmanaged_devices.get_environmental_configuration.assert_called_once_with(
+        self.resource.get_by.assert_called_once_with('name', UNMANAGED_DEVICE_NAME)
+        self.resource.get_environmental_configuration.assert_called_once_with(
             id_or_uri=UNMANAGED_DEVICE_URI
         )
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             ansible_facts=dict(
                 unmanaged_devices=unmanaged_devices,
                 unmanaged_device_environmental_configuration=ENVIRONMENTAL_CONFIGURATION
             )
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_unmanaged_device_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_exception(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ov_instance.unmanaged_devices.get_all.side_effect = Exception(ERROR_MSG)
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_all_raises_exception(self):
+        self.resource.get_all.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         UnmanagedDeviceFactsModule().run()
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_unmanaged_device_facts.AnsibleModule')
-    def test_should_fail_when_get_by_raises_exception(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_from_file.return_value = mock_ov_instance
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
-        mock_ov_instance.unmanaged_devices.get_by.side_effect = Exception(ERROR_MSG)
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_get_by_raises_exception(self):
+        self.resource.get_by.side_effect = Exception(ERROR_MSG)
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         UnmanagedDeviceFactsModule().run()
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=ERROR_MSG)
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':

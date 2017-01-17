@@ -41,6 +41,15 @@ options:
           The configuration file is optional. If the file path is not provided, the configuration will be loaded from
           environment variables.
       required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          'start': The first item to return, using 0-based indexing.
+          'count': The number of resources to return.
+          'filter': A general filter/query string to narrow the list of items returned.
+          'sort': The sort order of the returned data set."
+      required: false
     name:
       description:
         - Unmanaged Device name.
@@ -61,6 +70,17 @@ EXAMPLES = '''
 - name: Gather facts about all Unmanaged Devices
   oneview_unmanaged_device_facts:
     config: "{{ config }}"
+
+- debug: var=unmanaged_devices
+
+- name: Gather paginated, filtered and sorted facts about Unmanaged Devices
+  oneview_unmanaged_device_facts:
+  config: "{{ config }}"
+  params:
+    start: 0
+    count: 2
+    sort: 'name:descending'
+    filter: "status='Disabled'"
 
 - debug: var=unmanaged_devices
 
@@ -100,7 +120,8 @@ class UnmanagedDeviceFactsModule(object):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
-        options=dict(required=False, type="list")
+        options=dict(required=False, type="list"),
+        params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
@@ -127,7 +148,8 @@ class UnmanagedDeviceFactsModule(object):
                 if environmental_configuration is not None:
                     facts["unmanaged_device_environmental_configuration"] = environmental_configuration
             else:
-                unmanaged_devices = self.resource_client.get_all()
+                params = self.module.params.get('params') or {}
+                unmanaged_devices = self.resource_client.get_all(**params)
 
             facts["unmanaged_devices"] = unmanaged_devices
             self.module.exit_json(ansible_facts=facts)
