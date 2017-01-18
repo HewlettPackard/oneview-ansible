@@ -88,6 +88,7 @@ SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND = 'OS Deployment Plan not found: '
 SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND = 'Enclosure Group not found: '
 SERVER_PROFILE_NETWORK_NOT_FOUND = 'Network not found: '
 SERVER_HARDWARE_TYPE_NOT_FOUND = 'Server Hardware Type not found: '
+VOLUME_NOT_FOUND = 'Volume not found: '
 
 CONCURRENCY_FAILOVER_RETRIES = 25
 
@@ -162,7 +163,22 @@ EXAMPLES = '''
         # You can choose either serverHardwareTypeUri or serverHardwareTypeName to inform the Server Hardware Type
         # serverHardwareTypeUri: '/rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C'
         # serverHardwareTypeName: 'SY 480 Gen9 1'
-
+        sanStorage:
+          hostOSType: 'Windows 2012 / WS2012 R2'
+          manageSanStorage: true
+          volumeAttachments:
+            - id: 1
+              # You can choose either volumeName or volumeUri to inform the Volumes
+              # volumeName: 'DemoVolume001'
+              volumeUri: '/rest/storage-volumes/BCAB376E-DA2E-450D-B053-0A9AE7E5114C'
+              lunType: 'Auto'
+              storagePaths:
+                - isEnabled: true
+                  connectionId: 1
+                  storageTargetType: 'Auto'
+                - isEnabled: true
+                  connectionId: 2
+                  storageTargetType: 'Auto'
 - debug: var=server_profile
 - debug: var=serial_number
 - debug: var=server_hardware
@@ -569,6 +585,7 @@ class ServerProfileModule(object):
         self.__replace_enclosure_group_name_by_uri(data)
         self.__replace_networks_name_by_uri(data)
         self.__replace_server_hardware_type_name_by_uri(data)
+        self.__replace_volume_name_by_uri(data)
 
     def __replace_os_deployment_name_by_uri(self, data):
         if KEY_OS_DEPLOYMENT in data and data[KEY_OS_DEPLOYMENT]:
@@ -595,6 +612,17 @@ class ServerProfileModule(object):
             if not sh_types:
                 raise HPOneViewResourceNotFound(SERVER_HARDWARE_TYPE_NOT_FOUND + name)
             data['serverHardwareTypeUri'] = sh_types[0]['uri']
+
+    def __replace_volume_name_by_uri(self, data):
+        volume_attachments = (data.get('sanStorage') or {}).get('volumeAttachments') or []
+        if len(volume_attachments) > 0:
+            for volume in volume_attachments:
+                if 'volumeName' in volume:
+                    name = volume.pop('volumeName')
+                    volume_by_name = self.oneview_client.volumes.get_by('name', name)
+                    if not volume_by_name:
+                        raise HPOneViewResourceNotFound(VOLUME_NOT_FOUND + name)
+                    volume['volumeUri'] = volume_by_name[0]['uri']
 
     def __get_os_deployment_by_name(self, name):
         os_deployment = self.oneview_client.os_deployment_plans.get_by_name(name)

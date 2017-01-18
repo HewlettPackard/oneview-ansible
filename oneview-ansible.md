@@ -6637,7 +6637,22 @@ Manage OneView Server Profile resources.
         # You can choose either serverHardwareTypeUri or serverHardwareTypeName to inform the Server Hardware Type
         # serverHardwareTypeUri: '/rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C'
         # serverHardwareTypeName: 'SY 480 Gen9 1'
-
+        sanStorage:
+          hostOSType: 'Windows 2012 / WS2012 R2'
+          manageSanStorage: true
+          volumeAttachments:
+            - id: 1
+              # You can choose either volumeName or volumeUri to inform the Volumes
+              # volumeName: 'DemoVolume001'
+              volumeUri: '/rest/storage-volumes/BCAB376E-DA2E-450D-B053-0A9AE7E5114C'
+              lunType: 'Auto'
+              storagePaths:
+                - isEnabled: true
+                  connectionId: 1
+                  storageTargetType: 'Auto'
+                - isEnabled: true
+                  connectionId: 2
+                  storageTargetType: 'Auto'
 - debug: var=server_profile
 - debug: var=serial_number
 - debug: var=server_hardware

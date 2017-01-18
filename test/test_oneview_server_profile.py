@@ -32,7 +32,7 @@ from oneview_server_profile import MAKE_COMPLIANT_NOT_SUPPORTED, SERVER_PROFILE_
     KEY_LOCAL_STORAGE, KEY_SAS_LOGICAL_JBODS, KEY_CONTROLLERS, KEY_LOGICAL_DRIVES, KEY_SAS_LOGICAL_JBOD_URI, \
     KEY_MAC_TYPE, KEY_MAC, KEY_SERIAL_NUMBER_TYPE, KEY_SERIAL_NUMBER, KEY_UUID, KEY_WWPN_TYPE, KEY_LUN, KEY_WWNN, \
     KEY_WWPN, KEY_DRIVE_NUMBER, SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND, SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND, \
-    SERVER_PROFILE_NETWORK_NOT_FOUND, SERVER_HARDWARE_TYPE_NOT_FOUND
+    SERVER_PROFILE_NETWORK_NOT_FOUND, SERVER_HARDWARE_TYPE_NOT_FOUND, VOLUME_NOT_FOUND
 
 SERVER_PROFILE_NAME = "Profile101"
 SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
@@ -702,6 +702,95 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         expected_error = SERVER_HARDWARE_TYPE_NOT_FOUND + "SY 480 Gen9 1"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_volume_names_by_uri(self):
+        volume1 = {"name": "volume1", "uri": "/rest/storage-volumes/1"}
+        volume2 = {"name": "volume2", "uri": "/rest/storage-volumes/2"}
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": [
+                {"id": 1, "volumeName": "volume1"},
+                {"id": 2, "volumeName": "volume2"}
+            ]
+        }
+        expected_dict = deepcopy(params['data'])
+        expected_dict['sanStorage']['volumeAttachments'][0] = {"id": 1, "volumeUri": "/rest/storage-volumes/1"}
+        expected_dict['sanStorage']['volumeAttachments'][1] = {"id": 2, "volumeUri": "/rest/storage-volumes/2"}
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.volumes.get_by.side_effect = [[volume1], [volume2]]
+
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+
+    def test_should_not_replace_when_inform_volume_uri(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": [
+                {"id": 1, "uri": "/rest/storage-volumes/1"},
+                {"id": 2, "uri": "/rest/storage-volumes/2"}
+            ]
+        }
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.volumes.get_by.assert_not_called()
+
+    def test_should_not_replace_volume_name_when_volume_attachments_empty(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": []
+        }
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.volumes.get_by.assert_not_called()
+
+    def test_should_not_replace_volume_name_when_san_storage_is_none(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = None
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.volumes.get_by.assert_not_called()
+
+    def test_should_fail_when_volume_name_not_found(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": [
+                {"id": 1, "volumeName": "volume1"}
+            ]}
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.volumes.get_by.return_value = []
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        expected_error = VOLUME_NOT_FOUND + "volume1"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_remove_mac_from_connections_before_create_when_mac_is_virtual(self):
