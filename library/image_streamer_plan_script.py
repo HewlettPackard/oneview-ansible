@@ -20,6 +20,8 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -168,7 +170,7 @@ class PlanScriptModule(object):
                                   msg=msg,
                                   ansible_facts=ansible_facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data, resource):
@@ -204,7 +206,7 @@ class PlanScriptModule(object):
 
     def __retrieve_differences(self, data, resource):
         if 'content' not in data:
-            raise Exception(PLAN_SCRIPT_CONTENT_ATTRIBUTE_MANDATORY)
+            raise HPOneViewValueError(PLAN_SCRIPT_CONTENT_ATTRIBUTE_MANDATORY)
 
         differences = self.i3s_client.plan_scripts.retrieve_differences(resource['uri'], data['content'])
         return False, PLAN_SCRIPT_DIFFERENCES_RETRIEVED, dict(plan_script_differences=differences)

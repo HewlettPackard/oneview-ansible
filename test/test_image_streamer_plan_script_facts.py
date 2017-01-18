@@ -18,23 +18,31 @@ import unittest
 import yaml
 
 from image_streamer_plan_script_facts import PlanScriptFactsModule, EXAMPLES
-from utils import ModuleContructorTestCase, FactsParamsTestCase
+from utils import ModuleContructorTestCase
+from utils import FactsParamsTestCase
+from utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
-class PlanScriptFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class PlanScriptFactsSpec(unittest.TestCase,
+                          ModuleContructorTestCase,
+                          FactsParamsTestCase,
+                          ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
     mocks used in this test class.
 
     FactsParamsTestCase has common tests for the parameters support.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
     def setUp(self):
         self.configure_mocks(self, PlanScriptFactsModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
 
         FactsParamsTestCase.configure_client_mock(self, self.i3s.plan_scripts)
+        ErrorHandlingTestCase.configure_client_mock(self, self.i3s.plan_scripts)
 
         # Load scenarios from module examples
         self.PLAN_SCRIPT_FACTS_EXAMPLES = yaml.load(EXAMPLES)
@@ -67,14 +75,6 @@ class PlanScriptFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsPara
             changed=False,
             ansible_facts=dict(plan_scripts=[self.PLAN_SCRIPT])
         )
-
-    def test_should_fail_when_get_all_raises_an_exception(self):
-        self.i3s.plan_scripts.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = self.TASK_GET_ALL
-
-        PlanScriptFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':

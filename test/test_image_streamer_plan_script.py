@@ -19,20 +19,27 @@ import yaml
 from image_streamer_plan_script import PlanScriptModule, PLAN_SCRIPT_ALREADY_UPDATED, \
     PLAN_SCRIPT_ALREADY_ABSENT, PLAN_SCRIPT_CREATED, PLAN_SCRIPT_DELETED, EXAMPLES, \
     PLAN_SCRIPT_UPDATED, PLAN_SCRIPT_CONTENT_ATTRIBUTE_MANDATORY, PLAN_SCRIPT_DIFFERENCES_RETRIEVED
-from test.utils import ModuleContructorTestCase, PreloadedMocksBaseTestCase
+from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
-class PlanScriptSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedMocksBaseTestCase):
+class PlanScriptSpec(unittest.TestCase,
+                     ModuleContructorTestCase,
+                     ErrorHandlingTestCase):
     """
     Test the module constructor
-    ModuleContructorTestCase has common tests for class constructor and main function
-    """
 
+    ModuleContructorTestCase has common tests for class constructor and main function
+
+    ErrorHandlingTestCase has common tests for the module error handling.
+    """
     def setUp(self):
         self.configure_mocks(self, PlanScriptModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
+
+        ErrorHandlingTestCase.configure_client_mock(self, self.i3s.plan_scripts)
 
         # Load scenarios from module examples
         self.PLAN_SCRIPT_EXAMPLES = yaml.load(EXAMPLES)
@@ -131,18 +138,6 @@ class PlanScriptSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedMocks
             msg=PLAN_SCRIPT_ALREADY_ABSENT
         )
 
-    def test_should_fail_when_create_raises_exception(self):
-        self.i3s.plan_scripts.get_by.return_value = []
-        self.i3s.plan_scripts.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PLAN_SCRIPT_CREATE
-
-        PlanScriptModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     def test_should_fail_when_mandatory_attributes_are_missing(self):
         self.i3s.plan_scripts.get_by.return_value = []
 
@@ -154,18 +149,6 @@ class PlanScriptSpec(unittest.TestCase, ModuleContructorTestCase, PreloadedMocks
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=PLAN_SCRIPT_CONTENT_ATTRIBUTE_MANDATORY
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.i3s.plan_scripts.get_by.return_value = [self.PLAN_SCRIPT]
-        self.i3s.plan_scripts.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PLAN_SCRIPT_DELETE
-
-        PlanScriptModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
