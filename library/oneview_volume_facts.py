@@ -179,8 +179,6 @@ class VolumeFactsModule(object):
 
     def __gather_facts_from_appliance(self, options):
         facts = {}
-        extra_managed_volume_paths = None
-        attachable_volumes = None
 
         if options:
             if options.get('extraManagedVolumePaths'):

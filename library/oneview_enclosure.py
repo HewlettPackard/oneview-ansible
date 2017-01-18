@@ -393,7 +393,7 @@ class EnclosureModule(object):
             if state == 'present':
                 self.__present(resource, data)
             elif state == 'absent':
-                self.__absent(resource, data)
+                self.__absent(resource)
             else:
 
                 if not resource:
@@ -447,7 +447,7 @@ class EnclosureModule(object):
 
         self.__exit_status_present(resource, added=resource_added, updated=resource_updated)
 
-    def __absent(self, resource, data):
+    def __absent(self, resource):
         if resource:
             self.oneview_client.enclosures.remove(resource)
             self.module.exit_json(changed=True,
