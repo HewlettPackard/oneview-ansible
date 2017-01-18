@@ -20,19 +20,25 @@ from image_streamer_deployment_plan import DeploymentPlanModule, DEPLOYMENT_PLAN
     DEPLOYMENT_PLAN_ALREADY_ABSENT, DEPLOYMENT_PLAN_CREATED, DEPLOYMENT_PLAN_DELETED, EXAMPLES, \
     DEPLOYMENT_PLAN_UPDATED, I3S_BUILD_PLAN_WAS_NOT_FOUND
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
-class DeploymentPlanSpec(unittest.TestCase, ModuleContructorTestCase):
+class DeploymentPlanSpec(unittest.TestCase,
+                         ModuleContructorTestCase,
+                         ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
-    """
 
+    ErrorHandlingTestCase has common tests for the module error handling.
+    """
     def setUp(self):
         self.configure_mocks(self, DeploymentPlanModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
+
+        ErrorHandlingTestCase.configure_client_mock(self, self.i3s.deployment_plans)
 
         # Load scenarios from module examples
         self.DEPLOYMENT_PLAN_EXAMPLES = yaml.load(EXAMPLES)
@@ -115,30 +121,6 @@ class DeploymentPlanSpec(unittest.TestCase, ModuleContructorTestCase):
             ansible_facts={},
             changed=False,
             msg=DEPLOYMENT_PLAN_ALREADY_ABSENT
-        )
-
-    def test_should_fail_when_create_raises_exception(self):
-        self.i3s.deployment_plans.get_by.return_value = []
-        self.i3s.deployment_plans.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.DEPLOYMENT_PLAN_CREATE
-
-        DeploymentPlanModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.i3s.deployment_plans.get_by.return_value = [self.DEPLOYMENT_PLAN]
-        self.i3s.deployment_plans.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.DEPLOYMENT_PLAN_DELETE
-
-        DeploymentPlanModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
     def test_should_fail_when_build_plan_not_found(self):

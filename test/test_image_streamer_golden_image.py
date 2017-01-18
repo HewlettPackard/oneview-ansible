@@ -21,19 +21,26 @@ from image_streamer_golden_image import GoldenImageModule, GOLDEN_IMAGE_ALREADY_
     GOLDEN_IMAGE_UPDATED, I3S_CANT_CREATE_AND_UPLOAD, I3S_MISSING_MANDATORY_ATTRIBUTES, I3S_OS_VOLUME_WAS_NOT_FOUND, \
     GOLDEN_IMAGE_DOWNLOADED, GOLDEN_IMAGE_ARCHIVE_DOWNLOADED, GOLDEN_IMAGE_WAS_NOT_FOUND
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
-class GoldenImageSpec(unittest.TestCase, ModuleContructorTestCase):
+class GoldenImageSpec(unittest.TestCase,
+                      ModuleContructorTestCase,
+                      ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, GoldenImageModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
+
+        ErrorHandlingTestCase.configure_client_mock(self, self.i3s.golden_images)
 
         # Load scenarios from module examples
         self.GOLDEN_IMAGE_EXAMPLES = yaml.load(EXAMPLES)
@@ -196,18 +203,6 @@ class GoldenImageSpec(unittest.TestCase, ModuleContructorTestCase):
             msg=GOLDEN_IMAGE_ALREADY_ABSENT
         )
 
-    def test_should_fail_when_create_raises_exception(self):
-        self.i3s.golden_images.get_by.return_value = []
-        self.i3s.golden_images.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.GOLDEN_IMAGE_CREATE
-
-        GoldenImageModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     def test_should_fail_when_present_is_incosistent(self):
         self.i3s.golden_images.get_by.return_value = []
         self.i3s.os_volumes.get_by_name.return_value = {'uri': '/rest/os-volumes/1'}
@@ -258,18 +253,6 @@ class GoldenImageSpec(unittest.TestCase, ModuleContructorTestCase):
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=I3S_BUILD_PLAN_WAS_NOT_FOUND
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.i3s.golden_images.get_by.return_value = [self.GOLDEN_IMAGE_CREATE]
-        self.i3s.golden_images.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.GOLDEN_IMAGE_DELETE
-
-        GoldenImageModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 

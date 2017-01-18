@@ -18,21 +18,29 @@ import unittest
 import yaml
 
 from image_streamer_os_volume_facts import OsVolumeFactsModule, EXAMPLES
-from utils import ModuleContructorTestCase, FactsParamsTestCase
+from utils import ModuleContructorTestCase
+from utils import FactsParamsTestCase
+from utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
-class OsVolumeFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class OsVolumeFactsSpec(unittest.TestCase,
+                        ModuleContructorTestCase,
+                        FactsParamsTestCase,
+                        ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
     mocks used in this test class.
 
     FactsParamsTestCase has common tests for the parameters support.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
     def setUp(self):
         self.configure_mocks(self, OsVolumeFactsModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
+        ErrorHandlingTestCase.configure_client_mock(self, self.i3s.golden_images)
 
         FactsParamsTestCase.configure_client_mock(self, self.i3s.os_volumes)
 
@@ -67,22 +75,6 @@ class OsVolumeFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParams
             changed=False,
             ansible_facts=dict(os_volumes=[self.OS_VOLUME])
         )
-
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.i3s.os_volumes.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = self.PLAY_GET_ALL
-
-        OsVolumeFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
-
-    def test_should_fail_when_get_by_raises_exception(self):
-        self.i3s.os_volumes.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = self.PLAY_GET_BY_NAME
-
-        OsVolumeFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':

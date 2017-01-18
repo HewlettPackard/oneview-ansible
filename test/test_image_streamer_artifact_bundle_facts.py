@@ -18,7 +18,9 @@ import unittest
 import yaml
 
 from image_streamer_artifact_bundle_facts import ArtifactBundleFactsModule, EXAMPLES
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase
+from test.utils import FactsParamsTestCase
+from test.utils import ErrorHandlingTestCase
 
 
 ERROR_MSG = 'Fake message error'
@@ -26,18 +28,22 @@ ERROR_MSG = 'Fake message error'
 
 class ArtifactBundleFactsSpec(unittest.TestCase,
                               ModuleContructorTestCase,
-                              FactsParamsTestCase):
+                              FactsParamsTestCase,
+                              ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
     mocks used in this test class.
 
     FactsParamsTestCase has common tests for the parameters support.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
     def setUp(self):
         self.configure_mocks(self, ArtifactBundleFactsModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
 
         FactsParamsTestCase.configure_client_mock(self, self.i3s.artifact_bundles)
+        ErrorHandlingTestCase.configure_client_mock(self, self.i3s.artifact_bundles)
 
         self.ARTIFACT_BUNDLE_EXAMPLES = yaml.load(EXAMPLES)
 
@@ -98,38 +104,6 @@ class ArtifactBundleFactsSpec(unittest.TestCase,
             ansible_facts=dict(artifact_bundles=[self.ARTIFACT_BUNDLE],
                                backup_for_artifact_bundle=[self.ARTIFACT_BUNDLE])
         )
-
-    def test_should_fail_when_get_all_raises_an_exception(self):
-        self.i3s.artifact_bundles.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = self.TASK_GET_ALL
-
-        ArtifactBundleFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
-
-    def test_should_fail_when_get_by_name_raises_an_exception(self):
-        self.i3s.artifact_bundles.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = self.TASK_GET_BY_NAME
-
-        ArtifactBundleFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
-
-    def test_should_fail_when_get_all_backups_raises_an_exception(self):
-        self.i3s.artifact_bundles.get_all_backups.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = self.TASK_GET_ALL_BACKUPS
-
-        ArtifactBundleFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
-
-    def test_should_fail_when_get_backup_for_an_artifact_bundle_raises_an_exception(self):
-        self.i3s.artifact_bundles.get_backup.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = self.TASK_GET_BACKUP
-
-        ArtifactBundleFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':
