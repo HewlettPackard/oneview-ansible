@@ -20,7 +20,7 @@ import os.path
 
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import resource_compare
+    from hpOneView.extras.comparators import resource_compare
     from hpOneView.exceptions import HPOneViewException
 
     HAS_HPE_ONEVIEW = True
@@ -35,7 +35,7 @@ description:
     - "Provides an interface to manage the Artifact Bundle. Can create, update, remove, and download, upload, extract"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.1"
+    - "hpOneView >= 3.1.0"
 author:
     - "Abilio Parada (@abiliogp)"
 options:

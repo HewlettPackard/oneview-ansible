@@ -21,7 +21,8 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import resource_compare, merge_list_by_key
+    from hpOneView.extras.comparators import resource_compare
+    from hpOneView.extras.mergers import merge_list_by_key
     from hpOneView.exceptions import HPOneViewTaskError
     from hpOneView.exceptions import HPOneViewException
     from hpOneView.exceptions import HPOneViewResourceNotFound
@@ -98,7 +99,7 @@ description:
       automatically based on the server profile configuration if no server hardware was provided.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.1"
+    - "hpOneView >= 3.1.0"
 author:
     - "Chakravarthy Racharla"
     - "Camila Balestrin (@balestrinc)"
@@ -605,7 +606,6 @@ class ServerProfileModule(object):
 
 
 class ServerProfileMerger(object):
-
     def merge_data(self, resource, data):
         merged_data = deepcopy(resource)
         merged_data.update(data)
