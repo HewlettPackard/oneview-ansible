@@ -40,7 +40,7 @@ class BuildPlanFactsSpec(unittest.TestCase,
         self.i3s = self.mock_ov_client.create_image_streamer_client()
 
         FactsParamsTestCase.configure_client_mock(self, self.i3s.build_plans)
-        ErrorHandlingTestCase.configure_client_mock(self, self.i3s.build_plans)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.i3s.build_plans.get_by)
 
         # Load scenarios from module examples
         self.BUILD_PLAN_FACTS_EXAMPLES = yaml.load(EXAMPLES)
