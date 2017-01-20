@@ -20,6 +20,9 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -148,7 +151,7 @@ class NetworkSetModule(object):
             elif state == 'absent':
                 self.__absent(data)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data):
@@ -181,7 +184,7 @@ class NetworkSetModule(object):
     def __update(self, data, resource):
         if 'newName' in data:
             if self.__get_by_name(data['newName']):
-                raise Exception(NETWORK_SET_NEW_NAME_INVALID)
+                raise HPOneViewValueError(NETWORK_SET_NEW_NAME_INVALID)
             data['name'] = data.pop('newName')
 
         merged_data = resource.copy()
@@ -216,7 +219,7 @@ class NetworkSetModule(object):
             if enet_network:
                 return enet_network['uri']
             else:
-                raise Exception(NETWORK_SET_ENET_NETWORK_NOT_FOUND + network_name_or_uri)
+                raise HPOneViewResourceNotFound(NETWORK_SET_ENET_NETWORK_NOT_FOUND + network_name_or_uri)
 
     def __replace_network_name_by_uri(self, data):
         if 'networkUris' in data:

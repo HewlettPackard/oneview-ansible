@@ -18,6 +18,7 @@ import unittest
 from oneview_network_set_facts import NetworkSetFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -44,11 +45,15 @@ PARAMS_GET_BY_NAME_WITHOUT_ETHERNET = dict(
 )
 
 
-class NetworkSetFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class NetworkSetFactsSpec(unittest.TestCase,
+                          ModuleContructorTestCase,
+                          FactsParamsTestCase,
+                          ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, NetworkSetFactsModule)
         self.network_sets = self.mock_ov_client.network_sets
         FactsParamsTestCase.configure_client_mock(self, self.network_sets)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.network_sets.get_by)
 
     def test_should_get_all_network_sets(self):
         network_sets = [{
@@ -124,28 +129,3 @@ class NetworkSetFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsPara
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(network_sets=network_sets))
-
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.network_sets.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        NetworkSetFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
-    def test_should_fail_when_get_by_raises_exception(self):
-        self.network_sets.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        NetworkSetFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
-    def test_should_fail_when_get_all_without_ethernet_raises_exception(self):
-        self.network_sets.get_all_without_ethernet.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITHOUT_ETHERNET
-
-        NetworkSetFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()

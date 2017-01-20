@@ -19,7 +19,7 @@ from oneview_network_set import NetworkSetModule
 from oneview_network_set import NETWORK_SET_CREATED, NETWORK_SET_UPDATED, NETWORK_SET_DELETED, \
     NETWORK_SET_ALREADY_EXIST, NETWORK_SET_ALREADY_ABSENT, NETWORK_SET_NEW_NAME_INVALID, \
     NETWORK_SET_ENET_NETWORK_NOT_FOUND
-from utils import ModuleContructorTestCase, ValidateEtagTestCase
+from utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -52,17 +52,22 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class NetworkSetModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class NetworkSetModuleSpec(unittest.TestCase,
+                           ModuleContructorTestCase,
+                           ValidateEtagTestCase,
+                           ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
     ValidateEtagTestCase has common tests for the validate_etag attribute.
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, NetworkSetModule)
         self.resource = self.mock_ov_client.network_sets
         self.ethernet_network_client = self.mock_ov_client.ethernet_networks
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_network_set(self):
         self.resource.get_by.return_value = []
@@ -157,43 +162,6 @@ class NetworkSetModuleSpec(unittest.TestCase, ModuleContructorTestCase, Validate
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=NETWORK_SET_ALREADY_ABSENT
-        )
-
-    def test_should_not_create_when_create_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        self.assertRaises(Exception, NetworkSetModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_not_update_when_update_raises_exception(self):
-        self.resource.get_by.side_effect = [NETWORK_SET], []
-        self.ethernet_network_client.get_by.return_value = [{'uri': '/rest/ethernet-networks/ddd-eee-fff'}]
-        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
-
-        self.assertRaises(Exception, NetworkSetModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_not_delete_when_oneview_exception(self):
-        self.resource.get_by.return_value = [NETWORK_SET]
-        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-
-        self.assertRaises(Exception, NetworkSetModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
