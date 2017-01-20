@@ -18,6 +18,8 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -175,7 +177,7 @@ class ScopeModule(object):
             elif state == 'resource_assignments_updated':
                 self.__update_resource_assignments(data)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data):
@@ -225,7 +227,7 @@ class ScopeModule(object):
         resource = self.__get_by_name(data)
 
         if not resource:
-            raise Exception(SCOPE_NOT_FOUND)
+            raise HPOneViewResourceNotFound(SCOPE_NOT_FOUND)
         else:
             scope = self.oneview_client.scopes.update_resource_assignments(resource['uri'],
                                                                            data.get('resourceAssignments'))

@@ -18,7 +18,7 @@ import copy
 import unittest
 
 from oneview_scope_facts import ScopeFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -40,18 +40,22 @@ ALL_SCOPES = [SCOPE_1, SCOPE_2]
 
 class ScopeFactsSpec(unittest.TestCase,
                      ModuleContructorTestCase,
-                     FactsParamsTestCase):
+                     FactsParamsTestCase,
+                     ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
     mocks used in this test class.
 
     FactsParamsTestCase has common tests for the parameters support.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
     def setUp(self):
         self.configure_mocks(self, ScopeFactsModule)
         self.resource = self.mock_ov_client.scopes
 
         FactsParamsTestCase.configure_client_mock(self, self.resource)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by_name)
 
     def test_should_get_all_scopes(self):
         self.resource.get_all.return_value = ALL_SCOPES
@@ -64,14 +68,6 @@ class ScopeFactsSpec(unittest.TestCase,
             ansible_facts=dict(scopes=ALL_SCOPES)
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.resource.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = copy.deepcopy(PARAMS_GET_ALL)
-
-        ScopeFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_scope_by_name(self):
         self.resource.get_by_name.return_value = SCOPE_2
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_GET_BY_NAME)
@@ -82,14 +78,6 @@ class ScopeFactsSpec(unittest.TestCase,
             changed=False,
             ansible_facts=dict(scopes=[SCOPE_2])
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.resource.get_by_name.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = copy.deepcopy(PARAMS_GET_BY_NAME)
-
-        ScopeFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

@@ -24,7 +24,7 @@ from oneview_scope import (ScopeModule,
                            SCOPE_ALREADY_ABSENT,
                            SCOPE_RESOURCE_ASSIGNMENTS_UPDATED,
                            SCOPE_NOT_FOUND)
-from test.utils import ModuleContructorTestCase, ValidateEtagTestCase
+from test.utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -59,16 +59,24 @@ PARAMS_RESOURCE_ASSIGNMENTS = dict(
 )
 
 
-class ScopeModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class ScopeModuleSpec(unittest.TestCase,
+                      ModuleContructorTestCase,
+                      ValidateEtagTestCase,
+                      ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function
+
     ValidateEtagTestCase has common tests for the validate_etag attribute, also provides the mocks used in this test
     case.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, ScopeModule)
         self.resource = self.mock_ov_client.scopes
+
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by_name)
 
     def test_should_create_new_scope_when_not_found(self):
         self.resource.get_by_name.return_value = None
@@ -151,41 +159,6 @@ class ScopeModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagT
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=SCOPE_NOT_FOUND
-        )
-
-    def test_should_fail_when_create_raises_exception(self):
-        self.resource.get_by_name.return_value = None
-        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
-        self.mock_ansible_module.params = copy.deepcopy(PARAMS_FOR_PRESENT)
-
-        self.assertRaises(Exception, ScopeModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_update_raises_exception(self):
-        self.resource.get_by_name.return_value = RESOURCE
-        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = copy.deepcopy(PARAMS_WITH_CHANGES)
-
-        self.assertRaises(Exception, ScopeModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.resource.get_by_name.return_value = RESOURCE
-        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = copy.deepcopy(PARAMS_FOR_ABSENT)
-
-        self.assertRaises(Exception, ScopeModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
