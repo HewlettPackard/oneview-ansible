@@ -18,7 +18,9 @@ import unittest
 
 from oneview_storage_volume_attachment_facts import StorageVolumeAttachmentFactsModule
 from oneview_storage_volume_attachment_facts import ATTACHMENT_KEY_REQUIRED
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase
+from test.utils import FactsParamsTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -52,11 +54,15 @@ RETURN_GET_BY_PROFILE_AND_VOLUME = {
 }
 
 
-class StorageVolumeAttachmentFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class StorageVolumeAttachmentFactsSpec(unittest.TestCase,
+                                       ModuleContructorTestCase,
+                                       FactsParamsTestCase,
+                                       ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, StorageVolumeAttachmentFactsModule)
         self.resource = self.mock_ov_client.storage_volume_attachments
         FactsParamsTestCase.configure_client_mock(self, self.resource)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_all)
 
     def test_should_get_all(self):
         attachments = [ATTACHMENT, ATTACHMENT]
@@ -69,14 +75,6 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase, ModuleContructorTestCa
             changed=False,
             ansible_facts=dict(storage_volume_attachments=attachments)
         )
-
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.resource.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        StorageVolumeAttachmentFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
     def test_should_get_all_and_unmanaged_volumes(self):
         attachments = [ATTACHMENT, ATTACHMENT]
@@ -325,14 +323,6 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase, ModuleContructorTestCa
                 extra_unmanaged_storage_volumes={'subresource': 'value'}
             )
         )
-
-    def test_should_fail_when_get_one_raises_exception(self):
-        self.resource.get.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ONE
-
-        StorageVolumeAttachmentFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':
