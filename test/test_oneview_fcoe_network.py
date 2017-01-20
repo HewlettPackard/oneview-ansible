@@ -17,7 +17,9 @@ import unittest
 
 from oneview_fcoe_network import FcoeNetworkModule, FCOE_NETWORK_CREATED, FCOE_NETWORK_ALREADY_EXIST, \
     FCOE_NETWORK_UPDATED, FCOE_NETWORK_DELETED, FCOE_NETWORK_ALREADY_ABSENT
-from test.utils import ModuleContructorTestCase, ValidateEtagTestCase
+from test.utils import ModuleContructorTestCase
+from test.utils import ValidateEtagTestCase
+from test.utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -48,16 +50,22 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class FcoeNetworkSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class FcoeNetworkSpec(unittest.TestCase,
+                      ModuleContructorTestCase,
+                      ValidateEtagTestCase,
+                      ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
-    ValidateEtagTestCase has common tests for the validate_etag attribute.
-    """
 
+    ValidateEtagTestCase has common tests for the validate_etag attribute.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
+    """
     def setUp(self):
         self.configure_mocks(self, FcoeNetworkModule)
         self.resource = self.mock_ov_client.fcoe_networks
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_fcoe_network(self):
         self.resource.get_by.return_value = []
@@ -126,42 +134,6 @@ class FcoeNetworkSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagT
             changed=False,
             msg=FCOE_NETWORK_ALREADY_ABSENT,
             ansible_facts={}
-        )
-
-    def test_should_fail_when_create_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        FcoeNetworkModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_update_raises_exception(self):
-        self.resource.get_by.return_value = [DEFAULT_FCOE_NETWORK_TEMPLATE]
-        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
-
-        FcoeNetworkModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.resource.get_by.return_value = [DEFAULT_FCOE_NETWORK_TEMPLATE]
-        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-
-        FcoeNetworkModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 

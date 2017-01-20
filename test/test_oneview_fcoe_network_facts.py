@@ -19,6 +19,7 @@ import unittest
 from oneview_fcoe_network_facts import FcoeNetworkFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -38,11 +39,15 @@ PRESENT_NETWORKS = [{
 }]
 
 
-class FcoeNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class FcoeNetworkFactsSpec(unittest.TestCase,
+                           ModuleContructorTestCase,
+                           FactsParamsTestCase,
+                           ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, FcoeNetworkFactsModule)
         self.fcoe_networks = self.mock_ov_client.fcoe_networks
         FactsParamsTestCase.configure_client_mock(self, self.fcoe_networks)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.fcoe_networks.get_by)
 
     def test_should_get_all_fcoe_network(self):
         self.fcoe_networks.get_all.return_value = PRESENT_NETWORKS
@@ -55,14 +60,6 @@ class FcoeNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsPar
             ansible_facts=dict(fcoe_networks=(PRESENT_NETWORKS))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.fcoe_networks.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        FcoeNetworkFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_fcoe_network_by_name(self):
         self.fcoe_networks.get_by.return_value = PRESENT_NETWORKS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -73,14 +70,6 @@ class FcoeNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsPar
             changed=False,
             ansible_facts=dict(fcoe_networks=(PRESENT_NETWORKS))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.fcoe_networks.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        FcoeNetworkFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
