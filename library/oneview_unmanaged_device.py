@@ -19,6 +19,7 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -172,7 +173,7 @@ class UnmanagedDeviceModule(object):
                 changed, msg = self.__absent(data)
 
             self.module.exit_json(changed=changed, msg=msg, **facts)
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data):
