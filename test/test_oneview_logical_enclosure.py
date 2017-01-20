@@ -17,7 +17,7 @@
 import unittest
 import yaml
 
-from test.utils import PreloadedMocksBaseTestCase, ModuleContructorTestCase
+from test.utils import PreloadedMocksBaseTestCase, ModuleContructorTestCase, ErrorHandlingTestCase
 from oneview_logical_enclosure import LogicalEnclosureModule, LOGICAL_ENCLOSURE_UPDATED, \
     LOGICAL_ENCLOSURE_ALREADY_UPDATED, LOGICAL_ENCLOSURE_FIRMWARE_UPDATED, \
     LOGICAL_ENCLOSURE_CONFIGURATION_SCRIPT_UPDATED, \
@@ -112,14 +112,18 @@ YAML_LOGICAL_ENCLOSURE_ABSENT = """
 DICT_DEFAULT_LOGICAL_ENCLOSURE = yaml.load(YAML_LOGICAL_ENCLOSURE)["data"]
 
 
-class LogicalEnclosureClientConfigurationSpec(unittest.TestCase, ModuleContructorTestCase):
+class LogicalEnclosureModuleSpec(unittest.TestCase,
+                                 ModuleContructorTestCase,
+                                 ErrorHandlingTestCase):
     """
     Test the module constructor
     ModuleContructorTestCase has common tests for class constructor and main function
-    """
 
+    ErrorHandlingTestCase has common tests for the module error handling.
+    """
     def setUp(self):
         self.configure_mocks(self, LogicalEnclosureModule)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.logical_enclosures.get_by_name)
 
 
 class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):

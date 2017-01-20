@@ -19,6 +19,8 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -237,7 +239,7 @@ class LogicalEnclosureModule(object):
                 changed, msg, ansible_facts = self.__absent(logical_enclosure)
             else:
                 if not logical_enclosure:
-                    raise Exception(LOGICAL_ENCLOSURE_REQUIRED)
+                    raise HPOneViewResourceNotFound(LOGICAL_ENCLOSURE_REQUIRED)
 
                 if state == 'firmware_updated':
                     changed, msg, ansible_facts = self.__update_firmware(data, logical_enclosure)
@@ -254,7 +256,7 @@ class LogicalEnclosureModule(object):
                                   msg=msg,
                                   ansible_facts=ansible_facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg=exception.args[0])
 
     def __present(self, data, logical_enclosure):
