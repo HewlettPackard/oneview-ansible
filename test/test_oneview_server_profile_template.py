@@ -25,7 +25,7 @@ from oneview_server_profile_template import (ServerProfileTemplateModule,
                                              SRV_PROFILE_TEMPLATE_DELETED,
                                              SRV_PROFILE_TEMPLATE_ALREADY_ABSENT)
 
-from utils import ValidateEtagTestCase, ModuleContructorTestCase
+from utils import ValidateEtagTestCase, ModuleContructorTestCase, ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 TEMPLATE_NAME = 'ProfileTemplate101'
@@ -91,10 +91,14 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class ServerProfileTemplateModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class ServerProfileTemplateModuleSpec(unittest.TestCase,
+                                      ModuleContructorTestCase,
+                                      ValidateEtagTestCase,
+                                      ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, ServerProfileTemplateModule)
         self.resource = self.mock_ov_client.server_profile_templates
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by_name)
 
     def test_should_create_new_template_when_it_not_exists(self):
         self.resource.get_by_name.return_value = []
@@ -219,15 +223,6 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase, ModuleContructorTestCas
             changed=False,
             msg=SRV_PROFILE_TEMPLATE_ALREADY_ABSENT
         )
-
-    def test_should_fail_when_oneview_client_raises_exception(self):
-        self.resource.get_by_name.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        ServerProfileTemplateModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=FAKE_MSG_ERROR)
 
 
 if __name__ == '__main__':

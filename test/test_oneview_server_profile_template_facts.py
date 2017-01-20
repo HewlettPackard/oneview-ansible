@@ -18,6 +18,7 @@ import unittest
 
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 from oneview_server_profile_template_facts import ServerProfileTemplateFactsModule
 
@@ -82,7 +83,8 @@ TEMPLATES = [BASIC_TEMPLATE]
 
 class ServerProfileTemplateFactsSpec(unittest.TestCase,
                                      ModuleContructorTestCase,
-                                     FactsParamsTestCase):
+                                     FactsParamsTestCase,
+                                     ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
     mocks used in this test class.
@@ -93,6 +95,7 @@ class ServerProfileTemplateFactsSpec(unittest.TestCase,
         self.configure_mocks(self, ServerProfileTemplateFactsModule)
 
         FactsParamsTestCase.configure_client_mock(self, self.mock_ov_client.server_profile_templates)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.server_profile_templates.get_by_name)
 
     def test_should_get_all_templates(self):
         self.mock_ov_client.server_profile_templates.get_all.return_value = TEMPLATES
@@ -162,15 +165,6 @@ class ServerProfileTemplateFactsSpec(unittest.TestCase,
                 transformation=TRANSFORMATION_TEMPLATE
             )
         )
-
-    def test_should_fail_when_oneview_client_raises_an_exception(self):
-        self.mock_ov_client.server_profile_templates.get_all.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        ServerProfileTemplateFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':
