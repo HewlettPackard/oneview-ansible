@@ -17,7 +17,9 @@ import unittest
 
 from oneview_fc_network import FcNetworkModule, FC_NETWORK_CREATED, FC_NETWORK_ALREADY_EXIST, FC_NETWORK_UPDATED, \
     FC_NETWORK_DELETED, FC_NETWORK_ALREADY_ABSENT
-from utils import ModuleContructorTestCase, ValidateEtagTestCase
+from utils import ModuleContructorTestCase
+from utils import ValidateEtagTestCase
+from utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -47,16 +49,23 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class FcNetworkPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class FcNetworkModuleSpec(unittest.TestCase,
+                          ModuleContructorTestCase,
+                          ValidateEtagTestCase,
+                          ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
+
     ValidateEtagTestCase has common tests for the validate_etag attribute.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, FcNetworkModule)
         self.resource = self.mock_ov_client.fc_networks
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_fc_network(self):
         self.resource.get_by.return_value = []
@@ -125,42 +134,6 @@ class FcNetworkPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, Val
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=FC_NETWORK_ALREADY_ABSENT
-        )
-
-    def test_should_fail_when_create_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        self.assertRaises(Exception, FcNetworkModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_update_raises_exception(self):
-        self.resource.get_by.return_value = [DEFAULT_FC_NETWORK_TEMPLATE]
-        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
-
-        self.assertRaises(Exception, FcNetworkModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.resource.get_by.return_value = [DEFAULT_FC_NETWORK_TEMPLATE]
-        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-
-        self.assertRaises(Exception, FcNetworkModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
