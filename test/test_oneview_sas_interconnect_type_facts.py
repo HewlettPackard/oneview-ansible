@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_sas_interconnect_type_facts import SasInterconnectTypeFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -34,11 +34,15 @@ PARAMS_GET_BY_NAME = dict(
 SAS_INTERCONNECT_TYPES = [{"name": "Type 1"}, {"name": "Type 2"}, {"name": "Type 3"}]
 
 
-class SasInterconnectTypeFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class SasInterconnectTypeFactsSpec(unittest.TestCase,
+                                   ModuleContructorTestCase,
+                                   FactsParamsTestCase,
+                                   ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, SasInterconnectTypeFactsModule)
         self.resource = self.mock_ov_client.sas_interconnect_types
         FactsParamsTestCase.configure_client_mock(self, self.resource)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_get_all_sas_interconnect_types(self):
         self.resource.get_all.return_value = SAS_INTERCONNECT_TYPES
@@ -51,14 +55,6 @@ class SasInterconnectTypeFactsSpec(unittest.TestCase, ModuleContructorTestCase, 
             ansible_facts=dict(sas_interconnect_types=(SAS_INTERCONNECT_TYPES))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.resource.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        SasInterconnectTypeFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_sas_interconnect_type_by_name(self):
         self.resource.get_by.return_value = [SAS_INTERCONNECT_TYPES[1]]
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -69,14 +65,6 @@ class SasInterconnectTypeFactsSpec(unittest.TestCase, ModuleContructorTestCase, 
             changed=False,
             ansible_facts=dict(sas_interconnect_types=([SAS_INTERCONNECT_TYPES[1]]))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.resource.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        SasInterconnectTypeFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
