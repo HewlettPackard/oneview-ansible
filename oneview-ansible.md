@@ -6645,6 +6645,9 @@ Manage OneView Server Profile resources.
               # You can choose either volumeName or volumeUri to inform the Volumes
               # volumeName: 'DemoVolume001'
               volumeUri: '/rest/storage-volumes/BCAB376E-DA2E-450D-B053-0A9AE7E5114C'
+              # You can choose either volumeStoragePoolUri or volumeStoragePoolName to inform the Volume Storage Pool
+              # volumeStoragePoolName: 'FST_CPG2'
+              volumeStoragePoolUri: '/rest/storage-pools/30303437-3933-4753-4831-30335835524E'
               lunType: 'Auto'
               storagePaths:
                 - isEnabled: true

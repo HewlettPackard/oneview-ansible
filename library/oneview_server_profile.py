@@ -89,6 +89,8 @@ SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND = 'Enclosure Group not found: '
 SERVER_PROFILE_NETWORK_NOT_FOUND = 'Network not found: '
 SERVER_HARDWARE_TYPE_NOT_FOUND = 'Server Hardware Type not found: '
 VOLUME_NOT_FOUND = 'Volume not found: '
+STORAGE_POOL_NOT_FOUND = 'Storage Pool not found: '
+STORAGE_SYSTEM_NOT_FOUND = 'Storage System not found: '
 
 CONCURRENCY_FAILOVER_RETRIES = 25
 
@@ -171,6 +173,9 @@ EXAMPLES = '''
               # You can choose either volumeName or volumeUri to inform the Volumes
               # volumeName: 'DemoVolume001'
               volumeUri: '/rest/storage-volumes/BCAB376E-DA2E-450D-B053-0A9AE7E5114C'
+              # You can choose either volumeStoragePoolUri or volumeStoragePoolName to inform the Volume Storage Pool
+              # volumeStoragePoolName: 'FST_CPG2'
+              volumeStoragePoolUri: '/rest/storage-pools/30303437-3933-4753-4831-30335835524E'
               lunType: 'Auto'
               storagePaths:
                 - isEnabled: true
@@ -458,7 +463,7 @@ class ServerProfileModule(object):
             data.pop(KEY_SERIAL_NUMBER, None)
 
         # Remove the WWPN and WWNN when WWPN Type is Virtual or Physical
-        for conn in data.get(KEY_CONNECTIONS, []):
+        for conn in data.get(KEY_CONNECTIONS) or []:
             wwpn_type = conn.get(KEY_WWPN_TYPE, None)
             if is_virtual_or_physical(wwpn_type):
                 conn.pop(KEY_WWNN, None)
@@ -466,14 +471,14 @@ class ServerProfileModule(object):
 
         # Remove the driveNumber from the Controllers Drives
         if KEY_LOCAL_STORAGE in data:
-            for controller in data[KEY_LOCAL_STORAGE].get(KEY_CONTROLLERS, []):
-                for drive in controller.get(KEY_LOGICAL_DRIVES, []):
+            for controller in data[KEY_LOCAL_STORAGE].get(KEY_CONTROLLERS) or []:
+                for drive in controller.get(KEY_LOGICAL_DRIVES) or []:
                     drive.pop(KEY_DRIVE_NUMBER, None)
 
         # Remove the Lun when Lun Type from SAN Storage Volume is Auto
         if KEY_SAN in data and data[KEY_SAN]:
             if KEY_VOLUMES in data[KEY_SAN]:
-                for volume in data[KEY_SAN].get(KEY_VOLUMES, []):
+                for volume in data[KEY_SAN].get(KEY_VOLUMES) or []:
                     if volume.get(KEY_LUN_TYPE) == 'Auto':
                         volume.pop(KEY_LUN, None)
 
@@ -585,7 +590,7 @@ class ServerProfileModule(object):
         self.__replace_enclosure_group_name_by_uri(data)
         self.__replace_networks_name_by_uri(data)
         self.__replace_server_hardware_type_name_by_uri(data)
-        self.__replace_volume_name_by_uri(data)
+        self.__replace_volume_attachment_names_by_uri(data)
 
     def __replace_os_deployment_name_by_uri(self, data):
         if KEY_OS_DEPLOYMENT in data and data[KEY_OS_DEPLOYMENT]:
@@ -613,16 +618,31 @@ class ServerProfileModule(object):
                 raise HPOneViewResourceNotFound(SERVER_HARDWARE_TYPE_NOT_FOUND + name)
             data['serverHardwareTypeUri'] = sh_types[0]['uri']
 
-    def __replace_volume_name_by_uri(self, data):
+    def __replace_volume_attachment_names_by_uri(self, data):
+        def replace(volume_attachment, attr_name, attr_uri, message, resource_client):
+            if attr_name in volume_attachment:
+                name = volume_attachment.pop(attr_name)
+                resource_by_name = resource_client.get_by('name', name)
+                if not resource_by_name:
+                    raise HPOneViewResourceNotFound(message + name)
+                volume_attachment[attr_uri] = resource_by_name[0]['uri']
+
         volume_attachments = (data.get('sanStorage') or {}).get('volumeAttachments') or []
         if len(volume_attachments) > 0:
             for volume in volume_attachments:
-                if 'volumeName' in volume:
-                    name = volume.pop('volumeName')
-                    volume_by_name = self.oneview_client.volumes.get_by('name', name)
-                    if not volume_by_name:
-                        raise HPOneViewResourceNotFound(VOLUME_NOT_FOUND + name)
-                    volume['volumeUri'] = volume_by_name[0]['uri']
+                replace(volume, 'volumeName', 'volumeUri', VOLUME_NOT_FOUND, self.oneview_client.volumes)
+                replace(volume, 'volumeStoragePoolName', 'volumeStoragePoolUri', STORAGE_POOL_NOT_FOUND,
+                        self.oneview_client.storage_pools)
+                replace(volume, 'volumeStorageSystemName', 'volumeStorageSystemUri', STORAGE_SYSTEM_NOT_FOUND,
+                        self.oneview_client.storage_systems)
+
+    def __replace_enclosure_name_by_uri(self, data):
+        if 'enclosureName' in data:
+            name = data.pop('enclosureName')
+            enclsoures = self.oneview_client.enclosures.get_by('name', name)
+            if not enclsoures:
+                raise HPOneViewResourceNotFound(SERVER_HARDWARE_TYPE_NOT_FOUND + name)
+            data['enclosureUri'] = enclsoures[0]['uri']
 
     def __get_os_deployment_by_name(self, name):
         os_deployment = self.oneview_client.os_deployment_plans.get_by_name(name)
