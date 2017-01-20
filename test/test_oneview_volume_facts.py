@@ -17,7 +17,9 @@
 import unittest
 
 from oneview_volume_facts import VolumeFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from utils import ModuleContructorTestCase
+from utils import FactsParamsTestCase
+from utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -52,11 +54,15 @@ PARAMS_GET_SNAPSHOT_BY_NAME = dict(
     options=[{"snapshots": {"name": 'snapshot_name'}}])
 
 
-class VolumeFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class VolumeFactsSpec(unittest.TestCase,
+                      ModuleContructorTestCase,
+                      FactsParamsTestCase,
+                      ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, VolumeFactsModule)
         self.resource = self.mock_ov_client.volumes
         FactsParamsTestCase.configure_client_mock(self, self.resource)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_get_all_volumes(self):
         self.resource.get_all.return_value = [{"name": "Test Volume"}]
@@ -122,22 +128,6 @@ class VolumeFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTe
             changed=False,
             ansible_facts=dict(storage_volumes=[{"name": "Test Volume", 'uri': '/uri'}],
                                snapshots=[{"filename": "snapshot_name"}]))
-
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.resource.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        VolumeFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
-    def test_should_fail_when_get_by_raises_error(self):
-        self.resource.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        VolumeFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
