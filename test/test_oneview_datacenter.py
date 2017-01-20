@@ -18,7 +18,9 @@ import yaml
 
 from oneview_datacenter import DatacenterModule, DATACENTER_ADDED, DATACENTER_REMOVED, DATACENTER_ALREADY_ABSENT, \
     RACK_NOT_FOUND, DATACENTER_ALREADY_UPDATED, DATACENTER_UPDATED
-from test.utils import ModuleContructorTestCase, ValidateEtagTestCase
+from test.utils import ModuleContructorTestCase
+from test.utils import ValidateEtagTestCase
+from test.utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -63,7 +65,10 @@ DICT_DEFAULT_DATACENTER = yaml.load(YAML_DATACENTER)["data"]
 DICT_DEFAULT_DATACENTER_CHANGED = yaml.load(YAML_DATACENTER_CHANGE)["data"]
 
 
-class DatacenterPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class DatacenterModuleSpec(unittest.TestCase,
+                           ModuleContructorTestCase,
+                           ValidateEtagTestCase,
+                           ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
@@ -73,6 +78,8 @@ class DatacenterPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, Va
     def setUp(self):
         self.configure_mocks(self, DatacenterModule)
         self.resource = self.mock_ov_client.datacenters
+
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_datacenter(self):
         self.resource.get_by.return_value = []
@@ -146,42 +153,16 @@ class DatacenterPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, Va
             msg=DATACENTER_ALREADY_ABSENT
         )
 
-    def test_should_fail_when_create_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.add.side_effect = Exception(FAKE_MSG_ERROR)
-        self.mock_ov_client.racks.get_by.return_value = [{'uri': RACK_URI}]
-
-        self.mock_ansible_module.params = yaml.load(YAML_DATACENTER)
-
-        self.assertRaises(Exception, DatacenterModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     def test_should_fail_when_switch_type_was_not_found(self):
         self.resource.get_by.return_value = []
-        self.resource.add.side_effect = Exception(FAKE_MSG_ERROR)
         self.mock_ov_client.racks.get_by.return_value = []
 
         self.mock_ansible_module.params = yaml.load(YAML_DATACENTER)
 
-        self.assertRaises(Exception, DatacenterModule().run())
+        DatacenterModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=RACK_NOT_FOUND
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.resource.get_by.return_value = [DICT_DEFAULT_DATACENTER]
-        self.resource.remove.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = yaml.load(YAML_DATACENTER_ABSENT)
-
-        self.assertRaises(Exception, DatacenterModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 

@@ -19,6 +19,7 @@ import unittest
 from oneview_datacenter_facts import DatacenterFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -42,11 +43,16 @@ PARAMS_GET_CONNECTED = dict(
 )
 
 
-class DatacentersFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class DatacentersFactsSpec(unittest.TestCase,
+                           ModuleContructorTestCase,
+                           FactsParamsTestCase,
+                           ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, DatacenterFactsModule)
         self.datacenters = self.mock_ov_client.datacenters
+
         FactsParamsTestCase.configure_client_mock(self, self.datacenters)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.datacenters.get_by)
 
     def test_should_get_all_datacenters(self):
         self.datacenters.get_all.return_value = {"name": "Data Center Name"}
@@ -60,15 +66,6 @@ class DatacentersFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsPar
             ansible_facts=dict(datacenters=({"name": "Data Center Name"}))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.datacenters.get_all.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        DatacenterFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_datacenter_by_name(self):
         self.datacenters.get_by.return_value = [{"name": "Data Center Name"}]
 
@@ -80,15 +77,6 @@ class DatacentersFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsPar
             changed=False,
             ansible_facts=dict(datacenters=([{"name": "Data Center Name"}]))
         )
-
-    def test_should_fail_when_get_by_raises_exception(self):
-        self.datacenters.get_by.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        DatacenterFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_datacenter_visual_content(self):
         self.datacenters.get_by.return_value = [{"name": "Data Center Name", "uri": "/rest/datacenter/id"}]
@@ -118,16 +106,6 @@ class DatacentersFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsPar
             ansible_facts={'datacenter_visual_content': None,
                            'datacenters': []}
         )
-
-    def test_should_fail_when_get_visual_content_raises_exception(self):
-        self.datacenters.get_visual_content.side_effect = Exception(ERROR_MSG)
-        self.datacenters.get_by.return_value = {"uri": "/rest/datacenter/id"}
-
-        self.mock_ansible_module.params = PARAMS_GET_CONNECTED
-
-        DatacenterFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
