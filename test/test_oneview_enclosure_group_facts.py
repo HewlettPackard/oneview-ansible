@@ -19,6 +19,7 @@ import unittest
 from oneview_enclosure_group_facts import EnclosureGroupFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -48,11 +49,15 @@ ENCLOSURE_GROUPS = [{
 }]
 
 
-class EnclosureGroupFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class EnclosureGroupFactsSpec(unittest.TestCase,
+                              ModuleContructorTestCase,
+                              FactsParamsTestCase,
+                              ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, EnclosureGroupFactsModule)
         self.enclosure_groups = self.mock_ov_client.enclosure_groups
         FactsParamsTestCase.configure_client_mock(self, self.enclosure_groups)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.enclosure_groups.get_by)
 
     def test_should_get_all_enclosure_group(self):
         self.enclosure_groups.get_all.return_value = ENCLOSURE_GROUPS
@@ -65,15 +70,6 @@ class EnclosureGroupFactsSpec(unittest.TestCase, ModuleContructorTestCase, Facts
             changed=False,
             ansible_facts=dict(enclosure_groups=ENCLOSURE_GROUPS)
         )
-
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.enclosure_groups.get_all.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        EnclosureGroupFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_enclosure_group_by_name(self):
         self.enclosure_groups.get_by.return_value = ENCLOSURE_GROUPS
@@ -108,15 +104,6 @@ class EnclosureGroupFactsSpec(unittest.TestCase, ModuleContructorTestCase, Facts
                 enclosure_group_script=configuration_script
             )
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.enclosure_groups.get_by.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        EnclosureGroupFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
