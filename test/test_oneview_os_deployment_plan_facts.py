@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_os_deployment_plan_facts import OsDeploymentPlanFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -65,17 +65,21 @@ OS_DEPLOYMENT_PLAN_WITHOUT_EDITABLE = {
 
 class OsDeploymentPlanFactsSpec(unittest.TestCase,
                                 ModuleContructorTestCase,
-                                FactsParamsTestCase):
+                                FactsParamsTestCase,
+                                ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
     mocks used in this test class.
 
     FactsParamsTestCase has common tests for the parameters support.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
     def setUp(self):
         self.configure_mocks(self, OsDeploymentPlanFactsModule)
         self.resource = self.mock_ov_client.os_deployment_plans
         FactsParamsTestCase.configure_client_mock(self, self.resource)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_get_all_os_deployment_plans(self):
         self.resource.get_all.return_value = [{"name": "Os Deployment Plan Name"}]
@@ -89,15 +93,6 @@ class OsDeploymentPlanFactsSpec(unittest.TestCase,
             ansible_facts=dict(os_deployment_plans=([{"name": "Os Deployment Plan Name"}]))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.resource.get_all.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        OsDeploymentPlanFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_os_deployment_plan_by_name(self):
         self.resource.get_by.return_value = [{"Os Deployment Plan Name"}]
 
@@ -109,15 +104,6 @@ class OsDeploymentPlanFactsSpec(unittest.TestCase,
             changed=False,
             ansible_facts=dict(os_deployment_plans=([{"Os Deployment Plan Name"}]))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.resource.get_by.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        OsDeploymentPlanFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_custom_attributes(self):
         self.resource.get_by.return_value = [OS_DEPLOYMENT_PLAN]
