@@ -14,11 +14,11 @@
 # limitations under the License.
 ###
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_interconnect import InterconnectModule, MISSING_KEY_MSG, INTERCONNECT_WAS_NOT_FOUND
-from test.utils import create_ansible_mock
+
+from utils import ModuleContructorTestCase
+from utils import ErrorHandlingTestCase
 
 FAKE_URI = "/rest/interconnects/748d4699-62ff-454e-8ec8-773815c4aa2f"
 
@@ -74,298 +74,221 @@ def create_params_for(power_state):
     )
 
 
-def mock_oneview_instance(mock_ov_client):
-    mock_ov_instance = mock.Mock()
-    mock_ov_client.return_value = mock_ov_instance
-    return mock_ov_instance
+class InterconnectModuleSpec(unittest.TestCase,
+                             ModuleContructorTestCase,
+                             ErrorHandlingTestCase):
 
+    def setUp(self):
+        self.configure_mocks(self, InterconnectModule)
+        ErrorHandlingTestCase.configure(self, ansible_params=PARAMS_FOR_UPDATE_PORTS,
+                                        method_to_fire=self.mock_ov_client.interconnects.get_by)
 
-def mock_ansible_module_instance(ansible_arguments, mock_ansible_module):
-    mock_ansible_instance = create_ansible_mock(ansible_arguments)
-    mock_ansible_module.return_value = mock_ansible_instance
-
-    return mock_ansible_instance
-
-
-class InterconnectClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        InterconnectModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        InterconnectModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class InterconnectPowerStateSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_ensure_powered_on_state(self, mock_ansible_module, mock_ov_from_file):
+    def test_should_ensure_powered_on_state(self):
         ansible_arguments = create_params_for('powered_on')
-        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
-        mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
+        self.mock_ansible_module.params = ansible_arguments
 
-        mock_ov_instance.interconnects.get_by.return_value = [dict(powerState='Off', uri=FAKE_URI)]
+        self.mock_ov_client.interconnects.get_by.return_value = [dict(powerState='Off', uri=FAKE_URI)]
 
         fake_interconnect_updated = dict(powerState='On')
-        mock_ov_instance.interconnects.patch.return_value = fake_interconnect_updated
+        self.mock_ov_client.interconnects.patch.return_value = fake_interconnect_updated
 
         InterconnectModule().run()
 
-        mock_ov_instance.interconnects.patch.assert_called_with(
+        self.mock_ov_client.interconnects.patch.assert_called_with(
             id_or_uri=FAKE_URI,
             operation='replace',
             path='/powerState',
             value='On'
         )
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(interconnect=fake_interconnect_updated)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_return_changed_false_when_interconnect_is_already_powered_on(self,
-                                                                                 mock_ansible_module,
-                                                                                 mock_ov_from_file):
+    def test_should_return_changed_false_when_interconnect_is_already_powered_on(self):
         ansible_arguments = create_params_for('powered_on')
-        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
-        mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
+        self.mock_ansible_module.params = ansible_arguments
 
         fake_interconnect = dict(powerState='On')
-        mock_ov_instance.interconnects.get_by.return_value = [fake_interconnect]
+        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
 
         InterconnectModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(interconnect=fake_interconnect)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_ensure_powered_off_state(self, mock_ansible_module, mock_ov_from_file):
+    def test_should_ensure_powered_off_state(self):
         ansible_arguments = create_params_for('powered_off')
-        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
-        mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
+        self.mock_ansible_module.params = ansible_arguments
 
-        mock_ov_instance.interconnects.get_by.return_value = [dict(powerState='On', uri=FAKE_URI)]
+        self.mock_ov_client.interconnects.get_by.return_value = [dict(powerState='On', uri=FAKE_URI)]
 
         fake_interconnect_updated = dict(powerState='Off')
-        mock_ov_instance.interconnects.patch.return_value = fake_interconnect_updated
+        self.mock_ov_client.interconnects.patch.return_value = fake_interconnect_updated
 
         InterconnectModule().run()
 
-        mock_ov_instance.interconnects.patch.assert_called_with(
+        self.mock_ov_client.interconnects.patch.assert_called_with(
             id_or_uri=FAKE_URI,
             operation='replace',
             path='/powerState',
             value='Off'
         )
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(interconnect=fake_interconnect_updated)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_ensure_uid_on_state(self, mock_ansible_module, mock_ov_from_file):
+    def test_should_ensure_uid_on_state(self):
         ansible_arguments = create_params_for('uid_on')
-        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
-        mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
+        self.mock_ansible_module.params = ansible_arguments
 
-        mock_ov_instance.interconnects.get_by.return_value = [dict(uidState='Off', uri=FAKE_URI)]
+        self.mock_ov_client.interconnects.get_by.return_value = [dict(uidState='Off', uri=FAKE_URI)]
 
         fake_interconnect_updated = dict(uidState='On')
-        mock_ov_instance.interconnects.patch.return_value = fake_interconnect_updated
+        self.mock_ov_client.interconnects.patch.return_value = fake_interconnect_updated
 
         InterconnectModule().run()
 
-        mock_ov_instance.interconnects.patch.assert_called_with(
+        self.mock_ov_client.interconnects.patch.assert_called_with(
             id_or_uri=FAKE_URI,
             operation='replace',
             path='/uidState',
             value='On'
         )
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(interconnect=fake_interconnect_updated)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_return_changed_false_when_uid_is_already_on(self,
-                                                                mock_ansible_module,
-                                                                mock_ov_from_file):
+    def test_should_return_changed_false_when_uid_is_already_on(self):
         ansible_arguments = create_params_for('uid_on')
-        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
-        mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
+        self.mock_ansible_module.params = ansible_arguments
 
         fake_interconnect = dict(uidState='On')
-        mock_ov_instance.interconnects.get_by.return_value = [fake_interconnect]
+        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
 
         InterconnectModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(interconnect=fake_interconnect)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_ensure_uid_off_state(self, mock_ansible_module, mock_ov_from_file):
+    def test_should_ensure_uid_off_state(self):
         ansible_arguments = create_params_for('uid_off')
-        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
-        mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
+        self.mock_ansible_module.params = ansible_arguments
 
-        mock_ov_instance.interconnects.get_by.return_value = [dict(uidState='On', uri=FAKE_URI)]
+        self.mock_ov_client.interconnects.get_by.return_value = [dict(uidState='On', uri=FAKE_URI)]
 
         fake_interconnect_updated = dict(uidState='Off')
-        mock_ov_instance.interconnects.patch.return_value = fake_interconnect_updated
+        self.mock_ov_client.interconnects.patch.return_value = fake_interconnect_updated
 
         InterconnectModule().run()
 
-        mock_ov_instance.interconnects.patch.assert_called_with(
+        self.mock_ov_client.interconnects.patch.assert_called_with(
             id_or_uri=FAKE_URI,
             operation='replace',
             path='/uidState',
             value='Off'
         )
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(interconnect=fake_interconnect_updated)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_ensure_device_reset(self, mock_ansible_module, mock_ov_from_file):
+    def test_should_ensure_device_reset(self):
         ansible_arguments = create_params_for('device_reset')
-        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
-        mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
+        self.mock_ansible_module.params = ansible_arguments
 
         fake_interconnect = dict(uri=FAKE_URI)
-        mock_ov_instance.interconnects.get_by.return_value = [fake_interconnect]
-        mock_ov_instance.interconnects.patch.return_value = fake_interconnect
+
+        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
+        self.mock_ov_client.interconnects.patch.return_value = fake_interconnect
 
         InterconnectModule().run()
 
-        mock_ov_instance.interconnects.patch.assert_called_with(
+        self.mock_ov_client.interconnects.patch.assert_called_with(
             id_or_uri=FAKE_URI,
             operation='replace',
             path='/deviceResetState',
             value='Reset'
         )
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(interconnect=fake_interconnect)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_fail_when_interconnect_was_not_found(self, mock_ansible_module, mock_ov_from_file):
+    def test_should_fail_when_interconnect_was_not_found(self):
         ansible_arguments = create_params_for('device_reset')
-        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
-        mock_ansible_instance = mock_ansible_module_instance(ansible_arguments, mock_ansible_module)
+        self.mock_ansible_module.params = ansible_arguments
 
-        mock_ov_instance.interconnects.get_by.return_value = []
+        self.mock_ov_client.interconnects.get_by.return_value = []
 
         InterconnectModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=INTERCONNECT_WAS_NOT_FOUND
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_ensure_device_reset_by_ip_address(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
-        mock_ansible_instance = mock_ansible_module_instance(PARAMS_FOR_RESET_DEVICE_BY_IP, mock_ansible_module)
+    def test_should_ensure_device_reset_by_ip_address(self):
+        self.mock_ansible_module.params = PARAMS_FOR_RESET_DEVICE_BY_IP
 
         fake_interconnect = dict(uri=FAKE_URI)
-        mock_ov_instance.interconnects.get_by.return_value = [fake_interconnect]
-        mock_ov_instance.interconnects.patch.return_value = fake_interconnect
+        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
+        self.mock_ov_client.interconnects.patch.return_value = fake_interconnect
 
         InterconnectModule().run()
 
-        mock_ov_instance.interconnects.get_by.assert_called_with('interconnectIP', INTERCONNECT_IP)
+        self.mock_ov_client.interconnects.get_by.assert_called_with('interconnectIP', INTERCONNECT_IP)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(interconnect=fake_interconnect)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_fail_when_no_key_is_provided(self, mock_ansible_module, mock_ov_from_file):
+    def test_should_fail_when_no_key_is_provided(self):
         params = PARAMS_FOR_RESET_DEVICE_BY_IP.copy()
         params['ip'] = None
 
-        mock_oneview_instance(mock_ov_from_file)
-        mock_ansible_instance = mock_ansible_module_instance(params, mock_ansible_module)
+        self.mock_ansible_module.params = params
 
         InterconnectModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=MISSING_KEY_MSG)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=MISSING_KEY_MSG)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_update_the_interconnect_ports(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
-        mock_ansible_instance = mock_ansible_module_instance(PARAMS_FOR_UPDATE_PORTS, mock_ansible_module)
+    def test_should_update_the_interconnect_ports(self):
+        self.mock_ansible_module.params = PARAMS_FOR_UPDATE_PORTS
 
         fake_interconnect = dict(uri=FAKE_URI)
-        mock_ov_instance.interconnects.get_by.return_value = [fake_interconnect]
-        mock_ov_instance.interconnects.update_ports.return_value = fake_interconnect
+        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
+        self.mock_ov_client.interconnects.update_ports.return_value = fake_interconnect
 
         InterconnectModule().run()
 
-        mock_ov_instance.interconnects.get_by.assert_called_with('interconnectIP', INTERCONNECT_IP)
-        mock_ov_instance.interconnects.update_ports.assert_called_with(ports=PORTS_FOR_UPDATE, id_or_uri=FAKE_URI)
+        self.mock_ov_client.interconnects.get_by.assert_called_with('interconnectIP', INTERCONNECT_IP)
+        self.mock_ov_client.interconnects.update_ports.assert_called_with(ports=PORTS_FOR_UPDATE, id_or_uri=FAKE_URI)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(interconnect=fake_interconnect)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_interconnect.AnsibleModule')
-    def test_should_reset_port_protection(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock_oneview_instance(mock_ov_from_file)
-        mock_ansible_instance = mock_ansible_module_instance(PARAMS_FOR_RESET_PORT_PROTECTION, mock_ansible_module)
+    def test_should_reset_port_protection(self):
+        self.mock_ansible_module.params = PARAMS_FOR_RESET_PORT_PROTECTION
 
         fake_interconnect = dict(uri=FAKE_URI)
-        mock_ov_instance.interconnects.get_by.return_value = [fake_interconnect]
-        mock_ov_instance.interconnects.reset_port_protection.return_value = fake_interconnect
+        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
+        self.mock_ov_client.interconnects.reset_port_protection.return_value = fake_interconnect
 
         InterconnectModule().run()
 
-        mock_ov_instance.interconnects.get_by.assert_called_with('interconnectIP', INTERCONNECT_IP)
-        mock_ov_instance.interconnects.reset_port_protection.assert_called_with(id_or_uri=FAKE_URI)
+        self.mock_ov_client.interconnects.get_by.assert_called_with('interconnectIP', INTERCONNECT_IP)
+        self.mock_ov_client.interconnects.reset_port_protection.assert_called_with(id_or_uri=FAKE_URI)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(interconnect=fake_interconnect)
         )

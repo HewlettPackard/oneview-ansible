@@ -19,6 +19,9 @@
 from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewValueError
+    from hpOneView.exceptions import HPOneViewResourceNotFound
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -171,7 +174,7 @@ class InterconnectModule(object):
                 changed=changed,
                 ansible_facts=dict(interconnect=resource)
             )
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_interconnect(self):
@@ -183,10 +186,10 @@ class InterconnectModule(object):
         elif interconnect_name:
             interconnects = self.oneview_client.interconnects.get_by('name', interconnect_name) or []
         else:
-            raise Exception(MISSING_KEY_MSG)
+            raise HPOneViewValueError(MISSING_KEY_MSG)
 
         if not interconnects:
-            raise Exception(INTERCONNECT_WAS_NOT_FOUND)
+            raise HPOneViewResourceNotFound(INTERCONNECT_WAS_NOT_FOUND)
 
         return interconnects[0]
 

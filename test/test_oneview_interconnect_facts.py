@@ -19,6 +19,7 @@ import unittest
 from oneview_interconnect_facts import InterconnectFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -67,11 +68,15 @@ MOCK_INTERCONNECTS = [
 ]
 
 
-class InterconnectFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class InterconnectFactsSpec(unittest.TestCase,
+                            ModuleContructorTestCase,
+                            FactsParamsTestCase,
+                            ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, InterconnectFactsModule)
         self.interconnects = self.mock_ov_client.interconnects
         FactsParamsTestCase.configure_client_mock(self, self.interconnects)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.interconnects.get_by)
 
     def test_should_get_all_interconnects(self):
         fake_interconnects = [dict(uidState='On', name=INTERCONNECT_NAME)]
@@ -87,15 +92,6 @@ class InterconnectFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsPa
             changed=False,
             ansible_facts=dict(interconnects=fake_interconnects)
         )
-
-    def test_should_fail_when_oneview_client_raises_exception(self):
-        self.interconnects.get_all.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_FOR_GET_ALL
-
-        self.assertRaises(Exception, InterconnectFactsModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
     def test_should_get_interconnects_by_interconnect_name(self):
         self.interconnects.get_by.return_value = MOCK_INTERCONNECTS
