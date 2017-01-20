@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_sas_interconnect_facts import SasInterconnectFactsModule
-from utils import ModuleContructorTestCase, FactsParamsTestCase
+from utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
 
 
 SAS_INTERCONNECT_1_NAME = '0000A66103, interconnect 1'
@@ -43,11 +43,15 @@ PARAMS_GET_BY_NAME = dict(
 )
 
 
-class SasInterconnectFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class SasInterconnectFactsSpec(unittest.TestCase,
+                               ModuleContructorTestCase,
+                               FactsParamsTestCase,
+                               ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, SasInterconnectFactsModule)
         self.resource = self.mock_ov_client.sas_interconnects
         FactsParamsTestCase.configure_client_mock(self, self.resource)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_get_all_sas_interconnects(self):
         all_sas_interconnects = [SAS_INTERCONNECT_1, SAS_INTERCONNECT_4]
@@ -74,16 +78,6 @@ class SasInterconnectFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fact
         self.mock_ansible_module.exit_json.assert_called_once_with(
             ansible_facts=dict(sas_interconnects=[SAS_INTERCONNECT_1])
         )
-
-    def test_error_handling(self):
-        error_msg = "Fake Error"
-        self.resource.get_by.side_effect = Exception(error_msg)
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        SasInterconnectFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=error_msg)
 
 
 if __name__ == '__main__':

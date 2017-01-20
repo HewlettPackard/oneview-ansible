@@ -18,7 +18,7 @@
 import unittest
 
 from oneview_sas_logical_jbod_facts import SasLogicalJbodFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -44,11 +44,15 @@ SAS_LOGICAL_JBOD_2 = dict(name="SAS Logical JBOD 2", uri='/sas-logical-jbods/b32
 ALL_SAS_LOGICAL_JBODS = [SAS_LOGICAL_JBOD_1, SAS_LOGICAL_JBOD_2]
 
 
-class SasLogicalJbodsFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class SasLogicalJbodsFactsSpec(unittest.TestCase,
+                               ModuleContructorTestCase,
+                               FactsParamsTestCase,
+                               ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, SasLogicalJbodFactsModule)
         self.resource = self.mock_ov_client.sas_logical_jbods
         FactsParamsTestCase.configure_client_mock(self, self.resource)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_get_all_sas_logical_jbods(self):
         self.resource.get_all.return_value = ALL_SAS_LOGICAL_JBODS
@@ -61,14 +65,6 @@ class SasLogicalJbodsFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fact
             ansible_facts=dict(sas_logical_jbods=(ALL_SAS_LOGICAL_JBODS))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.resource.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        SasLogicalJbodFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_sas_logical_jbod_attachment_by_name(self):
         self.resource.get_by.return_value = [SAS_LOGICAL_JBOD_2]
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -79,14 +75,6 @@ class SasLogicalJbodsFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fact
             changed=False,
             ansible_facts=dict(sas_logical_jbods=([SAS_LOGICAL_JBOD_2]))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.resource.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        SasLogicalJbodFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_sas_logical_jbod_with_options(self):
         self.resource.get_by.return_value = [SAS_LOGICAL_JBOD_2]

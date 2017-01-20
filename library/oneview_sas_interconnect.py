@@ -20,6 +20,8 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -168,18 +170,20 @@ class SasInterconnectModule(object):
                 )
                 changed = True
                 msg = self.states_success_message[state_name]
-            else:
+            elif self.states.get(state_name):
                 changed, msg, facts['sas_interconnect'] = self.change_state(state_name, sas_interconnect)
+            else:
+                changed, msg, facts = False, '', dict()
 
             self.module.exit_json(changed=changed, msg=msg, ansible_facts=facts)
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_by_name(self, name):
         sas_interconnects = self.resource_client.get_by('name', name)
 
         if not sas_interconnects:
-            raise Exception(SAS_INTERCONNECT_NOT_FOUND)
+            raise HPOneViewResourceNotFound(SAS_INTERCONNECT_NOT_FOUND)
 
         return sas_interconnects[0]
 
