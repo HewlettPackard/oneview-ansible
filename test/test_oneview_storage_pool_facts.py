@@ -18,6 +18,7 @@ import unittest
 from oneview_storage_pool_facts import StoragePoolFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -32,11 +33,15 @@ PARAMS_GET_BY_NAME = dict(
 )
 
 
-class StoragePoolFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class StoragePoolFactsSpec(unittest.TestCase,
+                           ModuleContructorTestCase,
+                           FactsParamsTestCase,
+                           ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, StoragePoolFactsModule)
         self.storage_pools = self.mock_ov_client.storage_pools
         FactsParamsTestCase.configure_client_mock(self, self.storage_pools)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.storage_pools.get_by)
 
     def test_should_get_all_storage_pool(self):
         self.storage_pools.get_all.return_value = {"name": "Storage Pool Name"}
@@ -49,14 +54,6 @@ class StoragePoolFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsPar
             ansible_facts=dict(storage_pools=({"name": "Storage Pool Name"}))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.storage_pools.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        StoragePoolFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_storage_pool_by_name(self):
         self.storage_pools.get_by.return_value = {"name": "Storage Pool Name"}
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -67,14 +64,6 @@ class StoragePoolFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsPar
             changed=False,
             ansible_facts=dict(storage_pools=({"name": "Storage Pool Name"}))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.storage_pools.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        StoragePoolFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

@@ -18,6 +18,8 @@
 from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -119,7 +121,7 @@ class StoragePoolModule(object):
             changed, msg, ansible_facts = False, '', {}
 
             if not data.get('poolName'):
-                raise Exception(STORAGE_POOL_MANDATORY_FIELD_MISSING)
+                raise HPOneViewValueError(STORAGE_POOL_MANDATORY_FIELD_MISSING)
 
             resource = (self.oneview_client.storage_pools.get_by("name", data['poolName']) or [None])[0]
 
@@ -132,7 +134,7 @@ class StoragePoolModule(object):
                                   msg=msg,
                                   ansible_facts=ansible_facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg=exception.args[0])
 
     def __present(self, data, resource):
