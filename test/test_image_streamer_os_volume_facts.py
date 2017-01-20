@@ -40,7 +40,7 @@ class OsVolumeFactsSpec(unittest.TestCase,
     def setUp(self):
         self.configure_mocks(self, OsVolumeFactsModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
-        ErrorHandlingTestCase.configure_client_mock(self, self.i3s.golden_images)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.i3s.os_volumes.get_by)
 
         FactsParamsTestCase.configure_client_mock(self, self.i3s.os_volumes)
 

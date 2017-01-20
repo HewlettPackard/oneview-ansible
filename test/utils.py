@@ -220,34 +220,36 @@ class FactsParamsTestCase(PreloadedMocksBaseTestCase):
 class ErrorHandlingTestCase(PreloadedMocksBaseTestCase):
     """
     ErrorHandlingTestCase has common test for the modules error handling.
+    It tests the errors raised by the Python OneView SDK.
     """
-    params_present = dict(
+    params = dict(
         config='config.json',
         state='present',
-        data=dict(name='Resource Identifier'))
+        name='Resource Identifier',  # required by facts modules
+        data=dict(name='Resource Identifier'))  # required by other modules
 
     error_message = 'Fake message error'
 
-    def configure_client_mock(self, resorce_client):
+    def configure(self, method_to_fire, ansible_params=params):
         """
         Args:
-             resorce_client: Resource client that is being called
+             method_to_fire: Mocked method that will raise the error.
+             ansible_params: Ansible module params.
         """
-        self._resource_client = resorce_client
+        self._ansible_params = ansible_params
+        self._method_to_fire = method_to_fire
 
     def test_should_call_fail_json_when_oneview_exception(self):
-        self.mock_ansible_module.params = self.params_present
-        fake_exception = Mock(side_effect=HPOneViewException(self.error_message))
-        self.mock_possible_calls_for_present(fake_exception)
+        self.mock_ansible_module.params = self._ansible_params
+        self._method_to_fire.side_effect = HPOneViewException(self.error_message)
 
         self._testing_class().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=self.error_message)
 
     def test_should_not_handle_value_error_exception(self):
-        self.mock_ansible_module.params = self.params_present
-        fake_exception = Mock(side_effect=ValueError(self.error_message))
-        self.mock_possible_calls_for_present(fake_exception)
+        self.mock_ansible_module.params = self._ansible_params
+        self._method_to_fire.side_effect = ValueError(self.error_message)
 
         try:
             self._testing_class().run()
@@ -257,8 +259,8 @@ class ErrorHandlingTestCase(PreloadedMocksBaseTestCase):
             self.fail('Expected ValueError was not raised')
 
     def test_should_not_handle_exception(self):
-        self.mock_ansible_module.params = self.params_present
-        self.mock_possible_calls_for_present(Mock(side_effect=Exception(self.error_message)))
+        self.mock_ansible_module.params = self._ansible_params
+        self._method_to_fire.side_effect = Exception(self.error_message)
 
         try:
             self._testing_class().run()
@@ -266,12 +268,3 @@ class ErrorHandlingTestCase(PreloadedMocksBaseTestCase):
             self.assertEqual(e.args[0], self.error_message)
         else:
             self.fail('Expected Exception was not raised')
-
-    def mock_possible_calls_for_present(self, side_effect):
-        self._resource_client.get.side_effect = side_effect
-        self._resource_client.get_all.side_effect = side_effect
-        self._resource_client.get_by.side_effect = side_effect
-        self._resource_client.get_by_name.side_effect = side_effect
-        self._resource_client.create.side_effect = side_effect
-        self._resource_client.add.side_effect = side_effect
-        self._resource_client.update.side_effect = side_effect

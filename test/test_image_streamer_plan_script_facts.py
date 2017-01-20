@@ -42,7 +42,7 @@ class PlanScriptFactsSpec(unittest.TestCase,
         self.i3s = self.mock_ov_client.create_image_streamer_client()
 
         FactsParamsTestCase.configure_client_mock(self, self.i3s.plan_scripts)
-        ErrorHandlingTestCase.configure_client_mock(self, self.i3s.plan_scripts)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.i3s.plan_scripts.get_by)
 
         # Load scenarios from module examples
         self.PLAN_SCRIPT_FACTS_EXAMPLES = yaml.load(EXAMPLES)

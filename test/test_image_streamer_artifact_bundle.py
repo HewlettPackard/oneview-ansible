@@ -44,7 +44,7 @@ class ArtifactBundleSpec(unittest.TestCase,
         self.configure_mocks(self, ArtifactBundleModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
 
-        ErrorHandlingTestCase.configure_client_mock(self, self.i3s.artifact_bundles)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.i3s.artifact_bundles.get_by)
 
         self.ARTIFACT_BUNDLE_EXAMPLES = yaml.load(EXAMPLES)
 
