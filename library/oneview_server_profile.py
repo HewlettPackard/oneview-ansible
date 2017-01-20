@@ -23,6 +23,9 @@ try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare, merge_list_by_key
     from hpOneView.exceptions import HPOneViewTaskError
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -280,7 +283,7 @@ class ServerProfileModule(object):
                 self.module.exit_json(
                     changed=changed, msg=msg, ansible_facts=self.__gather_facts(server_profile)
                 )
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data, resource):
@@ -296,13 +299,13 @@ class ServerProfileModule(object):
         if server_hardware_name:
             selected_server_hardware = self.__get_server_hardware_by_name(server_hardware_name)
             if not selected_server_hardware:
-                raise ValueError(HARDWARE_NOT_FOUND.format(server_hardware_name))
+                raise HPOneViewValueError(HARDWARE_NOT_FOUND.format(server_hardware_name))
             data['serverHardwareUri'] = selected_server_hardware['uri']
 
         if server_template_name:
             server_template = self.oneview_client.server_profile_templates.get_by_name(server_template_name)
             if not server_template:
-                raise ValueError(TEMPLATE_NOT_FOUND.format(server_template_name))
+                raise HPOneViewValueError(TEMPLATE_NOT_FOUND.format(server_template_name))
             data['serverProfileTemplateUri'] = server_template['uri']
         elif data.get('serverProfileTemplateUri'):
             server_template = self.oneview_client.server_profile_templates.get(data['serverProfileTemplateUri'])
@@ -396,7 +399,7 @@ class ServerProfileModule(object):
                 else:
                     raise task_error
 
-        raise Exception(ERROR_ALLOCATE_SERVER_HARDWARE)
+        raise HPOneViewException(ERROR_ALLOCATE_SERVER_HARDWARE)
 
     def __build_new_profile_data(self, data, server_template, server_hardware_uri):
 
@@ -581,13 +584,13 @@ class ServerProfileModule(object):
     def __get_os_deployment_by_name(self, name):
         os_deployment = self.oneview_client.os_deployment_plans.get_by_name(name)
         if not os_deployment:
-            raise Exception(SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND + name)
+            raise HPOneViewResourceNotFound(SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND + name)
         return os_deployment
 
     def __get_enclosure_group_by_name(self, name):
         enclosure_group = self.oneview_client.enclosure_groups.get_by('name', name)
         if not enclosure_group:
-            raise Exception(SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND + name)
+            raise HPOneViewResourceNotFound(SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND + name)
         return enclosure_group[0]
 
     def __get_network_by_name(self, name):
@@ -597,7 +600,7 @@ class ServerProfileModule(object):
 
         ethernet_networks = self.oneview_client.ethernet_networks.get_by('name', name)
         if not ethernet_networks:
-            raise Exception(SERVER_PROFILE_NETWORK_NOT_FOUND + name)
+            raise HPOneViewResourceNotFound(SERVER_PROFILE_NETWORK_NOT_FOUND + name)
         return ethernet_networks[0]
 
 

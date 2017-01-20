@@ -18,6 +18,7 @@ import unittest
 
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 from oneview_server_profile_facts import ServerProfileFactsModule
 from copy import deepcopy
@@ -97,7 +98,8 @@ PARAMS_WITH_OPTIONS = dict(
 
 class ServerProfileFactsSpec(unittest.TestCase,
                              ModuleContructorTestCase,
-                             FactsParamsTestCase):
+                             FactsParamsTestCase,
+                             ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
     mocks used in this test class.
@@ -108,6 +110,7 @@ class ServerProfileFactsSpec(unittest.TestCase,
         self.configure_mocks(self, ServerProfileFactsModule)
 
         FactsParamsTestCase.configure_client_mock(self, self.mock_ov_client.server_profiles)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.server_profiles.get_by)
 
     def test_should_get_all_servers(self):
         server_profiles = [
@@ -124,15 +127,6 @@ class ServerProfileFactsSpec(unittest.TestCase,
             changed=False,
             ansible_facts=dict(server_profiles=server_profiles)
         )
-
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.mock_ov_client.server_profiles.get_all.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = deepcopy(PARAMS_GET_ALL)
-
-        ServerProfileFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_by_name(self):
         servers = [{"name": "Server Profile Name", 'uri': '/rest/test/123'}]
@@ -239,15 +233,6 @@ class ServerProfileFactsSpec(unittest.TestCase,
                            'server_profile_available_targets': mock_option_return,
                            }
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.mock_ov_client.server_profiles.get_by.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = deepcopy(PARAMS_GET_BY_NAME)
-
-        ServerProfileFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
