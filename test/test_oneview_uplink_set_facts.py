@@ -17,7 +17,9 @@
 import unittest
 
 from oneview_uplink_set_facts import UplinkSetFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from utils import ModuleContructorTestCase
+from utils import ErrorHandlingTestCase
+from utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -37,11 +39,15 @@ PRESENT_UPLINKS = [{
 }]
 
 
-class UplinkSetFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class UplinkSetFactsSpec(unittest.TestCase,
+                         ModuleContructorTestCase,
+                         FactsParamsTestCase,
+                         ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, UplinkSetFactsModule)
         self.resource = self.mock_ov_client.uplink_sets
         FactsParamsTestCase.configure_client_mock(self, self.resource)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_get_all(self):
         self.resource.get_all.return_value = PRESENT_UPLINKS
@@ -54,14 +60,6 @@ class UplinkSetFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParam
             ansible_facts=dict(uplink_sets=(PRESENT_UPLINKS))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.resource.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        UplinkSetFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_by_name(self):
         self.resource.get_by.return_value = PRESENT_UPLINKS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -72,14 +70,6 @@ class UplinkSetFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParam
             changed=False,
             ansible_facts=dict(uplink_sets=(PRESENT_UPLINKS))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.resource.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        UplinkSetFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
