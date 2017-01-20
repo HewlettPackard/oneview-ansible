@@ -15,7 +15,7 @@
 ###
 import unittest
 import yaml
-from test.utils import PreloadedMocksBaseTestCase, ModuleContructorTestCase
+from test.utils import PreloadedMocksBaseTestCase, ModuleContructorTestCase, ErrorHandlingTestCase
 
 from oneview_sas_logical_interconnect import SasLogicalInterconnectModule, \
     SAS_LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED, SAS_LOGICAL_INTERCONNECT_DRIVE_ENCLOSURE_REPLACED, \
@@ -30,14 +30,19 @@ SAS_LOGICAL_INTERCONNECT = {
 }
 
 
-class SasLogicalInterconnectClientConfigurationSpec(unittest.TestCase, ModuleContructorTestCase):
+class SasLogicalInterconnectBasicConfigurationSpec(unittest.TestCase,
+                                                   ModuleContructorTestCase,
+                                                   ErrorHandlingTestCase):
     """
     Test the module constructor
     ModuleContructorTestCase has common tests for class constructor and main function
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, SasLogicalInterconnectModule)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.sas_logical_interconnects.get_by)
 
 
 class SasLogicalInterconnectCompliantStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
@@ -172,20 +177,6 @@ class SasLogicalInterconnectConfigurationUpdatedStateSpec(unittest.TestCase, Pre
             msg=SAS_LOGICAL_INTERCONNECT_NOT_FOUND
         )
 
-    def test_should_fail_when_update_configuration_raises_exception(self):
-        # Mock OneView resource functions
-        self.resource.get_by.return_value = [SAS_LOGICAL_INTERCONNECT]
-        self.resource.update_configuration.side_effect = Exception(FAKE_MSG_ERROR)
-
-        # Mock Ansible params
-        self.mock_ansible_module.params = yaml.load(self.YAML_CONFIGURATION)
-
-        SasLogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
 
 class SasLogicalInterconnectFirmwareInstalledStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     YAML_FIRMWARE_WITH_SPP_NAME = """
@@ -262,16 +253,6 @@ class SasLogicalInterconnectFirmwareInstalledStateSpec(unittest.TestCase, Preloa
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=SAS_LOGICAL_INTERCONNECT_NOT_FOUND
         )
-
-    def test_should_fail_when_install_firmware_raises_exception(self):
-        self.resource.get_by.return_value = [SAS_LOGICAL_INTERCONNECT]
-        self.resource.update_firmware.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = yaml.load(self.YAML_FIRMWARE_WITH_SPP_URI)
-
-        SasLogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=FAKE_MSG_ERROR)
 
 
 class SasLogicalInterconnectDriveEnclosureReplacedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):

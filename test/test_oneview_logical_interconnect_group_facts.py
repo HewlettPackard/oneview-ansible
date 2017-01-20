@@ -18,6 +18,7 @@ import unittest
 from oneview_logical_interconnect_group_facts import LogicalInterconnectGroupFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -37,11 +38,15 @@ PRESENT_LIGS = [{
 }]
 
 
-class LogicalInterconnectGroupFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class LogicalInterconnectGroupFactsSpec(unittest.TestCase,
+                                        ModuleContructorTestCase,
+                                        FactsParamsTestCase,
+                                        ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, LogicalInterconnectGroupFactsModule)
         self.logical_interconnect_groups = self.mock_ov_client.logical_interconnect_groups
         FactsParamsTestCase.configure_client_mock(self, self.logical_interconnect_groups)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.logical_interconnect_groups.get_by)
 
     def test_should_get_all_ligs(self):
         self.logical_interconnect_groups.get_all.return_value = PRESENT_LIGS
@@ -54,14 +59,6 @@ class LogicalInterconnectGroupFactsSpec(unittest.TestCase, ModuleContructorTestC
             ansible_facts=dict(logical_interconnect_groups=(PRESENT_LIGS))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.logical_interconnect_groups.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        LogicalInterconnectGroupFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_lig_by_name(self):
         self.logical_interconnect_groups.get_by.return_value = PRESENT_LIGS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -72,14 +69,6 @@ class LogicalInterconnectGroupFactsSpec(unittest.TestCase, ModuleContructorTestC
             changed=False,
             ansible_facts=dict(logical_interconnect_groups=(PRESENT_LIGS))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.logical_interconnect_groups.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        LogicalInterconnectGroupFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

@@ -20,6 +20,9 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -171,7 +174,7 @@ class SasLogicalInterconnectModule(object):
                 resource = self.__get_log_interconnect_by_name(data['name'])
 
                 if not resource:
-                    raise Exception(SAS_LOGICAL_INTERCONNECT_NOT_FOUND)
+                    raise HPOneViewResourceNotFound(SAS_LOGICAL_INTERCONNECT_NOT_FOUND)
 
                 uri = resource['uri']
 
@@ -186,7 +189,7 @@ class SasLogicalInterconnectModule(object):
                                   msg=msg,
                                   ansible_facts=ansible_facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __compliance(self, data):
@@ -195,7 +198,7 @@ class SasLogicalInterconnectModule(object):
 
         if not uris:
             if 'logicalInterconnectNames' not in data:
-                raise Exception(SAS_LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
+                raise HPOneViewValueError(SAS_LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
 
             uris = self.__resolve_log_interconnect_names(data['logicalInterconnectNames'])
 
@@ -214,7 +217,7 @@ class SasLogicalInterconnectModule(object):
         for name in interconnectNames:
             li = self.__get_log_interconnect_by_name(name)
             if not li:
-                raise Exception(SAS_LOGICAL_INTERCONNECT_NOT_FOUND)
+                raise HPOneViewResourceNotFound(SAS_LOGICAL_INTERCONNECT_NOT_FOUND)
             uris.append(li['uri'])
 
         return uris

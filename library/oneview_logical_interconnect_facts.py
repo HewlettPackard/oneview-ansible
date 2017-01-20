@@ -18,6 +18,8 @@
 from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -223,13 +225,13 @@ class LogicalInterconnectFactsModule(object):
                 facts = dict(logical_interconnects=logical_interconnects)
 
             self.module.exit_json(changed=False, ansible_facts=facts)
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg=exception.args[0])
 
     def __get_by_name(self, name):
         logical_interconnect = self.resource_client.get_by_name(name=name)
         if not logical_interconnect:
-            raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
+            raise HPOneViewResourceNotFound(LOGICAL_INTERCONNECT_NOT_FOUND)
 
         facts = dict(logical_interconnects=logical_interconnect)
 

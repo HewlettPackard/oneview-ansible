@@ -16,7 +16,7 @@
 import unittest
 import mock
 
-from utils import ValidateEtagTestCase, ModuleContructorTestCase, PreloadedMocksBaseTestCase
+from utils import ValidateEtagTestCase, ModuleContructorTestCase, PreloadedMocksBaseTestCase, ErrorHandlingTestCase
 
 from oneview_logical_interconnect import (LogicalInterconnectModule,
                                           LOGICAL_INTERCONNECT_CONSISTENT,
@@ -45,7 +45,10 @@ LOGICAL_INTERCONNECT = {'uri': '/rest/logical-interconnects/id',
                         }}
 
 
-class LogicalInterconnectModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class LogicalInterconnectModuleSpec(unittest.TestCase,
+                                    ModuleContructorTestCase,
+                                    ValidateEtagTestCase,
+                                    ErrorHandlingTestCase):
     """
     Test the module constructor and shared functions
     ModuleContructorTestCase has common tests for class constructor and main function
@@ -56,6 +59,7 @@ class LogicalInterconnectModuleSpec(unittest.TestCase, ModuleContructorTestCase,
     def setUp(self):
         self.configure_mocks(self, LogicalInterconnectModule)
         self.resource = self.mock_ov_client.logical_interconnects
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by_name)
 
     def test_should_fail_when_option_is_invalid(self):
         self.mock_ansible_module.params = dict(
@@ -108,18 +112,6 @@ class LogicalInterconnectCompliantStateSpec(unittest.TestCase, PreloadedMocksBas
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=LOGICAL_INTERCONNECT_NOT_FOUND
-        )
-
-    def test_should_fail_when_compliance_raises_exception(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.resource.update_compliance.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_COMPLIANCE
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
@@ -192,19 +184,6 @@ class LogicalInterconnectEthernetSettingsUpdatedStateSpec(unittest.TestCase, Pre
             msg=LOGICAL_INTERCONNECT_NOT_FOUND
         )
 
-    def test_should_fail_when_update_ethernet_raises_exception(self
-                                                               ):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.resource.update_ethernet_settings.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_ETHERNET_SETTINGS
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
 
 class LogicalInterconnectInternalNetworksUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     """
@@ -273,19 +252,6 @@ class LogicalInterconnectInternalNetworksUpdatedStateSpec(unittest.TestCase, Pre
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND + "Network Name 2"
-        )
-
-    def test_should_fail_when_update_internal_networks_raises_exception(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.mock_ov_client.ethernet_networks.get_by.side_effect = [[{'uri': '/path/1'}], [{'uri': '/path/2'}]]
-        self.resource.update_internal_networks.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_INTERNAL_NETWORKS
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
@@ -401,18 +367,6 @@ class LogicalInterconnectSettingsUpdatedStateSpec(unittest.TestCase, PreloadedMo
             msg=LOGICAL_INTERCONNECT_NOT_FOUND
         )
 
-    def test_should_fail_when_update_settings_raises_exception(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.resource.update_settings.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_SETTTINGS
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     def test_should_fail_when_settings_are_invalid(self):
         self.mock_ansible_module.params = dict(
             config='config.json',
@@ -470,19 +424,6 @@ class LogicalInterconnectForwardingInformationBaseGeneratedStateSpec(unittest.Te
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=LOGICAL_INTERCONNECT_NOT_FOUND
-        )
-
-    def test_should_fail_when_generate_fib_raises_exception(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.resource.create_forwarding_information_base.side_effect = \
-            Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_GENERATE_FIB
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
@@ -568,19 +509,6 @@ class LogicalInterconnectQosAggregatedConfigurationUpdatedStateSpec(unittest.Tes
             msg=LOGICAL_INTERCONNECT_NOT_FOUND
         )
 
-    def test_should_fail_when_update_qos_raises_exception(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.resource.get_qos_aggregated_configuration.return_value = self.qos_config
-        self.resource.update_qos_aggregated_configuration.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_QOS_AGGREG_CONFIG
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
 
 class LogicalInterconnectSnmpConfigurationUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     """
@@ -642,20 +570,6 @@ class LogicalInterconnectSnmpConfigurationUpdatedStateSpec(unittest.TestCase, Pr
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=LOGICAL_INTERCONNECT_NOT_FOUND
-        )
-
-    def test_should_fail_when_update_snmp_raises_exception(self
-                                                           ):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.resource.get_snmp_configuration.return_value = self.snmp_config
-        self.resource.update_snmp_configuration.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_SNMP_CONFIG
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
@@ -721,19 +635,6 @@ class LogicalInterconnectPortMonitorUpdatedStateSpec(unittest.TestCase, Preloade
             msg=LOGICAL_INTERCONNECT_NOT_FOUND
         )
 
-    def test_should_fail_when_update_port_monitor_raises_exception(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.resource.get_port_monitor.return_value = self.monitor_config
-        self.resource.update_port_monitor.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_PORT_MONITOR_CONFIGURATION
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
 
 class LogicalInterconnectConfigurationUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     """
@@ -773,19 +674,6 @@ class LogicalInterconnectConfigurationUpdatedStateSpec(unittest.TestCase, Preloa
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=LOGICAL_INTERCONNECT_NOT_FOUND
-        )
-
-    def test_should_fail_when_update_configuration_raises_exception(self
-                                                                    ):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.resource.update_configuration.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_CONFIGURATION
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
@@ -861,18 +749,6 @@ class LogicalInterconnectFirmwareUpdatedStateSpec(unittest.TestCase, PreloadedMo
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=LOGICAL_INTERCONNECT_NOT_FOUND
-        )
-
-    def test_should_fail_when_install_firmware_raises_exception(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.resource.install_firmware.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_FIRMWARE_WITH_SPP_URI
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
