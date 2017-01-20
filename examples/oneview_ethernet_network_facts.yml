@@ -56,4 +56,3 @@
 
     - debug: var=enet_associated_profiles
     - debug: var=enet_associated_uplink_groups
-

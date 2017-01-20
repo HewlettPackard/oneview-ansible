@@ -974,6 +974,36 @@ class ServerProfileModuleSpec(unittest.TestCase,
         expected_error = STORAGE_SYSTEM_NOT_FOUND + "system1"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
+    def test_should_replace_enclosure_name_by_uri(self):
+        uri = "/rest/enclosures/09SGH100X6J1"
+        enclosure = {"name": "Enclosure-474", "uri": uri}
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['enclosureName'] = "Enclosure-474"
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.enclosures.get_by.return_value = [enclosure]
+
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0].get('enclosureUri'), uri)
+        self.assertEqual(args[0].get('enclosureName'), None)
+
+    def test_should_fail_when_enclosure_name_not_found(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['enclosureName'] = "Enclosure-474"
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.enclosures.get_by.return_value = []
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        expected_error = SERVER_HARDWARE_TYPE_NOT_FOUND + "Enclosure-474"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
     def test_should_remove_mac_from_connections_before_create_when_mac_is_virtual(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
         params['data'][KEY_CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
