@@ -14,12 +14,12 @@
 # limitations under the License.
 ###
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_firmware_bundle import FirmwareBundleModule
 from oneview_firmware_bundle import FIRMWARE_BUNDLE_UPLOADED
-from test.utils import create_ansible_mock
+
+from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 DEFAULT_FIRMWARE_FILE_PATH = '/path/to/file.rpm'
@@ -42,76 +42,27 @@ PARAMS_FOR_PRESENT = dict(
 )
 
 
-class FirmwareBundleClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_firmware_bundle.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class FirmwareBundleModuleSpec(unittest.TestCase,
+                               ModuleContructorTestCase,
+                               ErrorHandlingTestCase):
 
-        FirmwareBundleModule()
+    def setUp(self):
+        self.configure_mocks(self, FirmwareBundleModule)
+        ErrorHandlingTestCase.configure(self, ansible_params=PARAMS_FOR_PRESENT,
+                                        method_to_fire=self.mock_ov_client.firmware_bundles.upload)
 
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
+    def test_should_upload(self):
+        self.mock_ov_client.firmware_drivers.get_by_file_name.return_value = None
+        self.mock_ov_client.firmware_bundles.upload.side_effect = [DEFAULT_FIRMWARE_TEMPLATE]
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_firmware_bundle.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        FirmwareBundleModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class FirmwareBundlePresentStateSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_firmware_bundle.AnsibleModule')
-    def test_should_upload(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.firmware_drivers.get_by_file_name.return_value = None
-        mock_ov_instance.firmware_bundles.upload.side_effect = [DEFAULT_FIRMWARE_TEMPLATE]
-
-        mock_from_json.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         FirmwareBundleModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=FIRMWARE_BUNDLE_UPLOADED,
             ansible_facts=dict(firmware_bundle=DEFAULT_FIRMWARE_TEMPLATE)
-        )
-
-
-class FirmwareBundleErrorHandlingSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_firmware_bundle.AnsibleModule')
-    def test_should_fail_when_upload_raises_exception(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.firmware_drivers.get_by_file_name.return_value = []
-        mock_ov_instance.firmware_bundles.upload.side_effect = Exception(FAKE_MSG_ERROR)
-
-        mock_from_json.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        self.assertRaises(Exception, FirmwareBundleModule().run())
-
-        mock_ansible_instance.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
