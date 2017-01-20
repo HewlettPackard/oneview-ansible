@@ -6637,6 +6637,9 @@ Manage OneView Server Profile resources.
         # You can choose either serverHardwareTypeUri or serverHardwareTypeName to inform the Server Hardware Type
         # serverHardwareTypeUri: '/rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C'
         # serverHardwareTypeName: 'SY 480 Gen9 1'
+        # You can choose either enclosureName or enclosureUri to inform the Enclosure
+        # enclosureUri: '/rest/enclosures/09SGH100Z6J1'
+        enclosureName: '0000A66102'
         sanStorage:
           hostOSType: 'Windows 2012 / WS2012 R2'
           manageSanStorage: true
@@ -6648,6 +6651,10 @@ Manage OneView Server Profile resources.
               # You can choose either volumeStoragePoolUri or volumeStoragePoolName to inform the Volume Storage Pool
               # volumeStoragePoolName: 'FST_CPG2'
               volumeStoragePoolUri: '/rest/storage-pools/30303437-3933-4753-4831-30335835524E'
+              # You can choose either volumeStorageSystemUri or volumeStorageSystemName to inform the Volume Storage
+              # System
+              # volumeStorageSystemName: 'ThreePAR7200-2127'
+              volumeStorageSystemUri: '/rest/storage-systems/TXQ1000307'
               lunType: 'Auto'
               storagePaths:
                 - isEnabled: true

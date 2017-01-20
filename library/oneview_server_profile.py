@@ -91,6 +91,7 @@ SERVER_HARDWARE_TYPE_NOT_FOUND = 'Server Hardware Type not found: '
 VOLUME_NOT_FOUND = 'Volume not found: '
 STORAGE_POOL_NOT_FOUND = 'Storage Pool not found: '
 STORAGE_SYSTEM_NOT_FOUND = 'Storage System not found: '
+INTERCONNECT_NOT_FOUND = 'Interconnect not found: '
 
 CONCURRENCY_FAILOVER_RETRIES = 25
 
@@ -179,7 +180,8 @@ EXAMPLES = '''
               # You can choose either volumeStoragePoolUri or volumeStoragePoolName to inform the Volume Storage Pool
               # volumeStoragePoolName: 'FST_CPG2'
               volumeStoragePoolUri: '/rest/storage-pools/30303437-3933-4753-4831-30335835524E'
-              # You can choose either volumeStorageSystemUri or volumeStorageSystemName to inform the Volume Storage System
+              # You can choose either volumeStorageSystemUri or volumeStorageSystemName to inform the Volume Storage
+              # System
               # volumeStorageSystemName: 'ThreePAR7200-2127'
               volumeStorageSystemUri: '/rest/storage-systems/TXQ1000307'
               lunType: 'Auto'
@@ -459,7 +461,7 @@ class ServerProfileModule(object):
         # Remove the MAC from connections when MAC type is Virtual or Physical
         mac_type = data.get(KEY_MAC_TYPE, None)
         if mac_type and is_virtual_or_physical(mac_type):
-            for conn in data.get(KEY_CONNECTIONS, []):
+            for conn in data.get(KEY_CONNECTIONS) or []:
                 conn.pop(KEY_MAC, None)
 
         # Remove the UUID when Serial Number Type is Virtual or Physical
@@ -598,6 +600,7 @@ class ServerProfileModule(object):
         self.__replace_server_hardware_type_name_by_uri(data)
         self.__replace_volume_attachment_names_by_uri(data)
         self.__replace_enclosure_name_by_uri(data)
+        self.__replace_interconnect_name_by_uri(data)
 
     def __replace_os_deployment_name_by_uri(self, data):
         if KEY_OS_DEPLOYMENT in data and data[KEY_OS_DEPLOYMENT]:
@@ -611,7 +614,7 @@ class ServerProfileModule(object):
             data['enclosureGroupUri'] = enclosure_group['uri']
 
     def __replace_networks_name_by_uri(self, data):
-        if KEY_CONNECTIONS in data:
+        if KEY_CONNECTIONS in data and data[KEY_CONNECTIONS]:
             for connection in data[KEY_CONNECTIONS]:
                 if 'networkName' in connection:
                     name = connection.pop('networkName', None)
@@ -650,6 +653,17 @@ class ServerProfileModule(object):
             if not enclsoures:
                 raise HPOneViewResourceNotFound(SERVER_HARDWARE_TYPE_NOT_FOUND + name)
             data['enclosureUri'] = enclsoures[0]['uri']
+
+    def __replace_interconnect_name_by_uri(self, data):
+        connections = data.get('connections') or []
+        if len(connections) > 0:
+            for connection in connections:
+                if 'interconnectName' in connection:
+                    name = connection.pop('interconnectName')
+                    interconnect = self.oneview_client.interconnects.get_by_name(name)
+                    if not interconnect:
+                        raise HPOneViewResourceNotFound(INTERCONNECT_NOT_FOUND + name)
+                    connection['interconnectUri'] = interconnect['uri']
 
     def __get_os_deployment_by_name(self, name):
         os_deployment = self.oneview_client.os_deployment_plans.get_by_name(name)

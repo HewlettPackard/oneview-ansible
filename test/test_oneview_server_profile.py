@@ -33,7 +33,7 @@ from oneview_server_profile import MAKE_COMPLIANT_NOT_SUPPORTED, SERVER_PROFILE_
     KEY_MAC_TYPE, KEY_MAC, KEY_SERIAL_NUMBER_TYPE, KEY_SERIAL_NUMBER, KEY_UUID, KEY_WWPN_TYPE, KEY_LUN, KEY_WWNN, \
     KEY_WWPN, KEY_DRIVE_NUMBER, SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND, SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND, \
     SERVER_PROFILE_NETWORK_NOT_FOUND, SERVER_HARDWARE_TYPE_NOT_FOUND, VOLUME_NOT_FOUND, STORAGE_POOL_NOT_FOUND, \
-    STORAGE_SYSTEM_NOT_FOUND
+    STORAGE_SYSTEM_NOT_FOUND, INTERCONNECT_NOT_FOUND
 
 SERVER_PROFILE_NAME = "Profile101"
 SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
@@ -1002,6 +1002,74 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         expected_error = SERVER_HARDWARE_TYPE_NOT_FOUND + "Enclosure-474"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_interconnect_name_by_uri(self):
+        interconnect1 = {"name": "interconnect1", "uri": "/rest/interconnects/1"}
+        interconnect2 = {"name": "interconnect2", "uri": "/rest/interconnects/2"}
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['connections'] = [
+            {"id": 1, "interconnectName": "interconnect1"},
+            {"id": 2, "interconnectName": "interconnect2"}
+        ]
+
+        expected = deepcopy(params['data'])
+        expected['connections'][0] = {"id": 1, "interconnectUri": "/rest/interconnects/1"}
+        expected['connections'][1] = {"id": 2, "interconnectUri": "/rest/interconnects/2"}
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.interconnects.get_by_name.side_effect = [interconnect1, interconnect2]
+
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected)
+
+    def test_should_not_replace_when_inform_interconnect_uri(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['connections'] = [
+            {"id": 1, "interconnectUri": "/rest/interconnects/1"},
+            {"id": 2, "interconnectUri": "/rest/interconnects/2"}
+        ]
+
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.interconnects.get_by_name.assert_not_called()
+
+    def test_should_not_replace_interconnect_name_when_connections_is_none(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['connections'] = None
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.interconnects.get_by_name.assert_not_called()
+
+    def test_should_fail_when_interconnect_name_not_found(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['connections'] = [{"id": 1, "interconnectName": "interconnect1"}]
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.interconnects.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        expected_error = INTERCONNECT_NOT_FOUND + "interconnect1"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_remove_mac_from_connections_before_create_when_mac_is_virtual(self):
