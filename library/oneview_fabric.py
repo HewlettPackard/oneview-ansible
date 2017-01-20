@@ -20,6 +20,8 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -106,13 +108,13 @@ class FabricModule(object):
         try:
             if state == 'reserved_vlan_range_updated':
                 self.__reserved_vlan_range_updated(data)
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __reserved_vlan_range_updated(self, data):
         resource = self.__get_by_name(data)
         if not resource:
-            raise Exception(EXCEPTION_NO_RESOURCE)
+            raise HPOneViewResourceNotFound(EXCEPTION_NO_RESOURCE)
         resource_vlan_range = resource.get('reservedVlanRange')
         merged_data = resource_vlan_range.copy()
         merged_data.update(data['reservedVlanRangeParameters'])
