@@ -20,7 +20,9 @@ from oneview_ethernet_network import EthernetNetworkModule, ETHERNET_NETWORK_CRE
     ETHERNET_NETWORK_UPDATED, ETHERNET_NETWORK_DELETED, ETHERNET_NETWORK_ALREADY_ABSENT, \
     ETHERNET_NETWORKS_CREATED, MISSING_ETHERNET_NETWORKS_CREATED, ETHERNET_NETWORKS_ALREADY_EXIST, \
     ETHERNET_NETWORK_CONNECTION_TEMPLATE_RESET, ETHERNET_NETWORK_NOT_FOUND
-from test.utils import ModuleContructorTestCase, ValidateEtagTestCase
+from test.utils import ModuleContructorTestCase
+from test.utils import ValidateEtagTestCase
+from test.utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 DEFAULT_ETHERNET_NAME = 'Test Ethernet Network'
@@ -91,16 +93,23 @@ DEFAULT_BULK_ENET_TEMPLATE = [
 DICT_PARAMS_WITH_CHANGES = yaml.load(YAML_PARAMS_WITH_CHANGES)["data"]
 
 
-class EthernetNetworkModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class EthernetNetworkModuleSpec(unittest.TestCase,
+                                ModuleContructorTestCase,
+                                ValidateEtagTestCase,
+                                ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
+
     ValidateEtagTestCase has common tests for the validate_etag attribute.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, EthernetNetworkModule)
         self.resource = self.mock_ov_client.ethernet_networks
+        ErrorHandlingTestCase.configure(self, ansible_params=PARAMS_TO_RENAME, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_ethernet_network(self):
         self.resource.get_by.return_value = []
@@ -249,42 +258,6 @@ class EthernetNetworkModuleSpec(unittest.TestCase, ModuleContructorTestCase, Val
             ansible_facts={},
             changed=False,
             msg=ETHERNET_NETWORK_ALREADY_ABSENT
-        )
-
-    def test_should_fail_when_create_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        self.assertRaises(Exception, EthernetNetworkModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_update_raises_exception(self):
-        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
-        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
-
-        self.assertRaises(Exception, EthernetNetworkModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
-        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-
-        self.assertRaises(Exception, EthernetNetworkModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
     def test_should_create_all_ethernet_networks(self):
