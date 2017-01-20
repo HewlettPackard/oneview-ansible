@@ -19,6 +19,9 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -160,18 +163,18 @@ class DriveEnclosureModule(object):
 
             self.module.exit_json(changed=changed, ansible_facts=dict(drive_enclosure=resource_updated))
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_drive_enclosure(self, data):
         name = data.get('name')
         if not name:
-            raise Exception(DRIVE_ENCLOSURE_NAME_REQUIRED)
+            raise HPOneViewValueError(DRIVE_ENCLOSURE_NAME_REQUIRED)
         else:
             result = self.oneview_client.drive_enclosures.get_by('name', name)
 
             if not result:
-                raise Exception(DRIVE_ENCLOSURE_NOT_FOUND)
+                raise HPOneViewResourceNotFound(DRIVE_ENCLOSURE_NOT_FOUND)
 
             return result[0]
 

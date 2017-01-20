@@ -19,19 +19,17 @@ import unittest
 from oneview_drive_enclosure_facts import DriveEnclosureFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
-DRIVE_ENCLOSURE_URI = '/rest/drive-enclosures/SN123101'
-DRIVE_ENCLOSURE_NAME = '0000A66102, bay 1'
-
 DICT_DEFAULT_DRIVE_ENCLOSURE = {
-    'name': DRIVE_ENCLOSURE_NAME,
+    'name': '/rest/drive-enclosures/SN123101',
     'powerState': 'On',
     'status': 'OK',
     'type': 'drive-enclosure',
     'uidState': 'Off',
-    'uri': DRIVE_ENCLOSURE_URI
+    'uri': '0000A66102, bay 1'
 }
 
 MOCK_DRIVE_ENCLOSURES = [
@@ -61,11 +59,16 @@ PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
 )
 
 
-class DriveEnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class DriveEnclosureFactsSpec(unittest.TestCase,
+                              ModuleContructorTestCase,
+                              FactsParamsTestCase,
+                              ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, DriveEnclosureFactsModule)
         self.drive_enclosures = self.mock_ov_client.drive_enclosures
+
         FactsParamsTestCase.configure_client_mock(self, self.drive_enclosures)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.drive_enclosures.get_by)
 
     def test_should_get_all(self):
         self.drive_enclosures.get_all.return_value = MOCK_DRIVE_ENCLOSURES
@@ -79,15 +82,6 @@ class DriveEnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, Facts
             ansible_facts=dict(drive_enclosures=(MOCK_DRIVE_ENCLOSURES))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.drive_enclosures.get_all.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        DriveEnclosureFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_by_name(self):
         self.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
 
@@ -99,15 +93,6 @@ class DriveEnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, Facts
             changed=False,
             ansible_facts=dict(drive_enclosures=[DICT_DEFAULT_DRIVE_ENCLOSURE])
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.drive_enclosures.get_by.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        DriveEnclosureFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_by_name_with_options(self):
         self.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
@@ -122,16 +107,6 @@ class DriveEnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, Facts
             ansible_facts=dict(drive_enclosures=[DICT_DEFAULT_DRIVE_ENCLOSURE],
                                drive_enclosure_port_map=MOCK_PORT_MAP)
         )
-
-    def test_should_fail_when_get_port_map_raises_exception(self):
-        self.drive_enclosures.get_by.return_value = MOCK_DRIVE_ENCLOSURES
-        self.drive_enclosures.get_port_map.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
-
-        DriveEnclosureFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
