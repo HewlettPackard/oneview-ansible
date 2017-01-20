@@ -18,6 +18,7 @@ import unittest
 from oneview_switch_facts import SwitchFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -47,11 +48,15 @@ SWITCH = dict(name=SWITCH_NAME, uri=SWITCH_URI)
 ALL_SWITCHES = [SWITCH, dict(name='172.18.20.2')]
 
 
-class SwitchFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class SwitchFactsSpec(unittest.TestCase,
+                      ModuleContructorTestCase,
+                      FactsParamsTestCase,
+                      ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, SwitchFactsModule)
         self.switches = self.mock_ov_client.switches
         FactsParamsTestCase.configure_client_mock(self, self.switches)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.switches.get_by)
 
     def test_should_get_all(self):
         self.switches.get_all.return_value = ALL_SWITCHES
@@ -77,22 +82,6 @@ class SwitchFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTe
             changed=False,
             ansible_facts=dict(switches=switches)
         )
-
-    def test_should_fail_when_get_all_raises_error(self):
-        self.switches.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        SwitchFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
-
-    def test_should_fail_when_get_by_raises_error(self):
-        self.switches.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        SwitchFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
     def test_should_get_by_name_with_options(self):
         switches = [SWITCH]

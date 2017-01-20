@@ -19,6 +19,7 @@
 from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -116,7 +117,7 @@ class SwitchModule(object):
                 changed, msg = self.__update_ports(resource)
 
             self.module.exit_json(changed=changed, msg=msg)
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_by_name(self, name):
