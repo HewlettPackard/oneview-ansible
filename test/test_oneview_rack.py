@@ -17,7 +17,7 @@ import unittest
 
 from oneview_rack import RackModule, RACK_CREATED, RACK_ALREADY_EXIST, RACK_UPDATED, \
     RACK_DELETED, RACK_ALREADY_ABSENT
-from utils import ModuleContructorTestCase, ValidateEtagTestCase
+from utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
 
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -47,16 +47,20 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class RackPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class RackModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
+
     ValidateEtagTestCase has common tests for the validate_etag attribute.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, RackModule)
         self.resource = self.mock_ov_client.racks
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_rack(self):
         self.resource.get_by.return_value = []
@@ -103,30 +107,6 @@ class RackPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, Validate
             ansible_facts=dict(rack=data_merged)
         )
 
-    def test_should_fail_when_create_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.add.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        self.assertRaises(Exception, RackModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_update_raises_exception(self):
-        self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
-        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
-
-        self.assertRaises(Exception, RackModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     def test_should_remove_rack(self):
         self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
 
@@ -149,18 +129,6 @@ class RackPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, Validate
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=RACK_ALREADY_ABSENT
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
-        self.resource.remove.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-
-        self.assertRaises(Exception, RackModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
