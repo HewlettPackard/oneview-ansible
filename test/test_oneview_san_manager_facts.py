@@ -16,17 +16,20 @@
 import unittest
 
 from oneview_san_manager_facts import SanManagerFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
 
 
 class SanManagerFactsSpec(unittest.TestCase,
                           ModuleContructorTestCase,
-                          FactsParamsTestCase):
+                          FactsParamsTestCase,
+                          ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
     mocks used in this test class.
 
     FactsParamsTestCase has common tests for the parameters support.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     ERROR_MSG = 'Fake message error'
@@ -51,6 +54,8 @@ class SanManagerFactsSpec(unittest.TestCase,
         self.san_managers = self.mock_ov_client.san_managers
 
         FactsParamsTestCase.configure_client_mock(self, self.san_managers)
+        ErrorHandlingTestCase.configure(self, ansible_params=self.PARAMS_GET_ALL,
+                                        method_to_fire=self.san_managers.get_all)
 
     def test_should_get_all(self):
         self.san_managers.get_all.return_value = self.PRESENT_SAN_MANAGERS
@@ -63,14 +68,6 @@ class SanManagerFactsSpec(unittest.TestCase,
             ansible_facts=dict(san_managers=(self.PRESENT_SAN_MANAGERS))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.san_managers.get_all.side_effect = Exception(self.ERROR_MSG)
-        self.mock_ansible_module.params = self.PARAMS_GET_ALL
-
-        SanManagerFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_by_display_name(self):
         self.san_managers.get_by_provider_display_name.return_value = self.PRESENT_SAN_MANAGERS[0]
         self.mock_ansible_module.params = self.PARAMS_GET_BY_PROVIDER_DISPLAY_NAME
@@ -81,14 +78,6 @@ class SanManagerFactsSpec(unittest.TestCase,
             changed=False,
             ansible_facts=dict(san_managers=(self.PRESENT_SAN_MANAGERS))
         )
-
-    def test_should_fail_when_get_by_provider_display_name_raises_exception(self):
-        self.san_managers.get_by_provider_display_name.side_effect = Exception(self.ERROR_MSG)
-        self.mock_ansible_module.params = self.PARAMS_GET_BY_PROVIDER_DISPLAY_NAME
-
-        SanManagerFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
