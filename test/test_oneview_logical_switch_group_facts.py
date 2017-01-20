@@ -19,15 +19,20 @@ import yaml
 from oneview_logical_switch_group_facts import LogicalSwitchGroupFactsModule, EXAMPLES
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
-class LogicalSwitchGroupFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class LogicalSwitchGroupFactsSpec(unittest.TestCase,
+                                  ModuleContructorTestCase,
+                                  FactsParamsTestCase,
+                                  ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, LogicalSwitchGroupFactsModule)
         self.logical_switch_groups = self.mock_ov_client.logical_switch_groups
         FactsParamsTestCase.configure_client_mock(self, self.logical_switch_groups)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.logical_switch_groups.get_by)
 
         LSG_EXAMPLES = yaml.load(EXAMPLES)
 
@@ -45,14 +50,6 @@ class LogicalSwitchGroupFactsSpec(unittest.TestCase, ModuleContructorTestCase, F
             ansible_facts=dict(logical_switch_groups=({"name": "Logical Switch Group"}))
         )
 
-    def test_should_fail_when_get_by_raises_error(self):
-        self.logical_switch_groups.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
-
-        LogicalSwitchGroupFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_all_logical_switch_groups(self):
         self.logical_switch_groups.get_all.return_value = {"name": "Logical Switch Group"}
         self.mock_ansible_module.params = self.PARAMS_GET_ALL
@@ -63,14 +60,6 @@ class LogicalSwitchGroupFactsSpec(unittest.TestCase, ModuleContructorTestCase, F
             changed=False,
             ansible_facts=dict(logical_switch_groups=({"name": "Logical Switch Group"}))
         )
-
-    def test_should_fail_when_get_all_raises_error(self):
-        self.logical_switch_groups.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = self.PARAMS_GET_ALL
-
-        LogicalSwitchGroupFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

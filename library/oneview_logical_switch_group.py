@@ -19,6 +19,8 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -169,7 +171,7 @@ class LogicalSwitchGroupModule(object):
                                   msg=msg,
                                   ansible_facts=ansible_facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg=exception.args[0])
 
     def __present(self, data, resource):
@@ -216,7 +218,7 @@ class LogicalSwitchGroupModule(object):
         if switch_type:
             return switch_type[0]
         else:
-            raise Exception(SWITCH_TYPE_NOT_FOUND)
+            raise HPOneViewResourceNotFound(SWITCH_TYPE_NOT_FOUND)
 
     def __absent(self, resource):
         if resource:

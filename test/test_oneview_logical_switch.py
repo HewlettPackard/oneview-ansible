@@ -20,7 +20,7 @@ from oneview_logical_switch import LOGICAL_SWITCH_CREATED, LOGICAL_SWITCH_UPDATE
     LOGICAL_SWITCH_ALREADY_EXIST, LOGICAL_SWITCH_ALREADY_ABSENT, LOGICAL_SWITCH_REFRESHED, LOGICAL_SWITCH_NOT_FOUND, \
     LOGICAL_SWITCH_GROUP_NOT_FOUND
 
-from utils import ValidateEtagTestCase, ModuleContructorTestCase
+from utils import ValidateEtagTestCase, ModuleContructorTestCase, PreloadedMocksBaseTestCase, ErrorHandlingTestCase
 
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -36,7 +36,10 @@ LOGICAL_SWITCH_FROM_ONEVIEW = dict(
 )
 
 
-class LogicalSwitchPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class LogicalSwitchPresentStateSpec(unittest.TestCase,
+                                    ModuleContructorTestCase,
+                                    ValidateEtagTestCase,
+                                    ErrorHandlingTestCase):
     """
     Test the module constructor
     ModuleContructorTestCase has common tests for class constructor and main function
@@ -61,6 +64,8 @@ class LogicalSwitchPresentStateSpec(unittest.TestCase, ModuleContructorTestCase,
         self.configure_mocks(self, LogicalSwitchModule)
         self.resource = self.mock_ov_client.logical_switches
         self.logical_switch_group_client = self.mock_ov_client.logical_switch_groups
+        ErrorHandlingTestCase.configure(self, ansible_params=self.PARAMS_FOR_PRESENT,
+                                        method_to_fire=self.logical_switch_group_client.get_by)
 
     def test_should_create_new_logical_switch(self):
         self.resource.get_by.return_value = []
@@ -91,19 +96,6 @@ class LogicalSwitchPresentStateSpec(unittest.TestCase, ModuleContructorTestCase,
             ansible_facts=dict(logical_switch=LOGICAL_SWITCH_FROM_ONEVIEW)
         )
 
-    def test_should_fail_when_create_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.logical_switch_group_client.get_by.return_value = [{'uri': '/rest/logical-switch-groups/aa-bb-cc'}]
-        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
-
-        self.assertRaises(Exception, LogicalSwitchModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     def test_should_fail_when_group_not_found(self):
         self.resource.get_by.return_value = []
         self.logical_switch_group_client.get_by.return_value = []
@@ -111,20 +103,14 @@ class LogicalSwitchPresentStateSpec(unittest.TestCase, ModuleContructorTestCase,
 
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
 
-        self.assertRaises(Exception, LogicalSwitchModule().run())
+        LogicalSwitchModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=LOGICAL_SWITCH_GROUP_NOT_FOUND
         )
 
 
-class LogicalSwitchUpdatedStateSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function
-    ValidateEtagTestCase has common tests for the validate_etag attribute,
-    also provides the mocks used in this test case.
-    """
-
+class LogicalSwitchUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     PARAMS_FOR_UPDATE = dict(
         config='config.json',
         state='updated',
@@ -199,19 +185,6 @@ class LogicalSwitchUpdatedStateSpec(unittest.TestCase, ModuleContructorTestCase,
             msg=LOGICAL_SWITCH_GROUP_NOT_FOUND
         )
 
-    def test_should_fail_when_update_raises_exception(self):
-        self.resource.get_by.side_effect = [[LOGICAL_SWITCH_FROM_ONEVIEW], []]
-        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
-        self.logical_switch_group_client.get_by.return_value = [{'uri': '/rest/logical-switch-groups/aa-bb-cc'}]
-
-        self.mock_ansible_module.params = self.PARAMS_FOR_UPDATE
-
-        LogicalSwitchModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     def test_should_update_with_current_switches_and_group_when_not_provided(self):
         self.resource.get_by.side_effect = [[LOGICAL_SWITCH_FROM_ONEVIEW], []]
         self.resource.update.return_value = LOGICAL_SWITCH_FROM_ONEVIEW
@@ -258,7 +231,7 @@ class LogicalSwitchUpdatedStateSpec(unittest.TestCase, ModuleContructorTestCase,
         self.resource.update.assert_called_once_with(data_for_update)
 
 
-class LogicalSwitchAbsentStateSpec(unittest.TestCase, ModuleContructorTestCase):
+class LogicalSwitchAbsentStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function
     """
@@ -297,20 +270,8 @@ class LogicalSwitchAbsentStateSpec(unittest.TestCase, ModuleContructorTestCase):
             msg=LOGICAL_SWITCH_ALREADY_ABSENT
         )
 
-    def test_should_fail_when_delete_raises_exception(self):
-        self.resource.get_by.return_value = [LOGICAL_SWITCH_FROM_ONEVIEW]
-        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
 
-        self.mock_ansible_module.params = self.PARAMS_FOR_ABSENT
-
-        self.assertRaises(Exception, LogicalSwitchModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-
-class LogicalSwitchRefreshedStateSpec(unittest.TestCase, ModuleContructorTestCase):
+class LogicalSwitchRefreshedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function
     """
@@ -349,29 +310,6 @@ class LogicalSwitchRefreshedStateSpec(unittest.TestCase, ModuleContructorTestCas
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=LOGICAL_SWITCH_NOT_FOUND
-        )
-
-    def test_should_fail_when_refresh_raises_exception(self):
-        self.resource.get_by.return_value = [LOGICAL_SWITCH_FROM_ONEVIEW]
-        self.resource.refresh.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_FOR_REFRESH
-
-        self.assertRaises(Exception, LogicalSwitchModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_get_by_raises_exception(self):
-        self.resource.get_by.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_FOR_REFRESH
-
-        self.assertRaises(Exception, LogicalSwitchModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
