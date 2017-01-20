@@ -19,6 +19,9 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -226,7 +229,7 @@ class ServerHardwareModule(object):
 
             else:
                 if not data.get('name'):
-                    raise Exception(SERVER_HARDWARE_MANDATORY_FIELD_MISSING.format("data.name"))
+                    raise HPOneViewValueError(SERVER_HARDWARE_MANDATORY_FIELD_MISSING.format("data.name"))
 
                 resource = self.__get_server_hardware(data['name'])
 
@@ -234,7 +237,7 @@ class ServerHardwareModule(object):
                     changed, msg, ansible_facts = self.__absent(resource)
                 else:
                     if not resource:
-                        raise Exception(SERVER_HARDWARE_NOT_FOUND)
+                        raise HPOneViewResourceNotFound(SERVER_HARDWARE_NOT_FOUND)
 
                     if state == 'power_state_set':
                         changed, msg, ansible_facts = self.__set_power_state(data, resource)
@@ -252,7 +255,7 @@ class ServerHardwareModule(object):
                                   msg=msg,
                                   ansible_facts=ansible_facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg=exception.args[0])
 
     def __get_server_hardware(self, name):
@@ -261,7 +264,7 @@ class ServerHardwareModule(object):
     def __present(self, data):
 
         if not data.get('hostname'):
-            raise Exception(SERVER_HARDWARE_MANDATORY_FIELD_MISSING.format("data.hostname"))
+            raise HPOneViewValueError(SERVER_HARDWARE_MANDATORY_FIELD_MISSING.format("data.hostname"))
 
         resource = self.__get_server_hardware(data['hostname'])
 

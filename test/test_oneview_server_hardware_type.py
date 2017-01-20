@@ -22,7 +22,9 @@ from oneview_server_hardware_type import (ServerHardwareTypeModule,
                                           SERVER_HARDWARE_TYPE_ALREADY_UPDATED,
                                           SERVER_HARDWARE_TYPE_UPDATED,
                                           SERVER_HARDWARE_TYPE_NOT_FOUND)
-from test.utils import ModuleContructorTestCase, ValidateEtagTestCase
+from test.utils import ModuleContructorTestCase
+from test.utils import ValidateEtagTestCase
+from test.utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -54,16 +56,21 @@ DICT_DEFAULT_SERVER_HARDWARE_TYPE = yaml.load(YAML_SERVER_HARDWARE_TYPE)["data"]
 DICT_DEFAULT_SERVER_HARDWARE_TYPE_CHANGED = yaml.load(YAML_SERVER_HARDWARE_TYPE_CHANGE)["data"]
 
 
-class ServerHardwareTypeSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class ServerHardwareTypeSpec(unittest.TestCase,
+                             ModuleContructorTestCase,
+                             ValidateEtagTestCase,
+                             ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function
     ValidateEtagTestCase has common tests for the validate_etag attribute, also provides the mocks used in this test
     case.
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, ServerHardwareTypeModule)
         self.resource = self.mock_ov_client.server_hardware_types
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_update_the_server_hardware_type(self):
         srv_hw_type = DICT_DEFAULT_SERVER_HARDWARE_TYPE.copy()
@@ -121,39 +128,15 @@ class ServerHardwareTypeSpec(unittest.TestCase, ModuleContructorTestCase, Valida
             msg=SERVER_HARDWARE_TYPE_ALREADY_ABSENT
         )
 
-    def test_should_fail_when_update_raises_exception(self):
-        self.resource.get_by.return_value = [{'uri': 'test'}]
-        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_TYPE)
-
-        self.assertRaises(Exception, ServerHardwareTypeModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     def test_should_fail_when_server_hardware_type_was_not_found(self):
         self.resource.get_by.return_value = []
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_TYPE)
 
-        self.assertRaises(Exception, ServerHardwareTypeModule().run())
+        ServerHardwareTypeModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=SERVER_HARDWARE_TYPE_NOT_FOUND
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.resource.get_by.return_value = [DICT_DEFAULT_SERVER_HARDWARE_TYPE]
-        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_TYPE_ABSENT)
-
-        self.assertRaises(Exception, ServerHardwareTypeModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
