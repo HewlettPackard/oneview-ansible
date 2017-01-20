@@ -21,6 +21,9 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewValueError
+    from hpOneView.exceptions import HPOneViewResourceNotFound
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -158,7 +161,7 @@ class ServerProfileTemplateModule(object):
                 result = self.__absent(template)
 
             self.module.exit_json(**result)
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data, template):
@@ -217,13 +220,13 @@ class ServerProfileTemplateModule(object):
     def __get_enclosure_group_by_name(self, name):
         enclosure_group = self.oneview_client.enclosure_groups.get_by('name', name)
         if not enclosure_group:
-            raise Exception(SRV_PROFILE_TEMPLATE_ENCLOSURE_GROUP_NOT_FOUND + name)
+            raise HPOneViewResourceNotFound(SRV_PROFILE_TEMPLATE_ENCLOSURE_GROUP_NOT_FOUND + name)
         return enclosure_group[0]
 
     def __get_server_hardware_types_by_name(self, name):
         resources = self.oneview_client.server_hardware_types.get_by('name', name)
         if not resources:
-            raise Exception(SRV_PROFILE_TEMPLATE_SRV_HW_TYPE_NOT_FOUND + name)
+            raise HPOneViewValueError(SRV_PROFILE_TEMPLATE_SRV_HW_TYPE_NOT_FOUND + name)
         return resources[0]
 
 
