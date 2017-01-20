@@ -19,6 +19,8 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -154,7 +156,7 @@ class StorageSystemModule(object):
                                   msg=msg,
                                   ansible_facts=ansible_facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg=exception.args[0])
 
     def __present(self, data):
@@ -164,7 +166,7 @@ class StorageSystemModule(object):
 
         if not resource:
             if 'credentials' not in data:
-                raise Exception(STORAGE_SYSTEM_CREDENTIALS_MANDATORY)
+                raise HPOneViewValueError(STORAGE_SYSTEM_CREDENTIALS_MANDATORY)
             resource = self.oneview_client.storage_systems.add(data['credentials'])
             changed = True
             msg = STORAGE_SYSTEM_ADDED
@@ -207,7 +209,7 @@ class StorageSystemModule(object):
         elif data.get('name'):
             return self.oneview_client.storage_systems.get_by_name(data['name'])
         else:
-            raise Exception(STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING)
+            raise HPOneViewValueError(STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING)
 
 
 def main():

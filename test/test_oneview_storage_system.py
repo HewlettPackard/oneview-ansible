@@ -19,7 +19,7 @@ import yaml
 from oneview_storage_system import StorageSystemModule, STORAGE_SYSTEM_ADDED, STORAGE_SYSTEM_ALREADY_UPDATED, \
     STORAGE_SYSTEM_UPDATED, STORAGE_SYSTEM_DELETED, STORAGE_SYSTEM_ALREADY_ABSENT, \
     STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING, STORAGE_SYSTEM_CREDENTIALS_MANDATORY
-from test.utils import ModuleContructorTestCase, ValidateEtagTestCase
+from test.utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -81,7 +81,10 @@ DICT_DEFAULT_STORAGE_SYSTEM = yaml.load(YAML_STORAGE_SYSTEM)["data"]
 del DICT_DEFAULT_STORAGE_SYSTEM['credentials']['password']
 
 
-class StorageSystemModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class StorageSystemModuleSpec(unittest.TestCase,
+                              ModuleContructorTestCase,
+                              ValidateEtagTestCase,
+                              ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
@@ -91,6 +94,7 @@ class StorageSystemModuleSpec(unittest.TestCase, ModuleContructorTestCase, Valid
     def setUp(self):
         self.configure_mocks(self, StorageSystemModule)
         self.resource = self.mock_ov_client.storage_systems
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by_name)
 
     def test_should_create_new_storage_system(self):
         self.resource.get_by_ip_hostname.return_value = None
@@ -176,18 +180,6 @@ class StorageSystemModuleSpec(unittest.TestCase, ModuleContructorTestCase, Valid
             ansible_facts=dict(storage_system=data_merged)
         )
 
-    def test_should_fail_when_add_raises_exception(self):
-        self.resource.get_by_ip_hostname.return_value = []
-        self.resource.add.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM)
-
-        self.assertRaises(Exception, StorageSystemModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     def test_should_remove_storage_system(self):
         self.resource.get_by_ip_hostname.return_value = DICT_DEFAULT_STORAGE_SYSTEM
 
@@ -212,18 +204,6 @@ class StorageSystemModuleSpec(unittest.TestCase, ModuleContructorTestCase, Valid
             ansible_facts={},
             changed=False,
             msg=STORAGE_SYSTEM_ALREADY_ABSENT
-        )
-
-    def test_should_not_delete_when_oneview_exception(self):
-        self.resource.get_by_ip_hostname.return_value = [DICT_DEFAULT_STORAGE_SYSTEM]
-        self.resource.remove.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_ABSENT)
-
-        self.assertRaises(Exception, StorageSystemModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 
