@@ -31,9 +31,9 @@ from oneview_server_profile import MAKE_COMPLIANT_NOT_SUPPORTED, SERVER_PROFILE_
     KEY_OS_DEPLOYMENT, KEY_ATTRIBUTES, KEY_SAN, KEY_VOLUMES, KEY_PATHS, KEY_BOOT, KEY_BIOS, KEY_BOOT_MODE, \
     KEY_LOCAL_STORAGE, KEY_SAS_LOGICAL_JBODS, KEY_CONTROLLERS, KEY_LOGICAL_DRIVES, KEY_SAS_LOGICAL_JBOD_URI, \
     KEY_MAC_TYPE, KEY_MAC, KEY_SERIAL_NUMBER_TYPE, KEY_SERIAL_NUMBER, KEY_UUID, KEY_WWPN_TYPE, KEY_LUN, KEY_WWNN, \
-    KEY_WWPN, KEY_DRIVE_NUMBER, SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND, SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND, \
-    SERVER_PROFILE_NETWORK_NOT_FOUND, SERVER_HARDWARE_TYPE_NOT_FOUND, VOLUME_NOT_FOUND, STORAGE_POOL_NOT_FOUND, \
-    STORAGE_SYSTEM_NOT_FOUND, INTERCONNECT_NOT_FOUND, FIRMWARE_DRIVER_NOT_FOUND, SAS_LOGICAL_JBOD_NOT_FOUND
+    KEY_WWPN, KEY_DRIVE_NUMBER
+
+from oneview_server_profile import ServerProfileReplaceNamesByUris
 
 SERVER_PROFILE_NAME = "Profile101"
 SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
@@ -587,7 +587,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
-        self.mock_ov_client.os_deployment_plans.get_by_name.return_value = dict(uri=uri)
+        self.mock_ov_client.os_deployment_plans.get_by.return_value = [dict(uri=uri)]
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
@@ -600,12 +600,12 @@ class ServerProfileModuleSpec(unittest.TestCase,
         params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
-        self.mock_ov_client.os_deployment_plans.get_by_name.return_value = None
+        self.mock_ov_client.os_deployment_plans.get_by.return_value = []
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
 
-        expected_error = SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND + "Deployment Plan Name"
+        expected_error = ServerProfileReplaceNamesByUris.SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND + "Deployment Plan Name"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_replace_enclosure_group_name_by_uri_on_creation(self):
@@ -634,8 +634,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND + "Enclosure Group Name"
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+        message = ServerProfileReplaceNamesByUris.SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND + "Enclosure Group Name"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=message)
 
     def test_should_replace_connections_name_by_uri_on_creation(self):
         conn_1 = dict(name="connection-1", networkUri='/rest/fc-networks/98')
@@ -672,7 +672,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = SERVER_PROFILE_NETWORK_NOT_FOUND + "FC Network"
+        expected_error = ServerProfileReplaceNamesByUris.SERVER_PROFILE_NETWORK_NOT_FOUND + "FC Network"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_replace_server_hardware_type_name_by_uri(self):
@@ -702,7 +702,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = SERVER_HARDWARE_TYPE_NOT_FOUND + "SY 480 Gen9 1"
+        expected_error = ServerProfileReplaceNamesByUris.SERVER_HARDWARE_TYPE_NOT_FOUND + "SY 480 Gen9 1"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_replace_volume_names_by_uri(self):
@@ -791,7 +791,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = VOLUME_NOT_FOUND + "volume1"
+        expected_error = ServerProfileReplaceNamesByUris.VOLUME_NOT_FOUND + "volume1"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_replace_storage_pool_names_by_uri(self):
@@ -881,7 +881,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = STORAGE_POOL_NOT_FOUND + "pool1"
+        expected_error = ServerProfileReplaceNamesByUris.STORAGE_POOL_NOT_FOUND + "pool1"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_replace_storage_system_names_by_uri(self):
@@ -971,7 +971,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = STORAGE_SYSTEM_NOT_FOUND + "system1"
+        expected_error = ServerProfileReplaceNamesByUris.STORAGE_SYSTEM_NOT_FOUND + "system1"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_replace_enclosure_name_by_uri(self):
@@ -1001,7 +1001,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = SERVER_HARDWARE_TYPE_NOT_FOUND + "Enclosure-474"
+        expected_error = ServerProfileReplaceNamesByUris.ENCLOSURE_NOT_FOUND + "Enclosure-474"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_replace_interconnect_name_by_uri(self):
@@ -1018,7 +1018,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         expected['connections'][1] = {"id": 2, "interconnectUri": "/rest/interconnects/2"}
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
-        self.mock_ov_client.interconnects.get_by_name.side_effect = [interconnect1, interconnect2]
+        self.mock_ov_client.interconnects.get_by.side_effect = [[interconnect1], [interconnect2]]
 
         self.mock_ansible_module.params = params
 
@@ -1043,7 +1043,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
         self.assertEqual(args[0], expected_dict)
-        self.mock_ov_client.interconnects.get_by_name.assert_not_called()
+        self.mock_ov_client.interconnects.get_by.assert_not_called()
 
     def test_should_not_replace_interconnect_name_when_connections_is_none(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
@@ -1057,19 +1057,19 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
         self.assertEqual(args[0], expected_dict)
-        self.mock_ov_client.interconnects.get_by_name.assert_not_called()
+        self.mock_ov_client.interconnects.get_by.assert_not_called()
 
     def test_should_fail_when_interconnect_name_not_found(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
         params['data']['connections'] = [{"id": 1, "interconnectName": "interconnect1"}]
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
-        self.mock_ov_client.interconnects.get_by_name.return_value = None
+        self.mock_ov_client.interconnects.get_by.return_value = None
         self.mock_ansible_module.params = params
 
         ServerProfileModule().run()
 
-        expected_error = INTERCONNECT_NOT_FOUND + "interconnect1"
+        expected_error = ServerProfileReplaceNamesByUris.INTERCONNECT_NOT_FOUND + "interconnect1"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_replace_firmware_baseline_name_by_uri(self):
@@ -1129,7 +1129,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = FIRMWARE_DRIVER_NOT_FOUND + "firmwareName001"
+        expected_error = ServerProfileReplaceNamesByUris.FIRMWARE_DRIVER_NOT_FOUND + "firmwareName001"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_replace_sas_logical_jbod_names_by_uris(self):
@@ -1219,7 +1219,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = SAS_LOGICAL_JBOD_NOT_FOUND + "jbod1"
+        expected_error = ServerProfileReplaceNamesByUris.SAS_LOGICAL_JBOD_NOT_FOUND + "jbod1"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_remove_mac_from_connections_before_create_when_mac_is_virtual(self):
@@ -1595,7 +1595,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
-        self.mock_ov_client.os_deployment_plans.get_by_name.return_value = dict(uri=uri)
+        self.mock_ov_client.os_deployment_plans.get_by.return_value = [dict(uri=uri)]
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
@@ -1608,12 +1608,12 @@ class ServerProfileModuleSpec(unittest.TestCase,
         params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
-        self.mock_ov_client.os_deployment_plans.get_by_name.return_value = None
+        self.mock_ov_client.os_deployment_plans.get_by.return_value = []
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
 
-        expected_error = SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND + "Deployment Plan Name"
+        expected_error = ServerProfileReplaceNamesByUris.SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND + "Deployment Plan Name"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_replace_enclosure_group_name_by_uri_on_update(self):
@@ -1642,8 +1642,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND + "Enclosure Group Name"
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+        message = ServerProfileReplaceNamesByUris.SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND + "Enclosure Group Name"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=message)
 
     def test_should_replace_connections_name_by_uri_on_update(self):
         conn_1 = dict(name="connection-1", networkUri='/rest/fc-networks/98')
@@ -1680,7 +1680,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = SERVER_PROFILE_NETWORK_NOT_FOUND + "FC Network"
+        expected_error = ServerProfileReplaceNamesByUris.SERVER_PROFILE_NETWORK_NOT_FOUND + "FC Network"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     @mock.patch('oneview_server_profile.resource_compare')

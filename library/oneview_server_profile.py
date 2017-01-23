@@ -57,7 +57,6 @@ KEY_CONTROLLERS = 'controllers'
 KEY_LOGICAL_DRIVES = 'logicalDrives'
 KEY_SAS_LOGICAL_JBOD_URI = 'sasLogicalJBODUri'
 KEY_SAS_LOGICAL_JBOD_ID = 'sasLogicalJBODId'
-KEY_DEVICE_SLOT = 'deviceSlot'
 KEY_MODE = 'mode'
 KEY_MAC_TYPE = 'macType'
 KEY_MAC = 'mac'
@@ -335,7 +334,7 @@ class ServerProfileModule(object):
         changed = False
         created = False
 
-        self.__replace_names_by_uris(data)
+        ServerProfileReplaceNamesByUris().replace(self.oneview_client, data)
 
         if server_hardware_name:
             selected_server_hardware = self.__get_server_hardware_by_name(server_hardware_name)
@@ -599,122 +598,6 @@ class ServerProfileModule(object):
             self.oneview_client.server_hardware.update_power_state(
                 dict(powerState='Off', powerControl='PressAndHold'), hardware_uri)
 
-    def __replace_names_by_uris(self, data):
-        self.__replace_os_deployment_name_by_uri(data)
-        self.__replace_enclosure_group_name_by_uri(data)
-        self.__replace_networks_name_by_uri(data)
-        self.__replace_server_hardware_type_name_by_uri(data)
-        self.__replace_volume_attachment_names_by_uri(data)
-        self.__replace_enclosure_name_by_uri(data)
-        self.__replace_interconnect_name_by_uri(data)
-        self.__replace_firmware_baseline_name_by_uri(data)
-        self.__replace_sas_logical_jbod_name_by_uri(data)
-
-    def __replace_os_deployment_name_by_uri(self, data):
-        if KEY_OS_DEPLOYMENT in data and data[KEY_OS_DEPLOYMENT]:
-            if 'osDeploymentPlanName' in data[KEY_OS_DEPLOYMENT]:
-                os_deployment = self.__get_os_deployment_by_name(data[KEY_OS_DEPLOYMENT].pop('osDeploymentPlanName'))
-                data[KEY_OS_DEPLOYMENT][KEY_OS_DEPLOYMENT_URI] = os_deployment['uri']
-
-    def __replace_enclosure_group_name_by_uri(self, data):
-        if 'enclosureGroupName' in data:
-            enclosure_group = self.__get_enclosure_group_by_name(data.pop('enclosureGroupName'))
-            data['enclosureGroupUri'] = enclosure_group['uri']
-
-    def __replace_networks_name_by_uri(self, data):
-        if KEY_CONNECTIONS in data and data[KEY_CONNECTIONS]:
-            for connection in data[KEY_CONNECTIONS]:
-                if 'networkName' in connection:
-                    name = connection.pop('networkName', None)
-                    connection['networkUri'] = self.__get_network_by_name(name)['uri']
-
-    def __replace_server_hardware_type_name_by_uri(self, data):
-        if 'serverHardwareTypeName' in data:
-            name = data.pop('serverHardwareTypeName')
-            sh_types = self.oneview_client.server_hardware_types.get_by('name', name)
-            if not sh_types:
-                raise HPOneViewResourceNotFound(SERVER_HARDWARE_TYPE_NOT_FOUND + name)
-            data['serverHardwareTypeUri'] = sh_types[0]['uri']
-
-    def __replace_volume_attachment_names_by_uri(self, data):
-        def replace(volume_attachment, attr_name, attr_uri, message, resource_client):
-            if attr_name in volume_attachment:
-                name = volume_attachment.pop(attr_name)
-                resource_by_name = resource_client.get_by('name', name)
-                if not resource_by_name:
-                    raise HPOneViewResourceNotFound(message + name)
-                volume_attachment[attr_uri] = resource_by_name[0]['uri']
-
-        volume_attachments = (data.get('sanStorage') or {}).get('volumeAttachments') or []
-        if len(volume_attachments) > 0:
-            for volume in volume_attachments:
-                replace(volume, 'volumeName', 'volumeUri', VOLUME_NOT_FOUND, self.oneview_client.volumes)
-                replace(volume, 'volumeStoragePoolName', 'volumeStoragePoolUri', STORAGE_POOL_NOT_FOUND,
-                        self.oneview_client.storage_pools)
-                replace(volume, 'volumeStorageSystemName', 'volumeStorageSystemUri', STORAGE_SYSTEM_NOT_FOUND,
-                        self.oneview_client.storage_systems)
-
-    def __replace_enclosure_name_by_uri(self, data):
-        if 'enclosureName' in data:
-            name = data.pop('enclosureName')
-            enclsoures = self.oneview_client.enclosures.get_by('name', name)
-            if not enclsoures:
-                raise HPOneViewResourceNotFound(SERVER_HARDWARE_TYPE_NOT_FOUND + name)
-            data['enclosureUri'] = enclsoures[0]['uri']
-
-    def __replace_interconnect_name_by_uri(self, data):
-        connections = data.get('connections') or []
-        if len(connections) > 0:
-            for connection in connections:
-                if 'interconnectName' in connection:
-                    name = connection.pop('interconnectName')
-                    interconnect = self.oneview_client.interconnects.get_by_name(name)
-                    if not interconnect:
-                        raise HPOneViewResourceNotFound(INTERCONNECT_NOT_FOUND + name)
-                    connection['interconnectUri'] = interconnect['uri']
-
-    def __replace_firmware_baseline_name_by_uri(self, data):
-        firmware = data.get('firmware') or {}
-        if 'firmwareBaselineName' in firmware:
-            name = firmware.pop('firmwareBaselineName')
-            firmware_drivers = self.oneview_client.firmware_drivers.get_by("name", name)
-            if not firmware_drivers:
-                raise HPOneViewResourceNotFound(FIRMWARE_DRIVER_NOT_FOUND + name)
-            data['firmware']['firmwareBaselineUri'] = firmware_drivers[0]['uri']
-
-    def __replace_sas_logical_jbod_name_by_uri(self, data):
-        sas_logical_jbods = (data.get('localStorage') or {}).get('sasLogicalJBODs') or []
-        if len(sas_logical_jbods) > 0:
-            for jbod in sas_logical_jbods:
-                if 'sasLogicalJBODName' in jbod:
-                    name = jbod.pop('sasLogicalJBODName')
-                    sas_logical_jbod = self.oneview_client.sas_logical_jbods.get_by("name", name)
-                    if not sas_logical_jbod:
-                        raise HPOneViewResourceNotFound(SAS_LOGICAL_JBOD_NOT_FOUND + name)
-                    jbod['sasLogicalJBODUri'] = sas_logical_jbod[0]['uri']
-
-    def __get_os_deployment_by_name(self, name):
-        os_deployment = self.oneview_client.os_deployment_plans.get_by_name(name)
-        if not os_deployment:
-            raise HPOneViewResourceNotFound(SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND + name)
-        return os_deployment
-
-    def __get_enclosure_group_by_name(self, name):
-        enclosure_group = self.oneview_client.enclosure_groups.get_by('name', name)
-        if not enclosure_group:
-            raise HPOneViewResourceNotFound(SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND + name)
-        return enclosure_group[0]
-
-    def __get_network_by_name(self, name):
-        fc_networks = self.oneview_client.fc_networks.get_by('name', name)
-        if fc_networks:
-            return fc_networks[0]
-
-        ethernet_networks = self.oneview_client.ethernet_networks.get_by('name', name)
-        if not ethernet_networks:
-            raise HPOneViewResourceNotFound(SERVER_PROFILE_NETWORK_NOT_FOUND + name)
-        return ethernet_networks[0]
-
 
 class ServerProfileMerger(object):
     def merge_data(self, resource, data):
@@ -903,6 +786,104 @@ class ServerProfileMerger(object):
             merged_dict.update(deepcopy(data[key]))
         merged_data[key] = merged_dict
         return merged_data
+
+
+class ServerProfileReplaceNamesByUris(object):
+    SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND = 'OS Deployment Plan not found: '
+    SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND = 'Enclosure Group not found: '
+    SERVER_PROFILE_NETWORK_NOT_FOUND = 'Network not found: '
+    SERVER_HARDWARE_TYPE_NOT_FOUND = 'Server Hardware Type not found: '
+    VOLUME_NOT_FOUND = 'Volume not found: '
+    STORAGE_POOL_NOT_FOUND = 'Storage Pool not found: '
+    STORAGE_SYSTEM_NOT_FOUND = 'Storage System not found: '
+    INTERCONNECT_NOT_FOUND = 'Interconnect not found: '
+    FIRMWARE_DRIVER_NOT_FOUND = 'Firmware Driver not found: '
+    SAS_LOGICAL_JBOD_NOT_FOUND = 'SAS logical JBOD not found: '
+    ENCLOSURE_NOT_FOUND = 'Enclosure not found: '
+
+    def replace(self, oneview_client, data):
+        self.oneview_client = oneview_client
+        self.__replace_os_deployment_name_by_uri(data)
+        self.__replace_enclosure_group_name_by_uri(data)
+        self.__replace_networks_name_by_uri(data)
+        self.__replace_server_hardware_type_name_by_uri(data)
+        self.__replace_volume_attachment_names_by_uri(data)
+        self.__replace_enclosure_name_by_uri(data)
+        self.__replace_interconnect_name_by_uri(data)
+        self.__replace_firmware_baseline_name_by_uri(data)
+        self.__replace_sas_logical_jbod_name_by_uri(data)
+
+    def __replace_name_by_uri(self, data, attr_name, message, resource_client):
+        attr_uri = attr_name.replace("Name", "Uri")
+        if attr_name in data:
+            name = data.pop(attr_name)
+            resource_by_name = resource_client.get_by('name', name)
+            if not resource_by_name:
+                raise HPOneViewResourceNotFound(message + name)
+            data[attr_uri] = resource_by_name[0]['uri']
+
+    def __replace_os_deployment_name_by_uri(self, data):
+        if KEY_OS_DEPLOYMENT in data and data[KEY_OS_DEPLOYMENT]:
+            self.__replace_name_by_uri(data[KEY_OS_DEPLOYMENT], 'osDeploymentPlanName',
+                                       self.SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND,
+                                       self.oneview_client.os_deployment_plans)
+
+    def __replace_enclosure_group_name_by_uri(self, data):
+        self.__replace_name_by_uri(data, 'enclosureGroupName', self.SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND,
+                                   self.oneview_client.enclosure_groups)
+
+    def __replace_networks_name_by_uri(self, data):
+        if KEY_CONNECTIONS in data and data[KEY_CONNECTIONS]:
+            for connection in data[KEY_CONNECTIONS]:
+                if 'networkName' in connection:
+                    name = connection.pop('networkName', None)
+                    connection['networkUri'] = self.__get_network_by_name(name)['uri']
+
+    def __replace_server_hardware_type_name_by_uri(self, data):
+        self.__replace_name_by_uri(data, 'serverHardwareTypeName', self.SERVER_HARDWARE_TYPE_NOT_FOUND,
+                                   self.oneview_client.server_hardware_types)
+
+    def __replace_volume_attachment_names_by_uri(self, data):
+        volume_attachments = (data.get('sanStorage') or {}).get('volumeAttachments') or []
+        if len(volume_attachments) > 0:
+            for volume in volume_attachments:
+                self.__replace_name_by_uri(volume, 'volumeName', self.VOLUME_NOT_FOUND, self.oneview_client.volumes)
+                self.__replace_name_by_uri(volume, 'volumeStoragePoolName', self.STORAGE_POOL_NOT_FOUND,
+                                           self.oneview_client.storage_pools)
+                self.__replace_name_by_uri(volume, 'volumeStorageSystemName', self.STORAGE_SYSTEM_NOT_FOUND,
+                                           self.oneview_client.storage_systems)
+
+    def __replace_enclosure_name_by_uri(self, data):
+        self.__replace_name_by_uri(data, 'enclosureName', self.ENCLOSURE_NOT_FOUND, self.oneview_client.enclosures)
+
+    def __replace_interconnect_name_by_uri(self, data):
+        connections = data.get('connections') or []
+        if len(connections) > 0:
+            for connection in connections:
+                self.__replace_name_by_uri(connection, 'interconnectName', self.INTERCONNECT_NOT_FOUND,
+                                           self.oneview_client.interconnects)
+
+    def __replace_firmware_baseline_name_by_uri(self, data):
+        firmware = data.get('firmware') or {}
+        self.__replace_name_by_uri(firmware, 'firmwareBaselineName', self.FIRMWARE_DRIVER_NOT_FOUND,
+                                   self.oneview_client.firmware_drivers)
+
+    def __replace_sas_logical_jbod_name_by_uri(self, data):
+        sas_logical_jbods = (data.get('localStorage') or {}).get('sasLogicalJBODs') or []
+        if len(sas_logical_jbods) > 0:
+            for jbod in sas_logical_jbods:
+                self.__replace_name_by_uri(jbod, 'sasLogicalJBODName', self.SAS_LOGICAL_JBOD_NOT_FOUND,
+                                           self.oneview_client.sas_logical_jbods)
+
+    def __get_network_by_name(self, name):
+        fc_networks = self.oneview_client.fc_networks.get_by('name', name)
+        if fc_networks:
+            return fc_networks[0]
+
+        ethernet_networks = self.oneview_client.ethernet_networks.get_by('name', name)
+        if not ethernet_networks:
+            raise HPOneViewResourceNotFound(self.SERVER_PROFILE_NETWORK_NOT_FOUND + name)
+        return ethernet_networks[0]
 
 
 def main():
