@@ -19,7 +19,7 @@ from oneview_san_manager import SanManagerModule
 from oneview_san_manager import SAN_MANAGER_CREATED, SAN_MANAGER_ALREADY_EXIST, SAN_MANAGER_UPDATED
 from oneview_san_manager import SAN_MANAGER_DELETED, SAN_MANAGER_ALREADY_ABSENT
 
-from utils import ValidateEtagTestCase, ModuleContructorTestCase
+from utils import ValidateEtagTestCase, ModuleContructorTestCase, ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -29,11 +29,17 @@ DEFAULT_SAN_MANAGER_TEMPLATE = dict(
 )
 
 
-class SanManagerPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class SanManagerModuleSpec(unittest.TestCase,
+                           ModuleContructorTestCase,
+                           ValidateEtagTestCase,
+                           ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
+
     ValidateEtagTestCase has common tests for the validate_etag attribute.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     PARAMS_FOR_PRESENT = dict(
@@ -51,9 +57,18 @@ class SanManagerPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, Va
                   connectionInfo=None)
     )
 
+    PARAMS_FOR_ABSENT = dict(
+        config='config.json',
+        state='absent',
+        data=dict(providerDisplayName=DEFAULT_SAN_MANAGER_TEMPLATE['providerDisplayName'],
+                  connectionInfo=None)
+    )
+
     def setUp(self):
         self.configure_mocks(self, SanManagerModule)
         self.resource = self.mock_ov_client.san_managers
+        ErrorHandlingTestCase.configure(self, ansible_params=self.PARAMS_FOR_PRESENT,
+                                        method_to_fire=self.resource.get_by_provider_display_name)
 
     def test_should_add_new_san_manager(self):
         self.resource.get_by_provider_display_name.return_value = None
@@ -112,48 +127,6 @@ class SanManagerPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, Va
             ansible_facts=dict(san_manager=data_merged)
         )
 
-    def test_should_fail_when_add_raises_exception(self):
-        self.resource.get_by_provider_display_name.return_value = None
-        self.resource.add.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
-
-        SanManagerModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_update_raises_exception(self):
-        self.resource.get_by_provider_display_name.return_value = DEFAULT_SAN_MANAGER_TEMPLATE
-        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_WITH_CHANGES
-
-        SanManagerModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-
-class SanManagerAbsentStateSpec(unittest.TestCase, ModuleContructorTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-    """
-
-    PARAMS_FOR_ABSENT = dict(
-        config='config.json',
-        state='absent',
-        data=dict(providerDisplayName=DEFAULT_SAN_MANAGER_TEMPLATE['providerDisplayName'],
-                  connectionInfo=None)
-    )
-
-    def setUp(self):
-        self.configure_mocks(self, SanManagerModule)
-        self.resource = self.mock_ov_client.san_managers
-
     def test_should_remove_san_manager(self):
         self.resource.get_by_provider_display_name.return_value = DEFAULT_SAN_MANAGER_TEMPLATE
 
@@ -176,18 +149,6 @@ class SanManagerAbsentStateSpec(unittest.TestCase, ModuleContructorTestCase):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=SAN_MANAGER_ALREADY_ABSENT
-        )
-
-    def test_should_fail_when_remove_raises_exception(self):
-        self.resource.get_by.return_value = [DEFAULT_SAN_MANAGER_TEMPLATE]
-        self.resource.remove.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_FOR_ABSENT
-
-        self.assertRaises(Exception, SanManagerModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 

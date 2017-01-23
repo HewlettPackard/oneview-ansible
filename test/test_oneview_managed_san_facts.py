@@ -17,17 +17,20 @@
 import unittest
 
 from oneview_managed_san_facts import ManagedSanFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
 
 
 class ManagedSanFactsClientConfigurationSpec(unittest.TestCase,
                                              ModuleContructorTestCase,
-                                             FactsParamsTestCase):
+                                             FactsParamsTestCase,
+                                             ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
     mocks used in this test class.
 
     FactsParamsTestCase has common tests for the parameters support.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
     ERROR_MSG = 'Fake message error'
 
@@ -68,6 +71,7 @@ class ManagedSanFactsClientConfigurationSpec(unittest.TestCase,
         self.configure_mocks(self, ManagedSanFactsModule)
         self.managed_sans = self.mock_ov_client.managed_sans
         FactsParamsTestCase.configure_client_mock(self, self.managed_sans)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.managed_sans.get_by_name)
 
     def test_should_get_all(self):
         self.managed_sans.get_all.return_value = self.ALL_MANAGED_SANS
@@ -80,14 +84,6 @@ class ManagedSanFactsClientConfigurationSpec(unittest.TestCase,
             ansible_facts=dict(managed_sans=self.ALL_MANAGED_SANS)
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.managed_sans.get_all.side_effect = Exception(self.ERROR_MSG)
-        self.mock_ansible_module.params = self.PARAMS_GET_ALL
-
-        ManagedSanFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=self.ERROR_MSG)
-
     def test_should_get_by_name(self):
         self.managed_sans.get_by_name.return_value = self.MANAGED_SAN
         self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
@@ -99,14 +95,6 @@ class ManagedSanFactsClientConfigurationSpec(unittest.TestCase,
             changed=False,
             ansible_facts=dict(managed_sans=[self.MANAGED_SAN])
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.managed_sans.get_by_name.side_effect = Exception(self.ERROR_MSG)
-        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
-
-        ManagedSanFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=self.ERROR_MSG)
 
     def test_should_get_by_name_with_options(self):
         endpoints = [dict(uri='/rest/fc-sans/endpoints/20:00:00:02:AC:00:08:E2'),
@@ -125,15 +113,6 @@ class ManagedSanFactsClientConfigurationSpec(unittest.TestCase,
             ansible_facts=dict(managed_sans=[self.MANAGED_SAN], managed_san_endpoints=endpoints)
         )
 
-    def test_should_fail_when_get_endpoints_raises_exception(self):
-        self.managed_sans.get_by_name.return_value = self.MANAGED_SAN
-        self.managed_sans.get_endpoints.side_effect = Exception(self.ERROR_MSG)
-        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME_WITH_OPTIONS
-
-        ManagedSanFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=self.ERROR_MSG)
-
     def test_should_get_managed_san_for_an_associated_wwn(self):
         self.managed_sans.get_by_name.return_value = self.MANAGED_SAN
         self.managed_sans.get_wwn.return_value = self.MANAGED_SAN
@@ -146,15 +125,6 @@ class ManagedSanFactsClientConfigurationSpec(unittest.TestCase,
             changed=False,
             ansible_facts=dict(managed_sans=[self.MANAGED_SAN], wwn_associated_sans=self.MANAGED_SAN)
         )
-
-    def test_should_fail_when_get_wwn_raises_exception(self):
-        self.managed_sans.get_by_name.return_value = self.MANAGED_SAN
-        self.managed_sans.get_wwn.side_effect = Exception(self.ERROR_MSG)
-        self.mock_ansible_module.params = self.PARAMS_GET_ASSOCIATED_WWN
-
-        ManagedSanFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=self.ERROR_MSG)
 
 
 if __name__ == '__main__':

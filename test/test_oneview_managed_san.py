@@ -14,13 +14,12 @@
 # limitations under the License.
 ###
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_managed_san import ManagedSanModule
 from oneview_managed_san import MANAGED_SAN_UPDATED, MANAGED_SAN_REFRESH_STATE_UPDATED, MANAGED_SAN_NOT_FOUND, \
     MANAGED_SAN_NO_CHANGES_PROVIDED, MANAGED_SAN_ENDPOINTS_CSV_FILE_CREATED, MANAGED_SAN_ISSUES_REPORT_CREATED
-from test.utils import create_ansible_mock
+from utils import ModuleContructorTestCase
+from utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -68,273 +67,116 @@ PARAMS_TO_CREATE_ISSUES_REPORT = dict(
 )
 
 
-class ManagedSanClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class ManagedSanModuleSpec(unittest.TestCase,
+                           ModuleContructorTestCase,
+                           ErrorHandlingTestCase):
+    def setUp(self):
+        self.configure_mocks(self, ManagedSanModule)
+        self.resource = self.mock_ov_client.managed_sans
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by_name)
 
-        ManagedSanModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        ManagedSanModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class ManagedSanPresentStateSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_should_not_update_when_data_is_equals(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.managed_sans.get_by_name.return_value = MANAGED_SAN
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT_WITHOUT_CHANGES)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_not_update_when_data_is_equals(self):
+        self.resource.get_by_name.return_value = MANAGED_SAN
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT_WITHOUT_CHANGES
 
         ManagedSanModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=MANAGED_SAN_NO_CHANGES_PROVIDED,
             ansible_facts=dict(managed_san=MANAGED_SAN)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_update_when_data_has_modified_attributes(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.managed_sans.get_by_name.return_value = MANAGED_SAN
-        mock_ov_instance.managed_sans.update.return_value = MANAGED_SAN
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT_WITH_CHANGES)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_update_when_data_has_modified_attributes(self):
+        self.resource.get_by_name.return_value = MANAGED_SAN
+        self.resource.update.return_value = MANAGED_SAN
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT_WITH_CHANGES
 
         ManagedSanModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=MANAGED_SAN_UPDATED,
             ansible_facts=dict(managed_san=MANAGED_SAN)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_should_fail_when_managed_san_not_found(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.managed_sans.get_by_name.return_value = None
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT_WITH_CHANGES)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        self.assertRaises(Exception, ManagedSanModule().run())
-
-        mock_ansible_instance.fail_json.assert_called_once_with(
-            msg=MANAGED_SAN_NOT_FOUND
-        )
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_should_fail_when_update_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.managed_sans.get_by_name.return_value = MANAGED_SAN
-        mock_ov_instance.managed_sans.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_PRESENT_WITH_CHANGES)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        self.assertRaises(Exception, ManagedSanModule().run())
-
-        mock_ansible_instance.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-
-class ManagedSanRefreshStateSetSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_update_refresh_state(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.managed_sans.get_by_name.return_value = MANAGED_SAN
-        mock_ov_instance.managed_sans.update.return_value = MANAGED_SAN
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_REFRESH)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_managed_san_not_found_on_present_state(self):
+        self.resource.get_by_name.return_value = None
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT_WITH_CHANGES
 
         ManagedSanModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=MANAGED_SAN_NOT_FOUND
+        )
+
+    def test_update_refresh_state(self):
+        self.resource.get_by_name.return_value = MANAGED_SAN
+        self.resource.update.return_value = MANAGED_SAN
+        self.mock_ansible_module.params = PARAMS_FOR_REFRESH
+
+        ManagedSanModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=MANAGED_SAN_REFRESH_STATE_UPDATED,
             ansible_facts=dict(managed_san=MANAGED_SAN)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_should_fail_when_managed_san_not_found(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.managed_sans.get_by_name.return_value = None
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_REFRESH)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        self.assertRaises(Exception, ManagedSanModule().run())
-
-        mock_ansible_instance.fail_json.assert_called_once_with(
-            msg=MANAGED_SAN_NOT_FOUND
-        )
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_should_fail_when_update_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.managed_sans.get_by_name.return_value = MANAGED_SAN
-        mock_ov_instance.managed_sans.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_FOR_REFRESH)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        self.assertRaises(Exception, ManagedSanModule().run())
-
-        mock_ansible_instance.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-
-class ManagedSanEndpointsCsvFileCreatedSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_create_endpoints_csv_file(self, mock_ansible_module, mock_ov_client_from_json_file):
-        endpoints_csv_file = {"csvFileName": "ci-005056a65f14-172.18.15.1-SAN1_0-endpoints-2016_09_21_05_55_24.csv.gz"}
-
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.managed_sans.get_by_name.return_value = MANAGED_SAN
-        mock_ov_instance.managed_sans.create_endpoints_csv_file.return_value = endpoints_csv_file
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_TO_CREATE_ENDPOINTS_CSV_FILE)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_managed_san_not_found_to_refresh(self):
+        self.resource.get_by_name.return_value = None
+        self.mock_ansible_module.params = PARAMS_FOR_REFRESH
 
         ManagedSanModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=MANAGED_SAN_NOT_FOUND
+        )
+
+    def test_create_endpoints_csv_file(self):
+        endpoints_csv_file = {"csvFileName": "ci-005056a65f14-172.18.15.1-SAN1_0-endpoints-2016_09_21_05_55_24.csv.gz"}
+        self.resource.get_by_name.return_value = MANAGED_SAN
+        self.resource.create_endpoints_csv_file.return_value = endpoints_csv_file
+        self.mock_ansible_module.params = PARAMS_TO_CREATE_ENDPOINTS_CSV_FILE
+
+        ManagedSanModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=MANAGED_SAN_ENDPOINTS_CSV_FILE_CREATED,
             ansible_facts=dict(managed_san_endpoints=endpoints_csv_file)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_should_fail_when_managed_san_not_found(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.managed_sans.get_by_name.return_value = None
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_TO_CREATE_ENDPOINTS_CSV_FILE)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        self.assertRaises(Exception, ManagedSanModule().run())
-
-        mock_ansible_instance.fail_json.assert_called_once_with(
-            msg=MANAGED_SAN_NOT_FOUND
-        )
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_should_fail_when_create_endpoints_csv_file_raises_exception(self, mock_ansible_module,
-                                                                         mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.managed_sans.get_by_name.return_value = MANAGED_SAN
-        mock_ov_instance.managed_sans.create_endpoints_csv_file.side_effect = Exception(FAKE_MSG_ERROR)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_TO_CREATE_ENDPOINTS_CSV_FILE)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        self.assertRaises(Exception, ManagedSanModule().run())
-
-        mock_ansible_instance.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-
-class ManagedSanIssuesReportCreatedSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_create_issues_report(self, mock_ansible_module, mock_ov_client_from_json_file):
-        issues_report = {"status": "report status"}
-
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.managed_sans.get_by_name.return_value = MANAGED_SAN
-        mock_ov_instance.managed_sans.create_issues_report.return_value = issues_report
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_TO_CREATE_ISSUES_REPORT)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_fail_when_managed_san_not_found_to_create_csv_file(self):
+        self.resource.get_by_name.return_value = None
+        self.mock_ansible_module.params = PARAMS_TO_CREATE_ENDPOINTS_CSV_FILE
 
         ManagedSanModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=MANAGED_SAN_NOT_FOUND
+        )
+
+    def test_create_issues_report(self):
+        issues_report = {"status": "report status"}
+        self.resource.get_by_name.return_value = MANAGED_SAN
+        self.resource.create_issues_report.return_value = issues_report
+        self.mock_ansible_module.params = PARAMS_TO_CREATE_ISSUES_REPORT
+
+        ManagedSanModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=MANAGED_SAN_ISSUES_REPORT_CREATED,
             ansible_facts=dict(managed_san_issues=issues_report)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_should_fail_when_managed_san_not_found(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.managed_sans.get_by_name.return_value = None
+    def test_should_fail_when_managed_san_not_found_to_create_issues_report(self):
+        self.resource.get_by_name.return_value = None
+        self.mock_ansible_module.params = PARAMS_TO_CREATE_ISSUES_REPORT
 
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_TO_CREATE_ISSUES_REPORT)
-        mock_ansible_module.return_value = mock_ansible_instance
+        ManagedSanModule().run()
 
-        self.assertRaises(Exception, ManagedSanModule().run())
-
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=MANAGED_SAN_NOT_FOUND
-        )
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_managed_san.AnsibleModule')
-    def test_should_fail_when_create_issues_report_raises_exception(self, mock_ansible_module,
-                                                                    mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.managed_sans.get_by_name.return_value = MANAGED_SAN
-        mock_ov_instance.managed_sans.create_issues_report.side_effect = Exception(FAKE_MSG_ERROR)
-
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock(PARAMS_TO_CREATE_ISSUES_REPORT)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        self.assertRaises(Exception, ManagedSanModule().run())
-
-        mock_ansible_instance.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
