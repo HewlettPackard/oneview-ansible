@@ -19,6 +19,9 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewValueError
+    from hpOneView.exceptions import HPOneViewResourceNotFound
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -114,7 +117,7 @@ class ConnectionTemplateModule(object):
             changed, msg, ansible_facts = False, '', {}
 
             if not data.get('name'):
-                raise Exception(CONNECTION_TEMPLATE_MANDATORY_FIELD_MISSING)
+                raise HPOneViewValueError(CONNECTION_TEMPLATE_MANDATORY_FIELD_MISSING)
 
             resource = (self.oneview_client.connection_templates.get_by("name", data['name']) or [None])[0]
 
@@ -125,7 +128,7 @@ class ConnectionTemplateModule(object):
                                   msg=msg,
                                   ansible_facts=ansible_facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data, resource):
@@ -134,7 +137,7 @@ class ConnectionTemplateModule(object):
         msg = ''
 
         if not resource:
-            raise Exception(CONNECTION_TEMPLATE_NOT_FOUND)
+            raise HPOneViewResourceNotFound(CONNECTION_TEMPLATE_NOT_FOUND)
         else:
             if 'newName' in data:
                 data['name'] = data.pop('newName')

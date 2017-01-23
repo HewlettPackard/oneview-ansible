@@ -19,6 +19,7 @@ import unittest
 from oneview_connection_template_facts import ConnectionTemplateFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -41,11 +42,16 @@ PARAMS_GET_DEFAULT = dict(
 )
 
 
-class ConnectionTemplatesFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class ConnectionTemplatesFactsSpec(unittest.TestCase,
+                                   ModuleContructorTestCase,
+                                   FactsParamsTestCase,
+                                   ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, ConnectionTemplateFactsModule)
         self.connection_templates = self.mock_ov_client.connection_templates
+
         FactsParamsTestCase.configure_client_mock(self, self.connection_templates)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.connection_templates.get_by)
 
     def test_should_get_all_connection_templates(self):
         self.connection_templates.get_all.return_value = {"name": "Storage System Name"}
@@ -57,15 +63,6 @@ class ConnectionTemplatesFactsSpec(unittest.TestCase, ModuleContructorTestCase, 
             changed=False,
             ansible_facts=dict(connection_templates=({"name": "Storage System Name"}))
         )
-
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.connection_templates.get_all.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        ConnectionTemplateFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_connection_template_by_name(self):
         self.connection_templates.get_by.return_value = {"name": "Storage System Name"}
@@ -79,15 +76,6 @@ class ConnectionTemplatesFactsSpec(unittest.TestCase, ModuleContructorTestCase, 
             ansible_facts=dict(connection_templates=({"name": "Storage System Name"}))
         )
 
-    def test_should_fail_when_get_by_raises_exception(self):
-        self.connection_templates.get_by.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        ConnectionTemplateFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_default_connection_template(self):
         self.connection_templates.get_default.return_value = {
             "name": "default_connection_template"}
@@ -100,15 +88,6 @@ class ConnectionTemplatesFactsSpec(unittest.TestCase, ModuleContructorTestCase, 
             changed=False,
             ansible_facts={'default_connection_template': {'name': 'default_connection_template'}}
         )
-
-    def test_should_fail_when_get_default_raises_exception(self):
-        self.connection_templates.get_default.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_DEFAULT
-
-        ConnectionTemplateFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
