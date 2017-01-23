@@ -19,6 +19,7 @@
 from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -105,7 +106,7 @@ class FirmwareBundleModule(object):
                                   msg=FIRMWARE_BUNDLE_UPLOADED,
                                   ansible_facts=dict(firmware_bundle=new_firmware))
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
 

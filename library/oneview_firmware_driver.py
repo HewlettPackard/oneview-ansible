@@ -19,6 +19,7 @@
 from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -106,7 +107,7 @@ class FirmwareDriverModule(object):
                 self.module.exit_json(changed=True, msg=FIRMWARE_DRIVER_DELETED)
             else:
                 self.module.exit_json(changed=False, msg=FIRMWARE_DRIVER_ALREADY_ABSENT)
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_by_name(self, name):

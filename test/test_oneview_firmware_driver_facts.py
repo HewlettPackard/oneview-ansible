@@ -19,6 +19,7 @@ import unittest
 from oneview_firmware_driver_facts import FirmwareDriverFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 FIRMWARE_DRIVER_NAME = "Service Pack for ProLiant.iso"
 
@@ -39,11 +40,15 @@ FIRMWARE_DRIVER = dict(
 )
 
 
-class FirmwareDriverFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class FirmwareDriverFactsSpec(unittest.TestCase,
+                              ModuleContructorTestCase,
+                              FactsParamsTestCase,
+                              ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, FirmwareDriverFactsModule)
         self.firmware_drivers = self.mock_ov_client.firmware_drivers
         FactsParamsTestCase.configure_client_mock(self, self.firmware_drivers)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.firmware_drivers.get_by)
 
     def test_should_get_all_firmware_drivers(self):
         firmwares = [FIRMWARE_DRIVER]
@@ -70,14 +75,6 @@ class FirmwareDriverFactsSpec(unittest.TestCase, ModuleContructorTestCase, Facts
             changed=False,
             ansible_facts=dict(firmware_drivers=firmwares)
         )
-
-    def test_should_fail_when_oneview_client_raises_exception(self):
-        self.firmware_drivers.get_by.side_effect = Exception()
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        FirmwareDriverFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
