@@ -92,6 +92,8 @@ VOLUME_NOT_FOUND = 'Volume not found: '
 STORAGE_POOL_NOT_FOUND = 'Storage Pool not found: '
 STORAGE_SYSTEM_NOT_FOUND = 'Storage System not found: '
 INTERCONNECT_NOT_FOUND = 'Interconnect not found: '
+FIRMWARE_DRIVER_NOT_FOUND = 'Firmware Driver not found: '
+SAS_LOGICAL_JBOD_NOT_FOUND = 'SAS logical JBOD not found: '
 
 CONCURRENCY_FAILOVER_RETRIES = 25
 
@@ -143,9 +145,13 @@ notes:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
     - "Check how to use environment variables for configuration at:
        https://github.com/HewlettPackard/oneview-ansible#environment-variables"
-    - "For the following data, you can provide a name instead of a URI: enclosureGroupName instead of enclosureGroupUri,
-       osDeploymentPlanName instead of osDeploymentPlanUri (on the osDeploymentSettings), and networkName instead of a
-       networkUri (on the connections list)"
+    - "For the following data, you can provide either a name  or a URI: enclosureGroupName or enclosureGroupUri,
+       osDeploymentPlanName or osDeploymentPlanUri (on the osDeploymentSettings), networkName or networkUri (on the
+       connections list), volumeName or volumeUri (on the volumeAttachments list), volumeStoragePoolName or
+       volumeStoragePoolUri (on the volumeAttachments list), volumeStorageSystemName or volumeStorageSystemUri (on the
+       volumeAttachments list), serverHardwareTypeName or  serverHardwareTypeUri, enclosureName or enclosureUri,
+       firmwareBaselineName or firmwareBaselineUri (on the firmware), and sasLogicalJBODName or sasLogicalJBODUri (on
+       the sasLogicalJBODs list)"
 '''
 
 EXAMPLES = '''
@@ -478,7 +484,7 @@ class ServerProfileModule(object):
                 conn.pop(KEY_WWPN, None)
 
         # Remove the driveNumber from the Controllers Drives
-        if KEY_LOCAL_STORAGE in data:
+        if KEY_LOCAL_STORAGE in data and data[KEY_LOCAL_STORAGE]:
             for controller in data[KEY_LOCAL_STORAGE].get(KEY_CONTROLLERS) or []:
                 for drive in controller.get(KEY_LOGICAL_DRIVES) or []:
                     drive.pop(KEY_DRIVE_NUMBER, None)
@@ -601,6 +607,8 @@ class ServerProfileModule(object):
         self.__replace_volume_attachment_names_by_uri(data)
         self.__replace_enclosure_name_by_uri(data)
         self.__replace_interconnect_name_by_uri(data)
+        self.__replace_firmware_baseline_name_by_uri(data)
+        self.__replace_sas_logical_jbod_name_by_uri(data)
 
     def __replace_os_deployment_name_by_uri(self, data):
         if KEY_OS_DEPLOYMENT in data and data[KEY_OS_DEPLOYMENT]:
@@ -664,6 +672,26 @@ class ServerProfileModule(object):
                     if not interconnect:
                         raise HPOneViewResourceNotFound(INTERCONNECT_NOT_FOUND + name)
                     connection['interconnectUri'] = interconnect['uri']
+
+    def __replace_firmware_baseline_name_by_uri(self, data):
+        firmware = data.get('firmware') or {}
+        if 'firmwareBaselineName' in firmware:
+            name = firmware.pop('firmwareBaselineName')
+            firmware_drivers = self.oneview_client.firmware_drivers.get_by("name", name)
+            if not firmware_drivers:
+                raise HPOneViewResourceNotFound(FIRMWARE_DRIVER_NOT_FOUND + name)
+            data['firmware']['firmwareBaselineUri'] = firmware_drivers[0]['uri']
+
+    def __replace_sas_logical_jbod_name_by_uri(self, data):
+        sas_logical_jbods = (data.get('localStorage') or {}).get('sasLogicalJBODs') or []
+        if len(sas_logical_jbods) > 0:
+            for jbod in sas_logical_jbods:
+                if 'sasLogicalJBODName' in jbod:
+                    name = jbod.pop('sasLogicalJBODName')
+                    sas_logical_jbod = self.oneview_client.sas_logical_jbods.get_by("name", name)
+                    if not sas_logical_jbod:
+                        raise HPOneViewResourceNotFound(SAS_LOGICAL_JBOD_NOT_FOUND + name)
+                    jbod['sasLogicalJBODUri'] = sas_logical_jbod[0]['uri']
 
     def __get_os_deployment_by_name(self, name):
         os_deployment = self.oneview_client.os_deployment_plans.get_by_name(name)
