@@ -14,14 +14,12 @@
 # limitations under the License.
 ###
 import unittest
-import mock
+import yaml
 
-
-from hpOneView.oneview_client import OneViewClient
 from oneview_drive_enclosure import DriveEnclosureModule, DRIVE_ENCLOSURE_NAME_REQUIRED, DRIVE_ENCLOSURE_NOT_FOUND
 
-from test.utils import create_ansible_mock
-from test.utils import create_ansible_mock_yaml
+from utils import ModuleContructorTestCase
+from utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -84,191 +82,126 @@ YAML_WITHOUT_NAME = """
 """
 
 
-class DriveEnclosureClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_drive_enclosure.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class DriveEnclosureSpec(unittest.TestCase,
+                         ModuleContructorTestCase,
+                         ErrorHandlingTestCase):
+    def setUp(self):
+        self.configure_mocks(self, DriveEnclosureModule)
+        self.drive_enclosures = self.mock_ov_client.drive_enclosures
 
-        DriveEnclosureModule()
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.drive_enclosures.get_by)
 
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_drive_enclosure.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        DriveEnclosureModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class DriveEnclosureSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_drive_enclosure.AnsibleModule')
-    def test_should_raise_exception_when_name_not_defined(self, mock_ansible_module, mock_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_WITHOUT_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_raise_exception_when_name_not_defined(self):
+        self.mock_ansible_module.params = yaml.load(YAML_WITHOUT_NAME)
 
         DriveEnclosureModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=DRIVE_ENCLOSURE_NAME_REQUIRED
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_drive_enclosure.AnsibleModule')
-    def test_should_raise_exception_when_resource_not_found(self, mock_ansible_module, mock_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.drive_enclosures.get_by.return_value = []
-        mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_DRIVE_ENCLOSURE_POWER_STATE)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_should_raise_exception_when_resource_not_found(self):
+        self.drive_enclosures.get_by.return_value = []
+        self.mock_ansible_module.params = yaml.load(YAML_DRIVE_ENCLOSURE_POWER_STATE)
 
         DriveEnclosureModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
+        self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=DRIVE_ENCLOSURE_NOT_FOUND
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_drive_enclosure.AnsibleModule')
-    def test_should_power_off(self, mock_ansible_module, mock_from_json_file):
+    def test_should_power_off(self):
         mock_return_patch = {'name': 'mock return'}
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
-        mock_ov_instance.drive_enclosures.patch.return_value = mock_return_patch
-        mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_DRIVE_ENCLOSURE_POWER_STATE)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
+        self.drive_enclosures.patch.return_value = mock_return_patch
+        self.mock_ansible_module.params = yaml.load(YAML_DRIVE_ENCLOSURE_POWER_STATE)
 
         DriveEnclosureModule().run()
 
-        mock_ov_instance.drive_enclosures.patch.assert_called_once_with(
+        self.drive_enclosures.patch.assert_called_once_with(
             DRIVE_ENCLOSURE_URI, operation='replace', path='/powerState', value='Off')
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(drive_enclosure=mock_return_patch)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_drive_enclosure.AnsibleModule')
-    def test_should_not_power_off_when_already_off(self, mock_ansible_module, mock_from_json_file):
+    def test_should_not_power_off_when_already_off(self):
         drive_enclosure = DICT_DEFAULT_DRIVE_ENCLOSURE.copy()
         drive_enclosure['powerState'] = 'Off'
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.drive_enclosures.get_by.return_value = [drive_enclosure]
-        mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_DRIVE_ENCLOSURE_POWER_STATE)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.drive_enclosures.get_by.return_value = [drive_enclosure]
+        self.mock_ansible_module.params = yaml.load(YAML_DRIVE_ENCLOSURE_POWER_STATE)
 
         DriveEnclosureModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(drive_enclosure=drive_enclosure)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_drive_enclosure.AnsibleModule')
-    def test_should_turn_uid_on(self, mock_ansible_module, mock_from_json_file):
+    def test_should_turn_uid_on(self):
         mock_return_patch = {'name': 'mock return'}
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
-        mock_ov_instance.drive_enclosures.patch.return_value = mock_return_patch
-        mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_DRIVE_ENCLOSURE_UID_STATE)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
+        self.drive_enclosures.patch.return_value = mock_return_patch
+        self.mock_ansible_module.params = yaml.load(YAML_DRIVE_ENCLOSURE_UID_STATE)
 
         DriveEnclosureModule().run()
 
-        mock_ov_instance.drive_enclosures.patch.assert_called_once_with(
+        self.drive_enclosures.patch.assert_called_once_with(
             DRIVE_ENCLOSURE_URI, operation='replace', path='/uidState', value='On')
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(drive_enclosure=mock_return_patch)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_drive_enclosure.AnsibleModule')
-    def test_should_not_turn_uid_off_when_already_on(self, mock_ansible_module, mock_from_json_file):
+    def test_should_not_turn_uid_off_when_already_on(self):
         drive_enclosure = DICT_DEFAULT_DRIVE_ENCLOSURE.copy()
         drive_enclosure['uidState'] = 'On'
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.drive_enclosures.get_by.return_value = [drive_enclosure]
-        mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_DRIVE_ENCLOSURE_UID_STATE)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.drive_enclosures.get_by.return_value = [drive_enclosure]
+        self.mock_ansible_module.params = yaml.load(YAML_DRIVE_ENCLOSURE_UID_STATE)
 
         DriveEnclosureModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(drive_enclosure=drive_enclosure)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_drive_enclosure.AnsibleModule')
-    def test_should_request_hard_reset(self, mock_ansible_module, mock_from_json_file):
+    def test_should_request_hard_reset(self):
         mock_return_patch = {'name': 'mock return'}
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
-        mock_ov_instance.drive_enclosures.patch.return_value = mock_return_patch
-        mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_DRIVE_ENCLOSURE_HARD_RESET_STATE)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
+        self.drive_enclosures.patch.return_value = mock_return_patch
+        self.mock_ansible_module.params = yaml.load(YAML_DRIVE_ENCLOSURE_HARD_RESET_STATE)
 
         DriveEnclosureModule().run()
 
-        mock_ov_instance.drive_enclosures.patch.assert_called_once_with(
+        self.drive_enclosures.patch.assert_called_once_with(
             DRIVE_ENCLOSURE_URI, operation='replace', path='/hardResetState', value='Reset')
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(drive_enclosure=mock_return_patch)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_drive_enclosure.AnsibleModule')
-    def test_should_refresh(self, mock_ansible_module, mock_from_json_file):
+    def test_should_refresh(self):
         mock_return_refresh = {'name': 'mock return'}
 
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
-        mock_ov_instance.drive_enclosures.refresh_state.return_value = mock_return_refresh
-        mock_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_DRIVE_ENCLOSURE_REFRESH_STATE)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
+        self.drive_enclosures.refresh_state.return_value = mock_return_refresh
+        self.mock_ansible_module.params = yaml.load(YAML_DRIVE_ENCLOSURE_REFRESH_STATE)
 
         DriveEnclosureModule().run()
 
-        mock_ov_instance.drive_enclosures.refresh_state.assert_called_once_with(
+        self.drive_enclosures.refresh_state.assert_called_once_with(
             DRIVE_ENCLOSURE_URI, {'refreshState': 'RefreshPending'})
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(drive_enclosure=mock_return_refresh)
         )

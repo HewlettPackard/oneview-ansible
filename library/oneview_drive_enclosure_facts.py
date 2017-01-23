@@ -21,6 +21,7 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import transform_list_to_dict
+    from hpOneView.exceptions import HPOneViewException
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -160,7 +161,7 @@ class DriveEnclosureFactsModule(object):
 
             self.module.exit_json(changed=False, ansible_facts=facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg=exception.args[0])
 
 
