@@ -15,11 +15,12 @@
 ###
 
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_task_facts import TaskFactsModule
-from utils import create_ansible_mock
+
+from test.utils import ModuleContructorTestCase
+from test.utils import FactsParamsTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -66,114 +67,57 @@ TASK = {
 ALL_TASKS = [TASK]
 
 
-class TaskFactsClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_task_facts.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class TaskFactsSpec(unittest.TestCase,
+                    ModuleContructorTestCase,
+                    FactsParamsTestCase,
+                    ErrorHandlingTestCase):
 
-        TaskFactsModule()
+    def setUp(self):
+        self.configure_mocks(self, TaskFactsModule)
+        FactsParamsTestCase.configure_client_mock(self, self.mock_ov_client.tasks)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.tasks.get_all)
 
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_task_facts.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        TaskFactsModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class TaskFactsSpec(unittest.TestCase):
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_task_facts.AnsibleModule')
-    def test_get_all(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.tasks.get_all.return_value = ALL_TASKS
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_get_all(self):
+        self.mock_ov_client.tasks.get_all.return_value = ALL_TASKS
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         TaskFactsModule().run()
 
-        mock_ov_instance.tasks.get_all.assert_called_once_with()
+        self.mock_ov_client.tasks.get_all.assert_called_once_with()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(tasks=ALL_TASKS)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_task_facts.AnsibleModule')
-    def test_get_all_with_filter(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.tasks.get_all.return_value = ALL_TASKS
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL_WITH_FILTER)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_get_all_with_filter(self):
+        self.mock_ov_client.tasks.get_all.return_value = ALL_TASKS
+        self.mock_ansible_module.params = PARAMS_GET_ALL_WITH_FILTER
 
         TaskFactsModule().run()
 
-        mock_ov_instance.tasks.get_all.assert_called_once_with(filter=FILTER_BY_ASSOCIATED_RESOURCE_NAME)
+        self.mock_ov_client.tasks.get_all.assert_called_once_with(filter=FILTER_BY_ASSOCIATED_RESOURCE_NAME)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(tasks=ALL_TASKS)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_task_facts.AnsibleModule')
-    def test_get_all_with_filter_and_count(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.tasks.get_all.return_value = ALL_TASKS
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL_WITH_FILTER_AND_COUNT)
-        mock_ansible_module.return_value = mock_ansible_instance
+    def test_get_all_with_filter_and_count(self):
+        self.mock_ov_client.tasks.get_all.return_value = ALL_TASKS
+        self.mock_ansible_module.params = PARAMS_GET_ALL_WITH_FILTER_AND_COUNT
 
         TaskFactsModule().run()
 
-        mock_ov_instance.tasks.get_all.assert_called_once_with(
+        self.mock_ov_client.tasks.get_all.assert_called_once_with(
             filter=FILTER_BY_ASSOCIATED_RESOURCE_NAME,
             count=COUNT
         )
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(tasks=ALL_TASKS)
         )
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_task_facts.AnsibleModule')
-    def test_should_fail_when_get_all_raises_error(self, mock_ansible_module, mock_ov_from_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.tasks.get_all.side_effect = Exception(ERROR_MSG)
-        mock_ov_from_file.return_value = mock_ov_instance
-
-        mock_ansible_instance = create_ansible_mock(PARAMS_GET_ALL)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        TaskFactsModule().run()
-
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':
