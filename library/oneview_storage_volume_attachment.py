@@ -16,10 +16,18 @@
 ###
 
 from ansible.module_utils.basic import *
-from hpOneView.oneview_client import OneViewClient
+
+try:
+    from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
+    HAS_HPE_ONEVIEW = True
+except ImportError:
+    HAS_HPE_ONEVIEW = False
 
 PROFILE_NOT_FOUND = "Server Profile not found."
 PRESENTATIONS_REMOVED = "Extra presentations removed"
+HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 DOCUMENTATION = '''
 ---
@@ -93,6 +101,10 @@ class StorageVolumeAttachmentModule(object):
 
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+
         if not self.module.params['config']:
             self.oneview_client = OneViewClient.from_environment_variables()
         else:
@@ -110,7 +122,7 @@ class StorageVolumeAttachmentModule(object):
             self.module.exit_json(changed=True, msg=PRESENTATIONS_REMOVED,
                                   ansible_facts=dict(server_profile=attachment))
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg=exception.message)
 
     def __get_server_profile_uri(self, server_profile):
@@ -122,7 +134,7 @@ class StorageVolumeAttachmentModule(object):
             if profile:
                 return profile['uri']
             else:
-                raise Exception(PROFILE_NOT_FOUND)
+                raise HPOneViewResourceNotFound(PROFILE_NOT_FOUND)
 
 
 def main():

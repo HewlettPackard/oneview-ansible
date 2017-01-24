@@ -14,12 +14,11 @@
 # limitations under the License.
 ###
 import unittest
-import mock
+import yaml
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_storage_volume_attachment import StorageVolumeAttachmentModule, PRESENTATIONS_REMOVED, PROFILE_NOT_FOUND
-from test.utils import create_ansible_mock
-from test.utils import create_ansible_mock_yaml
+from utils import ModuleContructorTestCase
+from utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -72,127 +71,55 @@ MOCK_SERVER_PROFILE = {
 }
 
 
-class StorageVolumeAttachmentClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_storage_volume_attachment.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
+class StorageVolumeAttachmentSpec(unittest.TestCase,
+                                  ModuleContructorTestCase,
+                                  ErrorHandlingTestCase):
+    def setUp(self):
+        self.configure_mocks(self, StorageVolumeAttachmentModule)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.server_profiles.get_by_name,
+                                        ansible_params=yaml.load(YAML_EXTRA_REMOVED_BY_NAME))
 
-        StorageVolumeAttachmentModule()
+    def test_should_remove_extra_presentation_by_profile_name(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = MOCK_SERVER_PROFILE
+        self.mock_ov_client.storage_volume_attachments.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE
 
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_storage_volume_attachment.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        StorageVolumeAttachmentModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class StorageVolumeAttachmentSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment.AnsibleModule')
-    def test_should_remove_extra_presentation_by_profile_name(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = MOCK_SERVER_PROFILE
-        mock_ov_instance.storage_volume_attachments.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE
-
-        mock_from_json.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_EXTRA_REMOVED_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = yaml.load(YAML_EXTRA_REMOVED_BY_NAME)
 
         StorageVolumeAttachmentModule().run()
 
-        mock_ov_instance.server_profiles.get_by_name.assert_called_once_with(SERVER_PROFILE_NAME)
-        mock_ov_instance.storage_volume_attachments.remove_extra_presentations.assert_called_once_with(REPAIR_DATA)
+        self.mock_ov_client.server_profiles.get_by_name.assert_called_once_with(SERVER_PROFILE_NAME)
+        self.mock_ov_client.storage_volume_attachments.remove_extra_presentations.assert_called_once_with(REPAIR_DATA)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=PRESENTATIONS_REMOVED,
             ansible_facts=dict(server_profile=MOCK_SERVER_PROFILE)
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment.AnsibleModule')
-    def test_should_fail_when_profile_name_not_found(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.server_profiles.get_by_name.return_value = None
-        mock_ov_instance.storage_volume_attachments.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE
+    def test_should_fail_when_profile_name_not_found(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.storage_volume_attachments.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE
 
-        mock_from_json.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_EXTRA_REMOVED_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = yaml.load(YAML_EXTRA_REMOVED_BY_NAME)
 
         StorageVolumeAttachmentModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=PROFILE_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=PROFILE_NOT_FOUND)
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment.AnsibleModule')
-    def test_should_fail_when_get_profile_by_name_raises_exception(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
+    def test_should_remove_extra_presentation_by_profile_uri(self):
+        self.mock_ov_client.storage_volume_attachments.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE
 
-        mock_ov_instance.server_profiles.get_by_name.side_effect = Exception(FAKE_MSG_ERROR)
-
-        mock_from_json.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_EXTRA_REMOVED_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        self.assertRaises(Exception, StorageVolumeAttachmentModule().run())
-
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=FAKE_MSG_ERROR)
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment.AnsibleModule')
-    def test_should_remove_extra_presentation_by_profile_uri(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-        mock_ov_instance.storage_volume_attachments.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE
-
-        mock_from_json.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_EXTRA_REMOVED_BY_URI)
-        mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_module.params = yaml.load(YAML_EXTRA_REMOVED_BY_URI)
 
         StorageVolumeAttachmentModule().run()
 
-        mock_ov_instance.storage_volume_attachments.remove_extra_presentations.assert_called_once_with(REPAIR_DATA)
+        self.mock_ov_client.storage_volume_attachments.remove_extra_presentations.assert_called_once_with(REPAIR_DATA)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=PRESENTATIONS_REMOVED,
             ansible_facts=dict(server_profile=MOCK_SERVER_PROFILE)
         )
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_storage_volume_attachment.AnsibleModule')
-    def test_should_fail_when_remove_raises_exception(self, mock_ansible_module, mock_from_json):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_instance.server_profiles.get_by_name.return_value = MOCK_SERVER_PROFILE
-        mock_ov_instance.storage_volume_attachments.remove_extra_presentations.side_effect = Exception(FAKE_MSG_ERROR)
-
-        mock_from_json.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_EXTRA_REMOVED_BY_NAME)
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        self.assertRaises(Exception, StorageVolumeAttachmentModule().run())
-
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=FAKE_MSG_ERROR)
 
 
 if __name__ == '__main__':

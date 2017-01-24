@@ -19,6 +19,8 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import transform_list_to_dict
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -228,7 +230,7 @@ class StorageVolumeAttachmentFactsModule(object):
 
             self.module.exit_json(changed=False, ansible_facts=facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_specific_attachment(self, params):
@@ -242,7 +244,7 @@ class StorageVolumeAttachmentFactsModule(object):
             profile_name = params.get('serverProfileName')
 
             if not profile_name or not (volume_uri or params.get('storageVolumeName')):
-                raise Exception(ATTACHMENT_KEY_REQUIRED)
+                raise HPOneViewValueError(ATTACHMENT_KEY_REQUIRED)
 
             if not volume_uri and params.get('storageVolumeName'):
                 volumes = self.oneview_client.volumes.get_by('name', params.get('storageVolumeName'))
