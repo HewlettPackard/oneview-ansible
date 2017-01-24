@@ -15,11 +15,10 @@
 ###
 
 import unittest
-import mock
 
-from hpOneView.oneview_client import OneViewClient
 from oneview_switch import SwitchModule, SWITCH_DELETED, SWITCH_ALREADY_ABSENT, SWITCH_PORTS_UPDATED
-from utils import create_ansible_mock
+from utils import ModuleContructorTestCase
+from utils import ErrorHandlingTestCase
 
 SWITCH_NAME = "172.18.16.2"
 
@@ -48,114 +47,49 @@ SWITCH = dict(
 )
 
 
-def define_mocks(mock_ov_client_from_json_file, mock_ansible_module, params):
-    mock_ov_instance = mock.Mock()
-    mock_ov_client_from_json_file.return_value = mock_ov_instance
+class SwitchModuleSpec(unittest.TestCase,
+                       ModuleContructorTestCase,
+                       ErrorHandlingTestCase):
+    def setUp(self):
+        self.configure_mocks(self, SwitchModule)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.switches.get_by)
 
-    mock_ansible_instance = create_ansible_mock(params)
-    mock_ansible_module.return_value = mock_ansible_instance
-    return mock_ov_instance, mock_ansible_instance
-
-
-class SwitchClientConfigurationSpec(unittest.TestCase):
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_switch.AnsibleModule')
-    def test_should_load_config_from_file(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                          mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-        mock_ov_client_from_json_file.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': 'config.json'})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        SwitchModule()
-
-        mock_ov_client_from_json_file.assert_called_once_with('config.json')
-        mock_ov_client_from_env_vars.not_been_called()
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch.object(OneViewClient, 'from_environment_variables')
-    @mock.patch('oneview_switch.AnsibleModule')
-    def test_should_load_config_from_environment(self, mock_ansible_module, mock_ov_client_from_env_vars,
-                                                 mock_ov_client_from_json_file):
-        mock_ov_instance = mock.Mock()
-
-        mock_ov_client_from_env_vars.return_value = mock_ov_instance
-        mock_ansible_instance = create_ansible_mock({'config': None})
-        mock_ansible_module.return_value = mock_ansible_instance
-
-        SwitchModule()
-
-        mock_ov_client_from_env_vars.assert_called_once()
-        mock_ov_client_from_json_file.not_been_called()
-
-
-class SwitchAbsentSpec(unittest.TestCase):
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_switch.AnsibleModule')
-    def test_should_remove_switch(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance, mock_ansible_instance = define_mocks(mock_ov_client_from_json_file,
-                                                               mock_ansible_module,
-                                                               PARAMS_ABSENT)
-
+    def test_should_remove_switch(self):
         switches = [SWITCH]
-        mock_ov_instance.switches.get_by.return_value = switches
+        self.mock_ov_client.switches.get_by.return_value = switches
+        self.mock_ansible_module.params = PARAMS_ABSENT
 
         SwitchModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SWITCH_DELETED
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_switch.AnsibleModule')
-    def test_should_do_nothing_when_switch_not_exist(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance, mock_ansible_instance = define_mocks(mock_ov_client_from_json_file,
-                                                               mock_ansible_module,
-                                                               PARAMS_ABSENT)
-        mock_ov_instance.switches.get_by.return_value = []
+    def test_should_do_nothing_when_switch_not_exist(self):
+        self.mock_ov_client.switches.get_by.return_value = []
+        self.mock_ansible_module.params = PARAMS_ABSENT
 
         SwitchModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=SWITCH_ALREADY_ABSENT
         )
 
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_switch.AnsibleModule')
-    def test_should_fail_when_oneview_client_raises_exception(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance, mock_ansible_instance = define_mocks(mock_ov_client_from_json_file,
-                                                               mock_ansible_module,
-                                                               PARAMS_ABSENT)
-
-        mock_ov_instance.switches.get_by.side_effect = Exception()
-        SwitchModule().run()
-        mock_ansible_instance.fail_json.assert_called_once()
-
-
-class SwitchPortsUpdatedSpec(unittest.TestCase):
-
-    @mock.patch.object(OneViewClient, 'from_json_file')
-    @mock.patch('oneview_switch.AnsibleModule')
-    def test_should_update_switch_ports(self, mock_ansible_module, mock_ov_client_from_json_file):
-        mock_ov_instance, mock_ansible_instance = define_mocks(mock_ov_client_from_json_file,
-                                                               mock_ansible_module,
-                                                               PARAMS_PORTS_UPDATED)
-
+    def test_should_update_switch_ports(self):
         switches = [SWITCH]
-        mock_ov_instance.switches.get_by.return_value = switches
+        self.mock_ov_client.switches.get_by.return_value = switches
+        self.mock_ansible_module.params = PARAMS_PORTS_UPDATED
 
         SwitchModule().run()
 
-        mock_ov_instance.switches.update_ports.assert_called_once_with(
+        self.mock_ov_client.switches.update_ports.assert_called_once_with(
             id_or_uri=SWITCH["uri"],
             ports=PARAMS_PORTS_UPDATED["data"]
         )
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SWITCH_PORTS_UPDATED
         )

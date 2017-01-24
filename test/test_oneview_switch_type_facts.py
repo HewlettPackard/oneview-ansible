@@ -17,7 +17,9 @@
 import unittest
 
 from oneview_switch_type_facts import SwitchTypeFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase
+from test.utils import FactsParamsTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -34,12 +36,15 @@ PARAMS_GET_BY_NAME = dict(
 SWITCH_TYPES = [{"name": "Test Switch Type 1"}, {"name": "Test Switch Type 2"}, {"name": "Test Switch Type 3"}]
 
 
-class SwitchTypeFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
-
+class SwitchTypeFactsSpec(unittest.TestCase,
+                          ModuleContructorTestCase,
+                          FactsParamsTestCase,
+                          ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, SwitchTypeFactsModule)
         self.resource = self.mock_ov_client.switch_types
         FactsParamsTestCase.configure_client_mock(self, self.resource)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_get_all_switch_types(self):
         self.resource.get_all.return_value = SWITCH_TYPES
@@ -52,14 +57,6 @@ class SwitchTypeFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsPara
             ansible_facts=dict(switch_types=(SWITCH_TYPES))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.resource.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        SwitchTypeFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_switch_type_by_name(self):
         self.resource.get_by.return_value = [SWITCH_TYPES[1]]
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -70,14 +67,6 @@ class SwitchTypeFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsPara
             changed=False,
             ansible_facts=dict(switch_types=([SWITCH_TYPES[1]]))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.resource.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        SwitchTypeFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':
