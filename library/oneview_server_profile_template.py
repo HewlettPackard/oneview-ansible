@@ -20,7 +20,7 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import resource_compare
+    from hpOneView.extras.comparators import resource_compare
     from hpOneView.exceptions import HPOneViewException
     from hpOneView.exceptions import HPOneViewValueError
     from hpOneView.exceptions import HPOneViewResourceNotFound
@@ -37,7 +37,7 @@ description:
     - Provides an interface to create, modify, and delete server profile templates.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.0"
+    - "hpOneView >= 3.1.0"
 author: "Bruno Souza (@bsouza)"
 options:
     config:

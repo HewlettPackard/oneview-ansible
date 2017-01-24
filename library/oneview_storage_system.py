@@ -18,7 +18,7 @@
 from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import resource_compare
+    from hpOneView.extras.comparators import resource_compare
     from hpOneView.exceptions import HPOneViewException
     from hpOneView.exceptions import HPOneViewValueError
 
@@ -34,7 +34,7 @@ description:
     - Provides an interface to manage Storage System resources. Can add, update and remove.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 3.1.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     config:
