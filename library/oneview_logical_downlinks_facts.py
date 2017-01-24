@@ -20,6 +20,7 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -149,7 +150,7 @@ class LogicalDownlinksFactsModule(object):
                 logical_downlinks = self.resource_client.get_all(**params)
 
             self.module.exit_json(changed=False, ansible_facts=dict(logical_downlinks=logical_downlinks))
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __get_by_name(self, name):

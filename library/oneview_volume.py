@@ -19,6 +19,9 @@
 from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -248,7 +251,7 @@ class VolumeModule(object):
             elif state == 'snapshot_deleted':
                 self.__delete_snapshot(data)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data):
@@ -279,7 +282,7 @@ class VolumeModule(object):
     def __update(self, data, resource):
         if 'newName' in data:
             if self.__get_by_name(data['newName']):
-                raise Exception(VOLUME_NEW_NAME_INVALID)
+                raise HPOneViewValueError(VOLUME_NEW_NAME_INVALID)
             data['name'] = data.pop('newName')
 
         merged_data = resource.copy()
@@ -303,7 +306,7 @@ class VolumeModule(object):
 
     def __create_snapshot(self, data):
         if 'snapshotParameters' not in data:
-            raise Exception(VOLUME_NO_OPTIONS_PROVIDED)
+            raise HPOneViewResourceNotFound(VOLUME_NO_OPTIONS_PROVIDED)
 
         resource = self.__get_by_name(data['name'])
 
@@ -316,7 +319,7 @@ class VolumeModule(object):
 
     def __delete_snapshot(self, data):
         if 'snapshotParameters' not in data:
-            raise Exception(VOLUME_NO_OPTIONS_PROVIDED)
+            raise HPOneViewResourceNotFound(VOLUME_NO_OPTIONS_PROVIDED)
 
         resource = self.__get_by_name(data['name'])
 
@@ -337,7 +340,7 @@ class VolumeModule(object):
 
     def __get_snapshot_by_name(self, resource, data):
         if 'name' not in data['snapshotParameters']:
-            raise Exception(VOLUME_NO_OPTIONS_PROVIDED)
+            raise HPOneViewValueError(VOLUME_NO_OPTIONS_PROVIDED)
 
         result = self.oneview_client.volumes.get_snapshot_by(resource['uri'], 'name',
                                                              data['snapshotParameters']['name'])

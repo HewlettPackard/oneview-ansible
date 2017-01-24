@@ -16,7 +16,7 @@
 import unittest
 
 from oneview_sas_interconnect import SasInterconnectModule, SAS_INTERCONNECT_NOT_FOUND, SAS_INTERCONNECT_NOTHING_TO_DO
-from utils import ModuleContructorTestCase, ValidateEtagTestCase
+from utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
 
 SAS_INTERCONNECT_NAME = "0000A66103, interconnect 4"
 SAS_INTERCONNECT_URI = '/rest/sas-interconnects/3518be0e-17c1-4189-8f81-83f3724f6155'
@@ -40,15 +40,21 @@ class StateCheck(object):
         )
 
 
-class SasInterconnectModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class SasInterconnectModuleSpec(unittest.TestCase,
+                                ModuleContructorTestCase,
+                                ValidateEtagTestCase,
+                                ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, SasInterconnectModule)
         self.resource = self.mock_ov_client.sas_interconnects
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_refresh_the_sas_interconnect(self):
         state_check = StateCheck('refreshed')

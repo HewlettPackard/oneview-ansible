@@ -20,7 +20,9 @@ from oneview_volume import VOLUME_CREATED, VOLUME_UPDATED, VOLUME_DELETED, VOLUM
     VOLUME_NOT_FOUND, VOLUME_SNAPSHOT_CREATED, VOLUME_SNAPSHOT_DELETED, VOLUME_SNAPSHOT_NOT_FOUND, \
     VOLUME_NEW_NAME_INVALID
 
-from utils import ModuleContructorTestCase, ValidateEtagTestCase
+from utils import ModuleContructorTestCase
+from utils import ValidateEtagTestCase
+from utils import ErrorHandlingTestCase
 
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -93,16 +95,23 @@ PARAMS_FOR_SNAPSHOT_DELETED = dict(
 )
 
 
-class VolumeModulePresentStateSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class VolumeModuleSpec(unittest.TestCase,
+                       ModuleContructorTestCase,
+                       ValidateEtagTestCase,
+                       ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
+
     ValidateEtagTestCase has common tests for the validate_etag attribute.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, VolumeModule)
         self.resource = self.mock_ov_client.volumes
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_volume_when_not_exist(self):
         self.resource.get_by.return_value = []
@@ -144,17 +153,6 @@ class VolumeModulePresentStateSpec(unittest.TestCase, ModuleContructorTestCase, 
             msg=VOLUME_NEW_NAME_INVALID
         )
 
-
-class VolumeAbsentStateSpec(unittest.TestCase, ModuleContructorTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-    """
-
-    def setUp(self):
-        self.configure_mocks(self, VolumeModule)
-        self.resource = self.mock_ov_client.volumes
-
     def test_should_delete_volume(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
 
@@ -195,17 +193,6 @@ class VolumeAbsentStateSpec(unittest.TestCase, ModuleContructorTestCase):
             msg=VOLUME_ALREADY_ABSENT
         )
 
-
-class VolumeRepairedStateSpec(unittest.TestCase, ModuleContructorTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-    """
-
-    def setUp(self):
-        self.configure_mocks(self, VolumeModule)
-        self.resource = self.mock_ov_client.volumes
-
     def test_should_repair_volume(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
 
@@ -217,28 +204,6 @@ class VolumeRepairedStateSpec(unittest.TestCase, ModuleContructorTestCase):
             changed=True,
             msg=VOLUME_REPAIRED
         )
-
-    def test_should_not_repair_when_resource_not_exist(self):
-        self.resource.get_by.return_value = []
-        self.resource.repair.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_REPAIR
-        self.assertRaises(Exception, VolumeModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=VOLUME_NOT_FOUND
-        )
-
-
-class VolumeSnapshotCreatedStateSpec(unittest.TestCase, ModuleContructorTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-    """
-
-    def setUp(self):
-        self.configure_mocks(self, VolumeModule)
-        self.resource = self.mock_ov_client.volumes
 
     def test_should_create_snapshot(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
@@ -257,22 +222,11 @@ class VolumeSnapshotCreatedStateSpec(unittest.TestCase, ModuleContructorTestCase
 
         self.mock_ansible_module.params = PARAMS_FOR_SNAPSHOT_CREATED
 
-        self.assertRaises(Exception, VolumeModule().run())
+        VolumeModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=VOLUME_NOT_FOUND
         )
-
-
-class VolumeSnapshotDeletedStateSpec(unittest.TestCase, ModuleContructorTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-    """
-
-    def setUp(self):
-        self.configure_mocks(self, VolumeModule)
-        self.resource = self.mock_ov_client.volumes
 
     def test_should_delete_snapshot(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
@@ -292,7 +246,7 @@ class VolumeSnapshotDeletedStateSpec(unittest.TestCase, ModuleContructorTestCase
 
         self.mock_ansible_module.params = PARAMS_FOR_SNAPSHOT_DELETED
 
-        self.assertRaises(Exception, VolumeModule().run())
+        VolumeModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=VOLUME_NOT_FOUND
@@ -304,94 +258,10 @@ class VolumeSnapshotDeletedStateSpec(unittest.TestCase, ModuleContructorTestCase
 
         self.mock_ansible_module.params = PARAMS_FOR_SNAPSHOT_DELETED
 
-        self.assertRaises(Exception, VolumeModule().run())
+        VolumeModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=VOLUME_SNAPSHOT_NOT_FOUND
-        )
-
-
-class VolumeErrorHandlingSpec(unittest.TestCase, ModuleContructorTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-    """
-
-    def setUp(self):
-        self.configure_mocks(self, VolumeModule)
-        self.resource = self.mock_ov_client.volumes
-
-    def test_should_fail_when_create_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_CREATE
-
-        self.assertRaises(Exception, VolumeModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_update_raises_exception(self):
-        self.resource.get_by.side_effect = [EXISTENT_VOLUME], []
-        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_UPDATE
-
-        self.assertRaises(Exception, VolumeModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.resource.get_by.return_value = [EXISTENT_VOLUME]
-        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-
-        self.assertRaises(Exception, VolumeModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_repair_raises_exception(self):
-        self.resource.get_by.return_value = [EXISTENT_VOLUME]
-        self.resource.repair.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_REPAIR
-
-        self.assertRaises(Exception, VolumeModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_create_snapshot_raises_exception(self):
-        self.resource.get_by.return_value = [EXISTENT_VOLUME]
-        self.resource.create_snapshot.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_SNAPSHOT_CREATED
-
-        self.assertRaises(Exception, VolumeModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_delete_snapshot_raises_exception(self):
-        self.resource.get_by.return_value = [EXISTENT_VOLUME]
-        self.resource.get_snapshot_by.return_value = [{'uri': SNAPSHOT_URI}]
-        self.resource.delete_snapshot.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_SNAPSHOT_DELETED
-
-        self.assertRaises(Exception, VolumeModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 

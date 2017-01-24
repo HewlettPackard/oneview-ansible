@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_server_hardware_type_facts import ServerHardwareTypeFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -33,7 +33,8 @@ PARAMS_GET_ALL = dict(
 
 class ServerHardwareTypeFactsSpec(unittest.TestCase,
                                   ModuleContructorTestCase,
-                                  FactsParamsTestCase):
+                                  FactsParamsTestCase,
+                                  ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
     mocks used in this test class.
@@ -45,6 +46,7 @@ class ServerHardwareTypeFactsSpec(unittest.TestCase,
         self.server_hardware_types = self.mock_ov_client.server_hardware_types
 
         FactsParamsTestCase.configure_client_mock(self, self.server_hardware_types)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.server_hardware_types.get_by)
 
     def test_should_get_all_server_hardware_types(self):
         self.server_hardware_types.get_all.return_value = {"name": "Server Hardware Type Name"}
@@ -57,14 +59,6 @@ class ServerHardwareTypeFactsSpec(unittest.TestCase,
             ansible_facts=dict(server_hardware_types=({"name": "Server Hardware Type Name"}))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.server_hardware_types.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        ServerHardwareTypeFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_server_hardware_type_by_name(self):
         self.server_hardware_types.get_by.return_value = [{"name": "Server Hardware Type Name"}]
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -75,14 +69,6 @@ class ServerHardwareTypeFactsSpec(unittest.TestCase,
             changed=False,
             ansible_facts=dict(server_hardware_types=([{"name": "Server Hardware Type Name"}]))
         )
-
-    def test_should_fail_when_get_by_raises_exception(self):
-        self.server_hardware_types.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        ServerHardwareTypeFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

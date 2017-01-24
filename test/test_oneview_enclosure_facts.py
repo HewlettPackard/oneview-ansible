@@ -19,6 +19,7 @@ import unittest
 from oneview_enclosure_facts import EnclosureFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -65,11 +66,15 @@ ENCLOSURE_ENVIRONMENTAL_CONFIG = {
 }
 
 
-class EnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class EnclosureFactsSpec(unittest.TestCase,
+                         ModuleContructorTestCase,
+                         FactsParamsTestCase,
+                         ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, EnclosureFactsModule)
         self.enclosures = self.mock_ov_client.enclosures
         FactsParamsTestCase.configure_client_mock(self, self.enclosures)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.enclosures.get_by)
 
     def test_should_get_all_enclosures(self):
         self.enclosures.get_all.return_value = PRESENT_ENCLOSURES
@@ -82,14 +87,6 @@ class EnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParam
             ansible_facts=dict(enclosures=(PRESENT_ENCLOSURES))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.enclosures.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        EnclosureFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_enclosure_by_name(self):
         self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -101,14 +98,6 @@ class EnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParam
             ansible_facts=dict(enclosures=(PRESENT_ENCLOSURES))
 
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.enclosures.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        EnclosureFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_enclosure_by_name_with_options(self):
         self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
@@ -128,42 +117,6 @@ class EnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParam
                                enclosure_utilization=ENCLOSURE_UTILIZATION)
 
         )
-
-    def test_should_fail_when_get_script_raises_exception(self):
-        self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
-        self.enclosures.get_script.side_effect = Exception(ERROR_MSG)
-        self.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
-        self.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
-
-        EnclosureFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
-    def test_should_fail_when_get_utilization_raises_exception(self):
-        self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
-        self.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
-        self.enclosures.get_utilization.side_effect = Exception(ERROR_MSG)
-        self.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
-
-        EnclosureFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
-    def test_should_fail_when_get_environmental_configuration_raises_exception(self):
-        self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
-        self.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
-        self.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
-        self.enclosures.get_environmental_configuration.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
-
-        EnclosureFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_all_utilization_data(self):
         self.enclosures.get_by.return_value = PRESENT_ENCLOSURES

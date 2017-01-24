@@ -20,6 +20,7 @@ from oneview_logical_interconnect_facts import LogicalInterconnectFactsModule
 from oneview_logical_interconnect_facts import LOGICAL_INTERCONNECT_NOT_FOUND
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -104,11 +105,15 @@ def create_params(options=[]):
     return dict(config='config.json', name=LOGICAL_INTERCONNECT_NAME, options=options)
 
 
-class LogicalInterconnectFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class LogicalInterconnectFactsSpec(unittest.TestCase,
+                                   ModuleContructorTestCase,
+                                   FactsParamsTestCase,
+                                   ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, LogicalInterconnectFactsModule)
         self.logical_interconnects = self.mock_ov_client.logical_interconnects
         FactsParamsTestCase.configure_client_mock(self, self.logical_interconnects)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.logical_interconnects.get_by_name)
 
     def test_should_get_all_logical_interconnects(self):
         self.logical_interconnects.get_all.return_value = ALL_INTERCONNECTS
@@ -323,14 +328,6 @@ class LogicalInterconnectFactsSpec(unittest.TestCase, ModuleContructorTestCase, 
                 telemetry_configuration=TELEMETRY_CONFIGURATION
             )
         )
-
-    def test_should_fail_when_get_all_raises_an_exception(self):
-        self.logical_interconnects.get_all.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        LogicalInterconnectFactsModule().run()
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
     def test_should_fail_when_logical_interconnect_not_exist(self):
         params = create_params(['unassigned_uplink_ports'])

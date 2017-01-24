@@ -19,6 +19,7 @@ import yaml
 from oneview_enclosure_group import EnclosureGroupModule, ENCLOSURE_GROUP_CREATED, ENCLOSURE_GROUP_ALREADY_EXIST, \
     ENCLOSURE_GROUP_UPDATED, ENCLOSURE_GROUP_DELETED, ENCLOSURE_GROUP_ALREADY_ABSENT
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -75,15 +76,21 @@ YAML_ENCLOSURE_GROUP_ABSENT = """
 DICT_DEFAULT_ENCLOSURE_GROUP = yaml.load(YAML_ENCLOSURE_GROUP)["data"]
 
 
-class EnclosureGroupPresentStateSpec(unittest.TestCase, ModuleContructorTestCase):
+class EnclosureGroupPresentStateSpec(unittest.TestCase,
+                                     ModuleContructorTestCase,
+                                     ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, EnclosureGroupModule)
         self.resource = self.mock_ov_client.enclosure_groups
+
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.enclosure_groups.get_by)
 
     def test_should_create_new_enclosure_group(self):
         self.resource.get_by.return_value = []
@@ -189,42 +196,6 @@ class EnclosureGroupPresentStateSpec(unittest.TestCase, ModuleContructorTestCase
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=ENCLOSURE_GROUP_ALREADY_ABSENT
-        )
-
-    def test_should_fail_when_create_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = yaml.load(YAML_ENCLOSURE_GROUP)
-
-        self.assertRaises(Exception, EnclosureGroupModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_update_raises_exception(self):
-        self.resource.get_by.return_value = [DICT_DEFAULT_ENCLOSURE_GROUP]
-        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = yaml.load(YAML_ENCLOSURE_GROUP_CHANGES)
-
-        self.assertRaises(Exception, EnclosureGroupModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.resource.get_by.return_value = [DICT_DEFAULT_ENCLOSURE_GROUP]
-        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = yaml.load(YAML_ENCLOSURE_GROUP_ABSENT)
-
-        self.assertRaises(Exception, EnclosureGroupModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 

@@ -21,7 +21,7 @@ from oneview_sas_logical_interconnect_group import (SasLogicalInterconnectGroupM
                                                     SAS_LIG_UPDATED,
                                                     SAS_LIG_DELETED,
                                                     SAS_LIG_ALREADY_ABSENT)
-from test.utils import ModuleContructorTestCase, ValidateEtagTestCase
+from test.utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 DEFAULT_SAS_LIG_NAME = 'Test SAS Logical Interconnect Group'
@@ -62,16 +62,23 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class SasLogicalInterconnectGroupSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class SasLogicalInterconnectGroupSpec(unittest.TestCase,
+                                      ModuleContructorTestCase,
+                                      ValidateEtagTestCase,
+                                      ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function
+
     ValidateEtagTestCase has common tests for the validate_etag attribute, also provides the mocks used in this test
     case.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, SasLogicalInterconnectGroupModule)
         self.resource = self.mock_ov_client.sas_logical_interconnect_groups
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create(self):
         self.resource.get_by.return_value = []
@@ -100,18 +107,6 @@ class SasLogicalInterconnectGroupSpec(unittest.TestCase, ModuleContructorTestCas
         SasLogicalInterconnectGroupModule().run()
 
         self.resource.create.assert_called_once_with(PARAMS_TO_RENAME['data'])
-
-    def test_should_fail_when_create_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        SasLogicalInterconnectGroupModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
 
     def test_should_not_update_when_data_is_equals(self):
         self.resource.get_by.return_value = [DEFAULT_SAS_LIG_TEMPLATE]
@@ -157,18 +152,6 @@ class SasLogicalInterconnectGroupSpec(unittest.TestCase, ModuleContructorTestCas
 
         self.resource.update.assert_called_once_with(data_merged)
 
-    def test_should_fail_when_update_raises_exception(self):
-        self.resource.get_by.return_value = [DEFAULT_SAS_LIG_TEMPLATE]
-        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
-
-        SasLogicalInterconnectGroupModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     def test_should_remove(self):
         self.resource.get_by.return_value = [DEFAULT_SAS_LIG_TEMPLATE]
 
@@ -190,17 +173,6 @@ class SasLogicalInterconnectGroupSpec(unittest.TestCase, ModuleContructorTestCas
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=SAS_LIG_ALREADY_ABSENT
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.resource.get_by.return_value = [DEFAULT_SAS_LIG_TEMPLATE]
-        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
-        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-
-        SasLogicalInterconnectGroupModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 

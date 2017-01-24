@@ -23,7 +23,7 @@ from oneview_logical_switch_group import (LogicalSwitchGroupModule,
                                           SWITCH_TYPE_NOT_FOUND,
                                           LOGICAL_SWITCH_GROUP_ALREADY_UPDATED,
                                           LOGICAL_SWITCH_GROUP_UPDATED)
-from utils import ModuleContructorTestCase, ValidateEtagTestCase
+from utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -72,16 +72,21 @@ DICT_DEFAULT_LOGICAL_SWITCH_GROUP = yaml.load(YAML_LOGICAL_SWITCH_GROUP)["data"]
 DICT_DEFAULT_LOGICAL_SWITCH_GROUP_CHANGED = yaml.load(YAML_LOGICAL_SWITCH_GROUP_CHANGE)["data"]
 
 
-class LogicalSwitchGroupPresentStateSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class LogicalSwitchModuleSpec(unittest.TestCase,
+                              ModuleContructorTestCase,
+                              ValidateEtagTestCase,
+                              ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case.
     ValidateEtagTestCase has common tests for the validate_etag attribute.
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, LogicalSwitchGroupModule)
         self.resource = self.mock_ov_client.logical_switch_groups
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_logical_switch_group(self):
         self.resource.get_by.return_value = []
@@ -155,42 +160,16 @@ class LogicalSwitchGroupPresentStateSpec(unittest.TestCase, ModuleContructorTest
             msg=LOGICAL_SWITCH_GROUP_ALREADY_ABSENT
         )
 
-    def test_should_fail_when_create_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
-        self.mock_ov_client.switch_types.get_by.return_value = [{'uri': SWITCH_TYPE_URI}]
-
-        self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_SWITCH_GROUP)
-
-        self.assertRaises(Exception, LogicalSwitchGroupModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     def test_should_fail_when_switch_type_was_not_found(self):
         self.resource.get_by.return_value = []
-        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
         self.mock_ov_client.switch_types.get_by.return_value = []
 
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_SWITCH_GROUP)
 
-        self.assertRaises(Exception, LogicalSwitchGroupModule().run())
+        LogicalSwitchGroupModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=SWITCH_TYPE_NOT_FOUND
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.resource.get_by.return_value = [DICT_DEFAULT_LOGICAL_SWITCH_GROUP]
-        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_SWITCH_GROUP_ABSENT)
-
-        self.assertRaises(Exception, LogicalSwitchGroupModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
 

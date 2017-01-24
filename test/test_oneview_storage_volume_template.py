@@ -15,7 +15,9 @@
 ###
 import unittest
 
-from utils import ModuleContructorTestCase, ValidateEtagTestCase
+from utils import ModuleContructorTestCase
+from utils import ValidateEtagTestCase
+from utils import ErrorHandlingTestCase
 
 from oneview_storage_volume_template import StorageVolumeTemplateModule, STORAGE_VOLUME_TEMPLATE_CREATED,\
     STORAGE_VOLUME_TEMPLATE_DELETED, STORAGE_VOLUME_TEMPLATE_ALREADY_ABSENT,\
@@ -69,7 +71,10 @@ PARAMS_FOR_MISSING_KEY = dict(
 )
 
 
-class StorageVolumeTemplatePresentStateSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class StorageVolumeTemplatePresentStateSpec(unittest.TestCase,
+                                            ModuleContructorTestCase,
+                                            ValidateEtagTestCase,
+                                            ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
@@ -79,6 +84,7 @@ class StorageVolumeTemplatePresentStateSpec(unittest.TestCase, ModuleContructorT
     def setUp(self):
         self.configure_mocks(self, StorageVolumeTemplateModule)
         self.resource = self.mock_ov_client.storage_volume_templates
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_storage_volume_template(self):
         self.resource.get_by.return_value = []
@@ -158,60 +164,13 @@ class StorageVolumeTemplateAbsentStateSpec(unittest.TestCase, ModuleContructorTe
             msg=STORAGE_VOLUME_TEMPLATE_ALREADY_ABSENT
         )
 
-
-class StorageVolumeTemplateErrorHandlingSpec(unittest.TestCase, ModuleContructorTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-    """
-
-    def setUp(self):
-        self.configure_mocks(self, StorageVolumeTemplateModule)
-        self.resource = self.mock_ov_client.storage_volume_templates
-
-    def test_should_fail_when_create_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        self.assertRaises(Exception, StorageVolumeTemplateModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_update_raises_exception(self):
-        self.resource.get_by.return_value = [STORAGE_VOLUME_TEMPLATE]
-        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
-
-        self.assertRaises(Exception, StorageVolumeTemplateModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.resource.get_by.return_value = [STORAGE_VOLUME_TEMPLATE]
-        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-
-        self.assertRaises(Exception, StorageVolumeTemplateModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     def test_should_raise_exception_when_key_is_missing(self):
         self.resource.get_by.return_value = [STORAGE_VOLUME_TEMPLATE]
         self.resource.remove.side_effect = Exception(FAKE_MSG_ERROR)
 
         self.mock_ansible_module.params = PARAMS_FOR_MISSING_KEY
 
-        self.assertRaises(Exception, StorageVolumeTemplateModule().run())
+        StorageVolumeTemplateModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=STORAGE_VOLUME_TEMPLATE_MANDATORY_FIELD_MISSING

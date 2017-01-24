@@ -18,6 +18,7 @@ import unittest
 from oneview_interconnect_type_facts import InterconnectTypeFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -37,11 +38,15 @@ PRESENT_TYPES = [{
 }]
 
 
-class InterconnectTypeFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class InterconnectTypeFactsSpec(unittest.TestCase,
+                                ModuleContructorTestCase,
+                                FactsParamsTestCase,
+                                ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, InterconnectTypeFactsModule)
         self.interconnect_types = self.mock_ov_client.interconnect_types
         FactsParamsTestCase.configure_client_mock(self, self.interconnect_types)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.interconnect_types.get_by)
 
     def test_should_get_all_interconnect_types(self):
         self.interconnect_types.get_all.return_value = PRESENT_TYPES
@@ -55,15 +60,6 @@ class InterconnectTypeFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fac
             ansible_facts=dict(interconnect_types=(PRESENT_TYPES))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.interconnect_types.get_all.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        InterconnectTypeFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_interconnect_type_by_name(self):
         self.interconnect_types.get_by.return_value = PRESENT_TYPES
 
@@ -75,15 +71,6 @@ class InterconnectTypeFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fac
             changed=False,
             ansible_facts=dict(interconnect_types=(PRESENT_TYPES))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.interconnect_types.get_by.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        InterconnectTypeFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

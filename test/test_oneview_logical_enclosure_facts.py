@@ -19,6 +19,7 @@ import unittest
 from oneview_logical_enclosure_facts import LogicalEnclosureFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -43,11 +44,15 @@ PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
 )
 
 
-class LogicalEnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class LogicalEnclosureFactsSpec(unittest.TestCase,
+                                ModuleContructorTestCase,
+                                FactsParamsTestCase,
+                                ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, LogicalEnclosureFactsModule)
         self.logical_enclosures = self.mock_ov_client.logical_enclosures
         FactsParamsTestCase.configure_client_mock(self, self.logical_enclosures)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.logical_enclosures.get_by)
 
     def test_should_get_all_logical_enclosure(self):
         self.logical_enclosures.get_all.return_value = [LOGICAL_ENCLOSURE]
@@ -61,15 +66,6 @@ class LogicalEnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fac
             ansible_facts=dict(logical_enclosures=([LOGICAL_ENCLOSURE]))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.logical_enclosures.get_all.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        LogicalEnclosureFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_logical_enclosure_by_name(self):
         self.logical_enclosures.get_by.return_value = [LOGICAL_ENCLOSURE]
 
@@ -81,15 +77,6 @@ class LogicalEnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fac
             changed=False,
             ansible_facts=dict(logical_enclosures=[LOGICAL_ENCLOSURE])
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.logical_enclosures.get_by.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        LogicalEnclosureFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_logical_enclosure_by_name_with_options(self):
         self.logical_enclosures.get_by.return_value = [LOGICAL_ENCLOSURE]
@@ -104,16 +91,6 @@ class LogicalEnclosureFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fac
             ansible_facts=dict(logical_enclosures=[LOGICAL_ENCLOSURE],
                                logical_enclosure_script="# script code")
         )
-
-    def test_should_fail_when_get_script_raises_exception(self):
-        self.logical_enclosures.get_by.return_value = [LOGICAL_ENCLOSURE]
-        self.logical_enclosures.get_script.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
-
-        LogicalEnclosureFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

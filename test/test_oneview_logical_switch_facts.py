@@ -19,6 +19,7 @@ import yaml
 from oneview_logical_switch_facts import LogicalSwitchFactsModule, EXAMPLES
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -28,11 +29,15 @@ PRESENT_LOGICAL_SWITCHES = [{
 }]
 
 
-class LogicalSwitchFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class LogicalSwitchFactsSpec(unittest.TestCase,
+                             ModuleContructorTestCase,
+                             FactsParamsTestCase,
+                             ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, LogicalSwitchFactsModule)
         self.logical_switches = self.mock_ov_client.logical_switches
         FactsParamsTestCase.configure_client_mock(self, self.logical_switches)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.logical_switches.get_by)
 
         LOGICAL_SWITCH_FACTS_EXAMPLES = yaml.load(EXAMPLES)
 
@@ -50,14 +55,6 @@ class LogicalSwitchFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsP
             ansible_facts=dict(logical_switches=(PRESENT_LOGICAL_SWITCHES))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.logical_switches.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = self.PARAMS_GET_ALL
-
-        LogicalSwitchFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_logical_switch_by_name(self):
         self.logical_switches.get_by.return_value = PRESENT_LOGICAL_SWITCHES
         self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
@@ -68,14 +65,6 @@ class LogicalSwitchFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsP
             changed=False,
             ansible_facts=dict(logical_switches=(PRESENT_LOGICAL_SWITCHES))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.logical_switches.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
-
-        LogicalSwitchFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

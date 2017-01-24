@@ -21,6 +21,9 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -265,7 +268,7 @@ class LogicalInterconnectModule(object):
             resource = self.__get_by_name(data)
 
             if not resource:
-                raise Exception(LOGICAL_INTERCONNECT_NOT_FOUND)
+                raise HPOneViewResourceNotFound(LOGICAL_INTERCONNECT_NOT_FOUND)
 
             uri = resource['uri']
 
@@ -289,13 +292,15 @@ class LogicalInterconnectModule(object):
                 changed, msg, ansible_facts = self.__update_configuration(uri)
             elif state == 'firmware_installed':
                 changed, msg, ansible_facts = self.__install_firmware(uri, data)
+            else:
+                changed, msg, ansible_facts = False, '', dict()
 
             if ansible_facts:
                 self.module.exit_json(changed=changed, msg=msg, ansible_facts=ansible_facts)
             else:
                 self.module.exit_json(changed=changed, msg=msg)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __compliance(self, uri):
@@ -309,8 +314,7 @@ class LogicalInterconnectModule(object):
         ethernet_settings_merged.update(data['ethernetSettings'])
 
         if resource_compare(resource['ethernetSettings'], ethernet_settings_merged):
-            self.module.exit_json(changed=False,
-                                  msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
+            return False, LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED, dict()
         else:
             li = self.oneview_client.logical_interconnects.update_ethernet_settings(resource['uri'],
                                                                                     ethernet_settings_merged)
@@ -324,7 +328,8 @@ class LogicalInterconnectModule(object):
             if 'name' in network_uri_or_name:
                 ethernet_network = self.__get_ethernet_network_by_name(network_uri_or_name['name'])
                 if not ethernet_network:
-                    raise Exception(LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND + network_uri_or_name['name'])
+                    msg = LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND + network_uri_or_name['name']
+                    raise HPOneViewResourceNotFound(msg)
                 networks.append(ethernet_network['uri'])
             elif 'uri' in network_uri_or_name:
                 networks.append(network_uri_or_name['uri'])
@@ -362,9 +367,7 @@ class LogicalInterconnectModule(object):
         qos_config_merged = self.__merge_options(data['qosConfiguration'], qos_config)
 
         if resource_compare(qos_config_merged, qos_config):
-
-            self.module.exit_json(changed=False,
-                                  msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
+            return False, LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED, dict()
         else:
             qos_config_updated = self.oneview_client.logical_interconnects.update_qos_aggregated_configuration(
                 uri, qos_config_merged)
@@ -452,11 +455,11 @@ class LogicalInterconnectModule(object):
 
     def __validate_options(self, subresource_type, data):
         if subresource_type not in data:
-            raise Exception(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
+            raise HPOneViewValueError(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
 
     def __validate_settings(self, data):
         if 'ethernetSettings' not in data and 'fcoeSettings' not in data:
-            raise Exception(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
+            raise HPOneViewValueError(LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
 
     def __build_firmware_uri(self, filename):
         return '/rest/firmware-drivers/' + filename

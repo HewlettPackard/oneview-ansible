@@ -17,7 +17,9 @@
 import unittest
 
 from oneview_unmanaged_device_facts import UnmanagedDeviceFactsModule
-from utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase
+from test.utils import FactsParamsTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -63,11 +65,15 @@ ENVIRONMENTAL_CONFIGURATION = dict(
 )
 
 
-class UnmanagedDeviceFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class UnmanagedDeviceFactsSpec(unittest.TestCase,
+                               ModuleContructorTestCase,
+                               FactsParamsTestCase,
+                               ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, UnmanagedDeviceFactsModule)
         self.resource = self.mock_ov_client.unmanaged_devices
         FactsParamsTestCase.configure_client_mock(self, self.resource)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_get_all(self):
         unmanaged_devices = [UNMANAGED_DEVICE]
@@ -113,22 +119,6 @@ class UnmanagedDeviceFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fact
                 unmanaged_device_environmental_configuration=ENVIRONMENTAL_CONFIGURATION
             )
         )
-
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.resource.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        UnmanagedDeviceFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
-
-    def test_should_fail_when_get_by_raises_exception(self):
-        self.resource.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        UnmanagedDeviceFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':

@@ -18,6 +18,7 @@ import unittest
 from oneview_internal_link_set_facts import InternalLinkSetFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -34,11 +35,15 @@ PARAMS_GET_BY_NAME = dict(
 INTERNAL_LINK_SETS = [{"name": "ILS56"}, {"name": "ILS58"}, {"name": "ILS100"}]
 
 
-class InternalLinkSetFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class InternalLinkSetFactsSpec(unittest.TestCase,
+                               ModuleContructorTestCase,
+                               FactsParamsTestCase,
+                               ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, InternalLinkSetFactsModule)
         self.internal_link_sets = self.mock_ov_client.internal_link_sets
         FactsParamsTestCase.configure_client_mock(self, self.internal_link_sets)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.internal_link_sets.get_by)
 
     def test_should_get_all_internal_link_sets(self):
         self.internal_link_sets.get_all.return_value = INTERNAL_LINK_SETS
@@ -51,14 +56,6 @@ class InternalLinkSetFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fact
             ansible_facts=dict(internal_link_sets=(INTERNAL_LINK_SETS))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.internal_link_sets.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        InternalLinkSetFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_by_name(self):
         self.internal_link_sets.get_by.return_value = [INTERNAL_LINK_SETS[1]]
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -69,14 +66,6 @@ class InternalLinkSetFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fact
             changed=False,
             ansible_facts=dict(internal_link_sets=([INTERNAL_LINK_SETS[1]]))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.internal_link_sets.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        InternalLinkSetFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

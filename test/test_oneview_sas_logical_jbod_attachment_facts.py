@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_sas_logical_jbod_attachment_facts import SasLogicalJbodAttachmentFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -34,11 +34,15 @@ PARAMS_GET_BY_NAME = dict(
 SAS_JBOD_LOGICAL_ATTACHMENTS = [{"name": "SAS Logical JBOD Attachment 1"}, {"name": "SAS Logical JBOD Attachment 2"}]
 
 
-class SasLogicalJbodAttachmentFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class SasLogicalJbodAttachmentFactsSpec(unittest.TestCase,
+                                        ModuleContructorTestCase,
+                                        FactsParamsTestCase,
+                                        ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, SasLogicalJbodAttachmentFactsModule)
         self.resource = self.mock_ov_client.sas_logical_jbod_attachments
         FactsParamsTestCase.configure_client_mock(self, self.resource)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_get_all_sas_logical_jbod_attachments(self):
         self.resource.get_all.return_value = SAS_JBOD_LOGICAL_ATTACHMENTS
@@ -51,14 +55,6 @@ class SasLogicalJbodAttachmentFactsSpec(unittest.TestCase, ModuleContructorTestC
             ansible_facts=dict(sas_logical_jbod_attachments=(SAS_JBOD_LOGICAL_ATTACHMENTS))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.resource.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        SasLogicalJbodAttachmentFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_sas_logical_jbod_attachment_by_name(self):
         self.resource.get_by.return_value = [SAS_JBOD_LOGICAL_ATTACHMENTS[1]]
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -69,14 +65,6 @@ class SasLogicalJbodAttachmentFactsSpec(unittest.TestCase, ModuleContructorTestC
             changed=False,
             ansible_facts=dict(sas_logical_jbod_attachments=([SAS_JBOD_LOGICAL_ATTACHMENTS[1]]))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.resource.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        SasLogicalJbodAttachmentFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

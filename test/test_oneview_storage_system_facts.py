@@ -19,6 +19,7 @@ from oneview_storage_system_facts import StorageSystemFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
 from test.utils import PreloadedMocksBaseTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -49,11 +50,15 @@ HOST_TYPES = [
 ]
 
 
-class StorageSystemFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class StorageSystemFactsSpec(unittest.TestCase,
+                             ModuleContructorTestCase,
+                             FactsParamsTestCase,
+                             ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, StorageSystemFactsModule)
         self.storage_systems = self.mock_ov_client.storage_systems
         FactsParamsTestCase.configure_client_mock(self, self.storage_systems)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.storage_systems.get_by_name)
 
     def test_should_get_all_storage_system(self):
         self.storage_systems.get_all.return_value = {"name": "Storage System Name"}
@@ -66,14 +71,6 @@ class StorageSystemFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsP
             ansible_facts=dict(storage_systems=({"name": "Storage System Name"}))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.storage_systems.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        StorageSystemFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_storage_system_by_name(self):
         self.storage_systems.get_by_name.return_value = {"name": "Storage System Name"}
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -85,14 +82,6 @@ class StorageSystemFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsP
             ansible_facts=dict(storage_systems=({"name": "Storage System Name"}))
         )
 
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.storage_systems.get_by_name.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        StorageSystemFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_storage_system_by_ip_hostname(self):
         self.storage_systems.get_by_ip_hostname.return_value = {"ip_hostname": "10.0.0.0"}
         self.mock_ansible_module.params = PARAMS_GET_BY_IP_HOSTNAME
@@ -103,14 +92,6 @@ class StorageSystemFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsP
             changed=False,
             ansible_facts=dict(storage_systems=({"ip_hostname": "10.0.0.0"}))
         )
-
-    def test_should_fail_when_get_by_ip_hostname_raises_exception(self):
-        self.storage_systems.get_by_ip_hostname.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_IP_HOSTNAME
-
-        StorageSystemFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 class StorageSystemHostTypesFactsSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
@@ -131,15 +112,6 @@ class StorageSystemHostTypesFactsSpec(unittest.TestCase, PreloadedMocksBaseTestC
                 storage_system_host_types=HOST_TYPES,
                 storage_systems=[{"name": "Storage System Name"}])
         )
-
-    def test_should_fail_when_get_host_types_raises_exception(self):
-        self.storage_systems.get_host_types.side_effect = Exception(ERROR_MSG)
-        self.storage_systems.get_all.return_value = [{"name": "Storage System Name"}]
-        self.mock_ansible_module.params = PARAMS_GET_HOST_TYPES
-
-        StorageSystemFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 PARAMS_GET_POOL_BY_NAME = dict(
@@ -175,14 +147,6 @@ class StorageSystemPoolsFactsSpec(unittest.TestCase, PreloadedMocksBaseTestCase)
             )
         )
 
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.storage_systems.get_by_name.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_POOL_BY_NAME
-
-        StorageSystemFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_storage_system_pools_by_ip_hostname(self):
         self.storage_systems.get_by_ip_hostname.return_value = {"ip_hostname": "10.0.0.0", "uri": "uri"}
         self.storage_systems.get_storage_pools.return_value = {"name": "Storage Pool"}
@@ -197,14 +161,6 @@ class StorageSystemPoolsFactsSpec(unittest.TestCase, PreloadedMocksBaseTestCase)
                 storage_systems={"ip_hostname": "10.0.0.0", "uri": "uri"}
             )
         )
-
-    def test_should_fail_when_get_by_ip_hostname_raises_exception(self):
-        self.storage_systems.get_by_ip_hostname.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_POOL_BY_IP_HOSTNAME
-
-        StorageSystemFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

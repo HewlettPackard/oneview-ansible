@@ -20,6 +20,8 @@ from copy import deepcopy
 
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -218,7 +220,7 @@ class LogicalSwitchModule(object):
             elif state == 'refreshed':
                 self.__refresh(data)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data):
@@ -259,7 +261,7 @@ class LogicalSwitchModule(object):
                                   msg=LOGICAL_SWITCH_UPDATED,
                                   ansible_facts=dict(logical_switch=created_resource))
         else:
-            raise Exception(LOGICAL_SWITCH_NOT_FOUND)
+            raise HPOneViewResourceNotFound(LOGICAL_SWITCH_NOT_FOUND)
 
     def __absent(self, data):
         resource = self.__get_by_name(data)
@@ -280,7 +282,7 @@ class LogicalSwitchModule(object):
                                   msg=LOGICAL_SWITCH_REFRESHED,
                                   ansible_facts=dict(logical_switch=logical_switch))
         else:
-            raise Exception(LOGICAL_SWITCH_NOT_FOUND)
+            raise HPOneViewResourceNotFound(LOGICAL_SWITCH_NOT_FOUND)
 
     def __get_by_name(self, data):
         if 'logicalSwitch' not in data:
@@ -298,7 +300,7 @@ class LogicalSwitchModule(object):
                 data['logicalSwitch'].pop('logicalSwitchGroupName')
                 data['logicalSwitch']['logicalSwitchGroupUri'] = logical_switch_group[0]['uri']
             else:
-                raise Exception(LOGICAL_SWITCH_GROUP_NOT_FOUND)
+                raise HPOneViewResourceNotFound(LOGICAL_SWITCH_GROUP_NOT_FOUND)
 
 
 def main():

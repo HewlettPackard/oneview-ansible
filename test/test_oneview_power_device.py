@@ -19,7 +19,7 @@ from oneview_power_device import PowerDeviceModule, POWER_DEVICE_ADDED, POWER_DE
     POWER_DEVICE_DELETED, POWER_DEVICE_UPDATED, POWER_DEVICE_ALREADY_ABSENT, POWER_DEVICE_MANDATORY_FIELD_MISSING, \
     POWER_DEVICE_POWER_STATE_UPDATED, POWER_DEVICE_NOT_FOUND, POWER_DEVICE_REFRESH_STATE_UPDATED, \
     POWER_DEVICE_UID_STATE_UPDATED, POWER_DEVICE_IPDU_ADDED
-from utils import ModuleContructorTestCase, ValidateEtagTestCase
+from utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
 
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -96,16 +96,22 @@ PARAMS_FOR_UID_STATE_SET = dict(
 )
 
 
-class PowerDeviceModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class PowerDeviceModuleSpec(unittest.TestCase,
+                            ModuleContructorTestCase,
+                            ValidateEtagTestCase,
+                            ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
     ValidateEtagTestCase has common tests for the validate_etag attribute.
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, PowerDeviceModule)
         self.resource = self.mock_ov_client.power_devices
+        ErrorHandlingTestCase.configure(self, ansible_params=self.PARAMS_FOR_PRESENT,
+                                        method_to_fire=self.resource.get_by)
 
     def test_should_add_new_power_device(self):
         self.resource.get_by.return_value = []
@@ -163,18 +169,6 @@ class PowerDeviceModuleSpec(unittest.TestCase, ModuleContructorTestCase, Validat
             ansible_facts=dict(power_device=data_merged)
         )
 
-    def test_should_fail_when_add_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.add.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        self.assertRaises(Exception, PowerDeviceModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     def test_should_fail_with_missing_required_attributes(self):
         self.mock_ansible_module.params = PARAMS_FOR_MISSING_ATTRIBUTES
 
@@ -208,18 +202,6 @@ class PowerDeviceModuleSpec(unittest.TestCase, ModuleContructorTestCase, Validat
             ansible_facts={},
             changed=False,
             msg=POWER_DEVICE_ALREADY_ABSENT
-        )
-
-    def test_should_fail_when_remove_raises_exception(self):
-        self.resource.get_by.return_value = [DEFAULT_POWER_DEVICE]
-        self.resource.remove.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-
-        self.assertRaises(Exception, PowerDeviceModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
     def test_should_set_power_state(self):

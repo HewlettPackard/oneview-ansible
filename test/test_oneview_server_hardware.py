@@ -21,7 +21,7 @@ from oneview_server_hardware import ServerHardwareModule, SERVER_HARDWARE_ADDED,
     SERVER_HARDWARE_POWER_STATE_UPDATED, SERVER_HARDWARE_NOT_FOUND, SERVER_HARDWARE_REFRESH_STATE_UPDATED, \
     SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED, SERVER_HARDWARE_ENV_CONFIG_UPDATED, NOTHING_TO_DO, \
     SERVER_HARDWARE_UID_STATE_CHANGED, SERVER_HARDWARE_ILO_STATE_RESET
-from test.utils import ModuleContructorTestCase, ValidateEtagTestCase
+from test.utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -105,16 +105,25 @@ SERVER_HARDWARE_HOSTNAME = "172.18.6.15"
 DICT_DEFAULT_SERVER_HARDWARE = yaml.load(YAML_SERVER_HARDWARE_PRESENT)["data"]
 
 
-class ServerHardwareModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class ServerHardwareModuleSpec(unittest.TestCase,
+                               ModuleContructorTestCase,
+                               ValidateEtagTestCase,
+                               ErrorHandlingTestCase):
     """
     Test the module constructor
     ModuleContructorTestCase has common tests for class constructor and main function
+
     ValidateEtagTestCase has common tests for the validate_etag attribute.
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, ServerHardwareModule)
         self.resource = self.mock_ov_client.server_hardware
+
+        ErrorHandlingTestCase.configure(self, ansible_params=yaml.load(YAML_SERVER_HARDWARE_PRESENT),
+                                        method_to_fire=self.resource.get_by)
 
     def test_should_add_new_server_hardware(self):
         self.resource.get_by.return_value = []
@@ -183,18 +192,6 @@ class ServerHardwareModuleSpec(unittest.TestCase, ModuleContructorTestCase, Vali
             msg=SERVER_HARDWARE_MANDATORY_FIELD_MISSING.format('data.name')
         )
 
-    def test_should_fail_when_add_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.add.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_PRESENT)
-
-        self.assertRaises(Exception, ServerHardwareModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
     def test_should_remove_server_hardware(self):
         self.resource.get_by.return_value = [{'name': 'name'}]
 
@@ -219,18 +216,6 @@ class ServerHardwareModuleSpec(unittest.TestCase, ModuleContructorTestCase, Vali
             ansible_facts={},
             changed=False,
             msg=SERVER_HARDWARE_ALREADY_ABSENT
-        )
-
-    def test_should_fail_when_remove_raises_exception(self):
-        self.resource.get_by.return_value = [{'name': 'name'}]
-        self.resource.remove.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_ABSENT)
-
-        ServerHardwareModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
     def test_should_set_power_state(self):

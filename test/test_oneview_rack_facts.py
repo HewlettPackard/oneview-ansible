@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_rack_facts import RackFactsModule
-from utils import ModuleContructorTestCase, FactsParamsTestCase
+from utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -41,11 +41,12 @@ PARAMS_GET_TOPOLOGY = dict(
 )
 
 
-class RackFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class RackFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, RackFactsModule)
         self.resource = self.mock_ov_client.racks
         FactsParamsTestCase.configure_client_mock(self, self.resource)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_get_all(self):
         self.resource.get_all.return_value = {"name": "Rack Name"}
@@ -59,15 +60,6 @@ class RackFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTest
             ansible_facts=dict(racks=({"name": "Rack Name"}))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.resource.get_all.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        RackFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_by_name(self):
         self.resource.get_by.return_value = {"name": "Rack Name"}
 
@@ -79,15 +71,6 @@ class RackFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTest
             changed=False,
             ansible_facts=dict(racks=({"name": "Rack Name"}))
         )
-
-    def test_should_fail_when_get_by_raises_exception(self):
-        self.resource.get_by.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        RackFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_rack_device_topology(self):
         rack = [{"name": "Rack Name", "uri": "/rest/uri/123"}]
@@ -103,16 +86,6 @@ class RackFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTest
             ansible_facts={'rack_device_topology': {'name': 'Rack Name'},
                            'racks': rack}
         )
-
-    def test_should_fail_when_get_device_topology_raises_exception(self):
-        self.resource.get_by.return_value = {"name": "RackName01"}
-        self.resource.get_device_topology.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_TOPOLOGY
-
-        RackFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

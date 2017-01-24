@@ -18,6 +18,7 @@ import unittest
 from oneview_logical_downlinks_facts import LogicalDownlinksFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -51,11 +52,15 @@ PARAMS_FOR_GET_WITHOUT_ETHERNET = dict(
 )
 
 
-class LogicalDownlinksFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class LogicalDownlinksFactsSpec(unittest.TestCase,
+                                ModuleContructorTestCase,
+                                FactsParamsTestCase,
+                                ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, LogicalDownlinksFactsModule)
         self.logical_downlinks = self.mock_ov_client.logical_downlinks
         self.configure_client_mock(self.logical_downlinks)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.logical_downlinks.get_by)
 
     def test_should_get_all_logical_downlinks(self):
         logical_downlinks = [
@@ -76,15 +81,6 @@ class LogicalDownlinksFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fac
             ansible_facts=dict(logical_downlinks=logical_downlinks)
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.logical_downlinks.get_all.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_FOR_GET_ALL
-
-        LogicalDownlinksFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
-
     def test_should_get_by_name(self):
         logical_downlinks = [LOGICAL_DOWNLINK]
 
@@ -100,15 +96,6 @@ class LogicalDownlinksFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fac
             changed=False,
             ansible_facts=dict(logical_downlinks=logical_downlinks)
         )
-
-    def test_should_fail_when_get_by_raises_exception(self):
-        self.logical_downlinks.get_by.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_FOR_GET_BY_NAME
-
-        LogicalDownlinksFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
     def test_should_get_all_without_ethernet(self):
         logical_downlinks = [LOGICAL_DOWNLINK]

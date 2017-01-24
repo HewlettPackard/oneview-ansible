@@ -19,6 +19,7 @@ import unittest
 from oneview_ethernet_network_facts import EthernetNetworkFactsModule
 from test.utils import ModuleContructorTestCase
 from test.utils import FactsParamsTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -61,11 +62,15 @@ ENET_ASSOCIATED_PROFILES = [dict(uri=ENET_ASSOCIATED_PROFILE_URIS[0], name='Serv
                             dict(uri=ENET_ASSOCIATED_PROFILE_URIS[1], name='Server Profile 2')]
 
 
-class EthernetNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class EthernetNetworkFactsSpec(unittest.TestCase,
+                               ModuleContructorTestCase,
+                               FactsParamsTestCase,
+                               ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, EthernetNetworkFactsModule)
         self.ethernet_networks = self.mock_ov_client.ethernet_networks
         FactsParamsTestCase.configure_client_mock(self, self.ethernet_networks)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.ethernet_networks.get_by)
 
     def test_should_get_all_enets(self):
         self.ethernet_networks.get_all.return_value = PRESENT_ENETS
@@ -78,14 +83,6 @@ class EthernetNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fact
             ansible_facts=dict(ethernet_networks=(PRESENT_ENETS))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.ethernet_networks.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        EthernetNetworkFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_enet_by_name(self):
         self.ethernet_networks.get_by.return_value = PRESENT_ENETS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -96,14 +93,6 @@ class EthernetNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fact
             changed=False,
             ansible_facts=dict(ethernet_networks=(PRESENT_ENETS))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.ethernet_networks.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        EthernetNetworkFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_enet_by_name_with_options(self):
         self.ethernet_networks.get_by.return_value = PRESENT_ENETS
@@ -122,30 +111,6 @@ class EthernetNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, Fact
                                enet_associated_profiles=ENET_ASSOCIATED_PROFILES,
                                enet_associated_uplink_groups=ENET_ASSOCIATED_UPLINK_GROUPS)
         )
-
-    def test_should_fail_when_get_associated_profiles_raises_exception(self):
-        self.ethernet_networks.get_by.return_value = PRESENT_ENETS
-        self.ethernet_networks.get_associated_profiles.side_effect = Exception(ERROR_MSG)
-        self.ethernet_networks.get_associated_uplink_groups.return_value = ENET_ASSOCIATED_UPLINK_GROUP_URIS
-        self.mock_ov_client.uplink_sets.get.side_effect = ENET_ASSOCIATED_UPLINK_GROUPS
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
-
-        EthernetNetworkFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
-    def test_should_fail_when_get_uplink_groups_raises_exception(self):
-        self.ethernet_networks.get_by.return_value = PRESENT_ENETS
-        self.ethernet_networks.get_associated_profiles.return_value = ENET_ASSOCIATED_PROFILE_URIS
-        self.ethernet_networks.get_associated_uplink_groups.side_effect = Exception(ERROR_MSG)
-        self.mock_ov_client.server_profiles.get.side_effect = ENET_ASSOCIATED_PROFILES
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
-
-        EthernetNetworkFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

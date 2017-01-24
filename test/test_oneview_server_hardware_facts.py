@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_server_hardware_facts import ServerHardwareFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -59,7 +59,8 @@ PARAMS_WITH_ALL_FIRMWARES_WITH_FILTERS = dict(
 
 class ServerHardwareFactsSpec(unittest.TestCase,
                               ModuleContructorTestCase,
-                              FactsParamsTestCase):
+                              FactsParamsTestCase,
+                              ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
     mocks used in this test class.
@@ -71,6 +72,7 @@ class ServerHardwareFactsSpec(unittest.TestCase,
         self.server_hardware = self.mock_ov_client.server_hardware
 
         FactsParamsTestCase.configure_client_mock(self, self.server_hardware)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.server_hardware.get_by)
 
     def test_should_get_all_server_hardware(self):
         self.server_hardware.get_all.return_value = {"name": "Server Hardware Name"}
@@ -82,14 +84,6 @@ class ServerHardwareFactsSpec(unittest.TestCase,
             changed=False,
             ansible_facts=dict(server_hardwares=({"name": "Server Hardware Name"}))
         )
-
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.server_hardware.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        ServerHardwareFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_server_hardware_by_name(self):
         self.server_hardware.get_by.return_value = {"name": "Server Hardware Name"}
@@ -158,14 +152,6 @@ class ServerHardwareFactsSpec(unittest.TestCase,
                 'server_hardware_firmwares': [{'subresource': 'firmware'}]
             }
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.server_hardware.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        ServerHardwareFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

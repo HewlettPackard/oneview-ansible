@@ -16,7 +16,9 @@
 import unittest
 import mock
 
-from utils import ModuleContructorTestCase, ValidateEtagTestCase
+from utils import ModuleContructorTestCase
+from utils import ValidateEtagTestCase
+from utils import ErrorHandlingTestCase
 from oneview_unmanaged_device import (UnmanagedDeviceModule,
                                       UNMANAGED_DEVICE_ADDED,
                                       UNMANAGED_DEVICE_UPDATED,
@@ -68,7 +70,10 @@ UNMANAGED_DEVICE = dict(
 )
 
 
-class UnmanagedDeviceSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class UnmanagedDeviceSpec(unittest.TestCase,
+                          ModuleContructorTestCase,
+                          ValidateEtagTestCase,
+                          ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function
     ValidateEtagTestCase has common tests for the validate_etag attribute, also provides the mocks used in this test
@@ -78,6 +83,7 @@ class UnmanagedDeviceSpec(unittest.TestCase, ModuleContructorTestCase, ValidateE
     def setUp(self):
         self.configure_mocks(self, UnmanagedDeviceModule)
         self.resource = self.mock_ov_client.unmanaged_devices
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.unmanaged_devices.get_by)
 
     def test_should_add(self):
         self.resource.get_by.return_value = []
@@ -176,40 +182,6 @@ class UnmanagedDeviceSpec(unittest.TestCase, ModuleContructorTestCase, ValidateE
             changed=True,
             msg=UNMANAGED_DEVICE_SET_REMOVED
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.resource.get_by.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        UnmanagedDeviceModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
-
-    def test_should_fail_when_add_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.add.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        UnmanagedDeviceModule().run()
-
-        self.resource.add.assert_called_once_with(UNMANAGED_DEVICE_FOR_PRESENT)
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
-
-    @mock.patch('oneview_unmanaged_device.resource_compare')
-    def test_should_fail_when_update_raises_exception(self, mock_resource_compare):
-        self.resource.get_by.return_value = [UNMANAGED_DEVICE]
-        self.resource.update.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        mock_resource_compare.return_value = False
-
-        UnmanagedDeviceModule().run()
-
-        self.resource.update.assert_called_once_with(UNMANAGED_DEVICE)
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':

@@ -21,13 +21,17 @@ from oneview_uplink_set import UplinkSetModule, UPLINK_SET_ALREADY_ABSENT, UPLIN
     UPLINK_SET_LOGICAL_INTERCONNECT_NOT_FOUND
 from test.utils import ModuleContructorTestCase
 from test.utils import ValidateEtagTestCase
+from test.utils import ErrorHandlingTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 DEFAULT_UPLINK_NAME = 'Test Uplink Set'
 RENAMED_UPLINK_SET = 'Renamed Uplink Set'
 
 
-class UplinkSetModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase):
+class UplinkSetModuleSpec(unittest.TestCase,
+                          ModuleContructorTestCase,
+                          ValidateEtagTestCase,
+                          ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, UplinkSetModule)
         self.resource = self.mock_ov_client.uplink_sets
@@ -110,6 +114,9 @@ class UplinkSetModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateE
             data=dict(name=DEFAULT_UPLINK_NAME,
                       logicalInterconnectName=self.LOGICAL_INTERCONNECT['name'])
         )
+
+        ErrorHandlingTestCase.configure(self, ansible_params=self.PARAMS_FOR_PRESENT,
+                                        method_to_fire=self.mock_ov_client.uplink_sets.get_by)
 
     def test_should_create(self):
         self.resource.get_by.return_value = []
@@ -237,42 +244,6 @@ class UplinkSetModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateE
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=UPLINK_SET_ALREADY_ABSENT
-        )
-
-    def test_should_fail_when_create_raises_exception(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
-
-        UplinkSetModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_update_raises_exception(self):
-        self.resource.get_by.return_value = self.EXISTENT_UPLINK_SETS
-        self.resource.update.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_WITH_CHANGES
-
-        UplinkSetModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_delete_raises_exception(self):
-        self.resource.get_by.return_value = self.EXISTENT_UPLINK_SETS
-        self.resource.delete.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = self.PARAMS_FOR_ABSENT
-
-        UplinkSetModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )
 
     def test_should_fail_when_name_not_set(self):

@@ -19,6 +19,8 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -148,7 +150,7 @@ class StorageVolumeTemplateModule(object):
                 self.oneview_client.connection.disable_etag_validation()
 
             if not data.get('name'):
-                raise Exception(STORAGE_VOLUME_TEMPLATE_MANDATORY_FIELD_MISSING)
+                raise HPOneViewValueError(STORAGE_VOLUME_TEMPLATE_MANDATORY_FIELD_MISSING)
 
             resource = (self.oneview_client.storage_volume_templates.get_by("name", data['name']) or [None])[0]
 
@@ -161,7 +163,7 @@ class StorageVolumeTemplateModule(object):
                                   msg=msg,
                                   ansible_facts=ansible_facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg=exception.args[0])
 
     def __present(self, data, resource):

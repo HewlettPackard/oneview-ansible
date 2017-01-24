@@ -20,6 +20,7 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -133,7 +134,7 @@ class InternalLinkSetFactsModule(object):
             self.module.exit_json(changed=False,
                                   ansible_facts=dict(internal_link_sets=internal_links))
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
 

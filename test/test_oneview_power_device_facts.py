@@ -17,12 +17,13 @@
 import unittest
 
 from oneview_power_device_facts import PowerDeviceFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
 
 
 class PowerDeviceFactsModuleSpec(unittest.TestCase,
                                  ModuleContructorTestCase,
-                                 FactsParamsTestCase):
+                                 FactsParamsTestCase,
+                                 ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
     mocks used in this test class.
@@ -54,6 +55,7 @@ class PowerDeviceFactsModuleSpec(unittest.TestCase,
         self.configure_mocks(self, PowerDeviceFactsModule)
         self.power_devices = self.mock_ov_client.power_devices
         FactsParamsTestCase.configure_client_mock(self, self.power_devices)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.power_devices.get_by)
 
     def test_should_get_all_power_devices(self):
         self.power_devices.get_all.return_value = {"name": "Power Device Name"}
@@ -65,14 +67,6 @@ class PowerDeviceFactsModuleSpec(unittest.TestCase,
             changed=False,
             ansible_facts=dict(power_devices=({"name": "Power Device Name"}))
         )
-
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.power_devices.get_all.side_effect = Exception(self.ERROR_MSG)
-        self.mock_ansible_module.params = self.PARAMS_GET_ALL
-
-        PowerDeviceFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_power_device_by_name(self):
         self.power_devices.get_by.return_value = {"name": "Power Device Name"}
@@ -102,14 +96,6 @@ class PowerDeviceFactsModuleSpec(unittest.TestCase,
                            'power_device_utilization': {'subresource': 'util'},
                            }
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.power_devices.get_by.side_effect = Exception(self.ERROR_MSG)
-        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
-
-        PowerDeviceFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

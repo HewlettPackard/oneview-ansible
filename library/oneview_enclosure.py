@@ -20,6 +20,8 @@ from ansible.module_utils.basic import *
 
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -397,7 +399,7 @@ class EnclosureModule(object):
             else:
 
                 if not resource:
-                    raise Exception(ENCLOSURE_NOT_FOUND)
+                    raise HPOneViewResourceNotFound(ENCLOSURE_NOT_FOUND)
 
                 if state == 'reconfigured':
                     changed, msg, resource = self.__reconfigure(resource)
@@ -412,7 +414,7 @@ class EnclosureModule(object):
                                       msg=msg,
                                       ansible_facts=dict(enclosure=resource))
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, resource_by_name, data):
@@ -533,7 +535,7 @@ class EnclosureModule(object):
 
             if not sub_resource:
                 # Resource doesn't have that property or subproperty
-                raise Exception(BAY_NOT_FOUND)
+                raise HPOneViewResourceNotFound(BAY_NOT_FOUND)
 
             property_current_value = sub_resource.get(sub_property_name)
             state['path'] = state['path'].format(**data)

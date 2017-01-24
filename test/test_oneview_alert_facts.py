@@ -16,6 +16,7 @@
 import unittest
 from oneview_alert_facts import AlertFactsModule
 from utils import ModuleContructorTestCase
+from utils import ErrorHandlingTestCase
 import copy
 
 ERROR_MSG = 'Fake message error'
@@ -36,15 +37,21 @@ ALL_ALERTS = [{
 }]
 
 
-class TaskFactsSpec(unittest.TestCase, ModuleContructorTestCase):
+class TaskFactsSpec(unittest.TestCase,
+                    ModuleContructorTestCase,
+                    ErrorHandlingTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, AlertFactsModule)
         self.resource = self.mock_ov_client.alerts
+
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_all)
 
     def test_get_all(self):
         self.resource.get_all.return_value = ALL_ALERTS
@@ -78,14 +85,6 @@ class TaskFactsSpec(unittest.TestCase, ModuleContructorTestCase):
             changed=False,
             ansible_facts=dict(alerts=ALL_ALERTS)
         )
-
-    def test_should_fail_when_get_all_raises_error(self):
-        self.mock_ansible_module.params = copy.deepcopy(PARAMS_GET_ALL)
-        self.resource.get_all.side_effect = Exception(ERROR_MSG)
-
-        AlertFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':

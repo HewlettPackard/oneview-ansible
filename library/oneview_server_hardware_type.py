@@ -18,6 +18,8 @@
 from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -151,7 +153,7 @@ class ServerHardwareTypeModule(object):
                                   msg=msg,
                                   ansible_facts=ansible_facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg=exception.args[0])
 
     def __present(self, data, resource):
@@ -161,7 +163,7 @@ class ServerHardwareTypeModule(object):
             data["name"] = data.pop("newName")
 
         if not resource:
-            raise Exception(SERVER_HARDWARE_TYPE_NOT_FOUND)
+            raise HPOneViewResourceNotFound(SERVER_HARDWARE_TYPE_NOT_FOUND)
 
         different = resource.get('name') != data.get('name')
         different |= resource.get('description') != data.get('description')

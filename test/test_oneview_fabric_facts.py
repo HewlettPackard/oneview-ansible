@@ -19,6 +19,7 @@ import unittest
 from oneview_fabric_facts import FabricFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -60,11 +61,15 @@ DEFAULT_FABRIC_VLAN_RANGE = dict(
 )
 
 
-class FabricFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class FabricFactsSpec(unittest.TestCase,
+                      ModuleContructorTestCase,
+                      FactsParamsTestCase,
+                      ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, FabricFactsModule)
         self.fabrics = self.mock_ov_client.fabrics
         FactsParamsTestCase.configure_client_mock(self, self.fabrics)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.fabrics.get_by)
 
     def test_should_get_all(self):
         self.fabrics.get_all.return_value = PRESENT_FABRICS
@@ -77,14 +82,6 @@ class FabricFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTe
             ansible_facts=dict(fabrics=(PRESENT_FABRICS))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.fabrics.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        FabricFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_by_name(self):
         self.fabrics.get_by.return_value = PRESENT_FABRICS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -95,14 +92,6 @@ class FabricFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTe
             changed=False,
             ansible_facts=dict(fabrics=(PRESENT_FABRICS))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.fabrics.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        FabricFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_fabric_by_name_with_options(self):
         self.fabrics.get_by.return_value = PRESENT_FABRICS

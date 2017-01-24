@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_sas_logical_interconnect_facts import SasLogicalInterconnectFactsModule
-from utils import ModuleContructorTestCase, FactsParamsTestCase
+from utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -45,18 +45,23 @@ SAS_LOGICAL_INTERCONNECT = dict(
 ALL_INTERCONNECTS = [SAS_LOGICAL_INTERCONNECT]
 
 
-class SasLogicalInterconnectFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class SasLogicalInterconnectFactsSpec(unittest.TestCase,
+                                      ModuleContructorTestCase,
+                                      FactsParamsTestCase,
+                                      ErrorHandlingTestCase):
     """
     Test the module constructor
     ModuleContructorTestCase has common tests for class constructor and main function
     FactsParamsTestCase has common test for classes that support pass additional
         parameters when retrieving all resources.
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, SasLogicalInterconnectFactsModule)
         self.resource = self.mock_ov_client.sas_logical_interconnects
         FactsParamsTestCase.configure_client_mock(self, self.resource)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_get_all_sas_logical_interconnects(self):
         self.resource.get_all.return_value = ALL_INTERCONNECTS
@@ -96,14 +101,6 @@ class SasLogicalInterconnectFactsSpec(unittest.TestCase, ModuleContructorTestCas
                 sas_logical_interconnect_firmware={"firmware": "data"}
             )
         )
-
-    def test_should_fail_when_get_all_raises_an_exception(self):
-        self.resource.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        SasLogicalInterconnectFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=ERROR_MSG)
 
 
 if __name__ == '__main__':

@@ -21,6 +21,8 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -156,7 +158,7 @@ class LogicalInterconnectGroupModule(object):
             elif state == 'absent':
                 self.__absent(data)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __present(self, data):
@@ -190,7 +192,7 @@ class LogicalInterconnectGroupModule(object):
         if i_type:
             return i_type[0]
         else:
-            raise Exception(INTERCONNECT_TYPE_NOT_FOUND)
+            raise HPOneViewResourceNotFound(INTERCONNECT_TYPE_NOT_FOUND)
 
     def __absent(self, data):
         resource = self.__get_by_name(data)

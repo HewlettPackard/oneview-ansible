@@ -19,6 +19,9 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -204,13 +207,13 @@ class PowerDeviceModule(object):
                                   msg=msg,
                                   ansible_facts=ansible_facts)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg=exception.args[0])
 
     def __get_resource(self, data):
 
         if not data.get('name'):
-            raise Exception(POWER_DEVICE_MANDATORY_FIELD_MISSING)
+            raise HPOneViewValueError(POWER_DEVICE_MANDATORY_FIELD_MISSING)
 
         resource = (self.oneview_client.power_devices.get_by("name", data['name']) or [None])[0]
         return resource
@@ -256,7 +259,7 @@ class PowerDeviceModule(object):
 
     def __set_power_state(self, data, resource):
         if not resource:
-            raise Exception(POWER_DEVICE_NOT_FOUND)
+            raise HPOneViewResourceNotFound(POWER_DEVICE_NOT_FOUND)
 
         resource = self.oneview_client.power_devices.update_power_state(resource['uri'], data['powerStateData'])
 
@@ -264,7 +267,7 @@ class PowerDeviceModule(object):
 
     def __set_uid_state(self, data, resource):
         if not resource:
-            raise Exception(POWER_DEVICE_NOT_FOUND)
+            raise HPOneViewResourceNotFound(POWER_DEVICE_NOT_FOUND)
 
         resource = self.oneview_client.power_devices.update_uid_state(resource['uri'], data['uidStateData'])
 
@@ -272,7 +275,7 @@ class PowerDeviceModule(object):
 
     def __set_refresh_state(self, data, resource):
         if not resource:
-            raise Exception(POWER_DEVICE_NOT_FOUND)
+            raise HPOneViewResourceNotFound(POWER_DEVICE_NOT_FOUND)
 
         resource = self.oneview_client.power_devices.update_refresh_state(resource['uri'], data['refreshStateData'])
 

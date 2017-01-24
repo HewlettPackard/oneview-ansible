@@ -14,7 +14,7 @@
 # limitations under the License.
 ###
 import unittest
-from test.utils import PreloadedMocksBaseTestCase, ModuleContructorTestCase
+from test.utils import PreloadedMocksBaseTestCase, ModuleContructorTestCase, ErrorHandlingTestCase
 from copy import deepcopy
 import yaml
 
@@ -121,14 +121,19 @@ PARAMS_FOR_REFRESH = dict(
 )
 
 
-class EnclosureClientConfigurationSpec(unittest.TestCase, ModuleContructorTestCase):
+class EnclosureBasicConfigurationSpec(unittest.TestCase,
+                                      ModuleContructorTestCase,
+                                      ErrorHandlingTestCase):
     """
     Test the module constructor
     ModuleContructorTestCase has common tests for class constructor and main function
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, EnclosureModule)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.enclosures.get_by)
 
 
 class EnclosurePresentStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
@@ -382,48 +387,6 @@ class EnclosureRefreshedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase)
         EnclosureModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=ENCLOSURE_NOT_FOUND)
-
-
-class EnclosureErrorHandlingSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, EnclosureModule)
-        self.enclosures = self.mock_ov_client.enclosures
-
-    def test_should_fail_when_add_raises_exception(self):
-        self.enclosures.get_by.return_value = []
-        self.enclosures.get_all.return_value = []
-        self.enclosures.add.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        self.assertRaises(Exception, EnclosureModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_patch_raises_exception(self):
-        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
-        self.enclosures.patch.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_WITH_NEW_NAME
-        self.assertRaises(Exception, EnclosureModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
-
-    def test_should_fail_when_remove_raises_exception(self):
-        self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
-        self.enclosures.remove.side_effect = Exception(FAKE_MSG_ERROR)
-
-        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-
-        self.assertRaises(Exception, EnclosureModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
-        )
 
 
 class EnclosureApplianceBaysPowerOnStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):

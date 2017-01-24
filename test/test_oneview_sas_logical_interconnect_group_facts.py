@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_sas_logical_interconnect_group_facts import SasLogicalInterconnectGroupFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase
+from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -34,11 +34,15 @@ PARAMS_GET_BY_NAME = dict(
 SAS_LIGS = [{"name": "SAS LIG 1"}, {"name": "SAS LIG 2"}]
 
 
-class SasLogicalInterconnectGroupFactsModuleSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class SasLogicalInterconnectGroupFactsModuleSpec(unittest.TestCase,
+                                                 ModuleContructorTestCase,
+                                                 FactsParamsTestCase,
+                                                 ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, SasLogicalInterconnectGroupFactsModule)
         self.resource = self.mock_ov_client.sas_logical_interconnect_groups
         FactsParamsTestCase.configure_client_mock(self, self.resource)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_get_all(self):
         self.resource.get_all.return_value = SAS_LIGS
@@ -51,14 +55,6 @@ class SasLogicalInterconnectGroupFactsModuleSpec(unittest.TestCase, ModuleContru
             ansible_facts=dict(sas_logical_interconnect_groups=(SAS_LIGS))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.resource.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        SasLogicalInterconnectGroupFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_by_name(self):
         self.resource.get_by.return_value = [SAS_LIGS[1]]
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -69,14 +65,6 @@ class SasLogicalInterconnectGroupFactsModuleSpec(unittest.TestCase, ModuleContru
             changed=False,
             ansible_facts=dict(sas_logical_interconnect_groups=([SAS_LIGS[1]]))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.resource.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        SasLogicalInterconnectGroupFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

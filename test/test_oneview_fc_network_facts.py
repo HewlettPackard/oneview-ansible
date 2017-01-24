@@ -19,6 +19,7 @@ import unittest
 from oneview_fc_network_facts import FcNetworkFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -38,11 +39,15 @@ PRESENT_NETWORKS = [{
 }]
 
 
-class FcNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class FcNetworkFactsSpec(unittest.TestCase,
+                         ModuleContructorTestCase,
+                         FactsParamsTestCase,
+                         ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, FcNetworkFactsModule)
         self.fc_networks = self.mock_ov_client.fc_networks
         FactsParamsTestCase.configure_client_mock(self, self.fc_networks)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.fc_networks.get_by)
 
     def test_should_get_all_fc_networks(self):
         self.fc_networks.get_all.return_value = PRESENT_NETWORKS
@@ -55,14 +60,6 @@ class FcNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParam
             ansible_facts=dict(fc_networks=(PRESENT_NETWORKS))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.fc_networks.get_all.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        FcNetworkFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_fc_network_by_name(self):
         self.fc_networks.get_by.return_value = PRESENT_NETWORKS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
@@ -73,14 +70,6 @@ class FcNetworkFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParam
             changed=False,
             ansible_facts=dict(fc_networks=(PRESENT_NETWORKS))
         )
-
-    def test_should_fail_when_get_by_name_raises_exception(self):
-        self.fc_networks.get_by.side_effect = Exception(ERROR_MSG)
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        FcNetworkFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

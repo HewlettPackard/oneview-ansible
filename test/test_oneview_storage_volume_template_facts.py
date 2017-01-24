@@ -18,6 +18,7 @@ import unittest
 from oneview_storage_volume_template_facts import StorageVolumeTemplateFactsModule
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -40,11 +41,15 @@ PARAMS_GET_CONNECTED = dict(
 )
 
 
-class StorageVolumeTemplatesFactsSpec(unittest.TestCase, ModuleContructorTestCase, FactsParamsTestCase):
+class StorageVolumeTemplatesFactsSpec(unittest.TestCase,
+                                      ModuleContructorTestCase,
+                                      FactsParamsTestCase,
+                                      ErrorHandlingTestCase):
     def setUp(self):
         self.configure_mocks(self, StorageVolumeTemplateFactsModule)
         self.storage_volume_templates = self.mock_ov_client.storage_volume_templates
         FactsParamsTestCase.configure_client_mock(self, self.storage_volume_templates)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.storage_volume_templates.get_by)
 
     def test_should_get_all_storage_volume_templates(self):
         self.storage_volume_templates.get_all.return_value = {"name": "Storage System Name"}
@@ -58,15 +63,6 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase, ModuleContructorTestCas
             ansible_facts=dict(storage_volume_templates=({"name": "Storage System Name"}))
         )
 
-    def test_should_fail_when_get_all_raises_exception(self):
-        self.storage_volume_templates.get_all.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_ALL
-
-        StorageVolumeTemplateFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
-
     def test_should_get_storage_volume_template_by_name(self):
         self.storage_volume_templates.get_by.return_value = {"name": "Storage System Name"}
 
@@ -78,15 +74,6 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase, ModuleContructorTestCas
             changed=False,
             ansible_facts=dict(storage_volume_templates=({"name": "Storage System Name"}))
         )
-
-    def test_should_fail_when_get_by_raises_exception(self):
-        self.storage_volume_templates.get_by.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        StorageVolumeTemplateFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
     def test_should_get_connectable_storage_volume_templates(self):
         self.storage_volume_templates.get_all.return_value = {"name": "Storage System Name"}
@@ -102,15 +89,6 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase, ModuleContructorTestCas
             ansible_facts={'connectable_volume_templates': {'name': 'Storage System Name'},
                            'storage_volume_templates': {'name': 'Storage System Name'}}
         )
-
-    def test_should_fail_when_get_connectable_storage_volume_template_raises_exception(self):
-        self.storage_volume_templates.get_connectable_volume_templates.side_effect = Exception(ERROR_MSG)
-
-        self.mock_ansible_module.params = PARAMS_GET_CONNECTED
-
-        StorageVolumeTemplateFactsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once()
 
 
 if __name__ == '__main__':

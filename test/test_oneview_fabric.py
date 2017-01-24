@@ -15,7 +15,8 @@
 ###
 
 import unittest
-from test.utils import PreloadedMocksBaseTestCase, ModuleContructorTestCase
+from test.utils import ModuleContructorTestCase
+from test.utils import ErrorHandlingTestCase
 
 from oneview_fabric import FabricModule
 
@@ -23,17 +24,14 @@ FAKE_MSG_ERROR = 'Fake message error'
 NO_CHANGE_MSG = 'No change found'
 
 
-class FabricClientConfigurationSpec(unittest.TestCase, ModuleContructorTestCase):
+class FabricModuleSpec(unittest.TestCase,
+                       ModuleContructorTestCase,
+                       ErrorHandlingTestCase):
     """
-    Test the module constructor
     ModuleContructorTestCase has common tests for class constructor and main function
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
-
-    def setUp(self):
-        self.configure_mocks(self, FabricModule)
-
-
-class FabricSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
     PRESENT_FABRIC_VLAN_RANGE = dict(
         name="DefaultFabric",
@@ -72,6 +70,8 @@ class FabricSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
     def setUp(self):
         self.configure_mocks(self, FabricModule)
         self.resource = self.mock_ov_client.fabrics
+        ErrorHandlingTestCase.configure(self, ansible_params=self.FABRIC_PARAMS,
+                                        method_to_fire=self.mock_ov_client.fabrics.get_by)
 
     def test_should_update_vlan_range(self):
         # Mock OneView resource functions
@@ -109,18 +109,4 @@ class FabricSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
             changed=False,
             msg=NO_CHANGE_MSG,
             ansible_facts=dict(fabric=self.PRESENT_FABRIC_VLAN_RANGE)
-        )
-
-    def test_should_fail_when_update_raises_exception(self):
-        # Mock OneView resource functions
-        self.resource.get_by.return_value = [self.PRESENT_FABRIC_VLAN_RANGE]
-        self.resource.update_reserved_vlan_range.side_effect = Exception(FAKE_MSG_ERROR)
-
-        # Mock Ansible params
-        self.mock_ansible_module.params = self.FABRIC_PARAMS
-
-        FabricModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FAKE_MSG_ERROR
         )

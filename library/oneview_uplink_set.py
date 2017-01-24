@@ -19,6 +19,9 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import resource_compare
+    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewResourceNotFound
+    from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -167,7 +170,7 @@ class UplinkSetModule(object):
                 changed, message = self.__absent(data)
                 self.module.exit_json(changed=changed, msg=message)
 
-        except Exception as exception:
+        except HPOneViewException as exception:
             self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
 
     def __absent(self, data):
@@ -206,9 +209,9 @@ class UplinkSetModule(object):
 
     def __validate_key(self, data):
         if 'name' not in data:
-            raise Exception(UPLINK_SET_KEY_REQUIRED)
+            raise HPOneViewValueError(UPLINK_SET_KEY_REQUIRED)
         if 'logicalInterconnectUri' not in data and 'logicalInterconnectName' not in data:
-            raise Exception(UPLINK_SET_KEY_REQUIRED)
+            raise HPOneViewValueError(UPLINK_SET_KEY_REQUIRED)
 
     def __replace_logical_interconnect_name_by_uri(self, data):
         if 'logicalInterconnectName' in data:
@@ -219,7 +222,7 @@ class UplinkSetModule(object):
                 del data['logicalInterconnectName']
                 data['logicalInterconnectUri'] = logical_interconnect['uri']
             else:
-                raise Exception(UPLINK_SET_LOGICAL_INTERCONNECT_NOT_FOUND)
+                raise HPOneViewResourceNotFound(UPLINK_SET_LOGICAL_INTERCONNECT_NOT_FOUND)
 
     def __get_by(self, name, logical_interconnect_uri):
         uplink_sets = self.oneview_client.uplink_sets.get_by('name', name)

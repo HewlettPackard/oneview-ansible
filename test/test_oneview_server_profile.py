@@ -19,7 +19,9 @@ import mock
 
 from copy import deepcopy
 from test.utils import ModuleContructorTestCase, PreloadedMocksBaseTestCase
+from test.utils import ErrorHandlingTestCase, ValidateEtagTestCase
 from hpOneView.exceptions import HPOneViewTaskError
+from hpOneView.exceptions import HPOneViewException
 from oneview_server_profile import get_logger
 from oneview_server_profile import ServerProfileModule
 from oneview_server_profile import ServerProfileMerger
@@ -178,19 +180,20 @@ def gather_facts(mock_ov_client, created=False, online_update=True):
     return facts
 
 
-class ServerProfileClientConfigurationSpec(unittest.TestCase, ModuleContructorTestCase):
+class ServerProfileModuleSpec(unittest.TestCase,
+                              ModuleContructorTestCase,
+                              ValidateEtagTestCase,
+                              ErrorHandlingTestCase):
     """
     Test the module constructor
     ModuleContructorTestCase has common tests for class constructor and main function
+
+    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, ServerProfileModule)
-
-
-class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, ServerProfileModule)
+        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.server_profiles.get_by_name)
         self.sleep_patch = mock.patch('time.sleep')
         self.sleep_patch.start()
         self.sleep_patch.return_value = None
@@ -239,24 +242,6 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         ServerProfileModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=MESSAGE_COMPLIANT_ERROR)
-
-    def test_should_validate_etag_when_set_as_true(self):
-        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
-        self.mock_ansible_module.params['validate_etag'] = True
-
-        ServerProfileModule().run()
-
-        self.mock_ov_client.connection.enable_etag_validation.not_been_called()
-        self.mock_ov_client.connection.disable_etag_validation.not_been_called()
-
-    def test_should_not_validate_etag_when_set_as_false(self):
-        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
-        self.mock_ansible_module.params['validate_etag'] = False
-
-        ServerProfileModule().run()
-
-        self.mock_ov_client.connection.enable_etag_validation.not_been_called()
-        self.mock_ov_client.connection.disable_etag_validation.assert_called_once()
 
     def test_should_not_update_when_already_compliant(self):
         fake_server = deepcopy(CREATED_BASIC_PROFILE)
@@ -313,18 +298,6 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True, msg=REMEDIATED_COMPLIANCE, ansible_facts=mock_facts)
-
-    def test_should_fail_when_oneview_client_raises_exception(self):
-        fake_server = deepcopy(CREATED_BASIC_PROFILE)
-        fake_server['templateCompliance'] = 'NonCompliant'
-
-        self.mock_ov_client.server_profiles.get_by_name.return_value = fake_server
-        self.mock_ov_client.server_profiles.patch.side_effect = Exception(FAKE_MSG_ERROR)
-        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_COMPLIANT)
-
-        self.assertRaises(Exception, ServerProfileModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=FAKE_MSG_ERROR)
 
     def test_should_create_with_automatically_selected_hardware_when_not_exists(self):
         profile_data = deepcopy(BASIC_PROFILE)
@@ -536,7 +509,7 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
     def test_should_fail_when_exception_is_not_related_with_server_hardware(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
-        self.mock_ov_client.server_profiles.create.side_effect = Exception(FAKE_MSG_ERROR)
+        self.mock_ov_client.server_profiles.create.side_effect = HPOneViewException(FAKE_MSG_ERROR)
         self.mock_ov_client.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
         self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
@@ -1293,14 +1266,6 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         self.assertEqual(args[0][KEY_SAN][KEY_VOLUMES][0], VOLUME_1)
         self.assertEqual(args[0][KEY_SAN][KEY_VOLUMES][1], VOLUME_2)
 
-    def test_should_fail_when_delete_raises_exception(self):
-        self.mock_ov_client.server_profiles.get_by_name.side_effect = Exception(FAKE_MSG_ERROR)
-        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_ABSENT)
-
-        self.assertRaises(Exception, ServerProfileModule().run())
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=FAKE_MSG_ERROR)
-
     def test_should_do_nothing_when_server_hardware_already_absent(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
@@ -1326,7 +1291,7 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_ABSENT)
 
-        self.assertRaises(Exception, ServerProfileModule().run())
+        ServerProfileModule().run()
 
         self.mock_ov_client.server_hardware.update_power_state.assert_called_once_with(
             {'powerControl': 'PressAndHold', 'powerState': 'Off'}, sh_uri)
@@ -1345,7 +1310,7 @@ class ServerProfileModuleSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_ABSENT)
 
-        self.assertRaises(Exception, ServerProfileModule().run())
+        ServerProfileModule().run()
 
         times_power_off_was_called = self.mock_ov_client.server_hardware.update_power_state.call_count
         self.assertEqual(0, times_power_off_was_called)
