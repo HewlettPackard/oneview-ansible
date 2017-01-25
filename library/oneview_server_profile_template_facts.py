@@ -156,7 +156,7 @@ class ServerProfileTemplateFactsModule(object):
 
         facts = dict(server_profile_templates=[template])
 
-        options = self.module.params["options"]
+        options = self.module.params.get("options")
 
         if options:
             options = transform_list_to_dict(options)
