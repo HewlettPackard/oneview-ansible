@@ -31,8 +31,9 @@ from oneview_server_profile import MAKE_COMPLIANT_NOT_SUPPORTED, SERVER_PROFILE_
     KEY_OS_DEPLOYMENT, KEY_ATTRIBUTES, KEY_SAN, KEY_VOLUMES, KEY_PATHS, KEY_BOOT, KEY_BIOS, KEY_BOOT_MODE, \
     KEY_LOCAL_STORAGE, KEY_SAS_LOGICAL_JBODS, KEY_CONTROLLERS, KEY_LOGICAL_DRIVES, KEY_SAS_LOGICAL_JBOD_URI, \
     KEY_MAC_TYPE, KEY_MAC, KEY_SERIAL_NUMBER_TYPE, KEY_SERIAL_NUMBER, KEY_UUID, KEY_WWPN_TYPE, KEY_LUN, KEY_WWNN, \
-    KEY_WWPN, KEY_DRIVE_NUMBER, SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND, SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND, \
-    SERVER_PROFILE_NETWORK_NOT_FOUND
+    KEY_WWPN, KEY_DRIVE_NUMBER
+
+from oneview_server_profile import ServerProfileReplaceNamesByUris
 
 SERVER_PROFILE_NAME = "Profile101"
 SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
@@ -586,7 +587,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
-        self.mock_ov_client.os_deployment_plans.get_by_name.return_value = dict(uri=uri)
+        self.mock_ov_client.os_deployment_plans.get_by.return_value = [dict(uri=uri)]
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
@@ -599,12 +600,12 @@ class ServerProfileModuleSpec(unittest.TestCase,
         params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
-        self.mock_ov_client.os_deployment_plans.get_by_name.return_value = None
+        self.mock_ov_client.os_deployment_plans.get_by.return_value = []
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
 
-        expected_error = SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND + "Deployment Plan Name"
+        expected_error = ServerProfileReplaceNamesByUris.SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND + "Deployment Plan Name"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_replace_enclosure_group_name_by_uri_on_creation(self):
@@ -633,8 +634,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND + "Enclosure Group Name"
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+        message = ServerProfileReplaceNamesByUris.SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND + "Enclosure Group Name"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=message)
 
     def test_should_replace_connections_name_by_uri_on_creation(self):
         conn_1 = dict(name="connection-1", networkUri='/rest/fc-networks/98')
@@ -671,7 +672,554 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = SERVER_PROFILE_NETWORK_NOT_FOUND + "FC Network"
+        expected_error = ServerProfileReplaceNamesByUris.SERVER_PROFILE_NETWORK_NOT_FOUND + "FC Network"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_server_hardware_type_name_by_uri(self):
+        sht_uri = "/rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C"
+        sht = {"name": "SY 480 Gen9 1", "uri": sht_uri}
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['serverHardwareTypeName'] = "SY 480 Gen9 1"
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_hardware_types.get_by.return_value = [sht]
+
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0].get('serverHardwareTypeUri'), sht_uri)
+        self.assertEqual(args[0].get('serverHardwareTypeName'), None)
+
+    def test_should_fail_when_server_hardware_type_name_not_found(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['serverHardwareTypeName'] = "SY 480 Gen9 1"
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_hardware_types.get_by.return_value = []
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        expected_error = ServerProfileReplaceNamesByUris.SERVER_HARDWARE_TYPE_NOT_FOUND + "SY 480 Gen9 1"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_volume_names_by_uri(self):
+        volume1 = {"name": "volume1", "uri": "/rest/storage-volumes/1"}
+        volume2 = {"name": "volume2", "uri": "/rest/storage-volumes/2"}
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": [
+                {"id": 1, "volumeName": "volume1"},
+                {"id": 2, "volumeName": "volume2"}
+            ]
+        }
+        expected_dict = deepcopy(params['data'])
+        expected_dict['sanStorage']['volumeAttachments'][0] = {"id": 1, "volumeUri": "/rest/storage-volumes/1"}
+        expected_dict['sanStorage']['volumeAttachments'][1] = {"id": 2, "volumeUri": "/rest/storage-volumes/2"}
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.volumes.get_by.side_effect = [[volume1], [volume2]]
+
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+
+    def test_should_not_replace_when_inform_volume_uri(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": [
+                {"id": 1, "volumeUri": "/rest/storage-volumes/1"},
+                {"id": 2, "volumeUri": "/rest/storage-volumes/2"}
+            ]
+        }
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.volumes.get_by.assert_not_called()
+
+    def test_should_not_replace_volume_name_when_volume_attachments_is_none(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": None
+        }
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.volumes.get_by.assert_not_called()
+
+    def test_should_not_replace_volume_name_when_san_storage_is_none(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = None
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.volumes.get_by.assert_not_called()
+
+    def test_should_fail_when_volume_name_not_found(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": [
+                {"id": 1, "volumeName": "volume1"}
+            ]}
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.volumes.get_by.return_value = []
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        expected_error = ServerProfileReplaceNamesByUris.VOLUME_NOT_FOUND + "volume1"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_storage_pool_names_by_uri(self):
+        pool1 = {"name": "pool1", "uri": "/rest/storage-pools/1"}
+        pool2 = {"name": "pool2", "uri": "/rest/storage-pools/2"}
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": [
+                {"id": 1, "volumeStoragePoolName": "pool1"},
+                {"id": 2, "volumeStoragePoolName": "pool2"}
+            ]
+        }
+        expected_dict = deepcopy(params['data'])
+        expected_dict['sanStorage']['volumeAttachments'][0] = {"id": 1, "volumeStoragePoolUri": "/rest/storage-pools/1"}
+        expected_dict['sanStorage']['volumeAttachments'][1] = {"id": 2, "volumeStoragePoolUri": "/rest/storage-pools/2"}
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.storage_pools.get_by.side_effect = [[pool1], [pool2]]
+
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+
+    def test_should_not_replace_when_inform_storage_pool_uri(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": [
+                {"id": 1, "volumeStoragePoolUri": "/rest/storage-volumes/1"},
+                {"id": 2, "volumeStoragePoolUri": "/rest/storage-volumes/2"}
+            ]
+        }
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.storage_pools.get_by.assert_not_called()
+
+    def test_should_not_replace_storage_pool_name_when_volume_attachments_is_none(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": None
+        }
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.storage_pools.get_by.assert_not_called()
+
+    def test_should_not_replace_storage_pool_name_when_san_storage_is_none(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = None
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.storage_pools.get_by.assert_not_called()
+
+    def test_should_fail_when_storage_pool_name_not_found(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": [
+                {"id": 1, "volumeStoragePoolName": "pool1"}
+            ]
+        }
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.storage_pools.get_by.return_value = []
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        expected_error = ServerProfileReplaceNamesByUris.STORAGE_POOL_NOT_FOUND + "pool1"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_storage_system_names_by_uri(self):
+        storage_system1 = {"name": "system1", "uri": "/rest/storage-systems/1"}
+        storage_system2 = {"name": "system2", "uri": "/rest/storage-systems/2"}
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": [
+                {"id": 1, "volumeStorageSystemName": "system1"},
+                {"id": 2, "volumeStorageSystemName": "system2"}
+            ]
+        }
+        expected = deepcopy(params['data'])
+        expected['sanStorage']['volumeAttachments'][0] = {"id": 1, "volumeStorageSystemUri": "/rest/storage-systems/1"}
+        expected['sanStorage']['volumeAttachments'][1] = {"id": 2, "volumeStorageSystemUri": "/rest/storage-systems/2"}
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.storage_systems.get_by.side_effect = [[storage_system1], [storage_system2]]
+
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected)
+
+    def test_should_not_replace_when_inform_storage_system_uri(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": [
+                {"id": 1, "volumeStorageSystemUri": "/rest/storage-systems/1"},
+                {"id": 2, "volumeStorageSystemUri": "/rest/storage-systems/2"}
+            ]
+        }
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.storage_systems.get_by.assert_not_called()
+
+    def test_should_not_replace_storage_system_name_when_volume_attachments_is_none(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": None
+        }
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.storage_systems.get_by.assert_not_called()
+
+    def test_should_not_replace_storage_system_name_when_san_storage_is_none(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = None
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.storage_systems.get_by.assert_not_called()
+
+    def test_should_fail_when_storage_system_name_not_found(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['sanStorage'] = {
+            "volumeAttachments": [
+                {"id": 1, "volumeStorageSystemName": "system1"}
+            ]
+        }
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.storage_systems.get_by.return_value = []
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        expected_error = ServerProfileReplaceNamesByUris.STORAGE_SYSTEM_NOT_FOUND + "system1"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_enclosure_name_by_uri(self):
+        uri = "/rest/enclosures/09SGH100X6J1"
+        enclosure = {"name": "Enclosure-474", "uri": uri}
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['enclosureName'] = "Enclosure-474"
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.enclosures.get_by.return_value = [enclosure]
+
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0].get('enclosureUri'), uri)
+        self.assertEqual(args[0].get('enclosureName'), None)
+
+    def test_should_fail_when_enclosure_name_not_found(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['enclosureName'] = "Enclosure-474"
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.enclosures.get_by.return_value = []
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        expected_error = ServerProfileReplaceNamesByUris.ENCLOSURE_NOT_FOUND + "Enclosure-474"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_interconnect_name_by_uri(self):
+        interconnect1 = {"name": "interconnect1", "uri": "/rest/interconnects/1"}
+        interconnect2 = {"name": "interconnect2", "uri": "/rest/interconnects/2"}
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['connections'] = [
+            {"id": 1, "interconnectName": "interconnect1"},
+            {"id": 2, "interconnectName": "interconnect2"}
+        ]
+
+        expected = deepcopy(params['data'])
+        expected['connections'][0] = {"id": 1, "interconnectUri": "/rest/interconnects/1"}
+        expected['connections'][1] = {"id": 2, "interconnectUri": "/rest/interconnects/2"}
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.interconnects.get_by.side_effect = [[interconnect1], [interconnect2]]
+
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected)
+
+    def test_should_not_replace_when_inform_interconnect_uri(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['connections'] = [
+            {"id": 1, "interconnectUri": "/rest/interconnects/1"},
+            {"id": 2, "interconnectUri": "/rest/interconnects/2"}
+        ]
+
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.interconnects.get_by.assert_not_called()
+
+    def test_should_not_replace_interconnect_name_when_connections_is_none(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['connections'] = None
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.interconnects.get_by.assert_not_called()
+
+    def test_should_fail_when_interconnect_name_not_found(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['connections'] = [{"id": 1, "interconnectName": "interconnect1"}]
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.interconnects.get_by.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        expected_error = ServerProfileReplaceNamesByUris.INTERCONNECT_NOT_FOUND + "interconnect1"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_firmware_baseline_name_by_uri(self):
+        firmware_driver = {"name": "firmwareName001", "uri": "/rest/firmware-drivers/1"}
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['firmware'] = {"firmwareBaselineName": "firmwareName001"}
+
+        expected = deepcopy(params['data'])
+        expected['firmware'] = {"firmwareBaselineUri": "/rest/firmware-drivers/1"}
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.firmware_drivers.get_by.return_value = [firmware_driver]
+
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected)
+
+    def test_should_not_replace_when_inform_firmware_baseline_uri(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['firmware'] = {"firmwareBaselineUri": "/rest/firmware-drivers/1"}
+
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.firmware_drivers.get_by.assert_not_called()
+
+    def test_should_not_replace_firmware_baseline_name_when_firmware_is_none(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['firmware'] = None
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.firmware_drivers.get_by.assert_not_called()
+
+    def test_should_fail_when_firmware_baseline_name_not_found(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['firmware'] = {"firmwareBaselineName": "firmwareName001"}
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.firmware_drivers.get_by.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        expected_error = ServerProfileReplaceNamesByUris.FIRMWARE_DRIVER_NOT_FOUND + "firmwareName001"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+
+    def test_should_replace_sas_logical_jbod_names_by_uris(self):
+        sas_logical_jbod1 = {"name": "jbod1", "uri": "/rest/sas-logical-jbods/1"}
+        sas_logical_jbod2 = {"name": "jbod2", "uri": "/rest/sas-logical-jbods/2"}
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['localStorage'] = {
+            "sasLogicalJBODs": [
+                {"id": 1, "sasLogicalJBODName": "jbod1"},
+                {"id": 2, "sasLogicalJBODName": "jbod2"}
+            ]
+        }
+        expected = deepcopy(params['data'])
+        expected['localStorage']['sasLogicalJBODs'][0] = {"id": 1, "sasLogicalJBODUri": "/rest/sas-logical-jbods/1"}
+        expected['localStorage']['sasLogicalJBODs'][1] = {"id": 2, "sasLogicalJBODUri": "/rest/sas-logical-jbods/2"}
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.sas_logical_jbods.get_by.side_effect = [[sas_logical_jbod1], [sas_logical_jbod2]]
+
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected)
+
+    def test_should_not_replace_when_inform_sas_logical_jbod_uris(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['localStorage'] = {
+            "sasLogicalJBODs": [
+                {"id": 1, "sasLogicalJBODUri": "/rest/sas-logical-jbods/1"},
+                {"id": 2, "sasLogicalJBODUri": "/rest/sas-logical-jbods/2"}
+            ]
+        }
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.sas_logical_jbods.get_by.assert_not_called()
+
+    def test_should_not_replace_sas_logical_jbod_names_when_jbod_list_is_none(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['localStorage'] = {
+            "sasLogicalJBODs": None
+        }
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.sas_logical_jbods.get_by.assert_not_called()
+
+    def test_should_not_replace_sas_logical_jbod_names_when_local_storage_is_none(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['localStorage'] = None
+        expected_dict = deepcopy(params['data'])
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        args, _ = self.mock_ov_client.server_profiles.create.call_args
+        self.assertEqual(args[0], expected_dict)
+        self.mock_ov_client.sas_logical_jbods.get_by.assert_not_called()
+
+    def test_should_fail_when_sas_logical_jbod_name_not_found(self):
+        params = deepcopy(PARAMS_FOR_PRESENT)
+        params['data']['localStorage'] = {
+            "sasLogicalJBODs": [
+                {"id": 1, "sasLogicalJBODName": "jbod1"}
+            ]
+        }
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.sas_logical_jbods.get_by.return_value = []
+        self.mock_ansible_module.params = params
+
+        ServerProfileModule().run()
+
+        expected_error = ServerProfileReplaceNamesByUris.SAS_LOGICAL_JBOD_NOT_FOUND + "jbod1"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_remove_mac_from_connections_before_create_when_mac_is_virtual(self):
@@ -1047,7 +1595,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
-        self.mock_ov_client.os_deployment_plans.get_by_name.return_value = dict(uri=uri)
+        self.mock_ov_client.os_deployment_plans.get_by.return_value = [dict(uri=uri)]
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
@@ -1060,12 +1608,12 @@ class ServerProfileModuleSpec(unittest.TestCase,
         params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
-        self.mock_ov_client.os_deployment_plans.get_by_name.return_value = None
+        self.mock_ov_client.os_deployment_plans.get_by.return_value = []
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
 
-        expected_error = SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND + "Deployment Plan Name"
+        expected_error = ServerProfileReplaceNamesByUris.SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND + "Deployment Plan Name"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_replace_enclosure_group_name_by_uri_on_update(self):
@@ -1094,8 +1642,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND + "Enclosure Group Name"
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
+        message = ServerProfileReplaceNamesByUris.SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND + "Enclosure Group Name"
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=message)
 
     def test_should_replace_connections_name_by_uri_on_update(self):
         conn_1 = dict(name="connection-1", networkUri='/rest/fc-networks/98')
@@ -1132,7 +1680,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        expected_error = SERVER_PROFILE_NETWORK_NOT_FOUND + "FC Network"
+        expected_error = ServerProfileReplaceNamesByUris.SERVER_PROFILE_NETWORK_NOT_FOUND + "FC Network"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     @mock.patch('oneview_server_profile.resource_compare')
@@ -1529,7 +2077,7 @@ class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
         path_1_changed = deepcopy(PATH_1)
         path_1_changed['newField'] = "123"
         expected_paths = [deepcopy(path_1_changed),  # connectionId = 1, with field added
-                          deepcopy(PATH_2)]          # connectionId = 2
+                          deepcopy(PATH_2)]  # connectionId = 2
         self.assertEqual(expected_paths, merged_volumes[0][KEY_PATHS])
         self.assertEqual([], merged_volumes[1][KEY_PATHS])
 

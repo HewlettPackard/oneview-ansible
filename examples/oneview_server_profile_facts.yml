@@ -32,6 +32,7 @@
       delegate_to: localhost
 
     - debug: msg="{{server_profiles | map(attribute='name') | list }}"
+    - debug: var=server_profiles
 
 
     - name: Gather paginated, filtered and sorted facts about Server Profiles
