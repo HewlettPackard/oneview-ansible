@@ -53,6 +53,25 @@ OS_DEPLOYMENT_PLAN = {
     ]
 }
 
+OS_DEPLOYMENT_PLAN_WITH_NIC = {
+    "name": "Test Os Deployment Plan",
+    "additionalParameters": [
+        {"name": "name1",
+         "value": "value1",
+         "caEditable": True},
+        {"name": "name1",
+         "value": "value1",
+         "caType": "nic",
+         "caEditable": True},
+        {"name": "name2",
+         "value": "value2",
+         "caEditable": False},
+        {"name": "name3",
+         "value": "value3",
+         "caEditable": True}
+    ]
+}
+
 OS_DEPLOYMENT_PLAN_WITHOUT_EDITABLE = {
     "name": "Test Os Deployment Plan",
     "additionalParameters": [
@@ -75,6 +94,7 @@ class OsDeploymentPlanFactsSpec(unittest.TestCase,
 
     ErrorHandlingTestCase has common tests for the module error handling.
     """
+
     def setUp(self):
         self.configure_mocks(self, OsDeploymentPlanFactsModule)
         self.resource = self.mock_ov_client.os_deployment_plans
@@ -123,19 +143,44 @@ class OsDeploymentPlanFactsSpec(unittest.TestCase,
                                 }
                            })
 
-        def test_should_get_custom_attributes_without_editable(self):
-            self.resource.get_by.return_value = [OS_DEPLOYMENT_PLAN]
+    def test_should_get_custom_attributes_without_editable(self):
+        self.resource.get_by.return_value = [OS_DEPLOYMENT_PLAN_WITHOUT_EDITABLE]
 
-            self.mock_ansible_module.params = OS_DEPLOYMENT_PLAN_WITHOUT_EDITABLE
+        self.mock_ansible_module.params = PARAMS_GET_OPTIONS
 
-            OsDeploymentPlanFactsModule().run()
+        OsDeploymentPlanFactsModule().run()
 
-            self.mock_ansible_module.exit_json.assert_called_once_with(
-                changed=False,
-                ansible_facts={'os_deployment_plans': [OS_DEPLOYMENT_PLAN],
-                               'os_deployment_plan_custom_attributes':
-                                   {'os_custom_attributes_for_server_profile': []}
-                               })
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts={'os_deployment_plans': [OS_DEPLOYMENT_PLAN_WITHOUT_EDITABLE],
+                           'os_deployment_plan_custom_attributes':
+                               {'os_custom_attributes_for_server_profile': []}
+                           })
 
-        if __name__ == '__main__':
-            unittest.main()
+    def test_should_get_custom_attributes_with_nic_support(self):
+        self.resource.get_by.return_value = [OS_DEPLOYMENT_PLAN_WITH_NIC]
+
+        self.mock_ansible_module.params = PARAMS_GET_OPTIONS
+
+        OsDeploymentPlanFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts={'os_deployment_plans': [OS_DEPLOYMENT_PLAN_WITH_NIC],
+                           'os_deployment_plan_custom_attributes':
+                               {'os_custom_attributes_for_server_profile':
+                                   [
+                                       {'name': 'name1', 'value': 'value1'},
+                                       {'name': 'name3', 'value': 'value3'},
+                                       {'name': 'name1.dhcp', 'value': False},
+                                       {'name': 'name1.networkuri', 'value': ''},
+                                       {'name': 'name1.connectionid', 'value': ''},
+                                       {'name': 'name1.ipv4disable', 'value': False},
+                                       {'name': 'name1.constraint', 'value': 'auto'}
+                                   ]}
+                           }
+        )
+
+
+if __name__ == '__main__':
+    unittest.main()
