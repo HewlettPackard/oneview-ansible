@@ -169,16 +169,43 @@ class OsDeploymentPlanFactsModule(object):
         ansible_facts = {}
         custom_attributes = []
 
+        nic_names = []
+        expected_attr_for_nic = {
+            "connectionid": "",
+            "dhcp": False,
+            "ipv4disable": False,
+            "networkuri": "",
+            "constraint": "auto",
+        }
+
+        # It's just a cache to avoid iterate custom_attributes
+        names_added_to_ca = {}
+
         if options.get('osCustomAttributesForServerProfile'):
             for item in resource['additionalParameters']:
+                if item.get("caType") == "nic":
+                    nic_names.append(item.get('name'))
+                    continue
+
                 if item.get("caEditable"):
                     custom_attributes.append({
                         "name": item.get('name'),
                         "value": item.get('value')
                     })
+                    names_added_to_ca[item.get('name')] = item.get('value')
 
-            ansible_facts['os_deployment_plan_custom_attributes'] = {
-                "os_custom_attributes_for_server_profile": custom_attributes}
+        for nic_name in nic_names:
+            expected_attr_for_nic.pop("parameters", None)
+            for ckey, cvalue in expected_attr_for_nic.iteritems():
+
+                if ckey not in names_added_to_ca:
+                    custom_attributes.append({
+                        "name": nic_name + "." + ckey,
+                        "value": cvalue
+                    })
+
+        ansible_facts['os_deployment_plan_custom_attributes'] = {
+            "os_custom_attributes_for_server_profile": custom_attributes}
 
         return ansible_facts
 
