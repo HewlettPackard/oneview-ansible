@@ -20,7 +20,7 @@
     permitted_interconnect_type: "Synergy 12Gb SAS Connection Module"
     sas_logical_interconnect_group_name: "SAS Logical Interconnect Group Oneview Ansible"
     enclosure_group_name: "Enclosure Group Oneview Ansible"
-    enclosure_name: 'encl-oneview-ansible'
+    logical_enclosure_name: 'Logical_enclosure_1'
     server_profile_name: 'Server Profile with Local Storage Oneview Ansible'
   tasks:
     - name: Gather facts about the SAS Interconnect Type {{ permitted_interconnect_type }}
@@ -108,7 +108,7 @@
         config: "{{ config }}"
         state: present
         data:
-            name: "{{ enclosure_name }}"
+            name: "{{ logical_enclosure_name }}"
             enclosureUris:
               - "{{ enclosures_ordered.0.uri }}"
               - "{{ enclosures_ordered.1.uri }}"

@@ -22,8 +22,8 @@ try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.extras.comparators import resource_compare
     from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewValueError
-    from hpOneView.exceptions import HPOneViewResourceNotFound
+    from hpOneView.extras.server_profile_utils import ServerProfileReplaceNamesByUris
+    from hpOneView.extras.server_profile_utils import ServerProfileMerger
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -67,6 +67,13 @@ notes:
        https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
     - "Check how to use environment variables for configuration at:
        https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+    - "For the following data, you can provide either a name  or a URI: enclosureGroupName or enclosureGroupUri,
+       osDeploymentPlanName or osDeploymentPlanUri (on the osDeploymentSettings), networkName or networkUri (on the
+       connections list), volumeName or volumeUri (on the volumeAttachments list), volumeStoragePoolName or
+       volumeStoragePoolUri (on the volumeAttachments list), volumeStorageSystemName or volumeStorageSystemUri (on the
+       volumeAttachments list), serverHardwareTypeName or  serverHardwareTypeUri, enclosureName or enclosureUri,
+       firmwareBaselineName or firmwareBaselineUri (on the firmware), and sasLogicalJBODName or sasLogicalJBODUri (on
+       the sasLogicalJBODs list)"
 '''
 
 EXAMPLES = '''
@@ -166,7 +173,7 @@ class ServerProfileTemplateModule(object):
 
     def __present(self, data, template):
 
-        self.__replace_names_by_uris(data)
+        ServerProfileReplaceNamesByUris().replace(self.oneview_client, data)
 
         if not template:
             changed, msg, resource = self.__create(data)
@@ -185,13 +192,15 @@ class ServerProfileTemplateModule(object):
 
     def __update(self, data, template):
         resource = template.copy()
-        resource.update(data)
-        equal = resource_compare(template, resource)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        equal = resource_compare(merged_data, resource)
 
         if equal:
             msg = SRV_PROFILE_TEMPLATE_ALREADY_EXIST
         else:
-            resource = self.resource_client.update(resource=resource, id_or_uri=resource["uri"])
+            resource = self.resource_client.update(resource=merged_data, id_or_uri=merged_data["uri"])
             msg = SRV_PROFILE_TEMPLATE_UPDATED
 
         changed = not equal
@@ -207,27 +216,6 @@ class ServerProfileTemplateModule(object):
 
         changed = template is not None
         return dict(changed=changed, msg=msg)
-
-    def __replace_names_by_uris(self, data):
-        if 'serverHardwareTypeName' in data:
-            svr_hw_type = self.__get_server_hardware_types_by_name(data.pop('serverHardwareTypeName'))
-            data['serverHardwareTypeUri'] = svr_hw_type['uri']
-
-        if 'enclosureGroupName' in data:
-            enclosure_group = self.__get_enclosure_group_by_name(data.pop('enclosureGroupName'))
-            data['enclosureGroupUri'] = enclosure_group['uri']
-
-    def __get_enclosure_group_by_name(self, name):
-        enclosure_group = self.oneview_client.enclosure_groups.get_by('name', name)
-        if not enclosure_group:
-            raise HPOneViewResourceNotFound(SRV_PROFILE_TEMPLATE_ENCLOSURE_GROUP_NOT_FOUND + name)
-        return enclosure_group[0]
-
-    def __get_server_hardware_types_by_name(self, name):
-        resources = self.oneview_client.server_hardware_types.get_by('name', name)
-        if not resources:
-            raise HPOneViewValueError(SRV_PROFILE_TEMPLATE_SRV_HW_TYPE_NOT_FOUND + name)
-        return resources[0]
 
 
 def main():

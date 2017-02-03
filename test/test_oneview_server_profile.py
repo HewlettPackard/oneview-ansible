@@ -18,20 +18,17 @@ import unittest
 import mock
 
 from copy import deepcopy
-from test.utils import ModuleContructorTestCase, PreloadedMocksBaseTestCase
+from test.utils import ModuleContructorTestCase
 from test.utils import ErrorHandlingTestCase, ValidateEtagTestCase
 from hpOneView.exceptions import HPOneViewTaskError
 from hpOneView.exceptions import HPOneViewException
 from oneview_server_profile import get_logger
 from oneview_server_profile import ServerProfileModule
 from oneview_server_profile import ServerProfileMerger
+from hpOneView.extras.server_profile_utils import Keys
 from oneview_server_profile import MAKE_COMPLIANT_NOT_SUPPORTED, SERVER_PROFILE_CREATED, REMEDIATED_COMPLIANCE, \
     ALREADY_COMPLIANT, SERVER_PROFILE_DELETED, SERVER_PROFILE_UPDATED, SERVER_ALREADY_UPDATED, \
-    ERROR_ALLOCATE_SERVER_HARDWARE, SERVER_PROFILE_ALREADY_ABSENT, KEY_CONNECTIONS, \
-    KEY_OS_DEPLOYMENT, KEY_ATTRIBUTES, KEY_SAN, KEY_VOLUMES, KEY_PATHS, KEY_BOOT, KEY_BIOS, KEY_BOOT_MODE, \
-    KEY_LOCAL_STORAGE, KEY_SAS_LOGICAL_JBODS, KEY_CONTROLLERS, KEY_LOGICAL_DRIVES, KEY_SAS_LOGICAL_JBOD_URI, \
-    KEY_MAC_TYPE, KEY_MAC, KEY_SERIAL_NUMBER_TYPE, KEY_SERIAL_NUMBER, KEY_UUID, KEY_WWPN_TYPE, KEY_LUN, KEY_WWNN, \
-    KEY_WWPN, KEY_DRIVE_NUMBER
+    ERROR_ALLOCATE_SERVER_HARDWARE, SERVER_PROFILE_ALREADY_ABSENT
 
 from oneview_server_profile import ServerProfileReplaceNamesByUris
 
@@ -217,12 +214,13 @@ class ServerProfileModuleSpec(unittest.TestCase,
                                                     format='%(asctime)s %(levelname)s %(name)s %(message)s',
                                                     filename='/path/log.txt', filemode='a')
 
-    @mock.patch.dict('os.environ', dict())
+    @mock.patch('os.environ')
     @mock.patch.object(logging, 'getLogger')
     @mock.patch.object(logging, 'basicConfig')
     @mock.patch.object(logging, 'NullHandler')
     def test_should_add_null_handler_when_logfile_env_var_undefined(self, mock_null_handler, mock_logging_config,
-                                                                    mock_get_logger):
+                                                                    mock_get_logger, mock_env):
+        mock_env.get.return_value = None
         fake_logger = mock.Mock()
         mock_get_logger.return_value = fake_logger
 
@@ -584,7 +582,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         uri = '/rest/os-deployment-plans/81decf85-0dff-4a5e-8a95-52994eeb6493'
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
+        params['data'][Keys.OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.os_deployment_plans.get_by.return_value = [dict(uri=uri)]
@@ -593,11 +591,11 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertEqual(args[0][KEY_OS_DEPLOYMENT], dict(osDeploymentPlanUri=uri))
+        self.assertEqual(args[0][Keys.OS_DEPLOYMENT], dict(osDeploymentPlanUri=uri))
 
     def test_should_fail_when_deployment_plan_not_found_on_creation(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
+        params['data'][Keys.OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.os_deployment_plans.get_by.return_value = []
@@ -643,7 +641,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         conn_3 = dict(name="connection-3", networkName='Ethernet Network')
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_CONNECTIONS] = [conn_1, conn_2, conn_3]
+        params['data'][Keys.CONNECTIONS] = [conn_1, conn_2, conn_3]
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], []]
@@ -657,13 +655,13 @@ class ServerProfileModuleSpec(unittest.TestCase,
                                 dict(name="connection-3", networkUri='/rest/ethernet-networks/18')]
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertEqual(args[0].get(KEY_CONNECTIONS), expected_connections)
+        self.assertEqual(args[0].get(Keys.CONNECTIONS), expected_connections)
 
     def test_should_fail_when_network_not_found_on_creation(self):
         conn = dict(name="connection-1", networkName='FC Network')
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_CONNECTIONS] = [conn]
+        params['data'][Keys.CONNECTIONS] = [conn]
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.fc_networks.get_by.return_value = []
@@ -1224,8 +1222,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
     def test_should_remove_mac_from_connections_before_create_when_mac_is_virtual(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
-        params['data'][KEY_MAC_TYPE] = 'Virtual'
+        params['data'][Keys.CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
+        params['data'][Keys.MAC_TYPE] = 'Virtual'
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1233,16 +1231,16 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         expected_connections = [deepcopy(CONNECTION_1), deepcopy(CONNECTION_2)]
-        expected_connections[0].pop(KEY_MAC)
-        expected_connections[1].pop(KEY_MAC)
+        expected_connections[0].pop(Keys.MAC)
+        expected_connections[1].pop(Keys.MAC)
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertEqual(args[0][KEY_CONNECTIONS], expected_connections)
+        self.assertEqual(args[0][Keys.CONNECTIONS], expected_connections)
 
     def test_should_remove_mac_from_connections_before_create_when_mac_is_physical(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
-        params['data'][KEY_MAC_TYPE] = 'Physical'
+        params['data'][Keys.CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
+        params['data'][Keys.MAC_TYPE] = 'Physical'
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1250,17 +1248,17 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         expected_connections = [deepcopy(CONNECTION_1), deepcopy(CONNECTION_2)]
-        expected_connections[0].pop(KEY_MAC)
-        expected_connections[1].pop(KEY_MAC)
+        expected_connections[0].pop(Keys.MAC)
+        expected_connections[1].pop(Keys.MAC)
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertEqual(args[0][KEY_CONNECTIONS], expected_connections)
+        self.assertEqual(args[0][Keys.CONNECTIONS], expected_connections)
 
     def test_should_remove_serial_number_before_create_when_serial_number_type_is_virtual(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_SERIAL_NUMBER_TYPE] = 'Virtual'
-        params['data'][KEY_UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
-        params['data'][KEY_SERIAL_NUMBER] = 'VCGNC3V000'
+        params['data'][Keys.SERIAL_NUMBER_TYPE] = 'Virtual'
+        params['data'][Keys.UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
+        params['data'][Keys.SERIAL_NUMBER] = 'VCGNC3V000'
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1268,14 +1266,14 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertTrue(KEY_UUID not in args[0])
-        self.assertTrue(KEY_SERIAL_NUMBER not in args[0])
+        self.assertTrue(Keys.UUID not in args[0])
+        self.assertTrue(Keys.SERIAL_NUMBER not in args[0])
 
     def test_should_remove_serial_number_before_create_when_serial_number_type_is_physical(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_SERIAL_NUMBER_TYPE] = 'Physical'
-        params['data'][KEY_UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
-        params['data'][KEY_SERIAL_NUMBER] = 'VCGNC3V000'
+        params['data'][Keys.SERIAL_NUMBER_TYPE] = 'Physical'
+        params['data'][Keys.UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
+        params['data'][Keys.SERIAL_NUMBER] = 'VCGNC3V000'
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1283,29 +1281,29 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertTrue(KEY_UUID not in args[0])
-        self.assertTrue(KEY_SERIAL_NUMBER not in args[0])
+        self.assertTrue(Keys.UUID not in args[0])
+        self.assertTrue(Keys.SERIAL_NUMBER not in args[0])
 
     def test_should_remove_wwpn_from_conns_before_create_when_wwpn_is_virtual_or_physical(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_CONNECTIONS] = [CONNECTION_1_WITH_WWPN, CONNECTION_2_WITH_WWPN]
+        params['data'][Keys.CONNECTIONS] = [CONNECTION_1_WITH_WWPN, CONNECTION_2_WITH_WWPN]
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
 
         expected_connections = [deepcopy(CONNECTION_1_WITH_WWPN), deepcopy(CONNECTION_2_WITH_WWPN)]
-        expected_connections[0].pop(KEY_WWNN)
-        expected_connections[0].pop(KEY_WWPN)
-        expected_connections[1].pop(KEY_WWNN)
-        expected_connections[1].pop(KEY_WWPN)
+        expected_connections[0].pop(Keys.WWNN)
+        expected_connections[0].pop(Keys.WWPN)
+        expected_connections[1].pop(Keys.WWNN)
+        expected_connections[1].pop(Keys.WWPN)
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertEqual(args[0][KEY_CONNECTIONS], expected_connections)
+        self.assertEqual(args[0][Keys.CONNECTIONS], expected_connections)
 
     def test_should_remove_drive_number_from_controller_drives_before_create(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_LOCAL_STORAGE] = dict(controllers=[CONTROLLER_EMBEDDED.copy()])
+        params['data'][Keys.LOCAL_STORAGE] = dict(controllers=[CONTROLLER_EMBEDDED.copy()])
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1313,15 +1311,15 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         expected_drives = deepcopy(DRIVES_CONTROLLER_EMBEDDED)
-        expected_drives[0].pop(KEY_DRIVE_NUMBER)
-        expected_drives[1].pop(KEY_DRIVE_NUMBER)
+        expected_drives[0].pop(Keys.DRIVE_NUMBER)
+        expected_drives[1].pop(Keys.DRIVE_NUMBER)
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertEqual(args[0][KEY_LOCAL_STORAGE][KEY_CONTROLLERS][0][KEY_LOGICAL_DRIVES], expected_drives)
+        self.assertEqual(args[0][Keys.LOCAL_STORAGE][Keys.CONTROLLERS][0][Keys.LOGICAL_DRIVES], expected_drives)
 
     def test_should_remove_lun_from_san_volumes_before_create_when_luntype_is_auto(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_SAN] = SAN_STORAGE
+        params['data'][Keys.SAN] = SAN_STORAGE
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1329,18 +1327,18 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         expected_volumes = [deepcopy(VOLUME_1), deepcopy(VOLUME_2)]
-        expected_volumes[0].pop(KEY_LUN)
-        expected_volumes[1].pop(KEY_LUN)
+        expected_volumes[0].pop(Keys.LUN)
+        expected_volumes[1].pop(Keys.LUN)
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertFalse(args[0][KEY_SAN][KEY_VOLUMES][0].get(KEY_LUN))
-        self.assertFalse(args[0][KEY_SAN][KEY_VOLUMES][1].get(KEY_LUN))
+        self.assertFalse(args[0][Keys.SAN][Keys.VOLUMES][0].get(Keys.LUN))
+        self.assertFalse(args[0][Keys.SAN][Keys.VOLUMES][1].get(Keys.LUN))
 
     def test_should_not_fail_creating_basic_server_profile_when_assignment_types_are_virtual(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_MAC_TYPE] = 'Virtual'
-        params['data'][KEY_SERIAL_NUMBER_TYPE] = 'Virtual'
-        params['data'][KEY_WWPN_TYPE] = 'Virtual'
+        params['data'][Keys.MAC_TYPE] = 'Virtual'
+        params['data'][Keys.SERIAL_NUMBER_TYPE] = 'Virtual'
+        params['data'][Keys.WWPN_TYPE] = 'Virtual'
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1351,9 +1349,9 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
     def test_should_not_fail_creating_basic_server_profile_when_assignment_types_are_physical(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_MAC_TYPE] = 'Physical'
-        params['data'][KEY_SERIAL_NUMBER_TYPE] = 'Physical'
-        params['data'][KEY_WWPN_TYPE] = 'Physical'
+        params['data'][Keys.MAC_TYPE] = 'Physical'
+        params['data'][Keys.SERIAL_NUMBER_TYPE] = 'Physical'
+        params['data'][Keys.WWPN_TYPE] = 'Physical'
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1515,84 +1513,12 @@ class ServerProfileModuleSpec(unittest.TestCase,
         mock_resource_compare.assert_called_once_with(server_profile, merged_data)
 
     @mock.patch('oneview_server_profile.resource_compare')
-    def test_should_sort_paths_by_connection_id_for_comparison(self, mock_resource_compare):
-        """
-        When a resource is retrieved by OneView, the order of the storage paths sometimes differs from the order of the
-        storage paths saved. To ensure the comparison will work properly, the paths must be sorted by connectionId.
-        """
-        profile_data = deepcopy(BASIC_PROFILE)
-        profile_data[KEY_SAN] = deepcopy(SAN_STORAGE)
-        profile_data[KEY_SAN][KEY_VOLUMES][0][KEY_PATHS][0] = deepcopy(PATH_2)  # connectionId = 2
-        profile_data[KEY_SAN][KEY_VOLUMES][0][KEY_PATHS][1] = deepcopy(PATH_1)  # connectionId = 1
-
-        self.mock_ov_client.server_profiles.get_by_name.return_value = profile_data
-        self.mock_ov_client.server_profiles.update.return_value = CREATED_BASIC_PROFILE
-        self.mock_ov_client.server_hardware.update_power_state.return_value = {}
-        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
-
-        ServerProfileModule().run()
-
-        expected_data = deepcopy(BASIC_PROFILE)
-        expected_data[KEY_SAN] = deepcopy(SAN_STORAGE)  # paths are ordered by connectionId
-        mock_resource_compare.assert_called_once_with(expected_data, mock.ANY)
-
-    @mock.patch('oneview_server_profile.resource_compare')
-    def test_should_sort_jbods_by_id_for_comparison(self, mock_resource_compare):
-        """
-        When a resource is retrieved by OneView, the order of the SAS Logical JBODs sometimes differs from the order of
-        the SAS Logical JBODs saved. To ensure the comparison will work properly, the SAS Logical JBODs must be sorted
-        by id.
-        """
-        profile_data = deepcopy(BASIC_PROFILE)
-        profile_data[KEY_LOCAL_STORAGE] = dict()
-        profile_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS] = [deepcopy(SAS_LOGICAL_JBOD_2),  # id = 2
-                                                                  deepcopy(SAS_LOGICAL_JBOD_1)]  # id = 1
-
-        self.mock_ov_client.server_profiles.get_by_name.return_value = profile_data
-        self.mock_ov_client.server_profiles.update.return_value = CREATED_BASIC_PROFILE
-        self.mock_ov_client.server_hardware.update_power_state.return_value = {}
-        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
-
-        ServerProfileModule().run()
-
-        expected_data = deepcopy(BASIC_PROFILE)
-        expected_data[KEY_LOCAL_STORAGE] = dict()
-        expected_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS] = [deepcopy(SAS_LOGICAL_JBOD_1),  # id = 1
-                                                                   deepcopy(SAS_LOGICAL_JBOD_2)]  # id = 2
-        mock_resource_compare.assert_called_once_with(expected_data, mock.ANY)
-
-    @mock.patch('oneview_server_profile.resource_compare')
-    def test_should_sort_controllers_by_device_slot_for_comparison(self, mock_resource_compare):
-        """
-        When a resource is retrieved by OneView, the order of the Controllers sometimes differs from the order of
-        the Controllers saved. To ensure the comparison will work properly, the Controllers must be sorted
-        by deviceSlot.
-        """
-        profile_data = deepcopy(BASIC_PROFILE)
-        profile_data[KEY_LOCAL_STORAGE] = dict()
-        profile_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS] = [deepcopy(CONTROLLER_MEZZ_1),  # deviceSlot = "Mezz 1"
-                                                            deepcopy(CONTROLLER_EMBEDDED)]  # deviceSlot = "Embedded"
-
-        self.mock_ov_client.server_profiles.get_by_name.return_value = profile_data
-        self.mock_ov_client.server_profiles.update.return_value = CREATED_BASIC_PROFILE
-        self.mock_ov_client.server_hardware.update_power_state.return_value = {}
-        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
-
-        ServerProfileModule().run()
-
-        expected_data = deepcopy(BASIC_PROFILE)
-        expected_data[KEY_LOCAL_STORAGE] = dict()
-        expected_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS] = [deepcopy(CONTROLLER_EMBEDDED),  # deviceSlot = "Embedded"
-                                                             deepcopy(CONTROLLER_MEZZ_1)]  # deviceSlot = "Mezz 1"
-        mock_resource_compare.assert_called_once_with(expected_data, mock.ANY)
-
-    @mock.patch('oneview_server_profile.resource_compare')
     def test_should_replace_os_deployment_name_by_uri_on_update(self, mock_resource_compare):
         uri = '/rest/os-deployment-plans/81decf85-0dff-4a5e-8a95-52994eeb6493'
         mock_resource_compare.return_value = False
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
+        params['data'][Keys.OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.os_deployment_plans.get_by.return_value = [dict(uri=uri)]
@@ -1601,11 +1527,11 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][KEY_OS_DEPLOYMENT], dict(osDeploymentPlanUri=uri))
+        self.assertEqual(args[0][Keys.OS_DEPLOYMENT], dict(osDeploymentPlanUri=uri))
 
     def test_should_fail_when_deployment_plan_not_found_on_update(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
+        params['data'][Keys.OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.os_deployment_plans.get_by.return_value = []
@@ -1651,7 +1577,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         conn_3 = dict(name="connection-3", networkName='Ethernet Network')
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_CONNECTIONS] = [conn_1, conn_2, conn_3]
+        params['data'][Keys.CONNECTIONS] = [conn_1, conn_2, conn_3]
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], []]
@@ -1665,13 +1591,13 @@ class ServerProfileModuleSpec(unittest.TestCase,
                                 dict(name="connection-3", networkUri='/rest/ethernet-networks/18')]
 
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0].get(KEY_CONNECTIONS), expected_connections)
+        self.assertEqual(args[0].get(Keys.CONNECTIONS), expected_connections)
 
     def test_should_fail_when_network_not_found_on_update(self):
         conn = dict(name="connection-1", networkName='FC Network')
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_CONNECTIONS] = [conn]
+        params['data'][Keys.CONNECTIONS] = [conn]
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.fc_networks.get_by.return_value = []
@@ -1686,8 +1612,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
     @mock.patch('oneview_server_profile.resource_compare')
     def test_should_not_remove_mac_from_connections_before_update_when_mac_is_virtual(self, mock_resource_compare):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
-        params['data'][KEY_MAC_TYPE] = 'Virtual'
+        params['data'][Keys.CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
+        params['data'][Keys.MAC_TYPE] = 'Virtual'
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1697,15 +1623,15 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         expected_connections = [CONNECTION_1, CONNECTION_2]
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][KEY_CONNECTIONS], expected_connections)
+        self.assertEqual(args[0][Keys.CONNECTIONS], expected_connections)
 
     @mock.patch('oneview_server_profile.resource_compare')
     def test_should_not_remove_mac_from_connections_before_update_when_mac_is_physical(self, mock_resource_compare):
         mock_resource_compare.return_value = False
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
-        params['data'][KEY_MAC_TYPE] = 'Physical'
+        params['data'][Keys.CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
+        params['data'][Keys.MAC_TYPE] = 'Physical'
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1715,15 +1641,15 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         expected_connections = [CONNECTION_1, CONNECTION_2]
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][KEY_CONNECTIONS], expected_connections)
+        self.assertEqual(args[0][Keys.CONNECTIONS], expected_connections)
 
     @mock.patch('oneview_server_profile.resource_compare')
     def test_should_not_remove_serial_number_before_update_when_serial_number_type_is_virtual(self,
                                                                                               mock_resource_compare):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_SERIAL_NUMBER_TYPE] = 'Virtual'
-        params['data'][KEY_UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
-        params['data'][KEY_SERIAL_NUMBER] = 'VCGNC3V000'
+        params['data'][Keys.SERIAL_NUMBER_TYPE] = 'Virtual'
+        params['data'][Keys.UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
+        params['data'][Keys.SERIAL_NUMBER] = 'VCGNC3V000'
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1732,16 +1658,16 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][KEY_UUID], 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806')
-        self.assertEqual(args[0][KEY_SERIAL_NUMBER], 'VCGNC3V000')
+        self.assertEqual(args[0][Keys.UUID], 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806')
+        self.assertEqual(args[0][Keys.SERIAL_NUMBER], 'VCGNC3V000')
 
     @mock.patch('oneview_server_profile.resource_compare')
     def test_should_not_remove_serial_number_before_update_when_serial_number_type_is_physical(self,
                                                                                                mock_resource_compare):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_SERIAL_NUMBER_TYPE] = 'Physical'
-        params['data'][KEY_UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
-        params['data'][KEY_SERIAL_NUMBER] = 'VCGNC3V000'
+        params['data'][Keys.SERIAL_NUMBER_TYPE] = 'Physical'
+        params['data'][Keys.UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
+        params['data'][Keys.SERIAL_NUMBER] = 'VCGNC3V000'
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1750,13 +1676,13 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][KEY_UUID], 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806')
-        self.assertEqual(args[0][KEY_SERIAL_NUMBER], 'VCGNC3V000')
+        self.assertEqual(args[0][Keys.UUID], 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806')
+        self.assertEqual(args[0][Keys.SERIAL_NUMBER], 'VCGNC3V000')
 
     @mock.patch('oneview_server_profile.resource_compare')
     def test_should_not_remove_wwpn_from_conns_before_update_when_wwpn_is_virtual(self, mock_resource_compare):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_CONNECTIONS] = [CONNECTION_1_WITH_WWPN]
+        params['data'][Keys.CONNECTIONS] = [CONNECTION_1_WITH_WWPN]
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1766,12 +1692,12 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         expected_connections = [CONNECTION_1_WITH_WWPN]
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][KEY_CONNECTIONS], expected_connections)
+        self.assertEqual(args[0][Keys.CONNECTIONS], expected_connections)
 
     @mock.patch('oneview_server_profile.resource_compare')
     def test_should_not_remove_wwpn_from_conns_before_update_when_wwpn_is_physical(self, mock_resource_compare):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_CONNECTIONS] = [CONNECTION_2_WITH_WWPN]
+        params['data'][Keys.CONNECTIONS] = [CONNECTION_2_WITH_WWPN]
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1781,12 +1707,12 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         expected_connections = [CONNECTION_2_WITH_WWPN]
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][KEY_CONNECTIONS], expected_connections)
+        self.assertEqual(args[0][Keys.CONNECTIONS], expected_connections)
 
     @mock.patch('oneview_server_profile.resource_compare')
     def test_should_not_remove_drive_number_from_controller_drives_before_update(self, mock_resource_compare):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_LOCAL_STORAGE] = dict(controllers=[CONTROLLER_EMBEDDED.copy()])
+        params['data'][Keys.LOCAL_STORAGE] = dict(controllers=[CONTROLLER_EMBEDDED.copy()])
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1796,13 +1722,13 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         expected_drives = DRIVES_CONTROLLER_EMBEDDED
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][KEY_LOCAL_STORAGE][KEY_CONTROLLERS][0][KEY_LOGICAL_DRIVES], expected_drives)
+        self.assertEqual(args[0][Keys.LOCAL_STORAGE][Keys.CONTROLLERS][0][Keys.LOGICAL_DRIVES], expected_drives)
 
     @mock.patch('oneview_server_profile.resource_compare')
     def test_should_not_remove_lun_from_san_volumes_before_update_when_luntype_is_auto(self,
                                                                                        mock_resource_compare):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][KEY_SAN] = SAN_STORAGE
+        params['data'][Keys.SAN] = SAN_STORAGE
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1811,8 +1737,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][KEY_SAN][KEY_VOLUMES][0], VOLUME_1)
-        self.assertEqual(args[0][KEY_SAN][KEY_VOLUMES][1], VOLUME_2)
+        self.assertEqual(args[0][Keys.SAN][Keys.VOLUMES][0], VOLUME_1)
+        self.assertEqual(args[0][Keys.SAN][Keys.VOLUMES][1], VOLUME_2)
 
     def test_should_do_nothing_when_server_hardware_already_absent(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
@@ -1869,736 +1795,6 @@ class ServerProfileModuleSpec(unittest.TestCase,
             changed=True,
             msg=SERVER_PROFILE_DELETED
         )
-
-
-class ServerProfileMergerSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    profile_with_san_storage = CREATED_BASIC_PROFILE.copy()
-    profile_with_san_storage[KEY_CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
-    profile_with_san_storage[KEY_SAN] = SAN_STORAGE
-
-    profile_with_os_deployment = CREATED_BASIC_PROFILE.copy()
-    profile_with_os_deployment[KEY_OS_DEPLOYMENT] = OS_DEPLOYMENT_SETTINGS
-
-    profile_with_local_storage = CREATED_BASIC_PROFILE.copy()
-    profile_with_local_storage[KEY_LOCAL_STORAGE] = dict()
-    profile_with_local_storage[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS] = [SAS_LOGICAL_JBOD_2, SAS_LOGICAL_JBOD_1]
-    profile_with_local_storage[KEY_LOCAL_STORAGE][KEY_CONTROLLERS] = [CONTROLLER_MEZZ_1, CONTROLLER_EMBEDDED]
-
-    def setUp(self):
-        self.configure_mocks(self, ServerProfileModule)
-        self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
-        self.mock_ov_client.server_hardware.update_power_state.return_value = {}
-        self.mock_ov_client.server_profiles.update.return_value = deepcopy(self.profile_with_san_storage)
-
-    def test_merge_when_connections_have_new_item(self):
-        connection_added = dict(id=3, name="new-connection")
-        data = dict(name="Profile101",
-                    connections=[CONN_1_NO_MAC_BASIC_BOOT.copy(),
-                                 CONN_2_NO_MAC_BASIC_BOOT.copy(),
-                                 connection_added.copy()])
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_connections = [CONNECTION_1.copy(), CONNECTION_2.copy(), connection_added]
-        self.assertEqual(merged_data[KEY_CONNECTIONS], expected_connections)
-
-    def test_merge_when_connections_have_removed_item(self):
-        data = dict(name="Profile101",
-                    connections=[CONNECTION_1.copy()])
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_connections = [CONNECTION_1]
-        self.assertEqual(merged_data[KEY_CONNECTIONS], expected_connections)
-
-    def test_merge_when_connections_have_changed_item(self):
-        connection_2_renamed = dict(id=2, name="connection-2-renamed", boot=dict(priority="NotBootable"))
-        data = dict(name="Profile101",
-                    connections=[CONNECTION_1.copy(), connection_2_renamed.copy()])
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        connection_2_merged = dict(id=2, name="connection-2-renamed", mac="E2:4B:0D:30:00:2A", boot=BOOT_CONN)
-        expected_connections = [CONNECTION_1.copy(), connection_2_merged.copy()]
-        self.assertEqual(merged_data[KEY_CONNECTIONS], expected_connections)
-
-    def test_merge_when_connection_list_is_removed(self):
-        data = dict(name="Profile101",
-                    connections=[])
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertFalse(merged_data[KEY_CONNECTIONS])
-
-    def test_merge_when_connection_list_is_null(self):
-        data = dict(name="Profile101",
-                    connections=None)
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertFalse(merged_data[KEY_CONNECTIONS])
-
-    def test_merge_when_connection_list_not_provided(self):
-        data = dict(name="Profile101")
-
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_connections = [CONNECTION_1.copy(), CONNECTION_2.copy()]
-        self.assertEqual(merged_data[KEY_CONNECTIONS], expected_connections)
-
-    def test_merge_when_existing_connection_list_is_null(self):
-        data = dict(name="Profile101",
-                    connections=[CONNECTION_1.copy(), CONNECTION_2.copy()])
-
-        resource = deepcopy(self.profile_with_san_storage)
-        resource[KEY_CONNECTIONS] = None
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_connections = [CONNECTION_1.copy(), CONNECTION_2.copy()]
-        self.assertEqual(merged_data[KEY_CONNECTIONS], expected_connections)
-
-    def test_merge_when_san_storage_is_equals(self):
-        data = dict(name="Profile101",
-                    connections=[CONNECTION_1.copy(), CONNECTION_2.copy()])
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertEqual(merged_data, resource)
-
-    def test_merge_when_san_storage_has_changes(self):
-        data = dict(name="Profile101",
-                    sanStorage=deepcopy(SAN_STORAGE))
-        data[KEY_SAN].pop('hostOSType')
-        data[KEY_SAN]['newField'] = "123"
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_san_storage = deepcopy(SAN_STORAGE)
-        expected_san_storage['newField'] = "123"
-        self.assertEqual(merged_data[KEY_SAN], expected_san_storage)
-
-    def test_merge_when_san_storage_is_removed_from_profile_with_san(self):
-        data = dict(name="Profile101",
-                    sanStorage=None)
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_san_storage = dict(manageSanStorage=False,
-                                    volumeAttachments=[])
-        self.assertEqual(merged_data[KEY_SAN], expected_san_storage)
-
-    def test_merge_when_san_storage_is_removed_from_basic_profile(self):
-        data = dict(name="Profile101",
-                    sanStorage=None,
-                    newField="123")
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertFalse(merged_data[KEY_SAN])
-
-    def test_merge_when_san_storage_not_provided(self):
-        data = dict(name="Profile101")
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertEqual(merged_data[KEY_SAN], resource[KEY_SAN])
-
-    def test_merge_when_existing_san_storage_is_null(self):
-        data = dict(name="Profile101",
-                    sanStorage=deepcopy(SAN_STORAGE))
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertEqual(merged_data[KEY_SAN], SAN_STORAGE)
-
-    def test_merge_when_volume_attachments_are_removed(self):
-        data = dict(name="Profile101",
-                    sanStorage=deepcopy(SAN_STORAGE))
-        data[KEY_SAN][KEY_VOLUMES] = None
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertFalse(merged_data[KEY_SAN][KEY_VOLUMES])
-
-    def test_merge_when_volume_attachments_has_changes(self):
-        data = dict(name="Profile101",
-                    sanStorage=deepcopy(SAN_STORAGE))
-        data[KEY_SAN][KEY_VOLUMES][0]['newField'] = "123"
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_volumes = [deepcopy(VOLUME_1), deepcopy(VOLUME_2)]
-        expected_volumes[0]['newField'] = "123"
-        self.assertEqual(merged_data[KEY_SAN][KEY_VOLUMES], expected_volumes)
-
-    def test_merge_when_storage_paths_has_changes(self):
-        data = dict(name="Profile101",
-                    sanStorage=deepcopy(SAN_STORAGE))
-        data[KEY_SAN][KEY_VOLUMES][0][KEY_PATHS][1]['newField'] = "123"
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-        merged_volumes = merged_data[KEY_SAN].get(KEY_VOLUMES)
-
-        expected_paths_storage_1 = [deepcopy(PATH_1), deepcopy(PATH_2)]
-        expected_paths_storage_1[1]['newField'] = "123"
-        self.assertEqual(expected_paths_storage_1, merged_volumes[0][KEY_PATHS])
-        self.assertEqual([], merged_volumes[1][KEY_PATHS])
-
-    def test_merge_should_sort_paths_by_connection_id(self):
-        profile = deepcopy(self.profile_with_san_storage)
-        profile[KEY_SAN][KEY_VOLUMES][0][KEY_PATHS][0] = deepcopy(PATH_2)  # connectionId = 2
-        profile[KEY_SAN][KEY_VOLUMES][0][KEY_PATHS][1] = deepcopy(PATH_1)  # connectionId = 1
-
-        data = dict(name="Profile101",
-                    sanStorage=deepcopy(SAN_STORAGE))
-        data[KEY_SAN][KEY_VOLUMES][0][KEY_PATHS][0]['newField'] = "123"  # connectionId = 1
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-        merged_volumes = merged_data[KEY_SAN].get(KEY_VOLUMES)
-
-        path_1_changed = deepcopy(PATH_1)
-        path_1_changed['newField'] = "123"
-        expected_paths = [deepcopy(path_1_changed),  # connectionId = 1, with field added
-                          deepcopy(PATH_2)]  # connectionId = 2
-        self.assertEqual(expected_paths, merged_volumes[0][KEY_PATHS])
-        self.assertEqual([], merged_volumes[1][KEY_PATHS])
-
-    def test_merge_when_storage_paths_are_removed(self):
-        data = dict(name="Profile101",
-                    sanStorage=deepcopy(SAN_STORAGE))
-        data[KEY_SAN][KEY_VOLUMES][0][KEY_PATHS] = []
-        resource = deepcopy(self.profile_with_san_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-        merged_volumes = merged_data[KEY_SAN].get(KEY_VOLUMES)
-
-        self.assertEqual([], merged_volumes[1][KEY_PATHS])
-
-    def test_merge_when_bios_has_changes(self):
-        data = dict(name="Profile101")
-        data[KEY_BIOS] = dict(newField="123")
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_bios = dict(manageBios=False, overriddenSettings=[], newField="123")
-        self.assertEqual(merged_data[KEY_BIOS], expected_bios)
-
-    def test_merge_when_bios_is_null(self):
-        data = dict(name="Profile101")
-        data[KEY_BIOS] = None
-
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertFalse(merged_data[KEY_BIOS])
-
-    def test_merge_when_bios_not_provided(self):
-        data = dict(name="Profile101")
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_bios = dict(manageBios=False, overriddenSettings=[])
-        self.assertEqual(merged_data[KEY_BIOS], expected_bios)
-
-    def test_merge_when_existing_bios_is_null(self):
-        data = dict(name="Profile101")
-        data[KEY_BIOS] = dict(newField="123")
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-        resource[KEY_BIOS] = None
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertEqual(merged_data[KEY_BIOS], dict(newField="123"))
-
-    def test_merge_when_boot_has_changes(self):
-        data = dict(name="Profile101")
-        data[KEY_BOOT] = dict(newField="123")
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_boot = dict(manageBoot=False, order=[], newField="123")
-        self.assertEqual(merged_data[KEY_BOOT], expected_boot)
-
-    def test_merge_when_boot_is_null(self):
-        data = dict(name="Profile101")
-        data[KEY_BOOT] = None
-
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertFalse(merged_data[KEY_BOOT])
-
-    def test_merge_when_boot_not_provided(self):
-        data = dict(name="Profile101")
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_boot = dict(manageBoot=False, order=[])
-        self.assertEqual(merged_data[KEY_BOOT], expected_boot)
-
-    def test_merge_when_existing_boot_is_null(self):
-        data = dict(name="Profile101")
-        data[KEY_BOOT] = dict(newField="123")
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-        resource[KEY_BOOT] = None
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertEqual(merged_data[KEY_BOOT], dict(newField="123"))
-
-    def test_merge_when_boot_mode_has_changes(self):
-        data = dict(name="Profile101")
-        data[KEY_BOOT_MODE] = dict(newField="123")
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_boot_mode = dict(manageMode=False, mode=None, pxeBootPolicy=None, newField="123")
-        self.assertEqual(merged_data[KEY_BOOT_MODE], expected_boot_mode)
-
-    def test_merge_when_boot_mode_is_null(self):
-        data = dict(name="Profile101")
-        data[KEY_BOOT_MODE] = None
-
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertFalse(merged_data[KEY_BOOT_MODE])
-
-    def test_merge_when_boot_mode_not_provided(self):
-        data = dict(name="Profile101")
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_boot_mode = dict(manageMode=False, mode=None, pxeBootPolicy=None)
-        self.assertEqual(merged_data[KEY_BOOT_MODE], expected_boot_mode)
-
-    def test_merge_when_existing_boot_mode_is_null(self):
-        data = dict(name="Profile101")
-        data[KEY_BOOT_MODE] = dict(newField="123")
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-        resource[KEY_BOOT_MODE] = None
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertEqual(merged_data[KEY_BOOT_MODE], dict(newField="123"))
-
-    def test_merge_when_os_deployment_is_equals(self):
-        data = dict(name="Profile101",
-                    osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-        resource = deepcopy(self.profile_with_os_deployment)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertEqual(merged_data, resource)
-
-    def test_merge_when_os_deployment_has_changes(self):
-        data = dict(name="Profile101",
-                    osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-        data[KEY_OS_DEPLOYMENT]['osDeploymentPlanUri'] = "/rest/os-deployment-plans/other-id"
-        resource = deepcopy(self.profile_with_os_deployment)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_os_deployment = deepcopy(OS_DEPLOYMENT_SETTINGS)
-        expected_os_deployment['osDeploymentPlanUri'] = "/rest/os-deployment-plans/other-id"
-        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT], expected_os_deployment)
-
-    def test_merge_when_os_deployment_not_provided(self):
-        data = dict(name="Profile101")
-
-        resource = deepcopy(self.profile_with_os_deployment)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_os_deployment = resource[KEY_OS_DEPLOYMENT]
-        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT], expected_os_deployment)
-
-    def test_merge_when_existing_os_deployment_settings_are_null(self):
-        data = dict(name="Profile101",
-                    osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-
-        resource = deepcopy(self.profile_with_os_deployment)
-        resource[KEY_OS_DEPLOYMENT] = None
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_os_deployment = deepcopy(OS_DEPLOYMENT_SETTINGS)
-        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT], expected_os_deployment)
-
-    def test_merge_when_custom_attributes_have_changes(self):
-        data = dict(name="Profile101",
-                    osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][0]['hostname'] = 'updatedhostname'
-        resource = deepcopy(self.profile_with_os_deployment)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_os_deployment = deepcopy(OS_DEPLOYMENT_SETTINGS)
-        expected_os_deployment[KEY_ATTRIBUTES][0]['hostname'] = 'updatedhostname'
-        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT], expected_os_deployment)
-
-    def test_merge_when_custom_attributes_have_new_item(self):
-        new_item = dict(name="password", value="secret123")
-        data = dict(name="Profile101",
-                    osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES].append(new_item.copy())
-
-        resource = deepcopy(self.profile_with_os_deployment)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_os_deployment = deepcopy(OS_DEPLOYMENT_SETTINGS)
-        expected_os_deployment[KEY_ATTRIBUTES].append(new_item.copy())
-        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT], expected_os_deployment)
-
-    def test_merge_when_custom_attributes_have_removed_item(self):
-        data = dict(name="Profile101",
-                    osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES].pop()
-        resource = deepcopy(self.profile_with_os_deployment)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_os_deployment = deepcopy(OS_DEPLOYMENT_SETTINGS)
-        expected_os_deployment[KEY_ATTRIBUTES].pop()
-        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT], expected_os_deployment)
-
-    def test_merge_when_custom_attributes_are_equals_with_different_order(self):
-        data = dict(name="Profile101",
-                    osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-        first_attr = data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][0]
-        second_attr = data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][1]
-        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][0] = second_attr
-        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][1] = first_attr
-        resource = deepcopy(self.profile_with_os_deployment)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertEqual(merged_data, deepcopy(self.profile_with_os_deployment))
-
-    def test_merge_when_custom_attributes_have_different_values_and_order(self):
-        data = dict(name="Profile101",
-                    osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-
-        first_attr = data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][0]
-        second_attr = data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][1]
-
-        first_attr['value'] = 'newValue'
-        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][0] = second_attr
-        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES][1] = first_attr
-        resource = deepcopy(self.profile_with_os_deployment)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_os_attributes = [dict(name="username", value="administrator"),
-                                  dict(name="hostname", value="newValue")]
-        expected_os_deployment = deepcopy(OS_DEPLOYMENT_SETTINGS)
-        expected_os_deployment[KEY_ATTRIBUTES] = expected_os_attributes
-        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT], expected_os_deployment)
-
-    def test_merge_when_custom_attributes_are_removed(self):
-        data = dict(name="Profile101",
-                    osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-        data[KEY_OS_DEPLOYMENT][KEY_ATTRIBUTES] = None
-        resource = deepcopy(self.profile_with_os_deployment)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_os_deployment = deepcopy(OS_DEPLOYMENT_SETTINGS)
-        expected_os_deployment[KEY_ATTRIBUTES] = None
-        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT], expected_os_deployment)
-
-    def test_merge_when_existing_custom_attributes_are_null(self):
-        data = dict(name="Profile101",
-                    osDeploymentSettings=deepcopy(OS_DEPLOYMENT_SETTINGS))
-        resource = deepcopy(self.profile_with_os_deployment)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_attributes = deepcopy(OS_DEPLOYMENT_SETTINGS).get(KEY_ATTRIBUTES)
-        self.assertEqual(merged_data[KEY_OS_DEPLOYMENT].get(KEY_ATTRIBUTES), expected_attributes)
-
-    def test_merge_when_local_storage_removed(self):
-        data = dict(name="Profile101",
-                    localStorage=None)
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE], dict(sasLogicalJBODs=[], controllers=[]))
-
-    def test_merge_when_local_storage_is_null_and_existing_server_profile_is_basic(self):
-        data = dict(name="Profile101",
-                    localStorage=None)
-        resource = deepcopy(CREATED_BASIC_PROFILE)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertFalse(merged_data[KEY_LOCAL_STORAGE])
-
-    def test_merge_when_sas_logical_jbods_have_new_item(self):
-        sas_logical_jbod_added = dict(id=3, deviceSlot="Mezz 1", name="new-sas-logical-jbod", driveTechnology="SataHdd")
-        data = dict(name="Profile101",
-                    localStorage=dict(sasLogicalJBODs=[SAS_LOGICAL_JBOD_1.copy(),
-                                                       SAS_LOGICAL_JBOD_2.copy(),
-                                                       sas_logical_jbod_added.copy()]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_sas_logical_jbods = [SAS_LOGICAL_JBOD_1.copy(), SAS_LOGICAL_JBOD_2.copy(), sas_logical_jbod_added]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS], expected_sas_logical_jbods)
-
-    def test_merge_when_sas_logical_jbods_have_removed_item(self):
-        data = dict(name="Profile101",
-                    localStorage=dict(sasLogicalJBODs=[SAS_LOGICAL_JBOD_1.copy()]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_sas_logical_jbods = [SAS_LOGICAL_JBOD_1.copy()]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS], expected_sas_logical_jbods)
-
-    def test_merge_when_sas_logical_jbods_have_changed_item(self):
-        item_2_changed = dict(id=2, numPhysicalDrives=2)
-        data = dict(name="Profile101",
-                    localStorage=dict(sasLogicalJBODs=[SAS_LOGICAL_JBOD_1.copy(), item_2_changed.copy()]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        item_2_merged = dict(numPhysicalDrives=2,
-                             id=2, name="jbod-2", deviceSlot="Mezz 1", driveTechnology="SataHdd", status="Pending")
-        expected_sas_logical_jbods = [SAS_LOGICAL_JBOD_1.copy(), item_2_merged.copy()]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS], expected_sas_logical_jbods)
-
-    def test_merge_should_sort_sas_logical_jbods_by_id(self):
-        data = dict(name="Profile101",
-                    localStorage=dict(sasLogicalJBODs=[SAS_LOGICAL_JBOD_2.copy(),  # id = 2
-                                                       SAS_LOGICAL_JBOD_1.copy()]))  # id = 1
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_sas_logical_jbods = [SAS_LOGICAL_JBOD_1.copy(),  # id = 1
-                                      SAS_LOGICAL_JBOD_2.copy()]  # id = 2
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS], expected_sas_logical_jbods)
-
-    @mock.patch('oneview_server_profile.merge_list_by_key')
-    def test_merge_should_ignore_logical_jbod_uri_when_null(self, mock_merge_list):
-        data = dict(name="Profile101",
-                    localStorage=dict(sasLogicalJBODs=[SAS_LOGICAL_JBOD_1.copy(), SAS_LOGICAL_JBOD_2.copy()]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        ServerProfileMerger().merge_data(resource, data)
-
-        mock_merge_list.assert_called_once_with(mock.ANY, mock.ANY, key=mock.ANY,
-                                                ignore_when_null=[KEY_SAS_LOGICAL_JBOD_URI])
-
-    def test_merge_when_sas_logical_jbod_list_is_removed(self):
-        data = dict(name="Profile101",
-                    localStorage=dict(sasLogicalJBODs=[]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertFalse(merged_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS])
-
-    def test_merge_when_controllers_have_new_item(self):
-        controller_added = dict(deviceSlot="Device Slot Name", mode="RAID", initialize=False, importConfiguration=True)
-        data = dict(name="Profile101",
-                    localStorage=dict(controllers=[CONTROLLER_MEZZ_1.copy(),
-                                                   CONTROLLER_EMBEDDED.copy(),
-                                                   controller_added.copy()]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_controllers = [controller_added, CONTROLLER_EMBEDDED.copy(), CONTROLLER_MEZZ_1.copy()]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS], expected_controllers)
-
-    def test_merge_when_controllers_have_removed_item(self):
-        data = dict(name="Profile101",
-                    localStorage=dict(controllers=[CONTROLLER_MEZZ_1.copy()]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_controllers = [CONTROLLER_MEZZ_1.copy()]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS], expected_controllers)
-
-    def test_merge_when_controllers_have_changed_item(self):
-        controller_embedded_changed = dict(deviceSlot="Embedded", initialize=True)
-        data = dict(name="Profile101",
-                    localStorage=dict(controllers=[CONTROLLER_MEZZ_1.copy(),
-                                                   controller_embedded_changed.copy()]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        item_2_merged = dict(initialize=True,  # initialize value changed from False to True
-                             deviceSlot="Embedded", mode="RAID", importConfiguration=True,
-                             logicalDrives=DRIVES_CONTROLLER_EMBEDDED)
-        expected_controllers = [item_2_merged.copy(), CONTROLLER_MEZZ_1.copy()]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS], expected_controllers)
-
-    def test_merge_when_controller_list_is_removed(self):
-        data = dict(name="Profile101",
-                    localStorage=dict(controllers=[]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertFalse(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS])
-
-    def test_merge_when_drives_from_embedded_controller_have_new_item(self):
-        new_drive = dict(name="drive-3", raidLevel="RAID1", bootable=False, sasLogicalJBODId=None)
-        controller_embedded = deepcopy(CONTROLLER_EMBEDDED)
-        controller_embedded[KEY_LOGICAL_DRIVES].append(new_drive.copy())
-
-        data = dict(name="Profile101",
-                    localStorage=dict(controllers=[CONTROLLER_MEZZ_1.copy(),
-                                                   controller_embedded.copy()]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_drives = [CONTROLLER_EMBEDDED[KEY_LOGICAL_DRIVES][0],
-                           CONTROLLER_EMBEDDED[KEY_LOGICAL_DRIVES][1],
-                           new_drive]
-
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES],
-                         expected_drives)
-
-    def test_merge_when_drives_from_embedded_controller_have_removed_item(self):
-        controller_embedded = deepcopy(CONTROLLER_EMBEDDED)
-        controller_embedded[KEY_LOGICAL_DRIVES].pop()
-
-        data = dict(name="Profile101",
-                    localStorage=dict(controllers=[CONTROLLER_MEZZ_1.copy(),
-                                                   controller_embedded.copy()]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_drives = [CONTROLLER_EMBEDDED[KEY_LOGICAL_DRIVES][0]]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES],
-                         expected_drives)
-
-    def test_merge_when_drives_from_embedded_controller_have_changed_item(self):
-        """
-        Test the drive merge, although it's not supported by OneView.
-        """
-        drive_changed = dict(name="drive-1", raidLevel="RAID0")
-        controller_embedded = deepcopy(CONTROLLER_EMBEDDED)
-        controller_embedded[KEY_LOGICAL_DRIVES][0] = drive_changed
-
-        data = dict(name="Profile101",
-                    localStorage=dict(controllers=[CONTROLLER_MEZZ_1.copy(),
-                                                   controller_embedded.copy()]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        drive_1_merged = dict(driveNumber=1, name="drive-1", raidLevel="RAID0", bootable=False, sasLogicalJBODId=None)
-        expected_drives = [drive_1_merged,
-                           CONTROLLER_EMBEDDED[KEY_LOGICAL_DRIVES][1]]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_EMBED][KEY_LOGICAL_DRIVES],
-                         expected_drives)
-
-    def test_merge_when_drives_from_mezz_controller_have_new_item(self):
-        new_drive = dict(name=None, raidLevel="RAID1", bootable=False, sasLogicalJBODId=3)
-        controller_mezz = deepcopy(CONTROLLER_MEZZ_1)
-        controller_mezz[KEY_LOGICAL_DRIVES].append(new_drive)
-
-        data = dict(name="Profile101",
-                    localStorage=dict(controllers=[controller_mezz.copy(),
-                                                   CONTROLLER_EMBEDDED.copy()]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_drives = [CONTROLLER_MEZZ_1[KEY_LOGICAL_DRIVES][0],
-                           CONTROLLER_MEZZ_1[KEY_LOGICAL_DRIVES][1],
-                           new_drive]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_MEZZ][KEY_LOGICAL_DRIVES],
-                         expected_drives)
-
-    def test_merge_when_drives_from_mezz_controller_have_removed_item(self):
-        controller_mezz = deepcopy(CONTROLLER_MEZZ_1)
-        controller_mezz[KEY_LOGICAL_DRIVES].pop()
-
-        data = dict(name="Profile101",
-                    localStorage=dict(controllers=[controller_mezz.copy(),
-                                                   CONTROLLER_EMBEDDED.copy()]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        expected_drives = [CONTROLLER_MEZZ_1[KEY_LOGICAL_DRIVES][0]]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_MEZZ][KEY_LOGICAL_DRIVES],
-                         expected_drives)
-
-    def test_merge_when_drives_from_mezz_controller_have_changed_item(self):
-        """
-        Test the drive merge, although it's not supported by OneView.
-        """
-        drive_changed = dict(sasLogicalJBODId=1, raidLevel="RAID0")
-        controller_mezz = deepcopy(CONTROLLER_MEZZ_1)
-        controller_mezz[KEY_LOGICAL_DRIVES][0] = drive_changed
-
-        data = dict(name="Profile101",
-                    localStorage=dict(controllers=[controller_mezz.copy(),
-                                                   CONTROLLER_EMBEDDED.copy()]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        drive_1_merged = dict(name=None, raidLevel="RAID0", bootable=False, sasLogicalJBODId=1)
-        expected_drives = [drive_1_merged,
-                           CONTROLLER_MEZZ_1[KEY_LOGICAL_DRIVES][1]]
-        self.assertEqual(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_MEZZ][KEY_LOGICAL_DRIVES],
-                         expected_drives)
-
-    def test_merge_when_controller_drives_are_removed(self):
-        controller_mezz = deepcopy(CONTROLLER_MEZZ_1)
-        controller_mezz[KEY_LOGICAL_DRIVES] = []
-
-        data = dict(name="Profile101",
-                    localStorage=dict(controllers=[controller_mezz.copy(),
-                                                   CONTROLLER_EMBEDDED.copy()]))
-        resource = deepcopy(self.profile_with_local_storage)
-
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        self.assertFalse(merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS][INDEX_MEZZ][KEY_LOGICAL_DRIVES])
 
 
 if __name__ == '__main__':
