@@ -22,10 +22,11 @@ from ansible.module_utils.basic import *
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.extras.comparators import resource_compare
-    from hpOneView.extras.mergers import merge_list_by_key
+    from hpOneView.extras.server_profile_utils import ServerProfileReplaceNamesByUris
+    from hpOneView.extras.server_profile_utils import ServerProfileMerger
+    from hpOneView.extras.server_profile_utils import Keys
     from hpOneView.exceptions import HPOneViewTaskError
     from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
     from hpOneView.exceptions import HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
@@ -36,39 +37,6 @@ from copy import deepcopy
 ASSIGN_HARDWARE_ERROR_CODES = ['AssignProfileToDeviceBayError',
                                'EnclosureBayUnavailableForProfile',
                                'ProfileAlreadyExistsInServer']
-
-KEY_ID = 'id'
-KEY_NAME = 'name'
-KEY_DEVICE_SLOT = 'deviceSlot'
-KEY_CONNECTIONS = 'connections'
-KEY_OS_DEPLOYMENT = 'osDeploymentSettings'
-KEY_OS_DEPLOYMENT_URI = 'osDeploymentPlanUri'
-KEY_ATTRIBUTES = 'osCustomAttributes'
-KEY_SAN = 'sanStorage'
-KEY_VOLUMES = 'volumeAttachments'
-KEY_PATHS = 'storagePaths'
-KEY_CONN_ID = 'connectionId'
-KEY_BOOT = 'boot'
-KEY_BIOS = 'bios'
-KEY_BOOT_MODE = 'bootMode'
-KEY_LOCAL_STORAGE = 'localStorage'
-KEY_SAS_LOGICAL_JBODS = 'sasLogicalJBODs'
-KEY_CONTROLLERS = 'controllers'
-KEY_LOGICAL_DRIVES = 'logicalDrives'
-KEY_SAS_LOGICAL_JBOD_URI = 'sasLogicalJBODUri'
-KEY_SAS_LOGICAL_JBOD_ID = 'sasLogicalJBODId'
-KEY_MODE = 'mode'
-KEY_MAC_TYPE = 'macType'
-KEY_MAC = 'mac'
-KEY_SERIAL_NUMBER_TYPE = 'serialNumberType'
-KEY_UUID = 'uuid'
-KEY_SERIAL_NUMBER = 'serialNumber'
-KEY_DRIVE_NUMBER = 'driveNumber'
-KEY_WWPN_TYPE = 'wwpnType'
-KEY_WWNN = 'wwnn'
-KEY_WWPN = 'wwpn'
-KEY_LUN_TYPE = 'lunType'
-KEY_LUN = 'lun'
 
 TEMPLATE_NOT_FOUND = "Informed Server Profile Template '{}' not found"
 HARDWARE_NOT_FOUND = "Informed Server Hardware '{}' not found"
@@ -83,16 +51,6 @@ SERVER_PROFILE_NOT_FOUND = "Server Profile is required for this operation."
 ERROR_ALLOCATE_SERVER_HARDWARE = 'Could not allocate server hardware'
 MAKE_COMPLIANT_NOT_SUPPORTED = "Update from template is not supported for server profile '{}' because it is not " \
                                "associated with a server profile template."
-SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND = 'OS Deployment Plan not found: '
-SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND = 'Enclosure Group not found: '
-SERVER_PROFILE_NETWORK_NOT_FOUND = 'Network not found: '
-SERVER_HARDWARE_TYPE_NOT_FOUND = 'Server Hardware Type not found: '
-VOLUME_NOT_FOUND = 'Volume not found: '
-STORAGE_POOL_NOT_FOUND = 'Storage Pool not found: '
-STORAGE_SYSTEM_NOT_FOUND = 'Storage System not found: '
-INTERCONNECT_NOT_FOUND = 'Interconnect not found: '
-FIRMWARE_DRIVER_NOT_FOUND = 'Firmware Driver not found: '
-SAS_LOGICAL_JBOD_NOT_FOUND = 'SAS logical JBOD not found: '
 
 CONCURRENCY_FAILOVER_RETRIES = 25
 
@@ -357,9 +315,8 @@ class ServerProfileModule(object):
             msg = SERVER_PROFILE_CREATED
         else:
             merged_data = ServerProfileMerger().merge_data(resource, data)
-            resource_for_comparison = self.__prepare_resource_for_comparison(resource)
 
-            if not resource_compare(resource_for_comparison, merged_data):
+            if not resource_compare(resource, merged_data):
                 resource = self.__update_server_profile(merged_data)
                 changed = True
                 msg = SERVER_PROFILE_UPDATED
@@ -367,27 +324,6 @@ class ServerProfileModule(object):
                 msg = SERVER_ALREADY_UPDATED
 
         return created, changed, msg, resource
-
-    def __prepare_resource_for_comparison(self, resource):
-        resource_changed = deepcopy(resource)
-
-        # Order paths from SAN Storage Volumes
-        if KEY_SAN in resource_changed and KEY_VOLUMES in resource_changed[KEY_SAN]:
-            for volume in resource_changed[KEY_SAN][KEY_VOLUMES]:
-                if KEY_PATHS in volume:
-                    volume[KEY_PATHS] = sorted(volume[KEY_PATHS], key=lambda k: k[KEY_CONN_ID])
-
-        # Order SAS Logical JBODs from Local Storage
-        if KEY_LOCAL_STORAGE in resource_changed and KEY_SAS_LOGICAL_JBODS in resource_changed[KEY_LOCAL_STORAGE]:
-            jbods = resource_changed[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS]
-            resource_changed[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS] = sorted(jbods, key=lambda k: k[KEY_ID])
-
-        # Order Controllers from Local Storage
-        if KEY_LOCAL_STORAGE in resource_changed and KEY_CONTROLLERS in resource_changed[KEY_LOCAL_STORAGE]:
-            controllers = resource_changed[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]
-            resource_changed[KEY_LOCAL_STORAGE][KEY_CONTROLLERS] = sorted(controllers, key=lambda k: k[KEY_DEVICE_SLOT])
-
-        return resource_changed
 
     def __update_server_profile(self, profile_with_updates):
         logger.debug(msg="Updating Server Profile")
@@ -464,36 +400,36 @@ class ServerProfileModule(object):
             return defined_type == 'Virtual' or defined_type == 'Physical'
 
         # Remove the MAC from connections when MAC type is Virtual or Physical
-        mac_type = data.get(KEY_MAC_TYPE, None)
+        mac_type = data.get(Keys.MAC_TYPE, None)
         if mac_type and is_virtual_or_physical(mac_type):
-            for conn in data.get(KEY_CONNECTIONS) or []:
-                conn.pop(KEY_MAC, None)
+            for conn in data.get(Keys.CONNECTIONS) or []:
+                conn.pop(Keys.MAC, None)
 
         # Remove the UUID when Serial Number Type is Virtual or Physical
-        serial_number_type = data.get(KEY_SERIAL_NUMBER_TYPE, None)
+        serial_number_type = data.get(Keys.SERIAL_NUMBER_TYPE, None)
         if serial_number_type and is_virtual_or_physical(serial_number_type):
-            data.pop(KEY_UUID, None)
-            data.pop(KEY_SERIAL_NUMBER, None)
+            data.pop(Keys.UUID, None)
+            data.pop(Keys.SERIAL_NUMBER, None)
 
         # Remove the WWPN and WWNN when WWPN Type is Virtual or Physical
-        for conn in data.get(KEY_CONNECTIONS) or []:
-            wwpn_type = conn.get(KEY_WWPN_TYPE, None)
+        for conn in data.get(Keys.CONNECTIONS) or []:
+            wwpn_type = conn.get(Keys.WWPN_TYPE, None)
             if is_virtual_or_physical(wwpn_type):
-                conn.pop(KEY_WWNN, None)
-                conn.pop(KEY_WWPN, None)
+                conn.pop(Keys.WWNN, None)
+                conn.pop(Keys.WWPN, None)
 
         # Remove the driveNumber from the Controllers Drives
-        if KEY_LOCAL_STORAGE in data and data[KEY_LOCAL_STORAGE]:
-            for controller in data[KEY_LOCAL_STORAGE].get(KEY_CONTROLLERS) or []:
-                for drive in controller.get(KEY_LOGICAL_DRIVES) or []:
-                    drive.pop(KEY_DRIVE_NUMBER, None)
+        if Keys.LOCAL_STORAGE in data and data[Keys.LOCAL_STORAGE]:
+            for controller in data[Keys.LOCAL_STORAGE].get(Keys.CONTROLLERS) or []:
+                for drive in controller.get(Keys.LOGICAL_DRIVES) or []:
+                    drive.pop(Keys.DRIVE_NUMBER, None)
 
         # Remove the Lun when Lun Type from SAN Storage Volume is Auto
-        if KEY_SAN in data and data[KEY_SAN]:
-            if KEY_VOLUMES in data[KEY_SAN]:
-                for volume in data[KEY_SAN].get(KEY_VOLUMES) or []:
-                    if volume.get(KEY_LUN_TYPE) == 'Auto':
-                        volume.pop(KEY_LUN, None)
+        if Keys.SAN in data and data[Keys.SAN]:
+            if Keys.VOLUMES in data[Keys.SAN]:
+                for volume in data[Keys.SAN].get(Keys.VOLUMES) or []:
+                    if volume.get(Keys.LUN_TYPE) == 'Auto':
+                        volume.pop(Keys.LUN, None)
 
     def __get_available_server_hardware_uri(self, server_profile, server_template):
 
@@ -597,293 +533,6 @@ class ServerProfileModule(object):
         else:
             self.oneview_client.server_hardware.update_power_state(
                 dict(powerState='Off', powerControl='PressAndHold'), hardware_uri)
-
-
-class ServerProfileMerger(object):
-    def merge_data(self, resource, data):
-        merged_data = deepcopy(resource)
-        merged_data.update(data)
-
-        merged_data = self._merge_bios_and_boot(merged_data, resource, data)
-        merged_data = self._merge_connections(merged_data, resource, data)
-        merged_data = self._merge_san_storage(merged_data, data, resource)
-        merged_data = self._merge_os_deployment_settings(merged_data, resource, data)
-        merged_data = self._merge_local_storage(merged_data, resource, data)
-
-        return merged_data
-
-    def _merge_bios_and_boot(self, merged_data, resource, data):
-        if self._should_merge(data, resource, key=KEY_BIOS):
-            merged_data = self._merge_dict(merged_data, resource, data, key=KEY_BIOS)
-        if self._should_merge(data, resource, key=KEY_BOOT):
-            merged_data = self._merge_dict(merged_data, resource, data, key=KEY_BOOT)
-        if self._should_merge(data, resource, key=KEY_BOOT_MODE):
-            merged_data = self._merge_dict(merged_data, resource, data, key=KEY_BOOT_MODE)
-        return merged_data
-
-    def _merge_connections(self, merged_data, resource, data):
-        if self._should_merge(data, resource, key=KEY_CONNECTIONS):
-            existing_connections = resource[KEY_CONNECTIONS]
-            params_connections = data[KEY_CONNECTIONS]
-            merged_data[KEY_CONNECTIONS] = merge_list_by_key(existing_connections, params_connections, key=KEY_ID)
-
-            # merge Boot from Connections
-            merged_data = self._merge_connections_boot(merged_data, resource)
-        return merged_data
-
-    def _merge_connections_boot(self, merged_data, resource):
-        existing_connection_map = {x[KEY_ID]: x.copy() for x in resource[KEY_CONNECTIONS]}
-        for merged_connection in merged_data[KEY_CONNECTIONS]:
-            conn_id = merged_connection[KEY_ID]
-            existing_conn_has_boot = conn_id in existing_connection_map and KEY_BOOT in existing_connection_map[conn_id]
-            if existing_conn_has_boot and KEY_BOOT in merged_connection:
-                current_connection = existing_connection_map[conn_id]
-                boot_settings_merged = deepcopy(current_connection[KEY_BOOT])
-                boot_settings_merged.update(merged_connection[KEY_BOOT])
-                merged_connection[KEY_BOOT] = boot_settings_merged
-        return merged_data
-
-    def _merge_san_storage(self, merged_data, data, resource):
-        if self._removed_data(data, resource, key=KEY_SAN):
-            merged_data[KEY_SAN] = dict(volumeAttachments=[], manageSanStorage=False)
-        elif self._should_merge(data, resource, key=KEY_SAN):
-            merged_data = self._merge_dict(merged_data, resource, data, key=KEY_SAN)
-
-            # Merge Volumes from SAN Storage
-            merged_data = self._merge_san_volumes(merged_data, resource, data)
-        return merged_data
-
-    def _merge_san_volumes(self, merged_data, resource, data):
-        if self._should_merge(data[KEY_SAN], resource[KEY_SAN], key=KEY_VOLUMES):
-            existing_volumes = resource[KEY_SAN][KEY_VOLUMES]
-            params_volumes = data[KEY_SAN][KEY_VOLUMES]
-            merged_volumes = merge_list_by_key(existing_volumes, params_volumes, key=KEY_ID)
-            merged_data[KEY_SAN][KEY_VOLUMES] = merged_volumes
-
-            # Merge Paths from SAN Storage Volumes
-            merged_data = self._merge_san_volumes_paths(merged_data, resource, data)
-        return merged_data
-
-    def _merge_san_volumes_paths(self, merged_data, resource, data):
-        existing_volumes_map = {x[KEY_ID]: x for x in resource[KEY_SAN][KEY_VOLUMES]}  # can't be a copy here
-        merged_volumes = merged_data[KEY_SAN][KEY_VOLUMES]
-        for merged_volume in merged_volumes:
-            volume_id = merged_volume[KEY_ID]
-            if volume_id in existing_volumes_map:
-                if KEY_PATHS in merged_volume and KEY_PATHS in existing_volumes_map[volume_id]:
-                    existent_paths = existing_volumes_map[volume_id][KEY_PATHS]
-                    existent_paths = sorted(existent_paths, key=lambda k: k[KEY_CONN_ID])
-
-                    paths_from_merged_volume = merged_volume[KEY_PATHS]
-                    paths_from_merged_volume = sorted(paths_from_merged_volume, key=lambda k: k[KEY_CONN_ID])
-
-                    merged_paths = merge_list_by_key(existent_paths, paths_from_merged_volume, key=KEY_CONN_ID)
-
-                    merged_volume[KEY_PATHS] = merged_paths
-        return merged_data
-
-    def _merge_os_deployment_settings(self, merged_data, resource, data):
-        if self._should_merge(data, resource, key=KEY_OS_DEPLOYMENT):
-            merged_data = self._merge_dict(merged_data, resource, data, key=KEY_OS_DEPLOYMENT)
-
-            # Merge Custom Attributes from OS Deployment Settings
-            merged_data = self._merge_os_deployment_custom_attr(merged_data, resource, data)
-        return merged_data
-
-    def _merge_os_deployment_custom_attr(self, merged_data, resource, data):
-        if KEY_ATTRIBUTES in data[KEY_OS_DEPLOYMENT]:
-            existing_os_deployment = resource[KEY_OS_DEPLOYMENT]
-            params_os_deployment = data[KEY_OS_DEPLOYMENT]
-            merged_os_deployment = merged_data[KEY_OS_DEPLOYMENT]
-
-            if self._removed_data(params_os_deployment, existing_os_deployment, key=KEY_ATTRIBUTES):
-                merged_os_deployment[KEY_ATTRIBUTES] = params_os_deployment[KEY_ATTRIBUTES]
-            else:
-                existing_attributes = existing_os_deployment[KEY_ATTRIBUTES]
-                params_attributes = params_os_deployment[KEY_ATTRIBUTES]
-
-                if sorted(list(existing_attributes)) == sorted(list(params_attributes)):
-                    merged_os_deployment[KEY_ATTRIBUTES] = existing_attributes
-
-        return merged_data
-
-    def _merge_local_storage(self, merged_data, resource, data):
-        if self._removed_data(data, resource, key=KEY_LOCAL_STORAGE):
-            merged_data[KEY_LOCAL_STORAGE] = dict(sasLogicalJBODs=[], controllers=[])
-        elif self._should_merge(data, resource, key=KEY_LOCAL_STORAGE):
-            # Merge SAS Logical JBODs from Local Storage
-            merged_data = self._merge_sas_logical_jbods(merged_data, resource, data)
-            # Merge Controllers from Local Storage
-            merged_data = self._merge_controllers(merged_data, resource, data)
-        return merged_data
-
-    def _merge_sas_logical_jbods(self, merged_data, resource, data):
-        if self._should_merge(data[KEY_LOCAL_STORAGE], resource[KEY_LOCAL_STORAGE], key=KEY_SAS_LOGICAL_JBODS):
-            existing_items = resource[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS]
-            provided_items = merged_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS]
-            merged_jbods = merge_list_by_key(existing_items,
-                                             provided_items,
-                                             key=KEY_ID,
-                                             ignore_when_null=[KEY_SAS_LOGICAL_JBOD_URI])
-            merged_jbods = sorted(merged_jbods, key=lambda k: k[KEY_ID])
-            merged_data[KEY_LOCAL_STORAGE][KEY_SAS_LOGICAL_JBODS] = merged_jbods
-        return merged_data
-
-    def _merge_controllers(self, merged_data, resource, data):
-        if self._should_merge(data[KEY_LOCAL_STORAGE], resource[KEY_LOCAL_STORAGE], key=KEY_CONTROLLERS):
-            existing_items = resource[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]
-            provided_items = merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]
-            merged_controllers = merge_list_by_key(existing_items, provided_items, key=KEY_DEVICE_SLOT)
-            merged_controllers = sorted(merged_controllers, key=lambda k: k[KEY_DEVICE_SLOT])
-            merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS] = merged_controllers
-
-            # Merge Drives from Mezzanine and Embedded controllers
-            merged_data = self._merge_controller_drives(merged_data, resource)
-        return merged_data
-
-    def _merge_controller_drives(self, merged_data, resource):
-        for current_controller in merged_data[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]:
-            for existing_controller in resource[KEY_LOCAL_STORAGE][KEY_CONTROLLERS]:
-                same_slot = current_controller.get(KEY_DEVICE_SLOT) == existing_controller.get(KEY_DEVICE_SLOT)
-                same_mode = existing_controller.get(KEY_MODE) == existing_controller.get(KEY_MODE)
-                if same_slot and same_mode and current_controller[KEY_LOGICAL_DRIVES]:
-
-                    key_merge = self._define_key_to_merge_drives(current_controller)
-
-                    if key_merge:
-                        merged_drives = merge_list_by_key(existing_controller[KEY_LOGICAL_DRIVES],
-                                                          current_controller[KEY_LOGICAL_DRIVES],
-                                                          key=key_merge)
-                        current_controller[KEY_LOGICAL_DRIVES] = merged_drives
-        return merged_data
-
-    def _define_key_to_merge_drives(self, controller):
-        has_name = True
-        has_logical_jbod_id = True
-        for drive in controller[KEY_LOGICAL_DRIVES]:
-            if not drive.get(KEY_NAME):
-                has_name = False
-            if not drive.get(KEY_SAS_LOGICAL_JBOD_ID):
-                has_logical_jbod_id = False
-
-        if has_name:
-            return KEY_NAME
-        elif has_logical_jbod_id:
-            return KEY_SAS_LOGICAL_JBOD_ID
-        return None
-
-    def _removed_data(self, data, resource, key):
-        return key in data and not data[key] and key in resource
-
-    def _should_merge(self, data, resource, key):
-        data_has_value = key in data and data[key]
-        existing_resource_has_value = key in resource and resource[key]
-        return data_has_value and existing_resource_has_value
-
-    def _merge_dict(self, merged_data, resource, data, key):
-        if resource[key]:
-            merged_dict = deepcopy(resource[key])
-            merged_dict.update(deepcopy(data[key]))
-        merged_data[key] = merged_dict
-        return merged_data
-
-
-class ServerProfileReplaceNamesByUris(object):
-    SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND = 'OS Deployment Plan not found: '
-    SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND = 'Enclosure Group not found: '
-    SERVER_PROFILE_NETWORK_NOT_FOUND = 'Network not found: '
-    SERVER_HARDWARE_TYPE_NOT_FOUND = 'Server Hardware Type not found: '
-    VOLUME_NOT_FOUND = 'Volume not found: '
-    STORAGE_POOL_NOT_FOUND = 'Storage Pool not found: '
-    STORAGE_SYSTEM_NOT_FOUND = 'Storage System not found: '
-    INTERCONNECT_NOT_FOUND = 'Interconnect not found: '
-    FIRMWARE_DRIVER_NOT_FOUND = 'Firmware Driver not found: '
-    SAS_LOGICAL_JBOD_NOT_FOUND = 'SAS logical JBOD not found: '
-    ENCLOSURE_NOT_FOUND = 'Enclosure not found: '
-
-    def replace(self, oneview_client, data):
-        self.oneview_client = oneview_client
-        self.__replace_os_deployment_name_by_uri(data)
-        self.__replace_enclosure_group_name_by_uri(data)
-        self.__replace_networks_name_by_uri(data)
-        self.__replace_server_hardware_type_name_by_uri(data)
-        self.__replace_volume_attachment_names_by_uri(data)
-        self.__replace_enclosure_name_by_uri(data)
-        self.__replace_interconnect_name_by_uri(data)
-        self.__replace_firmware_baseline_name_by_uri(data)
-        self.__replace_sas_logical_jbod_name_by_uri(data)
-
-    def __replace_name_by_uri(self, data, attr_name, message, resource_client):
-        attr_uri = attr_name.replace("Name", "Uri")
-        if attr_name in data:
-            name = data.pop(attr_name)
-            resource_by_name = resource_client.get_by('name', name)
-            if not resource_by_name:
-                raise HPOneViewResourceNotFound(message + name)
-            data[attr_uri] = resource_by_name[0]['uri']
-
-    def __replace_os_deployment_name_by_uri(self, data):
-        if KEY_OS_DEPLOYMENT in data and data[KEY_OS_DEPLOYMENT]:
-            self.__replace_name_by_uri(data[KEY_OS_DEPLOYMENT], 'osDeploymentPlanName',
-                                       self.SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND,
-                                       self.oneview_client.os_deployment_plans)
-
-    def __replace_enclosure_group_name_by_uri(self, data):
-        self.__replace_name_by_uri(data, 'enclosureGroupName', self.SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND,
-                                   self.oneview_client.enclosure_groups)
-
-    def __replace_networks_name_by_uri(self, data):
-        if KEY_CONNECTIONS in data and data[KEY_CONNECTIONS]:
-            for connection in data[KEY_CONNECTIONS]:
-                if 'networkName' in connection:
-                    name = connection.pop('networkName', None)
-                    connection['networkUri'] = self.__get_network_by_name(name)['uri']
-
-    def __replace_server_hardware_type_name_by_uri(self, data):
-        self.__replace_name_by_uri(data, 'serverHardwareTypeName', self.SERVER_HARDWARE_TYPE_NOT_FOUND,
-                                   self.oneview_client.server_hardware_types)
-
-    def __replace_volume_attachment_names_by_uri(self, data):
-        volume_attachments = (data.get('sanStorage') or {}).get('volumeAttachments') or []
-        if len(volume_attachments) > 0:
-            for volume in volume_attachments:
-                self.__replace_name_by_uri(volume, 'volumeName', self.VOLUME_NOT_FOUND, self.oneview_client.volumes)
-                self.__replace_name_by_uri(volume, 'volumeStoragePoolName', self.STORAGE_POOL_NOT_FOUND,
-                                           self.oneview_client.storage_pools)
-                self.__replace_name_by_uri(volume, 'volumeStorageSystemName', self.STORAGE_SYSTEM_NOT_FOUND,
-                                           self.oneview_client.storage_systems)
-
-    def __replace_enclosure_name_by_uri(self, data):
-        self.__replace_name_by_uri(data, 'enclosureName', self.ENCLOSURE_NOT_FOUND, self.oneview_client.enclosures)
-
-    def __replace_interconnect_name_by_uri(self, data):
-        connections = data.get('connections') or []
-        if len(connections) > 0:
-            for connection in connections:
-                self.__replace_name_by_uri(connection, 'interconnectName', self.INTERCONNECT_NOT_FOUND,
-                                           self.oneview_client.interconnects)
-
-    def __replace_firmware_baseline_name_by_uri(self, data):
-        firmware = data.get('firmware') or {}
-        self.__replace_name_by_uri(firmware, 'firmwareBaselineName', self.FIRMWARE_DRIVER_NOT_FOUND,
-                                   self.oneview_client.firmware_drivers)
-
-    def __replace_sas_logical_jbod_name_by_uri(self, data):
-        sas_logical_jbods = (data.get('localStorage') or {}).get('sasLogicalJBODs') or []
-        if len(sas_logical_jbods) > 0:
-            for jbod in sas_logical_jbods:
-                self.__replace_name_by_uri(jbod, 'sasLogicalJBODName', self.SAS_LOGICAL_JBOD_NOT_FOUND,
-                                           self.oneview_client.sas_logical_jbods)
-
-    def __get_network_by_name(self, name):
-        fc_networks = self.oneview_client.fc_networks.get_by('name', name)
-        if fc_networks:
-            return fc_networks[0]
-
-        ethernet_networks = self.oneview_client.ethernet_networks.get_by('name', name)
-        if not ethernet_networks:
-            raise HPOneViewResourceNotFound(self.SERVER_PROFILE_NETWORK_NOT_FOUND + name)
-        return ethernet_networks[0]
 
 
 def main():
