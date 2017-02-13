@@ -7,8 +7,10 @@ install:
   - pip install flake8
   - pip install mock
   - pip install git+https://github.com/HewlettPackard/python-hpOneView.git
+  - pip install coveralls
 script:
   - export ANSIBLE_LIBRARY=$PWD/library
   - export PYTHONPATH=$ANSIBLE_LIBRARY:$PYTHONPATH
   - touch examples/vars/config.yml
   - ./build.sh
+  

@@ -8,3 +8,4 @@ examples/vars/config.yml
 dependencies/python-hpICsp/build/
 *~
 examples/vars/os_attributes.yaml
+**/.coverage
