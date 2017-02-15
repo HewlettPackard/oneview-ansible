@@ -59,6 +59,7 @@
   * [oneview_network_set - Manage OneView Network Set resources.](#oneview_network_set)
   * [oneview_network_set_facts - Retrieve facts about the OneView Network Sets.](#oneview_network_set_facts)
   * [oneview_os_deployment_plan_facts - Retrieve facts about one or more Os Deployment Plans.](#oneview_os_deployment_plan_facts)
+  * [oneview_os_deployment_server - Manage OneView Deployment Server resources.](#oneview_os_deployment_server)
   * [oneview_power_device - Manage OneView Power Device resources.](#oneview_power_device)
   * [oneview_power_device_facts - Retrieve facts about the OneView Power Devices.](#oneview_power_device_facts)
   * [oneview_rack - Manage OneView Racks resources.](#oneview_rack)
@@ -4841,6 +4842,85 @@ Retrieve facts about one or more Os Deployment Plans.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+
+---
+
+
+## oneview_os_deployment_server
+Manage OneView Deployment Server resources.
+
+#### Synopsis
+ Provides an interface to manage Deployment Server resources. Can create, update, or delete.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.1.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with Deployment Server properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Deployment Server resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Ensure that the Deployment Server is present
+  oneview_os_deployment_server:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Test Deployment Server'
+      description: "OS Deployment Server"
+      mgmtNetworkUri: "/rest/ethernet-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535"
+      applianceUri: "/rest/deployment-servers/image-streamer-appliances/aca554e2-09c2-4b14-891d-e51c0058efab"
+
+- debug: var=os_deployment_server
+
+- name: Ensure that the Deployment Server is present with name 'Renamed Deployment Server'
+  oneview_os_deployment_server:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Test Deployment Server'
+      newName: 'Renamed Deployment Server'
+
+- debug: var=os_deployment_server
+
+
+- name: Ensure that the Deployment Server is absent
+  oneview_os_deployment_server:
+    config: "{{ config_file_path }}"
+    state: absent
+    data:
+      name: 'Renamed Deployment Server'
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| os_deployment_server   | Has the facts about the Deployment Servers. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- For the following data, you can provide either a name  or a URI: mgmtNetworkName or mgmtNetworkUri, and applianceName or applianceUri
+
+- This resource is only available on HPE Synergy
 
 
 ---
