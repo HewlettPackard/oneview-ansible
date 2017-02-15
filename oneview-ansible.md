@@ -60,6 +60,7 @@
   * [oneview_network_set_facts - Retrieve facts about the OneView Network Sets.](#oneview_network_set_facts)
   * [oneview_os_deployment_plan_facts - Retrieve facts about one or more Os Deployment Plans.](#oneview_os_deployment_plan_facts)
   * [oneview_os_deployment_server - Manage OneView Deployment Server resources.](#oneview_os_deployment_server)
+  * [oneview_os_deployment_server_facts - Retrieve facts about one or more OS Deployment Servers.](#oneview_os_deployment_server_facts)
   * [oneview_power_device - Manage OneView Power Device resources.](#oneview_power_device)
   * [oneview_power_device_facts - Retrieve facts about the OneView Power Devices.](#oneview_power_device_facts)
   * [oneview_rack - Manage OneView Racks resources.](#oneview_rack)
@@ -4919,6 +4920,85 @@ Manage OneView Deployment Server resources.
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 - For the following data, you can provide either a name  or a URI: mgmtNetworkName or mgmtNetworkUri, and applianceName or applianceUri
+
+- This resource is only available on HPE Synergy
+
+
+---
+
+
+## oneview_os_deployment_server_facts
+Retrieve facts about one or more OS Deployment Servers.
+
+#### Synopsis
+ Retrieve facts about one or more of the OS Deployment Servers from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.1.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| name  |   No  |  | |  OS Deployment Server name.  |
+| options  |   No  |  | |  List with options to gather additional facts about an OS Deployment Server and related resources. Options allowed: networks, appliances, and appliance.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set. 'query': A general query string to narrow the list of resources returned. 'fields': Specifies which fields should be returned in the result set. 'view': Return a specific subset of the attributes of the resource or collection, by specifying the name of a predefined view.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Gather facts about all OS Deployment Servers
+  oneview_os_deployment_server_facts:
+    config: "{{ config_file_path }}"
+
+- debug: var=os_deployment_servers
+
+- name: Gather facts about an OS Deployment Server by name
+  oneview_os_deployment_server_facts:
+    config: "{{ config_file_path }}"
+    name: "OS Deployment Server-Name"
+  delegate_to: localhost
+
+- debug: var=os_deployment_servers
+
+- name: Gather facts about an OS Deployment Server by name with options
+  oneview_os_deployment_server_facts:
+    config: "{{ config_file_path }}"
+    name: 'Test-OS Deployment Server'
+    options:
+      - networks                    # optional
+      - appliances                  # optional
+      - appliance: 'Appliance name' # optional
+  delegate_to: localhost
+
+- debug: var=os_deployment_servers
+- debug: var=os_deployment_server_networks
+- debug: var=os_deployment_server_appliances
+- debug: var=os_deployment_server_appliance
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| os_deployment_server_appliance   | Has the facts about the particular Image Streamer resource. |  When requested, but can be null. |  complex |
+| os_deployment_server_appliances   | Has all the OneView facts about all the Image Streamer resources. |  When requested, but can be null. |  complex |
+| os_deployment_server_networks   | Has all the OneView facts about the One View networks. |  When requested, but can be null. |  complex |
+| os_deployment_servers   | Has all the OneView facts about the OS Deployment Servers. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 - This resource is only available on HPE Synergy
 
