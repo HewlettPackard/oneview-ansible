@@ -50,11 +50,13 @@ Sample playbooks and instructions on how to run the modules can be found in the 
 
 #### End-to-end examples
 
-- An end-to-end DevOps example using OneView for the bare metal server provisioning, HPE ICsp for OS deployment, and Ansible modules for software setup is provided at: [Accelerating DevOps with HPE OneView and Ansible sample](/examples/oneview-web-farm).
+- An end-to-end DevOps example using HPE OneView for the bare metal server provisioning, HPE ICsp for OS deployment, and Ansible modules for software setup is provided at: [Accelerating DevOps with HPE OneView and Ansible sample](/examples/oneview-web-farm).
 
-- An example of how to use HPE OneView with Synergy Image Streamer for OS Deployment is available at: [Synergy OS Deployment Sample](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/synergy_create_server_profile_with_deployment_plan.yml). 
+- An example of how to use HPE OneView with HPE Synergy Image Streamer for OS Deployment is available at: [HPE Synergy OS Deployment Sample](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/synergy_create_server_profile_with_deployment_plan.yml). 
 
-- An example of bare metal infrastructure setup using HPE OneView and Ansible is available at: [C7000 Environment Setup](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/c7000_environment_setup.yml)
+- Examples example of bare metal infrastructure setup using HPE OneView and Ansible are available at:
+  - [C7000 Environment Setup](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/c7000_environment_setup.yml)
+  - [HPE Synergy Environment Setup](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/synergy_environment_setup.yml)
 
 ## Setup
 
