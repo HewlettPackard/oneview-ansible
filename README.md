@@ -163,6 +163,25 @@ export ONEVIEWSDK_API_VERSION='300'
 ```
 
 
+###5. HPE Synergy Image Streamer
+
+Modules to manage HPE Synergy Image Streamer appliances are also included in this project.
+To use these modules, you must set the Image Streamer IP on the OneViewClient configuration,
+either using the JSON configuration:
+
+```json
+"image_streamer_ip": "100.100.100.100"
+```
+
+OR using the Environment variable:
+
+```bash
+export ONEVIEWSDK_IMAGE_STREAMER_IP='100.100.100.100'
+```
+
+You can find sample playbooks in the [examples](https://github.com/HewlettPackard/oneview-ansible/tree/master/examples) folder. Just look for the playbooks with the ```image_streamer_``` prefix.
+
+
 ## License
 
 This project is licensed under the Apache 2.0 license. Please see the [LICENSE](LICENSE) for more information.
