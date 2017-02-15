@@ -44,9 +44,17 @@ The detailed documentation for each module is available at: [HPE OneView Ansible
         name: "Test FCoE Network Facts"
 ```
 
+### Examples
+
 Sample playbooks and instructions on how to run the modules can be found in the [`examples`](/examples) directory.
 
-An end-to-end DevOps example using OneView for the bare metal server provisioning, HPE ICsp for OS deployment, and Ansible modules for software setup is provided at: [Accelerating DevOps with HPE OneView and Ansible sample](/examples/oneview-web-farm).
+#### End-to-end examples
+
+- An end-to-end DevOps example using OneView for the bare metal server provisioning, HPE ICsp for OS deployment, and Ansible modules for software setup is provided at: [Accelerating DevOps with HPE OneView and Ansible sample](/examples/oneview-web-farm).
+
+- An example of how to use HPE OneView with Synergy Image Streamer for OS Deployment is available at: [Synergy OS Deployment Sample](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/synergy_create_server_profile_with_deployment_plan.yml). 
+
+- An example of bare metal infrastructure setup using HPE OneView and Ansible is available at: [C7000 Environment Setup](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/c7000_environment_setup.yml)
 
 ## Setup
 
