@@ -84,9 +84,9 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
         self.os_deployment_plans.add.return_value = {"name": "name"}
         self.mock_ov_client.ethernet_networks.get_by.return_value = [
             {"name": "Deployment", "uri": "/rest/ethernet-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535"}]
-        self.mock_ov_client.os_deployment_servers.get_appliances.return_value = [
-            {"name": "0000A66103, appliance 2",
-             "uri": "/rest/deployment-servers/image-streamer-appliances/aca554e2-09c2-4b14-891d-e51c0058efab"}]
+        self.mock_ov_client.os_deployment_servers.get_appliance_by_name.return_value = {
+            "name": "0000A66103, appliance 2",
+            "uri": "/rest/deployment-servers/image-streamer-appliances/aca554e2-09c2-4b14-891d-e51c0058efab"}
 
         self.mock_ansible_module.params = self.DEPLOYMENT_SERVER_CREATE_WITH_NAMES
 
@@ -104,13 +104,66 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
             ansible_facts=dict(os_deployment_server={"name": "name"})
         )
 
+    def test_replace_net_names_by_uris_should_search_fc(self):
+        self.os_deployment_plans.get_by_name.return_value = None
+        self.os_deployment_plans.add.return_value = {"name": "name"}
+
+        self.mock_ov_client.ethernet_networks.get_by.return_value = []
+        self.mock_ov_client.fc_networks.get_by.return_value = [
+            {"name": "Deployment", "uri": "/rest/fc-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535"}]
+        self.mock_ov_client.os_deployment_servers.get_appliance_by_name.return_value = {
+            "name": "0000A66103, appliance 2",
+            "uri": "/rest/deployment-servers/image-streamer-appliances/aca554e2-09c2-4b14-891d-e51c0058efab"}
+
+        self.mock_ansible_module.params = self.DEPLOYMENT_SERVER_CREATE_WITH_NAMES
+
+        OsDeploymentServerModule().run()
+
+        self.os_deployment_plans.add.assert_called_once_with({
+            "name": 'Test Deployment Server',
+            "description": "OS Deployment Server",
+            "mgmtNetworkUri": "/rest/fc-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535",
+            "applianceUri": "/rest/deployment-servers/image-streamer-appliances/aca554e2-09c2-4b14-891d-e51c0058efab"})
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=OsDeploymentServerModule.DEPLOYMENT_SERVER_CREATED,
+            ansible_facts=dict(os_deployment_server={"name": "name"})
+        )
+
+    def test_replace_net_names_by_uris_should_search_fcoe(self):
+        self.os_deployment_plans.get_by_name.return_value = None
+        self.os_deployment_plans.add.return_value = {"name": "name"}
+
+        self.mock_ov_client.ethernet_networks.get_by.return_value = []
+        self.mock_ov_client.fc_networks.get_by.return_value = []
+        self.mock_ov_client.fcoe_networks.get_by.return_value = [
+            {"name": "Deployment", "uri": "/rest/fcoe-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535"}]
+        self.mock_ov_client.os_deployment_servers.get_appliance_by_name.return_value = {
+            "name": "0000A66103, appliance 2",
+            "uri": "/rest/deployment-servers/image-streamer-appliances/aca554e2-09c2-4b14-891d-e51c0058efab"}
+
+        self.mock_ansible_module.params = self.DEPLOYMENT_SERVER_CREATE_WITH_NAMES
+
+        OsDeploymentServerModule().run()
+
+        self.os_deployment_plans.add.assert_called_once_with({
+            "name": 'Test Deployment Server',
+            "description": "OS Deployment Server",
+            "mgmtNetworkUri": "/rest/fcoe-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535",
+            "applianceUri": "/rest/deployment-servers/image-streamer-appliances/aca554e2-09c2-4b14-891d-e51c0058efab"})
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=OsDeploymentServerModule.DEPLOYMENT_SERVER_CREATED,
+            ansible_facts=dict(os_deployment_server={"name": "name"})
+        )
+
     def test_should_fail_when_appliance_name_not_found(self):
         self.os_deployment_plans.get_by_name.return_value = None
         self.os_deployment_plans.add.return_value = {"name": "name"}
         self.mock_ov_client.ethernet_networks.get_by.return_value = [{"uri": "/rest/ethernet-networks/123"}]
-        self.mock_ov_client.os_deployment_servers.get_appliances.return_value = [
-            {"name": "name not match",
-             "uri": "/rest/deployment-servers/image-streamer-appliances/123"}]
+        self.mock_ov_client.os_deployment_servers.get_appliance_by_name.return_value = None
 
         self.mock_ansible_module.params = self.DEPLOYMENT_SERVER_CREATE_WITH_NAMES
 
@@ -143,9 +196,9 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
         self.os_deployment_plans.update.return_value = {"name": "name"}
         self.mock_ov_client.ethernet_networks.get_by.return_value = [
             {"name": "Deployment", "uri": "/rest/ethernet-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535"}]
-        self.mock_ov_client.os_deployment_servers.get_appliances.return_value = [
-            {"name": "0000A66103, appliance 2",
-             "uri": "/rest/deployment-servers/image-streamer-appliances/aca554e2-09c2-4b14-891d-e51c0058efab"}]
+        self.mock_ov_client.os_deployment_servers.get_appliance_by_name.return_value = {
+            "name": "0000A66103, appliance 2",
+            "uri": "/rest/deployment-servers/image-streamer-appliances/aca554e2-09c2-4b14-891d-e51c0058efab"}
 
         self.mock_ansible_module.params = self.DEPLOYMENT_SERVER_CREATE_WITH_NAMES
 

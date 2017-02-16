@@ -229,12 +229,12 @@ class OsDeploymentServerModule(object):
         return fcoe_networks[0]['uri']
 
     def __get_appliance_by_name(self, name):
-        appliances = self.oneview_client.os_deployment_servers.get_appliances()
-        if appliances:
-            for appliance in appliances:
-                if appliance['name'] == name:
-                    return appliance['uri']
-        raise HPOneViewResourceNotFound(self.APPLIANCE_NOT_FOUND.format(name))
+        appliance = self.oneview_client.os_deployment_servers.get_appliance_by_name(name)
+
+        if not appliance:
+            raise HPOneViewResourceNotFound(self.APPLIANCE_NOT_FOUND.format(name))
+
+        return appliance['uri']
 
 
 def main():
