@@ -1,0 +1,3 @@
+os_custom_attributes_for_server_profile:
+-   name: DomainName
+    value: ''
