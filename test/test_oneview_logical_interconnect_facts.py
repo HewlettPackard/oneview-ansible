@@ -272,6 +272,34 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
             )
         )
 
+    def test_should_get_a_logical_interconnect_by_name_with_ethernet_settings(self):
+        ethernet_settings = {
+            "id": "235d50d7-cf4a-4362-aec3-c4914c6ebab4",
+            "igmpIdleTimeoutInterval": 260,
+            "interconnectType": "Ethernet",
+            "macRefreshInterval": 5,
+            "modified": "2016-12-20T16:48:08.626Z",
+            "name": "ES634039453",
+            "uri": "/rest/logical-interconnects/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0/ethernetSettings"
+        }
+        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.logical_interconnects.get_ethernet_settings.return_value = ethernet_settings
+        self.mock_ansible_module.params = create_params(['ethernet_settings'])
+
+        LogicalInterconnectFactsModule().run()
+
+        self.logical_interconnects.get_ethernet_settings.assert_called_once_with(
+            id_or_uri=LOGICAL_INTERCONNECT_URI
+        )
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                logical_interconnects=LOGICAL_INTERCONNECT,
+                ethernet_settings=ethernet_settings
+            )
+        )
+
     def test_should_get_a_logical_interconnects_by_name_with_telemetry_configuration(self):
         self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
         self.logical_interconnects.get_telemetry_configuration.return_value = TELEMETRY_CONFIGURATION
