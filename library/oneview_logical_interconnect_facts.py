@@ -33,10 +33,11 @@ description:
     - Retrieve facts about one or more of the OneView Logical Interconnects.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 3.1.1"
 author:
     - "Bruno Souza (@bsouza)"
     - "Mariana Kreisig (@marikrg)"
+    - "Camila Balestrin (@balestrinc)"
 options:
     config:
       description:
@@ -70,6 +71,7 @@ options:
           'unassigned_uplink_ports' gets a collection of uplink ports from the member interconnects which are eligible
           for assignment to an analyzer port.
           'telemetry_configuration' gets the telemetry configuration of the logical interconnect.
+          'ethernet_settings' gets the Ethernet interconnect settings for the Logical Interconnect.
         - These options are valid just when a 'name' is provided. Otherwise it will be ignored."
       required: false
 notes:
@@ -119,6 +121,7 @@ EXAMPLES = '''
       - firmware
       - unassigned_uplink_ports
       - telemetry_configuration
+      - ethernet_settings
 
 - debug: var=logical_interconnects
 - debug: var=qos_aggregated_configuration
@@ -129,6 +132,7 @@ EXAMPLES = '''
 - debug: var=firmware
 - debug: var=unassigned_uplink_ports
 - debug: var=telemetry_configuration
+- debug: var=ethernet_settings
 '''
 
 RETURN = '''
@@ -177,6 +181,11 @@ telemetry_configuration:
     description: The telemetry configuration of the logical interconnect.
     returned: When requested, but can be null.
     type: complex
+
+ethernet_settings:
+    description: The Ethernet Interconnect Settings.
+    returned: When requested, but can be null.
+    type: complex
 '''
 
 LOGICAL_INTERCONNECT_NOT_FOUND = 'Logical Interconnect not found.'
@@ -211,6 +220,7 @@ class LogicalInterconnectFactsModule(object):
             firmware=logical_interconnects.get_firmware,
             unassigned_uplink_ports=logical_interconnects.get_unassigned_uplink_ports,
             telemetry_configuration=logical_interconnects.get_telemetry_configuration,
+            ethernet_settings=logical_interconnects.get_ethernet_settings,
         )
 
     def run(self):

@@ -127,3 +127,13 @@
       delegate_to: localhost
 
     - debug: var=telemetry_configuration
+
+    - name: "Gather the Ethernet interconnect settings for the logical interconnect"
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - ethernet_settings
+      delegate_to: localhost
+
+    - debug: var=ethernet_settings
