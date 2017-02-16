@@ -18,7 +18,7 @@ To run the ansible playbooks provided in this project, you should do the followi
 
 ###	1. Clone the repository
 
-   ```git clone https://github.hpe.com/ImageStreamer/Ansible.git```
+   ```git clone https://github.com/HewlettPackard/oneview-ansible.git```
 
 ###2. Configure setup and project.
     [OneView-Ansible setup](https://github.com/HewlettPackard/oneview-ansible#setup)
