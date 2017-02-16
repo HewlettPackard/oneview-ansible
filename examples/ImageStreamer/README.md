@@ -8,7 +8,7 @@ This repository contains a collection of sample ansible playbooks for using HPE 
 * Linux host (Ubuntu, CentOS, etc)
 * [HPE OneView Python SDK](https://github.com/HewlettPackard/python-hpOneView#installation)
 * Python >= 2.7.9
-* [Ansible modules for HPE OneView](https://github.hpe.com/Rainforest/oneview-ansible)
+* [Ansible modules for HPE OneView](https://github.com/HewlettPackard/oneview-ansible)
 
 If you are new to ansible, here's an interesting resource to get started: [Introduction to Ansible webinar  series](https://www.ansible.com/webinars-training/introduction-to-ansible)
 
@@ -20,25 +20,10 @@ To run the ansible playbooks provided in this project, you should do the followi
 
    ```git clone https://github.hpe.com/ImageStreamer/Ansible.git```
 
-###2. Configure the ANSIBLE_LIBRARY environmental variable
+###2. Configure setup and project.
+    [OneView-Ansible setup](https://github.com/HewlettPackard/oneview-ansible#setup)
 
-   ```$ export ANSIBLE_LIBRARY=/path/to/oneview-ansible/library```
-
-###3. OneView Client Configuration
-
-   To use the Ansible OneView modules, you can store the configuration on a JSON file. This file is used to define the settings, which will be used on the OneView appliance connection, like hostname, username, and password. Here's an example:
-
-```json
-{
-  "ip": "172.25.105.12",
-  "credentials": {
-    "userName": "Administrator",
-    "authLoginDomain": "",
-    "password": "secret123"
-  },
-  "api_version": 200
-}
-```
+   
 ###Project structure
 The ansible playbooks are organized in folders to promote modularity and readability.
 
@@ -60,27 +45,27 @@ The ansible playbooks are organized in folders to promote modularity and readabi
   
 ```
 
-**group_vars** - This folder contains al information for a group of hosts. In a typical server deployment scenario, the deployment network, server hardware and enclosure group would be same across similar hosts, the information can be captured and stored here. This can be referenced later as variables while writing playbooks.
+**group_vars** - This folder contains all information for a group of hosts. In a typical server deployment scenario, the deployment network, server hardware and enclosure group would be same across similar hosts, the information can be captured and stored here. This can be referenced later as variables while writing playbooks.
 
 **host_vars** - This folder contains all host specific information.
 
 **tasks** - This folder may contain tasks which can be reused across different playbooks to promote modularity or independent tasks for each playbook
 
-**hosts** - It a text file to store inventory related information.
+**hosts** - It is a text file to store inventory related information.
 
-**playbook<1..n>.yml** - This is entry point of ansible tasks, and this is where we tell ansible of what we want to achieve. Typical examples may include creation of server profile, powering on all server hardwares or updating firmware across all server hardwares.
+**playbook<1..n>.yml** - This is the entry point of ansible tasks, and this is where we tell ansible of what we want to achieve. Typical examples may include creation of server profile, powering on all server hardwares or updating firmware across all server hardwares.
 
 ##Usage
-To run the playbooks, go the tasks folder
+To run the playbooks,
 ```$ ansible-playbook -i /path/to/playbookdirectory/playbook.yml```
 
 
 
 ## Example
 
-This example shows how ansible can be leveraged for complex automation tasks like creation of server profiles and updating them. In this example we have shown how to get a list of deployment plans and their os custom attributes and use them for server profile creation.
+This example shows how ansible can be leveraged for complex automation tasks like creation of server profiles and updating them. In this example we have shown how to get a list of deployment plans and their OS custom attributes and use them for server profile creation.
 
-***1) Retrieve all deployment plans and their os custom attributes*** - 
+***1) Retrieve all deployment plans and their os custom attributes***
 
 ```yaml
 - hosts: all
@@ -130,7 +115,7 @@ os_custom_attributes_for_server_profile:
   value: '10.10.7.1' 
 ```
 
-***2) Create a server profile using a deployment plan.***
+***2) Create a server profile using a deployment plan***
 
 ```yaml
 
@@ -227,6 +212,6 @@ This playbook shows how to update a server profile with a new deployment plan an
 
 ```
 
-This playbook shows how to perform rolling updates of server profiles. The playbook expects a variable called ```serial``, if its set to 1, the updates of server profile are performed serially The typical use cases include updates of servers under a load balancer where the service is still available even when server are performing updates. 
+This playbook shows how to perform rolling updates of server profiles. The playbook expects a variable called serial, if its set to 1, the updates of server profile are performed serially The typical use cases include updates of servers under a load balancer where the service is still available even when servers are performing updates. 
 
  

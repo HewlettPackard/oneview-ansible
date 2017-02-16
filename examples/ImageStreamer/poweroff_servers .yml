@@ -13,7 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+<<<<<<< b85603411188921e8bd618492c8ec0e0bcf00d3d
 
+=======
+>>>>>>> Collection of sample ansible playbooks for using HPE Image Streamer
 ---
 - hosts: all
   gather_facts: no
