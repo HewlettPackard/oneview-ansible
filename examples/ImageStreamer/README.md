@@ -20,7 +20,7 @@ To run the ansible playbooks provided in this project, you should do the followi
 
    ```git clone https://github.com/HewlettPackard/oneview-ansible.git```
 
-###2. Configure setup and project.
+###2. Configure setup and project
     [OneView-Ansible setup](https://github.com/HewlettPackard/oneview-ansible#setup)
 
    
@@ -45,7 +45,7 @@ The ansible playbooks are organized in folders to promote modularity and readabi
   
 ```
 
-**group_vars** - This folder contains all information for a group of hosts. In a typical server deployment scenario, the deployment network, server hardware and enclosure group would be same across similar hosts, the information can be captured and stored here. This can be referenced later as variables while writing playbooks.
+**group_vars** - This folder contains all information for a group of hosts. In a typical server deployment scenario, the deployment network, server hardware and enclosure group would be the same across similar hosts, the information can be captured and stored here. This can be referenced later as variables while writing playbooks.
 
 **host_vars** - This folder contains all host specific information.
 
@@ -65,7 +65,7 @@ To run the playbooks,
 
 This example shows how ansible can be leveraged for complex automation tasks like creation of server profiles and updating them. In this example we have shown how to get a list of deployment plans and their OS custom attributes and use them for server profile creation.
 
-***1) Retrieve all deployment plans and their os custom attributes***
+***1) Retrieve all deployment plans and their OS custom attributes***
 
 ```yaml
 - hosts: all
@@ -95,7 +95,7 @@ This example shows how ansible can be leveraged for complex automation tasks lik
       register: dp_facts
       delegate_to: localhost
 
-    - name: Export each deployment plan's os custom attributes to deploymentPlanName.yml
+    - name: Export each deployment plan's OS custom attributes to deploymentPlanName.yml
       copy:
         content="{{ item.os_deployment_plan_custom_attributes | to_nice_yaml }}"
         dest="{{ deploymentplans_info_directory }}/{{ item.os_deployment_plans.0.name }}.yml"
@@ -105,7 +105,7 @@ This example shows how ansible can be leveraged for complex automation tasks lik
 
 ```
 
-​	This playbook will retrieve all deployment plans in image streamer and store them under ```/data/deployment-plans/<deploymentplanname.yml> ``` . The deploymentplanname.yml file generated would have oscustom attributes listed in the following fashion,
+​	This playbook will retrieve all deployment plans in image streamer and store them at  ```/data/deployment-plans/<deploymentplanname.yml> ``` . The deploymentplanname.yml file generated would have oscustom attributes listed in the following fashion,
 
 ```yaml
 os_custom_attributes_for_server_profile:
@@ -144,9 +144,9 @@ os_custom_attributes_for_server_profile:
 
 ```
 
-This playbook shows how to create a server profile using a deployment plan with the help of image streamer. The example shown above shows server profile creation with a template already created. The template would have all network connections defined and server hardware type specified. Additionally the vars section contains the deployment_plan_name with which the profile will be created.
+This playbook shows how to create a server profile using a deployment plan with the help of image streamer. The example shown above shows server profile creation with a template already created. The template should have all network connections defined and server hardware type specified. Additionally the vars section contains the deployment_plan_name with which the profile will be created.
 
-The playbook expects you to specify a deployment plan name and the os custom attributes that you may want to be personalized during profile creation.If you want the osCustomAttributes for a deployment plan name, you could use the example1 to retrive os custom attributes for a deployment plan and use the infomation under ```osCustomAttributes``` 
+The playbook expects you to specify a deployment plan name and the OS custom attributes that you may want to be personalized during profile creation.If you want the osCustomAttributes for a deployment plan name, you could use the example1 to retrive OS custom attributes for a deployment plan and use the infomation under ```osCustomAttributes``` 
 
 
 
@@ -179,7 +179,7 @@ The playbook expects you to specify a deployment plan name and the os custom att
 
 ```
 
-This playbook shows how to update a server profile with a new deployment plan and new os custom attributes. 
+This playbook shows how to update a server profile with a new deployment plan and new OS custom attributes. 
 
 
 ***4) Rolling updates of server profile***
@@ -212,6 +212,6 @@ This playbook shows how to update a server profile with a new deployment plan an
 
 ```
 
-This playbook shows how to perform rolling updates of server profiles. The playbook expects a variable called serial, if its set to 1, the updates of server profile are performed serially The typical use cases include updates of servers under a load balancer where the service is still available even when servers are performing updates. 
+This playbook shows how to perform rolling updates of server profiles. The playbook expects a variable called serial, if its set to 1, the updates of server profile are performed serially. The typical use cases include updates of servers under a load balancer where the service is still available even when servers are performing updates. 
 
  
