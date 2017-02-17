@@ -94,3 +94,23 @@
 
     - debug: msg="Interconnect '{{ interconnects[0]['name'] }}'"
     - debug: var=interconnect_subport_statistics
+
+    - name: Gather facts about all the Interconnect ports
+      oneview_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ interconnect_name }}"
+        options:
+            - ports
+
+    - debug: msg="Interconnect '{{ interconnects[0]['name'] }}'"
+    - debug: var=interconnect_ports
+
+    - name: Gather facts about an Interconnect port
+      oneview_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ interconnect_name }}"
+        options:
+            - port: "{{ port_name }}"
+
+    - debug: msg="Interconnect '{{ interconnects[0]['name'] }}'"
+    - debug: var=interconnect_port

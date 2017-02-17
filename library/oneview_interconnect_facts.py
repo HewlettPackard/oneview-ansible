@@ -17,10 +17,12 @@
 ###
 
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.common import transform_list_to_dict
     from hpOneView.exceptions import HPOneViewException
+    from hpOneView.common import extract_id_from_uri
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -63,7 +65,9 @@ options:
           'nameServers' gets the named servers for an interconnect.
           'statistics' gets the statistics from an interconnect.
           'portStatistics' gets the statistics for the specified port name on an interconnect.
-          'subPortStatistics' gets the subport statistics on an interconnect."
+          'subPortStatistics' gets the subport statistics on an interconnect.
+          'ports' gets all interconnect ports.
+          'port' gets a specific interconnect port."
         - "To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be
           ignored."
       required: false
@@ -141,6 +145,26 @@ EXAMPLES = '''
 
 - debug: var=interconnects
 - debug: var=interconnect_subport_statistics
+
+- name: Gather facts about all the Interconnect ports
+  oneview_interconnect_facts:
+    config: "{{ config }}"
+    name: '0000A66102, interconnect 2'
+    options:
+        - ports
+
+- debug: var=interconnects
+- debug: var=interconnect_ports
+
+- name: Gather facts about an Interconnect port
+  oneview_interconnect_facts:
+    config: "{{ config }}"
+    name: '0000A66102, interconnect 2'
+    options:
+        - port: d1
+
+- debug: var=interconnects
+- debug: var=interconnect_port
 '''
 
 RETURN = '''
@@ -165,7 +189,17 @@ interconnect_port_statistics:
     type: dict
 
 interconnect_subport_statistics:
-    description: The subport statistics on an interconnect
+    description: The subport statistics on an interconnect.
+    returned: When requested, but can be null.
+    type: dict
+
+interconnect_ports:
+    description: All interconnect ports.
+    returned: When requested, but can be null.
+    type: list
+
+interconnect_port:
+    description: The interconnect port.
     returned: When requested, but can be null.
     type: dict
 '''
@@ -238,6 +272,16 @@ class InterconnectFactsModule(object):
             if type(sub_options) is dict and sub_options.get('portName') and sub_options.get('subportNumber'):
                 facts['interconnect_subport_statistics'] = self.oneview_client.interconnects.get_subport_statistics(
                     interconnect_uri, sub_options['portName'], sub_options['subportNumber'])
+
+        if options.get('ports'):
+            ports = self.oneview_client.interconnects.get_ports(interconnect_uri)
+            facts['interconnect_ports'] = ports
+
+        if options.get('port'):
+            port_name = options.get('port')
+            port_id = "{}:{}".format(extract_id_from_uri(interconnect_uri), port_name)
+            port = self.oneview_client.interconnects.get_port(interconnect_uri, port_id)
+            facts['interconnect_port'] = port
 
 
 def main():

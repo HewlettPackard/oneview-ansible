@@ -17,9 +17,11 @@
 import unittest
 
 from oneview_interconnect_facts import InterconnectFactsModule
+from oneview_interconnect_facts import EXAMPLES
 from test.utils import FactsParamsTestCase
 from test.utils import ModuleContructorTestCase
 from test.utils import ErrorHandlingTestCase
+import yaml
 
 ERROR_MSG = 'Fake message error'
 
@@ -77,6 +79,10 @@ class InterconnectFactsSpec(unittest.TestCase,
         self.interconnects = self.mock_ov_client.interconnects
         FactsParamsTestCase.configure_client_mock(self, self.interconnects)
         ErrorHandlingTestCase.configure(self, method_to_fire=self.interconnects.get_by)
+
+        self.EXAMPLES = yaml.load(EXAMPLES)
+        self.PARAMS_GET_ALL_PORTS = self.EXAMPLES[18]['oneview_interconnect_facts']
+        self.PARAMS_GET_PORT = self.EXAMPLES[21]['oneview_interconnect_facts']
 
     def test_should_get_all_interconnects(self):
         fake_interconnects = [dict(uidState='On', name=INTERCONNECT_NAME)]
@@ -188,6 +194,43 @@ class InterconnectFactsSpec(unittest.TestCase,
                 interconnects=MOCK_INTERCONNECTS,
                 interconnect_subport_statistics=fake_statistics
             )
+        )
+
+    def test_should_get_interconnect_ports(self):
+        fake_ports = [dict(t=1), dict(t=2)]
+
+        self.interconnects.get_by.return_value = MOCK_INTERCONNECTS
+        self.interconnects.get_ports.return_value = fake_ports
+
+        self.mock_ansible_module.params = self.PARAMS_GET_ALL_PORTS
+
+        InterconnectFactsModule().run()
+
+        self.interconnects.get_by.assert_called_once_with('name', INTERCONNECT_NAME)
+        self.interconnects.get_ports.assert_called_once_with(INTERCONNECT_URI)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(interconnects=MOCK_INTERCONNECTS, interconnect_ports=fake_ports)
+        )
+
+    def test_should_get_interconnect_port(self):
+        fake_port = dict(t=1)
+        port_id = "53fa7d35-1cc8-46c1-abf0-6af091a1aed3:d1"
+
+        self.interconnects.get_by.return_value = MOCK_INTERCONNECTS
+        self.interconnects.get_port.return_value = fake_port
+
+        self.mock_ansible_module.params = self.PARAMS_GET_PORT
+
+        InterconnectFactsModule().run()
+
+        self.interconnects.get_by.assert_called_once_with('name', INTERCONNECT_NAME)
+        self.interconnects.get_port.assert_called_once_with(INTERCONNECT_URI, port_id)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(interconnects=MOCK_INTERCONNECTS, interconnect_port=fake_port)
         )
 
 
