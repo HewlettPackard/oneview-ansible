@@ -3050,7 +3050,7 @@ Retrieve facts about one or more of the OneView Interconnects.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Interconnect name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Interconnect. Options allowed: 'nameServers' gets the named servers for an interconnect. 'statistics' gets the statistics from an interconnect. 'portStatistics' gets the statistics for the specified port name on an interconnect. 'subPortStatistics' gets the subport statistics on an interconnect.  To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be ignored.  |
+| options  |   No  |  | |  List with options to gather additional facts about Interconnect. Options allowed: 'nameServers' gets the named servers for an interconnect. 'statistics' gets the statistics from an interconnect. 'portStatistics' gets the statistics for the specified port name on an interconnect. 'subPortStatistics' gets the subport statistics on an interconnect. 'ports' gets all interconnect ports. 'port' gets a specific interconnect port.  To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be ignored.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
 
 
@@ -3125,6 +3125,26 @@ Retrieve facts about one or more of the OneView Interconnects.
 - debug: var=interconnects
 - debug: var=interconnect_subport_statistics
 
+- name: Gather facts about all the Interconnect ports
+  oneview_interconnect_facts:
+    config: "{{ config }}"
+    name: '0000A66102, interconnect 2'
+    options:
+        - ports
+
+- debug: var=interconnects
+- debug: var=interconnect_ports
+
+- name: Gather facts about an Interconnect port
+  oneview_interconnect_facts:
+    config: "{{ config }}"
+    name: '0000A66102, interconnect 2'
+    options:
+        - port: d1
+
+- debug: var=interconnects
+- debug: var=interconnect_port
+
 ```
 
 
@@ -3134,9 +3154,11 @@ Retrieve facts about one or more of the OneView Interconnects.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | interconnect_name_servers   | The named servers for an interconnect. |  When requested, but can be null. |  list |
+| interconnect_port   | The interconnect port. |  When requested, but can be null. |  dict |
 | interconnect_port_statistics   | Statistics for the specified port name on an interconnect. |  When requested, but can be null. |  dict |
+| interconnect_ports   | All interconnect ports. |  When requested, but can be null. |  list |
 | interconnect_statistics   | Has all the OneView facts about the Interconnect Statistics. |  When requested, but can be null. |  dict |
-| interconnect_subport_statistics   | The subport statistics on an interconnect |  When requested, but can be null. |  dict |
+| interconnect_subport_statistics   | The subport statistics on an interconnect. |  When requested, but can be null. |  dict |
 | interconnects   | The list of interconnects. |  Always, but can be null. |  list |
 
 
@@ -4993,7 +5015,7 @@ Retrieve facts about one or more OS Deployment Servers.
 | ------------- |-------------| ---------|----------- |
 | os_deployment_server_appliance   | Has the facts about the particular Image Streamer resource. |  When requested, but can be null. |  complex |
 | os_deployment_server_appliances   | Has all the OneView facts about all the Image Streamer resources. |  When requested, but can be null. |  complex |
-| os_deployment_server_networks   | Has all the OneView facts about the One View networks. |  When requested, but can be null. |  complex |
+| os_deployment_server_networks   | Has all the OneView facts about the OneView networks. |  When requested, but can be null. |  complex |
 | os_deployment_servers   | Has all the OneView facts about the OS Deployment Servers. |  Always, but can be null. |  complex |
 
 
