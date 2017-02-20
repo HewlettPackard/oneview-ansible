@@ -66,9 +66,11 @@ options:
               for the firmware update are Stage (uploads firmware to the interconnect), Activate (installs firmware on
               the interconnect) and Update (which does a Stage and Activate in a sequential manner). All of them are
               non-idempotent.
+              'telemetry_configuration_updated' updates the telemetry configuration of a logical interconnect.
         choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
                   'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
-                  'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated', 'firmware_installed']
+                  'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated', 'firmware_installed',
+                  'telemetry_configuration_updated']
     data:
         description:
             - List with the options.
@@ -179,6 +181,19 @@ EXAMPLES = '''
     firmware:
       command: Stage
       spp: "filename"  # could also be sppUri: '/rest/firmware-drivers/<filename>'
+
+- name: Updates the telemetry configuration of a logical interconnect.
+  oneview_logical_interconnect:
+  config: "{{ config_file_path }}"
+  state: telemetry_configuration_updated
+  data:
+    name: "Name of the Logical Interconnect"
+    telemetryConfiguration:
+      sampleCount: 12
+      enableTelemetry: True
+      sampleInterval: 300
+
+- debug: var=telemetry_configuration
 '''
 
 RETURN = '''
@@ -212,6 +227,11 @@ li_firmware:
     description: Has the OneView facts about the installed Firmware.
     returned: On 'firmware_installed' state, but can be null.
     type: complex
+
+telemetry_configuration:
+    description: Has the OneView facts about the Telemetry Configuration.
+    returned: On 'telemetry_configuration_updated' state, but can be null.
+    type: complex
 '''
 
 LOGICAL_INTERCONNECT_CONSISTENT = 'logical interconnect returned to a consistent state.'
@@ -222,6 +242,7 @@ LOGICAL_INTERCONNECT_QOS_UPDATED = 'QoS aggregated configuration updated success
 LOGICAL_INTERCONNECT_SNMP_UPDATED = 'SNMP configuration updated successfully.'
 LOGICAL_INTERCONNECT_PORT_MONITOR_UPDATED = 'Port Monitor configuration updated successfully.'
 LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED = 'Configuration on the logical interconnect updated successfully.'
+LOGICAL_INTERCONNECT_TELEMETRY_CONFIGURATION_UPDATED = 'Telemetry configuration updated successfully.'
 LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED = 'Firmware updated successfully.'
 LOGICAL_INTERCONNECT_NOT_FOUND = 'Logical Interconnect not found.'
 LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND = 'Ethernet network not found: '
@@ -238,7 +259,7 @@ class LogicalInterconnectModule(object):
             choices=['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
                      'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
                      'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated',
-                     'firmware_installed']
+                     'firmware_installed', 'telemetry_configuration_updated']
         ),
         data=dict(required=True, type='dict'),
         validate_etag=dict(
@@ -292,6 +313,8 @@ class LogicalInterconnectModule(object):
                 changed, msg, ansible_facts = self.__update_configuration(uri)
             elif state == 'firmware_installed':
                 changed, msg, ansible_facts = self.__install_firmware(uri, data)
+            elif state == 'telemetry_configuration_updated':
+                changed, msg, ansible_facts = self.__update_telemetry_configuration(resource, data)
             else:
                 changed, msg, ansible_facts = False, '', dict()
 
@@ -418,6 +441,15 @@ class LogicalInterconnectModule(object):
         result = self.oneview_client.logical_interconnects.update_configuration(uri)
 
         return True, LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED, dict(logical_interconnect=result)
+
+    def __update_telemetry_configuration(self, resource, data):
+        config = data.get('telemetryConfiguration')
+        telemetry_config_uri = resource['telemetryConfiguration']['uri']
+
+        result = self.oneview_client.logical_interconnects.update_telemetry_configurations(telemetry_config_uri, config)
+
+        return True, LOGICAL_INTERCONNECT_TELEMETRY_CONFIGURATION_UPDATED, dict(
+            telemetry_configuration=result.get('telemetryConfiguration'))
 
     def __get_by_name(self, data):
         return self.oneview_client.logical_interconnects.get_by_name(data['name'])

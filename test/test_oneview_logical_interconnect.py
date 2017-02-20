@@ -31,7 +31,8 @@ from oneview_logical_interconnect import (LogicalInterconnectModule,
                                           LOGICAL_INTERCONNECT_SNMP_UPDATED,
                                           LOGICAL_INTERCONNECT_PORT_MONITOR_UPDATED,
                                           LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED,
-                                          LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED)
+                                          LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED,
+                                          LOGICAL_INTERCONNECT_TELEMETRY_CONFIGURATION_UPDATED)
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -42,7 +43,18 @@ LOGICAL_INTERCONNECT = {'uri': '/rest/logical-interconnects/id',
                         },
                         'fcoeSettings': {
                             'fcoeMode': 'Unknown'
-                        }}
+                        },
+                        'telemetryConfiguration': {
+                            'category': 'telemetry-configurations',
+                            'enableTelemetry': True,
+                            'modified': None,
+                            'name': 'name-670923271-1482252496500',
+                            'sampleCount': 10,
+                            'sampleInterval': 250,
+                            'uri': '/rest/logical-interconnects/123/telemetry-configurations/abc'
+                        },
+
+                        }
 
 
 class LogicalInterconnectModuleSpec(unittest.TestCase,
@@ -744,6 +756,56 @@ class LogicalInterconnectFirmwareUpdatedStateSpec(unittest.TestCase, PreloadedMo
         self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = self.PARAMS_FIRMWARE_WITH_SPP_URI
+
+        LogicalInterconnectModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=LOGICAL_INTERCONNECT_NOT_FOUND
+        )
+
+
+class LogicalInterconnectTelemetryConfigurationUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
+    """
+    PreloadedMocksBaseTestCase provides the mocks used in this test case.
+    """
+
+    CONFIG = dict(
+        sampleCount=12,
+        enableTelemetry=True,
+        sampleInterval=300
+    )
+    PARAMS_CONFIGURATION = dict(
+        config='config.json',
+        state='telemetry_configuration_updated',
+        data=dict(name='Test', telemetryConfiguration=CONFIG))
+
+    def setUp(self):
+        self.configure_mocks(self, LogicalInterconnectModule)
+        self.resource = self.mock_ov_client.logical_interconnects
+
+        self.telemetry_config_uri = LOGICAL_INTERCONNECT['telemetryConfiguration']['uri']
+
+    def test_update_telemetry_configuration(self):
+        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.update_telemetry_configurations.return_value = LOGICAL_INTERCONNECT
+
+        telemetry_config = LOGICAL_INTERCONNECT['telemetryConfiguration']
+
+        self.mock_ansible_module.params = self.PARAMS_CONFIGURATION
+
+        LogicalInterconnectModule().run()
+
+        self.resource.update_telemetry_configurations.assert_called_once_with(self.telemetry_config_uri, self.CONFIG)
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LOGICAL_INTERCONNECT_TELEMETRY_CONFIGURATION_UPDATED,
+            ansible_facts=dict(telemetry_configuration=telemetry_config)
+        )
+
+    def test_should_fail_when_logical_interconnect_not_found(self):
+        self.resource.get_by_name.return_value = None
+
+        self.mock_ansible_module.params = self.PARAMS_CONFIGURATION
 
         LogicalInterconnectModule().run()
 

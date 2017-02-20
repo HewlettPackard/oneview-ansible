@@ -108,6 +108,20 @@
           name: "{{ logical_interconnect_name }}"
       delegate_to: localhost
 
+    - name: Updates the telemetry configuration of a logical interconnect.
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: telemetry_configuration_updated
+        data:
+          name: "{{ logical_interconnect_name }}"
+          telemetryConfiguration:
+            sampleCount: 12
+            enableTelemetry: True
+            sampleInterval: 300
+      delegate_to: localhost
+
+    - debug: var=telemetry_configuration
+
     - name: Install a firmware to the logical interconnect, running the stage operation to upload the firmware
       oneview_logical_interconnect:
         config: "{{ config }}"
