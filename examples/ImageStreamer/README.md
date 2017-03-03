@@ -14,13 +14,7 @@ If you are new to ansible, here's an interesting resource to get started: [Intro
 
 ## Setup
 
-To run the ansible playbooks provided in this project, you should do the following:
-
-###	1. Clone the repository
-
-   ```git clone https://github.com/HewlettPackard/oneview-ansible.git```
-
-###2. Configure setup and project
+   1.Configure setup and project
     [OneView-Ansible setup](https://github.com/HewlettPackard/oneview-ansible#setup)
 
    
