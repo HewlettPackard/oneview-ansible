@@ -14,9 +14,7 @@ If you are new to ansible, here's an interesting resource to get started: [Intro
 
 ## Setup
 
-   1.Configure setup and project
-   
-    [OneView-Ansible setup](https://github.com/HewlettPackard/oneview-ansible#setup)
+   [OneView-Ansible setup](https://github.com/HewlettPackard/oneview-ansible#setup)
 
    
 ###Project structure
