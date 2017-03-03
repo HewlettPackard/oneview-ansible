@@ -52,7 +52,7 @@ Sample playbooks and instructions on how to run the modules can be found in the 
 
 - An end-to-end DevOps example using HPE OneView for the bare metal server provisioning, HPE ICsp for OS deployment, and Ansible modules for software setup is provided at: [Accelerating DevOps with HPE OneView and Ansible sample](/examples/oneview-web-farm).
 
-- An example of how to use HPE OneView with HPE Synergy Image Streamer for OS Deployment is available at: [HPE Synergy OS Deployment Sample](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/synergy_create_server_profile_with_deployment_plan.yml) and [HPE Image Streamer Samples](https://github.com/devdil/oneview-ansible/tree/master/examples/ImageStreamer)
+- An example of how to use HPE OneView with HPE Synergy Image Streamer for OS Deployment is available at: [HPE Synergy OS Deployment Sample](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/synergy_create_server_profile_with_deployment_plan.yml) and [HPE Image Streamer Samples](https://github.com/devdil/oneview-ansible/blob/master/examples/ImageStreamer)
 
 - An example of how to upload an artifact bundle for HPE Synergy Image Streamer and deploy a blade server in HPE OneView using the OS build plan provided in the artifact bundle is available at: [HPE Synergy + OneView Sample](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/synergy_image_streamer.yml).
 
