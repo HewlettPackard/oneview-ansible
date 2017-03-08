@@ -41,7 +41,7 @@
       register: dp_facts
       delegate_to: localhost
 
-    - name: Export each deployment plan's os custom attributes to deploymentPlanName.yml
+    - name: Export each deployment plan's OS custom attributes to deploymentPlanName.yml
       copy:
         content="{{ item.os_deployment_plan_custom_attributes | to_nice_yaml }}"
         dest="{{ deploymentplans_info_directory }}/{{ item.os_deployment_plans.0.name }}.yml"
