@@ -1,6 +1,6 @@
 # Ansible for HPE OneView and Image Streamer
 
-This repository contains a collection of sample ansible playbooks for using HPE Image Streamer to deploy, update and revert Golden Images to OS boot/run volumes for HPE Synergy compute module servers.
+This repository contains a collection of sample ansible playbooks for using HPE Image Streamer to deploy, update and revert Golden Images to boot OS volumes for HPE Synergy compute module servers.
 
 ## Requirements
 
