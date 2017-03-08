@@ -139,7 +139,7 @@ os_custom_attributes_for_server_profile:
 
 This playbook shows how to create a server profile using a deployment plan with the help of image streamer. The example shown above shows server profile creation with a template already created. The template should have all network connections defined and server hardware type specified. Additionally the vars section contains the deployment_plan_name with which the profile will be created.
 
-The playbook expects you to specify a deployment plan name and the OS custom attributes that you may want to be personalized during profile creation. If you want the osCustomAttributes for a deployment plan name, you could use the example1 to retrive OS custom attributes for a deployment plan and use the infomation under ```osCustomAttributes``` 
+The playbook expects you to specify a deployment plan name and the OS custom attributes that you may want to be personalized during profile creation. If you want the osCustomAttributes for a deployment plan name, you could use the example1 to retrieve OS custom attributes for a deployment plan and use the information under ```osCustomAttributes``` 
 
 
 
