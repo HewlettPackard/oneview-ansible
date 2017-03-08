@@ -1,0 +1,4 @@
+deployment_network_uri: '/rest/ethernet-networks/b2b0669c-fa68-4f75-9f51-af607269b32b'
+enclosure_group_uri: '/rest/enclosure-groups/1ae73c92-d598-4f65-ac96-f417a55039f3'
+deployment_plan_name: 'install-nodejs-stack-RHEL7.2'
+management_ntwrk_uri: '/rest/ethernet-networks/e75ac764-6a41-47c5-8e37-53c4265d39bd'

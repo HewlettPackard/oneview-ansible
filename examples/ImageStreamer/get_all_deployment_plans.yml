@@ -1,0 +1,50 @@
+###
+# Copyright (2017) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  gather_facts: no
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    destination_path: "{{ playbook_dir }}/vars"
+    deploymentplans_info_directory: "{{ playbook_dir}}/data/deployment-plans"
+  tasks:
+    - name: Create a folder to store deployment plan related information
+      file: path="{{ deploymentplans_info_directory }}" state=directory
+      delegate_to: localhost
+      
+    - name: Gather facts about all OS Deployment Plans
+      oneview_os_deployment_plan_facts:
+        config :  '{{ config }}'
+      delegate_to: localhost
+
+    - name: Gather facts about each OS Deployment Plan Custom Attributes
+      oneview_os_deployment_plan_facts:
+        config: '{{ config }}'
+        name : '{{ item.name }}'
+        options:
+          - osCustomAttributesForServerProfile
+      with_items:
+          - "{{ os_deployment_plans }}"
+      register: dp_facts
+      delegate_to: localhost
+
+    - name: Export each deployment plan's OS custom attributes to deploymentPlanName.yml
+      copy:
+        content="{{ item.os_deployment_plan_custom_attributes | to_nice_yaml }}"
+        dest="{{ deploymentplans_info_directory }}/{{ item.os_deployment_plans.0.name }}.yml"
+      with_items:
+       - "{{ dp_facts.results | map(attribute='ansible_facts') | list  }}"
+      delegate_to: localhost
