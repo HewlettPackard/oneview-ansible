@@ -16,10 +16,11 @@
 # limitations under the License.
 ###
 from ansible.module_utils.basic import *
+
 try:
     from hpOneView.oneview_client import OneViewClient
     from hpOneView.extras.comparators import resource_compare
-    from hpOneView.exceptions import HPOneViewException
+    from hpOneView.exceptions import HPOneViewException, HPOneViewValueError
 
     HAS_HPE_ONEVIEW = True
 except ImportError:
@@ -33,7 +34,7 @@ description:
     - Provides an interface to manage SAN Manager resources. Can create, update, or delete.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 3.1.1"
 author: "Mariana Kreisig (@marikrg)"
 options:
     config:
@@ -113,6 +114,7 @@ SAN_MANAGER_DELETED = 'SAN Manager deleted successfully.'
 SAN_MANAGER_ALREADY_EXIST = 'SAN Manager already exists.'
 SAN_MANAGER_ALREADY_ABSENT = 'Nothing to do.'
 HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+SAN_MANAGER_PROVIDER_DISPLAY_NAME_NOT_FOUND = "The provider '{}' was not found."
 
 
 class SanManagerModule(object):
@@ -157,9 +159,9 @@ class SanManagerModule(object):
 
     def __present(self, data):
         resource = self.oneview_client.san_managers.get_by_provider_display_name(data['providerDisplayName'])
-        provider_uri = data.get('providerUri', self.__get_provider_uri_by_display_name(data))
 
         if not resource:
+            provider_uri = data.get('providerUri', self.__get_provider_uri_by_display_name(data))
             self.__add(provider_uri, data)
         else:
             self.__update(resource, data)
@@ -203,7 +205,13 @@ class SanManagerModule(object):
             self.module.exit_json(changed=False, msg=SAN_MANAGER_ALREADY_ABSENT)
 
     def __get_provider_uri_by_display_name(self, data):
-        return self.oneview_client.san_managers.get_provider_uri(data.get('providerDisplayName'))
+        display_name = data.get('providerDisplayName')
+        provider_uri = self.oneview_client.san_managers.get_provider_uri(display_name)
+
+        if not provider_uri:
+            raise HPOneViewValueError(SAN_MANAGER_PROVIDER_DISPLAY_NAME_NOT_FOUND.format(display_name))
+
+        return provider_uri
 
 
 def main():
