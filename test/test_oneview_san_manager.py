@@ -151,6 +151,18 @@ class SanManagerModuleSpec(unittest.TestCase,
             msg=SAN_MANAGER_ALREADY_ABSENT
         )
 
+    def test_should_fail_when_provider_display_name_not_found(self):
+        self.resource.get_by_provider_display_name.return_value = None
+        self.resource.get_provider_uri.return_value = None
+
+        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
+
+        SanManagerModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg="The provider 'Brocade Network Advisor' was not found."
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
