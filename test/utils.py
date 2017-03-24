@@ -16,6 +16,7 @@
 ###
 
 import yaml
+import importlib
 from mock import Mock, patch
 from hpOneView.oneview_client import OneViewClient
 from hpOneView.exceptions import HPOneViewException
@@ -119,7 +120,7 @@ class ModuleContructorTestCase(PreloadedMocksBaseTestCase):
         self.__validations()
         self.mock_ansible_module.params = {'config': 'config.json'}
 
-        module = __import__(self._testing_module)
+        module = importlib.import_module(self._testing_module)
         main_func = getattr(module, 'main')
 
         with patch.object(self._testing_class, "run") as mock_run:
