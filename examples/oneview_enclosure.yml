@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-
+    enclosure_name: 'Test-Enclosure'
+    is_c7000: True
+    is_synergy: False
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
@@ -32,9 +34,10 @@
           hostname: '{{ enclosure_hostname }}'
           username: '{{ enclosure_username }}'
           password: '{{ enclosure_password }}'
-          name: 'Test-Enclosure'
+          name: '{{ enclosure_name  }}'
           licensingIntent : 'OneView'
           rackName: 'Rack-Name'
+      when: is_c7000 == true
       delegate_to: localhost
 
     # This play is compatible with C7000 Enclosures
@@ -47,9 +50,10 @@
           hostname: '{{ enclosure_hostname }}'
           username: '{{ enclosure_username }}'
           password: '{{ enclosure_password }}'
-          name: 'Test-Enclosure'
+          name: '{{ enclosure_name  }}'
           licensingIntent : 'OneView'
           rackName: 'Rack-Name'
+      when: is_c7000 == true
       delegate_to: localhost
 
     - name: Update the name of the enclosure to "Test-Enclosure-Renamed"
@@ -57,25 +61,26 @@
         config: "{{ config }}"
         state: present
         data:
-          name: 'Test-Enclosure'
+          name: '{{ enclosure_name  }}'
           newName: 'Test-Enclosure-Renamed'
       delegate_to: localhost
 
-    - name: Update the name of the rack to "Rack-Renamed"
+    - name: Update the name of the rack to "Rack-Renamed" and rename the Enclosure again
       oneview_enclosure:
         config: "{{ config }}"
         state: present
         data:
           name: 'Test-Enclosure-Renamed'
+          newName: '{{ enclosure_name  }}'
           rackName: 'Rack-Renamed'
       delegate_to: localhost
 
-    - name: Reconfigure the enclosure "Test-Enclosure-Renamed"
+    - name: Reconfigure the enclosure
       oneview_enclosure:
         config: "{{ config }}"
         state: reconfigured
         data:
-          name: 'Test-Enclosure-Renamed'
+          name: '{{ enclosure_name  }}'
       delegate_to: localhost
 
     - name: Refresh the enclosure along with all of its components
@@ -83,7 +88,7 @@
         config: "{{ config }}"
         state: refreshed
         data:
-          name: 'Test-Enclosure-Renamed'
+          name: '{{ enclosure_name  }}'
           refreshState: 'RefreshPending'
       delegate_to: localhost
 
@@ -93,29 +98,13 @@
         config: "{{ config }}"
         state: support_data_collection_set
         data:
-          name: 'Test-Enclosure-Renamed'
+          name: '{{ enclosure_name  }}'
           supportDataCollectionState: 'PendingCollection'
+      when: is_c7000 == true
       delegate_to: localhost
       ignore_errors: yes
       register: result
-
     - debug: var=result.msg
-
-    - name: Remove the Enclosure
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: absent
-        data:
-          name: 'Test-Enclosure-Renamed'
-      delegate_to: localhost
-
-    - name: Do nothing when Enclosure is absent
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: absent
-        data:
-          name: 'Test-Enclosure-Renamed'
-      delegate_to: localhost
 
     # This state is only available on HPE Synergy.
     - name: Set the appliance bay power state on
@@ -123,11 +112,11 @@
         config: "{{ config }}"
         state: appliance_bays_powered_on
         data:
-          name: '0000A66101'
-          bayNumber: 1
+          name: '{{ enclosure_name  }}'
+          bayNumber: 3
+      when: is_synergy == true
       delegate_to: localhost
       register: result
-
     - debug: var=result.msg
 
     # This state is only available on HPE Synergy.
@@ -136,10 +125,10 @@
         config: "{{ config }}"
         state: uid_off
         data:
-          name: '0000A66101'
+          name: '{{ enclosure_name  }}'
+      when: is_synergy == true
       delegate_to: localhost
       register: result
-
     - debug: var=result.msg
 
     # This state is only available on HPE Synergy.
@@ -148,10 +137,10 @@
         config: "{{ config }}"
         state: uid_on
         data:
-          name: '0000A66101'
+          name: '{{ enclosure_name  }}'
+      when: is_synergy == true
       delegate_to: localhost
       register: result
-
     - debug: var=result.msg
 
     # This state is only available on HPE Synergy.
@@ -160,11 +149,11 @@
         config: "{{ config }}"
         state: manager_bays_uid_on
         data:
-          name: '0000A66101'
+          name: '{{ enclosure_name  }}'
           bayNumber: 1
+      when: is_synergy == true
       delegate_to: localhost
       register: result
-
     - debug: var=result.msg
 
     # This state is only available on HPE Synergy.
@@ -173,11 +162,11 @@
         config: "{{ config }}"
         state: manager_bays_uid_off
         data:
-          name: '0000A66101'
+          name: '{{ enclosure_name  }}'
           bayNumber: 1
+      when: is_synergy == true
       delegate_to: localhost
       register: result
-
     - debug: var=result.msg
 
     # This state is only available on HPE Synergy.
@@ -186,11 +175,11 @@
         config: "{{ config }}"
         state: manager_bays_power_state_e_fuse
         data:
-          name: '0000A66101'
+          name: '{{ enclosure_name  }}'
           bayNumber: 1
+      when: is_synergy == true
       delegate_to: localhost
       register: result
-
     - debug: var=result.msg
 
     # This state is only available on HPE Synergy.
@@ -199,11 +188,11 @@
         config: "{{ config }}"
         state: manager_bays_power_state_reset
         data:
-          name: '0000A66101'
+          name: '{{ enclosure_name  }}'
           bayNumber: 2
+      when: is_synergy == true
       delegate_to: localhost
       register: result
-
     - debug: var=result.msg
 
     # This state is only available on HPE Synergy.
@@ -212,11 +201,11 @@
         config: "{{ config }}"
         state: appliance_bays_power_state_e_fuse
         data:
-          name: '0000A66101'
+          name: '{{ enclosure_name  }}'
           bayNumber: 1
+      when: is_synergy == true
       delegate_to: localhost
       register: result
-
     - debug: var=result.msg
 
     # This state is only available on HPE Synergy.
@@ -225,11 +214,11 @@
         config: "{{ config }}"
         state: device_bays_power_state_e_fuse
         data:
-          name: '0000A66101'
+          name: '{{ enclosure_name  }}'
           bayNumber: 10
+      when: is_synergy == true
       delegate_to: localhost
       register: result
-
     - debug: var=result.msg
 
     # This state is only available on HPE Synergy.
@@ -238,11 +227,11 @@
         config: "{{ config }}"
         state: device_bays_power_state_reset
         data:
-          name: '0000A66101'
+          name: '{{ enclosure_name  }}'
           bayNumber: 11
+      when: is_synergy == true
       delegate_to: localhost
       register: result
-
     - debug: var=result.msg
 
     # This state is only available on HPE Synergy.
@@ -251,11 +240,11 @@
         config: "{{ config }}"
         state: interconnect_bays_power_state_e_fuse
         data:
-          name: '0000A66101'
+          name: '{{ enclosure_name  }}'
           bayNumber: 3
+      when: is_synergy == true
       delegate_to: localhost
       register: result
-
     - debug: var=result.msg
 
     # This state is only available on HPE Synergy.
@@ -264,11 +253,11 @@
         config: "{{ config }}"
         state: manager_bays_role_active
         data:
-          name: '0000A66101'
+          name: '{{ enclosure_name  }}'
           bayNumber: 2
+      when: is_synergy == true
       delegate_to: localhost
       register: result
-
     - debug: var=result.msg
 
     # This state is only available on HPE Synergy.
@@ -277,11 +266,11 @@
         config: "{{ config }}"
         state: device_bays_ipv4_removed
         data:
-          name: '0000A66101'
+          name: '{{ enclosure_name  }}'
           bayNumber: 3
+      when: is_synergy == true
       delegate_to: localhost
       register: result
-
     - debug: var=result.msg
 
     # This state is only available on HPE Synergy
@@ -290,9 +279,25 @@
         config: "{{ config }}"
         state: interconnect_bays_ipv4_removed
         data:
-          name: '0000A66101'
+          name: '{{ enclosure_name  }}'
           bayNumber: 6
+      when: is_synergy == true
       delegate_to: localhost
       register: result
-
     - debug: var=result.msg
+
+    - name: Remove the Enclosure
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: '{{ enclosure_name  }}'
+      delegate_to: localhost
+
+    - name: Do nothing when Enclosure is absent
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: '{{ enclosure_name  }}'
+      delegate_to: localhost
