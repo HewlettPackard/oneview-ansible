@@ -17,7 +17,7 @@ If you are new to ansible, here's an interesting resource to get started: [Intro
    [OneView-Ansible setup](https://github.com/HewlettPackard/oneview-ansible#setup)
 
    
-###Project structure
+### Project structure
 The ansible playbooks are organized in folders to promote modularity and readability.
 
 ```
@@ -48,7 +48,7 @@ The ansible playbooks are organized in folders to promote modularity and readabi
 
 **playbook<1..n>.yml** - This is the entry point of ansible tasks, and this is where we tell ansible of what we want to achieve. Typical examples may include creation of server profile, powering on all server hardwares or updating firmware across all server hardwares.
 
-##Usage
+## Usage
 To run the playbooks,
 ```$ ansible-playbook -i /path/to/playbookdirectory/playbook.yml```
 
