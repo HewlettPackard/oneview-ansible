@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,11 +15,8 @@
 ###
 import unittest
 
-from oneview_fc_network import FcNetworkModule, FC_NETWORK_CREATED, FC_NETWORK_ALREADY_EXIST, FC_NETWORK_UPDATED, \
-    FC_NETWORK_DELETED, FC_NETWORK_ALREADY_ABSENT
-from utils import ModuleContructorTestCase
-from utils import ValidateEtagTestCase
-from utils import ErrorHandlingTestCase
+from oneview_module_loader import FcNetworkModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -39,6 +36,7 @@ PARAMS_WITH_CHANGES = dict(
     config='config.json',
     state='present',
     data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'],
+              newName="New Name",
               fabricType='DirectAttach')
 )
 
@@ -50,22 +48,14 @@ PARAMS_FOR_ABSENT = dict(
 
 
 class FcNetworkModuleSpec(unittest.TestCase,
-                          ModuleContructorTestCase,
-                          ValidateEtagTestCase,
-                          ErrorHandlingTestCase):
+                          OneViewBaseTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-
-    ValidateEtagTestCase has common tests for the validate_etag attribute.
-
-    ErrorHandlingTestCase has common tests for the module error handling.
+    OneViewBaseTestCase provides the mocks used in this test case
     """
 
     def setUp(self):
         self.configure_mocks(self, FcNetworkModule)
         self.resource = self.mock_ov_client.fc_networks
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_fc_network(self):
         self.resource.get_by.return_value = []
@@ -77,7 +67,7 @@ class FcNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=FC_NETWORK_CREATED,
+            msg=FcNetworkModule.MSG_CREATED,
             ansible_facts=dict(fc_network=DEFAULT_FC_NETWORK_TEMPLATE)
         )
 
@@ -90,7 +80,7 @@ class FcNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=FC_NETWORK_ALREADY_EXIST,
+            msg=FcNetworkModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(fc_network=DEFAULT_FC_NETWORK_TEMPLATE)
         )
 
@@ -108,7 +98,7 @@ class FcNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=FC_NETWORK_UPDATED,
+            msg=FcNetworkModule.MSG_UPDATED,
             ansible_facts=dict(fc_network=data_merged)
         )
 
@@ -121,7 +111,7 @@ class FcNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=FC_NETWORK_DELETED
+            msg=FcNetworkModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_fc_network_not_exist(self):
@@ -133,7 +123,7 @@ class FcNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=FC_NETWORK_ALREADY_ABSENT
+            msg=FcNetworkModule.MSG_ALREADY_ABSENT
         )
 
 

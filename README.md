@@ -7,7 +7,7 @@ Modules to manage HPE OneView using Ansible playbooks.
 
 ## Requirements
 
- - Ansible >= 2.0.2
+ - Ansible >= 2.1
  - Python >= 2.7.9
  - HPE OneView Python SDK ([Install HPE OneView Python SDK](https://github.com/HewlettPackard/python-hpOneView#installation))
 
@@ -74,10 +74,11 @@ $ git clone https://github.com/HewlettPackard/oneview-ansible.git
 
 ### 2. Configure the ANSIBLE_LIBRARY environmental variable
 
-Set the `ANSIBLE_LIBRARY` path, specifying the `library` full path from the cloned project:
+Set the environment variables `ANSIBLE_LIBRARY` and `PYTHONPATH`, specifying the `library` full path from the cloned project:
 
 ```bash
 $ export ANSIBLE_LIBRARY=/path/to/oneview-ansible/library
+$ export PYTHONPATH=$PYTHONPATH:$ANSIBLE_LIBRARY
 ```
 
 ### 3. OneViewClient Configuration
