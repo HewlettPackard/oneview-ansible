@@ -1226,7 +1226,7 @@ Retrieve facts about the OneView Alerts.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| params  |   No  |  | |  List with parameters to help filter the alerts. Params allowed: count, fields, filter, query, sort, start, and view.  |
+| params  |   No  |  | |  List with parameters to help filter the alerts. Params allowed: `count`, `fields`, `filter`, `query`, `sort`, `start`, and `view`.  |
 
 
  
@@ -1235,7 +1235,7 @@ Retrieve facts about the OneView Alerts.
 ```yaml
 - name: Gather facts about the last 2 alerts
   oneview_alert_facts:
-    config: "{{ config }}"
+    config: "{{ config_file_path }}"
     params:
       count: 2
 
@@ -1243,7 +1243,7 @@ Retrieve facts about the OneView Alerts.
 
 - name: Gather facts about the alerts with state 'Cleared'
   oneview_alert_facts:
-    config: "{{ config }}"
+    config: "{{ config_file_path }}"
     params:
       count: 2
       filter: "alertState='Cleared'"
@@ -1252,7 +1252,7 @@ Retrieve facts about the OneView Alerts.
 
 - name: Gather facts about the alerts with urgency 'High'
   oneview_alert_facts:
-    config: "{{ config }}"
+    config: "{{ config_file_path }}"
     params:
       count: 5
       filter: "urgency='High'"
@@ -1275,6 +1275,8 @@ Retrieve facts about the OneView Alerts.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---

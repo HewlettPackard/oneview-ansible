@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,47 +16,35 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 module: oneview_alert_facts
 short_description: Retrieve facts about the OneView Alerts.
 description:
     - Retrieve facts about the OneView Alerts.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.0"
 author: "Andressa Cruz (@asserdna)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     params:
       description:
         - "List with parameters to help filter the alerts.
-          Params allowed: count, fields, filter, query, sort, start, and view."
+          Params allowed: C(count), C(fields), C(filter), C(query), C(sort), C(start), and C(view)."
       required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
 - name: Gather facts about the last 2 alerts
   oneview_alert_facts:
-    config: "{{ config }}"
+    config: "{{ config_file_path }}"
     params:
       count: 2
 
@@ -64,7 +52,7 @@ EXAMPLES = '''
 
 - name: Gather facts about the alerts with state 'Cleared'
   oneview_alert_facts:
-    config: "{{ config }}"
+    config: "{{ config_file_path }}"
     params:
       count: 2
       filter: "alertState='Cleared'"
@@ -73,7 +61,7 @@ EXAMPLES = '''
 
 - name: Gather facts about the alerts with urgency 'High'
   oneview_alert_facts:
-    config: "{{ config }}"
+    config: "{{ config_file_path }}"
     params:
       count: 5
       filter: "urgency='High'"
@@ -87,35 +75,22 @@ alerts:
     returned: Always, but can be null.
     type: list
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class AlertFactsModule(object):
-    argument_spec = dict(
-        config=dict(required=False, type='str'),
-        params=dict(required=False, type='dict')
-    )
-
+class AlertFactsModule(OneViewModuleBase):
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        argument_spec = dict(
+            params=dict(required=False, type='dict')
+        )
+        super(AlertFactsModule, self).__init__(additional_arg_spec=argument_spec)
 
-        if not self.module.params['config']:
-            oneview_client = OneViewClient.from_environment_variables()
-        else:
-            oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+    def execute_module(self):
+        facts = self.oneview_client.alerts.get_all(**self.facts_params)
 
-        self.resource_client = oneview_client.alerts
-
-    def run(self):
-        try:
-            params = self.module.params.get('params') or dict()
-            facts = self.resource_client.get_all(**params)
-            self.module.exit_json(changed=False, ansible_facts=dict(alerts=facts))
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=False, ansible_facts=dict(alerts=facts))
 
 
 def main():
