@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,13 +16,8 @@
 import unittest
 import yaml
 
-from oneview_ethernet_network import EthernetNetworkModule, ETHERNET_NETWORK_CREATED, ETHERNET_NETWORK_ALREADY_EXIST, \
-    ETHERNET_NETWORK_UPDATED, ETHERNET_NETWORK_DELETED, ETHERNET_NETWORK_ALREADY_ABSENT, \
-    ETHERNET_NETWORKS_CREATED, MISSING_ETHERNET_NETWORKS_CREATED, ETHERNET_NETWORKS_ALREADY_EXIST, \
-    ETHERNET_NETWORK_CONNECTION_TEMPLATE_RESET, ETHERNET_NETWORK_NOT_FOUND
-from test.utils import ModuleContructorTestCase
-from test.utils import ValidateEtagTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import EthernetNetworkModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 DEFAULT_ETHERNET_NAME = 'Test Ethernet Network'
@@ -94,22 +89,14 @@ DICT_PARAMS_WITH_CHANGES = yaml.load(YAML_PARAMS_WITH_CHANGES)["data"]
 
 
 class EthernetNetworkModuleSpec(unittest.TestCase,
-                                ModuleContructorTestCase,
-                                ValidateEtagTestCase,
-                                ErrorHandlingTestCase):
+                                OneViewBaseTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-
-    ValidateEtagTestCase has common tests for the validate_etag attribute.
-
-    ErrorHandlingTestCase has common tests for the module error handling.
+    OneViewBaseTestCase provides the mocks used in this test case
     """
 
     def setUp(self):
         self.configure_mocks(self, EthernetNetworkModule)
         self.resource = self.mock_ov_client.ethernet_networks
-        ErrorHandlingTestCase.configure(self, ansible_params=PARAMS_TO_RENAME, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_ethernet_network(self):
         self.resource.get_by.return_value = []
@@ -121,7 +108,7 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ETHERNET_NETWORK_CREATED,
+            msg=EthernetNetworkModule.MSG_CREATED,
             ansible_facts=dict(ethernet_network=DEFAULT_ENET_TEMPLATE)
         )
 
@@ -134,7 +121,7 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ETHERNET_NETWORK_ALREADY_EXIST,
+            msg=EthernetNetworkModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(ethernet_network=DEFAULT_ENET_TEMPLATE)
         )
 
@@ -152,7 +139,7 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ETHERNET_NETWORK_UPDATED,
+            msg=EthernetNetworkModule.MSG_UPDATED,
             ansible_facts=dict(ethernet_network=data_merged)
         )
 
@@ -166,7 +153,7 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ETHERNET_NETWORK_UPDATED,
+            msg=EthernetNetworkModule.MSG_UPDATED,
             ansible_facts=dict(ethernet_network=DICT_PARAMS_WITH_CHANGES)
         )
 
@@ -185,7 +172,7 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ETHERNET_NETWORK_UPDATED,
+            msg=EthernetNetworkModule.MSG_UPDATED,
             ansible_facts=dict(ethernet_network=data_merged)
         )
 
@@ -202,7 +189,7 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ETHERNET_NETWORK_UPDATED,
+            msg=EthernetNetworkModule.MSG_UPDATED,
             ansible_facts=dict(ethernet_network=data_merged)
         )
 
@@ -243,8 +230,7 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts={},
-            msg=ETHERNET_NETWORK_DELETED
+            msg=EthernetNetworkModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_ethernet_network_not_exist(self):
@@ -255,9 +241,8 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
         EthernetNetworkModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=False,
-            msg=ETHERNET_NETWORK_ALREADY_ABSENT
+            msg=EthernetNetworkModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_create_all_ethernet_networks(self):
@@ -272,7 +257,7 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
             dict(namePrefix="TestNetwork", vlanIdRange="1-2,5,9-10"))
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ETHERNET_NETWORKS_CREATED,
+            msg=EthernetNetworkModule.MSG_BULK_CREATED,
             ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
 
     def test_should_create_missing_ethernet_networks(self):
@@ -291,7 +276,7 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
         self.resource.create_bulk.assert_called_once_with(
             dict(namePrefix="TestNetwork", vlanIdRange="5,9,10"))
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True, msg=MISSING_ETHERNET_NETWORKS_CREATED,
+            changed=True, msg=EthernetNetworkModule.MSG_MISSING_BULK_CREATED,
             ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
 
     def test_should_create_missing_ethernet_networks_with_just_one_difference(self):
@@ -311,7 +296,7 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=MISSING_ETHERNET_NETWORKS_CREATED,
+            msg=EthernetNetworkModule.MSG_MISSING_BULK_CREATED,
             ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
 
     def test_should_do_nothing_when_ethernet_networks_already_exist(self):
@@ -323,7 +308,7 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
         EthernetNetworkModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False, msg=ETHERNET_NETWORKS_ALREADY_EXIST,
+            changed=False, msg=EthernetNetworkModule.MSG_BULK_ALREADY_EXIST,
             ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
 
     def test_reset_successfully(self):
@@ -341,7 +326,7 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
         EthernetNetworkModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True, msg=ETHERNET_NETWORK_CONNECTION_TEMPLATE_RESET,
+            changed=True, msg=EthernetNetworkModule.MSG_CONNECTION_TEMPLATE_RESET,
             ansible_facts=dict(ethernet_network_connection_template={'result': 'success'}))
 
     def test_should_fail_when_reset_not_existing_ethernet_network(self):
@@ -352,7 +337,7 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
         EthernetNetworkModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ETHERNET_NETWORK_NOT_FOUND
+            msg=EthernetNetworkModule.MSG_ETHERNET_NETWORK_NOT_FOUND
         )
 
 
