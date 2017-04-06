@@ -1,6 +1,6 @@
 #!/bin/bash
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -40,6 +40,12 @@ fi
 
 export PYTHONPATH=$PYTHON_SDK:$ANSIBLE_LIBRARY:$PYTHONPATH
 
+# Find site packages
+site_packages=$(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
+
+# Copy OneView doc fragements to the Ansible located in the site packages
+cp -f build-doc/module_docs_fragments/oneview.py ${site_packages}/ansible/utils/module_docs_fragments/
+
 print_summary () {
   if [ $2 -eq 0 ]; then
     echo -e "  ${COLOR_SUCCESS}$1: ok${COLOR_END}"
@@ -61,7 +67,7 @@ validate_modules () {
         fi
         echo "$line"
       fi
-    done < <(ansible-validate-modules library)
+    done < <(ansible-validate-modules library --exclude module_utils)
   else
     echo "ERROR: ansible-validate-modules is not installed."
     exit_code_module_validation=1
@@ -75,13 +81,10 @@ echo -e "\n${COLOR_START}Validating playbooks${COLOR_END}"
 ansible-playbook -i "localhost," --syntax-check examples/*.yml
 exit_code_playbook_validation=$?
 
-echo -e "\n${COLOR_START}Running tests${COLOR_END}"
-python -m unittest discover
-exit_code_tests=$?
 
 echo -e "\n${COLOR_START}Running flake8${COLOR_END}"
 if hash flake8 2>/dev/null; then
-  flake8 library test --max-line-length=120 --ignore=F403,F405
+  flake8 library test --max-line-length=120 --ignore=F401,E402,F403,F405
   exit_code_flake8=$?
 else
   echo "ERROR:flake8 is not installed."
@@ -95,12 +98,20 @@ if [ -z "$TRAVIS" ]; then
   exit_code_doc_generation=$?
 
 #Coveralls runs only when Travis is running the build
-else  
+else
   echo -e "\n${COLOR_START}Running Coveralls${COLOR_END}"
-  coverage run --source=library/ -m unittest discover
+  coverage run --source=library/ -m unittest discover test/
+  # Append module_utils tests
+  coverage run -a --source=library/ -m unittest discover test/module_utils
   coveralls
   exit_code_coveralls=$?
 fi
+
+
+echo -e "\n${COLOR_START}Running tests${COLOR_END}"
+python -m unittest discover
+exit_code_tests=$?
+
 
 echo -e "\n=== Summary =========================="
 print_summary "Modules validation" ${exit_code_module_validation}

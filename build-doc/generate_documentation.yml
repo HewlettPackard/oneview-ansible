@@ -28,7 +28,7 @@
     - name: Extract documentation, examples and returns from the Ansible modules
       ansible_module_documentation:
         path: '../library'
-        exclusion_filters: ['__init__.py']
+        exclusion_filters: ['__init__.py', 'oneview.py']
       register: result
     - debug: var=result.errors # Shows occurred errors
 

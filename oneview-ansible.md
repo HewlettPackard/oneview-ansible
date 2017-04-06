@@ -2563,7 +2563,7 @@ Manage OneView Fibre Channel Network resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the Fibre Channel Network properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Fibre Channel Network resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Fibre Channel Network resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
@@ -2571,7 +2571,7 @@ Manage OneView Fibre Channel Network resources.
 #### Examples
 
 ```yaml
-- name: Ensure that a Fibre Channel Network is present using the default configuration
+- name: Ensure that the Fibre Channel Network is present using the default configuration
   oneview_fc_network:
     config: "{{ config_file_path }}"
     state: present
@@ -2586,7 +2586,7 @@ Manage OneView Fibre Channel Network resources.
       name: 'New FC Network'
       fabricType: 'DirectAttach'
 
-- name: Ensure that Fibre Channel Network is absent
+- name: Ensure that the Fibre Channel Network is absent
   oneview_fc_network:
     config: "{{ config_file_path }}"
     state: absent
@@ -2609,6 +2609,8 @@ Manage OneView Fibre Channel Network resources.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
@@ -5420,7 +5422,7 @@ Manage OneView SAN Manager resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 3.1.1
 
 #### Options
 
