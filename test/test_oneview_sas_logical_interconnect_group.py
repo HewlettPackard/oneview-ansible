@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,13 +15,8 @@
 ###
 import unittest
 
-from oneview_sas_logical_interconnect_group import (SasLogicalInterconnectGroupModule,
-                                                    SAS_LIG_CREATED,
-                                                    SAS_LIG_ALREADY_EXIST,
-                                                    SAS_LIG_UPDATED,
-                                                    SAS_LIG_DELETED,
-                                                    SAS_LIG_ALREADY_ABSENT)
-from test.utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
+from oneview_module_loader import (SasLogicalInterconnectGroupModule)
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 DEFAULT_SAS_LIG_NAME = 'Test SAS Logical Interconnect Group'
@@ -63,22 +58,15 @@ PARAMS_FOR_ABSENT = dict(
 
 
 class SasLogicalInterconnectGroupSpec(unittest.TestCase,
-                                      ModuleContructorTestCase,
-                                      ValidateEtagTestCase,
-                                      ErrorHandlingTestCase):
+                                      OneViewBaseTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function
-
-    ValidateEtagTestCase has common tests for the validate_etag attribute, also provides the mocks used in this test
+    OneViewBaseTestCase has common tests for the main function attribute, also provides the mocks used in this test
     case.
-
-    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, SasLogicalInterconnectGroupModule)
         self.resource = self.mock_ov_client.sas_logical_interconnect_groups
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create(self):
         self.resource.get_by.return_value = []
@@ -90,7 +78,7 @@ class SasLogicalInterconnectGroupSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SAS_LIG_CREATED,
+            msg=SasLogicalInterconnectGroupModule.MSG_CREATED,
             ansible_facts=dict(sas_logical_interconnect_group=DEFAULT_SAS_LIG_TEMPLATE)
         )
 
@@ -117,7 +105,7 @@ class SasLogicalInterconnectGroupSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SAS_LIG_ALREADY_EXIST,
+            msg=SasLogicalInterconnectGroupModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(sas_logical_interconnect_group=DEFAULT_SAS_LIG_TEMPLATE)
         )
 
@@ -134,7 +122,7 @@ class SasLogicalInterconnectGroupSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SAS_LIG_UPDATED,
+            msg=SasLogicalInterconnectGroupModule.MSG_UPDATED,
             ansible_facts=dict(sas_logical_interconnect_group=data_merged)
         )
 
@@ -161,7 +149,7 @@ class SasLogicalInterconnectGroupSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SAS_LIG_DELETED
+            msg=SasLogicalInterconnectGroupModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_resource_not_exist(self):
@@ -172,7 +160,7 @@ class SasLogicalInterconnectGroupSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SAS_LIG_ALREADY_ABSENT
+            msg=SasLogicalInterconnectGroupModule.MSG_ALREADY_ABSENT
         )
 
 

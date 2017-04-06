@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,18 +16,12 @@
 
 import unittest
 
-from oneview_logical_interconnect_facts import LogicalInterconnectFactsModule
-from oneview_logical_interconnect_facts import LOGICAL_INTERCONNECT_NOT_FOUND
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import LogicalInterconnectFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
-
 LOGICAL_INTERCONNECT_NAME = "test"
-
 LOGICAL_INTERCONNECT_URI = "/rest/logical-interconnects/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0"
-
 TELEMETRY_CONF_URI = LOGICAL_INTERCONNECT_URI + "/telemetry-configurations/33845548-eae0-4f8e-b166-38680c2b81e7"
 
 PARAMS_GET_ALL = dict(
@@ -106,14 +100,11 @@ def create_params(options=[]):
 
 
 class LogicalInterconnectFactsSpec(unittest.TestCase,
-                                   ModuleContructorTestCase,
-                                   FactsParamsTestCase,
-                                   ErrorHandlingTestCase):
+                                   FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, LogicalInterconnectFactsModule)
         self.logical_interconnects = self.mock_ov_client.logical_interconnects
         FactsParamsTestCase.configure_client_mock(self, self.logical_interconnects)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.logical_interconnects.get_by_name)
 
     def test_should_get_all_logical_interconnects(self):
         self.logical_interconnects.get_all.return_value = ALL_INTERCONNECTS
@@ -366,7 +357,7 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
 
         LogicalInterconnectFactsModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LOGICAL_INTERCONNECT_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LogicalInterconnectFactsModule.MSG_NOT_FOUND)
 
 
 if __name__ == '__main__':

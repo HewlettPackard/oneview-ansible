@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 import unittest
 
-from oneview_sas_interconnect_type_facts import SasInterconnectTypeFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
+from oneview_module_loader import SasInterconnectTypeFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -35,14 +35,11 @@ SAS_INTERCONNECT_TYPES = [{"name": "Type 1"}, {"name": "Type 2"}, {"name": "Type
 
 
 class SasInterconnectTypeFactsSpec(unittest.TestCase,
-                                   ModuleContructorTestCase,
-                                   FactsParamsTestCase,
-                                   ErrorHandlingTestCase):
+                                   FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, SasInterconnectTypeFactsModule)
         self.resource = self.mock_ov_client.sas_interconnect_types
         FactsParamsTestCase.configure_client_mock(self, self.resource)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_get_all_sas_interconnect_types(self):
         self.resource.get_all.return_value = SAS_INTERCONNECT_TYPES
