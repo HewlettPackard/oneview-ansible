@@ -129,7 +129,7 @@ def main():
                     if plainexamples:
                         doc['examples'] = plainexamples.split('\n')
 
-                    if returndocs:
+                    if returndocs and returndocs.strip() != '#':
                         try:
                             doc['returns'] = yaml.load(returndocs)
                         except Exception as e:
