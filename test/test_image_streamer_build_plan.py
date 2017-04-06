@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,8 +15,10 @@
 ###
 import unittest
 import yaml
+import importlib
 
-from image_streamer_build_plan import BuildPlanModule, EXAMPLES, BUILD_PLAN_CREATED, BUILD_PLAN_UPDATED, \
+from oneview_module_loader import BuildPlanModule
+from image_streamer_build_plan import BUILD_PLAN_CREATED, BUILD_PLAN_UPDATED, \
     BUILD_PLAN_ALREADY_UPDATED, BUILD_PLAN_DELETED, BUILD_PLAN_ALREADY_ABSENT
 from test.utils import ModuleContructorTestCase
 from test.utils import ErrorHandlingTestCase
@@ -40,7 +42,8 @@ class BuildPlanSpec(unittest.TestCase,
         ErrorHandlingTestCase.configure(self, method_to_fire=self.i3s.build_plans.get_by)
 
         # Load scenarios from module examples
-        self.BUILD_PLAN_EXAMPLES = yaml.load(EXAMPLES)
+        exam = importlib.import_module(BuildPlanModule.__module__)
+        self.BUILD_PLAN_EXAMPLES = yaml.load(exam.EXAMPLES)
         self.BUILD_PLAN_CREATE = self.BUILD_PLAN_EXAMPLES[0]['image_streamer_build_plan']
         self.BUILD_PLAN_UPDATE = self.BUILD_PLAN_EXAMPLES[1]['image_streamer_build_plan']
         self.BUILD_PLAN_DELETE = self.BUILD_PLAN_EXAMPLES[2]['image_streamer_build_plan']

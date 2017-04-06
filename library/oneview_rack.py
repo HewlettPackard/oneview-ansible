@@ -1,7 +1,7 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,15 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.extras.comparators import resource_compare
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -32,39 +26,27 @@ module: oneview_rack
 short_description: Manage OneView Racks resources.
 description:
     - Provides an interface to manage Rack resources. Can create, update, and delete.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Rack resource.
-              'present' will ensure data properties are compliant with OneView. To change the name of the Rack,
-               a 'newName' in the data must be provided.
-              'absent' will remove the resource from OneView, if it exists.
+              C(present) will ensure data properties are compliant with OneView. To change the name of the Rack,
+               a I(newName) in the data must be provided.
+              C(absent) will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
     data:
       description:
         - List with the Rack properties.
       required: true
-    validate_etag:
-      description:
-        - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
-          for the resource matches the ETag provided in the data.
-      default: true
-      choices: ['true', 'false']
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -112,99 +94,38 @@ rack:
     type: complex
 '''
 
-RACK_CREATED = 'Rack created successfully.'
-RACK_UPDATED = 'Rack updated successfully.'
-RACK_DELETED = 'Rack deleted successfully.'
-RACK_ALREADY_EXIST = 'Rack already exists.'
-RACK_ALREADY_ABSENT = 'Nothing to do.'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class RackModule(object):
+class RackModule(OneViewModuleBase):
+    MSG_CREATED = 'Rack added successfully.'
+    MSG_UPDATED = 'Rack updated successfully.'
+    MSG_DELETED = 'Rack removed successfully.'
+    MSG_ALREADY_EXIST = 'Rack already exists.'
+    MSG_ALREADY_ABSENT = 'Rack is already absent.'
+
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         state=dict(
             required=True,
             choices=['present', 'absent']
         ),
-        data=dict(required=True, type='dict'),
-        validate_etag=dict(
-            required=False,
-            type='bool',
-            default=True)
+        data=dict(required=True, type='dict')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(RackModule, self).__init__(additional_arg_spec=self.argument_spec,
+                                         validate_etag_support=True)
+        self.resource_client = self.oneview_client.racks
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+    def execute_module(self):
 
-    def run(self):
-        state = self.module.params['state']
-        data = self.module.params['data']
+        resource = self.get_by_name(self.data['name'])
 
-        try:
-            facts = {}
-            if not self.module.params.get('validate_etag'):
-                self.oneview_client.connection.disable_etag_validation()
-
-            if state == 'present':
-                changed, msg, resource = self.__present(data)
-                facts = dict(ansible_facts=dict(rack=resource))
-            elif state == 'absent':
-                changed, msg = self.__absent(data)
-
-            self.module.exit_json(changed=changed, msg=msg, **facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
-
-    def __present(self, data):
-        resource = self.__get_by_name(data['name'])
-
-        if "newName" in data:
-            data["name"] = data.pop("newName")
-
-        if not resource:
-            return True, RACK_CREATED, self.oneview_client.racks.add(data)
-        else:
-            return self.__update(data, resource)
-
-    def __absent(self, data):
-        resource = self.__get_by_name(data['name'])
-
-        changed = False
-        msg = RACK_ALREADY_ABSENT
-
-        if resource:
-            self.oneview_client.racks.remove(resource)
-            changed = True
-            msg = RACK_DELETED
-
-        return changed, msg
-
-    def __update(self, data, resource):
-        merged_data = resource.copy()
-        merged_data.update(data)
-
-        changed = False
-        msg = RACK_ALREADY_EXIST
-
-        if not resource_compare(resource, merged_data):
-            resource = self.oneview_client.racks.update(merged_data)
-            changed = True
-            msg = RACK_UPDATED
-
-        return changed, msg, resource
-
-    def __get_by_name(self, name):
-        result = self.oneview_client.racks.get_by('name', name)
-        return result[0] if result else None
+        if self.state == 'present':
+            return self.resource_present(resource, "rack", 'add')
+        elif self.state == 'absent':
+            return self.resource_absent(resource, "remove")
 
 
 def main():

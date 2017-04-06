@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,9 +15,8 @@
 ###
 import unittest
 
-from oneview_rack import RackModule, RACK_CREATED, RACK_ALREADY_EXIST, RACK_UPDATED, \
-    RACK_DELETED, RACK_ALREADY_ABSENT
-from utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
+from oneview_module_loader import RackModule
+from hpe_test_utils import OneViewBaseTestCase
 
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -47,20 +46,14 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class RackModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase):
+class RackModuleSpec(unittest.TestCase, OneViewBaseTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-
-    ValidateEtagTestCase has common tests for the validate_etag attribute.
-
-    ErrorHandlingTestCase has common tests for the module error handling.
+    OneViewBaseTestCase provides the mocks used in this test case.
     """
 
     def setUp(self):
         self.configure_mocks(self, RackModule)
         self.resource = self.mock_ov_client.racks
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_rack(self):
         self.resource.get_by.return_value = []
@@ -72,7 +65,7 @@ class RackModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTe
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=RACK_CREATED,
+            msg=RackModule.MSG_CREATED,
             ansible_facts=dict(rack=DEFAULT_RACK_TEMPLATE)
         )
 
@@ -85,7 +78,7 @@ class RackModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTe
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=RACK_ALREADY_EXIST,
+            msg=RackModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(rack=DEFAULT_RACK_TEMPLATE)
         )
 
@@ -103,7 +96,7 @@ class RackModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTe
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=RACK_UPDATED,
+            msg=RackModule.MSG_UPDATED,
             ansible_facts=dict(rack=data_merged)
         )
 
@@ -116,7 +109,7 @@ class RackModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTe
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=RACK_DELETED
+            msg=RackModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_rack_not_exist(self):
@@ -128,7 +121,7 @@ class RackModuleSpec(unittest.TestCase, ModuleContructorTestCase, ValidateEtagTe
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=RACK_ALREADY_ABSENT
+            msg=RackModule.MSG_ALREADY_ABSENT
         )
 
 

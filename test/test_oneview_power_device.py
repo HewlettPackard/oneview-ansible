@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,11 +15,8 @@
 ###
 import unittest
 
-from oneview_power_device import PowerDeviceModule, POWER_DEVICE_ADDED, POWER_DEVICE_ALREADY_PRESENT, \
-    POWER_DEVICE_DELETED, POWER_DEVICE_UPDATED, POWER_DEVICE_ALREADY_ABSENT, POWER_DEVICE_MANDATORY_FIELD_MISSING, \
-    POWER_DEVICE_POWER_STATE_UPDATED, POWER_DEVICE_NOT_FOUND, POWER_DEVICE_REFRESH_STATE_UPDATED, \
-    POWER_DEVICE_UID_STATE_UPDATED, POWER_DEVICE_IPDU_ADDED
-from utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
+from oneview_module_loader import PowerDeviceModule
+from hpe_test_utils import OneViewBaseTestCase
 
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -97,21 +94,15 @@ PARAMS_FOR_UID_STATE_SET = dict(
 
 
 class PowerDeviceModuleSpec(unittest.TestCase,
-                            ModuleContructorTestCase,
-                            ValidateEtagTestCase,
-                            ErrorHandlingTestCase):
+                            OneViewBaseTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-    ValidateEtagTestCase has common tests for the validate_etag attribute.
-    ErrorHandlingTestCase has common tests for the module error handling.
+    OneViewBaseTestCase has common tests for main function,
+    also provides the mocks used in this test case.
     """
 
     def setUp(self):
         self.configure_mocks(self, PowerDeviceModule)
         self.resource = self.mock_ov_client.power_devices
-        ErrorHandlingTestCase.configure(self, ansible_params=self.PARAMS_FOR_PRESENT,
-                                        method_to_fire=self.resource.get_by)
 
     def test_should_add_new_power_device(self):
         self.resource.get_by.return_value = []
@@ -123,7 +114,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=POWER_DEVICE_ADDED,
+            msg=PowerDeviceModule.MSG_CREATED,
             ansible_facts=dict(power_device=DEFAULT_POWER_DEVICE)
         )
 
@@ -135,7 +126,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=POWER_DEVICE_IPDU_ADDED,
+            msg=PowerDeviceModule.MSG_IPDU_ADDED,
             ansible_facts=dict(power_device=DEFAULT_POWER_DEVICE)
         )
 
@@ -148,7 +139,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=POWER_DEVICE_ALREADY_PRESENT,
+            msg=PowerDeviceModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(power_device=DEFAULT_POWER_DEVICE)
         )
 
@@ -165,7 +156,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=POWER_DEVICE_UPDATED,
+            msg=PowerDeviceModule.MSG_UPDATED,
             ansible_facts=dict(power_device=data_merged)
         )
 
@@ -175,7 +166,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
         PowerDeviceModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=POWER_DEVICE_MANDATORY_FIELD_MISSING
+            msg=PowerDeviceModule.MSG_MANDATORY_FIELD_MISSING
         )
 
     def test_should_remove_power_device(self):
@@ -186,9 +177,8 @@ class PowerDeviceModuleSpec(unittest.TestCase,
         PowerDeviceModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=True,
-            msg=POWER_DEVICE_DELETED
+            msg=PowerDeviceModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_power_device_not_exist(self):
@@ -199,9 +189,8 @@ class PowerDeviceModuleSpec(unittest.TestCase,
         PowerDeviceModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=False,
-            msg=POWER_DEVICE_ALREADY_ABSENT
+            msg=PowerDeviceModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_set_power_state(self):
@@ -215,7 +204,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=POWER_DEVICE_POWER_STATE_UPDATED,
+            msg=PowerDeviceModule.MSG_POWER_STATE_UPDATED,
             ansible_facts=dict(power_device={"name": "name"})
         )
 
@@ -227,7 +216,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
         PowerDeviceModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=POWER_DEVICE_NOT_FOUND
+            msg=PowerDeviceModule.MSG_NOT_FOUND
         )
 
     def test_should_set_refresh_state(self):
@@ -240,7 +229,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=POWER_DEVICE_REFRESH_STATE_UPDATED,
+            msg=PowerDeviceModule.MSG_REFRESH_STATE_UPDATED,
             ansible_facts=dict(power_device={"name": "name"})
         )
 
@@ -252,7 +241,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
         PowerDeviceModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=POWER_DEVICE_NOT_FOUND
+            msg=PowerDeviceModule.MSG_NOT_FOUND
         )
 
     def test_should_set_uid_state(self):
@@ -265,7 +254,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=POWER_DEVICE_UID_STATE_UPDATED,
+            msg=PowerDeviceModule.MSG_UID_STATE_UPDATED,
             ansible_facts=dict(power_device={"name": "name"})
         )
 
@@ -277,7 +266,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
         PowerDeviceModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=POWER_DEVICE_NOT_FOUND
+            msg=PowerDeviceModule.MSG_NOT_FOUND
         )
 
 

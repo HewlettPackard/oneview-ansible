@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,16 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.extras.comparators import resource_compare
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
 
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
@@ -32,39 +26,27 @@ module: oneview_datacenter
 short_description: Manage OneView Data Center resources.
 description:
     - "Provides an interface to manage Data Center resources. Can add, update, and remove."
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Data Center resource.
-              'present' will ensure data properties are compliant with OneView.
-              'absent' will remove the resource from OneView, if it exists.
+              C(present) will ensure data properties are compliant with OneView.
+              C(absent) will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
         required: true
     data:
         description:
             - List with Data Center properties and its associated states.
         required: true
-    validate_etag:
-        description:
-            - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
-              for the resource matches the ETag provided in the data.
-        default: true
-        choices: ['true', 'false']
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -128,90 +110,41 @@ datacenter:
     type: complex
 '''
 
-DATACENTER_ADDED = 'Data Center added successfully.'
-DATACENTER_UPDATED = 'Data Center updated successfully.'
-DATACENTER_ALREADY_UPDATED = 'Data Center is already present.'
-DATACENTER_REMOVED = 'Data Center removed successfully.'
-DATACENTER_ALREADY_ABSENT = 'Data Center is already absent.'
-RACK_NOT_FOUND = 'Rack was not found.'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
 
 
-class DatacenterModule(object):
+class DatacenterModule(OneViewModuleBase):
+    MSG_CREATED = 'Data Center added successfully.'
+    MSG_UPDATED = 'Data Center updated successfully.'
+    MSG_ALREADY_EXIST = 'Data Center is already present.'
+    MSG_DELETED = 'Data Center removed successfully.'
+    MSG_ALREADY_ABSENT = 'Data Center is already absent.'
+    MSG_RACK_NOT_FOUND = 'Rack was not found.'
+    RESOURCE_FACT_NAME = 'datacenter'
+
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         state=dict(
             required=True,
             choices=['present', 'absent']
         ),
-        data=dict(required=True, type='dict'),
-        validate_etag=dict(
-            required=False,
-            type='bool',
-            default=True)
+        data=dict(required=True, type='dict')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(DatacenterModule, self).__init__(additional_arg_spec=self.argument_spec,
+                                               validate_etag_support=True)
+        self.resource_client = self.oneview_client.datacenters
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+    def execute_module(self):
 
-    def run(self):
-        try:
-            if not self.module.params.get('validate_etag'):
-                self.oneview_client.connection.disable_etag_validation()
+        resource = self.get_by_name(self.data['name'])
 
-            state = self.module.params['state']
-            data = self.module.params['data']
-            changed, msg, ansible_facts = False, '', {}
-
-            resource = (self.oneview_client.datacenters.get_by("name", data['name']) or [None])[0]
-
-            if state == 'present':
-                changed, msg, ansible_facts = self.__present(data, resource)
-            elif state == 'absent':
-                changed, msg, ansible_facts = self.__absent(resource)
-
-            self.module.exit_json(changed=changed,
-                                  msg=msg,
-                                  ansible_facts=ansible_facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg=exception.args[0])
-
-    def __present(self, data, resource):
-
-        changed = False
-        msg = ''
-
-        if "newName" in data:
-            data["name"] = data.pop("newName")
-
-        self.__replace_name_by_uris(data)
-
-        if not resource:
-            resource = self.oneview_client.datacenters.add(data)
-
-            changed = True
-            msg = DATACENTER_ADDED
-        else:
-            merged_data = resource.copy()
-            merged_data.update(data)
-
-            if not resource_compare(resource, merged_data):
-                # update resource
-                changed = True
-                resource = self.oneview_client.datacenters.update(merged_data)
-                msg = DATACENTER_UPDATED
-            else:
-                msg = DATACENTER_ALREADY_UPDATED
-
-        return changed, msg, dict(datacenter=resource)
+        if self.state == 'present':
+            self.__replace_name_by_uris(self.data)
+            return self.resource_present(resource, self.RESOURCE_FACT_NAME, 'add')
+        elif self.state == 'absent':
+            return self.resource_absent(resource, 'remove')
 
     def __replace_name_by_uris(self, resource):
         contents = resource.get('contents')
@@ -227,14 +160,7 @@ class DatacenterModule(object):
         if racks:
             return racks[0]
         else:
-            raise HPOneViewResourceNotFound(RACK_NOT_FOUND)
-
-    def __absent(self, resource):
-        if resource:
-            self.oneview_client.datacenters.remove(resource)
-            return True, DATACENTER_REMOVED, {}
-        else:
-            return False, DATACENTER_ALREADY_ABSENT, {}
+            raise HPOneViewResourceNotFound(self.MSG_RACK_NOT_FOUND)
 
 
 def main():

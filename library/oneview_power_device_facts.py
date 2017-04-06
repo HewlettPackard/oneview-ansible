@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,15 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -32,17 +26,12 @@ module: oneview_power_device_facts
 short_description: Retrieve facts about the OneView Power Devices.
 description:
     - Retrieve facts about the Power Delivery Devices from OneView.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     name:
       description:
         - Power Device name.
@@ -50,23 +39,21 @@ options:
     options:
       description:
         - "List with options to gather additional facts about Power Device.
-          Options allowed: powerState, uidState, utilization"
+          Options allowed: C(powerState), C(uidState), C(utilization)"
       required: false
     params:
       description:
         - List of params to delimit, filter and sort the list of resources.
         - "params allowed:
-           'start': The first item to return, using 0-based indexing.
-           'count': The number of resources to return.
-           'filter': A general filter/query string to narrow the list of items returned.
-           'query': A general query string to narrow the list of resources returned.
-           'sort': The sort order of the returned data set."
+           C(start): The first item to return, using 0-based indexing.
+           C(count): The number of resources to return.
+           C(filter): A general filter/query string to narrow the list of items returned.
+           C(query): A general query string to narrow the list of resources returned.
+           C(sort): The sort order of the returned data set."
       required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -145,52 +132,39 @@ power_device_utilization:
     returned: When requested, but can be null.
     type: complex
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class PowerDeviceFactsModule(object):
+class PowerDeviceFactsModule(OneViewModuleBase):
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
         params=dict(required=False, type='dict')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(PowerDeviceFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
+    def execute_module(self):
+
+        ansible_facts = {}
+
+        if self.module.params.get('name'):
+            power_devices = self.oneview_client.power_devices.get_by("name", self.module.params['name'])
+
+            if self.options and power_devices:
+                ansible_facts = self.gather_option_facts(self.options, power_devices[0])
         else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            power_devices = self.oneview_client.power_devices.get_all(**self.facts_params)
 
-    def run(self):
-        try:
+        ansible_facts["power_devices"] = power_devices
 
-            ansible_facts = {}
-
-            if self.module.params.get('name'):
-                power_devices = self.oneview_client.power_devices.get_by("name", self.module.params['name'])
-
-                if self.module.params.get('options') and power_devices:
-                    ansible_facts = self.gather_option_facts(self.module.params['options'], power_devices[0])
-            else:
-                params = self.module.params.get('params') or {}
-                power_devices = self.oneview_client.power_devices.get_all(**params)
-
-            ansible_facts["power_devices"] = power_devices
-
-            self.module.exit_json(changed=False,
-                                  ansible_facts=ansible_facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=False,
+                    ansible_facts=ansible_facts)
 
     def gather_option_facts(self, options, power_device):
-
-        options = transform_list_to_dict(options)
 
         srv_hw_client = self.oneview_client.power_devices
         ansible_facts = {}

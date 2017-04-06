@@ -20,7 +20,7 @@
   * [oneview_connection_template - Manage the OneView Connection Template resources.](#oneview_connection_template)
   * [oneview_connection_template_facts - Retrieve facts about the OneView Connection Templates.](#oneview_connection_template_facts)
   * [oneview_datacenter - Manage OneView Data Center resources.](#oneview_datacenter)
-  * [oneview_datacenters_facts - Retrieve facts about the OneView Data Centers.](#oneview_datacenters_facts)
+  * [oneview_datacenter_facts - Retrieve facts about the OneView Data Centers.](#oneview_datacenter_facts)
   * [oneview_drive_enclosure - Manage OneView Drive Enclosure resources.](#oneview_drive_enclosure)
   * [oneview_drive_enclosure_facts - Retrieve the facts about one or more of the OneView Drive Enclosures.](#oneview_drive_enclosure_facts)
   * [oneview_enclosure - Manage OneView Enclosure resources.](#oneview_enclosure)
@@ -1431,7 +1431,7 @@ Manage OneView Data Center resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Data Center properties and its associated states.  |
-| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Data Center resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Data Center resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
@@ -1508,11 +1508,13 @@ Manage OneView Data Center resources.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
 
-## oneview_datacenters_facts
+## oneview_datacenter_facts
 Retrieve facts about the OneView Data Centers.
 
 #### Synopsis
@@ -1529,7 +1531,7 @@ Retrieve facts about the OneView Data Centers.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Data Center name.  |
 | options  |   No  |  | |  Retrieve additional facts. Options available: 'visualContent'.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -1540,7 +1542,6 @@ Retrieve facts about the OneView Data Centers.
   oneview_datacenter_facts:
     config: "{{ config }}"
   delegate_to: localhost
-
 - debug: var=datacenters
 
 - name: Gather paginated, filtered and sorted facts about Data Centers
@@ -1551,7 +1552,6 @@ Retrieve facts about the OneView Data Centers.
       count: 3
       sort: 'name:descending'
       filter: 'state=Unmanaged'
-
 - debug: var=datacenters
 
 - name: Gather facts about a Data Center by name
@@ -1559,9 +1559,7 @@ Retrieve facts about the OneView Data Centers.
     config: "{{ config }}"
     name: "My Data Center"
   delegate_to: localhost
-
 - debug: var=datacenters
-
 
 - name: Gather facts about the Data Center Visual Content
   oneview_datacenter_facts:
@@ -1570,7 +1568,6 @@ Retrieve facts about the OneView Data Centers.
     options:
       - visualContent
   delegate_to: localhost
-
 - debug: var=datacenters
 - debug: var=datacenter_visual_content
 
@@ -1591,6 +1588,8 @@ Retrieve facts about the OneView Data Centers.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
@@ -5063,7 +5062,7 @@ Manage OneView Power Device resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Power Device properties and its associated states.  |
-| state  |   Yes  |  | <ul> <li>present</li>  <li>discovered</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>uid_state_set</li> </ul> |  Indicates the desired state for the Power Device resource. 'present' will ensure data properties are compliant with OneView. 'discovered' will add an iPDU to the OneView. 'absent' will remove the resource from OneView, if it exists. 'power_state_set' will set the power state of the Power Device. 'refresh_state_set' will set the refresh state of the Power Device. 'uid_state_set' will set the UID state of the Power Device.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>discovered</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>uid_state_set</li> </ul> |  Indicates the desired state for the Power Device resource. `present` will ensure data properties are compliant with OneView. `discovered` will add an iPDU to the OneView. `absent` will remove the resource from OneView, if it exists. `power_state_set` will set the power state of the Power Device. `refresh_state_set` will set the refresh state of the Power Device. `uid_state_set` will set the UID state of the Power Device.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
@@ -5146,6 +5145,8 @@ Manage OneView Power Device resources.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -5166,8 +5167,8 @@ Retrieve facts about the OneView Power Devices.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Power Device name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Power Device. Options allowed: powerState, uidState, utilization  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'query': A general query string to narrow the list of resources returned. 'sort': The sort order of the returned data set.  |
+| options  |   No  |  | |  List with options to gather additional facts about Power Device. Options allowed: `powerState`, `uidState`, `utilization`  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `query`: A general query string to narrow the list of resources returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -5247,6 +5248,8 @@ Retrieve facts about the OneView Power Devices.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -5267,7 +5270,7 @@ Manage OneView Racks resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the Rack properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Rack resource. 'present' will ensure data properties are compliant with OneView. To change the name of the Rack, a 'newName' in the data must be provided. 'absent' will remove the resource from OneView, if it exists.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Rack resource. `present` will ensure data properties are compliant with OneView. To change the name of the Rack, a _newName_ in the data must be provided. `absent` will remove the resource from OneView, if it exists.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
@@ -5328,6 +5331,8 @@ Manage OneView Racks resources.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -5349,7 +5354,7 @@ Retrieve facts about Rack resources.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Rack name.  |
 | options  |   No  |  | |  Retrieve additional facts. Options available: 'deviceTopology'.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -5360,7 +5365,6 @@ Retrieve facts about Rack resources.
   oneview_rack_facts:
     config: "{{ config }}"
   delegate_to: localhost
-
 - debug: var=racks
 
 - name: Gather paginated, filtered and sorted facts about Racks
@@ -5377,9 +5381,7 @@ Retrieve facts about Rack resources.
     config: "{{ config }}"
     name: "Rack Name"
   delegate_to: localhost
-
 - debug: var=racks
-
 
 - name: Gather facts about the topology information for the rack
   oneview_rack_facts:
@@ -5388,7 +5390,6 @@ Retrieve facts about Rack resources.
     options:
       - deviceTopology
   delegate_to: localhost
-
 - debug: var=racks
 - debug: var=rack_device_topology
 
@@ -5409,6 +5410,8 @@ Retrieve facts about Rack resources.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
