@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,16 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
-    from hpOneView.exceptions import HPOneViewValueError
 
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
@@ -34,30 +28,25 @@ short_description: Manage OneView Volume resources.
 description:
     - Provides an interface to manage Volume resources. It allows create, update, delete or repair the volume, and
       create or delete a snapshot.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
 author: "Mariana Kreisig (@marikrg)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Volume resource.
-              'present' creates/adds the resource when it does not exist, otherwise it updates the resource. When the
+              C(present) creates/adds the resource when it does not exist, otherwise it updates the resource. When the
               resource already exists, the update operation is non-idempotent, since it is always called even though
-              the given options are compliant with the existent data. To change the name of the volume, a 'newName' in
-              the data must be provided.
-              'absent' by default deletes a volume from OneView and the storage system. When export_only is True, the
+              the given options are compliant with the existent data. To change the name of the volume, a C(newName) in
+              the I(data) must be provided.
+              C(absent) by default deletes a volume from OneView and the storage system. When export_only is True, the
               volume is removed only from OneView.
-              'repaired' removes extra presentations from a specified volume on the storage system. This operation is
+              C(repaired) removes extra presentations from a specified volume on the storage system. This operation is
               non-idempotent.
-              'snapshot_created' creates a snapshot for the volume specified. This operation is non-idempotent.
-              'snapshot_deleted' deletes a snapshot from OneView and the storage system.
+              C(snapshot_created) creates a snapshot for the volume specified. This operation is non-idempotent.
+              C(snapshot_deleted) deletes a snapshot from OneView and the storage system.
         choices: ['present', 'absent', 'repaired', 'snapshot_created', 'snapshot_deleted']
     data:
       description:
@@ -65,19 +54,11 @@ options:
       required: true
     export_only:
       description:
-        - If set to True, when the status is 'absent' and the resource exists, it will be removed only from OneView.
+        - If set to True, when the status is C(absent) and the resource exists, it will be removed only from OneView.
       default: False
-    validate_etag:
-      description:
-          - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
-            for the resource matches the ETag provided in the data.
-      default: true
-      choices: ['true', 'false']
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+extends_documentation_fragment:
+    - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -143,7 +124,7 @@ EXAMPLES = '''
       name: 'Volume with Storage Pool - Renamed'
 
 - name: Create a new snapshot for the specified volume
-    oneview_volume:
+  oneview_volume:
     config: '{{ config_path }}'
     state: snapshot_created
     data:
@@ -154,7 +135,7 @@ EXAMPLES = '''
         description: 'New snapshot'
 
 - name: Delete the snapshot
-    oneview_volume:
+  oneview_volume:
     config: '{{ config_path }}'
     state: snapshot_deleted
     data:
@@ -192,155 +173,118 @@ storage_volume:
     type: complex
 '''
 
-VOLUME_CREATED = 'Volume added/created successfully.'
-VOLUME_UPDATED = 'Volume updated successfully.'
-VOLUME_DELETED = 'Volume removed/deleted successfully.'
-VOLUME_REPAIRED = 'Volume repaired successfully.'
-VOLUME_SNAPSHOT_CREATED = 'Volume snapshot created successfully.'
-VOLUME_SNAPSHOT_DELETED = 'Volume snapshot deleted successfully.'
-VOLUME_NOT_FOUND = 'Volume not found.'
-VOLUME_SNAPSHOT_NOT_FOUND = 'Snapshot not found.'
-VOLUME_ALREADY_ABSENT = 'Nothing to do.'
-VOLUME_NO_OPTIONS_PROVIDED = 'No options provided.'
-VOLUME_NEW_NAME_INVALID = 'Rename failed: the new name provided is being used by another Volume.'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound
 
 
-class VolumeModule(object):
-    argument_spec = dict(
-        config=dict(required=False, type='str'),
-        state=dict(
-            required=True,
-            choices=['present', 'absent', 'repaired', 'snapshot_created', 'snapshot_deleted']
-        ),
-        data=dict(required=True, type='dict'),
-        export_only=dict(required=False, type='bool'),
-        validate_etag=dict(
-            required=False,
-            type='bool',
-            default=True)
-    )
+class VolumeModule(OneViewModuleBase):
+    MSG_CREATED = 'Volume added/created successfully.'
+    MSG_UPDATED = 'Volume updated successfully.'
+    MSG_DELETED = 'Volume removed/deleted successfully.'
+    MSG_REPAIRED = 'Volume repaired successfully.'
+    MSG_SNAPSHOT_CREATED = 'Volume snapshot created successfully.'
+    MSG_SNAPSHOT_DELETED = 'Volume snapshot deleted successfully.'
+    MSG_NOT_FOUND = 'Volume not found.'
+    MSG_SNAPSHOT_NOT_FOUND = 'Snapshot not found.'
+    MSG_ALREADY_ABSENT = 'Nothing to do.'
+    MSG_NO_OPTIONS_PROVIDED = 'No options provided.'
+    MSG_NEW_NAME_INVALID = 'Rename failed: the new name provided is being used by another Volume.'
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        argument_spec = dict(
+            state=dict(
+                required=True,
+                choices=['present', 'absent', 'repaired', 'snapshot_created', 'snapshot_deleted']
+            ),
+            data=dict(required=True, type='dict'),
+            export_only=dict(required=False, type='bool'),
+        )
+        super(VolumeModule, self).__init__(additional_arg_spec=argument_spec,
+                                           validate_etag_support=True)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
+        self.resource_client = self.oneview_client.volumes
+
+    def execute_module(self):
+        resource = self.get_by_name(self.data.get('name'))
+
+        if self.state == 'present':
+            return self.__present(resource)
+        elif self.state == 'absent':
+            return self.__absent(resource)
         else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            if not resource:
+                raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
 
-    def run(self):
-        state = self.module.params['state']
-        data = self.module.params['data'].copy()
+            if self.state == 'repaired':
+                return self.__repair(resource)
+            elif self.state == 'snapshot_created':
+                return self.__create_snapshot(resource)
+            elif self.state == 'snapshot_deleted':
+                return self.__delete_snapshot(resource)
 
-        try:
-            if not self.module.params.get('validate_etag'):
-                self.oneview_client.connection.disable_etag_validation()
-
-            if state == 'present':
-                self.__present(data)
-            elif state == 'absent':
-                export_only = self.module.params.get('export_only', False)
-                self.__absent(data, export_only)
-            elif state == 'repaired':
-                self.__repair(data)
-            elif state == 'snapshot_created':
-                self.__create_snapshot(data)
-            elif state == 'snapshot_deleted':
-                self.__delete_snapshot(data)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
-
-    def __present(self, data):
-        resource = self.__get_by_name(data['name'])
-
+    def __present(self, resource):
         if not resource:
-            self.__create(data)
+            return self.__create()
         else:
-            self.__update(data, resource)
+            return self.__update(resource)
 
-    def __absent(self, data, export_only):
-        resource = self.__get_by_name(data['name'])
+    def __absent(self, resource):
+        export_only = self.module.params.get('export_only', False)
 
         if resource:
             self.oneview_client.volumes.delete(resource, export_only=export_only)
-            self.module.exit_json(changed=True,
-                                  msg=VOLUME_DELETED)
+            return dict(changed=True, msg=self.MSG_DELETED)
         else:
-            self.module.exit_json(changed=False, msg=VOLUME_ALREADY_ABSENT)
+            return dict(changed=False, msg=self.MSG_ALREADY_ABSENT)
 
-    def __create(self, data):
-        created_volume = self.oneview_client.volumes.create(data)
+    def __create(self):
+        created_volume = self.oneview_client.volumes.create(self.data)
 
-        self.module.exit_json(changed=True,
-                              msg=VOLUME_CREATED,
-                              ansible_facts=dict(storage_volume=created_volume))
+        return dict(changed=True,
+                    msg=self.MSG_CREATED,
+                    ansible_facts=dict(storage_volume=created_volume))
 
-    def __update(self, data, resource):
-        if 'newName' in data:
-            if self.__get_by_name(data['newName']):
-                raise HPOneViewValueError(VOLUME_NEW_NAME_INVALID)
-            data['name'] = data.pop('newName')
+    def __update(self, resource):
+        if 'newName' in self.data:
+            if self.get_by_name(self.data['newName']):
+                raise HPOneViewValueError(self.MSG_NEW_NAME_INVALID)
+            self.data['name'] = self.data.pop('newName')
 
         merged_data = resource.copy()
-        merged_data.update(data)
+        merged_data.update(self.data)
 
         updated_volume = self.oneview_client.volumes.update(merged_data)
 
-        self.module.exit_json(changed=True,
-                              msg=VOLUME_UPDATED,
-                              ansible_facts=dict(storage_volume=updated_volume))
+        return dict(changed=True,
+                    msg=self.MSG_UPDATED,
+                    ansible_facts=dict(storage_volume=updated_volume))
 
-    def __repair(self, data):
-        resource = self.__get_by_name(data['name'])
+    def __repair(self, resource):
 
-        if resource:
-            self.oneview_client.volumes.repair(resource['uri'])
-            self.module.exit_json(changed=True,
-                                  msg=VOLUME_REPAIRED)
+        self.oneview_client.volumes.repair(resource['uri'])
+        return dict(changed=True, msg=self.MSG_REPAIRED)
+
+    def __create_snapshot(self, resource):
+        if 'snapshotParameters' not in self.data:
+            raise HPOneViewResourceNotFound(self.MSG_NO_OPTIONS_PROVIDED)
+
+        self.oneview_client.volumes.create_snapshot(resource['uri'], self.data['snapshotParameters'])
+        return dict(changed=True, msg=self.MSG_SNAPSHOT_CREATED)
+
+    def __delete_snapshot(self, resource):
+        if 'snapshotParameters' not in self.data:
+            raise HPOneViewResourceNotFound(self.MSG_NO_OPTIONS_PROVIDED)
+
+        snapshot = self.__get_snapshot_by_name(resource, self.data)
+        if not snapshot:
+            raise HPOneViewResourceNotFound(self.MSG_SNAPSHOT_NOT_FOUND)
         else:
-            self.module.fail_json(msg=VOLUME_NOT_FOUND)
-
-    def __create_snapshot(self, data):
-        if 'snapshotParameters' not in data:
-            raise HPOneViewResourceNotFound(VOLUME_NO_OPTIONS_PROVIDED)
-
-        resource = self.__get_by_name(data['name'])
-
-        if resource:
-            self.oneview_client.volumes.create_snapshot(resource['uri'], data['snapshotParameters'])
-            self.module.exit_json(changed=True,
-                                  msg=VOLUME_SNAPSHOT_CREATED)
-        else:
-            self.module.fail_json(msg=VOLUME_NOT_FOUND)
-
-    def __delete_snapshot(self, data):
-        if 'snapshotParameters' not in data:
-            raise HPOneViewResourceNotFound(VOLUME_NO_OPTIONS_PROVIDED)
-
-        resource = self.__get_by_name(data['name'])
-
-        if not resource:
-            self.module.fail_json(msg=VOLUME_NOT_FOUND)
-        else:
-            snapshot = self.__get_snapshot_by_name(resource, data)
-            if not snapshot:
-                self.module.fail_json(msg=VOLUME_SNAPSHOT_NOT_FOUND)
-            else:
-                self.oneview_client.volumes.delete_snapshot(snapshot)
-                self.module.exit_json(changed=True,
-                                      msg=VOLUME_SNAPSHOT_DELETED)
-
-    def __get_by_name(self, name):
-        result = self.oneview_client.volumes.get_by('name', name)
-        return result[0] if result else None
+            self.oneview_client.volumes.delete_snapshot(snapshot)
+            return dict(changed=True, msg=self.MSG_SNAPSHOT_DELETED)
 
     def __get_snapshot_by_name(self, resource, data):
         if 'name' not in data['snapshotParameters']:
-            raise HPOneViewValueError(VOLUME_NO_OPTIONS_PROVIDED)
+            raise HPOneViewValueError(self.MSG_NO_OPTIONS_PROVIDED)
 
         result = self.oneview_client.volumes.get_snapshot_by(resource['uri'], 'name',
                                                              data['snapshotParameters']['name'])

@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -13,17 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+
 import unittest
 
-from oneview_volume import VolumeModule
-from oneview_volume import VOLUME_CREATED, VOLUME_UPDATED, VOLUME_DELETED, VOLUME_ALREADY_ABSENT, VOLUME_REPAIRED, \
-    VOLUME_NOT_FOUND, VOLUME_SNAPSHOT_CREATED, VOLUME_SNAPSHOT_DELETED, VOLUME_SNAPSHOT_NOT_FOUND, \
-    VOLUME_NEW_NAME_INVALID
-
-from utils import ModuleContructorTestCase
-from utils import ValidateEtagTestCase
-from utils import ErrorHandlingTestCase
-
+from oneview_module_loader import VolumeModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -96,22 +90,11 @@ PARAMS_FOR_SNAPSHOT_DELETED = dict(
 
 
 class VolumeModuleSpec(unittest.TestCase,
-                       ModuleContructorTestCase,
-                       ValidateEtagTestCase,
-                       ErrorHandlingTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-
-    ValidateEtagTestCase has common tests for the validate_etag attribute.
-
-    ErrorHandlingTestCase has common tests for the module error handling.
-    """
+                       OneViewBaseTestCase):
 
     def setUp(self):
         self.configure_mocks(self, VolumeModule)
         self.resource = self.mock_ov_client.volumes
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_volume_when_not_exist(self):
         self.resource.get_by.return_value = []
@@ -123,7 +106,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=VOLUME_CREATED,
+            msg=VolumeModule.MSG_CREATED,
             ansible_facts=dict(storage_volume=EXISTENT_VOLUME)
         )
 
@@ -137,7 +120,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=VOLUME_UPDATED,
+            msg=VolumeModule.MSG_UPDATED,
             ansible_facts=dict(storage_volume=EXISTENT_VOLUME.copy())
         )
 
@@ -150,7 +133,7 @@ class VolumeModuleSpec(unittest.TestCase,
         VolumeModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=VOLUME_NEW_NAME_INVALID
+            msg=VolumeModule.MSG_NEW_NAME_INVALID
         )
 
     def test_should_delete_volume(self):
@@ -164,7 +147,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=VOLUME_DELETED
+            msg=VolumeModule.MSG_DELETED
         )
 
     def test_should_remove_volume(self):
@@ -178,7 +161,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=VOLUME_DELETED
+            msg=VolumeModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_volume_not_exist(self):
@@ -190,7 +173,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=VOLUME_ALREADY_ABSENT
+            msg=VolumeModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_repair_volume(self):
@@ -202,7 +185,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=VOLUME_REPAIRED
+            msg=VolumeModule.MSG_REPAIRED
         )
 
     def test_should_create_snapshot(self):
@@ -214,7 +197,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=VOLUME_SNAPSHOT_CREATED
+            msg=VolumeModule.MSG_SNAPSHOT_CREATED
         )
 
     def test_should_not_create_snapshot_when_resource_not_exist(self):
@@ -225,7 +208,7 @@ class VolumeModuleSpec(unittest.TestCase,
         VolumeModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=VOLUME_NOT_FOUND
+            msg=VolumeModule.MSG_NOT_FOUND
         )
 
     def test_should_delete_snapshot(self):
@@ -238,7 +221,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=VOLUME_SNAPSHOT_DELETED
+            msg=VolumeModule.MSG_SNAPSHOT_DELETED
         )
 
     def test_should_not_delete_snapshot_when_resource_not_exist(self):
@@ -249,7 +232,7 @@ class VolumeModuleSpec(unittest.TestCase,
         VolumeModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=VOLUME_NOT_FOUND
+            msg=VolumeModule.MSG_NOT_FOUND
         )
 
     def test_should_not_delete_snapshot_when_snapshot_not_exist(self):
@@ -261,7 +244,7 @@ class VolumeModuleSpec(unittest.TestCase,
         VolumeModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=VOLUME_SNAPSHOT_NOT_FOUND
+            msg=VolumeModule.MSG_SNAPSHOT_NOT_FOUND
         )
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,15 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
@@ -32,26 +26,12 @@ module: oneview_volume_facts
 short_description: Retrieve facts about the OneView Volumes.
 description:
     - Retrieve facts about the Volumes from OneView.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
 author: "Mariana Kreisig (@marikrg)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
-    params:
-      description:
-        - List of params to delimit, filter and sort the list of resources.
-        - "params allowed:
-          'start': The first item to return, using 0-based indexing.
-          'count': The number of resources to return.
-          'filter': A general filter/query string to narrow the list of items returned.
-          'sort': The sort order of the returned data set."
-      required: false
     name:
       description:
         - Volume name.
@@ -59,14 +39,12 @@ options:
     options:
       description:
         - "List with options to gather additional facts about Volume and related resources.
-          Options allowed: attachableVolumes, extraManagedVolumePaths, and snapshots. For the option snapshots, you may
-          provide a name."
+          Options allowed: C(attachableVolumes), C(extraManagedVolumePaths), and C(snapshots). For the option
+          C(snapshots), you may provide a name."
       required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+extends_documentation_fragment:
+    - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
@@ -116,7 +94,7 @@ EXAMPLES = '''
     config: "{{ config }}"
     name: "{{ volume_name }}"
     options:
-       - snapshots  # optional
+       - snapshots:  # optional
            name: "{{ snapshot_name }}"
 
 - debug: var=storage_volumes
@@ -139,86 +117,60 @@ extra_managed_volume_paths:
     returned: When requested, but can be null.
     type: complex
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class VolumeFactsModule(object):
-    argument_spec = dict(
-        config=dict(required=False, type='str'),
-        name=dict(required=False, type='str'),
-        options=dict(required=False, type='list'),
-        params=dict(required=False, type='dict'),
-    )
-
+class VolumeFactsModule(OneViewModuleBase):
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        argument_spec = dict(
+            name=dict(required=False, type='str'),
+            options=dict(required=False, type='list'),
+            params=dict(required=False, type='dict'),
+        )
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
+        super(VolumeFactsModule, self).__init__(additional_arg_spec=argument_spec)
+        self.resource_client = self.oneview_client.volumes
+
+    def execute_module(self):
+        ansible_facts = {}
+
+        if self.module.params.get('name'):
+            ansible_facts['storage_volumes'] = self.resource_client.get_by('name', self.module.params['name'])
+            ansible_facts.update(self.__gather_facts_about_one_volume(ansible_facts['storage_volumes']))
         else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            ansible_facts['storage_volumes'] = self.resource_client.get_all(**self.facts_params)
 
-    def run(self):
-        try:
-            ansible_facts = {}
-            options = self.__get_options()
+        ansible_facts.update(self.__gather_facts_from_appliance())
 
-            if self.module.params.get('name'):
-                ansible_facts.update(self.__gather_facts_about_one_volume(options))
-            else:
-                ansible_facts.update(self.__gather_facts_about_all_volumes())
+        return dict(changed=False, ansible_facts=ansible_facts)
 
-            ansible_facts.update(self.__gather_facts_from_appliance(options))
-
-            self.module.exit_json(changed=False,
-                                  ansible_facts=ansible_facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
-
-    def __gather_facts_from_appliance(self, options):
+    def __gather_facts_from_appliance(self):
         facts = {}
 
-        if options:
-            if options.get('extraManagedVolumePaths'):
-                extra_managed_volume_paths = self.oneview_client.volumes.get_extra_managed_storage_volume_paths()
+        if self.options:
+            if self.options.get('extraManagedVolumePaths'):
+                extra_managed_volume_paths = self.resource_client.get_extra_managed_storage_volume_paths()
                 facts['extra_managed_volume_paths'] = extra_managed_volume_paths
-            if options.get('attachableVolumes'):
-                attachable_volumes = self.oneview_client.volumes.get_attachable_volumes()
+            if self.options.get('attachableVolumes'):
+                attachable_volumes = self.resource_client.get_attachable_volumes()
                 facts['attachable_volumes'] = attachable_volumes
 
         return facts
 
-    def __gather_facts_about_all_volumes(self):
+    def __gather_facts_about_one_volume(self, volumes):
         facts = {}
-        params = self.module.params.get('params') or {}
-        facts['storage_volumes'] = self.oneview_client.volumes.get_all(**params)
-        return facts
 
-    def __gather_facts_about_one_volume(self, options):
-        facts = {}
-        volumes = self.oneview_client.volumes.get_by('name', self.module.params['name'])
-
-        if options.get('snapshots') and len(volumes) > 0:
-            options_snapshots = options['snapshots']
+        if self.options.get('snapshots') and len(volumes) > 0:
+            options_snapshots = self.options['snapshots']
             volume_uri = volumes[0]['uri']
             if isinstance(options_snapshots, dict) and 'name' in options_snapshots:
-                facts['snapshots'] = self.oneview_client.volumes.get_snapshot_by(volume_uri, 'name',
-                                                                                 options_snapshots['name'])
+                facts['snapshots'] = self.resource_client.get_snapshot_by(volume_uri, 'name', options_snapshots['name'])
             else:
-                facts['snapshots'] = self.oneview_client.volumes.get_snapshots(volume_uri)
-
-        facts['storage_volumes'] = volumes
+                facts['snapshots'] = self.resource_client.get_snapshots(volume_uri)
 
         return facts
-
-    def __get_options(self):
-        if self.module.params.get('options'):
-            return transform_list_to_dict(self.module.params['options'])
-        else:
-            return {}
 
 
 def main():
