@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -13,49 +13,43 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-
 import unittest
 
-from oneview_connection_template_facts import ConnectionTemplateFactsModule
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
-
-ERROR_MSG = 'Fake message error'
-
-PARAMS_MANDATORY_MISSING = dict(
-    config='config.json',
-)
-
-PARAMS_GET_BY_NAME = dict(
-    config='config.json',
-    name="name1304244267-1467656930023"
-)
-
-PARAMS_GET_ALL = dict(
-    config='config.json',
-)
-
-PARAMS_GET_DEFAULT = dict(
-    config='config.json',
-    options=['defaultConnectionTemplate']
-)
+from oneview_module_loader import ConnectionTemplateFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 
 class ConnectionTemplatesFactsSpec(unittest.TestCase,
-                                   ModuleContructorTestCase,
-                                   FactsParamsTestCase,
-                                   ErrorHandlingTestCase):
+                                   FactsParamsTestCase):
+
+    ERROR_MSG = 'Fake message error'
+
+    PARAMS_MANDATORY_MISSING = dict(
+        config='config.json',
+    )
+
+    PARAMS_GET_BY_NAME = dict(
+        config='config.json',
+        name="name1304244267-1467656930023"
+    )
+
+    PARAMS_GET_ALL = dict(
+        config='config.json',
+    )
+
+    PARAMS_GET_DEFAULT = dict(
+        config='config.json',
+        options=['defaultConnectionTemplate']
+    )
+
     def setUp(self):
         self.configure_mocks(self, ConnectionTemplateFactsModule)
         self.connection_templates = self.mock_ov_client.connection_templates
-
         FactsParamsTestCase.configure_client_mock(self, self.connection_templates)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.connection_templates.get_by)
 
     def test_should_get_all_connection_templates(self):
         self.connection_templates.get_all.return_value = {"name": "Storage System Name"}
-        self.mock_ansible_module.params = PARAMS_GET_ALL
+        self.mock_ansible_module.params = self.PARAMS_GET_ALL
 
         ConnectionTemplateFactsModule().run()
 
@@ -67,7 +61,7 @@ class ConnectionTemplatesFactsSpec(unittest.TestCase,
     def test_should_get_connection_template_by_name(self):
         self.connection_templates.get_by.return_value = {"name": "Storage System Name"}
 
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
+        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
 
         ConnectionTemplateFactsModule().run()
 
@@ -80,7 +74,7 @@ class ConnectionTemplatesFactsSpec(unittest.TestCase,
         self.connection_templates.get_default.return_value = {
             "name": "default_connection_template"}
 
-        self.mock_ansible_module.params = PARAMS_GET_DEFAULT
+        self.mock_ansible_module.params = self.PARAMS_GET_DEFAULT
 
         ConnectionTemplateFactsModule().run()
 
