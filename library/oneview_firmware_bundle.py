@@ -1,7 +1,7 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,14 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
@@ -33,31 +28,24 @@ description:
     - Upload an SPP ISO image file or a hotfix file to the appliance.
 notes:
    - "This module is non-idempotent"
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
 author: "Camila Balestrin (@balestrinc)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Firmware Driver resource.
-              'present' will ensure that the firmware bundle is at OneView.
+              C(present) will ensure that the firmware bundle is at OneView.
         choices: ['present']
     file_path:
       description:
         - The full path of a local file to be loaded.
       required: true
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -76,38 +64,28 @@ firmware_bundle:
     type: complex
 '''
 
-FIRMWARE_BUNDLE_UPLOADED = 'Firmware Bundle uploaded sucessfully.'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class FirmwareBundleModule(object):
+class FirmwareBundleModule(OneViewModuleBase):
+    MSG_FIRMWARE_BUNDLE_UPLOADED = 'Firmware Bundle uploaded sucessfully.'
+
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         state=dict(required=True, choices=['present']),
         file_path=dict(required=True, type='str')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(FirmwareBundleModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
-
-    def run(self):
+    def execute_module(self):
         file_path = self.module.params['file_path']
 
-        try:
-            new_firmware = self.oneview_client.firmware_bundles.upload(file_path)
-            self.module.exit_json(changed=True,
-                                  msg=FIRMWARE_BUNDLE_UPLOADED,
-                                  ansible_facts=dict(firmware_bundle=new_firmware))
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        new_firmware = self.oneview_client.firmware_bundles.upload(file_path)
+        return dict(changed=True,
+                    msg=self.MSG_FIRMWARE_BUNDLE_UPLOADED,
+                    ansible_facts=dict(firmware_bundle=new_firmware))
 
 
 def main():
