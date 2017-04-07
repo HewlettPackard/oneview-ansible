@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,17 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.module_utils.basic import *
 
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
-    from hpOneView.exceptions import HPOneViewValueError
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -33,47 +26,35 @@ module: oneview_server_hardware
 short_description: Manage OneView Server Hardware resources.
 description:
     - "Provides an interface to manage Server Hardware resources."
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Server Hardware resource.
-              'present' will ensure data properties are compliant with OneView.
-              'absent' will remove the resource from OneView, if it exists.
-              'power_state_set' will set the power state of the Server Hardware.
-              'refresh_state_set will set the refresh state of the Server Hardware.
-              'ilo_firmware_version_updated' will update the iLO firmware version of the Server Hardware.
-              'ilo_state_reset' will reset the iLO state.
-              'uid_state_on' will set on the UID state, if necessary.
-              'uid_state_off' will set on the UID state, if necessary.
-              'environmental_configuration_set' will set the environmental configuration of the Server Hardware.
+              C(present) will ensure data properties are compliant with OneView.
+              C(absent) will remove the resource from OneView, if it exists.
+              C(power_state_set) will set the power state of the Server Hardware.
+              C(refresh_state_set) will set the refresh state of the Server Hardware.
+              C(ilo_firmware_version_updated) will update the iLO firmware version of the Server Hardware.
+              C(ilo_state_reset) will reset the iLO state.
+              C(uid_state_on) will set on the UID state, if necessary.
+              C(uid_state_off) will set on the UID state, if necessary.
+              C(environmental_configuration_set) will set the environmental configuration of the Server Hardware.
         choices: ['present', 'absent', 'power_state_set', 'refresh_state_set', 'ilo_firmware_version_updated',
-                  'ilo_state_reset','uid_state_on', 'uid_state_off', environmental_configuration_set]
+                  'ilo_state_reset','uid_state_on', 'uid_state_off', 'environmental_configuration_set']
         required: true
     data:
         description:
             - List with Server Hardware properties and its associated states.
         required: true
-    validate_etag:
-        description:
-            - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
-              for the resource matches the ETag provided in the data.
-        default: true
-        choices: ['true', 'false']
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -154,27 +135,29 @@ server_hardware:
     type: complex
 '''
 
-SERVER_HARDWARE_ADDED = 'Server Hardware added successfully.'
-SERVER_HARDWARE_ALREADY_ADDED = 'Server Hardware is already present.'
-SERVER_HARDWARE_DELETED = 'Server Hardware deleted successfully.'
-SERVER_HARDWARE_ALREADY_ABSENT = 'Server Hardware is already absent.'
-SERVER_HARDWARE_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: {0}"
-SERVER_HARDWARE_POWER_STATE_UPDATED = 'Server Hardware power state changed successfully.'
-SERVER_HARDWARE_REFRESH_STATE_UPDATED = 'Server Hardware refresh state changed successfully.'
-SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED = 'Server Hardware iLO firmware version updated successfully.'
-SERVER_HARDWARE_ENV_CONFIG_UPDATED = 'Server Hardware calibrated max power updated successfully.'
-SERVER_HARDWARE_NOT_FOUND = 'Server Hardware is required for this operation.'
-SERVER_HARDWARE_UID_STATE_CHANGED = 'Server Hardware UID state changed successfully.'
-SERVER_HARDWARE_ILO_STATE_RESET = 'Server Hardware iLO state changed successfully.'
-NOTHING_TO_DO = 'Nothing to do.'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, HPOneViewValueError
 
 
-class ServerHardwareModule(object):
+class ServerHardwareModule(OneViewModuleBase):
+    MSG_ADDED = 'Server Hardware added successfully.'
+    MSG_ALREADY_ADDED = 'Server Hardware is already present.'
+    MSG_POWER_STATE_UPDATED = 'Server Hardware power state changed successfully.'
+    MSG_REFRESH_STATE_UPDATED = 'Server Hardware refresh state changed successfully.'
+    MSG_ILO_FIRMWARE_VERSION_UPDATED = 'Server Hardware iLO firmware version updated successfully.'
+    MSG_ENV_CONFIG_UPDATED = 'Server Hardware calibrated max power updated successfully.'
+    MSG_SERVER_HARDWARE_NOT_FOUND = 'The provided Server Hardware was not found.'
+    MSG_UID_STATE_CHANGED = 'Server Hardware UID state changed successfully.'
+    MSG_ILO_STATE_RESET = 'Server Hardware iLO state changed successfully.'
+    MSG_NOTHING_TO_DO = 'Nothing to do.'
+    MSG_DELETED = 'Server Hardware deleted successfully.'
+    MSG_ALREADY_ABSENT = 'Server Hardware is already absent.'
+    MSG_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: {0}"
+
     patch_success_message = dict(
-        ilo_state_reset=SERVER_HARDWARE_ILO_STATE_RESET,
-        uid_state_on=SERVER_HARDWARE_UID_STATE_CHANGED,
-        uid_state_off=SERVER_HARDWARE_UID_STATE_CHANGED
+        ilo_state_reset=MSG_ILO_STATE_RESET,
+        uid_state_on=MSG_UID_STATE_CHANGED,
+        uid_state_off=MSG_UID_STATE_CHANGED
     )
 
     patch_params = dict(
@@ -184,7 +167,6 @@ class ServerHardwareModule(object):
     )
 
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         state=dict(
             required=True,
             choices=[
@@ -199,120 +181,94 @@ class ServerHardwareModule(object):
                 'environmental_configuration_set',
             ]
         ),
-        data=dict(required=True, type='dict'),
-        validate_etag=dict(
-            required=False,
-            type='bool',
-            default=True)
+        data=dict(required=True, type='dict')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
+        super(ServerHardwareModule, self).__init__(additional_arg_spec=self.argument_spec,
+                                                   validate_etag_support=True)
+
+        self.resource_client = self.oneview_client.server_hardware
+
+    def execute_module(self):
+
+        if self.state == 'present':
+            changed, msg, ansible_facts = self.__present()
+
         else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            if not self.data.get('name'):
+                raise HPOneViewValueError(self.MSG_MANDATORY_FIELD_MISSING.format("data.name"))
 
-    def run(self):
-        try:
-            state = self.module.params['state']
-            data = self.module.params['data']
+            resource = self.__get_server_hardware(self.data['name'])
 
-            if not self.module.params.get('validate_etag'):
-                self.oneview_client.connection.disable_etag_validation()
-
-            if state == 'present':
-                changed, msg, ansible_facts = self.__present(data)
-
+            if self.state == 'absent':
+                return self.resource_absent(resource, method='remove')
             else:
-                if not data.get('name'):
-                    raise HPOneViewValueError(SERVER_HARDWARE_MANDATORY_FIELD_MISSING.format("data.name"))
+                if not resource:
+                    raise HPOneViewResourceNotFound(self.MSG_SERVER_HARDWARE_NOT_FOUND)
 
-                resource = self.__get_server_hardware(data['name'])
+                if self.state == 'power_state_set':
+                    changed, msg, ansible_facts = self.__set_power_state(resource)
+                elif self.state == 'refresh_state_set':
+                    changed, msg, ansible_facts = self.__set_refresh_state(resource)
+                elif self.state == 'ilo_firmware_version_updated':
+                    changed, msg, ansible_facts = self.__update_mp_firmware_version(resource)
+                elif self.state == 'environmental_configuration_set':
+                    changed, msg, ansible_facts = self.__set_environmental_configuration(resource)
 
-                if state == 'absent':
-                    changed, msg, ansible_facts = self.__absent(resource)
                 else:
-                    if not resource:
-                        raise HPOneViewResourceNotFound(SERVER_HARDWARE_NOT_FOUND)
+                    changed, msg, ansible_facts = self.__patch(resource)
 
-                    if state == 'power_state_set':
-                        changed, msg, ansible_facts = self.__set_power_state(data, resource)
-                    elif state == 'refresh_state_set':
-                        changed, msg, ansible_facts = self.__set_refresh_state(data, resource)
-                    elif state == 'ilo_firmware_version_updated':
-                        changed, msg, ansible_facts = self.__update_mp_firmware_version(resource)
-                    elif state == 'environmental_configuration_set':
-                        changed, msg, ansible_facts = self.__set_environmental_configuration(data, resource)
-
-                    else:
-                        changed, msg, ansible_facts = self.__patch(state, resource)
-
-            self.module.exit_json(changed=changed,
-                                  msg=msg,
-                                  ansible_facts=ansible_facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg=exception.args[0])
+        return dict(changed=changed,
+                    msg=msg,
+                    ansible_facts=ansible_facts)
 
     def __get_server_hardware(self, name):
         return (self.oneview_client.server_hardware.get_by("name", name) or [None])[0]
 
-    def __present(self, data):
+    def __present(self):
 
-        if not data.get('hostname'):
-            raise HPOneViewValueError(SERVER_HARDWARE_MANDATORY_FIELD_MISSING.format("data.hostname"))
+        if not self.data.get('hostname'):
+            raise HPOneViewValueError(self.MSG_MANDATORY_FIELD_MISSING.format("data.hostname"))
 
-        resource = self.__get_server_hardware(data['hostname'])
-
-        changed = False
+        resource = self.__get_server_hardware(self.data['hostname'])
 
         if not resource:
-            resource = self.oneview_client.server_hardware.add(data)
-            changed = True
-            msg = SERVER_HARDWARE_ADDED
+            resource = self.oneview_client.server_hardware.add(self.data)
+            return True, self.MSG_ADDED, dict(server_hardware=resource)
         else:
-            msg = SERVER_HARDWARE_ALREADY_ADDED
+            return False, self.MSG_ALREADY_ADDED, dict(server_hardware=resource)
 
-        return changed, msg, dict(server_hardware=resource)
+    def __set_power_state(self, resource):
+        resource = self.oneview_client.server_hardware.update_power_state(self.data['powerStateData'], resource['uri'])
+        return True, self.MSG_POWER_STATE_UPDATED, dict(server_hardware=resource)
 
-    def __absent(self, resource):
-        if resource:
-            self.oneview_client.server_hardware.remove(resource)
-            return True, SERVER_HARDWARE_DELETED, {}
-        else:
-            return False, SERVER_HARDWARE_ALREADY_ABSENT, {}
-
-    def __set_power_state(self, data, resource):
-        resource = self.oneview_client.server_hardware.update_power_state(data['powerStateData'], resource['uri'])
-        return True, SERVER_HARDWARE_POWER_STATE_UPDATED, dict(server_hardware=resource)
-
-    def __set_environmental_configuration(self, data, resource):
+    def __set_environmental_configuration(self, resource):
         resource = self.oneview_client.server_hardware.update_environmental_configuration(
-            data['environmentalConfigurationData'],
+            self.data['environmentalConfigurationData'],
             resource['uri'])
 
-        return True, SERVER_HARDWARE_ENV_CONFIG_UPDATED, dict(server_hardware=resource)
+        return True, self.MSG_ENV_CONFIG_UPDATED, dict(server_hardware=resource)
 
-    def __set_refresh_state(self, data, resource):
-        resource = self.oneview_client.server_hardware.refresh_state(data['refreshStateData'], resource['uri'])
-        return True, SERVER_HARDWARE_REFRESH_STATE_UPDATED, dict(server_hardware=resource)
+    def __set_refresh_state(self, resource):
+        resource = self.oneview_client.server_hardware.refresh_state(self.data['refreshStateData'], resource['uri'])
+        return True, self.MSG_REFRESH_STATE_UPDATED, dict(server_hardware=resource)
 
     def __update_mp_firmware_version(self, resource):
         resource = self.oneview_client.server_hardware.update_mp_firware_version(resource['uri'])
-        return True, SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED, dict(server_hardware=resource)
+        return True, self.MSG_ILO_FIRMWARE_VERSION_UPDATED, dict(server_hardware=resource)
 
-    def __patch(self, state_name, resource):
-        message = NOTHING_TO_DO
+    def __patch(self, resource):
+        state_name = self.state
+        message = self.MSG_NOTHING_TO_DO
         changed = False
 
         state = self.patch_params[state_name].copy()
         property_name = state['path'][1:]
+        property_value_changed = resource.get(property_name) != state['value']
 
-        if state_name == 'ilo_state_reset' or resource[property_name] != state['value']:
+        if state_name == 'ilo_state_reset' or property_value_changed:
             resource = self.oneview_client.server_hardware.patch(id_or_uri=resource['uri'], **state)
             changed, message = True, self.patch_success_message[state_name]
 
