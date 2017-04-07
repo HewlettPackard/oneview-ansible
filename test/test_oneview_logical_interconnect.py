@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,23 +16,8 @@
 import unittest
 import mock
 
-from utils import ValidateEtagTestCase, ModuleContructorTestCase, PreloadedMocksBaseTestCase, ErrorHandlingTestCase
-
-from oneview_logical_interconnect import (LogicalInterconnectModule,
-                                          LOGICAL_INTERCONNECT_CONSISTENT,
-                                          LOGICAL_INTERCONNECT_NOT_FOUND,
-                                          LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED,
-                                          LOGICAL_INTERCONNECT_ETH_SETTINGS_UPDATED,
-                                          LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED,
-                                          LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED,
-                                          LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND,
-                                          LOGICAL_INTERCONNECT_SETTINGS_UPDATED,
-                                          LOGICAL_INTERCONNECT_QOS_UPDATED,
-                                          LOGICAL_INTERCONNECT_SNMP_UPDATED,
-                                          LOGICAL_INTERCONNECT_PORT_MONITOR_UPDATED,
-                                          LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED,
-                                          LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED,
-                                          LOGICAL_INTERCONNECT_TELEMETRY_CONFIGURATION_UPDATED)
+from hpe_test_utils import OneViewBaseTestCase
+from oneview_module_loader import LogicalInterconnectModule
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -58,79 +43,26 @@ LOGICAL_INTERCONNECT = {'uri': '/rest/logical-interconnects/id',
 
 
 class LogicalInterconnectModuleSpec(unittest.TestCase,
-                                    ModuleContructorTestCase,
-                                    ValidateEtagTestCase,
-                                    ErrorHandlingTestCase):
+                                    OneViewBaseTestCase):
     """
     Test the module constructor and shared functions
-    ModuleContructorTestCase has common tests for class constructor and main function
-    ValidateEtagTestCase has common tests for the validate_etag attribute, also provides the mocks used in this test
-    case.
+    OneViewBaseTestCase has common mocks and tests for main function
     """
 
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectModule)
-        self.resource = self.mock_ov_client.logical_interconnects
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by_name)
-
-    def test_should_fail_when_option_is_invalid(self):
-        self.mock_ansible_module.params = dict(
-            config='config.json',
-            state='ethernet_settings_updated',
-            data=dict(name='Name of the Logical Interconnect')
-        )
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED
-        )
-
-
-class LogicalInterconnectCompliantStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    """
-    PreloadedMocksBaseTestCase provides the mocks used in this test case.
-    """
+    TELEMETRY_CONFIG = dict(
+        sampleCount=12,
+        enableTelemetry=True,
+        sampleInterval=300
+    )
+    TELEMETRY_PARAMS_CONFIGURATION = dict(
+        config='config.json',
+        state='telemetry_configuration_updated',
+        data=dict(name='Test', telemetryConfiguration=TELEMETRY_CONFIG))
     PARAMS_COMPLIANCE = dict(
         config='config.json',
         state='compliant',
         data=dict(name='Name of the Logical Interconnect')
     )
-
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectModule)
-        self.resource = self.mock_ov_client.logical_interconnects
-
-    def test_should_return_to_a_consistent_state(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.resource.update_compliance.return_value = LOGICAL_INTERCONNECT
-
-        self.mock_ansible_module.params = self.PARAMS_COMPLIANCE
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=LOGICAL_INTERCONNECT_CONSISTENT,
-            ansible_facts=dict(logical_interconnect=LOGICAL_INTERCONNECT)
-        )
-
-    def test_should_fail_when_logical_interconnect_not_found(self):
-        self.resource.get_by_name.return_value = None
-
-        self.mock_ansible_module.params = self.PARAMS_COMPLIANCE
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LOGICAL_INTERCONNECT_NOT_FOUND
-        )
-
-
-class LogicalInterconnectEthernetSettingsUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    """
-    PreloadedMocksBaseTestCase provides the mocks used in this test case.
-    """
 
     PARAMS_ETHERNET_SETTINGS = dict(
         config='config.json',
@@ -143,9 +75,177 @@ class LogicalInterconnectEthernetSettingsUpdatedStateSpec(unittest.TestCase, Pre
         data=dict(name='Name of the Logical Interconnect', ethernetSettings=dict(macRefreshInterval=10))
     )
 
+    PARAMS_INTERNAL_NETWORKS = dict(
+        config='config.json',
+        state='internal_networks_updated',
+        data=dict(name='Name of the Logical Interconnect',
+                  internalNetworks=[dict(name='Network Name 1'), dict(name='Network Name 2'), dict(uri='/path/3')])
+    )
+
+    PARAMS_SETTINGS = dict(
+        config='config.json',
+        state='settings_updated',
+        data=dict(name='Name of the Logical Interconnect',
+                  ethernetSettings=dict(macRefreshInterval=12),
+                  fcoeSettings=dict(fcoeMode='NotApplicable'))
+    )
+    PARAMS_SETTINGS_ETHERNET = dict(
+        config='config.json',
+        state='settings_updated',
+        data=dict(name='Name of the Logical Interconnect',
+                  ethernetSettings=dict(macRefreshInterval=12))
+    )
+    PARAMS_SETTTINGS_FCOE = dict(
+        config='config.json',
+        state='settings_updated',
+        data=dict(name='Name of the Logical Interconnect',
+                  fcoeSettings=dict(fcoeMode='NotApplicable'))
+    )
+
+    PARAMS_GENERATE_FIB = dict(
+        config='config.json',
+        state='forwarding_information_base_generated',
+        data=dict(name='Name of the Logical Interconnect')
+    )
+
+    status = "Forwarding information base dump for logical interconnect yielded no results and ended with warnings."
+    response_body = {
+        'status': status,
+        'state': 'Warning'
+    }
+
+    PARAMS_QOS_AGGREG_CONFIG = dict(
+        config='config.json',
+        state='qos_aggregated_configuration_updated',
+        data=dict(name='Name of the Logical Interconnect',
+                  qosConfiguration=dict(activeQosConfig=dict(category='qos-aggregated-configuration',
+                                                             configType='Passthrough',
+                                                             downlinkClassificationType=None,
+                                                             uplinkClassificationType=None,
+                                                             qosTrafficClassifiers=[],
+                                                             type='QosConfiguration')))
+    )
+    PARAMS_QOS_AGGREG_NO_CHANGES = dict(
+        config='config.json',
+        state='qos_aggregated_configuration_updated',
+        data=dict(name='Name of the Logical Interconnect',
+                  qosConfiguration=dict(activeQosConfig=dict(category='qos-aggregated-configuration',
+                                                             configType='CustomNoFCoE',
+                                                             downlinkClassificationType='DSCP',
+                                                             uplinkClassificationType=None,
+                                                             qosTrafficClassifiers=['a', 'list', 'with', 'classifiers'],
+                                                             type='QosConfiguration')))
+    )
+    qos_config = {
+        'inactiveFCoEQosConfig': None,
+        'inactiveNonFCoEQosConfig': None,
+        'activeQosConfig': {
+            'category': 'qos-aggregated-configuration',
+            'configType': 'CustomNoFCoE',
+            'downlinkClassificationType': 'DSCP',
+            'uplinkClassificationType': None,
+            'qosTrafficClassifiers': ['a', 'list', 'with', 'classifiers'],
+            'type': 'QosConfiguration'
+        }
+    }
+
+    PARAMS_SNMP_CONFIG = dict(
+        config='config.json',
+        state='snmp_configuration_updated',
+        data=dict(name='Name of the Logical Interconnect',
+                  snmpConfiguration=dict(enabled=True))
+    )
+    PARAMS_SNMP_CONFIG_NO_CHANGES = dict(
+        config='config.json',
+        state='snmp_configuration_updated',
+        data=dict(name='Name of the Logical Interconnect',
+                  snmpConfiguration=dict(enabled=False))
+    )
+    snmp_config = {'enabled': False}
+
+    PARAMS_PORT_MONITOR_CONFIGURATION = dict(
+        config='config.json',
+        state='port_monitor_updated',
+        data=dict(name='Name of the Logical Interconnect',
+                  portMonitor=dict(enablePortMonitor=False))
+    )
+    PARAMS_PORT_MONITOR_CONFIGURATION_NO_CHANGES = dict(
+        config='config.json',
+        state='port_monitor_updated',
+        data=dict(name='Name of the Logical Interconnect',
+                  portMonitor=dict(enablePortMonitor=True))
+    )
+    monitor_config = {'enablePortMonitor': True}
+
+    PARAMS_CONFIGURATION = dict(
+        config='config.json',
+        state='configuration_updated',
+        data=dict(name='Name of the Logical Interconnect', enabled=True)
+    )
+
+    PARAMS_FIRMWARE_WITH_SPP_NAME = dict(
+        config='config.json',
+        state='firmware_installed',
+        data=dict(name='Name of the Logical Interconnect',
+                  firmware=dict(command='Update',
+                                spp='filename-of-the-firmware-to-install')))
+    PARAMS_FIRMWARE_WITH_SPP_URI = dict(
+        config='config.json',
+        state='firmware_installed',
+        data=dict(name='Name of the Logical Interconnect',
+                  firmware=dict(command='Update',
+                                sppUri='/rest/firmware-drivers/filename-of-the-firmware-to-install')))
+    expected_data = {
+        'command': 'Update',
+        'sppUri': '/rest/firmware-drivers/filename-of-the-firmware-to-install'
+    }
+    response = {
+        "response": "data"
+    }
+
+    telemetry_config_uri = LOGICAL_INTERCONNECT['telemetryConfiguration']['uri']
+
     def setUp(self):
         self.configure_mocks(self, LogicalInterconnectModule)
         self.resource = self.mock_ov_client.logical_interconnects
+
+    def test_should_fail_when_option_is_invalid(self):
+        self.mock_ansible_module.params = dict(
+            config='config.json',
+            state='ethernet_settings_updated',
+            data=dict(name='Name of the Logical Interconnect')
+        )
+
+        LogicalInterconnectModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=LogicalInterconnectModule.MSG_NO_OPTIONS_PROVIDED
+        )
+
+    def test_should_return_to_a_consistent_state(self):
+        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.update_compliance.return_value = LOGICAL_INTERCONNECT
+
+        self.mock_ansible_module.params = self.PARAMS_COMPLIANCE
+
+        LogicalInterconnectModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectModule.MSG_CONSISTENT,
+            ansible_facts=dict(logical_interconnect=LOGICAL_INTERCONNECT)
+        )
+
+    def test_should_fail_when_logical_interconnect_not_found(self):
+        self.resource.get_by_name.return_value = None
+
+        self.mock_ansible_module.params = self.PARAMS_COMPLIANCE
+
+        LogicalInterconnectModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=LogicalInterconnectModule.MSG_NOT_FOUND
+        )
 
     def test_should_update_ethernet_settings(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
@@ -157,7 +257,7 @@ class LogicalInterconnectEthernetSettingsUpdatedStateSpec(unittest.TestCase, Pre
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_INTERCONNECT_ETH_SETTINGS_UPDATED,
+            msg=LogicalInterconnectModule.MSG_ETH_SETTINGS_UPDATED,
             ansible_facts=dict(logical_interconnect=LOGICAL_INTERCONNECT)
         )
 
@@ -173,7 +273,7 @@ class LogicalInterconnectEthernetSettingsUpdatedStateSpec(unittest.TestCase, Pre
         expected_data = {'enableIgmpSnooping': True, 'macRefreshInterval': 7}
         self.resource.update_ethernet_settings.assert_called_once_with(expected_uri, expected_data)
 
-    def test_should_do_nothing_when_no_changes(self):
+    def test_should_do_nothing_when_no_changes_ethernet_settings(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
         self.resource.update_ethernet_settings.return_value = LOGICAL_INTERCONNECT
 
@@ -183,35 +283,7 @@ class LogicalInterconnectEthernetSettingsUpdatedStateSpec(unittest.TestCase, Pre
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
-
-    def test_should_fail_when_logical_interconnect_not_found(self):
-        self.resource.get_by_name.return_value = None
-
-        self.mock_ansible_module.params = self.PARAMS_ETHERNET_SETTINGS
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LOGICAL_INTERCONNECT_NOT_FOUND
-        )
-
-
-class LogicalInterconnectInternalNetworksUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    """
-    PreloadedMocksBaseTestCase provides the mocks used in this test case.
-    """
-
-    PARAMS_INTERNAL_NETWORKS = dict(
-        config='config.json',
-        state='internal_networks_updated',
-        data=dict(name='Name of the Logical Interconnect',
-                  internalNetworks=[dict(name='Network Name 1'), dict(name='Network Name 2'), dict(uri='/path/3')])
-    )
-
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectModule)
-        self.resource = self.mock_ov_client.logical_interconnects
+            msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED)
 
     def test_should_update_internal_networks(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
@@ -224,7 +296,7 @@ class LogicalInterconnectInternalNetworksUpdatedStateSpec(unittest.TestCase, Pre
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_INTERCONNECT_INTERNAL_NETWORKS_UPDATED,
+            msg=LogicalInterconnectModule.MSG_INTERNAL_NETWORKS_UPDATED,
             ansible_facts=dict(logical_interconnect=LOGICAL_INTERCONNECT)
         )
 
@@ -242,17 +314,6 @@ class LogicalInterconnectInternalNetworksUpdatedStateSpec(unittest.TestCase, Pre
         self.resource.update_internal_networks.assert_called_once_with(expected_uri,
                                                                        expected_list)
 
-    def test_should_fail_when_logical_interconnect_not_found(self):
-        self.resource.get_by_name.return_value = None
-
-        self.mock_ansible_module.params = self.PARAMS_INTERNAL_NETWORKS
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LOGICAL_INTERCONNECT_NOT_FOUND
-        )
-
     def test_should_fail_when_ethernet_network_not_found(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
         self.mock_ov_client.ethernet_networks.get_by.side_effect = [[{'uri': '/path/1'}], []]
@@ -263,58 +324,28 @@ class LogicalInterconnectInternalNetworksUpdatedStateSpec(unittest.TestCase, Pre
         LogicalInterconnectModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LOGICAL_INTERCONNECT_ETH_NETWORK_NOT_FOUND + "Network Name 2"
+            msg=LogicalInterconnectModule.MSG_ETH_NETWORK_NOT_FOUND + "Network Name 2"
         )
-
-
-class LogicalInterconnectSettingsUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    """
-    PreloadedMocksBaseTestCase provides the mocks used in this test case.
-    """
-
-    PARAMS_SETTTINGS = dict(
-        config='config.json',
-        state='settings_updated',
-        data=dict(name='Name of the Logical Interconnect',
-                  ethernetSettings=dict(macRefreshInterval=12),
-                  fcoeSettings=dict(fcoeMode='NotApplicable'))
-    )
-    PARAMS_SETTTINGS_ETHERNET = dict(
-        config='config.json',
-        state='settings_updated',
-        data=dict(name='Name of the Logical Interconnect',
-                  ethernetSettings=dict(macRefreshInterval=12))
-    )
-    PARAMS_SETTTINGS_FCOE = dict(
-        config='config.json',
-        state='settings_updated',
-        data=dict(name='Name of the Logical Interconnect',
-                  fcoeSettings=dict(fcoeMode='NotApplicable'))
-    )
-
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectModule)
-        self.resource = self.mock_ov_client.logical_interconnects
 
     def test_should_update_settings(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
         self.resource.update_settings.return_value = LOGICAL_INTERCONNECT
 
-        self.mock_ansible_module.params = self.PARAMS_SETTTINGS
+        self.mock_ansible_module.params = self.PARAMS_SETTINGS
 
         LogicalInterconnectModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_INTERCONNECT_SETTINGS_UPDATED,
+            msg=LogicalInterconnectModule.MSG_SETTINGS_UPDATED,
             ansible_facts=dict(logical_interconnect=LOGICAL_INTERCONNECT)
         )
 
-    def test_should_update_ethernet_settings(self):
+    def test_should_update_settings_ethernet(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
         self.resource.update_settings.return_value = LOGICAL_INTERCONNECT
 
-        self.mock_ansible_module.params = self.PARAMS_SETTTINGS_ETHERNET
+        self.mock_ansible_module.params = self.PARAMS_SETTINGS_ETHERNET
 
         LogicalInterconnectModule().run()
 
@@ -354,29 +385,18 @@ class LogicalInterconnectSettingsUpdatedStateSpec(unittest.TestCase, PreloadedMo
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
         self.resource.update_settings.return_value = LOGICAL_INTERCONNECT
 
-        params = self.PARAMS_SETTTINGS.copy()
+        params = self.PARAMS_SETTINGS.copy()
         params['data']['ethernetSettings']['macRefreshInterval'] = 10
         params['data']['fcoeSettings']['fcoeMode'] = 'Unknown'
 
-        self.mock_ansible_module.params = self.PARAMS_SETTTINGS
+        self.mock_ansible_module.params = self.PARAMS_SETTINGS
 
         LogicalInterconnectModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED,
+            msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED,
             ansible_facts=dict(logical_interconnect=LOGICAL_INTERCONNECT)
-        )
-
-    def test_should_fail_when_logical_interconnect_not_found(self):
-        self.resource.get_by_name.return_value = None
-
-        self.mock_ansible_module.params = self.PARAMS_SETTTINGS
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LOGICAL_INTERCONNECT_NOT_FOUND
         )
 
     def test_should_fail_when_settings_are_invalid(self):
@@ -389,29 +409,8 @@ class LogicalInterconnectSettingsUpdatedStateSpec(unittest.TestCase, PreloadedMo
         LogicalInterconnectModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LOGICAL_INTERCONNECT_NO_OPTIONS_PROVIDED
+            msg=LogicalInterconnectModule.MSG_NO_OPTIONS_PROVIDED
         )
-
-
-class LogicalInterconnectForwardingInformationBaseGeneratedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    """
-    PreloadedMocksBaseTestCase provides the mocks used in this test case.
-    """
-
-    PARAMS_GENERATE_FIB = dict(
-        config='config.json',
-        state='forwarding_information_base_generated',
-        data=dict(name='Name of the Logical Interconnect')
-    )
-    status = "Forwarding information base dump for logical interconnect yielded no results and ended with warnings."
-    response_body = {
-        'status': status,
-        'state': 'Warning'
-    }
-
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectModule)
-        self.resource = self.mock_ov_client.logical_interconnects
 
     def test_should_generate_interconnect_fib(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
@@ -427,62 +426,6 @@ class LogicalInterconnectForwardingInformationBaseGeneratedStateSpec(unittest.Te
             ansible_facts=dict(interconnect_fib=self.response_body)
         )
 
-    def test_should_fail_when_logical_interconnect_not_found(self):
-        self.resource.get_by_name.return_value = None
-
-        self.mock_ansible_module.params = self.PARAMS_GENERATE_FIB
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LOGICAL_INTERCONNECT_NOT_FOUND
-        )
-
-
-class LogicalInterconnectQosAggregatedConfigurationUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    """
-    PreloadedMocksBaseTestCase provides the mocks used in this test case.
-    """
-
-    PARAMS_QOS_AGGREG_CONFIG = dict(
-        config='config.json',
-        state='qos_aggregated_configuration_updated',
-        data=dict(name='Name of the Logical Interconnect',
-                  qosConfiguration=dict(activeQosConfig=dict(category='qos-aggregated-configuration',
-                                                             configType='Passthrough',
-                                                             downlinkClassificationType=None,
-                                                             uplinkClassificationType=None,
-                                                             qosTrafficClassifiers=[],
-                                                             type='QosConfiguration')))
-    )
-    PARAMS_QOS_AGGREG_NO_CHANGES = dict(
-        config='config.json',
-        state='qos_aggregated_configuration_updated',
-        data=dict(name='Name of the Logical Interconnect',
-                  qosConfiguration=dict(activeQosConfig=dict(category='qos-aggregated-configuration',
-                                                             configType='CustomNoFCoE',
-                                                             downlinkClassificationType='DSCP',
-                                                             uplinkClassificationType=None,
-                                                             qosTrafficClassifiers=['a', 'list', 'with', 'classifiers'],
-                                                             type='QosConfiguration')))
-    )
-    qos_config = {
-        'inactiveFCoEQosConfig': None,
-        'inactiveNonFCoEQosConfig': None,
-        'activeQosConfig': {
-            'category': 'qos-aggregated-configuration',
-            'configType': 'CustomNoFCoE',
-            'downlinkClassificationType': 'DSCP',
-            'uplinkClassificationType': None,
-            'qosTrafficClassifiers': ['a', 'list', 'with', 'classifiers'],
-            'type': 'QosConfiguration'
-        }
-    }
-
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectModule)
-        self.resource = self.mock_ov_client.logical_interconnects
-
     def test_should_update_qos_aggreg_config(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
         self.resource.get_qos_aggregated_configuration.return_value = self.qos_config
@@ -494,11 +437,11 @@ class LogicalInterconnectQosAggregatedConfigurationUpdatedStateSpec(unittest.Tes
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_INTERCONNECT_QOS_UPDATED,
+            msg=LogicalInterconnectModule.MSG_QOS_UPDATED,
             ansible_facts=dict(qos_configuration=self.qos_config)
         )
 
-    def test_should_do_nothing_when_no_changes(self):
+    def test_should_do_nothing_when_no_changes_qos(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
         self.resource.get_qos_aggregated_configuration.return_value = self.qos_config
 
@@ -508,42 +451,7 @@ class LogicalInterconnectQosAggregatedConfigurationUpdatedStateSpec(unittest.Tes
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
-
-    def test_should_fail_when_logical_interconnect_not_found(self):
-        self.resource.get_by_name.return_value = None
-
-        self.mock_ansible_module.params = self.PARAMS_QOS_AGGREG_CONFIG
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LOGICAL_INTERCONNECT_NOT_FOUND
-        )
-
-
-class LogicalInterconnectSnmpConfigurationUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    """
-    PreloadedMocksBaseTestCase provides the mocks used in this test case.
-    """
-
-    PARAMS_SNMP_CONFIG = dict(
-        config='config.json',
-        state='snmp_configuration_updated',
-        data=dict(name='Name of the Logical Interconnect',
-                  snmpConfiguration=dict(enabled=True))
-    )
-    PARAMS_SNMP_CONFIG_NO_CHANGES = dict(
-        config='config.json',
-        state='snmp_configuration_updated',
-        data=dict(name='Name of the Logical Interconnect',
-                  snmpConfiguration=dict(enabled=False))
-    )
-    snmp_config = {'enabled': False}
-
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectModule)
-        self.resource = self.mock_ov_client.logical_interconnects
+            msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED)
 
     def test_should_update_snmp_configuration(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
@@ -556,11 +464,11 @@ class LogicalInterconnectSnmpConfigurationUpdatedStateSpec(unittest.TestCase, Pr
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_INTERCONNECT_SNMP_UPDATED,
+            msg=LogicalInterconnectModule.MSG_SNMP_UPDATED,
             ansible_facts=dict(snmp_configuration=self.snmp_config)
         )
 
-    def test_should_do_nothing_when_no_changes(self):
+    def test_should_do_nothing_when_no_changes_snmp(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
         self.resource.get_snmp_configuration.return_value = self.snmp_config
         self.resource.update_snmp_configuration.return_value = self.snmp_config
@@ -571,42 +479,7 @@ class LogicalInterconnectSnmpConfigurationUpdatedStateSpec(unittest.TestCase, Pr
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
-
-    def test_should_fail_when_logical_interconnect_not_found(self):
-        self.resource.get_by_name.return_value = None
-
-        self.mock_ansible_module.params = self.PARAMS_SNMP_CONFIG
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LOGICAL_INTERCONNECT_NOT_FOUND
-        )
-
-
-class LogicalInterconnectPortMonitorUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    """
-    PreloadedMocksBaseTestCase provides the mocks used in this test case.
-    """
-
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectModule)
-        self.resource = self.mock_ov_client.logical_interconnects
-
-    PARAMS_PORT_MONITOR_CONFIGURATION = dict(
-        config='config.json',
-        state='port_monitor_updated',
-        data=dict(name='Name of the Logical Interconnect',
-                  portMonitor=dict(enablePortMonitor=False))
-    )
-    PARAMS_PORT_MONITOR_CONFIGURATION_NO_CHANGES = dict(
-        config='config.json',
-        state='port_monitor_updated',
-        data=dict(name='Name of the Logical Interconnect',
-                  portMonitor=dict(enablePortMonitor=True))
-    )
-    monitor_config = {'enablePortMonitor': True}
+            msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED)
 
     def test_should_update_port_monitor_configuration(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
@@ -619,11 +492,11 @@ class LogicalInterconnectPortMonitorUpdatedStateSpec(unittest.TestCase, Preloade
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_INTERCONNECT_PORT_MONITOR_UPDATED,
+            msg=LogicalInterconnectModule.MSG_PORT_MONITOR_UPDATED,
             ansible_facts=dict(port_monitor=self.monitor_config)
         )
 
-    def test_should_do_nothing_when_no_changes(self):
+    def test_should_do_nothing_when_no_changes_port_monitor(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
         self.resource.get_port_monitor.return_value = self.monitor_config
         self.resource.update_port_monitor.return_value = self.monitor_config
@@ -634,34 +507,7 @@ class LogicalInterconnectPortMonitorUpdatedStateSpec(unittest.TestCase, Preloade
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=LOGICAL_INTERCONNECT_NO_CHANGES_PROVIDED)
-
-    def test_should_fail_when_logical_interconnect_not_found(self):
-        self.resource.get_by_name.return_value = None
-
-        self.mock_ansible_module.params = self.PARAMS_PORT_MONITOR_CONFIGURATION
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LOGICAL_INTERCONNECT_NOT_FOUND
-        )
-
-
-class LogicalInterconnectConfigurationUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    """
-    PreloadedMocksBaseTestCase provides the mocks used in this test case.
-    """
-
-    PARAMS_CONFIGURATION = dict(
-        config='config.json',
-        state='configuration_updated',
-        data=dict(name='Name of the Logical Interconnect', enabled=True)
-    )
-
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectModule)
-        self.resource = self.mock_ov_client.logical_interconnects
+            msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED)
 
     def test_should_update_configuration(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
@@ -673,50 +519,9 @@ class LogicalInterconnectConfigurationUpdatedStateSpec(unittest.TestCase, Preloa
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_INTERCONNECT_CONFIGURATION_UPDATED,
+            msg=LogicalInterconnectModule.MSG_CONFIGURATION_UPDATED,
             ansible_facts=dict(logical_interconnect=LOGICAL_INTERCONNECT)
         )
-
-    def test_should_fail_when_logical_interconnect_not_found(self):
-        self.resource.get_by_name.return_value = None
-
-        self.mock_ansible_module.params = self.PARAMS_CONFIGURATION
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LOGICAL_INTERCONNECT_NOT_FOUND
-        )
-
-
-class LogicalInterconnectFirmwareUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    """
-    PreloadedMocksBaseTestCase provides the mocks used in this test case.
-    """
-
-    PARAMS_FIRMWARE_WITH_SPP_NAME = dict(
-        config='config.json',
-        state='firmware_installed',
-        data=dict(name='Name of the Logical Interconnect',
-                  firmware=dict(command='Update',
-                                spp='filename-of-the-firmware-to-install')))
-    PARAMS_FIRMWARE_WITH_SPP_URI = dict(
-        config='config.json',
-        state='firmware_installed',
-        data=dict(name='Name of the Logical Interconnect',
-                  firmware=dict(command='Update',
-                                sppUri='/rest/firmware-drivers/filename-of-the-firmware-to-install')))
-    expected_data = {
-        'command': 'Update',
-        'sppUri': '/rest/firmware-drivers/filename-of-the-firmware-to-install'
-    }
-    response = {
-        "response": "data"
-    }
-
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectModule)
-        self.resource = self.mock_ov_client.logical_interconnects
 
     def test_should_install_firmware(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
@@ -728,7 +533,7 @@ class LogicalInterconnectFirmwareUpdatedStateSpec(unittest.TestCase, PreloadedMo
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_INTERCONNECT_FIRMWARE_INSTALLED,
+            msg=LogicalInterconnectModule.MSG_FIRMWARE_INSTALLED,
             ansible_facts=dict(li_firmware=self.response)
         )
 
@@ -752,65 +557,22 @@ class LogicalInterconnectFirmwareUpdatedStateSpec(unittest.TestCase, PreloadedMo
 
         self.resource.install_firmware.assert_called_once_with(self.expected_data, mock.ANY)
 
-    def test_should_fail_when_logical_interconnect_not_found(self):
-        self.resource.get_by_name.return_value = None
-
-        self.mock_ansible_module.params = self.PARAMS_FIRMWARE_WITH_SPP_URI
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LOGICAL_INTERCONNECT_NOT_FOUND
-        )
-
-
-class LogicalInterconnectTelemetryConfigurationUpdatedStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    """
-    PreloadedMocksBaseTestCase provides the mocks used in this test case.
-    """
-
-    CONFIG = dict(
-        sampleCount=12,
-        enableTelemetry=True,
-        sampleInterval=300
-    )
-    PARAMS_CONFIGURATION = dict(
-        config='config.json',
-        state='telemetry_configuration_updated',
-        data=dict(name='Test', telemetryConfiguration=CONFIG))
-
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectModule)
-        self.resource = self.mock_ov_client.logical_interconnects
-
-        self.telemetry_config_uri = LOGICAL_INTERCONNECT['telemetryConfiguration']['uri']
-
     def test_update_telemetry_configuration(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
         self.resource.update_telemetry_configurations.return_value = LOGICAL_INTERCONNECT
 
         telemetry_config = LOGICAL_INTERCONNECT['telemetryConfiguration']
 
-        self.mock_ansible_module.params = self.PARAMS_CONFIGURATION
+        self.mock_ansible_module.params = self.TELEMETRY_PARAMS_CONFIGURATION
 
         LogicalInterconnectModule().run()
 
-        self.resource.update_telemetry_configurations.assert_called_once_with(self.telemetry_config_uri, self.CONFIG)
+        self.resource.update_telemetry_configurations.assert_called_once_with(self.telemetry_config_uri,
+                                                                              self.TELEMETRY_CONFIG)
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_INTERCONNECT_TELEMETRY_CONFIGURATION_UPDATED,
+            msg=LogicalInterconnectModule.MSG_TELEMETRY_CONFIGURATION_UPDATED,
             ansible_facts=dict(telemetry_configuration=telemetry_config)
-        )
-
-    def test_should_fail_when_logical_interconnect_not_found(self):
-        self.resource.get_by_name.return_value = None
-
-        self.mock_ansible_module.params = self.PARAMS_CONFIGURATION
-
-        LogicalInterconnectModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LOGICAL_INTERCONNECT_NOT_FOUND
         )
 
 

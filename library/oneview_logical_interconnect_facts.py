@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,15 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
 
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
@@ -31,6 +26,7 @@ module: oneview_logical_interconnect_facts
 short_description: Retrieve facts about one or more of the OneView Logical Interconnects.
 description:
     - Retrieve facts about one or more of the OneView Logical Interconnects.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.1"
@@ -39,21 +35,6 @@ author:
     - "Mariana Kreisig (@marikrg)"
     - "Camila Balestrin (@balestrinc)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
-    params:
-      description:
-        - List of params to delimit, filter and sort the list of resources.
-        - "params allowed:
-          'start': The first item to return, using 0-based indexing.
-          'count': The number of resources to return.
-          'filter': A general filter/query string to narrow the list of items returned.
-          'sort': The sort order of the returned data set."
-      required: false
     name:
       description:
         - Logical Interconnect name.
@@ -62,23 +43,22 @@ options:
       description:
         - "List with options to gather additional facts about Logical Interconnect.
           Options allowed:
-          'qos_aggregated_configuration' gets the QoS aggregated configuration for the logical interconnect.
-          'snmp_configuration' gets the SNMP configuration for a logical interconnect.
-          'port_monitor' gets the port monitor configuration of a logical interconnect.
-          'internal_vlans' gets the internal VLAN IDs for the provisioned networks on a logical interconnect.
-          'forwarding_information_base' gets the forwarding information base data for a logical interconnect.
-          'firmware' get the installed firmware for a logical interconnect.
-          'unassigned_uplink_ports' gets a collection of uplink ports from the member interconnects which are eligible
+          C(qos_aggregated_configuration) gets the QoS aggregated configuration for the logical interconnect.
+          C(snmp_configuration) gets the SNMP configuration for a logical interconnect.
+          C(port_monitor) gets the port monitor configuration of a logical interconnect.
+          C(internal_vlans) gets the internal VLAN IDs for the provisioned networks on a logical interconnect.
+          C(forwarding_information_base) gets the forwarding information base data for a logical interconnect.
+          C(firmware) get the installed firmware for a logical interconnect.
+          C(unassigned_uplink_ports) gets a collection of uplink ports from the member interconnects which are eligible
           for assignment to an analyzer port.
-          'telemetry_configuration' gets the telemetry configuration of the logical interconnect.
-          'ethernet_settings' gets the Ethernet interconnect settings for the Logical Interconnect.
-        - These options are valid just when a 'name' is provided. Otherwise it will be ignored."
+          C(telemetry_configuration) gets the telemetry configuration of the logical interconnect.
+          C(ethernet_settings) gets the Ethernet interconnect settings for the Logical Interconnect.
+        - These options are valid just when a C(name) is provided. Otherwise it will be ignored."
       required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
@@ -188,60 +168,50 @@ ethernet_settings:
     type: complex
 '''
 
-LOGICAL_INTERCONNECT_NOT_FOUND = 'Logical Interconnect not found.'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
 
 
-class LogicalInterconnectFactsModule(object):
+class LogicalInterconnectFactsModule(OneViewModuleBase):
+    MSG_NOT_FOUND = 'Logical Interconnect not found.'
 
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
         params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
-        if not self.module.params['config']:
-            logical_interconnects = OneViewClient.from_environment_variables().logical_interconnects
-        else:
-            logical_interconnects = OneViewClient.from_json_file(self.module.params['config']).logical_interconnects
+        super(LogicalInterconnectFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        self.resource_client = logical_interconnects
+        self.resource_client = self.oneview_client.logical_interconnects
         self.options = dict(
-            qos_aggregated_configuration=logical_interconnects.get_qos_aggregated_configuration,
-            snmp_configuration=logical_interconnects.get_snmp_configuration,
-            port_monitor=logical_interconnects.get_port_monitor,
-            internal_vlans=logical_interconnects.get_internal_vlans,
-            forwarding_information_base=logical_interconnects.get_forwarding_information_base,
-            firmware=logical_interconnects.get_firmware,
-            unassigned_uplink_ports=logical_interconnects.get_unassigned_uplink_ports,
-            telemetry_configuration=logical_interconnects.get_telemetry_configuration,
-            ethernet_settings=logical_interconnects.get_ethernet_settings,
+            qos_aggregated_configuration=self.resource_client.get_qos_aggregated_configuration,
+            snmp_configuration=self.resource_client.get_snmp_configuration,
+            port_monitor=self.resource_client.get_port_monitor,
+            internal_vlans=self.resource_client.get_internal_vlans,
+            forwarding_information_base=self.resource_client.get_forwarding_information_base,
+            firmware=self.resource_client.get_firmware,
+            unassigned_uplink_ports=self.resource_client.get_unassigned_uplink_ports,
+            telemetry_configuration=self.resource_client.get_telemetry_configuration,
+            ethernet_settings=self.resource_client.get_ethernet_settings,
         )
 
-    def run(self):
-        try:
-            name = self.module.params["name"]
+    def execute_module(self):
+        name = self.module.params["name"]
 
-            if name:
-                facts = self.__get_by_name(name)
-            else:
-                params = self.module.params.get('params') or {}
-                logical_interconnects = self.resource_client.get_all(**params)
-                facts = dict(logical_interconnects=logical_interconnects)
+        if name:
+            facts = self.__get_by_name(name)
+        else:
+            logical_interconnects = self.resource_client.get_all(**self.facts_params)
+            facts = dict(logical_interconnects=logical_interconnects)
 
-            self.module.exit_json(changed=False, ansible_facts=facts)
-        except HPOneViewException as exception:
-            self.module.fail_json(msg=exception.args[0])
+        return dict(changed=False, ansible_facts=facts)
 
     def __get_by_name(self, name):
         logical_interconnect = self.resource_client.get_by_name(name=name)
         if not logical_interconnect:
-            raise HPOneViewResourceNotFound(LOGICAL_INTERCONNECT_NOT_FOUND)
+            raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
 
         facts = dict(logical_interconnects=logical_interconnect)
 
