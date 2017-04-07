@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -14,9 +14,8 @@
 # limitations under the License.
 ###
 import unittest
-from oneview_alert_facts import AlertFactsModule
-from utils import ModuleContructorTestCase
-from utils import ErrorHandlingTestCase
+from oneview_module_loader import AlertFactsModule
+from hpe_test_utils import FactsParamsTestCase
 import copy
 
 ERROR_MSG = 'Fake message error'
@@ -38,20 +37,12 @@ ALL_ALERTS = [{
 
 
 class TaskFactsSpec(unittest.TestCase,
-                    ModuleContructorTestCase,
-                    ErrorHandlingTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-
-    ErrorHandlingTestCase has common tests for the module error handling.
-    """
+                    FactsParamsTestCase):
 
     def setUp(self):
         self.configure_mocks(self, AlertFactsModule)
         self.resource = self.mock_ov_client.alerts
-
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_all)
+        FactsParamsTestCase.configure_client_mock(self, self.resource)
 
     def test_get_all(self):
         self.resource.get_all.return_value = ALL_ALERTS
