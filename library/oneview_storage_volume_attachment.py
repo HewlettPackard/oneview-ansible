@@ -1,6 +1,6 @@
 #!/usr/bin/python
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,19 +15,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
-
-PROFILE_NOT_FOUND = "Server Profile not found."
-PRESENTATIONS_REMOVED = "Extra presentations removed"
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -35,32 +25,24 @@ module: oneview_storage_volume_attachment
 short_description: Provides an interface to remove extra presentations from a specified server profile.
 description:
     - "Provides an interface to remove extra presentations from a specified server profile."
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
 author: "Camila Balestrin (@balestrinc)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
       description:
         - Indicates the desired state for the Storage Volume Attachment
-          'extra_presentations_removed' will remove extra presentations from a specified server profile.
+          C(extra_presentations_removed) will remove extra presentations from a specified server profile.
       choices: ['extra_presentations_removed']
       required: true
     server_profile:
       description:
         - Server Profile name or Server Profile URI
       required: true
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -91,39 +73,33 @@ server_profile:
     type: complex
 '''
 
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
 
-class StorageVolumeAttachmentModule(object):
-    argument_spec = {
-        "config": {"required": False, "type": 'str'},
-        "state": {"required": True, "type": 'str'},
-        "server_profile": {"required": True, "type": 'str'},
-    }
+
+class StorageVolumeAttachmentModule(OneViewModuleBase):
+    PROFILE_NOT_FOUND = "Server Profile not found."
+    PRESENTATIONS_REMOVED = "Extra presentations removed"
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
+        argument_spec = {
+            "state": {"required": True, "type": 'str'},
+            "server_profile": {"required": True, "type": 'str'},
+        }
 
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(StorageVolumeAttachmentModule, self).__init__(additional_arg_spec=argument_spec)
+        self.resource_client = self.oneview_client.storage_volume_attachments
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+    def execute_module(self):
 
-    def run(self):
-        try:
+        data = {
+            "type": "ExtraUnmanagedStorageVolumes",
+            "resourceUri": self.__get_server_profile_uri(self.module.params['server_profile'])
+        }
 
-            data = {
-                "type": "ExtraUnmanagedStorageVolumes",
-                "resourceUri": self.__get_server_profile_uri(self.module.params['server_profile'])
-            }
-
-            attachment = self.oneview_client.storage_volume_attachments.remove_extra_presentations(data)
-            self.module.exit_json(changed=True, msg=PRESENTATIONS_REMOVED,
-                                  ansible_facts=dict(server_profile=attachment))
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg=exception.message)
+        attachment = self.oneview_client.storage_volume_attachments.remove_extra_presentations(data)
+        return dict(changed=True, msg=self.PRESENTATIONS_REMOVED,
+                    ansible_facts=dict(server_profile=attachment))
 
     def __get_server_profile_uri(self, server_profile):
         if "/" in server_profile:
@@ -134,7 +110,7 @@ class StorageVolumeAttachmentModule(object):
             if profile:
                 return profile['uri']
             else:
-                raise HPOneViewResourceNotFound(PROFILE_NOT_FOUND)
+                raise HPOneViewResourceNotFound(self.PROFILE_NOT_FOUND)
 
 
 def main():

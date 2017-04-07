@@ -7543,7 +7543,7 @@ Provides an interface to remove extra presentations from a specified server prof
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | server_profile  |   Yes  |  | |  Server Profile name or Server Profile URI  |
-| state  |   Yes  |  | <ul> <li>extra_presentations_removed</li> </ul> |  Indicates the desired state for the Storage Volume Attachment 'extra_presentations_removed' will remove extra presentations from a specified server profile.  |
+| state  |   Yes  |  | <ul> <li>extra_presentations_removed</li> </ul> |  Indicates the desired state for the Storage Volume Attachment `extra_presentations_removed` will remove extra presentations from a specified server profile.  |
 
 
  
@@ -7586,6 +7586,8 @@ Provides an interface to remove extra presentations from a specified server prof
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -7594,7 +7596,7 @@ Provides an interface to remove extra presentations from a specified server prof
 Retrieve facts about the OneView Storage Volume Attachments.
 
 #### Synopsis
- Retrieve facts about the OneView Storage Volume Attachments. To gather facts about a specific Storage Volume Attachment it is required to inform the param 'storageVolumeAttachmentUri'. It is also possible to retrieve a specific Storage Volume Attachment by the Server Profile and the Volume. For this option, it is required to inform the param 'serverProfileName' and the param 'storageVolumeName' or 'storageVolumeUri'.
+ Retrieve facts about the OneView Storage Volume Attachments. To gather facts about a specific Storage Volume Attachment it is required to inform the option _storageVolumeAttachmentUri_. It is also possible to retrieve a specific Storage Volume Attachment by the Server Profile and the Volume. For this option, it is required to inform the option _serverProfileName_ and the param _storageVolumeName_ or _storageVolumeUri_.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -7605,8 +7607,8 @@ Retrieve facts about the OneView Storage Volume Attachments.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| options  |   No  |  | |  Retrieve additional facts. Options available: 'extraUnmanagedStorageVolumes' retrieve the list of extra unmanaged storage volumes. 'paths' retrieve all paths or a specific attachment path for the specified volume attachment. To retrieve a specific path a 'pathUri' or a 'pathId' must be informed  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| options  |   No  |  | |  Retrieve additional facts. Options available: `extraUnmanagedStorageVolumes` retrieve the list of extra unmanaged storage volumes. `paths` retrieve all paths or a specific attachment path for the specified volume attachment. To retrieve a specific path a `pathUri` or a `pathId` must be informed  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 | serverProfileName  |   No  |  | |  Server Profile name.  |
 | storageVolumeAttachmentUri  |   No  |  | |  Storage Volume Attachment uri.  |
 | storageVolumeName  |   No  |  | |  Storage Volume name.  |
@@ -7705,6 +7707,8 @@ Retrieve facts about the OneView Storage Volume Attachments.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
