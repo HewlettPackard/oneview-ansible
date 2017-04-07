@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,16 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.extras.comparators import resource_compare
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
 
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -33,6 +27,7 @@ short_description: Manage OneView Logical Enclosure resources.
 description:
     - Provides an interface to manage Logical Enclosure resources. Can create, update, update firmware, perform dump,
       update configuration script, reapply configuration, update from group, or delete.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.0"
@@ -40,23 +35,17 @@ author:
     - "Gustavo Hennig (@GustavoHennig)"
     - "Mariana Kreisig (@marikrg)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Logical Enclosure resource.
-              'present' ensures data properties are compliant with OneView. You can rename the enclosure providing
-              an attribute 'newName'.
-              'firmware_updated' updates the firmware for the Logical Enclosure.
-              'script_updated' updates the Logical Enclosure configuration script.
-              'dumped' generates a support dump for the Logical Enclosure.
-              'reconfigured' reconfigures all enclosures associated with a logical enclosure.
-              'updated_from_group' makes the logical enclosure consistent with the enclosure group.
-              'absent' will remove the resource from OneView, if it exists.
+              C(present) ensures data properties are compliant with OneView. You can rename the enclosure providing
+              an attribute C(newName).
+              C(firmware_updated) updates the firmware for the Logical Enclosure.
+              C(script_updated) updates the Logical Enclosure configuration script.
+              C(dumped) generates a support dump for the Logical Enclosure.
+              C(reconfigured) reconfigures all enclosures associated with a logical enclosure.
+              C(updated_from_group) makes the logical enclosure consistent with the enclosure group.
+              C(absent) will remove the resource from OneView, if it exists.
         choices: ['present', 'firmware_updated', 'script_updated', 'dumped', 'reconfigured', 'updated_from_group',
                   'absent']
         required: true
@@ -65,12 +54,11 @@ options:
             - List with Logical Enclosure properties and its associated states.
         required: true
 notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
-    - "The 'absent' state and the creation of a Logical Enclosure done through the 'present' state are available only
+    - "The C(absent) state and the creation of a Logical Enclosure done through the C(present) state are available only
        on HPE Synergy."
+
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -162,14 +150,12 @@ EXAMPLES = '''
   delegate_to: localhost
 
 - name: Delete a Logical Enclosure (available only on HPE Synergy)
-    oneview_logical_enclosure:
+  oneview_logical_enclosure:
       config: "{{ config_file_name }}"
       state: absent
       data:
-        name: 'Encl1'
-    ignore_errors: true
+          name: 'Encl1'
   delegate_to: localhost
-
 '''
 
 RETURN = '''
@@ -189,23 +175,24 @@ generated_dump_uri:
     type: complex
 '''
 
-LOGICAL_ENCLOSURE_UPDATED = 'Logical Enclosure updated successfully.'
-LOGICAL_ENCLOSURE_ALREADY_UPDATED = 'Logical Enclosure already updated.'
-LOGICAL_ENCLOSURE_REQUIRED = "An existing Logical Enclosure is required."
-LOGICAL_ENCLOSURE_UPDATED_FROM_GROUP = 'Logical Enclosure updated from group successfully.'
-LOGICAL_ENCLOSURE_FIRMWARE_UPDATED = 'Logical Enclosure firmware updated.'
-LOGICAL_ENCLOSURE_CONFIGURATION_SCRIPT_UPDATED = 'Logical Enclosure configuration script updated.'
-LOGICAL_ENCLOSURE_DUMP_GENERATED = 'Logical Enclosure support dump generated.'
-LOGICAL_ENCLOSURE_RECONFIGURED = 'Logical Enclosure configuration reapplied.'
-LOGICAL_ENCLOSURE_DELETED = 'Logical Enclosure deleted'
-LOGICAL_ENCLOSURE_ALREADY_ABSENT = 'Logical Enclosure absent'
-LOGICAL_ENCLOSURE_CREATED = 'Logical Enclosure created'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, ResourceComparator
 
 
-class LogicalEnclosureModule(object):
+class LogicalEnclosureModule(OneViewModuleBase):
+    MSG_UPDATED = 'Logical Enclosure updated successfully.'
+    MSG_ALREADY_UPDATED = 'Logical Enclosure already updated.'
+    MSG_REQUIRED = "An existing Logical Enclosure is required."
+    MSG_UPDATED_FROM_GROUP = 'Logical Enclosure updated from group successfully.'
+    MSG_FIRMWARE_UPDATED = 'Logical Enclosure firmware updated.'
+    MSG_CONFIGURATION_SCRIPT_UPDATED = 'Logical Enclosure configuration script updated.'
+    MSG_DUMP_GENERATED = 'Logical Enclosure support dump generated.'
+    MSG_RECONFIGURED = 'Logical Enclosure configuration reapplied.'
+    MSG_DELETED = 'Logical Enclosure deleted'
+    MSG_ALREADY_ABSENT = 'Logical Enclosure absent'
+    MSG_CREATED = 'Logical Enclosure created'
+
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         state=dict(
             required=True,
             choices=['present', 'firmware_updated', 'script_updated',
@@ -215,49 +202,35 @@ class LogicalEnclosureModule(object):
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(LogicalEnclosureModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
+    def execute_module(self):
+        changed, msg, ansible_facts = False, '', {}
+
+        logical_enclosure = self.oneview_client.logical_enclosures.get_by_name(self.data['name'])
+
+        if self.state == 'present':
+            changed, msg, ansible_facts = self.__present(self.data, logical_enclosure)
+        elif self.state == 'absent':
+            changed, msg, ansible_facts = self.__absent(logical_enclosure)
         else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            if not logical_enclosure:
+                raise HPOneViewResourceNotFound(self.MSG_REQUIRED)
 
-    def run(self):
-        try:
-            state = self.module.params['state']
-            data = self.module.params['data']
-            changed, msg, ansible_facts = False, '', {}
+            if self.state == 'firmware_updated':
+                changed, msg, ansible_facts = self.__update_firmware(self.data, logical_enclosure)
+            elif self.state == 'script_updated':
+                changed, msg, ansible_facts = self.__update_script(self.data, logical_enclosure)
+            elif self.state == 'dumped':
+                changed, msg, ansible_facts = self.__support_dump(self.data, logical_enclosure)
+            elif self.state == 'reconfigured':
+                changed, msg, ansible_facts = self.__reconfigure(logical_enclosure)
+            elif self.state == 'updated_from_group':
+                changed, msg, ansible_facts = self.__update_from_group(logical_enclosure)
 
-            # get logical enclosure by name
-            logical_enclosure = self.oneview_client.logical_enclosures.get_by_name(data['name'])
-
-            if state == 'present':
-                changed, msg, ansible_facts = self.__present(data, logical_enclosure)
-            elif state == 'absent':
-                changed, msg, ansible_facts = self.__absent(logical_enclosure)
-            else:
-                if not logical_enclosure:
-                    raise HPOneViewResourceNotFound(LOGICAL_ENCLOSURE_REQUIRED)
-
-                if state == 'firmware_updated':
-                    changed, msg, ansible_facts = self.__update_firmware(data, logical_enclosure)
-                elif state == 'script_updated':
-                    changed, msg, ansible_facts = self.__update_script(data, logical_enclosure)
-                elif state == 'dumped':
-                    changed, msg, ansible_facts = self.__support_dump(data, logical_enclosure)
-                elif state == 'reconfigured':
-                    changed, msg, ansible_facts = self.__reconfigure(logical_enclosure)
-                elif state == 'updated_from_group':
-                    changed, msg, ansible_facts = self.__update_from_group(logical_enclosure)
-
-            self.module.exit_json(changed=changed,
-                                  msg=msg,
-                                  ansible_facts=ansible_facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg=exception.args[0])
+        return dict(changed=changed,
+                    msg=msg,
+                    ansible_facts=ansible_facts)
 
     def __present(self, data, logical_enclosure):
         if logical_enclosure:
@@ -268,7 +241,7 @@ class LogicalEnclosureModule(object):
 
     def __create(self, data):
         new_logical_enclosure = self.oneview_client.logical_enclosures.create(data)
-        return True, LOGICAL_ENCLOSURE_CREATED, dict(logical_enclosure=new_logical_enclosure)
+        return True, self.MSG_CREATED, dict(logical_enclosure=new_logical_enclosure)
 
     def __get_by_name(self, data):
         result = self.oneview_client.logical_enclosures.get_by('name', data['name'])
@@ -277,11 +250,11 @@ class LogicalEnclosureModule(object):
     def __absent(self, logical_enclosure):
         if logical_enclosure:
             changed = True
-            msg = LOGICAL_ENCLOSURE_DELETED
+            msg = self.MSG_DELETED
             self.oneview_client.logical_enclosures.delete(logical_enclosure)
         else:
             changed = False
-            msg = LOGICAL_ENCLOSURE_ALREADY_ABSENT
+            msg = self.MSG_ALREADY_ABSENT
         return changed, msg, dict(logical_enclosure=None)
 
     def __update(self, new_data, existent_resource):
@@ -292,19 +265,17 @@ class LogicalEnclosureModule(object):
         merged_data = existent_resource.copy()
         merged_data.update(new_data)
 
-        if not resource_compare(existent_resource, merged_data):
-            # update resource
+        if not ResourceComparator.compare(existent_resource, merged_data):
             existent_resource = self.oneview_client.logical_enclosures.update(merged_data)
-            return True, LOGICAL_ENCLOSURE_UPDATED, dict(logical_enclosure=existent_resource)
+            return True, self.MSG_UPDATED, dict(logical_enclosure=existent_resource)
         else:
-            return False, LOGICAL_ENCLOSURE_ALREADY_UPDATED, dict(logical_enclosure=existent_resource)
+            return False, self.MSG_ALREADY_UPDATED, dict(logical_enclosure=existent_resource)
 
     def __update_script(self, data, logical_enclosure):
         script = data.pop("configurationScript")
 
-        # update the configuration script
         self.oneview_client.logical_enclosures.update_script(logical_enclosure['uri'], script)
-        return True, LOGICAL_ENCLOSURE_CONFIGURATION_SCRIPT_UPDATED, dict(configuration_script=script)
+        return True, self.MSG_CONFIGURATION_SCRIPT_UPDATED, dict(configuration_script=script)
 
     def __update_firmware(self, data, logical_enclosure):
         logical_enclosure = self.oneview_client.logical_enclosures.patch(logical_enclosure['uri'],
@@ -312,24 +283,24 @@ class LogicalEnclosureModule(object):
                                                                          path="/firmware",
                                                                          value=data['firmware'])
 
-        return True, LOGICAL_ENCLOSURE_FIRMWARE_UPDATED, dict(logical_enclosure=logical_enclosure)
+        return True, self.MSG_FIRMWARE_UPDATED, dict(logical_enclosure=logical_enclosure)
 
     def __support_dump(self, data, logical_enclosure):
         generated_dump_uri = self.oneview_client.logical_enclosures.generate_support_dump(
             data['dump'],
             logical_enclosure['uri'])
 
-        return True, LOGICAL_ENCLOSURE_DUMP_GENERATED, dict(generated_dump_uri=generated_dump_uri)
+        return True, self.MSG_DUMP_GENERATED, dict(generated_dump_uri=generated_dump_uri)
 
     def __reconfigure(self, logical_enclosure):
         logical_enclosure = self.oneview_client.logical_enclosures.update_configuration(logical_enclosure['uri'])
 
-        return True, LOGICAL_ENCLOSURE_RECONFIGURED, dict(logical_enclosure=logical_enclosure)
+        return True, self.MSG_RECONFIGURED, dict(logical_enclosure=logical_enclosure)
 
     def __update_from_group(self, logical_enclosure):
         logical_enclosure = self.oneview_client.logical_enclosures.update_from_group(logical_enclosure['uri'])
 
-        return True, LOGICAL_ENCLOSURE_UPDATED_FROM_GROUP, dict(logical_enclosure=logical_enclosure)
+        return True, self.MSG_UPDATED_FROM_GROUP, dict(logical_enclosure=logical_enclosure)
 
 
 def main():

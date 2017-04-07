@@ -1,6 +1,7 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,12 +18,8 @@
 import unittest
 import yaml
 
-from test.utils import PreloadedMocksBaseTestCase, ModuleContructorTestCase, ErrorHandlingTestCase
-from oneview_logical_enclosure import LogicalEnclosureModule, LOGICAL_ENCLOSURE_UPDATED, \
-    LOGICAL_ENCLOSURE_ALREADY_UPDATED, LOGICAL_ENCLOSURE_FIRMWARE_UPDATED, \
-    LOGICAL_ENCLOSURE_CONFIGURATION_SCRIPT_UPDATED, \
-    LOGICAL_ENCLOSURE_DUMP_GENERATED, LOGICAL_ENCLOSURE_RECONFIGURED, LOGICAL_ENCLOSURE_UPDATED_FROM_GROUP, \
-    LOGICAL_ENCLOSURE_REQUIRED, LOGICAL_ENCLOSURE_CREATED, LOGICAL_ENCLOSURE_DELETED, LOGICAL_ENCLOSURE_ALREADY_ABSENT
+from hpe_test_utils import OneViewBaseTestCase
+from oneview_module_loader import LogicalEnclosureModule
 
 YAML_LOGICAL_ENCLOSURE = """
     config: "{{ config }}"
@@ -113,20 +110,16 @@ DICT_DEFAULT_LOGICAL_ENCLOSURE = yaml.load(YAML_LOGICAL_ENCLOSURE)["data"]
 
 
 class LogicalEnclosureModuleSpec(unittest.TestCase,
-                                 ModuleContructorTestCase,
-                                 ErrorHandlingTestCase):
+                                 OneViewBaseTestCase):
     """
-    Test the module constructor
-    ModuleContructorTestCase has common tests for class constructor and main function
+    OneViewBaseTestCase has a test for main function and provides common mocks used by this test case.
+    """
 
-    ErrorHandlingTestCase has common tests for the module error handling.
-    """
     def setUp(self):
         self.configure_mocks(self, LogicalEnclosureModule)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.logical_enclosures.get_by_name)
 
 
-class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
+class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
     def setUp(self):
         self.configure_mocks(self, LogicalEnclosureModule)
 
@@ -139,7 +132,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_ENCLOSURE_CREATED,
+            msg=LogicalEnclosureModule.MSG_CREATED,
             ansible_facts=dict(logical_enclosure=DICT_DEFAULT_LOGICAL_ENCLOSURE)
         )
 
@@ -151,7 +144,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=LOGICAL_ENCLOSURE_ALREADY_UPDATED,
+            msg=LogicalEnclosureModule.MSG_ALREADY_UPDATED,
             ansible_facts=dict(logical_enclosure=DICT_DEFAULT_LOGICAL_ENCLOSURE)
         )
 
@@ -167,7 +160,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_ENCLOSURE_UPDATED,
+            msg=LogicalEnclosureModule.MSG_UPDATED,
             ansible_facts=dict(logical_enclosure=data_merged)
         )
 
@@ -180,7 +173,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_ENCLOSURE_FIRMWARE_UPDATED,
+            msg=LogicalEnclosureModule.MSG_FIRMWARE_UPDATED,
             ansible_facts=dict(logical_enclosure={'PATCH', 'EXECUTED'})
         )
 
@@ -190,7 +183,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         LogicalEnclosureModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LOGICAL_ENCLOSURE_REQUIRED)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_update_script_when_resource_exists(self):
         self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
@@ -200,7 +193,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_ENCLOSURE_CONFIGURATION_SCRIPT_UPDATED,
+            msg=LogicalEnclosureModule.MSG_CONFIGURATION_SCRIPT_UPDATED,
             ansible_facts=dict(configuration_script='# script (updated)')
         )
 
@@ -210,7 +203,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         LogicalEnclosureModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LOGICAL_ENCLOSURE_REQUIRED)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_generate_support_dump_when_resource_exist(self):
         self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
@@ -221,7 +214,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_ENCLOSURE_DUMP_GENERATED,
+            msg=LogicalEnclosureModule.MSG_DUMP_GENERATED,
             ansible_facts=dict(generated_dump_uri='/rest/appliance/dumpedfile')
         )
 
@@ -231,7 +224,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         LogicalEnclosureModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LOGICAL_ENCLOSURE_REQUIRED)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_reconfigure_when_resource_exist(self):
         self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
@@ -242,7 +235,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_ENCLOSURE_RECONFIGURED,
+            msg=LogicalEnclosureModule.MSG_RECONFIGURED,
             ansible_facts=dict(logical_enclosure={'Configuration', 'Updated'})
         )
 
@@ -252,7 +245,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         LogicalEnclosureModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LOGICAL_ENCLOSURE_REQUIRED)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_update_from_group_when_resource_exist(self):
         self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
@@ -263,7 +256,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_ENCLOSURE_UPDATED_FROM_GROUP,
+            msg=LogicalEnclosureModule.MSG_UPDATED_FROM_GROUP,
             ansible_facts=dict(logical_enclosure={'Updated from group'})
         )
 
@@ -273,7 +266,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         LogicalEnclosureModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LOGICAL_ENCLOSURE_REQUIRED)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_delete_logical_enclosure_when_resource_exist(self):
         self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
@@ -284,7 +277,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_ENCLOSURE_DELETED,
+            msg=LogicalEnclosureModule.MSG_DELETED,
             ansible_facts=dict(logical_enclosure=None)
         )
 
@@ -296,7 +289,7 @@ class LogicalEnclosureSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=LOGICAL_ENCLOSURE_ALREADY_ABSENT,
+            msg=LogicalEnclosureModule.MSG_ALREADY_ABSENT,
             ansible_facts=dict(logical_enclosure=None)
         )
 
