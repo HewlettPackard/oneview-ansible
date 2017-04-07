@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,18 +16,12 @@
 
 import unittest
 
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
-
-from oneview_server_profile_template_facts import ServerProfileTemplateFactsModule
+from hpe_test_utils import FactsParamsTestCase
+from oneview_module_loader import ServerProfileTemplateFactsModule
 
 ERROR_MSG = 'Fake message error'
-
 TEMPLATE_NAME = "ProfileTemplate101"
-
 TEMPLATE_URI = "/rest/server-profile-templates/0d02350a-8ac1-40b9-8b7e-5ee9a78c8f0e"
-
 ENCLOSURE_GROUP_FOR_TRANSFORMATION = "/rest/enclosure-groups/34e4af48-f57d-45d6-a0a3-e9c18d69bc90"
 SERVER_HARDWARE_TYPE_FOR_TRANSFORMATION = "/rest/server-hardware-types/172D9A28-7F63-479E-BBCD-A91C7F7848DB"
 
@@ -82,20 +76,15 @@ TEMPLATES = [BASIC_TEMPLATE]
 
 
 class ServerProfileTemplateFactsSpec(unittest.TestCase,
-                                     ModuleContructorTestCase,
-                                     FactsParamsTestCase,
-                                     ErrorHandlingTestCase):
+                                     FactsParamsTestCase):
     """
-    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
-    mocks used in this test class.
+    FactsParamsTestCase has common tests for the parameters support and provides the mocks used in this test class.
+    """
 
-    FactsParamsTestCase has common tests for the parameters support.
-    """
     def setUp(self):
         self.configure_mocks(self, ServerProfileTemplateFactsModule)
 
         FactsParamsTestCase.configure_client_mock(self, self.mock_ov_client.server_profile_templates)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.server_profile_templates.get_by_name)
 
     def test_should_get_all_templates(self):
         self.mock_ov_client.server_profile_templates.get_all.return_value = TEMPLATES

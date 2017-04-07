@@ -1,7 +1,7 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,52 +15,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import logging
 
-from ansible.module_utils.basic import *
-
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.extras.comparators import resource_compare
-    from hpOneView.extras.server_profile_utils import ServerProfileReplaceNamesByUris
-    from hpOneView.extras.server_profile_utils import ServerProfileMerger
-    from hpOneView.extras.server_profile_utils import Keys
-    from hpOneView.exceptions import HPOneViewTaskError
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewValueError
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
-from copy import deepcopy
-
-ASSIGN_HARDWARE_ERROR_CODES = ['AssignProfileToDeviceBayError',
-                               'EnclosureBayUnavailableForProfile',
-                               'ProfileAlreadyExistsInServer']
-
-TEMPLATE_NOT_FOUND = "Informed Server Profile Template '{}' not found"
-HARDWARE_NOT_FOUND = "Informed Server Hardware '{}' not found"
-SERVER_PROFILE_CREATED = "Server Profile created."
-SERVER_ALREADY_UPDATED = 'Server Profile is already updated.'
-SERVER_PROFILE_UPDATED = 'Server profile updated'
-SERVER_PROFILE_DELETED = 'Deleted profile'
-SERVER_PROFILE_ALREADY_ABSENT = 'Nothing do.'
-REMEDIATED_COMPLIANCE = "Remediated compliance issues"
-ALREADY_COMPLIANT = "Server Profile is already compliant."
-SERVER_PROFILE_NOT_FOUND = "Server Profile is required for this operation."
-ERROR_ALLOCATE_SERVER_HARDWARE = 'Could not allocate server hardware'
-MAKE_COMPLIANT_NOT_SUPPORTED = "Update from template is not supported for server profile '{}' because it is not " \
-                               "associated with a server profile template."
-
-CONCURRENCY_FAILOVER_RETRIES = 25
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
 module: oneview_server_profile
 short_description: Manage OneView Server Profile resources.
 description:
-    - Manage the servers lifecycle with OneView Server Profiles. On 'present' state, it selects a server hardware
+    - Manage the servers lifecycle with OneView Server Profiles. On C(present) state, it selects a server hardware
       automatically based on the server profile configuration if no server hardware was provided.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.0"
@@ -69,20 +36,13 @@ author:
     - "Camila Balestrin (@balestrinc)"
     - "Mariana Kreisig (@marikrg)"
 options:
-  config:
-    description:
-      - Path to a .json configuration file containing the OneView client configuration.
-        The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-        environment variables.
-    required: false
   state:
     description:
       - Indicates the desired state for the Server Profile resource by the end of the playbook execution.
-        'present' will ensure data properties are compliant with OneView. This operation will power off the Server
+        C(present) will ensure data properties are compliant with OneView. This operation will power off the Server
         Hardware before configuring the Server Profile. After it completes, the Server Hardware is powered on.
-        For the osDeploymentSettings, you can provide an osDeploymentPlanName instead of osDeploymentPlanUri.
-        'absent' will remove the resource from OneView, if it exists.
-        'compliant' will make the server profile compliant with its server profile template, when this option was
+        C(absent) will remove the resource from OneView, if it exists.
+        C(compliant) will make the server profile compliant with its server profile template, when this option was
         specified. If there are Offline updates, the Server Hardware is turned off before remediate compliance issues
         and turned on after that.
     default: present
@@ -91,24 +51,18 @@ options:
     description:
       - List with Server Profile properties.
     required: true
-  validate_etag:
-    description:
-      - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for
-        the resource matches the ETag provided in the data.
-    default: true
-    choices: ['true', 'false']
 notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
-    - "For the following data, you can provide either a name  or a URI: enclosureGroupName or enclosureGroupUri,
+    - "For the following data, you can provide either a name or a URI: enclosureGroupName or enclosureGroupUri,
        osDeploymentPlanName or osDeploymentPlanUri (on the osDeploymentSettings), networkName or networkUri (on the
        connections list), volumeName or volumeUri (on the volumeAttachments list), volumeStoragePoolName or
        volumeStoragePoolUri (on the volumeAttachments list), volumeStorageSystemName or volumeStorageSystemUri (on the
        volumeAttachments list), serverHardwareTypeName or  serverHardwareTypeUri, enclosureName or enclosureUri,
        firmwareBaselineName or firmwareBaselineUri (on the firmware), and sasLogicalJBODName or sasLogicalJBODUri (on
        the sasLogicalJBODs list)"
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -201,29 +155,45 @@ created:
     type: bool
 '''
 
+from ansible.module_utils.basic import AnsibleModule
+import time
+from module_utils.oneview import (OneViewModuleBase,
+                                  ServerProfileReplaceNamesByUris,
+                                  HPOneViewValueError,
+                                  ServerProfileMerger,
+                                  ResourceComparator,
+                                  HPOneViewTaskError,
+                                  SPKeys,
+                                  HPOneViewException)
+from copy import deepcopy
 
 # To activate logs, setup the environment var LOGFILE
 # e.g.: export LOGFILE=/tmp/ansible-oneview.log
-def get_logger(mod_name):
-    logger = logging.getLogger(os.path.basename(mod_name))
-    global LOGFILE
-    LOGFILE = os.environ.get('LOGFILE')
-    if not LOGFILE:
-        logger.addHandler(logging.NullHandler())
-    else:
-        logging.basicConfig(level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S',
-                            format='%(asctime)s %(levelname)s %(name)s %(message)s',
-                            filename=LOGFILE, filemode='a')
-    return logger
+logger = OneViewModuleBase.get_logger(__file__)
 
 
-logger = get_logger(__file__)
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+class ServerProfileModule(OneViewModuleBase):
+    ASSIGN_HARDWARE_ERROR_CODES = ['AssignProfileToDeviceBayError',
+                                   'EnclosureBayUnavailableForProfile',
+                                   'ProfileAlreadyExistsInServer']
 
+    MSG_TEMPLATE_NOT_FOUND = "Informed Server Profile Template '{}' not found"
+    MSG_HARDWARE_NOT_FOUND = "Informed Server Hardware '{}' not found"
+    MSG_CREATED = "Server Profile created."
+    MSG_ALREADY_UPDATED = 'Server Profile is already updated.'
+    MSG_UPDATED = 'Server profile updated'
+    MSG_DELETED = 'Deleted profile'
+    MSG_ALREADY_ABSENT = 'Nothing do.'
+    MSG_REMEDIATED_COMPLIANCE = "Remediated compliance issues"
+    MSG_ALREADY_COMPLIANT = "Server Profile is already compliant."
+    MSG_NOT_FOUND = "Server Profile is required for this operation."
+    MSG_ERROR_ALLOCATE_SERVER_HARDWARE = 'Could not allocate server hardware'
+    MSG_MAKE_COMPLIANT_NOT_SUPPORTED = "Update from template is not supported for server profile '{}' because it is" \
+                                       " not associated with a server profile template."
 
-class ServerProfileModule(object):
+    CONCURRENCY_FAILOVER_RETRIES = 25
+
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         state=dict(
             required=False,
             choices=[
@@ -233,56 +203,36 @@ class ServerProfileModule(object):
             ],
             default='present'
         ),
-        data=dict(required=True, type='dict'),
-        validate_etag=dict(
-            required=False,
-            type='bool',
-            default=True),
+        data=dict(required=True, type='dict')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(
-            argument_spec=self.argument_spec,
-            supports_check_mode=False
-        )
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(ServerProfileModule, self).__init__(additional_arg_spec=self.argument_spec,
+                                                  validate_etag_support=True)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
-
-        if not self.module.params.get('validate_etag'):
-            self.oneview_client.connection.disable_etag_validation()
-
-    def run(self):
-        data = deepcopy(self.module.params['data'])
+    def execute_module(self):
+        data = deepcopy(self.data)
         server_profile_name = data.get('name')
-        state = self.module.params['state']
 
-        try:
-            server_profile = self.oneview_client.server_profiles.get_by_name(server_profile_name)
+        server_profile = self.oneview_client.server_profiles.get_by_name(server_profile_name)
 
-            if state == 'present':
-                created, changed, msg, server_profile = self.__present(data, server_profile)
-                facts = self.__gather_facts(server_profile)
-                facts['created'] = created
-                self.module.exit_json(
-                    changed=changed, msg=msg, ansible_facts=facts
-                )
-            elif state == 'absent':
-                changed, msg = self.__delete_profile(server_profile)
-                self.module.exit_json(
-                    changed=changed, msg=msg
-                )
-            elif state == "compliant":
-                changed, msg, server_profile = self.__make_compliant(server_profile)
-                self.module.exit_json(
-                    changed=changed, msg=msg, ansible_facts=self.__gather_facts(server_profile)
-                )
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        if self.state == 'present':
+            created, changed, msg, server_profile = self.__present(data, server_profile)
+            facts = self.__gather_facts(server_profile)
+            facts['created'] = created
+            return dict(
+                changed=changed, msg=msg, ansible_facts=facts
+            )
+        elif self.state == 'absent':
+            changed, msg = self.__delete_profile(server_profile)
+            return dict(
+                changed=changed, msg=msg
+            )
+        elif self.state == "compliant":
+            changed, msg, server_profile = self.__make_compliant(server_profile)
+            return dict(
+                changed=changed, msg=msg, ansible_facts=self.__gather_facts(server_profile)
+            )
 
     def __present(self, data, resource):
 
@@ -297,13 +247,13 @@ class ServerProfileModule(object):
         if server_hardware_name:
             selected_server_hardware = self.__get_server_hardware_by_name(server_hardware_name)
             if not selected_server_hardware:
-                raise HPOneViewValueError(HARDWARE_NOT_FOUND.format(server_hardware_name))
+                raise HPOneViewValueError(self.MSG_HARDWARE_NOT_FOUND.format(server_hardware_name))
             data['serverHardwareUri'] = selected_server_hardware['uri']
 
         if server_template_name:
             server_template = self.oneview_client.server_profile_templates.get_by_name(server_template_name)
             if not server_template:
-                raise HPOneViewValueError(TEMPLATE_NOT_FOUND.format(server_template_name))
+                raise HPOneViewValueError(self.MSG_TEMPLATE_NOT_FOUND.format(server_template_name))
             data['serverProfileTemplateUri'] = server_template['uri']
         elif data.get('serverProfileTemplateUri'):
             server_template = self.oneview_client.server_profile_templates.get(data['serverProfileTemplateUri'])
@@ -312,16 +262,16 @@ class ServerProfileModule(object):
             resource = self.__create_profile(data, server_template)
             changed = True
             created = True
-            msg = SERVER_PROFILE_CREATED
+            msg = self.MSG_CREATED
         else:
             merged_data = ServerProfileMerger().merge_data(resource, data)
 
-            if not resource_compare(resource, merged_data):
+            if not ResourceComparator.compare(resource, merged_data):
                 resource = self.__update_server_profile(merged_data)
                 changed = True
-                msg = SERVER_PROFILE_UPDATED
+                msg = self.MSG_UPDATED
             else:
-                msg = SERVER_ALREADY_UPDATED
+                msg = self.MSG_ALREADY_UPDATED
 
         return created, changed, msg, resource
 
@@ -344,7 +294,7 @@ class ServerProfileModule(object):
         tries = 0
         self.__remove_inconsistent_data(data)
 
-        while tries < CONCURRENCY_FAILOVER_RETRIES:
+        while tries < self.CONCURRENCY_FAILOVER_RETRIES:
             try:
                 tries += 1
 
@@ -367,7 +317,7 @@ class ServerProfileModule(object):
 
             except HPOneViewTaskError as task_error:
                 logger.exception("Error code: {} Message: {}".format(str(task_error.error_code), str(task_error.msg)))
-                if task_error.error_code in ASSIGN_HARDWARE_ERROR_CODES:
+                if task_error.error_code in self.ASSIGN_HARDWARE_ERROR_CODES:
                     # if this is because the server is already assigned, someone grabbed it before we assigned,
                     # ignore and try again
                     # This waiting time was chosen empirically and it could differ according to the hardware.
@@ -375,7 +325,7 @@ class ServerProfileModule(object):
                 else:
                     raise task_error
 
-        raise HPOneViewException(ERROR_ALLOCATE_SERVER_HARDWARE)
+        raise HPOneViewException(self.MSG_ERROR_ALLOCATE_SERVER_HARDWARE)
 
     def __build_new_profile_data(self, data, server_template, server_hardware_uri):
 
@@ -400,36 +350,36 @@ class ServerProfileModule(object):
             return defined_type == 'Virtual' or defined_type == 'Physical'
 
         # Remove the MAC from connections when MAC type is Virtual or Physical
-        mac_type = data.get(Keys.MAC_TYPE, None)
+        mac_type = data.get(SPKeys.MAC_TYPE, None)
         if mac_type and is_virtual_or_physical(mac_type):
-            for conn in data.get(Keys.CONNECTIONS) or []:
-                conn.pop(Keys.MAC, None)
+            for conn in data.get(SPKeys.CONNECTIONS) or []:
+                conn.pop(SPKeys.MAC, None)
 
         # Remove the UUID when Serial Number Type is Virtual or Physical
-        serial_number_type = data.get(Keys.SERIAL_NUMBER_TYPE, None)
+        serial_number_type = data.get(SPKeys.SERIAL_NUMBER_TYPE, None)
         if serial_number_type and is_virtual_or_physical(serial_number_type):
-            data.pop(Keys.UUID, None)
-            data.pop(Keys.SERIAL_NUMBER, None)
+            data.pop(SPKeys.UUID, None)
+            data.pop(SPKeys.SERIAL_NUMBER, None)
 
         # Remove the WWPN and WWNN when WWPN Type is Virtual or Physical
-        for conn in data.get(Keys.CONNECTIONS) or []:
-            wwpn_type = conn.get(Keys.WWPN_TYPE, None)
+        for conn in data.get(SPKeys.CONNECTIONS) or []:
+            wwpn_type = conn.get(SPKeys.WWPN_TYPE, None)
             if is_virtual_or_physical(wwpn_type):
-                conn.pop(Keys.WWNN, None)
-                conn.pop(Keys.WWPN, None)
+                conn.pop(SPKeys.WWNN, None)
+                conn.pop(SPKeys.WWPN, None)
 
         # Remove the driveNumber from the Controllers Drives
-        if Keys.LOCAL_STORAGE in data and data[Keys.LOCAL_STORAGE]:
-            for controller in data[Keys.LOCAL_STORAGE].get(Keys.CONTROLLERS) or []:
-                for drive in controller.get(Keys.LOGICAL_DRIVES) or []:
-                    drive.pop(Keys.DRIVE_NUMBER, None)
+        if SPKeys.LOCAL_STORAGE in data and data[SPKeys.LOCAL_STORAGE]:
+            for controller in data[SPKeys.LOCAL_STORAGE].get(SPKeys.CONTROLLERS) or []:
+                for drive in controller.get(SPKeys.LOGICAL_DRIVES) or []:
+                    drive.pop(SPKeys.DRIVE_NUMBER, None)
 
         # Remove the Lun when Lun Type from SAN Storage Volume is Auto
-        if Keys.SAN in data and data[Keys.SAN]:
-            if Keys.VOLUMES in data[Keys.SAN]:
-                for volume in data[Keys.SAN].get(Keys.VOLUMES) or []:
-                    if volume.get(Keys.LUN_TYPE) == 'Auto':
-                        volume.pop(Keys.LUN, None)
+        if SPKeys.SAN in data and data[SPKeys.SAN]:
+            if SPKeys.VOLUMES in data[SPKeys.SAN]:
+                for volume in data[SPKeys.SAN].get(SPKeys.VOLUMES) or []:
+                    if volume.get(SPKeys.LUN_TYPE) == 'Auto':
+                        volume.pop(SPKeys.LUN, None)
 
     def __get_available_server_hardware_uri(self, server_profile, server_template):
 
@@ -457,24 +407,24 @@ class ServerProfileModule(object):
 
     def __delete_profile(self, server_profile):
         if not server_profile:
-            return False, SERVER_PROFILE_ALREADY_ABSENT
+            return False, self.MSG_ALREADY_ABSENT
 
         if server_profile.get('serverHardwareUri'):
             self.__set_server_hardware_power_state(server_profile['serverHardwareUri'], 'Off')
 
         self.oneview_client.server_profiles.delete(server_profile)
-        return True, SERVER_PROFILE_DELETED
+        return True, self.MSG_DELETED
 
     def __make_compliant(self, server_profile):
 
         changed = False
-        msg = ALREADY_COMPLIANT
+        msg = self.MSG_ALREADY_COMPLIANT
 
         if not server_profile.get('serverProfileTemplateUri'):
             logger.error("Make the Server Profile compliant is not supported for this profile")
-            self.module.fail_json(msg=MAKE_COMPLIANT_NOT_SUPPORTED.format(server_profile['name']))
+            self.module.fail_json(msg=self.MSG_MAKE_COMPLIANT_NOT_SUPPORTED.format(server_profile['name']))
 
-        elif (server_profile['templateCompliance'] != 'Compliant'):
+        elif server_profile['templateCompliance'] != 'Compliant':
             logger.debug(
                 "Get the preview of manual and automatic updates required to make the server profile consistent "
                 "with its template.")
@@ -498,7 +448,7 @@ class ServerProfileModule(object):
                 self.__set_server_hardware_power_state(server_profile['serverHardwareUri'], 'On')
 
             changed = True
-            msg = REMEDIATED_COMPLIANCE
+            msg = self.MSG_REMEDIATED_COMPLIANCE
 
         return changed, msg, server_profile
 

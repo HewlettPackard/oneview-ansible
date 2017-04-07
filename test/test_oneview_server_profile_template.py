@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,17 +15,8 @@
 ###
 import unittest
 from copy import deepcopy
-
-from oneview_server_profile_template import (ServerProfileTemplateModule,
-                                             SRV_PROFILE_TEMPLATE_SRV_HW_TYPE_NOT_FOUND,
-                                             SRV_PROFILE_TEMPLATE_ENCLOSURE_GROUP_NOT_FOUND,
-                                             SRV_PROFILE_TEMPLATE_CREATED,
-                                             SRV_PROFILE_TEMPLATE_UPDATED,
-                                             SRV_PROFILE_TEMPLATE_ALREADY_EXIST,
-                                             SRV_PROFILE_TEMPLATE_DELETED,
-                                             SRV_PROFILE_TEMPLATE_ALREADY_ABSENT)
-
-from utils import ValidateEtagTestCase, ModuleContructorTestCase, ErrorHandlingTestCase
+from oneview_module_loader import ServerProfileTemplateModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 TEMPLATE_NAME = 'ProfileTemplate101'
@@ -92,13 +83,10 @@ PARAMS_FOR_ABSENT = dict(
 
 
 class ServerProfileTemplateModuleSpec(unittest.TestCase,
-                                      ModuleContructorTestCase,
-                                      ValidateEtagTestCase,
-                                      ErrorHandlingTestCase):
+                                      OneViewBaseTestCase):
     def setUp(self):
         self.configure_mocks(self, ServerProfileTemplateModule)
         self.resource = self.mock_ov_client.server_profile_templates
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by_name)
 
     def test_should_create_new_template_when_it_not_exists(self):
         self.resource.get_by_name.return_value = []
@@ -110,7 +98,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SRV_PROFILE_TEMPLATE_CREATED,
+            msg=ServerProfileTemplateModule.MSG_CREATED,
             ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE)
         )
 
@@ -124,7 +112,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SRV_PROFILE_TEMPLATE_ALREADY_EXIST,
+            msg=ServerProfileTemplateModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE)
         )
 
@@ -145,7 +133,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SRV_PROFILE_TEMPLATE_UPDATED,
+            msg=ServerProfileTemplateModule.MSG_UPDATED,
             ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE)
         )
 
@@ -166,7 +154,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SRV_PROFILE_TEMPLATE_UPDATED,
+            msg=ServerProfileTemplateModule.MSG_UPDATED,
             ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE)
         )
 
@@ -181,7 +169,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase,
         ServerProfileTemplateModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SRV_PROFILE_TEMPLATE_SRV_HW_TYPE_NOT_FOUND + 'Srv HW Type Name'
+            msg=ServerProfileTemplateModule.MSG_SRV_HW_TYPE_NOT_FOUND + 'Srv HW Type Name'
         )
 
     def test_should_fail_when_enclosure_group_not_found(self):
@@ -195,7 +183,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase,
         ServerProfileTemplateModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SRV_PROFILE_TEMPLATE_ENCLOSURE_GROUP_NOT_FOUND + 'EG Name'
+            msg=ServerProfileTemplateModule.MSG_ENCLOSURE_GROUP_NOT_FOUND + 'EG Name'
         )
 
     def test_should_delete_when_template_exists(self):
@@ -209,7 +197,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SRV_PROFILE_TEMPLATE_DELETED
+            msg=ServerProfileTemplateModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_templates_not_exists(self):
@@ -221,7 +209,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SRV_PROFILE_TEMPLATE_ALREADY_ABSENT
+            msg=ServerProfileTemplateModule.MSG_ALREADY_ABSENT
         )
 
 

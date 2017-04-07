@@ -14,8 +14,21 @@
 # limitations under the License.
 ###
 
+"""
+This module was created because the code in this repository is shared with Ansible Core.
+So, to avoid merging issues, and maintaining the tests code equal, we create a unique file to
+configure the imports that change from one repository to another.
+"""
+
 ONEVIEW_MODULE_UTILS_PATH = 'module_utils.oneview'
 
+from module_utils.oneview import (HPOneViewException,
+                                  HPOneViewTaskError,
+                                  OneViewModuleBase,
+                                  SPKeys,
+                                  ServerProfileMerger,
+                                  ServerProfileReplaceNamesByUris,
+                                  ResourceComparator)
 from image_streamer_artifact_bundle import ArtifactBundleModule
 from image_streamer_artifact_bundle_facts import ArtifactBundleFactsModule
 from image_streamer_build_plan import BuildPlanModule

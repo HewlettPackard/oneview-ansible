@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -18,19 +18,17 @@ import unittest
 import mock
 
 from copy import deepcopy
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase, ValidateEtagTestCase
-from hpOneView.exceptions import HPOneViewTaskError
-from hpOneView.exceptions import HPOneViewException
-from oneview_server_profile import get_logger
-from oneview_server_profile import ServerProfileModule
-from oneview_server_profile import ServerProfileMerger
-from hpOneView.extras.server_profile_utils import Keys
-from oneview_server_profile import MAKE_COMPLIANT_NOT_SUPPORTED, SERVER_PROFILE_CREATED, REMEDIATED_COMPLIANCE, \
-    ALREADY_COMPLIANT, SERVER_PROFILE_DELETED, SERVER_PROFILE_UPDATED, SERVER_ALREADY_UPDATED, \
-    ERROR_ALLOCATE_SERVER_HARDWARE, SERVER_PROFILE_ALREADY_ABSENT
 
-from oneview_server_profile import ServerProfileReplaceNamesByUris
+from oneview_module_loader import (ServerProfileModule,
+                                   HPOneViewException,
+                                   HPOneViewTaskError,
+                                   OneViewModuleBase,
+                                   SPKeys,
+                                   ServerProfileMerger,
+                                   ServerProfileReplaceNamesByUris,
+                                   ResourceComparator)
+
+from hpe_test_utils import OneViewBaseTestCase
 
 SERVER_PROFILE_NAME = "Profile101"
 SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
@@ -39,7 +37,7 @@ ENCLOSURE_GROUP_URI = "/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c
 TEMPLATE_URI = '/rest/server-profile-templates/9a156b04-fce8-40b0-b0cd-92ced1311dda'
 FAKE_SERVER_HARDWARE = {'uri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'}
 
-MESSAGE_COMPLIANT_ERROR = MAKE_COMPLIANT_NOT_SUPPORTED.format(SERVER_PROFILE_NAME)
+MESSAGE_COMPLIANT_ERROR = ServerProfileModule.MSG_MAKE_COMPLIANT_NOT_SUPPORTED.format(SERVER_PROFILE_NAME)
 FAKE_MSG_ERROR = 'Fake message error'
 
 TASK_ERROR = HPOneViewTaskError(msg=FAKE_MSG_ERROR, error_code='AssignProfileToDeviceBayError')
@@ -179,9 +177,7 @@ def gather_facts(mock_ov_client, created=False, online_update=True):
 
 
 class ServerProfileModuleSpec(unittest.TestCase,
-                              ModuleContructorTestCase,
-                              ValidateEtagTestCase,
-                              ErrorHandlingTestCase):
+                              OneViewBaseTestCase):
     """
     Test the module constructor
     ModuleContructorTestCase has common tests for class constructor and main function
@@ -191,7 +187,6 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
     def setUp(self):
         self.configure_mocks(self, ServerProfileModule)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.server_profiles.get_by_name)
         self.sleep_patch = mock.patch('time.sleep')
         self.sleep_patch.start()
         self.sleep_patch.return_value = None
@@ -206,7 +201,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         fake_logger = mock.Mock()
         mock_get_logger.return_value = fake_logger
 
-        get_logger('/home/dev/oneview-ansible/library/oneview_server_profile.py')
+        OneViewModuleBase.get_logger('/home/dev/oneview-ansible/library/oneview_server_profile.py')
 
         mock_get_logger.assert_called_once_with('oneview_server_profile.py')
         fake_logger.addHandler.not_been_called()
@@ -224,7 +219,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         fake_logger = mock.Mock()
         mock_get_logger.return_value = fake_logger
 
-        get_logger('/home/dev/oneview-ansible/library/oneview_server_profile.py')
+        OneViewModuleBase.get_logger('/home/dev/oneview-ansible/library/oneview_server_profile.py')
 
         mock_get_logger.assert_called_once_with('oneview_server_profile.py')
         fake_logger.addHandler.assert_called_once_with(logging.NullHandler())
@@ -252,7 +247,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False, msg=ALREADY_COMPLIANT, ansible_facts=mock_facts)
+            changed=False, msg=ServerProfileModule.MSG_ALREADY_COMPLIANT, ansible_facts=mock_facts)
 
     def test_should_update_when_not_compliant(self):
         fake_server = deepcopy(CREATED_BASIC_PROFILE)
@@ -269,7 +264,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
             CREATED_BASIC_PROFILE['uri'], 'replace', '/templateCompliance', 'Compliant')
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True, msg=REMEDIATED_COMPLIANCE, ansible_facts=mock_facts)
+            changed=True, msg=ServerProfileModule.MSG_REMEDIATED_COMPLIANCE, ansible_facts=mock_facts)
 
     def test_should_power_off_when_is_offline_update(self):
         fake_server = deepcopy(CREATED_BASIC_PROFILE)
@@ -296,7 +291,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         self.mock_ov_client.server_hardware.update_power_state.assert_has_calls(power_set_calls)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True, msg=REMEDIATED_COMPLIANCE, ansible_facts=mock_facts)
+            changed=True, msg=ServerProfileModule.MSG_REMEDIATED_COMPLIANCE, ansible_facts=mock_facts)
 
     def test_should_create_with_automatically_selected_hardware_when_not_exists(self):
         profile_data = deepcopy(BASIC_PROFILE)
@@ -315,7 +310,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_PROFILE_CREATED,
+            msg=ServerProfileModule.MSG_CREATED,
             ansible_facts=mock_facts
         )
 
@@ -347,7 +342,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_PROFILE_CREATED,
+            msg=ServerProfileModule.MSG_CREATED,
             ansible_facts=mock_facts
         )
 
@@ -378,7 +373,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_PROFILE_CREATED,
+            msg=ServerProfileModule.MSG_CREATED,
             ansible_facts=mock_facts
         )
 
@@ -401,7 +396,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_PROFILE_CREATED,
+            msg=ServerProfileModule.MSG_CREATED,
             ansible_facts=mock_facts
         )
 
@@ -434,7 +429,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_PROFILE_CREATED,
+            msg=ServerProfileModule.MSG_CREATED,
             ansible_facts=mock_facts
         )
 
@@ -456,7 +451,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         self.assertEqual(25, times_create_called)
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ERROR_ALLOCATE_SERVER_HARDWARE
+            msg=ServerProfileModule.MSG_ERROR_ALLOCATE_SERVER_HARDWARE
         )
 
     def test_should_try_create_with_informed_hardware_2_times_when_not_exists(self):
@@ -483,7 +478,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_PROFILE_CREATED,
+            msg=ServerProfileModule.MSG_CREATED,
             ansible_facts=mock_facts
         )
 
@@ -503,7 +498,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         self.assertEqual(25, times_create_called)
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ERROR_ALLOCATE_SERVER_HARDWARE
+            msg=ServerProfileModule.MSG_ERROR_ALLOCATE_SERVER_HARDWARE
         )
 
     def test_should_fail_when_exception_is_not_related_with_server_hardware(self):
@@ -574,7 +569,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_PROFILE_CREATED,
+            msg=ServerProfileModule.MSG_CREATED,
             ansible_facts=mock_facts
         )
 
@@ -582,7 +577,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         uri = '/rest/os-deployment-plans/81decf85-0dff-4a5e-8a95-52994eeb6493'
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
+        params['data'][SPKeys.OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.os_deployment_plans.get_by.return_value = [dict(uri=uri)]
@@ -591,11 +586,11 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertEqual(args[0][Keys.OS_DEPLOYMENT], dict(osDeploymentPlanUri=uri))
+        self.assertEqual(args[0][SPKeys.OS_DEPLOYMENT], dict(osDeploymentPlanUri=uri))
 
     def test_should_fail_when_deployment_plan_not_found_on_creation(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
+        params['data'][SPKeys.OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.os_deployment_plans.get_by.return_value = []
@@ -641,7 +636,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         conn_3 = dict(name="connection-3", networkName='Ethernet Network')
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.CONNECTIONS] = [conn_1, conn_2, conn_3]
+        params['data'][SPKeys.CONNECTIONS] = [conn_1, conn_2, conn_3]
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], []]
@@ -655,13 +650,13 @@ class ServerProfileModuleSpec(unittest.TestCase,
                                 dict(name="connection-3", networkUri='/rest/ethernet-networks/18')]
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertEqual(args[0].get(Keys.CONNECTIONS), expected_connections)
+        self.assertEqual(args[0].get(SPKeys.CONNECTIONS), expected_connections)
 
     def test_should_fail_when_network_not_found_on_creation(self):
         conn = dict(name="connection-1", networkName='FC Network')
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.CONNECTIONS] = [conn]
+        params['data'][SPKeys.CONNECTIONS] = [conn]
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.fc_networks.get_by.return_value = []
@@ -1222,8 +1217,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
     def test_should_remove_mac_from_connections_before_create_when_mac_is_virtual(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
-        params['data'][Keys.MAC_TYPE] = 'Virtual'
+        params['data'][SPKeys.CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
+        params['data'][SPKeys.MAC_TYPE] = 'Virtual'
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1231,16 +1226,16 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         expected_connections = [deepcopy(CONNECTION_1), deepcopy(CONNECTION_2)]
-        expected_connections[0].pop(Keys.MAC)
-        expected_connections[1].pop(Keys.MAC)
+        expected_connections[0].pop(SPKeys.MAC)
+        expected_connections[1].pop(SPKeys.MAC)
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertEqual(args[0][Keys.CONNECTIONS], expected_connections)
+        self.assertEqual(args[0][SPKeys.CONNECTIONS], expected_connections)
 
     def test_should_remove_mac_from_connections_before_create_when_mac_is_physical(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
-        params['data'][Keys.MAC_TYPE] = 'Physical'
+        params['data'][SPKeys.CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
+        params['data'][SPKeys.MAC_TYPE] = 'Physical'
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1248,17 +1243,17 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         expected_connections = [deepcopy(CONNECTION_1), deepcopy(CONNECTION_2)]
-        expected_connections[0].pop(Keys.MAC)
-        expected_connections[1].pop(Keys.MAC)
+        expected_connections[0].pop(SPKeys.MAC)
+        expected_connections[1].pop(SPKeys.MAC)
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertEqual(args[0][Keys.CONNECTIONS], expected_connections)
+        self.assertEqual(args[0][SPKeys.CONNECTIONS], expected_connections)
 
     def test_should_remove_serial_number_before_create_when_serial_number_type_is_virtual(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.SERIAL_NUMBER_TYPE] = 'Virtual'
-        params['data'][Keys.UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
-        params['data'][Keys.SERIAL_NUMBER] = 'VCGNC3V000'
+        params['data'][SPKeys.SERIAL_NUMBER_TYPE] = 'Virtual'
+        params['data'][SPKeys.UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
+        params['data'][SPKeys.SERIAL_NUMBER] = 'VCGNC3V000'
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1266,14 +1261,14 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertTrue(Keys.UUID not in args[0])
-        self.assertTrue(Keys.SERIAL_NUMBER not in args[0])
+        self.assertTrue(SPKeys.UUID not in args[0])
+        self.assertTrue(SPKeys.SERIAL_NUMBER not in args[0])
 
     def test_should_remove_serial_number_before_create_when_serial_number_type_is_physical(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.SERIAL_NUMBER_TYPE] = 'Physical'
-        params['data'][Keys.UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
-        params['data'][Keys.SERIAL_NUMBER] = 'VCGNC3V000'
+        params['data'][SPKeys.SERIAL_NUMBER_TYPE] = 'Physical'
+        params['data'][SPKeys.UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
+        params['data'][SPKeys.SERIAL_NUMBER] = 'VCGNC3V000'
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1281,29 +1276,29 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertTrue(Keys.UUID not in args[0])
-        self.assertTrue(Keys.SERIAL_NUMBER not in args[0])
+        self.assertTrue(SPKeys.UUID not in args[0])
+        self.assertTrue(SPKeys.SERIAL_NUMBER not in args[0])
 
     def test_should_remove_wwpn_from_conns_before_create_when_wwpn_is_virtual_or_physical(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.CONNECTIONS] = [CONNECTION_1_WITH_WWPN, CONNECTION_2_WITH_WWPN]
+        params['data'][SPKeys.CONNECTIONS] = [CONNECTION_1_WITH_WWPN, CONNECTION_2_WITH_WWPN]
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
 
         expected_connections = [deepcopy(CONNECTION_1_WITH_WWPN), deepcopy(CONNECTION_2_WITH_WWPN)]
-        expected_connections[0].pop(Keys.WWNN)
-        expected_connections[0].pop(Keys.WWPN)
-        expected_connections[1].pop(Keys.WWNN)
-        expected_connections[1].pop(Keys.WWPN)
+        expected_connections[0].pop(SPKeys.WWNN)
+        expected_connections[0].pop(SPKeys.WWPN)
+        expected_connections[1].pop(SPKeys.WWNN)
+        expected_connections[1].pop(SPKeys.WWPN)
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertEqual(args[0][Keys.CONNECTIONS], expected_connections)
+        self.assertEqual(args[0][SPKeys.CONNECTIONS], expected_connections)
 
     def test_should_remove_drive_number_from_controller_drives_before_create(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.LOCAL_STORAGE] = dict(controllers=[CONTROLLER_EMBEDDED.copy()])
+        params['data'][SPKeys.LOCAL_STORAGE] = dict(controllers=[CONTROLLER_EMBEDDED.copy()])
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1311,15 +1306,15 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         expected_drives = deepcopy(DRIVES_CONTROLLER_EMBEDDED)
-        expected_drives[0].pop(Keys.DRIVE_NUMBER)
-        expected_drives[1].pop(Keys.DRIVE_NUMBER)
+        expected_drives[0].pop(SPKeys.DRIVE_NUMBER)
+        expected_drives[1].pop(SPKeys.DRIVE_NUMBER)
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertEqual(args[0][Keys.LOCAL_STORAGE][Keys.CONTROLLERS][0][Keys.LOGICAL_DRIVES], expected_drives)
+        self.assertEqual(args[0][SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][0][SPKeys.LOGICAL_DRIVES], expected_drives)
 
     def test_should_remove_lun_from_san_volumes_before_create_when_luntype_is_auto(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.SAN] = SAN_STORAGE
+        params['data'][SPKeys.SAN] = SAN_STORAGE
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1327,18 +1322,18 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         expected_volumes = [deepcopy(VOLUME_1), deepcopy(VOLUME_2)]
-        expected_volumes[0].pop(Keys.LUN)
-        expected_volumes[1].pop(Keys.LUN)
+        expected_volumes[0].pop(SPKeys.LUN)
+        expected_volumes[1].pop(SPKeys.LUN)
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertFalse(args[0][Keys.SAN][Keys.VOLUMES][0].get(Keys.LUN))
-        self.assertFalse(args[0][Keys.SAN][Keys.VOLUMES][1].get(Keys.LUN))
+        self.assertFalse(args[0][SPKeys.SAN][SPKeys.VOLUMES][0].get(SPKeys.LUN))
+        self.assertFalse(args[0][SPKeys.SAN][SPKeys.VOLUMES][1].get(SPKeys.LUN))
 
     def test_should_not_fail_creating_basic_server_profile_when_assignment_types_are_virtual(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.MAC_TYPE] = 'Virtual'
-        params['data'][Keys.SERIAL_NUMBER_TYPE] = 'Virtual'
-        params['data'][Keys.WWPN_TYPE] = 'Virtual'
+        params['data'][SPKeys.MAC_TYPE] = 'Virtual'
+        params['data'][SPKeys.SERIAL_NUMBER_TYPE] = 'Virtual'
+        params['data'][SPKeys.WWPN_TYPE] = 'Virtual'
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1349,9 +1344,9 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
     def test_should_not_fail_creating_basic_server_profile_when_assignment_types_are_physical(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.MAC_TYPE] = 'Physical'
-        params['data'][Keys.SERIAL_NUMBER_TYPE] = 'Physical'
-        params['data'][Keys.WWPN_TYPE] = 'Physical'
+        params['data'][SPKeys.MAC_TYPE] = 'Physical'
+        params['data'][SPKeys.SERIAL_NUMBER_TYPE] = 'Physical'
+        params['data'][SPKeys.WWPN_TYPE] = 'Physical'
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
@@ -1360,7 +1355,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ov_client.server_profiles.create.assert_called_once()
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_update_when_data_changed(self, mock_resource_compare):
         profile_data = deepcopy(BASIC_PROFILE)
         mock_resource_compare.return_value = False
@@ -1378,11 +1373,11 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_PROFILE_UPDATED,
+            msg=ServerProfileModule.MSG_UPDATED,
             ansible_facts=mock_facts
         )
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_power_off_before_update_when_data_changed(self, mock_resource_compare):
         fake_profile_data = deepcopy(BASIC_PROFILE)
         fake_profile_data['serverHardwareUri'] = SHT_URI
@@ -1407,11 +1402,11 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_PROFILE_UPDATED,
+            msg=ServerProfileModule.MSG_UPDATED,
             ansible_facts=mock_facts
         )
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_not_update_when_data_is_equals(self, mock_resource_compare):
         profile_data = deepcopy(CREATED_BASIC_PROFILE)
 
@@ -1424,11 +1419,11 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SERVER_ALREADY_UPDATED,
+            msg=ServerProfileModule.MSG_ALREADY_UPDATED,
             ansible_facts=mock_facts
         )
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_not_change_power_state_when_data_is_equals(self, mock_resource_compare):
         profile_data = deepcopy(CREATED_BASIC_PROFILE)
 
@@ -1441,7 +1436,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ov_client.server_hardware.update_power_state.not_been_called()
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_fail_when_informed_template_not_exist_for_update(self, mock_resource_compare):
         profile_data = deepcopy(CREATED_BASIC_PROFILE)
 
@@ -1462,7 +1457,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg="Informed Server Profile Template 'TemplateA200' not found")
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_fail_when_informed_hardware_not_exist_for_update(self, mock_resource_compare):
         profile_data = deepcopy(CREATED_BASIC_PROFILE)
 
@@ -1483,7 +1478,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg="Informed Server Hardware 'ServerHardwareName' not found")
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     @mock.patch.object(ServerProfileMerger, 'merge_data')
     def test_should_call_deep_merge_when_resource_found(self, mock_deep_merge, mock_resource_compare):
         server_profile = deepcopy(BASIC_PROFILE)
@@ -1496,7 +1491,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         mock_deep_merge.assert_called_once_with(server_profile, PARAMS_FOR_PRESENT['data'])
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     @mock.patch.object(ServerProfileMerger, 'merge_data')
     def test_should_compare_original_and_merged_resource(self, mock_deep_merge, mock_resource_compare):
         server_profile = deepcopy(BASIC_PROFILE)
@@ -1512,13 +1507,13 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         mock_resource_compare.assert_called_once_with(server_profile, merged_data)
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_replace_os_deployment_name_by_uri_on_update(self, mock_resource_compare):
         uri = '/rest/os-deployment-plans/81decf85-0dff-4a5e-8a95-52994eeb6493'
         mock_resource_compare.return_value = False
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
+        params['data'][SPKeys.OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.os_deployment_plans.get_by.return_value = [dict(uri=uri)]
@@ -1527,11 +1522,11 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][Keys.OS_DEPLOYMENT], dict(osDeploymentPlanUri=uri))
+        self.assertEqual(args[0][SPKeys.OS_DEPLOYMENT], dict(osDeploymentPlanUri=uri))
 
     def test_should_fail_when_deployment_plan_not_found_on_update(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
+        params['data'][SPKeys.OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.os_deployment_plans.get_by.return_value = []
@@ -1577,7 +1572,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         conn_3 = dict(name="connection-3", networkName='Ethernet Network')
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.CONNECTIONS] = [conn_1, conn_2, conn_3]
+        params['data'][SPKeys.CONNECTIONS] = [conn_1, conn_2, conn_3]
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], []]
@@ -1591,13 +1586,13 @@ class ServerProfileModuleSpec(unittest.TestCase,
                                 dict(name="connection-3", networkUri='/rest/ethernet-networks/18')]
 
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0].get(Keys.CONNECTIONS), expected_connections)
+        self.assertEqual(args[0].get(SPKeys.CONNECTIONS), expected_connections)
 
     def test_should_fail_when_network_not_found_on_update(self):
         conn = dict(name="connection-1", networkName='FC Network')
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.CONNECTIONS] = [conn]
+        params['data'][SPKeys.CONNECTIONS] = [conn]
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.fc_networks.get_by.return_value = []
@@ -1609,11 +1604,11 @@ class ServerProfileModuleSpec(unittest.TestCase,
         expected_error = ServerProfileReplaceNamesByUris.SERVER_PROFILE_NETWORK_NOT_FOUND + "FC Network"
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_not_remove_mac_from_connections_before_update_when_mac_is_virtual(self, mock_resource_compare):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
-        params['data'][Keys.MAC_TYPE] = 'Virtual'
+        params['data'][SPKeys.CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
+        params['data'][SPKeys.MAC_TYPE] = 'Virtual'
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1623,15 +1618,15 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         expected_connections = [CONNECTION_1, CONNECTION_2]
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][Keys.CONNECTIONS], expected_connections)
+        self.assertEqual(args[0][SPKeys.CONNECTIONS], expected_connections)
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_not_remove_mac_from_connections_before_update_when_mac_is_physical(self, mock_resource_compare):
         mock_resource_compare.return_value = False
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
-        params['data'][Keys.MAC_TYPE] = 'Physical'
+        params['data'][SPKeys.CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
+        params['data'][SPKeys.MAC_TYPE] = 'Physical'
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1641,15 +1636,15 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         expected_connections = [CONNECTION_1, CONNECTION_2]
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][Keys.CONNECTIONS], expected_connections)
+        self.assertEqual(args[0][SPKeys.CONNECTIONS], expected_connections)
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_not_remove_serial_number_before_update_when_serial_number_type_is_virtual(self,
                                                                                               mock_resource_compare):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.SERIAL_NUMBER_TYPE] = 'Virtual'
-        params['data'][Keys.UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
-        params['data'][Keys.SERIAL_NUMBER] = 'VCGNC3V000'
+        params['data'][SPKeys.SERIAL_NUMBER_TYPE] = 'Virtual'
+        params['data'][SPKeys.UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
+        params['data'][SPKeys.SERIAL_NUMBER] = 'VCGNC3V000'
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1658,16 +1653,16 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][Keys.UUID], 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806')
-        self.assertEqual(args[0][Keys.SERIAL_NUMBER], 'VCGNC3V000')
+        self.assertEqual(args[0][SPKeys.UUID], 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806')
+        self.assertEqual(args[0][SPKeys.SERIAL_NUMBER], 'VCGNC3V000')
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_not_remove_serial_number_before_update_when_serial_number_type_is_physical(self,
                                                                                                mock_resource_compare):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.SERIAL_NUMBER_TYPE] = 'Physical'
-        params['data'][Keys.UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
-        params['data'][Keys.SERIAL_NUMBER] = 'VCGNC3V000'
+        params['data'][SPKeys.SERIAL_NUMBER_TYPE] = 'Physical'
+        params['data'][SPKeys.UUID] = 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806'
+        params['data'][SPKeys.SERIAL_NUMBER] = 'VCGNC3V000'
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1676,13 +1671,13 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][Keys.UUID], 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806')
-        self.assertEqual(args[0][Keys.SERIAL_NUMBER], 'VCGNC3V000')
+        self.assertEqual(args[0][SPKeys.UUID], 'eb0e2fac-bbe5-4ad1-84d3-3e38481c9806')
+        self.assertEqual(args[0][SPKeys.SERIAL_NUMBER], 'VCGNC3V000')
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_not_remove_wwpn_from_conns_before_update_when_wwpn_is_virtual(self, mock_resource_compare):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.CONNECTIONS] = [CONNECTION_1_WITH_WWPN]
+        params['data'][SPKeys.CONNECTIONS] = [CONNECTION_1_WITH_WWPN]
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1692,12 +1687,12 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         expected_connections = [CONNECTION_1_WITH_WWPN]
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][Keys.CONNECTIONS], expected_connections)
+        self.assertEqual(args[0][SPKeys.CONNECTIONS], expected_connections)
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_not_remove_wwpn_from_conns_before_update_when_wwpn_is_physical(self, mock_resource_compare):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.CONNECTIONS] = [CONNECTION_2_WITH_WWPN]
+        params['data'][SPKeys.CONNECTIONS] = [CONNECTION_2_WITH_WWPN]
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1707,12 +1702,12 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         expected_connections = [CONNECTION_2_WITH_WWPN]
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][Keys.CONNECTIONS], expected_connections)
+        self.assertEqual(args[0][SPKeys.CONNECTIONS], expected_connections)
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_not_remove_drive_number_from_controller_drives_before_update(self, mock_resource_compare):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.LOCAL_STORAGE] = dict(controllers=[CONTROLLER_EMBEDDED.copy()])
+        params['data'][SPKeys.LOCAL_STORAGE] = dict(controllers=[CONTROLLER_EMBEDDED.copy()])
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1722,13 +1717,13 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         expected_drives = DRIVES_CONTROLLER_EMBEDDED
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][Keys.LOCAL_STORAGE][Keys.CONTROLLERS][0][Keys.LOGICAL_DRIVES], expected_drives)
+        self.assertEqual(args[0][SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][0][SPKeys.LOGICAL_DRIVES], expected_drives)
 
-    @mock.patch('oneview_server_profile.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_not_remove_lun_from_san_volumes_before_update_when_luntype_is_auto(self,
                                                                                        mock_resource_compare):
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][Keys.SAN] = SAN_STORAGE
+        params['data'][SPKeys.SAN] = SAN_STORAGE
 
         mock_resource_compare.return_value = False
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
@@ -1737,8 +1732,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][Keys.SAN][Keys.VOLUMES][0], VOLUME_1)
-        self.assertEqual(args[0][Keys.SAN][Keys.VOLUMES][1], VOLUME_2)
+        self.assertEqual(args[0][SPKeys.SAN][SPKeys.VOLUMES][0], VOLUME_1)
+        self.assertEqual(args[0][SPKeys.SAN][SPKeys.VOLUMES][1], VOLUME_2)
 
     def test_should_do_nothing_when_server_hardware_already_absent(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
@@ -1752,7 +1747,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SERVER_PROFILE_ALREADY_ABSENT
+            msg=ServerProfileModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_turn_off_hardware_before_delete(self):
@@ -1774,7 +1769,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_PROFILE_DELETED
+            msg=ServerProfileModule.MSG_DELETED
         )
 
     def test_should_not_turn_off_hardware_if_not_associated_before_delete(self):
@@ -1793,7 +1788,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_PROFILE_DELETED
+            msg=ServerProfileModule.MSG_DELETED
         )
 
 
