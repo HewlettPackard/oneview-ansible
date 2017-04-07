@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,12 +16,8 @@
 import unittest
 import yaml
 
-from oneview_server_hardware import ServerHardwareModule, SERVER_HARDWARE_ADDED, SERVER_HARDWARE_ALREADY_ADDED, \
-    SERVER_HARDWARE_DELETED, SERVER_HARDWARE_ALREADY_ABSENT, SERVER_HARDWARE_MANDATORY_FIELD_MISSING, \
-    SERVER_HARDWARE_POWER_STATE_UPDATED, SERVER_HARDWARE_NOT_FOUND, SERVER_HARDWARE_REFRESH_STATE_UPDATED, \
-    SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED, SERVER_HARDWARE_ENV_CONFIG_UPDATED, NOTHING_TO_DO, \
-    SERVER_HARDWARE_UID_STATE_CHANGED, SERVER_HARDWARE_ILO_STATE_RESET
-from test.utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
+from oneview_module_loader import ServerHardwareModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -106,24 +102,14 @@ DICT_DEFAULT_SERVER_HARDWARE = yaml.load(YAML_SERVER_HARDWARE_PRESENT)["data"]
 
 
 class ServerHardwareModuleSpec(unittest.TestCase,
-                               ModuleContructorTestCase,
-                               ValidateEtagTestCase,
-                               ErrorHandlingTestCase):
+                               OneViewBaseTestCase):
     """
-    Test the module constructor
-    ModuleContructorTestCase has common tests for class constructor and main function
-
-    ValidateEtagTestCase has common tests for the validate_etag attribute.
-
-    ErrorHandlingTestCase has common tests for the module error handling.
+    OneViewBaseTestCase provides the mocks used in this test case
     """
 
     def setUp(self):
         self.configure_mocks(self, ServerHardwareModule)
         self.resource = self.mock_ov_client.server_hardware
-
-        ErrorHandlingTestCase.configure(self, ansible_params=yaml.load(YAML_SERVER_HARDWARE_PRESENT),
-                                        method_to_fire=self.resource.get_by)
 
     def test_should_add_new_server_hardware(self):
         self.resource.get_by.return_value = []
@@ -135,7 +121,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_HARDWARE_ADDED,
+            msg=ServerHardwareModule.MSG_ADDED,
             ansible_facts=dict(server_hardware={"name": "name"})
         )
 
@@ -148,7 +134,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SERVER_HARDWARE_ALREADY_ADDED,
+            msg=ServerHardwareModule.MSG_ALREADY_ADDED,
             ansible_facts=dict(server_hardware={"name": "name"})
         )
 
@@ -164,7 +150,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_HARDWARE_ENV_CONFIG_UPDATED,
+            msg=ServerHardwareModule.MSG_ENV_CONFIG_UPDATED,
             ansible_facts=dict(server_hardware={"name": "name"})
         )
 
@@ -177,7 +163,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
         ServerHardwareModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SERVER_HARDWARE_MANDATORY_FIELD_MISSING.format('data.hostname')
+            msg=ServerHardwareModule.MSG_MANDATORY_FIELD_MISSING.format('data.hostname')
         )
 
     def test_should_fail_with_missing_name_attribute(self):
@@ -189,7 +175,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
         ServerHardwareModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SERVER_HARDWARE_MANDATORY_FIELD_MISSING.format('data.name')
+            msg=ServerHardwareModule.MSG_MANDATORY_FIELD_MISSING.format('data.name')
         )
 
     def test_should_remove_server_hardware(self):
@@ -200,9 +186,8 @@ class ServerHardwareModuleSpec(unittest.TestCase,
         ServerHardwareModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=True,
-            msg=SERVER_HARDWARE_DELETED
+            msg=ServerHardwareModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_server_hardware_not_exist(self):
@@ -213,9 +198,8 @@ class ServerHardwareModuleSpec(unittest.TestCase,
         ServerHardwareModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=False,
-            msg=SERVER_HARDWARE_ALREADY_ABSENT
+            msg=ServerHardwareModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_set_power_state(self):
@@ -228,7 +212,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_HARDWARE_POWER_STATE_UPDATED,
+            msg=ServerHardwareModule.MSG_POWER_STATE_UPDATED,
             ansible_facts=dict(server_hardware={"name": "name"})
         )
 
@@ -240,7 +224,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
         ServerHardwareModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SERVER_HARDWARE_NOT_FOUND
+            msg=ServerHardwareModule.MSG_SERVER_HARDWARE_NOT_FOUND
         )
 
     def test_should_set_refresh_state(self):
@@ -253,7 +237,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_HARDWARE_REFRESH_STATE_UPDATED,
+            msg=ServerHardwareModule.MSG_REFRESH_STATE_UPDATED,
             ansible_facts=dict(server_hardware={"name": "name"})
         )
 
@@ -265,7 +249,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
         ServerHardwareModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SERVER_HARDWARE_NOT_FOUND
+            msg=ServerHardwareModule.MSG_SERVER_HARDWARE_NOT_FOUND
         )
 
     def test_should_set_ilo_firmware(self):
@@ -278,7 +262,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_HARDWARE_ILO_FIRMWARE_VERSION_UPDATED,
+            msg=ServerHardwareModule.MSG_ILO_FIRMWARE_VERSION_UPDATED,
             ansible_facts=dict(server_hardware={"name": "name"})
         )
 
@@ -290,7 +274,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
         ServerHardwareModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SERVER_HARDWARE_NOT_FOUND
+            msg=ServerHardwareModule.MSG_SERVER_HARDWARE_NOT_FOUND
         )
 
     def test_should_reset_ilo_state(self):
@@ -308,7 +292,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_HARDWARE_ILO_STATE_RESET,
+            msg=ServerHardwareModule.MSG_ILO_STATE_RESET,
             ansible_facts=dict(server_hardware={"name": "name"})
         )
 
@@ -327,7 +311,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_HARDWARE_UID_STATE_CHANGED,
+            msg=ServerHardwareModule.MSG_UID_STATE_CHANGED,
             ansible_facts=dict(server_hardware={"name": "name"})
         )
 
@@ -344,7 +328,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
         self.resource.patch.assert_not_called()
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=NOTHING_TO_DO,
+            msg=ServerHardwareModule.MSG_NOTHING_TO_DO,
             ansible_facts=dict(server_hardware=server_hardware)
         )
 
@@ -363,7 +347,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_HARDWARE_UID_STATE_CHANGED,
+            msg=ServerHardwareModule.MSG_UID_STATE_CHANGED,
             ansible_facts=dict(server_hardware={"name": "name"})
         )
 
@@ -380,7 +364,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
         self.resource.patch.assert_not_called()
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=NOTHING_TO_DO,
+            msg=ServerHardwareModule.MSG_NOTHING_TO_DO,
             ansible_facts=dict(server_hardware=server_hardware)
         )
 

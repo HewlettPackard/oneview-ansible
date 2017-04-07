@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,9 +15,8 @@
 ###
 
 import unittest
-
-from oneview_server_hardware_facts import ServerHardwareFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
+from oneview_module_loader import ServerHardwareFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -57,22 +56,12 @@ PARAMS_WITH_ALL_FIRMWARES_WITH_FILTERS = dict(
 )
 
 
-class ServerHardwareFactsSpec(unittest.TestCase,
-                              ModuleContructorTestCase,
-                              FactsParamsTestCase,
-                              ErrorHandlingTestCase):
-    """
-    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
-    mocks used in this test class.
-
-    FactsParamsTestCase has common tests for the parameters support.
-    """
+class ServerHardwareFactsSpec(unittest.TestCase, FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, ServerHardwareFactsModule)
         self.server_hardware = self.mock_ov_client.server_hardware
 
         FactsParamsTestCase.configure_client_mock(self, self.server_hardware)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.server_hardware.get_by)
 
     def test_should_get_all_server_hardware(self):
         self.server_hardware.get_all.return_value = {"name": "Server Hardware Name"}
