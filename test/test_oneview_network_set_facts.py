@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@
 ###
 
 import unittest
-from oneview_network_set_facts import NetworkSetFactsModule
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import NetworkSetFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -46,14 +44,11 @@ PARAMS_GET_BY_NAME_WITHOUT_ETHERNET = dict(
 
 
 class NetworkSetFactsSpec(unittest.TestCase,
-                          ModuleContructorTestCase,
-                          FactsParamsTestCase,
-                          ErrorHandlingTestCase):
+                          FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, NetworkSetFactsModule)
         self.network_sets = self.mock_ov_client.network_sets
         FactsParamsTestCase.configure_client_mock(self, self.network_sets)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.network_sets.get_by)
 
     def test_should_get_all_network_sets(self):
         network_sets = [{

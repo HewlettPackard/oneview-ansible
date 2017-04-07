@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,11 +15,8 @@
 ###
 import unittest
 
-from oneview_network_set import NetworkSetModule
-from oneview_network_set import NETWORK_SET_CREATED, NETWORK_SET_UPDATED, NETWORK_SET_DELETED, \
-    NETWORK_SET_ALREADY_EXIST, NETWORK_SET_ALREADY_ABSENT, NETWORK_SET_NEW_NAME_INVALID, \
-    NETWORK_SET_ENET_NETWORK_NOT_FOUND
-from utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
+from oneview_module_loader import NetworkSetModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -53,21 +50,16 @@ PARAMS_FOR_ABSENT = dict(
 
 
 class NetworkSetModuleSpec(unittest.TestCase,
-                           ModuleContructorTestCase,
-                           ValidateEtagTestCase,
-                           ErrorHandlingTestCase):
+                           OneViewBaseTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-    ValidateEtagTestCase has common tests for the validate_etag attribute.
-    ErrorHandlingTestCase has common tests for the module error handling.
+    OneViewBaseTestCase has common tests for class constructor and main function,
+    also provides the mocks used in this test case.
     """
 
     def setUp(self):
         self.configure_mocks(self, NetworkSetModule)
         self.resource = self.mock_ov_client.network_sets
         self.ethernet_network_client = self.mock_ov_client.ethernet_networks
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_network_set(self):
         self.resource.get_by.return_value = []
@@ -79,7 +71,7 @@ class NetworkSetModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=NETWORK_SET_CREATED,
+            msg=NetworkSetModule.MSG_CREATED,
             ansible_facts=dict(network_set=NETWORK_SET)
         )
 
@@ -92,7 +84,7 @@ class NetworkSetModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=NETWORK_SET_ALREADY_EXIST,
+            msg=NetworkSetModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(network_set=NETWORK_SET)
         )
 
@@ -112,20 +104,8 @@ class NetworkSetModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=NETWORK_SET_UPDATED,
+            msg=NetworkSetModule.MSG_UPDATED,
             ansible_facts=dict(network_set=data_merged)
-        )
-
-    def test_should_raise_exception_when_new_name_already_used(self):
-        self.resource.get_by.side_effect = [NETWORK_SET], [NETWORK_SET_WITH_NEW_NAME]
-        self.ethernet_network_client.get_by.return_value = [{'uri': '/rest/ethernet-networks/ddd-eee-fff'}]
-
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
-
-        NetworkSetModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=NETWORK_SET_NEW_NAME_INVALID
         )
 
     def test_should_raise_exception_when_ethernet_network_not_found(self):
@@ -137,7 +117,7 @@ class NetworkSetModuleSpec(unittest.TestCase,
         NetworkSetModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=NETWORK_SET_ENET_NETWORK_NOT_FOUND + "Name of a Network"
+            msg=NetworkSetModule.MSG_ETHERNET_NETWORK_NOT_FOUND + "Name of a Network"
         )
 
     def test_should_remove_network(self):
@@ -149,7 +129,7 @@ class NetworkSetModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=NETWORK_SET_DELETED
+            msg=NetworkSetModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_network_set_not_exist(self):
@@ -161,7 +141,7 @@ class NetworkSetModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=NETWORK_SET_ALREADY_ABSENT
+            msg=NetworkSetModule.MSG_ALREADY_ABSENT
         )
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,17 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.extras.comparators import resource_compare
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
-    from hpOneView.exceptions import HPOneViewValueError
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -34,38 +26,26 @@ module: oneview_network_set
 short_description: Manage OneView Network Set resources.
 description:
     - Provides an interface to manage Network Set resources. Can create, update, or delete.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
       description:
         - Indicates the desired state for the Network Set resource.
-          'present' ensures data properties are compliant with OneView.
-          'absent' removes the resource from OneView, if it exists.
+          C(present) ensures data properties are compliant with OneView.
+          C(absent) removes the resource from OneView, if it exists.
       choices: ['present', 'absent']
     data:
       description:
         - List with the Network Set properties.
       required: true
-    validate_etag:
-      description:
-        - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
-          for the resource matches the ETag provided in the data.
-      default: true
-      choices: ['true', 'false']
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -104,108 +84,39 @@ network_set:
     type: complex
 '''
 
-NETWORK_SET_CREATED = 'Network Set created successfully.'
-NETWORK_SET_UPDATED = 'Network Set updated successfully.'
-NETWORK_SET_DELETED = 'Network Set deleted successfully.'
-NETWORK_SET_ALREADY_EXIST = 'Network Set already exists.'
-NETWORK_SET_ALREADY_ABSENT = 'Nothing to do.'
-NETWORK_SET_NEW_NAME_INVALID = 'Rename failed: the new name provided is being used by another Network Set.'
-NETWORK_SET_ENET_NETWORK_NOT_FOUND = 'Ethernet network not found: '
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
 
 
-class NetworkSetModule(object):
+class NetworkSetModule(OneViewModuleBase):
+    MSG_CREATED = 'Network Set created successfully.'
+    MSG_UPDATED = 'Network Set updated successfully.'
+    MSG_DELETED = 'Network Set deleted successfully.'
+    MSG_ALREADY_EXIST = 'Network Set already exists.'
+    MSG_ALREADY_ABSENT = 'Network Set is already absent.'
+    MSG_ETHERNET_NETWORK_NOT_FOUND = 'Ethernet Network not found: '
+    RESOURCE_FACT_NAME = 'network_set'
+
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         state=dict(
             required=True,
             choices=['present', 'absent']
         ),
-        data=dict(required=True, type='dict'),
-        validate_etag=dict(
-            required=False,
-            type='bool',
-            default=True)
-    )
+        data=dict(required=True, type='dict'))
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(NetworkSetModule, self).__init__(additional_arg_spec=self.argument_spec,
+                                               validate_etag_support=True)
+        self.resource_client = self.oneview_client.network_sets
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+    def execute_module(self):
+        resource = self.get_by_name(self.data.get('name'))
 
-    def run(self):
-        state = self.module.params['state']
-        data = self.module.params['data'].copy()
-
-        try:
-            if not self.module.params.get('validate_etag'):
-                self.oneview_client.connection.disable_etag_validation()
-
-            if state == 'present':
-                self.__present(data)
-            elif state == 'absent':
-                self.__absent(data)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
-
-    def __present(self, data):
-        resource = self.__get_by_name(data['name'])
-
-        self.__replace_network_name_by_uri(data)
-
-        if not resource:
-            self.__create(data)
-        else:
-            self.__update(data, resource)
-
-    def __absent(self, data):
-        resource = self.__get_by_name(data['name'])
-
-        if resource:
-            self.oneview_client.network_sets.delete(resource)
-            self.module.exit_json(changed=True,
-                                  msg=NETWORK_SET_DELETED)
-        else:
-            self.module.exit_json(changed=False, msg=NETWORK_SET_ALREADY_ABSENT)
-
-    def __create(self, data):
-        created_network_set = self.oneview_client.network_sets.create(data)
-
-        self.module.exit_json(changed=True,
-                              msg=NETWORK_SET_CREATED,
-                              ansible_facts=dict(network_set=created_network_set))
-
-    def __update(self, data, resource):
-        if 'newName' in data:
-            if self.__get_by_name(data['newName']):
-                raise HPOneViewValueError(NETWORK_SET_NEW_NAME_INVALID)
-            data['name'] = data.pop('newName')
-
-        merged_data = resource.copy()
-        merged_data.update(data)
-
-        if resource_compare(resource, merged_data):
-
-            self.module.exit_json(changed=False,
-                                  msg=NETWORK_SET_ALREADY_EXIST,
-                                  ansible_facts=dict(network_set=resource))
-
-        else:
-            updated_network_set = self.oneview_client.network_sets.update(merged_data)
-
-            self.module.exit_json(changed=True,
-                                  msg=NETWORK_SET_UPDATED,
-                                  ansible_facts=dict(network_set=updated_network_set))
-
-    def __get_by_name(self, name):
-        result = self.oneview_client.network_sets.get_by('name', name)
-        return result[0] if result else None
+        if self.state == 'present':
+            self.__replace_network_name_by_uri(self.data)
+            return self.resource_present(resource, self.RESOURCE_FACT_NAME)
+        elif self.state == 'absent':
+            return self.resource_absent(resource)
 
     def __get_ethernet_network_by_name(self, name):
         result = self.oneview_client.ethernet_networks.get_by('name', name)
@@ -219,7 +130,7 @@ class NetworkSetModule(object):
             if enet_network:
                 return enet_network['uri']
             else:
-                raise HPOneViewResourceNotFound(NETWORK_SET_ENET_NETWORK_NOT_FOUND + network_name_or_uri)
+                raise HPOneViewResourceNotFound(self.MSG_ETHERNET_NETWORK_NOT_FOUND + network_name_or_uri)
 
     def __replace_network_name_by_uri(self, data):
         if 'networkUris' in data:

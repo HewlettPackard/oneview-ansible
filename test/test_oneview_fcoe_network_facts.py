@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@
 
 import unittest
 
-from oneview_fcoe_network_facts import FcoeNetworkFactsModule
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import FcoeNetworkFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -40,14 +38,12 @@ PRESENT_NETWORKS = [{
 
 
 class FcoeNetworkFactsSpec(unittest.TestCase,
-                           ModuleContructorTestCase,
-                           FactsParamsTestCase,
-                           ErrorHandlingTestCase):
+                           FactsParamsTestCase
+                           ):
     def setUp(self):
         self.configure_mocks(self, FcoeNetworkFactsModule)
         self.fcoe_networks = self.mock_ov_client.fcoe_networks
         FactsParamsTestCase.configure_client_mock(self, self.fcoe_networks)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.fcoe_networks.get_by)
 
     def test_should_get_all_fcoe_network(self):
         self.fcoe_networks.get_all.return_value = PRESENT_NETWORKS
@@ -57,7 +53,7 @@ class FcoeNetworkFactsSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(fcoe_networks=(PRESENT_NETWORKS))
+            ansible_facts=dict(fcoe_networks=PRESENT_NETWORKS)
         )
 
     def test_should_get_fcoe_network_by_name(self):
@@ -68,7 +64,7 @@ class FcoeNetworkFactsSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(fcoe_networks=(PRESENT_NETWORKS))
+            ansible_facts=dict(fcoe_networks=PRESENT_NETWORKS)
         )
 
 
