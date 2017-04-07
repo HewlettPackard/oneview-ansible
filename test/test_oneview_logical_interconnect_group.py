@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,14 +16,9 @@
 import unittest
 from copy import deepcopy
 
-from oneview_logical_interconnect_group import (LogicalInterconnectGroupModule,
-                                                LIG_CREATED,
-                                                LIG_ALREADY_EXIST,
-                                                LIG_UPDATED,
-                                                LIG_DELETED,
-                                                LIG_ALREADY_ABSENT,
-                                                INTERCONNECT_TYPE_NOT_FOUND)
-from test.utils import PreloadedMocksBaseTestCase, ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
+from oneview_module_loader import LogicalInterconnectGroupModule
+
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -95,23 +90,7 @@ PARAMS_FOR_ABSENT = dict(
 
 
 class LogicalInterconnectGroupGeneralSpec(unittest.TestCase,
-                                          ModuleContructorTestCase,
-                                          ValidateEtagTestCase,
-                                          ErrorHandlingTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function
-    ValidateEtagTestCase has common tests for the validate_etag attribute, also provides the mocks used in this test
-    case.
-
-    ErrorHandlingTestCase has common tests for the module error handling.
-    """
-
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectGroupModule)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.logical_interconnect_groups.get_by)
-
-
-class LogicalInterconnectGroupPresentStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
+                                          OneViewBaseTestCase):
     def setUp(self):
         self.configure_mocks(self, LogicalInterconnectGroupModule)
         self.resource = self.mock_ov_client.logical_interconnect_groups
@@ -126,7 +105,7 @@ class LogicalInterconnectGroupPresentStateSpec(unittest.TestCase, PreloadedMocks
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LIG_CREATED,
+            msg=LogicalInterconnectGroupModule.MSG_CREATED,
             ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
         )
 
@@ -140,7 +119,7 @@ class LogicalInterconnectGroupPresentStateSpec(unittest.TestCase, PreloadedMocks
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LIG_CREATED,
+            msg=LogicalInterconnectGroupModule.MSG_CREATED,
             ansible_facts=dict(logical_interconnect_group=PARAMS_FOR_PRESENT.copy())
         )
 
@@ -153,7 +132,8 @@ class LogicalInterconnectGroupPresentStateSpec(unittest.TestCase, PreloadedMocks
 
         LogicalInterconnectGroupModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=INTERCONNECT_TYPE_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=LogicalInterconnectGroupModule.MSG_INTERCONNECT_TYPE_NOT_FOUND)
 
     def test_should_not_update_when_data_is_equals(self):
         self.resource.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
@@ -164,7 +144,7 @@ class LogicalInterconnectGroupPresentStateSpec(unittest.TestCase, PreloadedMocks
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=LIG_ALREADY_EXIST,
+            msg=LogicalInterconnectGroupModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
         )
 
@@ -181,7 +161,7 @@ class LogicalInterconnectGroupPresentStateSpec(unittest.TestCase, PreloadedMocks
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LIG_UPDATED,
+            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
             ansible_facts=dict(logical_interconnect_group=data_merged)
         )
 
@@ -213,12 +193,6 @@ class LogicalInterconnectGroupPresentStateSpec(unittest.TestCase, PreloadedMocks
 
         self.resource.create.assert_called_once_with(PARAMS_TO_RENAME['data'])
 
-
-class LogicalInterconnectGroupAbsentStateSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectGroupModule)
-        self.resource = self.mock_ov_client.logical_interconnect_groups
-
     def test_should_remove_lig(self):
         self.resource.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
 
@@ -228,7 +202,7 @@ class LogicalInterconnectGroupAbsentStateSpec(unittest.TestCase, PreloadedMocksB
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LIG_DELETED
+            msg=LogicalInterconnectGroupModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_lig_not_exist(self):
@@ -240,7 +214,7 @@ class LogicalInterconnectGroupAbsentStateSpec(unittest.TestCase, PreloadedMocksB
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=LIG_ALREADY_ABSENT
+            msg=LogicalInterconnectGroupModule.MSG_ALREADY_ABSENT
         )
 
 
