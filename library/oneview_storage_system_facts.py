@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,16 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -33,26 +26,12 @@ module: oneview_storage_system_facts
 short_description: Retrieve facts about the OneView Storage Systems.
 description:
     - Retrieve facts about the Storage Systems from OneView.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
-    params:
-      description:
-        - List of params to delimit, filter and sort the list of resources.
-        - "params allowed:
-          'start': The first item to return, using 0-based indexing.
-          'count': The number of resources to return.
-          'filter': A general filter/query string to narrow the list of items returned.
-          'sort': The sort order of the returned data set."
-      required: false
     ip_hostname:
       description:
         - Storage System IP or hostname.
@@ -65,16 +44,14 @@ options:
       description:
         - "List with options to gather additional facts about a Storage System and related resources.
           Options allowed:
-          'hostTypes' gets the list of supported host types.
-          'storagePools' gets a list of storage pools belonging to the specified storage system."
-        - "To gather facts about 'storagePools' it is required to inform either the argument 'name' or 'ip_hostname'.
+          C(hostTypes) gets the list of supported host types.
+          C(storagePools) gets a list of storage pools belonging to the specified storage system."
+        - "To gather facts about C(storagePools) it is required to inform either the argument C(name) or C(ip_hostname).
           Otherwise, this option will be ignored."
       required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+extends_documentation_fragment:
+    - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
@@ -144,62 +121,50 @@ storage_system_pools:
     returned: When requested, but can be null.
     type: complex
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class StorageSystemFactsModule(object):
-    argument_spec = dict(
-        config=dict(required=False, type='str'),
-        name=dict(required=False, type='str'),
-        ip_hostname=dict(required=False, type='str'),
-        options=dict(required=False, type='list'),
-        params=dict(required=False, type='dict'),
-    )
-
+class StorageSystemFactsModule(OneViewModuleBase):
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        argument_spec = dict(
+            name=dict(required=False, type='str'),
+            ip_hostname=dict(required=False, type='str'),
+            options=dict(required=False, type='list'),
+            params=dict(required=False, type='dict'),
+        )
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
+        super(StorageSystemFactsModule, self).__init__(additional_arg_spec=argument_spec)
+        self.resource_client = self.oneview_client.storage_systems
+
+    def execute_module(self):
+        facts = {}
+        is_specific_storage_system = True
+        if self.module.params.get('ip_hostname'):
+            storage_systems = self.oneview_client.storage_systems.get_by_ip_hostname(
+                self.module.params.get('ip_hostname'))
+        elif self.module.params.get('name'):
+            storage_systems = self.oneview_client.storage_systems.get_by_name(self.module.params['name'])
         else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            storage_systems = self.oneview_client.storage_systems.get_all(**self.facts_params)
+            is_specific_storage_system = False
 
-    def run(self):
-        try:
-            facts = {}
-            is_specific_storage_system = True
-            if self.module.params.get('ip_hostname'):
-                storage_systems = self.oneview_client.storage_systems.get_by_ip_hostname(
-                    self.module.params.get('ip_hostname'))
-            elif self.module.params.get('name'):
-                storage_systems = self.oneview_client.storage_systems.get_by_name(self.module.params['name'])
-            else:
-                params = self.module.params.get('params') or {}
-                storage_systems = self.oneview_client.storage_systems.get_all(**params)
-                is_specific_storage_system = False
+        self.__get_options(facts, storage_systems, is_specific_storage_system)
 
-            self.__get_options(facts, storage_systems, is_specific_storage_system)
+        facts['storage_systems'] = storage_systems
 
-            facts['storage_systems'] = storage_systems
-
-            self.module.exit_json(changed=False, ansible_facts=facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=False, ansible_facts=facts)
 
     def __get_options(self, facts, storage_system, is_specific_storage_system):
 
-        if self.module.params.get('options'):
-            options = transform_list_to_dict(self.module.params['options'])
-
-            if options.get('hostTypes'):
+        if self.options:
+            if self.options.get('hostTypes'):
                 facts['storage_system_host_types'] = self.oneview_client.storage_systems.get_host_types()
 
             if storage_system and is_specific_storage_system:
                 storage_uri = storage_system['uri']
-                if options.get('storagePools'):
+                if self.options.get('storagePools'):
                     facts['storage_system_pools'] = self.oneview_client.storage_systems.get_storage_pools(storage_uri)
 
 

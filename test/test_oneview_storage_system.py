@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@
 import unittest
 import yaml
 
-from oneview_storage_system import StorageSystemModule, STORAGE_SYSTEM_ADDED, STORAGE_SYSTEM_ALREADY_UPDATED, \
-    STORAGE_SYSTEM_UPDATED, STORAGE_SYSTEM_DELETED, STORAGE_SYSTEM_ALREADY_ABSENT, \
-    STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING, STORAGE_SYSTEM_CREDENTIALS_MANDATORY
-from test.utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
+from oneview_module_loader import StorageSystemModule
+from hpe_test_utils import OneViewBaseTestCase
+
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -82,9 +81,7 @@ del DICT_DEFAULT_STORAGE_SYSTEM['credentials']['password']
 
 
 class StorageSystemModuleSpec(unittest.TestCase,
-                              ModuleContructorTestCase,
-                              ValidateEtagTestCase,
-                              ErrorHandlingTestCase):
+                              OneViewBaseTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
@@ -94,7 +91,6 @@ class StorageSystemModuleSpec(unittest.TestCase,
     def setUp(self):
         self.configure_mocks(self, StorageSystemModule)
         self.resource = self.mock_ov_client.storage_systems
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by_name)
 
     def test_should_create_new_storage_system(self):
         self.resource.get_by_ip_hostname.return_value = None
@@ -107,7 +103,7 @@ class StorageSystemModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=STORAGE_SYSTEM_ADDED,
+            msg=StorageSystemModule.MSG_ADDED,
             ansible_facts=dict(storage_system={"name": "name"})
         )
 
@@ -121,7 +117,7 @@ class StorageSystemModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=STORAGE_SYSTEM_ALREADY_UPDATED,
+            msg=StorageSystemModule.MSG_ALREADY_UPDATED,
             ansible_facts=dict(storage_system=DICT_DEFAULT_STORAGE_SYSTEM)
         )
 
@@ -136,7 +132,7 @@ class StorageSystemModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=STORAGE_SYSTEM_ALREADY_UPDATED,
+            msg=StorageSystemModule.MSG_ALREADY_UPDATED,
             ansible_facts=dict(storage_system=dict_by_name.copy())
         )
 
@@ -149,7 +145,7 @@ class StorageSystemModuleSpec(unittest.TestCase,
         StorageSystemModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=STORAGE_SYSTEM_MANDATORY_FIELDS_MISSING
+            msg=StorageSystemModule.MSG_MANDATORY_FIELDS_MISSING
         )
 
     def test_should_fail_when_credentials_attribute_is_missing(self):
@@ -160,7 +156,7 @@ class StorageSystemModuleSpec(unittest.TestCase,
         StorageSystemModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=STORAGE_SYSTEM_CREDENTIALS_MANDATORY
+            msg=StorageSystemModule.MSG_CREDENTIALS_MANDATORY
         )
 
     def test_update_when_data_has_modified_attributes(self):
@@ -176,7 +172,7 @@ class StorageSystemModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=STORAGE_SYSTEM_UPDATED,
+            msg=StorageSystemModule.MSG_UPDATED,
             ansible_facts=dict(storage_system=data_merged)
         )
 
@@ -188,9 +184,8 @@ class StorageSystemModuleSpec(unittest.TestCase,
         StorageSystemModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=True,
-            msg=STORAGE_SYSTEM_DELETED
+            msg=StorageSystemModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_storage_system_not_exist(self):
@@ -201,9 +196,8 @@ class StorageSystemModuleSpec(unittest.TestCase,
         StorageSystemModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=False,
-            msg=STORAGE_SYSTEM_ALREADY_ABSENT
+            msg=StorageSystemModule.MSG_ALREADY_ABSENT
         )
 
 

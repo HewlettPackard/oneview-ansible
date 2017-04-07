@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,11 +15,8 @@
 ###
 
 import unittest
-from oneview_storage_system_facts import StorageSystemFactsModule
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import PreloadedMocksBaseTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import StorageSystemFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -49,16 +46,25 @@ HOST_TYPES = [
     "IBM VIO Server",
 ]
 
+PARAMS_GET_POOL_BY_NAME = dict(
+    config='config.json',
+    name="Test Storage Systems",
+    options=["storagePools"]
+)
+
+PARAMS_GET_POOL_BY_IP_HOSTNAME = dict(
+    config='config.json',
+    ip_hostname='10.0.0.0',
+    options=["storagePools"]
+)
+
 
 class StorageSystemFactsSpec(unittest.TestCase,
-                             ModuleContructorTestCase,
-                             FactsParamsTestCase,
-                             ErrorHandlingTestCase):
+                             FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, StorageSystemFactsModule)
         self.storage_systems = self.mock_ov_client.storage_systems
         FactsParamsTestCase.configure_client_mock(self, self.storage_systems)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.storage_systems.get_by_name)
 
     def test_should_get_all_storage_system(self):
         self.storage_systems.get_all.return_value = {"name": "Storage System Name"}
@@ -93,12 +99,6 @@ class StorageSystemFactsSpec(unittest.TestCase,
             ansible_facts=dict(storage_systems=({"ip_hostname": "10.0.0.0"}))
         )
 
-
-class StorageSystemHostTypesFactsSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, StorageSystemFactsModule)
-        self.storage_systems = self.mock_ov_client.storage_systems
-
     def test_should_get_all_host_types(self):
         self.storage_systems.get_host_types.return_value = HOST_TYPES
         self.storage_systems.get_all.return_value = [{"name": "Storage System Name"}]
@@ -112,25 +112,6 @@ class StorageSystemHostTypesFactsSpec(unittest.TestCase, PreloadedMocksBaseTestC
                 storage_system_host_types=HOST_TYPES,
                 storage_systems=[{"name": "Storage System Name"}])
         )
-
-
-PARAMS_GET_POOL_BY_NAME = dict(
-    config='config.json',
-    name="Test Storage Systems",
-    options=["storagePools"]
-)
-
-PARAMS_GET_POOL_BY_IP_HOSTNAME = dict(
-    config='config.json',
-    ip_hostname='10.0.0.0',
-    options=["storagePools"]
-)
-
-
-class StorageSystemPoolsFactsSpec(unittest.TestCase, PreloadedMocksBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, StorageSystemFactsModule)
-        self.storage_systems = self.mock_ov_client.storage_systems
 
     def test_should_get_storage_pools_system_by_name(self):
         self.storage_systems.get_by_name.return_value = {"name": "Storage System Name", "uri": "uri"}
