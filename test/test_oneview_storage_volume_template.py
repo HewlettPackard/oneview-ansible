@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,15 +15,8 @@
 ###
 import unittest
 
-from utils import ModuleContructorTestCase
-from utils import ValidateEtagTestCase
-from utils import ErrorHandlingTestCase
-
-from oneview_storage_volume_template import StorageVolumeTemplateModule, STORAGE_VOLUME_TEMPLATE_CREATED,\
-    STORAGE_VOLUME_TEMPLATE_DELETED, STORAGE_VOLUME_TEMPLATE_ALREADY_ABSENT,\
-    STORAGE_VOLUME_TEMPLATE_ALREADY_UPDATED, STORAGE_VOLUME_TEMPLATE_UPDATED,\
-    STORAGE_VOLUME_TEMPLATE_MANDATORY_FIELD_MISSING
-
+from hpe_test_utils import OneViewBaseTestCase
+from oneview_module_loader import StorageVolumeTemplateModule
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -32,10 +25,10 @@ STORAGE_VOLUME_TEMPLATE = dict(
     state='Configured',
     description='Example Template',
     provisioning=dict(
-         shareable='true',
-         provisionType='Thin',
-         capacity='235834383322',
-         storagePoolUri='{{storage_pool_uri}}'),
+        shareable='true',
+        provisionType='Thin',
+        capacity='235834383322',
+        storagePoolUri='{{storage_pool_uri}}'),
     stateReason='None',
     storageSystemUri='{{ storage_system_uri }}',
     snapshotPoolUri='{{storage_pool_uri}}',
@@ -44,7 +37,6 @@ STORAGE_VOLUME_TEMPLATE = dict(
 
 STORAGE_VOLUME_TEMPLATE_WITH_NEW_DESCRIPTION = dict(
     STORAGE_VOLUME_TEMPLATE, description='Example Template with a new description')
-
 
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
@@ -72,19 +64,10 @@ PARAMS_FOR_MISSING_KEY = dict(
 
 
 class StorageVolumeTemplatePresentStateSpec(unittest.TestCase,
-                                            ModuleContructorTestCase,
-                                            ValidateEtagTestCase,
-                                            ErrorHandlingTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-    ValidateEtagTestCase has common tests for the validate_etag attribute.
-    """
-
+                                            OneViewBaseTestCase):
     def setUp(self):
         self.configure_mocks(self, StorageVolumeTemplateModule)
         self.resource = self.mock_ov_client.storage_volume_templates
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_storage_volume_template(self):
         self.resource.get_by.return_value = []
@@ -96,7 +79,7 @@ class StorageVolumeTemplatePresentStateSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=STORAGE_VOLUME_TEMPLATE_CREATED,
+            msg=StorageVolumeTemplateModule.MSG_CREATED,
             ansible_facts=dict(storage_volume_template={"name": "name"})
         )
 
@@ -110,7 +93,7 @@ class StorageVolumeTemplatePresentStateSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=STORAGE_VOLUME_TEMPLATE_UPDATED,
+            msg=StorageVolumeTemplateModule.MSG_UPDATED,
             ansible_facts=dict(storage_volume_template={"name": "name"})
         )
 
@@ -123,20 +106,9 @@ class StorageVolumeTemplatePresentStateSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=STORAGE_VOLUME_TEMPLATE_ALREADY_UPDATED,
+            msg=StorageVolumeTemplateModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(storage_volume_template=STORAGE_VOLUME_TEMPLATE)
         )
-
-
-class StorageVolumeTemplateAbsentStateSpec(unittest.TestCase, ModuleContructorTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-    """
-
-    def setUp(self):
-        self.configure_mocks(self, StorageVolumeTemplateModule)
-        self.resource = self.mock_ov_client.storage_volume_templates
 
     def test_should_remove_storage_volume_template(self):
         self.resource.get_by.return_value = [STORAGE_VOLUME_TEMPLATE]
@@ -146,9 +118,8 @@ class StorageVolumeTemplateAbsentStateSpec(unittest.TestCase, ModuleContructorTe
         StorageVolumeTemplateModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=True,
-            msg=STORAGE_VOLUME_TEMPLATE_DELETED
+            msg=StorageVolumeTemplateModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_storage_volume_template_not_exist(self):
@@ -159,9 +130,8 @@ class StorageVolumeTemplateAbsentStateSpec(unittest.TestCase, ModuleContructorTe
         StorageVolumeTemplateModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=False,
-            msg=STORAGE_VOLUME_TEMPLATE_ALREADY_ABSENT
+            msg=StorageVolumeTemplateModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_raise_exception_when_key_is_missing(self):
@@ -173,7 +143,7 @@ class StorageVolumeTemplateAbsentStateSpec(unittest.TestCase, ModuleContructorTe
         StorageVolumeTemplateModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=STORAGE_VOLUME_TEMPLATE_MANDATORY_FIELD_MISSING
+            msg=StorageVolumeTemplateModule.MSG_MANDATORY_FIELD_MISSING
         )
 
 
