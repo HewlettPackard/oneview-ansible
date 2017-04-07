@@ -1,7 +1,7 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,21 +16,16 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 module: oneview_managed_san_facts
 short_description: Retrieve facts about the OneView Managed SANs.
 description:
     - Retrieve facts about the OneView Managed SANs.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.0"
@@ -38,12 +33,6 @@ author:
     - "Mariana Kreisig (@marikrg)"
     - "Abilio Parada (@abiliogp)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     name:
       description:
         - Name of the Managed SAN.
@@ -52,23 +41,21 @@ options:
       description:
         - "List with options to gather additional facts about Managed SAN.
           Options allowed:
-          'endpoints' gets the list of endpoints in the SAN identified by name.
-          'wwn' gets the list of Managed SANs associated with an informed WWN 'locate'."
+          C(endpoints) gets the list of endpoints in the SAN identified by name.
+          C(wwn) gets the list of Managed SANs associated with an informed WWN C(locate)."
       required: false
     params:
       description:
         - List of params to delimit, filter and sort the list of resources.
         - "params allowed:
-           'start': The first item to return, using 0-based indexing.
-           'count': The number of resources to return.
-           'query': A general query string to narrow the list of resources returned.
-           'sort': The sort order of the returned data set."
+           C(start): The first item to return, using 0-based indexing.
+           C(count): The number of resources to return.
+           C(query): A general query string to narrow the list of resources returned.
+           C(sort): The sort order of the returned data set."
       required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -137,62 +124,49 @@ wwn_associated_sans:
     returned: When requested, but can be null.
     type: complex
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class ManagedSanFactsModule(object):
+class ManagedSanFactsModule(OneViewModuleBase):
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
         params=dict(required=False, type='dict')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(ManagedSanFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        if not self.module.params['config']:
-            oneview_client = OneViewClient.from_environment_variables()
+        self.resource_client = self.oneview_client.managed_sans
+
+    def execute_module(self):
+        facts = dict()
+
+        name = self.module.params['name']
+
+        if name:
+            facts['managed_sans'] = [self.resource_client.get_by_name(name)]
+
+            if facts['managed_sans'] and 'endpoints' in self.options:
+                managed_san = facts['managed_sans'][0]
+                if managed_san:
+                    environmental_configuration = self.resource_client.get_endpoints(managed_san['uri'])
+                    facts['managed_san_endpoints'] = environmental_configuration
+
         else:
-            oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            facts['managed_sans'] = self.resource_client.get_all(**self.facts_params)
 
-        self.resource_client = oneview_client.managed_sans
+        if self.options:
+            if self.options.get('wwn'):
+                wwn = self.__get_sub_options(self.options['wwn'])
+                facts['wwn_associated_sans'] = self.resource_client.get_wwn(wwn['locate'])
 
-    def run(self):
-        try:
-            facts = dict()
-
-            name = self.module.params['name']
-            options = self.module.params.get('options') or []
-
-            if name:
-                facts['managed_sans'] = [self.resource_client.get_by_name(name)]
-
-                if facts['managed_sans'] and 'endpoints' in options:
-                    managed_san = facts['managed_sans'][0]
-                    if managed_san:
-                        environmental_configuration = self.resource_client.get_endpoints(managed_san['uri'])
-                        facts['managed_san_endpoints'] = environmental_configuration
-
-            else:
-                params = self.module.params.get('params') or {}
-                facts['managed_sans'] = self.resource_client.get_all(**params)
-
-            if options:
-                option = transform_list_to_dict(options)
-                if option.get('wwn'):
-                    wwn = self.__get_sub_options(option['wwn'])
-                    facts['wwn_associated_sans'] = self.resource_client.get_wwn(wwn['locate'])
-
-            self.module.exit_json(changed=False, ansible_facts=facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=False, ansible_facts=facts)
 
     def __get_sub_options(self, option):
-        return option if type(option) is dict else {}
+        return option if isinstance(option, dict) else {}
 
 
 def main():

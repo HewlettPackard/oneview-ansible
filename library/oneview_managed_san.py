@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,16 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.extras.comparators import resource_compare
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
 
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -33,24 +27,19 @@ short_description: Manage OneView Managed SAN resources.
 description:
     - "Provides an interface to manage Managed SAN resources. Can update the Managed SAN, set the refresh state, create
        a SAN endpoints CSV file, and create an unexpected zoning issue report."
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Managed SAN resource.
-              'present' ensures data properties are compliant with OneView.
-              'refresh_state_set' updates the refresh state of the Managed SAN.
-              'endpoints_csv_file_created' creates a SAN endpoints CSV file.
-              'issues_report_created' creates an unexpected zoning report for a SAN.
+              C(present) ensures data properties are compliant with OneView.
+              C(refresh_state_set) updates the refresh state of the Managed SAN.
+              C(endpoints_csv_file_created) creates a SAN endpoints CSV file.
+              C(issues_report_created) creates an unexpected zoning report for a SAN.
         choices: ['present', 'refresh_state_set', 'endpoints_csv_file_created', 'issues_report_created']
         required: true
     data:
@@ -59,11 +48,9 @@ options:
                Warning: For the 'present' state, the contents of the publicAttributes will replace the existing list, so
                leaving out a public attribute from the given list will effectively delete it."
         required: true
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -131,18 +118,19 @@ managed_san_issues:
     type: complex
 '''
 
-MANAGED_SAN_UPDATED = 'Managed SAN updated successfully.'
-MANAGED_SAN_REFRESH_STATE_UPDATED = 'Managed SAN\'s refresh state changed successfully.'
-MANAGED_SAN_NOT_FOUND = 'Managed SAN was not found for this operation.'
-MANAGED_SAN_NO_CHANGES_PROVIDED = 'The Managed SAN is already compliant.'
-MANAGED_SAN_ENDPOINTS_CSV_FILE_CREATED = 'SAN endpoints CSV file created successfully.'
-MANAGED_SAN_ISSUES_REPORT_CREATED = 'Unexpected zoning report created successfully.'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, ResourceComparator
 
 
-class ManagedSanModule(object):
+class ManagedSanModule(OneViewModuleBase):
+    MSG_UPDATED = 'Managed SAN updated successfully.'
+    MSG_REFRESH_STATE_UPDATED = 'Managed SAN\'s refresh state changed successfully.'
+    MSG_NOT_FOUND = 'Managed SAN was not found for this operation.'
+    MSG_NO_CHANGES_PROVIDED = 'The Managed SAN is already compliant.'
+    MSG_ENDPOINTS_CSV_FILE_CREATED = 'SAN endpoints CSV file created successfully.'
+    MSG_ISSUES_REPORT_CREATED = 'Unexpected zoning report created successfully.'
+
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         state=dict(
             required=True,
             choices=['present', 'refresh_state_set', 'endpoints_csv_file_created', 'issues_report_created']
@@ -151,38 +139,24 @@ class ManagedSanModule(object):
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(ManagedSanModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+    def execute_module(self):
+        resource = self.__get_resource(self.data)
 
-    def run(self):
-        try:
-            state = self.module.params['state']
-            data = self.module.params['data']
+        if not resource:
+            raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
 
-            resource = self.__get_resource(data)
+        if self.state == 'present':
+            exit_status = self.__update(self.data, resource)
+        elif self.state == 'refresh_state_set':
+            exit_status = self.__set_refresh_state(self.data, resource)
+        elif self.state == 'endpoints_csv_file_created':
+            exit_status = self.__create_endpoints_csv_file(resource)
+        elif self.state == 'issues_report_created':
+            exit_status = self.__create_issue_report(resource)
 
-            if not resource:
-                raise HPOneViewResourceNotFound(MANAGED_SAN_NOT_FOUND)
-
-            if state == 'present':
-                exit_status = self.__update(data, resource)
-            elif state == 'refresh_state_set':
-                exit_status = self.__set_refresh_state(data, resource)
-            elif state == 'endpoints_csv_file_created':
-                exit_status = self.__create_endpoints_csv_file(resource)
-            elif state == 'issues_report_created':
-                exit_status = self.__create_issue_report(resource)
-
-            self.module.exit_json(**exit_status)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(exit_status)
 
     def __get_resource(self, data):
         return self.oneview_client.managed_sans.get_by_name(data['name'])
@@ -190,15 +164,14 @@ class ManagedSanModule(object):
     def __update(self, data, resource):
         merged_data = resource.copy()
         merged_data.update(data)
-        changed = False
 
-        if resource_compare(resource, merged_data):
+        if ResourceComparator.compare(resource, merged_data):
             changed = False
-            msg = MANAGED_SAN_NO_CHANGES_PROVIDED
+            msg = self.MSG_NO_CHANGES_PROVIDED
         else:
             changed = True
             resource = self.oneview_client.managed_sans.update(resource['uri'], data)
-            msg = MANAGED_SAN_UPDATED
+            msg = self.MSG_UPDATED
 
         return dict(changed=changed,
                     msg=msg,
@@ -208,21 +181,21 @@ class ManagedSanModule(object):
         resource = self.oneview_client.managed_sans.update(resource['uri'], data['refreshStateData'])
 
         return dict(changed=True,
-                    msg=MANAGED_SAN_REFRESH_STATE_UPDATED,
+                    msg=self.MSG_REFRESH_STATE_UPDATED,
                     ansible_facts=dict(managed_san=resource))
 
     def __create_endpoints_csv_file(self, resource):
         resource = self.oneview_client.managed_sans.create_endpoints_csv_file(resource['uri'])
 
         return dict(changed=True,
-                    msg=MANAGED_SAN_ENDPOINTS_CSV_FILE_CREATED,
+                    msg=self.MSG_ENDPOINTS_CSV_FILE_CREATED,
                     ansible_facts=dict(managed_san_endpoints=resource))
 
     def __create_issue_report(self, resource):
         resource = self.oneview_client.managed_sans.create_issues_report(resource['uri'])
 
         return dict(changed=True,
-                    msg=MANAGED_SAN_ISSUES_REPORT_CREATED,
+                    msg=self.MSG_ISSUES_REPORT_CREATED,
                     ansible_facts=dict(managed_san_issues=resource))
 
 

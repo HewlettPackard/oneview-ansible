@@ -4489,7 +4489,7 @@ Manage OneView Managed SAN resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Managed SAN properties and its associated states. Warning: For the 'present' state, the contents of the publicAttributes will replace the existing list, so leaving out a public attribute from the given list will effectively delete it.  |
-| state  |   Yes  |  | <ul> <li>present</li>  <li>refresh_state_set</li>  <li>endpoints_csv_file_created</li>  <li>issues_report_created</li> </ul> |  Indicates the desired state for the Managed SAN resource. 'present' ensures data properties are compliant with OneView. 'refresh_state_set' updates the refresh state of the Managed SAN. 'endpoints_csv_file_created' creates a SAN endpoints CSV file. 'issues_report_created' creates an unexpected zoning report for a SAN.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>refresh_state_set</li>  <li>endpoints_csv_file_created</li>  <li>issues_report_created</li> </ul> |  Indicates the desired state for the Managed SAN resource. `present` ensures data properties are compliant with OneView. `refresh_state_set` updates the refresh state of the Managed SAN. `endpoints_csv_file_created` creates a SAN endpoints CSV file. `issues_report_created` creates an unexpected zoning report for a SAN.  |
 
 
  
@@ -4561,6 +4561,8 @@ Manage OneView Managed SAN resources.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -4581,8 +4583,8 @@ Retrieve facts about the OneView Managed SANs.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Managed SAN.  |
-| options  |   No  |  | |  List with options to gather additional facts about Managed SAN. Options allowed: 'endpoints' gets the list of endpoints in the SAN identified by name. 'wwn' gets the list of Managed SANs associated with an informed WWN 'locate'.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'query': A general query string to narrow the list of resources returned. 'sort': The sort order of the returned data set.  |
+| options  |   No  |  | |  List with options to gather additional facts about Managed SAN. Options allowed: `endpoints` gets the list of endpoints in the SAN identified by name. `wwn` gets the list of Managed SANs associated with an informed WWN `locate`.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `query`: A general query string to narrow the list of resources returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -4655,6 +4657,8 @@ Retrieve facts about the OneView Managed SANs.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
