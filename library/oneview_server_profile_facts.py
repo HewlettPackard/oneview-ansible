@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,15 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
@@ -32,17 +26,12 @@ module: oneview_server_profile_facts
 short_description: Retrieve facts about the OneView Server Profiles.
 description:
     - Retrieve facts about the Server Profile from OneView.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
 author: "Camila Balestrin (@balestrinc)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     name:
       description:
         - Server Profile name.
@@ -50,25 +39,16 @@ options:
     options:
       description:
         - "List with options to gather additional facts about Server Profile related resources.
-          Options allowed: schema, compliancePreview, profilePorts, messages, transformation, available_networks,
-          available_servers, available_storage_system, available_storage_systems, available_targets"
-        - "To gather facts about 'compliancePreview', 'messages' and 'transformation' it is required to inform the
+          Options allowed: C(schema), C(compliancePreview), C(profilePorts), C(messages), C(transformation),
+          C(available_networks), C(available_servers), C(available_storage_system), C(available_storage_systems),
+          C(available_targets)"
+        - "To gather facts about C(compliancePreview), C(messages) and C(transformation) it is required to inform the
           Server Profile name. Otherwise, these options will be ignored."
       required: false
-    params:
-      description:
-        - List of params to delimit, filter and sort the list of resources.
-        - "params allowed:
-           'start': The first item to return, using 0-based indexing.
-           'count': The number of resources to return.
-           'filter': A general filter/query string to narrow the list of items returned.
-           'sort': The sort order of the returned data set."
-      required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
@@ -223,55 +203,42 @@ server_profile_available_targets:
     returned: When requested, but can be null.
     type: complex
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class ServerProfileFactsModule(object):
+class ServerProfileFactsModule(OneViewModuleBase):
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
         params=dict(required=False, type='dict')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(ServerProfileFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
+    def execute_module(self):
+
+        ansible_facts = {}
+        server_profile_uri = None
+
+        if self.module.params.get('name'):
+            server_profiles = self.oneview_client.server_profiles.get_by("name", self.module.params['name'])
+            if len(server_profiles) > 0:
+                server_profile_uri = server_profiles[0]['uri']
         else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            server_profiles = self.oneview_client.server_profiles.get_all(**self.facts_params)
 
-    def run(self):
-        try:
+        if self.options:
+            ansible_facts = self.__gather_option_facts(self.options, server_profile_uri)
 
-            ansible_facts = {}
-            server_profile_uri = None
+        ansible_facts["server_profiles"] = server_profiles
 
-            if self.module.params.get('name'):
-                server_profiles = self.oneview_client.server_profiles.get_by("name", self.module.params['name'])
-                if len(server_profiles) > 0:
-                    server_profile_uri = server_profiles[0]['uri']
-            else:
-                params = self.module.params.get('params') or {}
-                server_profiles = self.oneview_client.server_profiles.get_all(**params)
-
-            if self.module.params.get('options'):
-                ansible_facts = self.__gather_option_facts(self.module.params['options'], server_profile_uri)
-
-            ansible_facts["server_profiles"] = server_profiles
-
-            self.module.exit_json(changed=False,
-                                  ansible_facts=ansible_facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=False,
+                    ansible_facts=ansible_facts)
 
     def __gather_option_facts(self, options, profile_uri):
-
-        options = transform_list_to_dict(options)
 
         client = self.oneview_client.server_profiles
         facts = {}
@@ -317,7 +284,7 @@ class ServerProfileFactsModule(object):
         return facts
 
     def __get_sub_options(self, option):
-        return option if type(option) is dict else {}
+        return option if isinstance(option, dict) else {}
 
 
 def main():

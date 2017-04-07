@@ -1,7 +1,7 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,16 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-from hpOneView.common import transform_list_to_dict
-
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -33,17 +26,12 @@ module: oneview_server_profile_template_facts
 short_description: Retrieve facts about the Server Profile Templates from OneView.
 description:
     - Retrieve facts about the Server Profile Templates from OneView.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
 author: "Bruno Souza (@bsouza)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     name:
       description:
         - Server Profile Template name.
@@ -51,23 +39,14 @@ options:
     options:
       description:
         - "List with options to gather additional facts about Server Profile Template resources.
-          Options allowed: new_profile and transformation."
-      required: false
-    params:
-      description:
-        - List of params to delimit, filter and sort the list of resources.
-        - "params allowed:
-           'start': The first item to return, using 0-based indexing.
-           'count': The number of resources to return.
-           'filter': A general filter/query string to narrow the list of items returned.
-           'sort': The sort order of the returned data set."
+          Options allowed: C(new_profile) and C(transformation)."
       required: false
 notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
-    - The option 'transformation' is only available for API version 300 or later.
+    - The option C(transformation) is only available for API version 300 or later.
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
@@ -113,41 +92,31 @@ new_profile:
     returned: When requested, but can be null.
     type: complex
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class ServerProfileTemplateFactsModule(object):
+class ServerProfileTemplateFactsModule(OneViewModuleBase):
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
         params=dict(required=False, type='dict')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(ServerProfileTemplateFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        if not self.module.params['config']:
-            oneview_client = OneViewClient.from_environment_variables()
+        self.resource_client = self.oneview_client.server_profile_templates
+
+    def execute_module(self):
+        name = self.module.params["name"]
+
+        if name:
+            facts = self.__get_by_name(name)
         else:
-            oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            facts = self.__get_all()
 
-        self.resource_client = oneview_client.server_profile_templates
-
-    def run(self):
-        try:
-            name = self.module.params["name"]
-
-            if name:
-                facts = self.__get_by_name(name)
-            else:
-                facts = self.__get_all()
-
-            self.module.exit_json(changed=False, ansible_facts=facts)
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=False, ansible_facts=facts)
 
     def __get_by_name(self, name):
         template = self.resource_client.get_by_name(name=name)
@@ -156,16 +125,13 @@ class ServerProfileTemplateFactsModule(object):
 
         facts = dict(server_profile_templates=[template])
 
-        options = self.module.params.get("options")
+        if self.options:
 
-        if options:
-            options = transform_list_to_dict(options)
-
-            if "new_profile" in options:
+            if "new_profile" in self.options:
                 facts["new_profile"] = self.resource_client.get_new_profile(id_or_uri=template["uri"])
 
-            if "transformation" in options:
-                tranformation_data = options.get('transformation')
+            if "transformation" in self.options:
+                tranformation_data = self.options.get('transformation')
                 facts["transformation"] = self.resource_client.get_transformation(
                     id_or_uri=template["uri"],
                     **tranformation_data
@@ -174,8 +140,7 @@ class ServerProfileTemplateFactsModule(object):
         return facts
 
     def __get_all(self):
-        params = self.module.params.get('params') or {}
-        templates = self.resource_client.get_all(**params)
+        templates = self.resource_client.get_all(**self.facts_params)
         return dict(server_profile_templates=templates)
 
 

@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,11 +16,8 @@
 
 import unittest
 
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
-
-from oneview_server_profile_facts import ServerProfileFactsModule
+from hpe_test_utils import FactsParamsTestCase
+from oneview_module_loader import ServerProfileFactsModule
 from copy import deepcopy
 
 ERROR_MSG = 'Fake message error'
@@ -97,20 +94,15 @@ PARAMS_WITH_OPTIONS = dict(
 
 
 class ServerProfileFactsSpec(unittest.TestCase,
-                             ModuleContructorTestCase,
-                             FactsParamsTestCase,
-                             ErrorHandlingTestCase):
+                             FactsParamsTestCase):
     """
-    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
-    mocks used in this test class.
-
     FactsParamsTestCase has common tests for the parameters support.
     """
+
     def setUp(self):
         self.configure_mocks(self, ServerProfileFactsModule)
 
         FactsParamsTestCase.configure_client_mock(self, self.mock_ov_client.server_profiles)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.server_profiles.get_by)
 
     def test_should_get_all_servers(self):
         server_profiles = [
@@ -231,6 +223,31 @@ class ServerProfileFactsSpec(unittest.TestCase,
                            'server_profile_available_storage_system': mock_option_return,
                            'server_profile_available_storage_systems': mock_option_return,
                            'server_profile_available_targets': mock_option_return,
+                           }
+        )
+
+    def test_should_get_server_profiles_with_invalid_profile_ports_option(self):
+        mock_option_return = {'subresource': 'value'}
+
+        self.mock_ov_client.server_profiles.get_by.return_value = [{"name": "Server Profile Name", "uri": PROFILE_URI}]
+
+        self.mock_ov_client.server_profiles.get_profile_ports.return_value = mock_option_return
+
+        self.mock_ansible_module.params = dict(
+            config='config.json',
+            name="Test Server Profile",
+            options=[
+                {'profilePorts': [1]}
+            ])
+
+        ServerProfileFactsModule().run()
+
+        self.mock_ov_client.server_profiles.get_profile_ports.assert_called_once_with()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts={'server_profiles': [{'name': 'Server Profile Name', 'uri': PROFILE_URI}],
+                           'server_profile_profile_ports': mock_option_return,
                            }
         )
 
