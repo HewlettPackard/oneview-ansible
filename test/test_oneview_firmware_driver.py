@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,11 +15,8 @@
 ###
 
 import unittest
-
-from oneview_firmware_driver import FirmwareDriverModule, FIRMWARE_DRIVER_DELETED, FIRMWARE_DRIVER_ALREADY_ABSENT
-
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import FirmwareDriverModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FIRMWARE_DRIVER_NAME = "Service Pack for ProLiant.iso"
 
@@ -33,12 +30,10 @@ FIRMWARE_DRIVER = dict(name=FIRMWARE_DRIVER_NAME)
 
 
 class FirmwareDriverModuleSpec(unittest.TestCase,
-                               ModuleContructorTestCase,
-                               ErrorHandlingTestCase):
+                               OneViewBaseTestCase):
 
     def setUp(self):
         self.configure_mocks(self, FirmwareDriverModule)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.firmware_drivers.get_by)
 
     def test_should_remove_firmware_driver(self):
         firmwares = [FIRMWARE_DRIVER]
@@ -49,7 +44,7 @@ class FirmwareDriverModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=FIRMWARE_DRIVER_DELETED
+            msg=FirmwareDriverModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_firmware_driver_not_exist(self):
@@ -60,7 +55,7 @@ class FirmwareDriverModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=FIRMWARE_DRIVER_ALREADY_ABSENT
+            msg=FirmwareDriverModule.MSG_ALREADY_ABSENT
         )
 
 

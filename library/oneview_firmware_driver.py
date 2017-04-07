@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,19 +16,15 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
 module: oneview_firmware_driver
 short_description: Provides an interface to remove Firmware Driver resources.
+version_added: "2.3"
 description:
     - Provides an interface to remove Firmware Driver resources.
 requirements:
@@ -36,26 +32,17 @@ requirements:
     - "hpOneView >= 2.0.1"
 author: "Bruno Souza (@bsouza)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Firmware Driver.
-              'absent' will remove the resource from OneView, if it exists.
+              C(absent) will remove the resource from OneView, if it exists.
         choices: ['absent']
     name:
       description:
         - Firmware driver name.
       required: True
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -66,53 +53,26 @@ EXAMPLES = '''
     name: "Service Pack for ProLiant.iso"
 '''
 
-FIRMWARE_DRIVER_DELETED = 'Firmware driver deleted successfully.'
-FIRMWARE_DRIVER_ALREADY_ABSENT = 'Nothing to do.'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+RETURN = ''' # '''
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class FirmwareDriverModule(object):
-
-    argument_spec = dict(
-        config=dict(required=False, type='str'),
-        state=dict(
-            required=True,
-            choices=['absent']
-        ),
-        name=dict(required=True, type='str')
-    )
+class FirmwareDriverModule(OneViewModuleBase):
+    MSG_DELETED = 'Firmware driver deleted successfully.'
+    MSG_ALREADY_ABSENT = 'Nothing to do.'
 
     def __init__(self):
-        self.module = AnsibleModule(
-            argument_spec=self.argument_spec,
-            supports_check_mode=False
-        )
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        argument_spec = dict(state=dict(required=True, choices=['absent']),
+                             name=dict(required=True, type='str'))
 
-        if not self.module.params['config']:
-            oneview_client = OneViewClient.from_environment_variables()
-        else:
-            oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+        super(FirmwareDriverModule, self).__init__(additional_arg_spec=argument_spec)
+        self.resource_client = self.oneview_client.firmware_drivers
 
-        self.resource_client = oneview_client.firmware_drivers
-
-    def run(self):
-        try:
-            name = self.module.params["name"]
-            resource = self.__get_by_name(name)
-
-            if resource:
-                self.resource_client.delete(resource)
-                self.module.exit_json(changed=True, msg=FIRMWARE_DRIVER_DELETED)
-            else:
-                self.module.exit_json(changed=False, msg=FIRMWARE_DRIVER_ALREADY_ABSENT)
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
-
-    def __get_by_name(self, name):
-        result = self.resource_client.get_by('name', name) or [None]
-        return result[0]
+    def execute_module(self):
+        resource = self.get_by_name(self.module.params.get("name"))
+        return self.resource_absent(resource)
 
 
 def main():
