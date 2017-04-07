@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
 # Copyright (2016) Hewlett Packard Enterprise Development LP
 #
@@ -13,63 +15,56 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-
 import unittest
 
-from oneview_interconnect_link_topology_facts import InterconnectLinkTopologyFactsModule
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
-
-ERROR_MSG = 'Fake message error'
-
-PARAMS_GET_ALL = dict(
-    config='config.json',
-    name=None
-)
-
-PARAMS_GET_BY_NAME = dict(
-    config='config.json',
-    name="Interconnect Link Topology Name 2"
-)
-
-INTERCONNECT_LINK_TOPOLOGIES = [{"name": "Interconnect Link Topology 1"},
-                                {"name": "Interconnect Link Topology 2"},
-                                {"name": "Interconnect Link Topology 3"}]
+from oneview_module_loader import InterconnectLinkTopologyFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 
 class InterconnectLinkTopologyFactsSpec(unittest.TestCase,
-                                        ModuleContructorTestCase,
-                                        FactsParamsTestCase,
-                                        ErrorHandlingTestCase):
+                                        FactsParamsTestCase):
+
+    INTERCONNECT_LINK_TOPOLOGIES = [{"name": "Interconnect Link Topology 1"},
+                                    {"name": "Interconnect Link Topology 2"},
+                                    {"name": "Interconnect Link Topology 3"}]
+
+    ERROR_MSG = 'Fake message error'
+
+    PARAMS_GET_ALL = dict(
+        config='config.json',
+        name=None
+    )
+
+    PARAMS_GET_BY_NAME = dict(
+        config='config.json',
+        name="Interconnect Link Topology Name 2"
+    )
+
     def setUp(self):
         self.configure_mocks(self, InterconnectLinkTopologyFactsModule)
         self.interconnect_link_topologies = self.mock_ov_client.interconnect_link_topologies
         FactsParamsTestCase.configure_client_mock(self, self.interconnect_link_topologies)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.interconnect_link_topologies.get_by)
 
     def test_should_get_all_interconnect_link_topologies(self):
-        self.interconnect_link_topologies.get_all.return_value = INTERCONNECT_LINK_TOPOLOGIES
-
-        self.mock_ansible_module.params = PARAMS_GET_ALL
+        self.interconnect_link_topologies.get_all.return_value = self.INTERCONNECT_LINK_TOPOLOGIES
+        self.mock_ansible_module.params = self.PARAMS_GET_ALL
 
         InterconnectLinkTopologyFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(interconnect_link_topologies=(INTERCONNECT_LINK_TOPOLOGIES))
+            ansible_facts=dict(interconnect_link_topologies=(self.INTERCONNECT_LINK_TOPOLOGIES))
         )
 
     def test_should_get_all_interconnect_link_topology_by_name(self):
-        self.interconnect_link_topologies.get_by.return_value = [INTERCONNECT_LINK_TOPOLOGIES[1]]
-
-        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
+        self.interconnect_link_topologies.get_by.return_value = [self.INTERCONNECT_LINK_TOPOLOGIES[1]]
+        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
 
         InterconnectLinkTopologyFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(interconnect_link_topologies=([INTERCONNECT_LINK_TOPOLOGIES[1]]))
+            ansible_facts=dict(interconnect_link_topologies=([self.INTERCONNECT_LINK_TOPOLOGIES[1]]))
         )
 
 
