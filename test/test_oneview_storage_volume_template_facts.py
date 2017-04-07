@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@
 ###
 
 import unittest
-from oneview_storage_volume_template_facts import StorageVolumeTemplateFactsModule
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import StorageVolumeTemplateFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -42,14 +40,11 @@ PARAMS_GET_CONNECTED = dict(
 
 
 class StorageVolumeTemplatesFactsSpec(unittest.TestCase,
-                                      ModuleContructorTestCase,
-                                      FactsParamsTestCase,
-                                      ErrorHandlingTestCase):
+                                      FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, StorageVolumeTemplateFactsModule)
         self.storage_volume_templates = self.mock_ov_client.storage_volume_templates
         FactsParamsTestCase.configure_client_mock(self, self.storage_volume_templates)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.storage_volume_templates.get_by)
 
     def test_should_get_all_storage_volume_templates(self):
         self.storage_volume_templates.get_all.return_value = {"name": "Storage System Name"}
