@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@
 import unittest
 import yaml
 
-from oneview_storage_pool import StoragePoolModule, STORAGE_POOL_ADDED, STORAGE_POOL_ALREADY_ADDED, \
-    STORAGE_POOL_DELETED, STORAGE_POOL_ALREADY_ABSENT, STORAGE_POOL_MANDATORY_FIELD_MISSING
-from utils import ModuleContructorTestCase
-from utils import ErrorHandlingTestCase
+from oneview_module_loader import StoragePoolModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -49,12 +47,9 @@ DICT_DEFAULT_STORAGE_POOL = yaml.load(YAML_STORAGE_POOL)["data"]
 
 
 class StoragePoolModuleSpec(unittest.TestCase,
-                            ModuleContructorTestCase,
-                            ErrorHandlingTestCase):
+                            OneViewBaseTestCase):
     def setUp(self):
         self.configure_mocks(self, StoragePoolModule)
-        ErrorHandlingTestCase.configure(self, ansible_params=yaml.load(YAML_STORAGE_POOL),
-                                        method_to_fire=self.mock_ov_client.storage_pools.get_by)
 
     def test_should_create_new_storage_pool(self):
         self.mock_ov_client.storage_pools.get_by.return_value = []
@@ -65,7 +60,7 @@ class StoragePoolModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=STORAGE_POOL_ADDED,
+            msg=StoragePoolModule.MSG_ADDED,
             ansible_facts=dict(storage_pool={"name": "name"})
         )
 
@@ -77,7 +72,7 @@ class StoragePoolModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=STORAGE_POOL_ALREADY_ADDED,
+            msg=StoragePoolModule.MSG_ALREADY_ADDED,
             ansible_facts=dict(storage_pool=DICT_DEFAULT_STORAGE_POOL)
         )
 
@@ -88,9 +83,8 @@ class StoragePoolModuleSpec(unittest.TestCase,
         StoragePoolModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=True,
-            msg=STORAGE_POOL_DELETED
+            msg=StoragePoolModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_storage_pool_not_exist(self):
@@ -100,9 +94,8 @@ class StoragePoolModuleSpec(unittest.TestCase,
         StoragePoolModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=False,
-            msg=STORAGE_POOL_ALREADY_ABSENT
+            msg=StoragePoolModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_fail_when_key_is_missing(self):
@@ -112,7 +105,7 @@ class StoragePoolModuleSpec(unittest.TestCase,
         StoragePoolModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=STORAGE_POOL_MANDATORY_FIELD_MISSING
+            msg=StoragePoolModule.MSG_MANDATORY_FIELD_MISSING
         )
 
 

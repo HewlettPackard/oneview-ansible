@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@
 ###
 
 import unittest
-from oneview_storage_pool_facts import StoragePoolFactsModule
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import StoragePoolFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -34,14 +32,11 @@ PARAMS_GET_BY_NAME = dict(
 
 
 class StoragePoolFactsSpec(unittest.TestCase,
-                           ModuleContructorTestCase,
-                           FactsParamsTestCase,
-                           ErrorHandlingTestCase):
+                           FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, StoragePoolFactsModule)
         self.storage_pools = self.mock_ov_client.storage_pools
         FactsParamsTestCase.configure_client_mock(self, self.storage_pools)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.storage_pools.get_by)
 
     def test_should_get_all_storage_pool(self):
         self.storage_pools.get_all.return_value = {"name": "Storage Pool Name"}
