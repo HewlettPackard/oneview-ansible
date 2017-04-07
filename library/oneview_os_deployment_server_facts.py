@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
 # Copyright (2017) Hewlett Packard Enterprise Development LP
 #
@@ -16,16 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -33,28 +26,23 @@ module: oneview_os_deployment_server_facts
 short_description: Retrieve facts about one or more OS Deployment Servers.
 description:
     - Retrieve facts about one or more of the OS Deployment Servers from OneView.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.1"
 author: "Camila Balestrin (@balestrinc)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     params:
       description:
         - List of params to delimit, filter and sort the list of resources.
         - "params allowed:
-          'start': The first item to return, using 0-based indexing.
-          'count': The number of resources to return.
-          'filter': A general filter/query string to narrow the list of items returned.
-          'sort': The sort order of the returned data set.
-          'query': A general query string to narrow the list of resources returned.
-          'fields': Specifies which fields should be returned in the result set.
-          'view': Return a specific subset of the attributes of the resource or collection, by
+          C(start): The first item to return, using 0-based indexing.
+          C(count): The number of resources to return.
+          C(filter): A general filter/query string to narrow the list of items returned.
+          C(sort): The sort order of the returned data set.
+          C(query): A general query string to narrow the list of resources returned.
+          C(fields): Specifies which fields should be returned in the result set.
+          C(view): Return a specific subset of the attributes of the resource or collection, by
           specifying the name of a predefined view."
       required: false
     name:
@@ -64,14 +52,13 @@ options:
     options:
       description:
         - "List with options to gather additional facts about an OS Deployment Server and related resources.
-          Options allowed: networks, appliances, and appliance."
+          Options allowed: C(networks), C(appliances), and C(appliance)."
       required: false
 notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
     - This resource is only available on HPE Synergy
+
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -126,52 +113,39 @@ os_deployment_server_appliance:
     returned: When requested, but can be null.
     type: complex
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class OsDeploymentServerFactsModule(object):
+class OsDeploymentServerFactsModule(OneViewModuleBase):
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
         params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec,
-                                    supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(OsDeploymentServerFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
+    def execute_module(self):
+        ansible_facts = {}
+
+        if self.module.params.get('name'):
+            os_deployment_servers = self.oneview_client.os_deployment_servers.get_by('name',
+                                                                                     self.module.params['name'])
         else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            os_deployment_servers = self.oneview_client.os_deployment_servers.get_all(**self.facts_params)
 
-    def run(self):
-        try:
-            ansible_facts = {}
+        if self.options:
+            ansible_facts = self.__gather_optional_facts(self.options)
 
-            if self.module.params.get('name'):
-                os_deployment_servers = self.oneview_client.os_deployment_servers.get_by('name',
-                                                                                         self.module.params['name'])
-            else:
-                os_deployment_servers = self.__get_all()
+        ansible_facts['os_deployment_servers'] = os_deployment_servers
 
-            if self.module.params.get('options'):
-                ansible_facts = self.__gather_optional_facts(self.module.params['options'])
-
-            ansible_facts['os_deployment_servers'] = os_deployment_servers
-
-            self.module.exit_json(changed=False,
-                                  ansible_facts=ansible_facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=False,
+                    ansible_facts=ansible_facts)
 
     def __gather_optional_facts(self, options):
-
-        options = transform_list_to_dict(options)
 
         facts = {}
 
@@ -184,10 +158,6 @@ class OsDeploymentServerFactsModule(object):
                 options.get('appliance'))
 
         return facts
-
-    def __get_all(self):
-        params = self.module.params.get('params') or {}
-        return self.oneview_client.os_deployment_servers.get_all(**params)
 
 
 def main():

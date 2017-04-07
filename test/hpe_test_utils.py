@@ -17,7 +17,7 @@
 ###
 
 import importlib
-
+import yaml
 from mock import Mock, patch
 from oneview_module_loader import ONEVIEW_MODULE_UTILS_PATH
 from hpOneView.oneview_client import OneViewClient
@@ -28,6 +28,8 @@ class OneViewBaseTestCase(object):
     testing_class = None
     mock_ansible_module = None
     mock_ov_client = None
+    testing_module = None
+    EXAMPLES = None
 
     def configure_mocks(self, test_case, testing_class):
         """
@@ -53,11 +55,14 @@ class OneViewBaseTestCase(object):
         self.mock_ansible_module = Mock()
         mock_ansible_module.return_value = self.mock_ansible_module
 
+        self.testing_module = importlib.import_module(self.testing_class.__module__)
+        # Load scenarios from module examples (Also checks if it is a valid yaml)
+        self.EXAMPLES = yaml.load(self.testing_module.EXAMPLES)
+
     def test_main_function_should_call_run_method(self):
         self.mock_ansible_module.params = {'config': 'config.json'}
 
-        module = importlib.import_module(self.testing_class.__module__)
-        main_func = getattr(module, 'main')
+        main_func = getattr(self.testing_module, 'main')
 
         with patch.object(self.testing_class, "run") as mock_run:
             main_func()
