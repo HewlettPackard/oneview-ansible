@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,17 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.extras.comparators import resource_compare
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewValueError
-    from hpOneView.exceptions import HPOneViewResourceNotFound
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
@@ -33,32 +25,25 @@ module: oneview_connection_template
 short_description: Manage the OneView Connection Template resources.
 description:
     - "Provides an interface to manage the Connection Template resources. Can update."
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Connection Template resource.
-              'present' will ensure data properties are compliant with OneView.
+              C('present') will ensure data properties are compliant with OneView.
         choices: ['present']
         required: true
     data:
         description:
             - List with Connection Template properties and its associated states.
         required: true
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -83,61 +68,52 @@ connection_template:
     type: complex
 '''
 
-CONNECTION_TEMPLATE_UPDATED = 'Connection Template updated successfully.'
-CONNECTION_TEMPLATE_NOT_FOUND = 'Connection Template was not found.'
-CONNECTION_TEMPLATE_ALREADY_UPDATED = 'Connection Template is already updated.'
-CONNECTION_TEMPLATE_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: data.name"
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import (OneViewModuleBase,
+                                  HPOneViewValueError,
+                                  HPOneViewResourceNotFound,
+                                  ResourceComparator)
 
 
-class ConnectionTemplateModule(object):
-    argument_spec = dict(
-        config=dict(required=False, type='str'),
-        state=dict(
-            required=True,
-            choices=['present']
-        ),
-        data=dict(required=True, type='dict')
-    )
+class ConnectionTemplateModule(OneViewModuleBase):
+    MSG_UPDATED = 'Connection Template updated successfully.'
+    MSG_NOT_FOUND = 'Connection Template was not found.'
+    MSG_ALREADY_EXIST = 'Connection Template is already updated.'
+    MSG_MANDATORY_FIELD_MISSING = 'Mandatory field was not informed: data.name'
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        argument_spec = dict(
+            state=dict(
+                required=True,
+                choices=['present']
+            ),
+            data=dict(required=True, type='dict')
+        )
+        super(ConnectionTemplateModule, self).__init__(additional_arg_spec=argument_spec)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+        self.resource_client = self.oneview_client.connection_templates
 
-    def run(self):
-        try:
-            state = self.module.params['state']
-            data = self.module.params['data']
-            changed, msg, ansible_facts = False, '', {}
+    def execute_module(self):
+        changed, msg, ansible_facts = False, '', {}
 
-            if not data.get('name'):
-                raise HPOneViewValueError(CONNECTION_TEMPLATE_MANDATORY_FIELD_MISSING)
+        if not self.data.get('name'):
+            raise HPOneViewValueError(self.MSG_MANDATORY_FIELD_MISSING)
 
-            resource = (self.oneview_client.connection_templates.get_by("name", data['name']) or [None])[0]
+        resource = self.get_by_name(self.data['name'])
 
-            if state == 'present':
-                changed, msg, ansible_facts = self.__present(data, resource)
+        if self.state == 'present':
+            changed, msg, ansible_facts = self.__present(self.data, resource)
 
-            self.module.exit_json(changed=changed,
-                                  msg=msg,
-                                  ansible_facts=ansible_facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=changed,
+                    msg=msg,
+                    ansible_facts=ansible_facts)
 
     def __present(self, data, resource):
-
         changed = False
         msg = ''
 
         if not resource:
-            raise HPOneViewResourceNotFound(CONNECTION_TEMPLATE_NOT_FOUND)
+            raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
         else:
             if 'newName' in data:
                 data['name'] = data.pop('newName')
@@ -145,13 +121,12 @@ class ConnectionTemplateModule(object):
             merged_data = resource.copy()
             merged_data.update(data)
 
-            if not resource_compare(resource, merged_data):
-                # update resource
+            if not ResourceComparator.compare(resource, merged_data):
+                resource = self.resource_client.update(merged_data)
                 changed = True
-                resource = self.oneview_client.connection_templates.update(merged_data)
-                msg = CONNECTION_TEMPLATE_UPDATED
+                msg = self.MSG_UPDATED
             else:
-                msg = CONNECTION_TEMPLATE_ALREADY_UPDATED
+                msg = self.MSG_ALREADY_EXIST
 
         return changed, msg, dict(connection_template=resource)
 
