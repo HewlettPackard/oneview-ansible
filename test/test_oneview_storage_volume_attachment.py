@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 import unittest
 import yaml
 
-from oneview_storage_volume_attachment import StorageVolumeAttachmentModule, PRESENTATIONS_REMOVED, PROFILE_NOT_FOUND
-from utils import ModuleContructorTestCase
-from utils import ErrorHandlingTestCase
+from oneview_module_loader import StorageVolumeAttachmentModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -72,12 +71,9 @@ MOCK_SERVER_PROFILE = {
 
 
 class StorageVolumeAttachmentSpec(unittest.TestCase,
-                                  ModuleContructorTestCase,
-                                  ErrorHandlingTestCase):
+                                  OneViewBaseTestCase):
     def setUp(self):
         self.configure_mocks(self, StorageVolumeAttachmentModule)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.server_profiles.get_by_name,
-                                        ansible_params=yaml.load(YAML_EXTRA_REMOVED_BY_NAME))
 
     def test_should_remove_extra_presentation_by_profile_name(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = MOCK_SERVER_PROFILE
@@ -92,7 +88,7 @@ class StorageVolumeAttachmentSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=PRESENTATIONS_REMOVED,
+            msg=StorageVolumeAttachmentModule.PRESENTATIONS_REMOVED,
             ansible_facts=dict(server_profile=MOCK_SERVER_PROFILE)
         )
 
@@ -104,7 +100,7 @@ class StorageVolumeAttachmentSpec(unittest.TestCase,
 
         StorageVolumeAttachmentModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=PROFILE_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=StorageVolumeAttachmentModule.PROFILE_NOT_FOUND)
 
     def test_should_remove_extra_presentation_by_profile_uri(self):
         self.mock_ov_client.storage_volume_attachments.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE
@@ -117,7 +113,7 @@ class StorageVolumeAttachmentSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=PRESENTATIONS_REMOVED,
+            msg=StorageVolumeAttachmentModule.PRESENTATIONS_REMOVED,
             ansible_facts=dict(server_profile=MOCK_SERVER_PROFILE)
         )
 

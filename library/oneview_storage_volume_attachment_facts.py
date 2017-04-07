@@ -1,6 +1,6 @@
 #!/usr/bin/python
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,16 +15,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewValueError
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
@@ -32,29 +25,15 @@ module: oneview_storage_volume_attachment_facts
 short_description: Retrieve facts about the OneView Storage Volume Attachments.
 description:
     - "Retrieve facts about the OneView Storage Volume Attachments. To gather facts about a specific Storage Volume
-      Attachment it is required to inform the param 'storageVolumeAttachmentUri'. It is also possible to retrieve a
+      Attachment it is required to inform the option I(storageVolumeAttachmentUri). It is also possible to retrieve a
       specific Storage Volume Attachment by the Server Profile and the Volume. For this option, it is required to inform
-      the param 'serverProfileName' and the param 'storageVolumeName' or 'storageVolumeUri'."
+      the option I(serverProfileName) and the param I(storageVolumeName) or I(storageVolumeUri)."
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
 author: "Camila Balestrin (@balestrinc)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
-    params:
-      description:
-        - List of params to delimit, filter and sort the list of resources.
-        - "params allowed:
-        'start': The first item to return, using 0-based indexing.
-        'count': The number of resources to return.
-        'filter': A general filter/query string to narrow the list of items returned.
-        'sort': The sort order of the returned data set."
-      required: false
     storageVolumeAttachmentUri:
       description:
         - Storage Volume Attachment uri.
@@ -74,15 +53,13 @@ options:
     options:
       description:
         - "Retrieve additional facts. Options available:
-          'extraUnmanagedStorageVolumes' retrieve the list of extra unmanaged storage volumes.
-          'paths' retrieve all paths or a specific attachment path for the specified volume attachment. To retrieve a
-           specific path a 'pathUri' or a 'pathId' must be informed"
+          C(extraUnmanagedStorageVolumes) retrieve the list of extra unmanaged storage volumes.
+          C(paths) retrieve all paths or a specific attachment path for the specified volume attachment. To retrieve a
+           specific path a C(pathUri) or a C(pathId) must be informed"
       required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+extends_documentation_fragment:
+    - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
@@ -173,65 +150,52 @@ storage_volume_attachment_paths:
     returned: When requested, but can be null.
     type: complex
 '''
-ATTACHMENT_KEY_REQUIRED = "Server Profile Name and Volume Name or Volume Uri are required."
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewValueError
+
 SPECIFIC_ATTACHMENT_OPTIONS = ['storageVolumeAttachmentUri', 'storageVolumeUri', 'storageVolumeName',
                                'serverProfileName']
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
 
-class StorageVolumeAttachmentFactsModule(object):
-    argument_spec = dict(
-        config=dict(required=False, type='str'),
-        serverProfileName=dict(required=False, type='str'),
-        storageVolumeAttachmentUri=dict(required=False, type='str'),
-        storageVolumeUri=dict(required=False, type='str'),
-        storageVolumeName=dict(required=False, type='str'),
-        options=dict(required=False, type='list'),
-        params=dict(required=False, type='dict'),
-    )
+class StorageVolumeAttachmentFactsModule(OneViewModuleBase):
+    ATTACHMENT_KEY_REQUIRED = "Server Profile Name and Volume Name or Volume Uri are required."
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
-
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+        argument_spec = dict(
+            serverProfileName=dict(required=False, type='str'),
+            storageVolumeAttachmentUri=dict(required=False, type='str'),
+            storageVolumeUri=dict(required=False, type='str'),
+            storageVolumeName=dict(required=False, type='str'),
+            options=dict(required=False, type='list'),
+            params=dict(required=False, type='dict'),
+        )
+        super(StorageVolumeAttachmentFactsModule, self).__init__(additional_arg_spec=argument_spec)
+        self.resource_client = self.oneview_client.storage_volume_attachments
 
         resource_uri = self.oneview_client.storage_volume_attachments.URI
         self.__search_attachment_uri = str(resource_uri) + "?filter=storageVolumeUri='{}'&filter=hostName='{}'"
 
-    def run(self):
-        try:
-            facts = {}
-            client = self.oneview_client.storage_volume_attachments
-            params = self.module.params
-            options = {}
+    def execute_module(self):
+        facts = {}
+        client = self.oneview_client.storage_volume_attachments
+        params = self.module.params
 
-            if params.get('options'):
-                options = transform_list_to_dict(params['options'])
+        param_specific_attachment = [entry for entry in SPECIFIC_ATTACHMENT_OPTIONS if params.get(entry)]
 
-            param_specific_attachment = [entry for entry in SPECIFIC_ATTACHMENT_OPTIONS if params.get(entry)]
+        if param_specific_attachment:
+            attachments = self.__get_specific_attachment(params)
+            self.__get_paths(attachments, self.options, facts)
+        else:
+            attachments = client.get_all(**self.facts_params)
 
-            if param_specific_attachment:
-                attachments = self.__get_specific_attachment(params)
-                self.__get_paths(attachments, options, facts)
-            else:
-                params = self.module.params.get('params') or {}
-                attachments = client.get_all(**params)
+        facts['storage_volume_attachments'] = attachments
 
-            facts['storage_volume_attachments'] = attachments
+        if self.options.get('extraUnmanagedStorageVolumes'):
+            volumes_options = self.__get_sub_options(self.options['extraUnmanagedStorageVolumes'])
+            facts['extra_unmanaged_storage_volumes'] = client.get_extra_unmanaged_storage_volumes(**volumes_options)
 
-            if options.get('extraUnmanagedStorageVolumes'):
-                volumes_options = self.__get_sub_options(options['extraUnmanagedStorageVolumes'])
-                facts['extra_unmanaged_storage_volumes'] = client.get_extra_unmanaged_storage_volumes(**volumes_options)
-
-            self.module.exit_json(changed=False, ansible_facts=facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=False, ansible_facts=facts)
 
     def __get_specific_attachment(self, params):
 
@@ -244,7 +208,7 @@ class StorageVolumeAttachmentFactsModule(object):
             profile_name = params.get('serverProfileName')
 
             if not profile_name or not (volume_uri or params.get('storageVolumeName')):
-                raise HPOneViewValueError(ATTACHMENT_KEY_REQUIRED)
+                raise HPOneViewValueError(self.ATTACHMENT_KEY_REQUIRED)
 
             if not volume_uri and params.get('storageVolumeName'):
                 volumes = self.oneview_client.volumes.get_by('name', params.get('storageVolumeName'))
@@ -272,7 +236,7 @@ class StorageVolumeAttachmentFactsModule(object):
             facts['storage_volume_attachment_paths'] = paths
 
     def __get_sub_options(self, option):
-        return option if type(option) is dict else {}
+        return option if isinstance(option, dict) else {}
 
 
 def main():

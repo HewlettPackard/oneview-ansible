@@ -16,11 +16,8 @@
 
 import unittest
 
-from oneview_storage_volume_attachment_facts import StorageVolumeAttachmentFactsModule
-from oneview_storage_volume_attachment_facts import ATTACHMENT_KEY_REQUIRED
-from test.utils import ModuleContructorTestCase
-from test.utils import FactsParamsTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import StorageVolumeAttachmentFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -55,14 +52,11 @@ RETURN_GET_BY_PROFILE_AND_VOLUME = {
 
 
 class StorageVolumeAttachmentFactsSpec(unittest.TestCase,
-                                       ModuleContructorTestCase,
-                                       FactsParamsTestCase,
-                                       ErrorHandlingTestCase):
+                                       FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, StorageVolumeAttachmentFactsModule)
         self.resource = self.mock_ov_client.storage_volume_attachments
         FactsParamsTestCase.configure_client_mock(self, self.resource)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_all)
 
     def test_should_get_all(self):
         attachments = [ATTACHMENT, ATTACHMENT]
@@ -173,7 +167,7 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase,
         StorageVolumeAttachmentFactsModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ATTACHMENT_KEY_REQUIRED
+            msg=StorageVolumeAttachmentFactsModule.ATTACHMENT_KEY_REQUIRED
         )
 
     def test_should_fail_when_get_by_server_name_and_not_inform_volume(self):
@@ -187,7 +181,7 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase,
         StorageVolumeAttachmentFactsModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ATTACHMENT_KEY_REQUIRED
+            msg=StorageVolumeAttachmentFactsModule.ATTACHMENT_KEY_REQUIRED
         )
 
     def test_should_get_by_storage_volume_attachment_uri(self):
