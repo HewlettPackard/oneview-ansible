@@ -1,5 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,10 +18,8 @@
 
 import unittest
 
-from oneview_logical_enclosure_facts import LogicalEnclosureFactsModule
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import LogicalEnclosureFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -45,14 +45,11 @@ PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
 
 
 class LogicalEnclosureFactsSpec(unittest.TestCase,
-                                ModuleContructorTestCase,
-                                FactsParamsTestCase,
-                                ErrorHandlingTestCase):
+                                FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, LogicalEnclosureFactsModule)
         self.logical_enclosures = self.mock_ov_client.logical_enclosures
         FactsParamsTestCase.configure_client_mock(self, self.logical_enclosures)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.logical_enclosures.get_by)
 
     def test_should_get_all_logical_enclosure(self):
         self.logical_enclosures.get_all.return_value = [LOGICAL_ENCLOSURE]
