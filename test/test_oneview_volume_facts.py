@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@
 
 import unittest
 
-from oneview_volume_facts import VolumeFactsModule
-from utils import ModuleContructorTestCase
-from utils import FactsParamsTestCase
-from utils import ErrorHandlingTestCase
+from oneview_module_loader import VolumeFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -55,14 +53,11 @@ PARAMS_GET_SNAPSHOT_BY_NAME = dict(
 
 
 class VolumeFactsSpec(unittest.TestCase,
-                      ModuleContructorTestCase,
-                      FactsParamsTestCase,
-                      ErrorHandlingTestCase):
+                      FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, VolumeFactsModule)
         self.resource = self.mock_ov_client.volumes
         FactsParamsTestCase.configure_client_mock(self, self.resource)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_get_all_volumes(self):
         self.resource.get_all.return_value = [{"name": "Test Volume"}]
