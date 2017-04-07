@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,10 +15,8 @@
 ###
 
 import unittest
-from oneview_interconnect_type_facts import InterconnectTypeFactsModule
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import InterconnectTypeFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -39,14 +37,11 @@ PRESENT_TYPES = [{
 
 
 class InterconnectTypeFactsSpec(unittest.TestCase,
-                                ModuleContructorTestCase,
-                                FactsParamsTestCase,
-                                ErrorHandlingTestCase):
+                                FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, InterconnectTypeFactsModule)
         self.interconnect_types = self.mock_ov_client.interconnect_types
         FactsParamsTestCase.configure_client_mock(self, self.interconnect_types)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.interconnect_types.get_by)
 
     def test_should_get_all_interconnect_types(self):
         self.interconnect_types.get_all.return_value = PRESENT_TYPES

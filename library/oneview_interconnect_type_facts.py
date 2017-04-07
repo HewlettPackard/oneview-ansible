@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,15 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -32,35 +26,19 @@ module: oneview_interconnect_type_facts
 short_description: Retrieve facts about one or more of the OneView Interconnect Types.
 description:
     - Retrieve facts about one or more of the Interconnect Types from OneView.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
 author: "Camila Balestrin (@balestrinc)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
-    params:
-      description:
-        - List of params to delimit, filter and sort the list of resources.
-        - "params allowed:
-          'start': The first item to return, using 0-based indexing.
-          'count': The number of resources to return.
-          'filter': A general filter/query string to narrow the list of items returned.
-          'sort': The sort order of the returned data set."
-      required: false
     name:
       description:
         - Interconnect Type name.
       required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+extends_documentation_fragment:
+    - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
@@ -95,50 +73,29 @@ interconnect_types:
     returned: Always, but can be null.
     type: complex
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class InterconnectTypeFactsModule(object):
+class InterconnectTypeFactsModule(OneViewModuleBase):
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec,
-                                    supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(InterconnectTypeFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.resource_client = self.oneview_client.interconnect_types
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
+    def execute_module(self):
+
+        if self.module.params.get('name'):
+            interconnect_types = self.oneview_client.interconnect_types.get_by('name', self.module.params['name'])
         else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            interconnect_types = self.oneview_client.interconnect_types.get_all(**self.facts_params)
 
-    def run(self):
-        try:
-            if self.module.params['name']:
-                self.__get_by_name(self.module.params['name'])
-            else:
-                self.__get_all()
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
-
-    def __get_by_name(self, name):
-        interconnect_types = self.oneview_client.interconnect_types.get_by('name', name)
-
-        self.module.exit_json(changed=False,
-                              ansible_facts=dict(interconnect_types=interconnect_types))
-
-    def __get_all(self):
-        params = self.module.params.get('params') or {}
-
-        interconnect_types = self.oneview_client.interconnect_types.get_all(**params)
-
-        self.module.exit_json(changed=False,
-                              ansible_facts=dict(interconnect_types=interconnect_types))
+        return dict(changed=False, ansible_facts=dict(interconnect_types=interconnect_types))
 
 
 def main():
