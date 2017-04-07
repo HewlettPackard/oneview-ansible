@@ -1,7 +1,7 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,16 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
-
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
@@ -33,26 +26,12 @@ module: oneview_enclosure_facts
 short_description: Retrieve facts about one or more Enclosures.
 description:
     - Retrieve facts about one or more of the Enclosures from OneView.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
 author: "Mariana Kreisig (@marikrg)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
-    params:
-      description:
-        - List of params to delimit, filter and sort the list of resources.
-        - "params allowed:
-          'start': The first item to return, using 0-based indexing.
-          'count': The number of resources to return.
-          'filter': A general filter/query string to narrow the list of items returned.
-          'sort': The sort order of the returned data set."
-      required: false
     name:
       description:
         - Enclosure name.
@@ -60,21 +39,19 @@ options:
     options:
       description:
         - "List with options to gather additional facts about an Enclosure and related resources.
-          Options allowed: script, environmentalConfiguration, and utilization. For the option utilization, you can
-          provide specific parameters."
+          Options allowed: C(script), C(environmentalConfiguration), and C(utilization). For the option C(utilization),
+          you can provide specific parameters."
       required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
 - name: Gather facts about all Enclosures
   oneview_enclosure_facts:
     config: "{{ config_file_path }}"
-
 - debug: var=enclosures
 
 - name: Gather paginated, filtered and sorted facts about Enclosures
@@ -85,7 +62,6 @@ EXAMPLES = '''
       count: 3
       sort: 'name:descending'
       filter: 'status=OK'
-
 - debug: var=enclosures
 
 - name: Gather facts about an Enclosure by name
@@ -93,7 +69,6 @@ EXAMPLES = '''
     config: "{{ config_file_path }}"
     name: "Enclosure-Name"
   delegate_to: localhost
-
 - debug: var=enclosures
 
 - name: Gather facts about an Enclosure by name with options
@@ -105,7 +80,6 @@ EXAMPLES = '''
       - environmentalConfiguration   # optional
       - utilization                  # optional
   delegate_to: localhost
-
 - debug: var=enclosures
 - debug: var=enclosure_script
 - debug: var=enclosure_environmental_configuration
@@ -117,7 +91,7 @@ EXAMPLES = '''
     config: "{{ config_file_path }}"
     name: 'Test-Enclosure'
     options:
-      - utilization                  # optional
+      - utilization:                   # optional
           fields: 'AmbientTemperature'
           filter:
             - "startDate=2016-07-01T14:29:42.000Z"
@@ -125,7 +99,6 @@ EXAMPLES = '''
           view: 'day'
           refresh: False
   delegate_to: localhost
-
 - debug: var=enclosures
 - debug: var=enclosure_utilization
 '''
@@ -151,52 +124,39 @@ enclosure_utilization:
     returned: When requested, but can be null.
     type: complex
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class EnclosureFactsModule(object):
-
+class EnclosureFactsModule(OneViewModuleBase):
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
         params=dict(required=False, type='dict'),
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec,
-                                    supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(EnclosureFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
+    def execute_module(self):
+
+        ansible_facts = {}
+
+        if self.module.params['name']:
+            enclosures = self.__get_by_name(self.module.params['name'])
+
+            if self.options and enclosures:
+                ansible_facts = self.__gather_optional_facts(self.options, enclosures[0])
         else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            enclosures = self.oneview_client.enclosures.get_all(**self.facts_params)
 
-    def run(self):
-        try:
-            ansible_facts = {}
+        ansible_facts['enclosures'] = enclosures
 
-            if self.module.params['name']:
-                enclosures = self.__get_by_name(self.module.params['name'])
-
-                if self.module.params.get('options') and enclosures:
-                    ansible_facts = self.__gather_optional_facts(self.module.params['options'], enclosures[0])
-            else:
-                enclosures = self.__get_all()
-
-            ansible_facts['enclosures'] = enclosures
-
-            self.module.exit_json(changed=False,
-                                  ansible_facts=ansible_facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=False,
+                    ansible_facts=ansible_facts)
 
     def __gather_optional_facts(self, options, enclosure):
-
-        options = transform_list_to_dict(options)
 
         enclosure_client = self.oneview_client.enclosures
         ansible_facts = {}
@@ -228,11 +188,6 @@ class EnclosureFactsModule(object):
 
     def __get_by_name(self, name):
         return self.oneview_client.enclosures.get_by('name', name)
-
-    def __get_all(self):
-        params = self.module.params.get('params') or {}
-
-        return self.oneview_client.enclosures.get_all(**params)
 
 
 def main():

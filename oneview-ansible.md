@@ -1773,7 +1773,7 @@ Manage OneView Enclosure resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the Enclosure properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li>  <li>appliance_bays_powered_on</li>  <li>uid_on</li>  <li>uid_off</li>  <li>manager_bays_uid_on</li>  <li>manager_bays_uid_off</li>  <li>manager_bays_power_state_e_fuse</li>  <li>manager_bays_power_state_reset</li>  <li>appliance_bays_power_state_e_fuse</li>  <li>device_bays_power_state_e_fuse</li>  <li>device_bays_power_state_reset</li>  <li>interconnect_bays_power_state_e_fuse</li>  <li>manager_bays_role_active</li>  <li>device_bays_ipv4_removed</li>  <li>interconnect_bays_ipv4_removed</li>  <li>support_data_collection_set</li> </ul> |  Indicates the desired state for the Enclosure resource. 'present' will ensure data properties are compliant with OneView. You can rename the enclosure providing an attribute 'newName'. You can also rename the rack providing an attribute 'rackName'. 'absent' will remove the resource from OneView, if it exists. 'reconfigured' will reapply the appliance's configuration on the enclosure. This includes running the same configuration steps that were performed as part of the enclosure add. 'refreshed' will refresh the enclosure along with all of its components, including interconnects and servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is removed. 'appliance_bays_powered_on' will set the appliance bay power state on. 'uid_on' will set the UID state on. 'uid_off' will set the UID state off. 'manager_bays_uid_on' will set the UID state on for the Synergy Frame Link Module. 'manager_bays_uid_off' will set the UID state off for the Synergy Frame Link Module. 'manager_bays_power_state_e_fuse' will E-Fuse the Synergy Frame Link Module bay in the path. 'manager_bays_power_state_reset' will Reset the Synergy Frame Link Module bay in the path. 'appliance_bays_power_state_e_fuse' will E-Fuse the appliance bay in the path. 'device_bays_power_state_e_fuse' will E-Fuse the device bay in the path. 'device_bays_power_state_reset' will Reset the device bay in the path. 'interconnect_bays_power_state_e_fuse' will E-Fuse the IC bay in the path. 'manager_bays_role_active' will set the active Synergy Frame Link Module. 'device_bays_ipv4_removed' will release the IPv4 address in the device bay. 'interconnect_bays_ipv4_removed' will release the IPv4 address in the interconnect bay. 'support_data_collection_set' will set the support data collection state for the enclosure. The supported values for this state are 'PendingCollection', 'Completed', 'Error' and 'NotSupported'  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li>  <li>appliance_bays_powered_on</li>  <li>uid_on</li>  <li>uid_off</li>  <li>manager_bays_uid_on</li>  <li>manager_bays_uid_off</li>  <li>manager_bays_power_state_e_fuse</li>  <li>manager_bays_power_state_reset</li>  <li>appliance_bays_power_state_e_fuse</li>  <li>device_bays_power_state_e_fuse</li>  <li>device_bays_power_state_reset</li>  <li>interconnect_bays_power_state_e_fuse</li>  <li>manager_bays_role_active</li>  <li>device_bays_ipv4_removed</li>  <li>interconnect_bays_ipv4_removed</li>  <li>support_data_collection_set</li> </ul> |  Indicates the desired state for the Enclosure resource. `present` will ensure data properties are compliant with OneView. You can rename the enclosure providing an attribute `newName`. You can also rename the rack providing an attribute `rackName`. `absent` will remove the resource from OneView, if it exists. `reconfigured` will reapply the appliance's configuration on the enclosure. This includes running the same configuration steps that were performed as part of the enclosure add. `refreshed` will refresh the enclosure along with all of its components, including interconnects and servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is removed. `appliance_bays_powered_on` will set the appliance bay power state on. `uid_on` will set the UID state on. `uid_off` will set the UID state off. `manager_bays_uid_on` will set the UID state on for the Synergy Frame Link Module. `manager_bays_uid_off` will set the UID state off for the Synergy Frame Link Module. `manager_bays_power_state_e_fuse` will E-Fuse the Synergy Frame Link Module bay in the path. `manager_bays_power_state_reset` will Reset the Synergy Frame Link Module bay in the path. `appliance_bays_power_state_e_fuse` will E-Fuse the appliance bay in the path. `device_bays_power_state_e_fuse` will E-Fuse the device bay in the path. `device_bays_power_state_reset` will Reset the device bay in the path. `interconnect_bays_power_state_e_fuse` will E-Fuse the IC bay in the path. `manager_bays_role_active` will set the active Synergy Frame Link Module. `device_bays_ipv4_removed` will release the IPv4 address in the device bay. `interconnect_bays_ipv4_removed` will release the IPv4 address in the interconnect bay. `support_data_collection_set` will set the support data collection state for the enclosure. The supported values for this state are `PendingCollection`, `Completed`, `Error` and `NotSupported`  |
 
 
  
@@ -1785,10 +1785,10 @@ Manage OneView Enclosure resources.
     config: "{{ config_file_path }}"
     state: present
     data:
-      enclosureGroupUri : {{ enclosure_group_uri }},
-      hostname : {{ enclosure_hostname }},
-      username : {{ enclosure_username }},
-      password : {{ enclosure_password }},
+      enclosureGroupUri : '{{ enclosure_group_uri }}'
+      hostname : '{{ enclosure_hostname }}'
+      username : '{{ enclosure_username }}'
+      password : '{{ enclosure_password }}'
       name: 'Test-Enclosure'
       licensingIntent : 'OneView'
 
@@ -1961,11 +1961,13 @@ Manage OneView Enclosure resources.
 
 #### Notes
 
+- These states are only available on HPE Synergy: `appliance_bays_powered_on`, `uid_on`, `uid_off`, `manager_bays_uid_on`, `manager_bays_uid_off`, `manager_bays_power_state_e_fuse`, `manager_bays_power_state_reset`, `appliance_bays_power_state_e_fuse`, `device_bays_power_state_e_fuse`, `device_bays_power_state_reset`, `interconnect_bays_power_state_e_fuse`, `manager_bays_role_active`, `device_bays_ipv4_removed` and `interconnect_bays_ipv4_removed`
+
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
-- These states are only available on HPE Synergy: 'appliance_bays_powered_on', 'uid_on', 'uid_off', 'manager_bays_uid_on', 'manager_bays_uid_off', 'manager_bays_power_state_e_fuse', 'manager_bays_power_state_reset', 'appliance_bays_power_state_e_fuse', 'device_bays_power_state_e_fuse', 'device_bays_power_state_reset', 'interconnect_bays_power_state_e_fuse', 'manager_bays_role_active', 'device_bays_ipv4_removed' and 'interconnect_bays_ipv4_removed'
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
@@ -1987,8 +1989,8 @@ Retrieve facts about one or more Enclosures.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Enclosure name.  |
-| options  |   No  |  | |  List with options to gather additional facts about an Enclosure and related resources. Options allowed: script, environmentalConfiguration, and utilization. For the option utilization, you can provide specific parameters.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| options  |   No  |  | |  List with options to gather additional facts about an Enclosure and related resources. Options allowed: `script`, `environmentalConfiguration`, and `utilization`. For the option `utilization`, you can provide specific parameters.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -1998,7 +2000,6 @@ Retrieve facts about one or more Enclosures.
 - name: Gather facts about all Enclosures
   oneview_enclosure_facts:
     config: "{{ config_file_path }}"
-
 - debug: var=enclosures
 
 - name: Gather paginated, filtered and sorted facts about Enclosures
@@ -2009,7 +2010,6 @@ Retrieve facts about one or more Enclosures.
       count: 3
       sort: 'name:descending'
       filter: 'status=OK'
-
 - debug: var=enclosures
 
 - name: Gather facts about an Enclosure by name
@@ -2017,7 +2017,6 @@ Retrieve facts about one or more Enclosures.
     config: "{{ config_file_path }}"
     name: "Enclosure-Name"
   delegate_to: localhost
-
 - debug: var=enclosures
 
 - name: Gather facts about an Enclosure by name with options
@@ -2029,7 +2028,6 @@ Retrieve facts about one or more Enclosures.
       - environmentalConfiguration   # optional
       - utilization                  # optional
   delegate_to: localhost
-
 - debug: var=enclosures
 - debug: var=enclosure_script
 - debug: var=enclosure_environmental_configuration
@@ -2041,7 +2039,7 @@ Retrieve facts about one or more Enclosures.
     config: "{{ config_file_path }}"
     name: 'Test-Enclosure'
     options:
-      - utilization                  # optional
+      - utilization:                   # optional
           fields: 'AmbientTemperature'
           filter:
             - "startDate=2016-07-01T14:29:42.000Z"
@@ -2049,7 +2047,6 @@ Retrieve facts about one or more Enclosures.
           view: 'day'
           refresh: False
   delegate_to: localhost
-
 - debug: var=enclosures
 - debug: var=enclosure_utilization
 
@@ -2073,6 +2070,8 @@ Retrieve facts about one or more Enclosures.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -2093,7 +2092,7 @@ Manage OneView Enclosure Group resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Enclosure Group properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Enclosure Group resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Enclosure Group resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
 
 
  
@@ -2152,6 +2151,8 @@ Manage OneView Enclosure Group resources.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -2172,8 +2173,8 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Enclosure Group name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Enclosure Group. Options allowed: 'configuration_script' Gets the configuration script for an Enclosure Group.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| options  |   No  |  | |  List with options to gather additional facts about Enclosure Group. Options allowed: `configuration_script` Gets the configuration script for an Enclosure Group.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -2226,6 +2227,8 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---

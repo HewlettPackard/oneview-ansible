@@ -1,5 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,10 +18,8 @@
 import unittest
 import yaml
 
-from oneview_enclosure_group import EnclosureGroupModule, ENCLOSURE_GROUP_CREATED, ENCLOSURE_GROUP_ALREADY_EXIST, \
-    ENCLOSURE_GROUP_UPDATED, ENCLOSURE_GROUP_DELETED, ENCLOSURE_GROUP_ALREADY_ABSENT
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import EnclosureGroupModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -77,20 +77,14 @@ DICT_DEFAULT_ENCLOSURE_GROUP = yaml.load(YAML_ENCLOSURE_GROUP)["data"]
 
 
 class EnclosureGroupPresentStateSpec(unittest.TestCase,
-                                     ModuleContructorTestCase,
-                                     ErrorHandlingTestCase):
+                                     OneViewBaseTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-
-    ErrorHandlingTestCase has common tests for the module error handling.
+    OneViewBaseTestCase has tests for main function, also provides the mocks used in this test case
     """
 
     def setUp(self):
         self.configure_mocks(self, EnclosureGroupModule)
         self.resource = self.mock_ov_client.enclosure_groups
-
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.enclosure_groups.get_by)
 
     def test_should_create_new_enclosure_group(self):
         self.resource.get_by.return_value = []
@@ -102,7 +96,7 @@ class EnclosureGroupPresentStateSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ENCLOSURE_GROUP_CREATED,
+            msg=EnclosureGroupModule.MSG_CREATED,
             ansible_facts=dict(enclosure_group={"name": "name"})
         )
 
@@ -115,7 +109,7 @@ class EnclosureGroupPresentStateSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ENCLOSURE_GROUP_ALREADY_EXIST,
+            msg=EnclosureGroupModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(enclosure_group=DICT_DEFAULT_ENCLOSURE_GROUP)
         )
 
@@ -132,7 +126,7 @@ class EnclosureGroupPresentStateSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ENCLOSURE_GROUP_UPDATED,
+            msg=EnclosureGroupModule.MSG_UPDATED,
             ansible_facts=dict(enclosure_group=data_merged)
         )
 
@@ -142,8 +136,8 @@ class EnclosureGroupPresentStateSpec(unittest.TestCase,
         data_merged['uri'] = '/rest/uri'
 
         self.resource.get_by.return_value = [data_merged]
-        self.resource.update_script.return_value = ""
-        self.resource.get_by.get_script = "# test script"
+        self.resource.update.return_value = {"res": "updated"}
+        self.resource.get_script.return_value = "# test script"
 
         self.mock_ansible_module.params = yaml.load(YAML_ENCLOSURE_GROUP_CHANGE_SCRIPT)
 
@@ -151,8 +145,8 @@ class EnclosureGroupPresentStateSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ENCLOSURE_GROUP_UPDATED,
-            ansible_facts=dict(enclosure_group=data_merged)
+            msg=EnclosureGroupModule.MSG_UPDATED,
+            ansible_facts=dict(enclosure_group={"res": "updated"})
         )
 
     def test_update_when_script_attribute_was_not_modified(self):
@@ -170,7 +164,7 @@ class EnclosureGroupPresentStateSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ENCLOSURE_GROUP_ALREADY_EXIST,
+            msg=EnclosureGroupModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(enclosure_group=data_merged)
         )
 
@@ -183,7 +177,7 @@ class EnclosureGroupPresentStateSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ENCLOSURE_GROUP_DELETED
+            msg=EnclosureGroupModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_enclosure_group_not_exist(self):
@@ -195,7 +189,7 @@ class EnclosureGroupPresentStateSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ENCLOSURE_GROUP_ALREADY_ABSENT
+            msg=EnclosureGroupModule.MSG_ALREADY_ABSENT
         )
 
 

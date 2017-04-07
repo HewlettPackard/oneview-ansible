@@ -1,5 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,10 +18,8 @@
 
 import unittest
 
-from oneview_enclosure_group_facts import EnclosureGroupFactsModule
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import EnclosureGroupFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -50,14 +50,11 @@ ENCLOSURE_GROUPS = [{
 
 
 class EnclosureGroupFactsSpec(unittest.TestCase,
-                              ModuleContructorTestCase,
-                              FactsParamsTestCase,
-                              ErrorHandlingTestCase):
+                              FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, EnclosureGroupFactsModule)
         self.enclosure_groups = self.mock_ov_client.enclosure_groups
         FactsParamsTestCase.configure_client_mock(self, self.enclosure_groups)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.enclosure_groups.get_by)
 
     def test_should_get_all_enclosure_group(self):
         self.enclosure_groups.get_all.return_value = ENCLOSURE_GROUPS

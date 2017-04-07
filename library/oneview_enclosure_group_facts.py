@@ -1,7 +1,7 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,15 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
@@ -32,6 +26,7 @@ module: oneview_enclosure_group_facts
 short_description: Retrieve facts about one or more of the OneView Enclosure Groups.
 description:
     - Retrieve facts about one or more of the Enclosure Groups from OneView.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
@@ -39,21 +34,6 @@ author:
     - "Gustavo Hennig (@GustavoHennig)"
     - "Bruno Souza (@bsouza)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
-    params:
-      description:
-        - List of params to delimit, filter and sort the list of resources.
-        - "params allowed:
-          'start': The first item to return, using 0-based indexing.
-          'count': The number of resources to return.
-          'filter': A general filter/query string to narrow the list of items returned.
-          'sort': The sort order of the returned data set."
-      required: false
     name:
       description:
         - Enclosure Group name.
@@ -62,13 +42,12 @@ options:
       description:
         - "List with options to gather additional facts about Enclosure Group.
           Options allowed:
-          'configuration_script' Gets the configuration script for an Enclosure Group."
+          C(configuration_script) Gets the configuration script for an Enclosure Group."
       required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
@@ -113,57 +92,35 @@ enclosure_group_script:
     returned: When requested, but can be null.
     type: string
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class EnclosureGroupFactsModule(object):
-    argument_spec = {
-        "config": {
-            "required": False,
-            "type": 'str'},
-        "name": {
-            "required": False,
-            "type": 'str'},
-        "options": {
-            "required": False,
-            "type": "list"
-        },
-        "params": {
-            "required": False,
-            "type": "dict"
-        }}
+class EnclosureGroupFactsModule(OneViewModuleBase):
+    argument_spec = dict(
+        name=dict(required=False, type='str'),
+        options=dict(required=False, type='list'),
+        params=dict(required=False, type='dict')
+    )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(EnclosureGroupFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
+    def execute_module(self):
+        facts = {}
+        name = self.module.params.get('name')
+
+        if name:
+            enclosure_groups = self.oneview_client.enclosure_groups.get_by('name', name)
+
+            if enclosure_groups and "configuration_script" in self.options:
+                facts["enclosure_group_script"] = self.__get_script(enclosure_groups)
         else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            enclosure_groups = self.oneview_client.enclosure_groups.get_all(**self.facts_params)
 
-    def run(self):
-        try:
-            facts = {}
-            name = self.module.params.get('name')
-
-            if name:
-                enclosure_groups = self.oneview_client.enclosure_groups.get_by('name', name)
-                options = self.module.params.get("options") or []
-
-                if enclosure_groups and "configuration_script" in options:
-                    facts["enclosure_group_script"] = self.__get_script(enclosure_groups)
-            else:
-                params = self.module.params.get('params') or {}
-
-                enclosure_groups = self.oneview_client.enclosure_groups.get_all(**params)
-
-            facts["enclosure_groups"] = enclosure_groups
-            self.module.exit_json(changed=False, ansible_facts=facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        facts["enclosure_groups"] = enclosure_groups
+        return dict(changed=False, ansible_facts=facts)
 
     def __get_script(self, enclosure_groups):
         script = None
