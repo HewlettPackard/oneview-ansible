@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,16 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.extras.comparators import resource_compare
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -33,17 +26,12 @@ module: oneview_fabric
 short_description: Manage OneView Fabric resources.
 description:
     - Provides an interface for managing fabrics in OneView.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.0"
 author: "Andressa Cruz (@asserdna)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     name:
       description:
         - Fabric name.
@@ -53,11 +41,9 @@ options:
         - List with Fabrics properties.
       required: true
 notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
     - "This module is only available on HPE Synergy."
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -78,64 +64,46 @@ fabric:
     returned: Always, but can be null.
     type: complex
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
-EXCEPTION_NO_RESOURCE = "Resource not found"
-NO_CHANGE_FOUND = "No change found"
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, ResourceComparator
 
 
-class FabricModule(object):
-    argument_spec = dict(
-        config=dict(required=False, type='str'),
-        state=dict(required=True,
-                   choices=['reserved_vlan_range_updated']),
-        data=dict(required=True, type='dict')
-    )
+class FabricModule(OneViewModuleBase):
+    MSG_NOT_FOUND = "Informed Fabric was not found."
+    MSG_ALREADY_EXIST = "No change found"
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec,
-                                    supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        argument_spec = dict(
+            state=dict(required=True,
+                       choices=['reserved_vlan_range_updated']),
+            data=dict(required=True, type='dict')
+        )
+        super(FabricModule, self).__init__(additional_arg_spec=argument_spec)
+        self.resource_client = self.oneview_client.fabrics
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+    def execute_module(self):
+        if self.state == 'reserved_vlan_range_updated':
+            return self.__reserved_vlan_range_updated()
 
-    def run(self):
-        state = self.module.params['state']
-        data = self.module.params['data']
-        try:
-            if state == 'reserved_vlan_range_updated':
-                self.__reserved_vlan_range_updated(data)
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
-
-    def __reserved_vlan_range_updated(self, data):
-        resource = self.__get_by_name(data)
+    def __reserved_vlan_range_updated(self):
+        resource = self.get_by_name(self.data['name'])
         if not resource:
-            raise HPOneViewResourceNotFound(EXCEPTION_NO_RESOURCE)
+            raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
         resource_vlan_range = resource.get('reservedVlanRange')
         merged_data = resource_vlan_range.copy()
-        merged_data.update(data['reservedVlanRangeParameters'])
+        merged_data.update(self.data['reservedVlanRangeParameters'])
 
-        if resource_compare(resource_vlan_range, merged_data):
-            self.module.exit_json(changed=False,
-                                  msg=NO_CHANGE_FOUND,
-                                  ansible_facts=dict(fabric=resource))
+        if ResourceComparator.compare(resource_vlan_range, merged_data):
+            return dict(changed=False, msg=self.MSG_ALREADY_EXIST, ansible_facts=dict(fabric=resource))
         else:
-            self.__update_vlan_range(data, resource)
-
-    def __get_by_name(self, data):
-        result = self.oneview_client.fabrics.get_by('name', data['name'])
-        return result[0] if result else None
+            return self.__update_vlan_range(self.data, resource)
 
     def __update_vlan_range(self, data, resource):
-        fabric_update = self.oneview_client.fabrics.update_reserved_vlan_range(
+        fabric_updated = self.oneview_client.fabrics.update_reserved_vlan_range(
             resource["uri"],
             data["reservedVlanRangeParameters"])
-        self.module.exit_json(changed=True,
-                              ansible_facts=dict(fabric=fabric_update))
+        return dict(changed=True, ansible_facts=dict(fabric=fabric_updated))
 
 
 def main():
