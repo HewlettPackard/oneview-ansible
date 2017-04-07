@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,23 +15,15 @@
 ###
 
 import unittest
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
-
-from oneview_fabric import FabricModule
+from hpe_test_utils import OneViewBaseTestCase
+from oneview_module_loader import FabricModule
 
 FAKE_MSG_ERROR = 'Fake message error'
 NO_CHANGE_MSG = 'No change found'
 
 
 class FabricModuleSpec(unittest.TestCase,
-                       ModuleContructorTestCase,
-                       ErrorHandlingTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function
-
-    ErrorHandlingTestCase has common tests for the module error handling.
-    """
+                       OneViewBaseTestCase):
 
     PRESENT_FABRIC_VLAN_RANGE = dict(
         name="DefaultFabric",
@@ -70,8 +62,6 @@ class FabricModuleSpec(unittest.TestCase,
     def setUp(self):
         self.configure_mocks(self, FabricModule)
         self.resource = self.mock_ov_client.fabrics
-        ErrorHandlingTestCase.configure(self, ansible_params=self.FABRIC_PARAMS,
-                                        method_to_fire=self.mock_ov_client.fabrics.get_by)
 
     def test_should_update_vlan_range(self):
         # Mock OneView resource functions
