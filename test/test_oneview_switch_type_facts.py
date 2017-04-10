@@ -1,5 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,9 +19,7 @@
 import unittest
 
 from oneview_switch_type_facts import SwitchTypeFactsModule
-from test.utils import ModuleContructorTestCase
-from test.utils import FactsParamsTestCase
-from test.utils import ErrorHandlingTestCase
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -37,17 +37,14 @@ SWITCH_TYPES = [{"name": "Test Switch Type 1"}, {"name": "Test Switch Type 2"}, 
 
 
 class SwitchTypeFactsSpec(unittest.TestCase,
-                          ModuleContructorTestCase,
-                          FactsParamsTestCase,
-                          ErrorHandlingTestCase):
+                          FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, SwitchTypeFactsModule)
-        self.resource = self.mock_ov_client.switch_types
-        FactsParamsTestCase.configure_client_mock(self, self.resource)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
+        self.switch_types = self.mock_ov_client.switch_types
+        FactsParamsTestCase.configure_client_mock(self, self.switch_types)
 
     def test_should_get_all_switch_types(self):
-        self.resource.get_all.return_value = SWITCH_TYPES
+        self.switch_types.get_all.return_value = SWITCH_TYPES
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         SwitchTypeFactsModule().run()
@@ -58,7 +55,7 @@ class SwitchTypeFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_switch_type_by_name(self):
-        self.resource.get_by.return_value = [SWITCH_TYPES[1]]
+        self.switch_types.get_by.return_value = [SWITCH_TYPES[1]]
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         SwitchTypeFactsModule().run()
