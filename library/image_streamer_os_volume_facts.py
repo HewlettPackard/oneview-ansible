@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,49 +16,30 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 module: image_streamer_os_volume_facts
 short_description: Retrieve facts about the Image Streamer OS Volumes.
 description:
     - Retrieve facts about the Image Streamer OS Volumes.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.1"
 author:
     - "Mariana Kreisig (@marikrg)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the filepath is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     name:
       description:
         - Name of the OS Volume.
       required: false
-    params:
-      description:
-        - List of params to delimit, filter and sort the list of resources.
-        - "params allowed:
-           'start': The first item to return, using 0-based indexing.
-           'count': The number of resources to return.
-           'filter': A general filter/query string to narrow the list of items returned.
-           'sort': The sort order of the returned data set."
-      required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
@@ -96,42 +77,29 @@ os_volumes:
     returned: Always, but can be empty.
     type: list
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class OsVolumeFactsModule(object):
+class OsVolumeFactsModule(OneViewModuleBase):
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         params=dict(required=False, type='dict')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(OsVolumeFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.i3s_client = self.oneview_client.create_image_streamer_client()
 
-        if not self.module.params['config']:
-            oneview_client = OneViewClient.from_environment_variables()
+    def execute_module(self):
+        name = self.module.params.get("name")
+
+        if name:
+            os_volumes = self.i3s_client.os_volumes.get_by('name', name)
         else:
-            oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            os_volumes = self.i3s_client.os_volumes.get_all(**self.facts_params)
 
-        self.i3s_client = oneview_client.create_image_streamer_client()
-
-    def run(self):
-        try:
-            name = self.module.params.get("name")
-
-            if name:
-                os_volumes = self.i3s_client.os_volumes.get_by('name', name)
-            else:
-                params = self.module.params.get('params') or {}
-                os_volumes = self.i3s_client.os_volumes.get_all(**params)
-
-            self.module.exit_json(changed=False, ansible_facts=dict(os_volumes=os_volumes))
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=False, ansible_facts=dict(os_volumes=os_volumes))
 
 
 def main():

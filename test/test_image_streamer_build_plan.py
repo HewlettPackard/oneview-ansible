@@ -14,39 +14,28 @@
 # limitations under the License.
 ###
 import unittest
-import yaml
-import importlib
 
 from oneview_module_loader import BuildPlanModule
-from image_streamer_build_plan import BUILD_PLAN_CREATED, BUILD_PLAN_UPDATED, \
-    BUILD_PLAN_ALREADY_UPDATED, BUILD_PLAN_DELETED, BUILD_PLAN_ALREADY_ABSENT
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
 class BuildPlanSpec(unittest.TestCase,
-                    ModuleContructorTestCase,
-                    ErrorHandlingTestCase):
+                    OneViewBaseTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function,
+    OneViewBaseTestCase has tests for main function,
     also provides the mocks used in this test case
-
-    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, BuildPlanModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.i3s.build_plans.get_by)
 
         # Load scenarios from module examples
-        exam = importlib.import_module(BuildPlanModule.__module__)
-        self.BUILD_PLAN_EXAMPLES = yaml.load(exam.EXAMPLES)
-        self.BUILD_PLAN_CREATE = self.BUILD_PLAN_EXAMPLES[0]['image_streamer_build_plan']
-        self.BUILD_PLAN_UPDATE = self.BUILD_PLAN_EXAMPLES[1]['image_streamer_build_plan']
-        self.BUILD_PLAN_DELETE = self.BUILD_PLAN_EXAMPLES[2]['image_streamer_build_plan']
+        self.BUILD_PLAN_CREATE = self.EXAMPLES[0]['image_streamer_build_plan']
+        self.BUILD_PLAN_UPDATE = self.EXAMPLES[1]['image_streamer_build_plan']
+        self.BUILD_PLAN_DELETE = self.EXAMPLES[2]['image_streamer_build_plan']
 
     def test_should_create_new_build_plan(self):
         self.i3s.build_plans.get_by.return_value = []
@@ -63,7 +52,7 @@ class BuildPlanSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=BUILD_PLAN_CREATED,
+            msg=BuildPlanModule.MSG_CREATED,
             ansible_facts=dict(build_plan={"name": "name"})
         )
 
@@ -77,7 +66,7 @@ class BuildPlanSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=BUILD_PLAN_UPDATED,
+            msg=BuildPlanModule.MSG_UPDATED,
             ansible_facts=dict(build_plan={"name": "name"})
         )
 
@@ -92,7 +81,7 @@ class BuildPlanSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=BUILD_PLAN_ALREADY_UPDATED,
+            msg=BuildPlanModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(build_plan=self.BUILD_PLAN_UPDATE['data'])
         )
 
@@ -104,9 +93,8 @@ class BuildPlanSpec(unittest.TestCase,
         BuildPlanModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=True,
-            msg=BUILD_PLAN_DELETED
+            msg=BuildPlanModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_deleting_a_non_existent_build_plan(self):
@@ -117,9 +105,8 @@ class BuildPlanSpec(unittest.TestCase,
         BuildPlanModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=False,
-            msg=BUILD_PLAN_ALREADY_ABSENT
+            msg=BuildPlanModule.MSG_ALREADY_ABSENT
         )
 
 

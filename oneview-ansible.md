@@ -478,7 +478,7 @@ Manages Image Stream OS Build Plan resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with OS Build Plan properties and its associated states.  |
-| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the OS Build Plan resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the OS Build Plan resource. `present` will ensure data properties are compliant with Synergy Image Streamer. `absent` will remove the resource from Synergy Image Streamer, if it exists.  |
 
 
  
@@ -530,6 +530,8 @@ Manages Image Stream OS Build Plan resources.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -550,7 +552,7 @@ Retrieve facts about one or more of the Image Streamer Build Plans.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Build Plan name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -598,6 +600,8 @@ Retrieve facts about one or more of the Image Streamer Build Plans.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -616,9 +620,9 @@ Retrieve facts about the Image Streamer Deployment Groups.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the filepath is not provided, the configuration will be loaded from environment variables.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Deployment Group.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -669,6 +673,8 @@ Retrieve facts about the Image Streamer Deployment Groups.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -689,7 +695,7 @@ Manage Image Streamer Deployment Plan resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Deployment Plan properties and its associated states.  |
-| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Deployment Plan resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Deployment Plan resource. `present` will ensure data properties are compliant with Synergy Image Streamer. `absent` will remove the resource from Synergy Image Streamer, if it exists.  |
 
 
  
@@ -742,6 +748,8 @@ Manage Image Streamer Deployment Plan resources.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -762,7 +770,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Deployment Plan name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -810,6 +818,8 @@ Retrieve facts about the Image Streamer Deployment Plans.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -830,7 +840,7 @@ Manage Image Streamer Golden Image resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Golden Image properties and its associated states.  |
-| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>downloaded</li>  <li>archive_downloaded</li> </ul> |  Indicates the desired state for the Golden Image resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'downloaded' will download the Golden Image to the file path provided. 'archive_downloaded' will download the Golden Image archive to the file path provided.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>downloaded</li>  <li>archive_downloaded</li> </ul> |  Indicates the desired state for the Golden Image resource. `present` will ensure data properties are compliant with Synergy Image Streamer. `absent` will remove the resource from Synergy Image Streamer, if it exists. `downloaded` will download the Golden Image to the file path provided. `archive_downloaded` will download the Golden Image archive to the file path provided.  |
 
 
  
@@ -912,7 +922,7 @@ Manage Image Streamer Golden Image resources.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
-- This resource is only available on HPE Synergy
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
@@ -934,7 +944,7 @@ Retrieve facts about one or more of the Image Streamer Golden Image.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Golden Image name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -982,6 +992,8 @@ Retrieve facts about one or more of the Image Streamer Golden Image.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -1000,9 +1012,9 @@ Retrieve facts about the Image Streamer OS Volumes.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the filepath is not provided, the configuration will be loaded from environment variables.  |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the OS Volume.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -1053,6 +1065,8 @@ Retrieve facts about the Image Streamer OS Volumes.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -1073,7 +1087,7 @@ Manage the Image Streamer Plan Script resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Plan Script properties and its associated states.  |
-| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>differences_retrieved</li> </ul> |  Indicates the desired state for the Plan Script resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'differences_retrieved' will retrieve the modified contents of the Plan Script as per the selected attributes.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>differences_retrieved</li> </ul> |  Indicates the desired state for the Plan Script resource. `present` will ensure data properties are compliant with Synergy Image Streamer. `absent` will remove the resource from Synergy Image Streamer, if it exists. `differences_retrieved` will retrieve the modified contents of the Plan Script as per the selected attributes.  |
 
 
  
@@ -1139,6 +1153,8 @@ Manage the Image Streamer Plan Script resources.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -1159,7 +1175,7 @@ Retrieve facts about the Image Streamer Plan Scripts.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Plan Script name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -1206,6 +1222,8 @@ Retrieve facts about the Image Streamer Plan Scripts.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---

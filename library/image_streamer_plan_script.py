@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,17 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.module_utils.basic import *
 
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.extras.comparators import resource_compare
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewValueError
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
@@ -33,23 +26,18 @@ module: image_streamer_plan_script
 short_description: Manage the Image Streamer Plan Script resources.
 description:
     - "Provides an interface to manage the Image Streamer Plan Script. Can create, update, and remove."
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Plan Script resource.
-              'present' will ensure data properties are compliant with OneView.
-              'absent' will remove the resource from OneView, if it exists.
-              'differences_retrieved' will retrieve the modified contents of the Plan Script as per
+              C(present) will ensure data properties are compliant with Synergy Image Streamer.
+              C(absent) will remove the resource from Synergy Image Streamer, if it exists.
+              C(differences_retrieved) will retrieve the modified contents of the Plan Script as per
               the selected attributes.
         choices: ['present', 'absent', 'differences_retrieved']
         required: true
@@ -57,11 +45,9 @@ options:
         description:
             - List with Plan Script properties and its associated states.
         required: true
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -119,19 +105,20 @@ plan_script_differences:
     type: complex
 '''
 
-PLAN_SCRIPT_CREATED = 'Plan Script created successfully.'
-PLAN_SCRIPT_UPDATED = 'Plan Script updated successfully.'
-PLAN_SCRIPT_ALREADY_UPDATED = 'Plan Script is already present.'
-PLAN_SCRIPT_DELETED = 'Plan Script deleted successfully.'
-PLAN_SCRIPT_ALREADY_ABSENT = 'Plan Script is already absent.'
-PLAN_SCRIPT_DIFFERENCES_RETRIEVED = 'Plan Script differences retrieved successfully.'
-PLAN_SCRIPT_CONTENT_ATTRIBUTE_MANDATORY = 'Missing mandatory attribute: data.content.'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewValueError
 
 
-class PlanScriptModule(object):
+class PlanScriptModule(OneViewModuleBase):
+    MSG_CREATED = 'Plan Script created successfully.'
+    MSG_UPDATED = 'Plan Script updated successfully.'
+    MSG_ALREADY_EXIST = 'Plan Script is already present.'
+    MSG_DELETED = 'Plan Script deleted successfully.'
+    MSG_ALREADY_ABSENT = 'Plan Script is already absent.'
+    MSG_DIFFERENCES_RETRIEVED = 'Plan Script differences retrieved successfully.'
+    MSG_CONTENT_ATTRIBUTE_MANDATORY = 'Missing mandatory attribute: data.content.'
+
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         state=dict(
             required=True,
             choices=['present', 'absent', 'differences_retrieved']
@@ -140,76 +127,32 @@ class PlanScriptModule(object):
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
-
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
-
+        super(PlanScriptModule, self).__init__(additional_arg_spec=self.argument_spec)
         self.i3s_client = self.oneview_client.create_image_streamer_client()
+        self.resource_client = self.i3s_client.plan_scripts
 
-    def run(self):
-        try:
-            state = self.module.params['state']
-            data = self.module.params['data']
-            changed, msg, ansible_facts = False, '', {}
+    def execute_module(self):
 
-            resource = (self.i3s_client.plan_scripts.get_by("name", data['name']) or [None])[0]
+        resource = self.get_by_name(self.data['name'])
+        result = {}
 
-            if state == 'present':
-                changed, msg, ansible_facts = self.__present(data, resource)
-            elif state == 'absent':
-                changed, msg, ansible_facts = self.__absent(resource)
-            elif state == 'differences_retrieved':
-                changed, msg, ansible_facts = self.__retrieve_differences(data, resource)
+        if self.state == 'present':
+            result = self.resource_present(resource, 'plan_script')
+        elif self.state == 'absent':
+            result = self.resource_absent(resource)
+        elif self.state == 'differences_retrieved':
+            result = self.__retrieve_differences(self.data, resource)
 
-            self.module.exit_json(changed=changed,
-                                  msg=msg,
-                                  ansible_facts=ansible_facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
-
-    def __present(self, data, resource):
-        changed = False
-
-        if "newName" in data:
-            data["name"] = data.pop("newName")
-
-        if not resource:
-            resource = self.i3s_client.plan_scripts.create(data)
-            msg = PLAN_SCRIPT_CREATED
-            changed = True
-        else:
-            merged_data = resource.copy()
-            merged_data.update(data)
-
-            if not resource_compare(resource, merged_data):
-                # update resource
-                resource = self.i3s_client.plan_scripts.update(merged_data)
-                changed = True
-                msg = PLAN_SCRIPT_UPDATED
-            else:
-                msg = PLAN_SCRIPT_ALREADY_UPDATED
-
-        return changed, msg, dict(plan_script=resource)
-
-    def __absent(self, resource):
-        if resource:
-            self.i3s_client.plan_scripts.delete(resource)
-            return True, PLAN_SCRIPT_DELETED, {}
-        else:
-            return False, PLAN_SCRIPT_ALREADY_ABSENT, {}
+        return result
 
     def __retrieve_differences(self, data, resource):
         if 'content' not in data:
-            raise HPOneViewValueError(PLAN_SCRIPT_CONTENT_ATTRIBUTE_MANDATORY)
+            raise HPOneViewValueError(self.MSG_CONTENT_ATTRIBUTE_MANDATORY)
 
         differences = self.i3s_client.plan_scripts.retrieve_differences(resource['uri'], data['content'])
-        return False, PLAN_SCRIPT_DIFFERENCES_RETRIEVED, dict(plan_script_differences=differences)
+        return dict(changed=False,
+                    msg=self.MSG_DIFFERENCES_RETRIEVED,
+                    ansible_facts=dict(plan_script_differences=differences))
 
 
 def main():

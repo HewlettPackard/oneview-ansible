@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -14,42 +14,31 @@
 # limitations under the License.
 ###
 import unittest
-import yaml
 
-from image_streamer_golden_image import GoldenImageModule, GOLDEN_IMAGE_ALREADY_UPDATED, GOLDEN_IMAGE_UPLOADED, \
-    GOLDEN_IMAGE_ALREADY_ABSENT, GOLDEN_IMAGE_CREATED, GOLDEN_IMAGE_DELETED, EXAMPLES, I3S_BUILD_PLAN_WAS_NOT_FOUND, \
-    GOLDEN_IMAGE_UPDATED, I3S_CANT_CREATE_AND_UPLOAD, I3S_MISSING_MANDATORY_ATTRIBUTES, I3S_OS_VOLUME_WAS_NOT_FOUND, \
-    GOLDEN_IMAGE_DOWNLOADED, GOLDEN_IMAGE_ARCHIVE_DOWNLOADED, GOLDEN_IMAGE_WAS_NOT_FOUND
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import GoldenImageModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
 class GoldenImageSpec(unittest.TestCase,
-                      ModuleContructorTestCase,
-                      ErrorHandlingTestCase):
+                      OneViewBaseTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function,
+    OneViewBaseTestCase has common test for main function,
     also provides the mocks used in this test case
-
-    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, GoldenImageModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
 
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.i3s.golden_images.get_by)
-
         # Load scenarios from module examples
-        self.GOLDEN_IMAGE_EXAMPLES = yaml.load(EXAMPLES)
-        self.GOLDEN_IMAGE_CREATE = self.GOLDEN_IMAGE_EXAMPLES[0]['image_streamer_golden_image']
-        self.GOLDEN_IMAGE_UPLOAD = self.GOLDEN_IMAGE_EXAMPLES[1]['image_streamer_golden_image']
-        self.GOLDEN_IMAGE_UPDATE = self.GOLDEN_IMAGE_EXAMPLES[2]['image_streamer_golden_image']
-        self.GOLDEN_IMAGE_DOWNLOAD = self.GOLDEN_IMAGE_EXAMPLES[3]['image_streamer_golden_image']
-        self.GOLDEN_IMAGE_ARCHIVE_DOWNLOAD = self.GOLDEN_IMAGE_EXAMPLES[4]['image_streamer_golden_image']
-        self.GOLDEN_IMAGE_DELETE = self.GOLDEN_IMAGE_EXAMPLES[5]['image_streamer_golden_image']
+        self.GOLDEN_IMAGE_CREATE = self.EXAMPLES[0]['image_streamer_golden_image']
+        self.GOLDEN_IMAGE_UPLOAD = self.EXAMPLES[1]['image_streamer_golden_image']
+        self.GOLDEN_IMAGE_UPDATE = self.EXAMPLES[2]['image_streamer_golden_image']
+        self.GOLDEN_IMAGE_DOWNLOAD = self.EXAMPLES[3]['image_streamer_golden_image']
+        self.GOLDEN_IMAGE_ARCHIVE_DOWNLOAD = self.EXAMPLES[4]['image_streamer_golden_image']
+        self.GOLDEN_IMAGE_DELETE = self.EXAMPLES[5]['image_streamer_golden_image']
 
     def test_create_new_golden_image(self):
         self.i3s.golden_images.get_by.return_value = []
@@ -70,7 +59,7 @@ class GoldenImageSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=GOLDEN_IMAGE_CREATED,
+            msg=GoldenImageModule.MSG_CREATED,
             ansible_facts=dict(golden_image={"name": "name"})
         )
 
@@ -90,7 +79,7 @@ class GoldenImageSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=GOLDEN_IMAGE_UPLOADED,
+            msg=GoldenImageModule.MSG_UPLOADED,
             ansible_facts=dict(golden_image={"name": "name"})
         )
 
@@ -104,7 +93,7 @@ class GoldenImageSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=GOLDEN_IMAGE_UPDATED,
+            msg=GoldenImageModule.MSG_UPDATED,
             ansible_facts=dict(golden_image={"name": "name"})
         )
 
@@ -122,7 +111,7 @@ class GoldenImageSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=GOLDEN_IMAGE_DOWNLOADED,
+            msg=GoldenImageModule.MSG_DOWNLOADED,
             ansible_facts={})
 
     def test_golden_image_download_nonexistent(self):
@@ -132,7 +121,7 @@ class GoldenImageSpec(unittest.TestCase,
         GoldenImageModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=GOLDEN_IMAGE_WAS_NOT_FOUND,
+            msg=GoldenImageModule.MSG_WAS_NOT_FOUND,
         )
 
     def test_golden_image_archive_download(self):
@@ -149,7 +138,7 @@ class GoldenImageSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=GOLDEN_IMAGE_ARCHIVE_DOWNLOADED,
+            msg=GoldenImageModule.MSG_ARCHIVE_DOWNLOADED,
             ansible_facts={})
 
     def test_golden_image_archive_download_nonexistent(self):
@@ -159,7 +148,7 @@ class GoldenImageSpec(unittest.TestCase,
         GoldenImageModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=GOLDEN_IMAGE_WAS_NOT_FOUND,
+            msg=GoldenImageModule.MSG_WAS_NOT_FOUND,
         )
 
     def test_should_not_update_when_data_is_equals(self):
@@ -173,7 +162,7 @@ class GoldenImageSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=GOLDEN_IMAGE_ALREADY_UPDATED,
+            msg=GoldenImageModule.MSG_ALREADY_UPDATED,
             ansible_facts=dict(golden_image=self.GOLDEN_IMAGE_UPDATE['data'])
         )
 
@@ -185,9 +174,8 @@ class GoldenImageSpec(unittest.TestCase,
         GoldenImageModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=True,
-            msg=GOLDEN_IMAGE_DELETED
+            msg=GoldenImageModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_deleting_a_non_existent_golden_image(self):
@@ -198,9 +186,8 @@ class GoldenImageSpec(unittest.TestCase,
         GoldenImageModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=False,
-            msg=GOLDEN_IMAGE_ALREADY_ABSENT
+            msg=GoldenImageModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_fail_when_present_is_incosistent(self):
@@ -214,7 +201,7 @@ class GoldenImageSpec(unittest.TestCase,
         GoldenImageModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=I3S_CANT_CREATE_AND_UPLOAD
+            msg=GoldenImageModule.MSG_CANT_CREATE_AND_UPLOAD
         )
 
     def test_should_fail_when_mandatory_attributes_are_missing(self):
@@ -227,7 +214,7 @@ class GoldenImageSpec(unittest.TestCase,
         GoldenImageModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=I3S_MISSING_MANDATORY_ATTRIBUTES
+            msg=GoldenImageModule.MSG_MISSING_MANDATORY_ATTRIBUTES
         )
 
     def test_should_fail_when_os_volume_not_found(self):
@@ -240,7 +227,7 @@ class GoldenImageSpec(unittest.TestCase,
         GoldenImageModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=I3S_OS_VOLUME_WAS_NOT_FOUND
+            msg=GoldenImageModule.MSG_OS_VOLUME_WAS_NOT_FOUND
         )
 
     def test_should_fail_when_build_plan_not_found(self):
@@ -252,7 +239,7 @@ class GoldenImageSpec(unittest.TestCase,
         GoldenImageModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=I3S_BUILD_PLAN_WAS_NOT_FOUND
+            msg=GoldenImageModule.MSG_BUILD_PLAN_WAS_NOT_FOUND
         )
 
 

@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,40 +15,28 @@
 ###
 
 import unittest
-import yaml
 
-from image_streamer_os_volume_facts import OsVolumeFactsModule, EXAMPLES
-from utils import ModuleContructorTestCase
-from utils import FactsParamsTestCase
-from utils import ErrorHandlingTestCase
+from oneview_module_loader import OsVolumeFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
 class OsVolumeFactsSpec(unittest.TestCase,
-                        ModuleContructorTestCase,
-                        FactsParamsTestCase,
-                        ErrorHandlingTestCase):
+                        FactsParamsTestCase):
     """
-    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
-    mocks used in this test class.
-
     FactsParamsTestCase has common tests for the parameters support.
-
-    ErrorHandlingTestCase has common tests for the module error handling.
     """
+
     def setUp(self):
         self.configure_mocks(self, OsVolumeFactsModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.i3s.os_volumes.get_by)
 
         FactsParamsTestCase.configure_client_mock(self, self.i3s.os_volumes)
 
         # Load scenarios from module examples
-        self.OS_VOLUME_FACTS_EXAMPLES = yaml.load(EXAMPLES)
-
-        self.PLAY_GET_ALL = self.OS_VOLUME_FACTS_EXAMPLES[0]['image_streamer_os_volume_facts']
-        self.PLAY_GET_BY_NAME = self.OS_VOLUME_FACTS_EXAMPLES[4]['image_streamer_os_volume_facts']
+        self.PLAY_GET_ALL = self.EXAMPLES[0]['image_streamer_os_volume_facts']
+        self.PLAY_GET_BY_NAME = self.EXAMPLES[4]['image_streamer_os_volume_facts']
 
         self.OS_VOLUME = dict(
             name="OS Volume Name",
