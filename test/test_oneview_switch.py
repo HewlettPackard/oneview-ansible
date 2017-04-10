@@ -1,5 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,13 +18,12 @@
 
 import unittest
 
-from oneview_switch import SwitchModule, SWITCH_DELETED, SWITCH_ALREADY_ABSENT, SWITCH_PORTS_UPDATED
-from utils import ModuleContructorTestCase
-from utils import ErrorHandlingTestCase
+from oneview_module_loader import SwitchModule
+from hpe_test_utils import OneViewBaseTestCase
 
 SWITCH_NAME = "172.18.16.2"
 
-PARAMS_ABSENT = dict(
+PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
     name=SWITCH_NAME
@@ -48,50 +49,48 @@ SWITCH = dict(
 
 
 class SwitchModuleSpec(unittest.TestCase,
-                       ModuleContructorTestCase,
-                       ErrorHandlingTestCase):
+                       OneViewBaseTestCase):
+
     def setUp(self):
         self.configure_mocks(self, SwitchModule)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.switches.get_by)
+        self.resource = self.mock_ov_client.switches
 
     def test_should_remove_switch(self):
-        switches = [SWITCH]
-        self.mock_ov_client.switches.get_by.return_value = switches
-        self.mock_ansible_module.params = PARAMS_ABSENT
+        self.resource.get_by.return_value = [SWITCH]
+        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         SwitchModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SWITCH_DELETED
+            msg=SwitchModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_switch_not_exist(self):
-        self.mock_ov_client.switches.get_by.return_value = []
-        self.mock_ansible_module.params = PARAMS_ABSENT
+        self.resource.get_by.return_value = []
+        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         SwitchModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SWITCH_ALREADY_ABSENT
+            msg=SwitchModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_update_switch_ports(self):
-        switches = [SWITCH]
-        self.mock_ov_client.switches.get_by.return_value = switches
+        self.resource.get_by.return_value = [SWITCH]
         self.mock_ansible_module.params = PARAMS_PORTS_UPDATED
 
         SwitchModule().run()
 
-        self.mock_ov_client.switches.update_ports.assert_called_once_with(
+        self.resource.update_ports.assert_called_once_with(
             id_or_uri=SWITCH["uri"],
             ports=PARAMS_PORTS_UPDATED["data"]
         )
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SWITCH_PORTS_UPDATED
+            msg=SwitchModule.MSG_PORTS_UPDATED
         )
 
 
