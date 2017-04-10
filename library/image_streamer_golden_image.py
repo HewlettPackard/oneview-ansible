@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,18 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.module_utils.basic import *
 
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.extras.comparators import resource_compare
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
-    from hpOneView.exceptions import HPOneViewValueError
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
@@ -34,36 +26,28 @@ module: image_streamer_golden_image
 short_description: Manage Image Streamer Golden Image resources.
 description:
     - "Provides an interface to manage Image Streamer Golden Image. Can create, add, update, and remove."
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Golden Image resource.
-              'present' will ensure data properties are compliant with OneView.
-              'absent' will remove the resource from OneView, if it exists.
-              'downloaded' will download the Golden Image to the file path provided.
-              'archive_downloaded' will download the Golden Image archive to the file path provided.
+              C(present) will ensure data properties are compliant with Synergy Image Streamer.
+              C(absent) will remove the resource from Synergy Image Streamer, if it exists.
+              C(downloaded) will download the Golden Image to the file path provided.
+              C(archive_downloaded) will download the Golden Image archive to the file path provided.
         choices: ['present', 'absent', 'downloaded', 'archive_downloaded']
         required: true
     data:
         description:
             - List with Golden Image properties and its associated states.
         required: true
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
-    - This resource is only available on HPE Synergy
+
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -133,25 +117,29 @@ golden_image:
     type: complex
 '''
 
-GOLDEN_IMAGE_CREATED = 'Golden Image created successfully.'
-GOLDEN_IMAGE_UPLOADED = 'Golden Image uploaded successfully.'
-GOLDEN_IMAGE_UPDATED = 'Golden Image updated successfully.'
-GOLDEN_IMAGE_ALREADY_UPDATED = 'Golden Image is already present.'
-GOLDEN_IMAGE_DELETED = 'Golden Image deleted successfully.'
-GOLDEN_IMAGE_DOWNLOADED = 'Golden Image downloaded successfully.'
-GOLDEN_IMAGE_ARCHIVE_DOWNLOADED = 'Golden Image archive downloaded successfully.'
-GOLDEN_IMAGE_ALREADY_ABSENT = 'Golden Image is already absent.'
-GOLDEN_IMAGE_WAS_NOT_FOUND = 'Golden Image was not found.'
-I3S_CANT_CREATE_AND_UPLOAD = "You can use an existent OS Volume or upload an Image, you cannot do both."
-I3S_MISSING_MANDATORY_ATTRIBUTES = 'Mandatory field is missing: osVolumeURI or localImageFilePath are required.'
-I3S_OS_VOLUME_WAS_NOT_FOUND = 'OS Volume was not found.'
-I3S_BUILD_PLAN_WAS_NOT_FOUND = 'OS Build Plan was not found.'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import (OneViewModuleBase,
+                                  HPOneViewValueError,
+                                  HPOneViewResourceNotFound,
+                                  ResourceComparator)
 
 
-class GoldenImageModule(object):
+class GoldenImageModule(OneViewModuleBase):
+    MSG_CREATED = 'Golden Image created successfully.'
+    MSG_UPLOADED = 'Golden Image uploaded successfully.'
+    MSG_UPDATED = 'Golden Image updated successfully.'
+    MSG_ALREADY_UPDATED = 'Golden Image is already present.'
+    MSG_DELETED = 'Golden Image deleted successfully.'
+    MSG_DOWNLOADED = 'Golden Image downloaded successfully.'
+    MSG_ARCHIVE_DOWNLOADED = 'Golden Image archive downloaded successfully.'
+    MSG_ALREADY_ABSENT = 'Golden Image is already absent.'
+    MSG_WAS_NOT_FOUND = 'Golden Image was not found.'
+    MSG_CANT_CREATE_AND_UPLOAD = "You can use an existent OS Volume or upload an Image, you cannot do both."
+    MSG_MISSING_MANDATORY_ATTRIBUTES = 'Mandatory field is missing: osVolumeURI or localImageFilePath are required.'
+    MSG_OS_VOLUME_WAS_NOT_FOUND = 'OS Volume was not found.'
+    MSG_BUILD_PLAN_WAS_NOT_FOUND = 'OS Build Plan was not found.'
+
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         state=dict(
             required=True,
             choices=['present', 'absent', 'downloaded', 'archive_downloaded']
@@ -160,48 +148,33 @@ class GoldenImageModule(object):
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
-
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
-
+        super(GoldenImageModule, self).__init__(additional_arg_spec=self.argument_spec)
         self.i3s_client = self.oneview_client.create_image_streamer_client()
+        self.resource_client = self.i3s_client.golden_images
 
-    def run(self):
-        try:
-            state = self.module.params['state']
-            data = self.module.params['data']
-            changed, msg, ansible_facts = False, '', {}
+    def execute_module(self):
+        resource = self.get_by_name(self.data['name'])
 
-            resource = (self.i3s_client.golden_images.get_by("name", data['name']) or [None])[0]
+        if self.state == 'present':
+            changed, msg, ansible_facts = self.__present(self.data, resource)
+        elif self.state == 'absent':
+            return self.resource_absent(resource)
+        else:
+            if not resource:
+                raise HPOneViewResourceNotFound(self.MSG_WAS_NOT_FOUND)
 
-            if state == 'present':
-                changed, msg, ansible_facts = self.__present(data, resource)
-            elif state == 'absent':
-                changed, msg, ansible_facts = self.__absent(resource)
-            else:
-                if not resource:
-                    raise HPOneViewResourceNotFound(GOLDEN_IMAGE_WAS_NOT_FOUND)
+            if self.state == 'downloaded':
+                changed, msg, ansible_facts = self.__download(self.data, resource)
+            elif self.state == 'archive_downloaded':
+                changed, msg, ansible_facts = self.__download_archive(self.data, resource)
 
-                if state == 'downloaded':
-                    changed, msg, ansible_facts = self.__download(data, resource)
-                elif state == 'archive_downloaded':
-                    changed, msg, ansible_facts = self.__download_archive(data, resource)
-
-            self.module.exit_json(changed=changed,
-                                  msg=msg,
-                                  ansible_facts=ansible_facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=changed,
+                    msg=msg,
+                    ansible_facts=ansible_facts)
 
     def __check_present_consistency(self, data):
         if data.get('osVolumeURI') and data.get('localImageFilePath'):
-            raise HPOneViewValueError(I3S_CANT_CREATE_AND_UPLOAD)
+            raise HPOneViewValueError(self.MSG_CANT_CREATE_AND_UPLOAD)
 
     def __present(self, data, resource):
 
@@ -219,25 +192,24 @@ class GoldenImageModule(object):
         if not resource:
             if data.get('osVolumeURI'):
                 resource = self.i3s_client.golden_images.create(data)
-                msg = GOLDEN_IMAGE_CREATED
+                msg = self.MSG_CREATED
                 changed = True
             elif file_path:
                 resource = self.i3s_client.golden_images.upload(file_path, data)
-                msg = GOLDEN_IMAGE_UPLOADED
+                msg = self.MSG_UPLOADED
                 changed = True
             else:
-                raise HPOneViewValueError(I3S_MISSING_MANDATORY_ATTRIBUTES)
+                raise HPOneViewValueError(self.MSG_MISSING_MANDATORY_ATTRIBUTES)
         else:
             merged_data = resource.copy()
             merged_data.update(data)
 
-            if not resource_compare(resource, merged_data):
-                # update resource
+            if not ResourceComparator.compare(resource, merged_data):
                 resource = self.i3s_client.golden_images.update(merged_data)
                 changed = True
-                msg = GOLDEN_IMAGE_UPDATED
+                msg = self.MSG_UPDATED
             else:
-                msg = GOLDEN_IMAGE_ALREADY_UPDATED
+                msg = self.MSG_ALREADY_UPDATED
 
         return changed, msg, dict(golden_image=resource)
 
@@ -253,7 +225,7 @@ class GoldenImageModule(object):
     def __get_os_voume_by_name(self, name):
         os_volume = self.i3s_client.os_volumes.get_by_name(name)
         if not os_volume:
-            raise HPOneViewResourceNotFound(I3S_OS_VOLUME_WAS_NOT_FOUND)
+            raise HPOneViewResourceNotFound(self.MSG_OS_VOLUME_WAS_NOT_FOUND)
         return os_volume
 
     def __get_build_plan_by_name(self, name):
@@ -261,22 +233,15 @@ class GoldenImageModule(object):
         if build_plan:
             return build_plan[0]
         else:
-            raise HPOneViewResourceNotFound(I3S_BUILD_PLAN_WAS_NOT_FOUND)
-
-    def __absent(self, resource):
-        if resource:
-            self.i3s_client.golden_images.delete(resource)
-            return True, GOLDEN_IMAGE_DELETED, {}
-        else:
-            return False, GOLDEN_IMAGE_ALREADY_ABSENT, {}
+            raise HPOneViewResourceNotFound(self.MSG_BUILD_PLAN_WAS_NOT_FOUND)
 
     def __download(self, data, resource):
         self.i3s_client.golden_images.download(resource['uri'], data['destination_file_path'])
-        return True, GOLDEN_IMAGE_DOWNLOADED, {}
+        return True, self.MSG_DOWNLOADED, {}
 
     def __download_archive(self, data, resource):
         self.i3s_client.golden_images.download_archive(resource['uri'], data['destination_file_path'])
-        return True, GOLDEN_IMAGE_ARCHIVE_DOWNLOADED, {}
+        return True, self.MSG_ARCHIVE_DOWNLOADED, {}
 
 
 def main():

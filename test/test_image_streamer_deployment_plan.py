@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -14,37 +14,28 @@
 # limitations under the License.
 ###
 import unittest
-import yaml
 
-from image_streamer_deployment_plan import DeploymentPlanModule, DEPLOYMENT_PLAN_ALREADY_UPDATED, \
-    DEPLOYMENT_PLAN_ALREADY_ABSENT, DEPLOYMENT_PLAN_CREATED, DEPLOYMENT_PLAN_DELETED, EXAMPLES, \
-    DEPLOYMENT_PLAN_UPDATED, I3S_BUILD_PLAN_WAS_NOT_FOUND
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import DeploymentPlanModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
 class DeploymentPlanSpec(unittest.TestCase,
-                         ModuleContructorTestCase,
-                         ErrorHandlingTestCase):
+                         OneViewBaseTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function,
+    OneViewBaseTestCase has common tests for main function,
     also provides the mocks used in this test case
-
-    ErrorHandlingTestCase has common tests for the module error handling.
     """
+
     def setUp(self):
         self.configure_mocks(self, DeploymentPlanModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
 
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.i3s.deployment_plans.get_by)
-
         # Load scenarios from module examples
-        self.DEPLOYMENT_PLAN_EXAMPLES = yaml.load(EXAMPLES)
-        self.DEPLOYMENT_PLAN_CREATE = self.DEPLOYMENT_PLAN_EXAMPLES[0]['image_streamer_deployment_plan']
-        self.DEPLOYMENT_PLAN_UPDATE = self.DEPLOYMENT_PLAN_EXAMPLES[1]['image_streamer_deployment_plan']
-        self.DEPLOYMENT_PLAN_DELETE = self.DEPLOYMENT_PLAN_EXAMPLES[2]['image_streamer_deployment_plan']
+        self.DEPLOYMENT_PLAN_CREATE = self.EXAMPLES[0]['image_streamer_deployment_plan']
+        self.DEPLOYMENT_PLAN_UPDATE = self.EXAMPLES[1]['image_streamer_deployment_plan']
+        self.DEPLOYMENT_PLAN_DELETE = self.EXAMPLES[2]['image_streamer_deployment_plan']
         self.DEPLOYMENT_PLAN = dict(
             name="Deployment Plan name",
             uri="/rest/deployment-plans/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0")
@@ -67,7 +58,7 @@ class DeploymentPlanSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=DEPLOYMENT_PLAN_CREATED,
+            msg=DeploymentPlanModule.MSG_CREATED,
             ansible_facts=dict(deployment_plan={"name": "name"})
         )
 
@@ -81,7 +72,7 @@ class DeploymentPlanSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=DEPLOYMENT_PLAN_UPDATED,
+            msg=DeploymentPlanModule.MSG_UPDATED,
             ansible_facts=dict(deployment_plan={"name": "name"})
         )
 
@@ -93,7 +84,7 @@ class DeploymentPlanSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=DEPLOYMENT_PLAN_ALREADY_UPDATED,
+            msg=DeploymentPlanModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(deployment_plan=self.DEPLOYMENT_PLAN_UPDATE['data'])
         )
 
@@ -105,9 +96,8 @@ class DeploymentPlanSpec(unittest.TestCase,
         DeploymentPlanModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=True,
-            msg=DEPLOYMENT_PLAN_DELETED
+            msg=DeploymentPlanModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_deleting_a_non_existent_deployment_plan(self):
@@ -118,9 +108,8 @@ class DeploymentPlanSpec(unittest.TestCase,
         DeploymentPlanModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=False,
-            msg=DEPLOYMENT_PLAN_ALREADY_ABSENT
+            msg=DeploymentPlanModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_fail_when_build_plan_not_found(self):
@@ -132,7 +121,7 @@ class DeploymentPlanSpec(unittest.TestCase,
         DeploymentPlanModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=I3S_BUILD_PLAN_WAS_NOT_FOUND
+            msg=DeploymentPlanModule.MSG_BUILD_PLAN_WAS_NOT_FOUND
         )
 
 

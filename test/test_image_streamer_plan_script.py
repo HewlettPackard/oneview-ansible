@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -14,39 +14,28 @@
 # limitations under the License.
 ###
 import unittest
-import yaml
 
-from image_streamer_plan_script import PlanScriptModule, PLAN_SCRIPT_ALREADY_UPDATED, \
-    PLAN_SCRIPT_ALREADY_ABSENT, PLAN_SCRIPT_CREATED, PLAN_SCRIPT_DELETED, EXAMPLES, \
-    PLAN_SCRIPT_UPDATED, PLAN_SCRIPT_CONTENT_ATTRIBUTE_MANDATORY, PLAN_SCRIPT_DIFFERENCES_RETRIEVED
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import PlanScriptModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
 class PlanScriptSpec(unittest.TestCase,
-                     ModuleContructorTestCase,
-                     ErrorHandlingTestCase):
+                     OneViewBaseTestCase):
     """
-    Test the module constructor
-
-    ModuleContructorTestCase has common tests for class constructor and main function
-
-    ErrorHandlingTestCase has common tests for the module error handling.
+    OneViewBaseTestCase has common test for main function
     """
+
     def setUp(self):
         self.configure_mocks(self, PlanScriptModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
 
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.i3s.plan_scripts.get_by)
-
         # Load scenarios from module examples
-        self.PLAN_SCRIPT_EXAMPLES = yaml.load(EXAMPLES)
-        self.PLAN_SCRIPT_CREATE = self.PLAN_SCRIPT_EXAMPLES[0]['image_streamer_plan_script']
-        self.PLAN_SCRIPT_UPDATE = self.PLAN_SCRIPT_EXAMPLES[1]['image_streamer_plan_script']
-        self.PLAN_SCRIPT_DIFFERENCES = self.PLAN_SCRIPT_EXAMPLES[2]['image_streamer_plan_script']
-        self.PLAN_SCRIPT_DELETE = self.PLAN_SCRIPT_EXAMPLES[4]['image_streamer_plan_script']
+        self.PLAN_SCRIPT_CREATE = self.EXAMPLES[0]['image_streamer_plan_script']
+        self.PLAN_SCRIPT_UPDATE = self.EXAMPLES[1]['image_streamer_plan_script']
+        self.PLAN_SCRIPT_DIFFERENCES = self.EXAMPLES[2]['image_streamer_plan_script']
+        self.PLAN_SCRIPT_DELETE = self.EXAMPLES[4]['image_streamer_plan_script']
         self.PLAN_SCRIPT = dict(
             name="Plan Script name",
             uri="/rest/plan-scripts/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0")
@@ -68,7 +57,7 @@ class PlanScriptSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=PLAN_SCRIPT_CREATED,
+            msg=PlanScriptModule.MSG_CREATED,
             ansible_facts=dict(plan_script={"name": "name"})
         )
 
@@ -82,7 +71,7 @@ class PlanScriptSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=PLAN_SCRIPT_UPDATED,
+            msg=PlanScriptModule.MSG_UPDATED,
             ansible_facts=dict(plan_script={"name": "name"})
         )
 
@@ -96,7 +85,7 @@ class PlanScriptSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=PLAN_SCRIPT_DIFFERENCES_RETRIEVED,
+            msg=PlanScriptModule.MSG_DIFFERENCES_RETRIEVED,
             ansible_facts=dict(plan_script_differences={"differences": []})
         )
 
@@ -108,7 +97,7 @@ class PlanScriptSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=PLAN_SCRIPT_ALREADY_UPDATED,
+            msg=PlanScriptModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(plan_script=self.PLAN_SCRIPT_UPDATE['data'])
         )
 
@@ -120,9 +109,8 @@ class PlanScriptSpec(unittest.TestCase,
         PlanScriptModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=True,
-            msg=PLAN_SCRIPT_DELETED
+            msg=PlanScriptModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_deleting_a_non_existent_plan_script(self):
@@ -133,9 +121,8 @@ class PlanScriptSpec(unittest.TestCase,
         PlanScriptModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=False,
-            msg=PLAN_SCRIPT_ALREADY_ABSENT
+            msg=PlanScriptModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_fail_when_mandatory_attributes_are_missing(self):
@@ -148,7 +135,7 @@ class PlanScriptSpec(unittest.TestCase,
         PlanScriptModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=PLAN_SCRIPT_CONTENT_ATTRIBUTE_MANDATORY
+            msg=PlanScriptModule.MSG_CONTENT_ATTRIBUTE_MANDATORY
         )
 
 
