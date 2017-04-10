@@ -7968,7 +7968,7 @@ Provides an interface to remove ToR Switch resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   Yes  |  | |  Switch name.  |
-| state  |   |  | <ul> <li>absent</li>  <li>ports_updated</li> </ul> |  Indicates the desired state for the Switch. 'absent' will remove the resource from OneView, if it exists. 'ports_updated' will update the switch ports.  |
+| state  |   |  | <ul> <li>absent</li>  <li>ports_updated</li> </ul> |  Indicates the desired state for the Switch resource. `absent` will remove the resource from OneView, if it exists. `ports_updated` will update the switch ports.  |
 
 
  
@@ -7987,11 +7987,13 @@ Provides an interface to remove ToR Switch resources.
 
 #### Notes
 
+- This resource is only available on C7000 enclosures
+
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
-- This resource is only available on C7000 enclosures
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
