@@ -1,5 +1,5 @@
 ###
-# Copyright (2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,13 +15,8 @@
 ###
 
 import unittest
-
-from oneview_os_deployment_server_facts import OsDeploymentServerFactsModule
-from oneview_os_deployment_server_facts import EXAMPLES
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
-import yaml
+from oneview_module_loader import OsDeploymentServerFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 SERVERS = [
     {
@@ -32,17 +27,13 @@ SERVERS = [
 
 
 class OsDeploymentServerFactsSpec(unittest.TestCase,
-                                  ModuleContructorTestCase,
-                                  FactsParamsTestCase,
-                                  ErrorHandlingTestCase):
+                                  FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, OsDeploymentServerFactsModule)
         self.os_deployment_servers = self.mock_ov_client.os_deployment_servers
         FactsParamsTestCase.configure_client_mock(self, self.os_deployment_servers)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.os_deployment_servers.get_by)
 
         # Load scenarios from module examples
-        self.EXAMPLES = yaml.load(EXAMPLES)
         self.PARAMS_GET_ALL = self.EXAMPLES[0]['oneview_os_deployment_server_facts']
         self.PARAMS_GET_BY_NAME = self.EXAMPLES[2]['oneview_os_deployment_server_facts']
         self.PARAMS_GET_BY_NAME_WITH_OPTIONS = self.EXAMPLES[4]['oneview_os_deployment_server_facts']

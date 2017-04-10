@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 import unittest
 
 from oneview_os_deployment_plan_facts import OsDeploymentPlanFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -83,23 +83,15 @@ OS_DEPLOYMENT_PLAN_WITHOUT_EDITABLE = {
 
 
 class OsDeploymentPlanFactsSpec(unittest.TestCase,
-                                ModuleContructorTestCase,
-                                FactsParamsTestCase,
-                                ErrorHandlingTestCase):
+                                FactsParamsTestCase):
     """
-    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
-    mocks used in this test class.
-
     FactsParamsTestCase has common tests for the parameters support.
-
-    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, OsDeploymentPlanFactsModule)
         self.resource = self.mock_ov_client.os_deployment_plans
         FactsParamsTestCase.configure_client_mock(self, self.resource)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_get_all_os_deployment_plans(self):
         self.resource.get_all.return_value = [{"name": "Os Deployment Plan Name"}]
