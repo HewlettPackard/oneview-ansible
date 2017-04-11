@@ -5511,7 +5511,7 @@ Manage OneView SAN Manager resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with SAN Manager properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Uplink Set resource. 'present' ensures data properties are compliant with OneView. 'absent' removes the resource from OneView, if it exists.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Uplink Set resource. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
@@ -5569,6 +5569,8 @@ Manage OneView SAN Manager resources.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -5588,7 +5590,7 @@ Retrieve facts about one or more of the OneView SAN Managers.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'query': A general query string to narrow the list of resources returned. 'sort': The sort order of the returned data set.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `query`: A general query string to narrow the list of resources returned. `sort`: The sort order of the returned data set.  |
 | provider_display_name  |   No  |  | |  Provider Display Name.  |
 
 
@@ -5597,25 +5599,25 @@ Retrieve facts about one or more of the OneView SAN Managers.
 
 ```yaml
 - name: Gather facts about all SAN Managers
-    oneview_san_manager_facts:
+  oneview_san_manager_facts:
     config: "{{ config_path }}"
 
 - debug: var=san_managers
 
 - name: Gather paginated, filtered and sorted facts about SAN Managers
   oneview_san_manager_facts:
-  config: "{{ config_path }}"
-  params:
-    start: 0
-    count: 3
-    sort: name:ascending
-    query: isInternal eq false
+    config: "{{ config_path }}"
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      query: isInternal eq false
   delegate_to: localhost
 
 - debug: var=san_managers
 
 - name: Gather facts about a SAN Manager by provider display name
-    oneview_san_manager_facts:
+  oneview_san_manager_facts:
     config: "{{ config_path }}"
     provider_display_name: "Brocade Network Advisor"
 
@@ -5637,6 +5639,8 @@ Retrieve facts about one or more of the OneView SAN Managers.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---

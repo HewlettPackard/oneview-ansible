@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,60 +15,50 @@
 ###
 import unittest
 
-from oneview_san_manager import SanManagerModule
-from oneview_san_manager import SAN_MANAGER_CREATED, SAN_MANAGER_ALREADY_EXIST, SAN_MANAGER_UPDATED
-from oneview_san_manager import SAN_MANAGER_DELETED, SAN_MANAGER_ALREADY_ABSENT
-
-from utils import ValidateEtagTestCase, ModuleContructorTestCase, ErrorHandlingTestCase
+from oneview_module_loader import SanManagerModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 DEFAULT_SAN_MANAGER_TEMPLATE = dict(
     providerDisplayName='Brocade Network Advisor',
-    uri='/rest/fc-sans/device-managers/UUU-AAA-BBB'
+    uri='/rest/fc-sans/device-managers/UUU-AAA-BBB',
+    connectionInfo=[
+        {
+            'valueFormat': 'IPAddressOrHostname',
+            'displayName': 'Host',
+            'name': 'Host',
+            'valueType': 'String',
+            'required': False,
+            'value': '172.18.15.1'
+        }]
 )
 
 
 class SanManagerModuleSpec(unittest.TestCase,
-                           ModuleContructorTestCase,
-                           ValidateEtagTestCase,
-                           ErrorHandlingTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-
-    ValidateEtagTestCase has common tests for the validate_etag attribute.
-
-    ErrorHandlingTestCase has common tests for the module error handling.
-    """
-
+                           OneViewBaseTestCase):
     PARAMS_FOR_PRESENT = dict(
         config='config.json',
         state='present',
-        data=dict(providerDisplayName=DEFAULT_SAN_MANAGER_TEMPLATE['providerDisplayName'],
-                  connectionInfo=None)
+        data=dict(providerDisplayName=DEFAULT_SAN_MANAGER_TEMPLATE['providerDisplayName'])
     )
 
     PARAMS_WITH_CHANGES = dict(
         config='config.json',
         state='present',
         data=dict(providerDisplayName=DEFAULT_SAN_MANAGER_TEMPLATE['providerDisplayName'],
-                  refreshState='RefreshPending',
-                  connectionInfo=None)
+                  refreshState='RefreshPending')
     )
 
     PARAMS_FOR_ABSENT = dict(
         config='config.json',
         state='absent',
-        data=dict(providerDisplayName=DEFAULT_SAN_MANAGER_TEMPLATE['providerDisplayName'],
-                  connectionInfo=None)
+        data=dict(providerDisplayName=DEFAULT_SAN_MANAGER_TEMPLATE['providerDisplayName'])
     )
 
     def setUp(self):
         self.configure_mocks(self, SanManagerModule)
         self.resource = self.mock_ov_client.san_managers
-        ErrorHandlingTestCase.configure(self, ansible_params=self.PARAMS_FOR_PRESENT,
-                                        method_to_fire=self.resource.get_by_provider_display_name)
 
     def test_should_add_new_san_manager(self):
         self.resource.get_by_provider_display_name.return_value = None
@@ -81,7 +71,7 @@ class SanManagerModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SAN_MANAGER_CREATED,
+            msg=SanManagerModule.MSG_CREATED,
             ansible_facts=dict(san_manager=DEFAULT_SAN_MANAGER_TEMPLATE)
         )
 
@@ -106,7 +96,7 @@ class SanManagerModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SAN_MANAGER_ALREADY_EXIST,
+            msg=SanManagerModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(san_manager=DEFAULT_SAN_MANAGER_TEMPLATE)
         )
 
@@ -123,9 +113,23 @@ class SanManagerModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SAN_MANAGER_UPDATED,
+            msg=SanManagerModule.MSG_UPDATED,
             ansible_facts=dict(san_manager=data_merged)
         )
+
+    def test_update_when_should_not_send_connection_info_when_not_informed_on_data(self):
+        merged_data = dict(providerDisplayName='Brocade Network Advisor',
+                           uri='/rest/fc-sans/device-managers/UUU-AAA-BBB',
+                           refreshState='RefreshPending')
+
+        self.resource.get_by_provider_display_name.return_value = DEFAULT_SAN_MANAGER_TEMPLATE
+        self.resource.update.return_value = DEFAULT_SAN_MANAGER_TEMPLATE
+
+        self.mock_ansible_module.params = self.PARAMS_WITH_CHANGES
+
+        SanManagerModule().run()
+
+        self.resource.update.assert_called_once_with(resource=merged_data, id_or_uri=merged_data['uri'])
 
     def test_should_remove_san_manager(self):
         self.resource.get_by_provider_display_name.return_value = DEFAULT_SAN_MANAGER_TEMPLATE
@@ -136,7 +140,7 @@ class SanManagerModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SAN_MANAGER_DELETED
+            msg=SanManagerModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_san_manager_not_exist(self):
@@ -148,7 +152,7 @@ class SanManagerModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SAN_MANAGER_ALREADY_ABSENT
+            msg=SanManagerModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_fail_when_provider_display_name_not_found(self):

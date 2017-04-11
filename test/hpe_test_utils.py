@@ -55,9 +55,7 @@ class OneViewBaseTestCase(object):
         self.mock_ansible_module = Mock()
         mock_ansible_module.return_value = self.mock_ansible_module
 
-        self.testing_module = importlib.import_module(self.testing_class.__module__)
-        # Load scenarios from module examples (Also checks if it is a valid yaml)
-        self.EXAMPLES = yaml.load(self.testing_module.EXAMPLES)
+        self.__set_module_examples()
 
     def test_main_function_should_call_run_method(self):
         self.mock_ansible_module.params = {'config': 'config.json'}
@@ -67,6 +65,17 @@ class OneViewBaseTestCase(object):
         with patch.object(self.testing_class, "run") as mock_run:
             main_func()
             mock_run.assert_called_once()
+
+    def __set_module_examples(self):
+        self.testing_module = importlib.import_module(self.testing_class.__module__)
+
+        try:
+            # Load scenarios from module examples (Also checks if it is a valid yaml)
+            self.EXAMPLES = yaml.load(self.testing_module.EXAMPLES, yaml.SafeLoader)
+
+        except yaml.scanner.ScannerError:
+            message = "Something went wrong while parsing yaml from {}.EXAMPLES".format(self.testing_class.__module__)
+            raise Exception(message)
 
 
 class FactsParamsTestCase(OneViewBaseTestCase):
