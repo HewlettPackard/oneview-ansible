@@ -1,7 +1,7 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,46 +15,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewValueError
-    from hpOneView.exceptions import HPOneViewResourceNotFound
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
 module: oneview_interconnect
 short_description: Manage the OneView Interconnect resources.
+version_added: "2.3"
 description:
-    - Provides an interface to manage the Interconnect power state and the UID light state. Can change the power state,
-      UID light state, perform device reset, reset port protection, and update the interconnect ports.
+    - Provides an interface to manage Interconnect resources. Can change the power state, UID light state, perform
+      device reset, reset port protection, and update the interconnect ports.
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
 author: "Bruno Souza (@bsouza)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Interconnect resource.
-              'powered_on' turns the power on.
-              'powered_off' turns the power off.
-              'uid_on' turns the UID light on.
-              'uid_off' turns the UID light off.
-              'device_reset' perform a device reset.
-              'update_ports' updates the interconnect ports.
-              'reset_port_protection' triggers a reset of port protection.
+              C(powered_on) turns the power on.
+              C(powered_off) turns the power off.
+              C(uid_on) turns the UID light on.
+              C(uid_off) turns the UID light off.
+              C(device_reset) perform a device reset.
+              C(update_ports) updates the interconnect ports.
+              C(reset_port_protection) triggers a reset of port protection.
         choices: [
             'powered_on',
             'powered_off',
@@ -74,13 +61,11 @@ options:
       required: false
     ports:
       description:
-        - List with ports to update. This option should be used together with 'update_ports' state.
+        - List with ports to update. This option should be used together with C(update_ports) state.
       required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -110,72 +95,78 @@ interconnect:
     type: complex
 '''
 
-MISSING_KEY_MSG = "You must provide the interconnect name or the interconnect ip address"
-INTERCONNECT_WAS_NOT_FOUND = "The Interconnect was not found."
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import (OneViewModuleBase,
+                                  HPOneViewResourceNotFound,
+                                  HPOneViewValueError)
+from hpOneView.common import extract_id_from_uri
 
 
-class InterconnectModule(object):
-    argument_spec = dict(
-        config=dict(required=False, type='str'),
-        state=dict(
-            required=True,
-            choices=[
-                'powered_on',
-                'powered_off',
-                'uid_on',
-                'uid_off',
-                'device_reset',
-                'update_ports',
-                'reset_port_protection'
-            ]
-        ),
-        name=dict(required=False, type='str'),
-        ip=dict(required=False, type='str'),
-        ports=dict(required=False, type='list')
-    )
+class InterconnectModule(OneViewModuleBase):
+    MSG_MISSING_KEY = "You must provide the interconnect name or the interconnect ip address."
+    MSG_POWERED_ON = "Interconnect Powered On successfully."
+    MSG_ALREADY_POWERED_ON = "Interconnect is already Powered On."
+    MSG_POWERED_OFF = "Interconnect Powered Off successfully."
+    MSG_ALREADY_POWERED_OFF = "Interconnect is already Powered Off."
+    MSG_UID_STATE_ON = "Interconnect UID turned On succesfully."
+    MSG_UID_STATE_ALREADY_ON = "Interconnect UID state is already On."
+    MSG_UID_STATE_OFF = "Interconnect UID turned Off succesfully."
+    MSG_UID_STATE_ALREADY_OFF = "Interconnect UID state is already Off."
+    MSG_RESET = 'Interconnect Device Reset successfully.'
+    MSG_PORTS_UPDATED = 'Interconnect ports updated successfully.'
+    MSG_PORTS_ALREADY_UPDATED = 'Interconnect ports already updated.'
+    MSG_RESET_PORT_PROTECTION = 'Port protection reset successfully.'
+    MSG_INTERCONNECT_NOT_FOUND = "The Interconnect was not found."
 
     states = dict(
-        powered_on=dict(path='/powerState', value='On'),
-        powered_off=dict(path='/powerState', value='Off'),
-        uid_on=dict(path='/uidState', value='On'),
-        uid_off=dict(path='/uidState', value='Off'),
-        device_reset=dict(path='/deviceResetState', value='Reset'),
+        powered_on=dict(path='/powerState', value='On', msg=MSG_POWERED_ON, msg_no_changes=MSG_ALREADY_POWERED_ON),
+        powered_off=dict(path='/powerState', value='Off', msg=MSG_POWERED_OFF, msg_no_changes=MSG_ALREADY_POWERED_OFF),
+        uid_on=dict(path='/uidState', value='On', msg=MSG_UID_STATE_ON, msg_no_changes=MSG_UID_STATE_ALREADY_ON),
+        uid_off=dict(path='/uidState', value='Off', msg=MSG_UID_STATE_OFF, msg_no_changes=MSG_UID_STATE_ALREADY_OFF),
+        device_reset=dict(path='/deviceResetState', value='Reset', msg=MSG_RESET, msg_no_changes=None)
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        argument_spec = dict(
+            state=dict(
+                required=True,
+                choices=[
+                    'powered_on',
+                    'powered_off',
+                    'uid_on',
+                    'uid_off',
+                    'device_reset',
+                    'update_ports',
+                    'reset_port_protection'
+                ]
+            ),
+            name=dict(required=False, type='str'),
+            ip=dict(required=False, type='str'),
+            ports=dict(required=False, type='list')
+        )
+        super(InterconnectModule, self).__init__(additional_arg_spec=argument_spec)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
+    def execute_module(self):
+        interconnect = self.__get_interconnect()
+        state_name = self.module.params['state']
+
+        if state_name == 'update_ports':
+            changed, msg, resource = self.update_ports(interconnect)
+        elif state_name == 'reset_port_protection':
+            changed, msg, resource = self.reset_port_protection(interconnect)
         else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            state = self.states[state_name]
 
-    def run(self):
-        try:
-            interconnect = self.__get_interconnect()
-            state_name = self.module.params['state']
-
-            if state_name == 'update_ports':
-                changed, resource = self.update_ports(interconnect)
-            elif state_name == 'reset_port_protection':
-                changed, resource = self.reset_port_protection(interconnect)
+            if state_name == 'device_reset':
+                changed, msg, resource = self.device_reset(state, interconnect)
             else:
-                state = self.states[state_name]
+                changed, msg, resource = self.change_state(state, interconnect)
 
-                if state_name == 'device_reset':
-                    changed, resource = self.device_reset(state, interconnect)
-                else:
-                    changed, resource = self.change_state(state, interconnect)
-
-            self.module.exit_json(
-                changed=changed,
-                ansible_facts=dict(interconnect=resource)
-            )
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(
+            changed=changed,
+            msg=msg,
+            ansible_facts=dict(interconnect=resource)
+        )
 
     def __get_interconnect(self):
         interconnect_ip = self.module.params['ip']
@@ -186,10 +177,10 @@ class InterconnectModule(object):
         elif interconnect_name:
             interconnects = self.oneview_client.interconnects.get_by('name', interconnect_name) or []
         else:
-            raise HPOneViewValueError(MISSING_KEY_MSG)
+            raise HPOneViewValueError(self.MSG_MISSING_KEY)
 
         if not interconnects:
-            raise HPOneViewResourceNotFound(INTERCONNECT_WAS_NOT_FOUND)
+            raise HPOneViewResourceNotFound(self.MSG_INTERCONNECT_NOT_FOUND)
 
         return interconnects[0]
 
@@ -201,15 +192,17 @@ class InterconnectModule(object):
         if resource[property_name] != state['value']:
             resource = self.execute_operation(resource, state['path'], state['value'])
             changed = True
+            msg = state['msg']
+        else:
+            msg = state['msg_no_changes']
 
-        return changed, resource
+        return changed, msg, resource
 
     def device_reset(self, state, resource):
         updated_resource = self.execute_operation(resource, state['path'], state['value'])
-        return True, updated_resource
+        return True, self.MSG_RESET, updated_resource
 
     def execute_operation(self, resource, path, value, operation="replace"):
-
         return self.oneview_client.interconnects.patch(
             id_or_uri=resource["uri"],
             operation=operation,
@@ -221,18 +214,17 @@ class InterconnectModule(object):
         ports = self.module.params['ports']
 
         if not ports:
-            return False, resource
+            return False, self.MSG_PORTS_ALREADY_UPDATED, resource
 
         updated_resource = self.oneview_client.interconnects.update_ports(
             id_or_uri=resource["uri"],
             ports=ports
         )
-
-        return True, updated_resource
+        return True, self.MSG_PORTS_UPDATED, updated_resource
 
     def reset_port_protection(self, resource):
         updated_resource = self.oneview_client.interconnects.reset_port_protection(id_or_uri=resource['uri'])
-        return True, updated_resource
+        return True, self.MSG_RESET_PORT_PROTECTION, updated_resource
 
 
 def main():
