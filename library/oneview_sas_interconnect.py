@@ -16,16 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
@@ -34,44 +27,32 @@ short_description: Manage the OneView SAS Interconnect resources.
 description:
     - Provides an interface to manage the SAS Interconnect. Can change the power state, UID light state, perform soft
       and hard reset, and refresh the SAS Interconnect state.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.0"
 author: "Bruno Souza (@bsouza)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Switch.
-              'powered_on' turns the power on.
-              'powered_off' turns the power off.
-              'uid_on' turns the UID light on.
-              'uid_off' turns the UID light off.
-              'soft_reset' performs a soft reset.
-              'hard_reset' performs a hard reset.
-              'refreshed' performs a refresh.
+              C(powered_on) turns the power on.
+              C(powered_off) turns the power off.
+              C(uid_on) turns the UID light on.
+              C(uid_off) turns the UID light off.
+              C(soft_reset) performs a soft reset.
+              C(hard_reset) performs a hard reset.
+              C(refreshed) performs a refresh.
         choices: ['powered_on', 'powered_off', 'uid_on', 'uid_off', 'soft_reset', 'hard_reset', 'refreshed']
     name:
         description:
             - The SAS Interconnect name.
         required: True
-    validate_etag:
-        description:
-            - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
-              for the resource matches the ETag provided in the data.
-        default: true
-        choices: ['true', 'false']
 notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
     - This resource is only available on HPE Synergy
+extends_documentation_fragment:
+    - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -94,12 +75,14 @@ EXAMPLES = '''
     name: "0000A66101, interconnect 1"
 '''
 
-SAS_INTERCONNECT_NOT_FOUND = 'SAS Interconnect not found.'
-SAS_INTERCONNECT_NOTHING_TO_DO = 'Nothing to do.'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
 
 
-class SasInterconnectModule(object):
+class SasInterconnectModule(OneViewModuleBase):
+    MSG_NOT_FOUND = 'SAS Interconnect not found.'
+    MSG_NOTHING_TO_DO = 'Nothing to do.'
+
     states_success_message = dict(
         refreshed='SAS Interconnect refreshed successfully.',
         powered_on='SAS Interconnect powered on successfully.',
@@ -121,69 +104,41 @@ class SasInterconnectModule(object):
     )
 
     argument_spec = dict(
-        config=dict(required=False, type='str'),
-        state=dict(
-            required=True,
-            choices=states.keys()
-        ),
+        state=dict(required=True, choices=states.keys()),
         name=dict(required=True, type='str'),
-        validate_etag=dict(
-            required=False,
-            type='bool',
-            default=True)
     )
 
     actions = ['soft_reset', 'hard_reset']
 
     def __init__(self):
-        self.module = AnsibleModule(
-            argument_spec=self.argument_spec,
-            supports_check_mode=False
-        )
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
-
-        config = self.module.params['config']
-
-        if config:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
-        else:
-            self.oneview_client = OneViewClient.from_environment_variables()
-
+        super(SasInterconnectModule, self).__init__(additional_arg_spec=self.argument_spec, validate_etag_support=True)
         self.resource_client = self.oneview_client.sas_interconnects
 
-    def run(self):
-        try:
-            if not self.module.params.get('validate_etag'):
-                self.oneview_client.connection.disable_etag_validation()
+    def execute_module(self):
+        name = self.module.params.get('name')
 
-            name = self.module.params.get('name')
-            state_name = self.module.params.get('state')
+        facts = {}
+        sas_interconnect = self.__get_by_name(name)
 
-            facts = {}
-            sas_interconnect = self.__get_by_name(name)
+        if self.state == 'refreshed':
+            facts['sas_interconnect'] = self.resource_client.refresh_state(
+                id_or_uri=sas_interconnect['uri'],
+                configuration=dict(refreshState="RefreshPending")
+            )
+            changed = True
+            msg = self.states_success_message[self.state]
+        elif self.states.get(self.state):
+            changed, msg, facts['sas_interconnect'] = self.change_state(self.state, sas_interconnect)
+        else:
+            changed, msg, facts = False, '', dict()
 
-            if state_name == 'refreshed':
-                facts['sas_interconnect'] = self.resource_client.refresh_state(
-                    id_or_uri=sas_interconnect['uri'],
-                    configuration=dict(refreshState="RefreshPending")
-                )
-                changed = True
-                msg = self.states_success_message[state_name]
-            elif self.states.get(state_name):
-                changed, msg, facts['sas_interconnect'] = self.change_state(state_name, sas_interconnect)
-            else:
-                changed, msg, facts = False, '', dict()
-
-            self.module.exit_json(changed=changed, msg=msg, ansible_facts=facts)
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=changed, msg=msg, ansible_facts=facts)
 
     def __get_by_name(self, name):
         sas_interconnects = self.resource_client.get_by('name', name)
 
         if not sas_interconnects:
-            raise HPOneViewResourceNotFound(SAS_INTERCONNECT_NOT_FOUND)
+            raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
 
         return sas_interconnects[0]
 
@@ -197,7 +152,7 @@ class SasInterconnectModule(object):
             msg = self.states_success_message[state_name]
             changed = True
         else:
-            msg = SAS_INTERCONNECT_NOTHING_TO_DO
+            msg = self.MSG_NOTHING_TO_DO
 
         return changed, msg, resource
 

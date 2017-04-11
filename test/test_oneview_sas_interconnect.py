@@ -15,8 +15,8 @@
 ###
 import unittest
 
-from oneview_sas_interconnect import SasInterconnectModule, SAS_INTERCONNECT_NOT_FOUND, SAS_INTERCONNECT_NOTHING_TO_DO
-from utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
+from oneview_module_loader import SasInterconnectModule
+from hpe_test_utils import OneViewBaseTestCase
 
 SAS_INTERCONNECT_NAME = "0000A66103, interconnect 4"
 SAS_INTERCONNECT_URI = '/rest/sas-interconnects/3518be0e-17c1-4189-8f81-83f3724f6155'
@@ -41,9 +41,7 @@ class StateCheck(object):
 
 
 class SasInterconnectModuleSpec(unittest.TestCase,
-                                ModuleContructorTestCase,
-                                ValidateEtagTestCase,
-                                ErrorHandlingTestCase):
+                                OneViewBaseTestCase):
     """
     ModuleContructorTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case
@@ -54,7 +52,6 @@ class SasInterconnectModuleSpec(unittest.TestCase,
     def setUp(self):
         self.configure_mocks(self, SasInterconnectModule)
         self.resource = self.mock_ov_client.sas_interconnects
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_refresh_the_sas_interconnect(self):
         state_check = StateCheck('refreshed')
@@ -112,7 +109,7 @@ class SasInterconnectModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SAS_INTERCONNECT_NOTHING_TO_DO,
+            msg=SasInterconnectModule.MSG_NOTHING_TO_DO,
             ansible_facts=dict(sas_interconnect=sas_interconnect)
         )
 
@@ -128,7 +125,7 @@ class SasInterconnectModuleSpec(unittest.TestCase,
         self.resource.patch.assert_not_called()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SAS_INTERCONNECT_NOT_FOUND,
+            msg=SasInterconnectModule.MSG_NOT_FOUND,
         )
 
     def test_should_turn_off_the_uid_when_uid_is_on(self):
@@ -164,7 +161,7 @@ class SasInterconnectModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SAS_INTERCONNECT_NOTHING_TO_DO,
+            msg=SasInterconnectModule.MSG_NOTHING_TO_DO,
             ansible_facts=dict(sas_interconnect=sas_interconnect)
         )
 
@@ -201,7 +198,7 @@ class SasInterconnectModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SAS_INTERCONNECT_NOTHING_TO_DO,
+            msg=SasInterconnectModule.MSG_NOTHING_TO_DO,
             ansible_facts=dict(sas_interconnect=sas_interconnect)
         )
 
@@ -239,7 +236,7 @@ class SasInterconnectModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SAS_INTERCONNECT_NOTHING_TO_DO,
+            msg=SasInterconnectModule.MSG_NOTHING_TO_DO,
             ansible_facts=dict(sas_interconnect=sas_interconnect)
         )
 
