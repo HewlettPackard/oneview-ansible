@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,17 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.extras.comparators import resource_compare
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
-    from hpOneView.exceptions import HPOneViewValueError
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
@@ -38,12 +30,6 @@ requirements:
     - "hpOneView >= 3.1.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Uplink Set resource.
@@ -57,18 +43,12 @@ options:
       description:
         - List with Uplink Set properties.
       required: true
-    validate_etag:
-      description:
-        - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
-          for the resource matches the ETag provided in the data.
-      default: true
-      choices: ['true', 'false']
 notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
     - "To rename an uplink set you must inform a 'newName' in the data argument. The rename is non-idempotent"
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -83,7 +63,7 @@ EXAMPLES = '''
       logicalInterconnectName: "Name of the Logical Interconnect"                                   # option 1
       # logicalInterconnectUri: "/rest/logical-interconnects/461a9cef-beef-4916-8be1-926078ffb948"  # option 2
       networkUris: [
-         '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4'
+         '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
          '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'
       ]
       fcNetworkUris: []
@@ -117,115 +97,58 @@ uplink_set:
     returned: On state 'present'. Can be null.
     type: complex
 '''
-
-UPLINK_SET_KEY_REQUIRED = "Uplink Set Name and Logical Interconnect required."
-UPLINK_SET_CREATED = 'Uplink Set created successfully.'
-UPLINK_SET_UPDATED = 'Uplink Set updated successfully.'
-UPLINK_SET_DELETED = 'Uplink Set deleted successfully.'
-UPLINK_SET_ALREADY_EXIST = 'Uplink Set already exists.'
-UPLINK_SET_ALREADY_ABSENT = 'Nothing to do.'
-UPLINK_SET_LOGICAL_INTERCONNECT_NOT_FOUND = "Logical Interconnect not found."
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import (OneViewModuleBase,
+                                  HPOneViewResourceNotFound,
+                                  HPOneViewValueError)
 
 
-class UplinkSetModule(object):
-    argument_spec = dict(
-        config=dict(required=False, type='str'),
-        state=dict(
-            required=True,
-            choices=['present', 'absent']
-        ),
-        data=dict(required=True, type='dict'),
-        validate_etag=dict(
-            required=False,
-            type='bool',
-            default=True)
-    )
+class UplinkSetModule(OneViewModuleBase):
+    MSG_KEY_REQUIRED = "Uplink Set Name and Logical Interconnect required."
+    MSG_CREATED = 'Uplink Set created successfully.'
+    MSG_UPDATED = 'Uplink Set updated successfully.'
+    MSG_DELETED = 'Uplink Set deleted successfully.'
+    MSG_ALREADY_EXIST = 'Uplink Set already exists.'
+    MSG_ALREADY_ABSENT = 'Nothing to do.'
+    MSG_LOGICAL_INTERCONNECT_NOT_FOUND = "Logical Interconnect not found."
+    RESOURCE_FACT_NAME = 'uplink_set'
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        argument_spec = dict(
+            state=dict(required=True, choices=['present', 'absent']),
+            data=dict(required=True, type='dict')
+        )
+        super(UplinkSetModule, self).__init__(additional_arg_spec=argument_spec, validate_etag_support=True)
+        self.resource_client = self.oneview_client.uplink_sets
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+    def execute_module(self):
+        self.__validate_key()
+        self.__replace_logical_interconnect_name_by_uri()
 
-    def run(self):
-        state = self.module.params['state']
-        data = self.module.params['data'].copy()
+        uplink_set = self.__get_by(self.data['name'], self.data['logicalInterconnectUri'])
 
-        try:
-            if not self.module.params.get('validate_etag'):
-                self.oneview_client.connection.disable_etag_validation()
+        if self.state == 'present':
+            return self.resource_present(uplink_set, self.RESOURCE_FACT_NAME)
+        elif self.state == 'absent':
+            return self.resource_absent(uplink_set)
 
-            self.__validate_key(data)
-            self.__replace_logical_interconnect_name_by_uri(data)
+    def __validate_key(self):
+        if 'name' not in self.data:
+            raise HPOneViewValueError(self.MSG_KEY_REQUIRED)
+        if 'logicalInterconnectUri' not in self.data and 'logicalInterconnectName' not in self.data:
+            raise HPOneViewValueError(self.MSG_KEY_REQUIRED)
 
-            if state == 'present':
-                changed, message, resource = self.__present(data)
-                self.module.exit_json(changed=changed, msg=message, ansible_facts=dict(uplink_set=resource))
-            elif state == 'absent':
-                changed, message = self.__absent(data)
-                self.module.exit_json(changed=changed, msg=message)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
-
-    def __absent(self, data):
-        resource = self.__get_by(data['name'], data['logicalInterconnectUri'])
-
-        if resource:
-            self.oneview_client.uplink_sets.delete(resource)
-            return True, UPLINK_SET_DELETED
-        else:
-            return False, UPLINK_SET_ALREADY_ABSENT
-
-    def __present(self, data):
-        resource = self.__get_by(data['name'], data['logicalInterconnectUri'])
-
-        if not resource:
-            return self.__create(data)
-        else:
-            return self.__update(data, resource)
-
-    def __create(self, data):
-        new_uplink_set = self.oneview_client.uplink_sets.create(data)
-        return True, UPLINK_SET_CREATED, new_uplink_set
-
-    def __update(self, data, existent_resource):
-        if 'newName' in data:
-            data['name'] = data.pop('newName')
-
-        resource_to_update = existent_resource.copy()
-        resource_to_update.update(data)
-
-        if resource_compare(existent_resource, resource_to_update):
-            return False, UPLINK_SET_ALREADY_EXIST, existent_resource
-        else:
-            updated_uplink = self.oneview_client.uplink_sets.update(resource_to_update)
-            return True, UPLINK_SET_UPDATED, updated_uplink
-
-    def __validate_key(self, data):
-        if 'name' not in data:
-            raise HPOneViewValueError(UPLINK_SET_KEY_REQUIRED)
-        if 'logicalInterconnectUri' not in data and 'logicalInterconnectName' not in data:
-            raise HPOneViewValueError(UPLINK_SET_KEY_REQUIRED)
-
-    def __replace_logical_interconnect_name_by_uri(self, data):
-        if 'logicalInterconnectName' in data:
-            name = data['logicalInterconnectName']
+    def __replace_logical_interconnect_name_by_uri(self):
+        if 'logicalInterconnectName' in self.data:
+            name = self.data.pop('logicalInterconnectName')
             logical_interconnect = self.oneview_client.logical_interconnects.get_by_name(name)
-
             if logical_interconnect:
-                del data['logicalInterconnectName']
-                data['logicalInterconnectUri'] = logical_interconnect['uri']
+                self.data['logicalInterconnectUri'] = logical_interconnect['uri']
             else:
-                raise HPOneViewResourceNotFound(UPLINK_SET_LOGICAL_INTERCONNECT_NOT_FOUND)
+                raise HPOneViewResourceNotFound(self.MSG_LOGICAL_INTERCONNECT_NOT_FOUND)
 
     def __get_by(self, name, logical_interconnect_uri):
-        uplink_sets = self.oneview_client.uplink_sets.get_by('name', name)
+        uplink_sets = self.resource_client.get_by('name', name)
         uplink_sets = [x for x in uplink_sets if x['logicalInterconnectUri'] == logical_interconnect_uri]
         return uplink_sets[0] if uplink_sets else None
 
