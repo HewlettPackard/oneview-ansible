@@ -16,9 +16,8 @@
 
 import unittest
 
-from oneview_sas_interconnect_facts import SasInterconnectFactsModule
-from utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
-
+from oneview_module_loader import SasInterconnectFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 SAS_INTERCONNECT_1_NAME = '0000A66103, interconnect 1'
 
@@ -43,15 +42,11 @@ PARAMS_GET_BY_NAME = dict(
 )
 
 
-class SasInterconnectFactsSpec(unittest.TestCase,
-                               ModuleContructorTestCase,
-                               FactsParamsTestCase,
-                               ErrorHandlingTestCase):
+class SasInterconnectFactsSpec(unittest.TestCase, FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, SasInterconnectFactsModule)
         self.resource = self.mock_ov_client.sas_interconnects
         FactsParamsTestCase.configure_client_mock(self, self.resource)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_get_all_sas_interconnects(self):
         all_sas_interconnects = [SAS_INTERCONNECT_1, SAS_INTERCONNECT_4]
@@ -63,6 +58,7 @@ class SasInterconnectFactsSpec(unittest.TestCase,
         SasInterconnectFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
             ansible_facts=dict(sas_interconnects=all_sas_interconnects)
         )
 
@@ -76,6 +72,7 @@ class SasInterconnectFactsSpec(unittest.TestCase,
         self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_1_NAME)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
             ansible_facts=dict(sas_interconnects=[SAS_INTERCONNECT_1])
         )
 
