@@ -4977,7 +4977,7 @@ Manage OneView Deployment Server resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Deployment Server properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Deployment Server resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Deployment Server resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
@@ -4994,7 +4994,6 @@ Manage OneView Deployment Server resources.
       description: "OS Deployment Server"
       mgmtNetworkUri: "/rest/ethernet-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535"
       applianceUri: "/rest/deployment-servers/image-streamer-appliances/aca554e2-09c2-4b14-891d-e51c0058efab"
-
 - debug: var=os_deployment_server
 
 - name: Ensure that the Deployment Server is present with name 'Renamed Deployment Server'
@@ -5004,9 +5003,7 @@ Manage OneView Deployment Server resources.
     data:
       name: 'Test Deployment Server'
       newName: 'Renamed Deployment Server'
-
 - debug: var=os_deployment_server
-
 
 - name: Ensure that the Deployment Server is absent
   oneview_os_deployment_server:
@@ -5028,13 +5025,15 @@ Manage OneView Deployment Server resources.
 
 #### Notes
 
+- For the following data, you can provide either a name or a URI: `mgmtNetworkName` or `mgmtNetworkUri`, and `applianceName` or `applianceUri`
+
+- This resource is only available on HPE Synergy
+
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
-- For the following data, you can provide either a name  or a URI: mgmtNetworkName or mgmtNetworkUri, and applianceName or applianceUri
-
-- This resource is only available on HPE Synergy
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
