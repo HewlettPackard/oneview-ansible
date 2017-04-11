@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,23 +15,11 @@
 ###
 import unittest
 
-from oneview_san_manager_facts import SanManagerFactsModule
-from test.utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
+from oneview_module_loader import SanManagerFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 
-class SanManagerFactsSpec(unittest.TestCase,
-                          ModuleContructorTestCase,
-                          FactsParamsTestCase,
-                          ErrorHandlingTestCase):
-    """
-    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
-    mocks used in this test class.
-
-    FactsParamsTestCase has common tests for the parameters support.
-
-    ErrorHandlingTestCase has common tests for the module error handling.
-    """
-
+class SanManagerFactsSpec(unittest.TestCase, FactsParamsTestCase):
     ERROR_MSG = 'Fake message error'
 
     PARAMS_GET_ALL = dict(
@@ -54,8 +42,6 @@ class SanManagerFactsSpec(unittest.TestCase,
         self.san_managers = self.mock_ov_client.san_managers
 
         FactsParamsTestCase.configure_client_mock(self, self.san_managers)
-        ErrorHandlingTestCase.configure(self, ansible_params=self.PARAMS_GET_ALL,
-                                        method_to_fire=self.san_managers.get_all)
 
     def test_should_get_all(self):
         self.san_managers.get_all.return_value = self.PRESENT_SAN_MANAGERS
