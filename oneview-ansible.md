@@ -5851,8 +5851,8 @@ Manage OneView SAS Logical Interconnect resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| data  |   Yes  |  | |  List with the options.  |
-| state  |   |  | <ul> <li>compliant</li>  <li>drive_enclosure_replaced</li>  <li>configuration_updated</li>  <li>firmware_updated</li> </ul> |  Indicates the desired state for the SAS Logical Interconnect resources. 'compliant' brings the list of SAS Logical Interconnect back to a consistent state. 'configuration_updated' asynchronously applies or re-applies the SAS Logical Interconnect configuration to all managed interconnects. 'firmware_updated' installs firmware to a SAS Logical Interconnect. 'drive_enclosure_replaced' replacement operation of a drive enclosure. * All of them are non-idempotent.  |
+| data  |   Yes  |  | |  List with SAS Logical Interconnect properties and its associated states.  |
+| state  |   Yes  |  | <ul> <li>compliant</li>  <li>drive_enclosure_replaced</li>  <li>configuration_updated</li>  <li>firmware_updated</li> </ul> |  Indicates the desired state for the SAS Logical Interconnect resources. `compliant` brings the list of SAS Logical Interconnect back to a consistent state. `configuration_updated` asynchronously applies or re-applies the SAS Logical Interconnect configuration to all managed interconnects. `firmware_updated` installs firmware to a SAS Logical Interconnect. `drive_enclosure_replaced` replacement operation of a drive enclosure. * All of them are non-idempotent.  |
 
 
  
@@ -5923,11 +5923,13 @@ Manage OneView SAS Logical Interconnect resources.
 
 #### Notes
 
+- This resource is only available on HPE Synergy
+
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
-- This resource is only available on HPE Synergy
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
