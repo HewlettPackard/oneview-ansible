@@ -37,6 +37,13 @@ options:
       description:
         - SAS Logical Interconnect name.
       required: false
+    options:
+      description:
+        - List with options to gather additional facts about SAS Logical Interconnect.
+          C(firmware) get the installed firmware for a SAS Logical Interconnect.
+        - These options are valid just when a C(name) is provided. Otherwise it will be ignored.
+      required: false
+
 
 notes:
     - This resource is only available on HPE Synergy
@@ -94,7 +101,6 @@ sas_logical_interconnect_firmware:
 
 from ansible.module_utils.basic import AnsibleModule
 from module_utils.oneview import OneViewModuleBase
-from hpOneView.common import transform_list_to_dict
 
 
 class SasLogicalInterconnectFactsModule(OneViewModuleBase):
@@ -115,9 +121,8 @@ class SasLogicalInterconnectFactsModule(OneViewModuleBase):
         if self.module.params['name']:
             sas_logical_interconnects = self.resource_client.get_by('name', self.module.params['name'])
 
-            options = self.module.params.get("options")
-            if sas_logical_interconnects and options:
-                options_facts = self.__gather_option_facts(options, sas_logical_interconnects[0])
+            if sas_logical_interconnects and self.options:
+                options_facts = self.__gather_option_facts(sas_logical_interconnects[0])
                 ansible_facts.update(options_facts)
         else:
             sas_logical_interconnects = self.resource_client.get_all(**self.facts_params)
@@ -126,11 +131,10 @@ class SasLogicalInterconnectFactsModule(OneViewModuleBase):
 
         return dict(changed=False, ansible_facts=ansible_facts)
 
-    def __gather_option_facts(self, options, resource):
+    def __gather_option_facts(self, resource):
         ansible_facts = {}
-        options = transform_list_to_dict(options)
 
-        if options.get('firmware'):
+        if self.options.get('firmware'):
             ansible_facts['sas_logical_interconnect_firmware'] = self.resource_client.get_firmware(resource['uri'])
 
         return ansible_facts
