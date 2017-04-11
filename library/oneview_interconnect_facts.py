@@ -1,7 +1,7 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,23 +15,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-
-from ansible.module_utils.basic import *
-
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.common import extract_id_from_uri
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
 module: oneview_interconnect_facts
 short_description: Retrieve facts about one or more of the OneView Interconnects.
+version_added: "2.3"
 description:
     - Retrieve facts about one or more of the Interconnects from OneView.
 requirements:
@@ -39,21 +31,6 @@ requirements:
     - "hpOneView >= 2.0.1"
 author: "Bruno Souza (@bsouza)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
-    params:
-      description:
-        - List of params to delimit, filter and sort the list of resources.
-        - "params allowed:
-          'start': The first item to return, using 0-based indexing.
-          'count': The number of resources to return.
-          'filter': A general filter/query string to narrow the list of items returned.
-          'sort': The sort order of the returned data set."
-      required: false
     name:
       description:
         - Interconnect name.
@@ -62,20 +39,19 @@ options:
       description:
         - "List with options to gather additional facts about Interconnect.
           Options allowed:
-          'nameServers' gets the named servers for an interconnect.
-          'statistics' gets the statistics from an interconnect.
-          'portStatistics' gets the statistics for the specified port name on an interconnect.
-          'subPortStatistics' gets the subport statistics on an interconnect.
-          'ports' gets all interconnect ports.
-          'port' gets a specific interconnect port."
+          C(nameServers) gets the named servers for an interconnect.
+          C(statistics) gets the statistics from an interconnect.
+          C(portStatistics) gets the statistics for the specified port name on an interconnect.
+          C(subPortStatistics) gets the subport statistics on an interconnect.
+          C(ports) gets all interconnect ports.
+          C(port) gets a specific interconnect port."
         - "To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be
           ignored."
       required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
@@ -203,82 +179,67 @@ interconnect_port:
     returned: When requested, but can be null.
     type: dict
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
+from hpOneView.common import extract_id_from_uri
 
 
-class InterconnectFactsModule(object):
-    argument_spec = dict(
-        config=dict(required=False, type='str'),
-        name=dict(required=False, type='str'),
-        options=dict(required=False, type='list'),
-        params=dict(required=False, type='dict'),
-    )
-
+class InterconnectFactsModule(OneViewModuleBase):
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        argument_spec = dict(
+            name=dict(required=False, type='str'),
+            options=dict(required=False, type='list'),
+            params=dict(required=False, type='dict'),
+        )
+        super(InterconnectFactsModule, self).__init__(additional_arg_spec=argument_spec)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
+    def execute_module(self):
+        interconnect_name = self.module.params['name']
+        facts = dict()
+
+        if interconnect_name:
+            interconnects = self.oneview_client.interconnects.get_by('name', interconnect_name)
+            facts['interconnects'] = interconnects
+
+            if interconnects and self.module.params.get('options'):
+                self.__get_options(interconnects, facts)
         else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            facts['interconnects'] = self.oneview_client.interconnects.get_all(**self.facts_params)
 
-    def run(self):
-        try:
-            interconnect_name = self.module.params['name']
-            facts = dict()
-
-            if interconnect_name:
-                interconnects = self.oneview_client.interconnects.get_by('name', interconnect_name)
-                facts['interconnects'] = interconnects
-
-                if interconnects and self.module.params.get('options'):
-                    self.__get_options(interconnects, facts)
-
-            else:
-                params = self.module.params.get('params') or {}
-
-                facts['interconnects'] = self.oneview_client.interconnects.get_all(**params)
-
-            self.module.exit_json(
-                changed=False,
-                ansible_facts=facts
-            )
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(
+            changed=False,
+            ansible_facts=facts
+        )
 
     def __get_options(self, interconnects, facts):
-
-        options = transform_list_to_dict(self.module.params['options'])
-
         interconnect_uri = interconnects[0]['uri']
 
-        if options.get('nameServers'):
+        if self.options.get('nameServers'):
             name_servers = self.oneview_client.interconnects.get_name_servers(interconnect_uri)
             facts['interconnect_name_servers'] = name_servers
 
-        if options.get('statistics'):
+        if self.options.get('statistics'):
             facts['interconnect_statistics'] = self.oneview_client.interconnects.get_statistics(interconnect_uri)
 
-        if options.get('portStatistics'):
-            port_name = options['portStatistics']
+        if self.options.get('portStatistics'):
+            port_name = self.options['portStatistics']
             port_statistics = self.oneview_client.interconnects.get_statistics(interconnect_uri, port_name)
             facts['interconnect_port_statistics'] = port_statistics
 
-        if options.get('subPortStatistics'):
+        if self.options.get('subPortStatistics'):
             facts['interconnect_subport_statistics'] = None
-            sub_options = options['subPortStatistics']
-            if type(sub_options) is dict and sub_options.get('portName') and sub_options.get('subportNumber'):
+            sub_options = self.options['subPortStatistics']
+            if isinstance(sub_options, dict) and sub_options.get('portName') and sub_options.get('subportNumber'):
                 facts['interconnect_subport_statistics'] = self.oneview_client.interconnects.get_subport_statistics(
                     interconnect_uri, sub_options['portName'], sub_options['subportNumber'])
 
-        if options.get('ports'):
+        if self.options.get('ports'):
             ports = self.oneview_client.interconnects.get_ports(interconnect_uri)
             facts['interconnect_ports'] = ports
 
-        if options.get('port'):
-            port_name = options.get('port')
+        if self.options.get('port'):
+            port_name = self.options.get('port')
             port_id = "{}:{}".format(extract_id_from_uri(interconnect_uri), port_name)
             port = self.oneview_client.interconnects.get_port(interconnect_uri, port_id)
             facts['interconnect_port'] = port

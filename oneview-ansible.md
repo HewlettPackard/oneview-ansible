@@ -3024,7 +3024,7 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 Manage the OneView Interconnect resources.
 
 #### Synopsis
- Provides an interface to manage the Interconnect power state and the UID light state. Can change the power state, UID light state, perform device reset, reset port protection, and update the interconnect ports.
+ Provides an interface to manage Interconnect resources. Can change the power state, UID light state, perform device reset, reset port protection, and update the interconnect ports.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -3037,8 +3037,8 @@ Manage the OneView Interconnect resources.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | ip  |   No  |  | |  Interconnect IP address.  |
 | name  |   No  |  | |  Interconnect name.  |
-| ports  |   No  |  | |  List with ports to update. This option should be used together with 'update_ports' state.  |
-| state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>device_reset</li>  <li>update_ports</li>  <li>reset_port_protection</li> </ul> |  Indicates the desired state for the Interconnect resource. 'powered_on' turns the power on. 'powered_off' turns the power off. 'uid_on' turns the UID light on. 'uid_off' turns the UID light off. 'device_reset' perform a device reset. 'update_ports' updates the interconnect ports. 'reset_port_protection' triggers a reset of port protection.  |
+| ports  |   No  |  | |  List with ports to update. This option should be used together with `update_ports` state.  |
+| state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>device_reset</li>  <li>update_ports</li>  <li>reset_port_protection</li> </ul> |  Indicates the desired state for the Interconnect resource. `powered_on` turns the power on. `powered_off` turns the power off. `uid_on` turns the UID light on. `uid_off` turns the UID light off. `device_reset` perform a device reset. `update_ports` updates the interconnect ports. `reset_port_protection` triggers a reset of port protection.  |
 
 
  
@@ -3080,6 +3080,8 @@ Manage the OneView Interconnect resources.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -3100,8 +3102,8 @@ Retrieve facts about one or more of the OneView Interconnects.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Interconnect name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Interconnect. Options allowed: 'nameServers' gets the named servers for an interconnect. 'statistics' gets the statistics from an interconnect. 'portStatistics' gets the statistics for the specified port name on an interconnect. 'subPortStatistics' gets the subport statistics on an interconnect. 'ports' gets all interconnect ports. 'port' gets a specific interconnect port.  To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be ignored.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| options  |   No  |  | |  List with options to gather additional facts about Interconnect. Options allowed: `nameServers` gets the named servers for an interconnect. `statistics` gets the statistics from an interconnect. `portStatistics` gets the statistics for the specified port name on an interconnect. `subPortStatistics` gets the subport statistics on an interconnect. `ports` gets all interconnect ports. `port` gets a specific interconnect port.  To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be ignored.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -3217,6 +3219,8 @@ Retrieve facts about one or more of the OneView Interconnects.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
