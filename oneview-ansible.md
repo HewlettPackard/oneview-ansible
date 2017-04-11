@@ -8410,7 +8410,7 @@ Manage OneView Uplink Set resources.
       logicalInterconnectName: "Name of the Logical Interconnect"                                   # option 1
       # logicalInterconnectUri: "/rest/logical-interconnects/461a9cef-beef-4916-8be1-926078ffb948"  # option 2
       networkUris: [
-         '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4'
+         '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
          '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'
       ]
       fcNetworkUris: []
@@ -8450,11 +8450,13 @@ Manage OneView Uplink Set resources.
 
 #### Notes
 
+- To rename an uplink set you must inform a 'newName' in the data argument. The rename is non-idempotent
+
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
-- To rename an uplink set you must inform a 'newName' in the data argument. The rename is non-idempotent
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
@@ -8476,7 +8478,7 @@ Retrieve facts about one or more of the OneView Uplink Sets.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Uplink Set name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -8523,6 +8525,8 @@ Retrieve facts about one or more of the OneView Uplink Sets.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
