@@ -1,5 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,29 +17,21 @@
 ###
 
 import unittest
-import yaml
-from oneview_logical_switch_group_facts import LogicalSwitchGroupFactsModule, EXAMPLES
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import LogicalSwitchGroupFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
 class LogicalSwitchGroupFactsSpec(unittest.TestCase,
-                                  ModuleContructorTestCase,
-                                  FactsParamsTestCase,
-                                  ErrorHandlingTestCase):
+                                  FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, LogicalSwitchGroupFactsModule)
         self.logical_switch_groups = self.mock_ov_client.logical_switch_groups
         FactsParamsTestCase.configure_client_mock(self, self.logical_switch_groups)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.logical_switch_groups.get_by)
 
-        LSG_EXAMPLES = yaml.load(EXAMPLES)
-
-        self.PARAMS_GET_ALL = LSG_EXAMPLES[0]['oneview_logical_switch_group_facts']
-        self.PARAMS_GET_BY_NAME = LSG_EXAMPLES[4]['oneview_logical_switch_group_facts']
+        self.PARAMS_GET_ALL = self.EXAMPLES[0]['oneview_logical_switch_group_facts']
+        self.PARAMS_GET_BY_NAME = self.EXAMPLES[4]['oneview_logical_switch_group_facts']
 
     def test_should_get_logical_switch_group_by_name(self):
         self.logical_switch_groups.get_by.return_value = {"name": "Logical Switch Group"}

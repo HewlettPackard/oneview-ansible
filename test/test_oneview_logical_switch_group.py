@@ -1,5 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -13,17 +15,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+
 import unittest
 import yaml
 
-from oneview_logical_switch_group import (LogicalSwitchGroupModule,
-                                          LOGICAL_SWITCH_GROUP_CREATED,
-                                          LOGICAL_SWITCH_GROUP_DELETED,
-                                          LOGICAL_SWITCH_GROUP_ALREADY_ABSENT,
-                                          SWITCH_TYPE_NOT_FOUND,
-                                          LOGICAL_SWITCH_GROUP_ALREADY_UPDATED,
-                                          LOGICAL_SWITCH_GROUP_UPDATED)
-from utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
+from oneview_module_loader import LogicalSwitchGroupModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -73,20 +70,15 @@ DICT_DEFAULT_LOGICAL_SWITCH_GROUP_CHANGED = yaml.load(YAML_LOGICAL_SWITCH_GROUP_
 
 
 class LogicalSwitchModuleSpec(unittest.TestCase,
-                              ModuleContructorTestCase,
-                              ValidateEtagTestCase,
-                              ErrorHandlingTestCase):
+                              OneViewBaseTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function,
+    OneViewBaseTestCase has a common test for the main function,
     also provides the mocks used in this test case.
-    ValidateEtagTestCase has common tests for the validate_etag attribute.
-    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, LogicalSwitchGroupModule)
         self.resource = self.mock_ov_client.logical_switch_groups
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_create_new_logical_switch_group(self):
         self.resource.get_by.return_value = []
@@ -99,7 +91,7 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_SWITCH_GROUP_CREATED,
+            msg=LogicalSwitchGroupModule.MSG_CREATED,
             ansible_facts=dict(logical_switch_group={"name": "name"})
         )
 
@@ -113,7 +105,7 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=LOGICAL_SWITCH_GROUP_UPDATED,
+            msg=LogicalSwitchGroupModule.MSG_UPDATED,
             ansible_facts=dict(logical_switch_group={"name": "name"})
         )
 
@@ -130,7 +122,7 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=LOGICAL_SWITCH_GROUP_ALREADY_UPDATED,
+            msg=LogicalSwitchGroupModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(logical_switch_group=DICT_DEFAULT_LOGICAL_SWITCH_GROUP)
         )
 
@@ -142,9 +134,8 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
         LogicalSwitchGroupModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=True,
-            msg=LOGICAL_SWITCH_GROUP_DELETED
+            msg=LogicalSwitchGroupModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_logical_switch_group_not_exist(self):
@@ -155,9 +146,8 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
         LogicalSwitchGroupModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=False,
-            msg=LOGICAL_SWITCH_GROUP_ALREADY_ABSENT
+            msg=LogicalSwitchGroupModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_fail_when_switch_type_was_not_found(self):
@@ -169,7 +159,7 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
         LogicalSwitchGroupModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SWITCH_TYPE_NOT_FOUND
+            msg=LogicalSwitchGroupModule.MSG_SWITCH_TYPE_NOT_FOUND
         )
 
 
