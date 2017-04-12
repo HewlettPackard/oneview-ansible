@@ -1,5 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,13 +17,21 @@
 ###
 
 import unittest
-import yaml
+
 from oneview_logical_switch_facts import LogicalSwitchFactsModule, EXAMPLES
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
+
+PARAMS_GET_ALL = dict(
+    config='config.json',
+    name=None
+)
+
+PARAMS_GET_BY_NAME = dict(
+    config='config.json',
+    name="Test Logical Switch"
+)
 
 PRESENT_LOGICAL_SWITCHES = [{
     "name": "Test Logical Switch",
@@ -30,23 +40,15 @@ PRESENT_LOGICAL_SWITCHES = [{
 
 
 class LogicalSwitchFactsSpec(unittest.TestCase,
-                             ModuleContructorTestCase,
-                             FactsParamsTestCase,
-                             ErrorHandlingTestCase):
+                             FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, LogicalSwitchFactsModule)
         self.logical_switches = self.mock_ov_client.logical_switches
         FactsParamsTestCase.configure_client_mock(self, self.logical_switches)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.logical_switches.get_by)
-
-        LOGICAL_SWITCH_FACTS_EXAMPLES = yaml.load(EXAMPLES)
-
-        self.PARAMS_GET_ALL = LOGICAL_SWITCH_FACTS_EXAMPLES[0]['oneview_logical_switch_facts']
-        self.PARAMS_GET_BY_NAME = LOGICAL_SWITCH_FACTS_EXAMPLES[4]['oneview_logical_switch_facts']
 
     def test_should_get_all_logical_switches(self):
         self.logical_switches.get_all.return_value = PRESENT_LOGICAL_SWITCHES
-        self.mock_ansible_module.params = self.PARAMS_GET_ALL
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         LogicalSwitchFactsModule().run()
 
@@ -57,7 +59,7 @@ class LogicalSwitchFactsSpec(unittest.TestCase,
 
     def test_should_get_logical_switch_by_name(self):
         self.logical_switches.get_by.return_value = PRESENT_LOGICAL_SWITCHES
-        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         LogicalSwitchFactsModule().run()
 
