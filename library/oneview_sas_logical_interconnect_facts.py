@@ -40,7 +40,7 @@ options:
     options:
       description:
         - List with options to gather additional facts about SAS Logical Interconnect.
-          C(firmware) get the installed firmware for a SAS Logical Interconnect.
+          C(firmware) gets the installed firmware for a SAS Logical Interconnect.
         - These options are valid just when a C(name) is provided. Otherwise it will be ignored.
       required: false
 
