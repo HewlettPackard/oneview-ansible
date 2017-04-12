@@ -6203,7 +6203,7 @@ Retrieve facts about one or more of the OneView SAS Logical JBOD Attachments.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of SAS Logical JBOD Attachment.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -6211,13 +6211,13 @@ Retrieve facts about one or more of the OneView SAS Logical JBOD Attachments.
 
 ```yaml
 - name: Gather facts about all SAS Logical JBOD Attachment
-    oneview_sas_logical_jbod_attachment_facts:
-    config: "{{ config_path }}"
+  oneview_sas_logical_jbod_attachment_facts:
+  config: "{{ config_path }}"
 
 - debug: var=sas_logical_jbod_attachments
 
 - name: Gather paginated, filtered and sorted facts about SAS Logical JBOD Attachment
-    oneview_sas_logical_jbod_attachment_facts:
+  oneview_sas_logical_jbod_attachment_facts:
     config: "{{ config }}"
     params:
       start: 0
@@ -6229,7 +6229,7 @@ Retrieve facts about one or more of the OneView SAS Logical JBOD Attachments.
 
 
 - name: Gather facts about a SAS Logical JBOD Attachment by name
-    oneview_sas_logical_jbod_attachment_facts:
+  oneview_sas_logical_jbod_attachment_facts:
     config: "{{ config_path }}"
     name: "logical-enclosure-SAS-Logical-Interconnect-Group-BDD-1-SLJA-1"
 
@@ -6248,11 +6248,13 @@ Retrieve facts about one or more of the OneView SAS Logical JBOD Attachments.
 
 #### Notes
 
-- A sample configuration file for the config parameter can be found at: https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+- This resource is only available on HPE Synergy
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
-- This resource is only available on HPE Synergy
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
@@ -6274,8 +6276,8 @@ Retrieve facts about one or more of the OneView SAS Logical JBODs.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of SAS Logical JBODs.  |
-| options  |   No  |  | |  List with options to gather additional facts about SAS Logical JBODs and related resources. Options allowed: drives.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| options  |   No  |  | |  List with options to gather additional facts about SAS Logical JBODs and related resources. Options allowed: `drives`.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -6283,38 +6285,38 @@ Retrieve facts about one or more of the OneView SAS Logical JBODs.
 
 ```yaml
 - name: Gather facts about all SAS Logical JBODs
-    oneview_sas_logical_jbod_facts:
-    config: "{{ config_path }}"
+  oneview_sas_logical_jbod_facts:
+    config: "{{ config }}"
 
 - debug: var=sas_logical_jbods
 
 - name: Gather paginated, filtered and sorted facts about SAS Logical JBODs
-    oneview_sas_logical_jbod_facts:
-      config: "{{ config }}"
-      params:
-        start: 0
-        count: 2
-        sort: 'name:descending'
-        filter: "state='Configured'"
+  oneview_sas_logical_jbod_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 2
+      sort: 'name:descending'
+      filter: "state='Configured'"
 
 - debug: var=sas_logical_jbods
 
 - name: Gather facts about a SAS Logical JBOD by name
-    oneview_sas_logical_jbod_facts:
+  oneview_sas_logical_jbod_facts:
     config: "{{ config_path }}"
     name: "Name of the SAS Logical JBOD"
 
 - debug: var=sas_logical_jbods
 
 - name: Gather facts about a SAS Logical JBOD by name, with the list of drives allocated
-    oneview_sas_logical_jbod_facts:
+  oneview_sas_logical_jbod_facts:
     config: "{{ config }}"
     name: "{{ sas_logical_jbod_name }}"
     options:
       - drives
 
-    - debug: var=sas_logical_jbods
-    - debug: var=sas_logical_jbod_drives
+- debug: var=sas_logical_jbods
+- debug: var=sas_logical_jbod_drives
 
 ```
 
@@ -6330,11 +6332,13 @@ Retrieve facts about one or more of the OneView SAS Logical JBODs.
 
 #### Notes
 
-- A sample configuration file for the config parameter can be found at: https://github.hpe.com/Rainforest/oneview-ansible/blob/master/examples/oneview_config.json
+- This resource is only available on HPE Synergy
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
-- This resource is only available on HPE Synergy
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
