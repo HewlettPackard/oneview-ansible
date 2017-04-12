@@ -1,5 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,10 +18,8 @@
 
 import unittest
 
-from oneview_unmanaged_device_facts import UnmanagedDeviceFactsModule
-from test.utils import ModuleContructorTestCase
-from test.utils import FactsParamsTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import UnmanagedDeviceFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -66,14 +66,11 @@ ENVIRONMENTAL_CONFIGURATION = dict(
 
 
 class UnmanagedDeviceFactsSpec(unittest.TestCase,
-                               ModuleContructorTestCase,
-                               FactsParamsTestCase,
-                               ErrorHandlingTestCase):
+                               FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, UnmanagedDeviceFactsModule)
         self.resource = self.mock_ov_client.unmanaged_devices
         FactsParamsTestCase.configure_client_mock(self, self.resource)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_get_all(self):
         unmanaged_devices = [UNMANAGED_DEVICE]
@@ -84,7 +81,8 @@ class UnmanagedDeviceFactsSpec(unittest.TestCase,
 
         self.resource.get_all.assert_called_once()
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts=dict(unmanaged_devices=unmanaged_devices)
+            ansible_facts=dict(unmanaged_devices=unmanaged_devices),
+            changed=False
         )
 
     def test_get_by(self):
@@ -96,7 +94,8 @@ class UnmanagedDeviceFactsSpec(unittest.TestCase,
 
         self.resource.get_by.assert_called_once_with('name', UNMANAGED_DEVICE_NAME)
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts=dict(unmanaged_devices=unmanaged_devices)
+            ansible_facts=dict(unmanaged_devices=unmanaged_devices),
+            changed=False
         )
 
     def test_get_by_with_options(self):
@@ -117,7 +116,8 @@ class UnmanagedDeviceFactsSpec(unittest.TestCase,
             ansible_facts=dict(
                 unmanaged_devices=unmanaged_devices,
                 unmanaged_device_environmental_configuration=ENVIRONMENTAL_CONFIGURATION
-            )
+            ),
+            changed=False
         )
 
 
