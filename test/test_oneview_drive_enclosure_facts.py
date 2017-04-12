@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@
 
 import unittest
 
-from oneview_drive_enclosure_facts import DriveEnclosureFactsModule
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import DriveEnclosureFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -60,15 +58,12 @@ PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
 
 
 class DriveEnclosureFactsSpec(unittest.TestCase,
-                              ModuleContructorTestCase,
-                              FactsParamsTestCase,
-                              ErrorHandlingTestCase):
+                              FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, DriveEnclosureFactsModule)
         self.drive_enclosures = self.mock_ov_client.drive_enclosures
 
         FactsParamsTestCase.configure_client_mock(self, self.drive_enclosures)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.drive_enclosures.get_by)
 
     def test_should_get_all(self):
         self.drive_enclosures.get_all.return_value = MOCK_DRIVE_ENCLOSURES
@@ -79,7 +74,7 @@ class DriveEnclosureFactsSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(drive_enclosures=(MOCK_DRIVE_ENCLOSURES))
+            ansible_facts=dict(drive_enclosures=MOCK_DRIVE_ENCLOSURES)
         )
 
     def test_should_get_by_name(self):

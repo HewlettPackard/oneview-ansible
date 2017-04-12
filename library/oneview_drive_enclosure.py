@@ -1,6 +1,7 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,17 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
-    from hpOneView.exceptions import HPOneViewValueError
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -33,33 +26,29 @@ module: oneview_drive_enclosure
 short_description: Manage OneView Drive Enclosure resources.
 description:
     - Provides an interface to manage Drive Enclosure resources.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.0"
 author: "Camila Balestrin(@balestrinc)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Drive Enclosure resource.
-              'power_state_set' will set the power state for the Drive Enclosure.
-              'uid_state_set' will set the uid state for the Drive Enclosure.
-              'hard_reset_state_set' will request a hard reset of the Drive Enclosure.
-              'refresh_state_set' will refresh a Drive Enclosure.
+              C(power_state_set) will set the power state for the Drive Enclosure.
+              C(uid_state_set) will set the uid state for the Drive Enclosure.
+              C(hard_reset_state_set) will request a hard reset of the Drive Enclosure.
+              C(refresh_state_set) will refresh a Drive Enclosure.
         choices: ['power_state_set', 'uid_state_set', 'hard_reset_state_set', 'refresh_state_set']
     data:
         description:
             - List with the Drive Enclosure properties.
         required: true
 notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
     - This resource is only available on HPE Synergy.
+
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -102,14 +91,14 @@ drive_enclosure:
     type: complex
 '''
 
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
-DRIVE_ENCLOSURE_NAME_REQUIRED = 'Inform the Drive Enclosure name is required.'
-DRIVE_ENCLOSURE_NOT_FOUND = 'Drive Enclosure with specified name not found.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, HPOneViewValueError
 
 
-class DriveEnclosureModule(object):
+class DriveEnclosureModule(OneViewModuleBase):
+    MSG_NAME_REQUIRED = 'Drive Enclosure name is required.'
+    MSG_NOT_FOUND = 'Drive Enclosure with specified name not found.'
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         state=dict(
             required=True,
             choices=['power_state_set', 'uid_state_set', 'hard_reset_state_set', 'refresh_state_set']
@@ -118,63 +107,49 @@ class DriveEnclosureModule(object):
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(DriveEnclosureModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+    def execute_module(self):
 
-    def run(self):
-        state = self.module.params['state']
-        data = self.module.params['data']
+        drive_enclosure = self.__get_drive_enclosure(self.data)
+        drive_enclosure_uri = drive_enclosure['uri']
 
-        try:
+        resource_updated = drive_enclosure
+        changed = False
 
-            drive_enclosure = self.__get_drive_enclosure(data)
-            drive_enclosure_uri = drive_enclosure['uri']
-
-            resource_updated = drive_enclosure
-            changed = False
-
-            if state == 'power_state_set':
-                changed = data.get('powerState') != drive_enclosure['powerState']
-                if changed:
-                    resource_updated = self.oneview_client.drive_enclosures.patch(
-                        drive_enclosure_uri, operation='replace', path='/powerState', value=data.get('powerState'))
-
-            elif state == 'uid_state_set':
-                changed = data.get('uidState') != drive_enclosure['uidState']
-                if changed:
-                    resource_updated = self.oneview_client.drive_enclosures.patch(
-                        drive_enclosure_uri, operation='replace', path='/uidState', value=data.get('uidState'))
-
-            elif state == 'hard_reset_state_set':
-                changed = True
+        if self.state == 'power_state_set':
+            changed = self.data.get('powerState') != drive_enclosure['powerState']
+            if changed:
                 resource_updated = self.oneview_client.drive_enclosures.patch(
-                    drive_enclosure_uri, operation='replace', path='/hardResetState', value='Reset')
+                    drive_enclosure_uri, operation='replace', path='/powerState', value=self.data.get('powerState'))
 
-            elif state == 'refresh_state_set':
-                changed = True
-                refresh_data = dict(refreshState=data.get('refreshState'))
-                resource_updated = self.oneview_client.drive_enclosures.refresh_state(drive_enclosure_uri, refresh_data)
+        elif self.state == 'uid_state_set':
+            changed = self.data.get('uidState') != drive_enclosure['uidState']
+            if changed:
+                resource_updated = self.oneview_client.drive_enclosures.patch(
+                    drive_enclosure_uri, operation='replace', path='/uidState', value=self.data.get('uidState'))
 
-            self.module.exit_json(changed=changed, ansible_facts=dict(drive_enclosure=resource_updated))
+        elif self.state == 'hard_reset_state_set':
+            changed = True
+            resource_updated = self.oneview_client.drive_enclosures.patch(
+                drive_enclosure_uri, operation='replace', path='/hardResetState', value='Reset')
 
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        elif self.state == 'refresh_state_set':
+            changed = True
+            refresh_data = dict(refreshState=self.data.get('refreshState'))
+            resource_updated = self.oneview_client.drive_enclosures.refresh_state(drive_enclosure_uri, refresh_data)
+
+        return dict(changed=changed, ansible_facts=dict(drive_enclosure=resource_updated))
 
     def __get_drive_enclosure(self, data):
         name = data.get('name')
         if not name:
-            raise HPOneViewValueError(DRIVE_ENCLOSURE_NAME_REQUIRED)
+            raise HPOneViewValueError(self.MSG_NAME_REQUIRED)
         else:
             result = self.oneview_client.drive_enclosures.get_by('name', name)
 
             if not result:
-                raise HPOneViewResourceNotFound(DRIVE_ENCLOSURE_NOT_FOUND)
+                raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
 
             return result[0]
 
