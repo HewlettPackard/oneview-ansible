@@ -3384,7 +3384,7 @@ Retrieve facts about the OneView Internal Link Sets.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Internal Link Set.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set. 'query': A general query string to narrow the list of resources returned. 'fields': Specifies which fields should be returned in the result set. 'view': Return a specific subset of the attributes of the resource or collection, by specifying the name of a predefined view.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set. `query`: A general query string to narrow the list of resources returned. `fields`: Specifies which fields should be returned in the result set. `view`: Return a specific subset of the attributes of the resource or collection, by specifying the name of a predefined view.  |
 
 
  
@@ -3427,11 +3427,13 @@ Retrieve facts about the OneView Internal Link Sets.
 
 #### Notes
 
+- This resource is available for API version 300 or later
+
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
-- This resource is available for API version 300 or later
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
