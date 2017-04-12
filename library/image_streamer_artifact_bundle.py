@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,17 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.module_utils.basic import *
-import os.path
 
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.extras.comparators import resource_compare
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -33,29 +26,24 @@ module: image_streamer_artifact_bundle
 short_description: Manage the Artifact Bundle resource.
 description:
     - "Provides an interface to manage the Artifact Bundle. Can create, update, remove, and download, upload, extract"
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.0"
 author:
     - "Abilio Parada (@abiliogp)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
       description:
         - Indicates the desired state for the Artifact Bundle resource.
-          'present' will ensure data properties are compliant with OneView.
-          'absent' will remove the resource from OneView, if it exists.
-          'downloaded' will download the Artifact Bundle to the file path provided.
-          'archive_downloaded' will download the Artifact Bundle archive to the file path provided.
-          'backup_uploaded' will upload the Backup for the Artifact Bundle from the file path provided.
-          'backup_created' will create a Backup for the Artifact Bundle.
-          'extracted' will extract an Artifact Bundle.
-          'backup_extracted' will extract an Artifact Bundle from the Backup.
+          C(present) will ensure data properties are compliant with OneView.
+          C(absent) will remove the resource from OneView, if it exists.
+          C(downloaded) will download the Artifact Bundle to the file path provided.
+          C(archive_downloaded) will download the Artifact Bundle archive to the file path provided.
+          C(backup_uploaded) will upload the Backup for the Artifact Bundle from the file path provided.
+          C(backup_created) will create a Backup for the Artifact Bundle.
+          C(extracted) will extract an Artifact Bundle.
+          C(backup_extracted) will extract an Artifact Bundle from the Backup.
       choices: ['present', 'absent', 'downloaded', 'archive_downloaded',
                 'backup_uploaded', 'backup_created', 'extracted', 'backup_extracted']
       required: true
@@ -63,11 +51,9 @@ options:
       description:
         - List with Artifact Bundle properties and its associated states.
       required: true
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -172,25 +158,26 @@ artifact_bundle_deployment_group:
     type: complex
 '''
 
-ARTIFACT_BUNDLE_CREATED = 'Artifact Bundle created successfully.'
-ARTIFACT_BUNDLE_UPDATED = 'Artifact Bundle updated successfully.'
-ARTIFACT_BUNDLE_DELETED = 'Artifact Bundle deleted successfully.'
-ARTIFACT_BUNDLE_ABSENT = 'Artifact Bundle is already absent.'
-ARTIFACT_BUNDLE_ALREADY_EXIST = 'Artifact Bundle already exists.'
-ARTIFACT_BUNDLE_DOWNLOADED = 'Artifact Bundle downloaded successfully.'
-ARTIFACT_BUNDLE_UPLOADED = 'Artifact Bundle uploaded successfully.'
-BACKUP_UPLOADED = 'Backup for Artifact Bundle uploaded successfully.'
-ARCHIVE_DOWNLOADED = 'Archive of Artifact Bundle downloaded successfully.'
-BACKUP_CREATED = 'Backup of Artifact Bundle created successfully.'
-ARTIFACT_BUNDLE_EXTRACTED = 'Artifact Bundle extracted successfully.'
-BACKUP_EXTRACTED = 'Artifact Bundle extracted successfully.'
-
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+import os
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, ResourceComparator
 
 
-class ArtifactBundleModule(object):
+class ArtifactBundleModule(OneViewModuleBase):
+    MSG_CREATED = 'Artifact Bundle created successfully.'
+    MSG_UPDATED = 'Artifact Bundle updated successfully.'
+    MSG_DELETED = 'Artifact Bundle deleted successfully.'
+    MSG_ALREADY_ABSENT = 'Artifact Bundle is already absent.'
+    MSG_ALREADY_EXIST = 'Artifact Bundle already exists.'
+    MSG_DOWNLOADED = 'Artifact Bundle downloaded successfully.'
+    MSG_UPLOADED = 'Artifact Bundle uploaded successfully.'
+    MSG_BACKUP_UPLOADED = 'Backup for Artifact Bundle uploaded successfully.'
+    MSG_ARCHIVE_DOWNLOADED = 'Archive of Artifact Bundle downloaded successfully.'
+    MSG_BACKUP_CREATED = 'Backup of Artifact Bundle created successfully.'
+    MSG_EXTRACTED = 'Artifact Bundle extracted successfully.'
+    MSG_BACKUP_EXTRACTED = 'Artifact Bundle extracted successfully.'
+
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         state=dict(
             required=True,
             choices=['present', 'absent', 'downloaded', 'archive_downloaded', 'backup_created',
@@ -200,58 +187,43 @@ class ArtifactBundleModule(object):
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
-
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
-
+        super(ArtifactBundleModule, self).__init__(additional_arg_spec=self.argument_spec)
         self.i3s_client = self.oneview_client.create_image_streamer_client()
+        self.resource_client = self.i3s_client.artifact_bundles
 
-    def run(self):
-        try:
-            ansible_facts = {}
+    def execute_module(self):
+        ansible_facts = {}
 
-            state = self.module.params.get('state')
-            data = self.module.params.get('data')
-            name = data.get('name')
+        resource = self.__get_by_name(self.data.get('name'))
 
-            resource = self.__get_by_name(name)
+        if self.state == 'present':
+            changed, msg, ansible_facts = self.__present(self.data, resource)
 
-            if state == 'present':
-                changed, msg, ansible_facts = self.__present(data, resource)
+        elif self.state == 'absent':
+            return self.resource_absent(resource)
 
-            elif state == 'absent':
-                changed, msg, ansible_facts = self.__absent(resource)
+        elif self.state == 'downloaded':
+            changed, msg, ansible_facts = self.__download(self.data, resource)
+        elif self.state == 'archive_downloaded':
+            changed, msg, ansible_facts = self.__download_archive(self.data, resource)
 
-            elif state == 'downloaded':
-                changed, msg, ansible_facts = self.__download(data, resource)
-            elif state == 'archive_downloaded':
-                changed, msg, ansible_facts = self.__download_archive(data, resource)
+        elif self.state == 'backup_uploaded':
+            changed, msg, ansible_facts = self.__upload_backup(self.data)
 
-            elif state == 'backup_uploaded':
-                changed, msg, ansible_facts = self.__upload_backup(data)
+        elif self.state == 'backup_created':
+            changed, msg, ansible_facts = self.__create_backup(self.data)
 
-            elif state == 'backup_created':
-                changed, msg, ansible_facts = self.__create_backup(data)
+        elif self.state == 'extracted':
+            changed, msg, ansible_facts = self.__extract(resource)
+        elif self.state == 'backup_extracted':
+            changed, msg, ansible_facts = self.__extract_backup(self.data)
 
-            elif state == 'extracted':
-                changed, msg, ansible_facts = self.__extract(resource)
-            elif state == 'backup_extracted':
-                changed, msg, ansible_facts = self.__extract_backup(data)
-
-            self.module.exit_json(msg=msg, changed=changed, ansible_facts=ansible_facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(msg=msg, changed=changed, ansible_facts=ansible_facts)
 
     def __get_by_name(self, name):
         if name is None:
             return None
-        return (self.i3s_client.artifact_bundles.get_by('name', name) or [None])[0]
+        return self.get_by_name(name)
 
     def __present(self, data, resource):
         if data.get('newName'):
@@ -262,24 +234,14 @@ class ArtifactBundleModule(object):
             changed, msg, facts = self.__create(data)
         else:
             changed = False
-            msg = ARTIFACT_BUNDLE_ALREADY_EXIST
+            msg = self.MSG_ALREADY_EXIST
             facts = dict(artifact_bundle=resource)
         return changed, msg, facts
-
-    def __absent(self, resource):
-        if resource:
-            self.i3s_client.artifact_bundles.delete(resource)
-            changed = True
-            msg = ARTIFACT_BUNDLE_DELETED
-        else:
-            changed = False
-            msg = ARTIFACT_BUNDLE_ABSENT
-        return changed, msg, {}
 
     def __create(self, data):
         data['buildPlans'] = [data['buildPlans']]
         resource = self.i3s_client.artifact_bundles.create(data)
-        return True, ARTIFACT_BUNDLE_CREATED, dict(artifact_bundle=resource)
+        return True, self.MSG_CREATED, dict(artifact_bundle=resource)
 
     def __update(self, data, resource):
         if resource is None:
@@ -288,22 +250,22 @@ class ArtifactBundleModule(object):
         merged_data = resource.copy()
         merged_data.update(data)
 
-        if not resource_compare(resource, merged_data):
+        if not ResourceComparator.compare(resource, merged_data):
             resource = self.i3s_client.artifact_bundles.update(merged_data)
             changed = True
-            msg = ARTIFACT_BUNDLE_UPDATED
+            msg = self.MSG_UPDATED
         else:
             changed = False
-            msg = ARTIFACT_BUNDLE_ALREADY_EXIST
+            msg = self.MSG_ALREADY_EXIST
         return changed, msg, dict(artifact_bundle=resource)
 
     def __download(self, data, resource):
         self.i3s_client.artifact_bundles.download_artifact_bundle(resource['uri'], data['destinationFilePath'])
-        return False, ARTIFACT_BUNDLE_DOWNLOADED, {}
+        return False, self.MSG_DOWNLOADED, {}
 
     def __download_archive(self, data, resource):
         self.i3s_client.artifact_bundles.download_archive_artifact_bundle(resource['uri'], data['destinationFilePath'])
-        return False, ARCHIVE_DOWNLOADED, {}
+        return False, self.MSG_ARCHIVE_DOWNLOADED, {}
 
     def __upload(self, data):
         file_name = data['localArtifactBundleFilePath']
@@ -313,28 +275,28 @@ class ArtifactBundleModule(object):
         if artifact_bundle is None:
             artifact_bundle = self.i3s_client.artifact_bundles.upload_bundle_from_file(file_name)
             changed = True
-            msg = ARTIFACT_BUNDLE_UPLOADED
+            msg = self.MSG_UPLOADED
         else:
             changed = False
-            msg = ARTIFACT_BUNDLE_ALREADY_EXIST
+            msg = self.MSG_ALREADY_EXIST
         return changed, msg, dict(artifact_bundle=artifact_bundle)
 
     def __upload_backup(self, data):
         deployment_group = self.i3s_client.artifact_bundles.upload_backup_bundle_from_file(
             data['localBackupArtifactBundleFilePath'], data['deploymentGroupURI'])
-        return True, BACKUP_UPLOADED, dict(artifact_bundle_deployment_group=deployment_group)
+        return True, self.MSG_BACKUP_UPLOADED, dict(artifact_bundle_deployment_group=deployment_group)
 
     def __create_backup(self, data):
         resource = self.i3s_client.artifact_bundles.create_backup(data)
-        return False, BACKUP_CREATED, dict(artifact_bundle_deployment_group=resource)
+        return False, self.MSG_BACKUP_CREATED, dict(artifact_bundle_deployment_group=resource)
 
     def __extract(self, resource):
         resource = self.i3s_client.artifact_bundles.extract_bundle(resource)
-        return True, ARTIFACT_BUNDLE_EXTRACTED, dict(artifact_bundle=resource)
+        return True, self.MSG_EXTRACTED, dict(artifact_bundle=resource)
 
     def __extract_backup(self, data):
         resource = self.i3s_client.artifact_bundles.extract_backup_bundle(data)
-        return True, BACKUP_EXTRACTED, dict(artifact_bundle_deployment_group=resource)
+        return True, self.MSG_BACKUP_EXTRACTED, dict(artifact_bundle_deployment_group=resource)
 
 
 def main():

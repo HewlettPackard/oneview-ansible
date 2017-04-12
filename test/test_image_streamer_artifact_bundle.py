@@ -15,49 +15,36 @@
 ###
 import mock
 import unittest
-import yaml
 
 from copy import deepcopy
-from image_streamer_artifact_bundle import ArtifactBundleModule, EXAMPLES, ARTIFACT_BUNDLE_CREATED, \
-    ARTIFACT_BUNDLE_UPDATED, ARTIFACT_BUNDLE_DELETED, ARTIFACT_BUNDLE_ABSENT, ARTIFACT_BUNDLE_ALREADY_EXIST, \
-    ARTIFACT_BUNDLE_DOWNLOADED, ARTIFACT_BUNDLE_UPLOADED, BACKUP_UPLOADED, ARCHIVE_DOWNLOADED, BACKUP_CREATED, \
-    ARTIFACT_BUNDLE_EXTRACTED, BACKUP_EXTRACTED
-
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import ArtifactBundleModule, ResourceComparator
+from hpe_test_utils import OneViewBaseTestCase
 
 
 ERROR_MSG = 'Fake message error'
 
 
 class ArtifactBundleSpec(unittest.TestCase,
-                         ModuleContructorTestCase,
-                         ErrorHandlingTestCase):
+                         OneViewBaseTestCase):
     """
-    ModuleContructorTestCase has common tests for the class constructor and the main function, and also provides the
+    OneViewBaseTestCase has common tests for the main function, also provides the
     mocks used in this test class.
-
-    ErrorHandlingTestCase has common tests for the module error handling.
     """
 
     def setUp(self):
         self.configure_mocks(self, ArtifactBundleModule)
         self.i3s = self.mock_ov_client.create_image_streamer_client()
 
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.i3s.artifact_bundles.get_by)
-
-        self.ARTIFACT_BUNDLE_EXAMPLES = yaml.load(EXAMPLES)
-
-        self.TASK_CREATE = self.ARTIFACT_BUNDLE_EXAMPLES[0]['image_streamer_artifact_bundle']
-        self.TASK_DOWNLOAD = self.ARTIFACT_BUNDLE_EXAMPLES[1]['image_streamer_artifact_bundle']
-        self.TASK_DOWNLOAD_ARCHIVE = self.ARTIFACT_BUNDLE_EXAMPLES[2]['image_streamer_artifact_bundle']
-        self.TASK_UPLOAD = self.ARTIFACT_BUNDLE_EXAMPLES[3]['image_streamer_artifact_bundle']
-        self.TASK_BACKUP_UPLOAD = self.ARTIFACT_BUNDLE_EXAMPLES[4]['image_streamer_artifact_bundle']
-        self.TASK_CREATE_BACKUP = self.ARTIFACT_BUNDLE_EXAMPLES[5]['image_streamer_artifact_bundle']
-        self.TASK_EXTRACT = self.ARTIFACT_BUNDLE_EXAMPLES[6]['image_streamer_artifact_bundle']
-        self.TASK_BACKUP_EXTRACT = self.ARTIFACT_BUNDLE_EXAMPLES[7]['image_streamer_artifact_bundle']
-        self.TASK_UPDATE = self.ARTIFACT_BUNDLE_EXAMPLES[8]['image_streamer_artifact_bundle']
-        self.TASK_REMOVE = self.ARTIFACT_BUNDLE_EXAMPLES[9]['image_streamer_artifact_bundle']
+        self.TASK_CREATE = self.EXAMPLES[0]['image_streamer_artifact_bundle']
+        self.TASK_DOWNLOAD = self.EXAMPLES[1]['image_streamer_artifact_bundle']
+        self.TASK_DOWNLOAD_ARCHIVE = self.EXAMPLES[2]['image_streamer_artifact_bundle']
+        self.TASK_UPLOAD = self.EXAMPLES[3]['image_streamer_artifact_bundle']
+        self.TASK_BACKUP_UPLOAD = self.EXAMPLES[4]['image_streamer_artifact_bundle']
+        self.TASK_CREATE_BACKUP = self.EXAMPLES[5]['image_streamer_artifact_bundle']
+        self.TASK_EXTRACT = self.EXAMPLES[6]['image_streamer_artifact_bundle']
+        self.TASK_BACKUP_EXTRACT = self.EXAMPLES[7]['image_streamer_artifact_bundle']
+        self.TASK_UPDATE = self.EXAMPLES[8]['image_streamer_artifact_bundle']
+        self.TASK_REMOVE = self.EXAMPLES[9]['image_streamer_artifact_bundle']
 
         self.BUILD_PLANS = dict(
             resourceUri="/rest/build-plans/ab65bb06-4387-48a0-9a5d-0b0da2888508",
@@ -88,7 +75,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ARTIFACT_BUNDLE_CREATED,
+            msg=ArtifactBundleModule.MSG_CREATED,
             ansible_facts=dict(artifact_bundle=self.ARTIFACT_BUNDLE)
         )
 
@@ -109,7 +96,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ARTIFACT_BUNDLE_DOWNLOADED,
+            msg=ArtifactBundleModule.MSG_DOWNLOADED,
             ansible_facts={})
 
     def test_download_archives_artifact_bundle(self):
@@ -129,7 +116,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ARCHIVE_DOWNLOADED,
+            msg=ArtifactBundleModule.MSG_ARCHIVE_DOWNLOADED,
             ansible_facts={})
 
     def test_upload_artifact_bundle_should_upload_when_file_not_uploaded_yet(self):
@@ -145,7 +132,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ARTIFACT_BUNDLE_UPLOADED,
+            msg=ArtifactBundleModule.MSG_UPLOADED,
             ansible_facts=dict(artifact_bundle=self.ARTIFACT_BUNDLE))
 
     def test_upload_artifact_bundle_should_do_nothing_when_file_already_uploaded(self):
@@ -160,7 +147,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ARTIFACT_BUNDLE_ALREADY_EXIST,
+            msg=ArtifactBundleModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(artifact_bundle=self.ARTIFACT_BUNDLE))
 
     def test_upload_backup_artifact_bundle(self):
@@ -177,7 +164,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=BACKUP_UPLOADED,
+            msg=ArtifactBundleModule.MSG_BACKUP_UPLOADED,
             ansible_facts=dict(artifact_bundle_deployment_group=self.DEPLOYMENT_GROUP))
 
     def test_create_backup_artifact_bundle(self):
@@ -195,7 +182,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=BACKUP_CREATED,
+            msg=ArtifactBundleModule.MSG_BACKUP_CREATED,
             ansible_facts=dict(artifact_bundle_deployment_group=self.DEPLOYMENT_GROUP))
 
     def test_extract_artifact_bundle(self):
@@ -214,7 +201,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ARTIFACT_BUNDLE_EXTRACTED,
+            msg=ArtifactBundleModule.MSG_EXTRACTED,
             ansible_facts=dict(artifact_bundle=artifact_bundle))
 
     def test_backup_extract_artifact_bundle(self):
@@ -234,7 +221,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=BACKUP_EXTRACTED,
+            msg=ArtifactBundleModule.MSG_BACKUP_EXTRACTED,
             ansible_facts=dict(artifact_bundle_deployment_group=self.DEPLOYMENT_GROUP))
 
     def test_update_artifact_bundle(self):
@@ -255,11 +242,11 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ARTIFACT_BUNDLE_UPDATED,
+            msg=ArtifactBundleModule.MSG_UPDATED,
             ansible_facts=dict(artifact_bundle=artifact_bundle_updated)
         )
 
-    @mock.patch('image_streamer_artifact_bundle.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_do_nothing_when_no_changes_provided(self, mock_resource_compare):
         mock_resource_compare.return_value = True
 
@@ -273,7 +260,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ARTIFACT_BUNDLE_ALREADY_EXIST,
+            msg=ArtifactBundleModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(artifact_bundle=self.ARTIFACT_BUNDLE)
         )
 
@@ -288,7 +275,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ARTIFACT_BUNDLE_ALREADY_EXIST,
+            msg=ArtifactBundleModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(artifact_bundle=self.ARTIFACT_BUNDLE)
         )
 
@@ -306,8 +293,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ARTIFACT_BUNDLE_DELETED,
-            ansible_facts={}
+            msg=ArtifactBundleModule.MSG_DELETED,
         )
 
     def test_should_do_nothing_when_already_absent(self):
@@ -321,8 +307,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ARTIFACT_BUNDLE_ABSENT,
-            ansible_facts={}
+            msg=ArtifactBundleModule.MSG_ALREADY_ABSENT,
         )
 
 

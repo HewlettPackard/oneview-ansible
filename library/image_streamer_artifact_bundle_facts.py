@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,16 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.module_utils.basic import *
 
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -32,18 +26,13 @@ module: image_streamer_artifact_bundle_facts
 short_description: Retrieve facts about the Artifact Bundle.
 description:
     - "Retrieve facts about the Artifact Bundle."
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.1"
 author:
     - "Abilio Parada (@abiliogp)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     name:
       description:
         - Name of the Artifact Bundle.
@@ -52,23 +41,13 @@ options:
       description:
         - "List with options to gather additional facts about the Artifact Bundle.
           Options allowed:
-          'allBackups' gets the list of backups for the Artifact Bundles.
-          'backupForAnArtifactBundle' gets the list of backups for the Artifact Bundle."
+          C(allBackups) gets the list of backups for the Artifact Bundles.
+          C(backupForAnArtifactBundle) gets the list of backups for the Artifact Bundle."
       required: false
-    params:
-      description:
-        - List of params to delimit, filter and sort the list of resources.
-        - "params allowed:
-           'start': The first item to return, using 0-based indexing.
-           'count': The number of resources to return.
-           'filter': A general filter/query string to narrow the list of items returned.
-           'sort': The sort order of the returned data set."
-      required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
@@ -134,10 +113,11 @@ backup_for_artifact_bundle:
     type: list
 '''
 
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
 
 
-class ArtifactBundleFactsModule(object):
+class ArtifactBundleFactsModule(OneViewModuleBase):
     argument_spec = dict(
         config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
@@ -146,64 +126,38 @@ class ArtifactBundleFactsModule(object):
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
-
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
-
+        super(ArtifactBundleFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
         self.i3s_client = self.oneview_client.create_image_streamer_client()
+        self.resource_client = self.i3s_client.artifact_bundles
 
-    def run(self):
-        try:
-            ansible_facts = {}
+    def execute_module(self):
+        ansible_facts = {}
 
-            if self.module.params.get('name'):
-                artifact_bundles = self.__get_by_name(self.module.params['name'])
+        if self.module.params.get('name'):
+            artifact_bundles = self.resource_client.get_by('name', self.module.params['name'])
 
-                if self.module.params.get('options') and artifact_bundles:
-                    ansible_facts = self.__gather_optional_facts(self.module.params['options'], artifact_bundles[0])
-            else:
-                artifact_bundles = self.__get_all()
+            if self.options and artifact_bundles:
+                ansible_facts = self.__gather_optional_facts(self.options, artifact_bundles[0])
+        else:
+            artifact_bundles = self.resource_client.get_all(**self.facts_params)
 
-            ansible_facts['artifact_bundles'] = artifact_bundles
+        ansible_facts['artifact_bundles'] = artifact_bundles
 
-            self.module.exit_json(changed=False, ansible_facts=ansible_facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=False, ansible_facts=ansible_facts)
 
     def __gather_optional_facts(self, options, artifact_bundle):
-        options = transform_list_to_dict(options)
 
         ansible_facts = {}
 
         if options.get('allBackups'):
-            ansible_facts['artifact_bundle_backups'] = self.__get_backups()
+            ansible_facts['artifact_bundle_backups'] = self.resource_client.get_all_backups()
         if options.get('backupForAnArtifactBundle'):
-            ansible_facts['backup_for_artifact_bundle'] = self.__get_backup_for_an_artifact_bundle(artifact_bundle)
+            ansible_facts['backup_for_artifact_bundle'] = self.resource_client.get_backup(artifact_bundle['uri'])
 
         return ansible_facts
 
-    def __get_all(self):
-        params = self.module.params.get('params') or {}
-        return self.i3s_client.artifact_bundles.get_all(**params)
-
-    def __get_by_name(self, name):
-        return self.i3s_client.artifact_bundles.get_by('name', name)
-
-    def __get_backups(self):
-        return self.i3s_client.artifact_bundles.get_all_backups()
-
-    def __get_backup_for_an_artifact_bundle(self, artifact_bundle):
-        return self.i3s_client.artifact_bundles.get_backup(artifact_bundle['uri'])
-
 
 def main():
-
     ArtifactBundleFactsModule().run()
 
 
