@@ -1,5 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,8 +18,8 @@
 
 import unittest
 
-from oneview_sas_logical_interconnect_facts import SasLogicalInterconnectFactsModule
-from utils import ModuleContructorTestCase, FactsParamsTestCase, ErrorHandlingTestCase
+from oneview_module_loader import SasLogicalInterconnectFactsModule
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -46,22 +48,12 @@ ALL_INTERCONNECTS = [SAS_LOGICAL_INTERCONNECT]
 
 
 class SasLogicalInterconnectFactsSpec(unittest.TestCase,
-                                      ModuleContructorTestCase,
-                                      FactsParamsTestCase,
-                                      ErrorHandlingTestCase):
-    """
-    Test the module constructor
-    ModuleContructorTestCase has common tests for class constructor and main function
-    FactsParamsTestCase has common test for classes that support pass additional
-        parameters when retrieving all resources.
-    ErrorHandlingTestCase has common tests for the module error handling.
-    """
+                                      FactsParamsTestCase):
 
     def setUp(self):
         self.configure_mocks(self, SasLogicalInterconnectFactsModule)
         self.resource = self.mock_ov_client.sas_logical_interconnects
         FactsParamsTestCase.configure_client_mock(self, self.resource)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_get_all_sas_logical_interconnects(self):
         self.resource.get_all.return_value = ALL_INTERCONNECTS
