@@ -15,10 +15,9 @@
 ###
 
 import unittest
-from oneview_internal_link_set_facts import InternalLinkSetFactsModule
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import InternalLinkSetFactsModule
+from hpe_test_utils import FactsParamsTestCase
+
 
 ERROR_MSG = 'Fake message error'
 
@@ -35,15 +34,11 @@ PARAMS_GET_BY_NAME = dict(
 INTERNAL_LINK_SETS = [{"name": "ILS56"}, {"name": "ILS58"}, {"name": "ILS100"}]
 
 
-class InternalLinkSetFactsSpec(unittest.TestCase,
-                               ModuleContructorTestCase,
-                               FactsParamsTestCase,
-                               ErrorHandlingTestCase):
+class InternalLinkSetFactsSpec(unittest.TestCase, FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, InternalLinkSetFactsModule)
         self.internal_link_sets = self.mock_ov_client.internal_link_sets
         FactsParamsTestCase.configure_client_mock(self, self.internal_link_sets)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.internal_link_sets.get_by)
 
     def test_should_get_all_internal_link_sets(self):
         self.internal_link_sets.get_all.return_value = INTERNAL_LINK_SETS
