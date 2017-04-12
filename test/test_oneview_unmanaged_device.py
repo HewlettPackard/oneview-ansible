@@ -1,5 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,15 +18,8 @@
 import unittest
 import mock
 
-from utils import ModuleContructorTestCase
-from utils import ValidateEtagTestCase
-from utils import ErrorHandlingTestCase
-from oneview_unmanaged_device import (UnmanagedDeviceModule,
-                                      UNMANAGED_DEVICE_ADDED,
-                                      UNMANAGED_DEVICE_UPDATED,
-                                      UNMANAGED_DEVICE_REMOVED,
-                                      UNMANAGED_DEVICE_SET_REMOVED,
-                                      NOTHING_TO_DO)
+from hpe_test_utils import OneViewBaseTestCase
+from oneview_module_loader import UnmanagedDeviceModule, ResourceComparator
 
 ERROR_MSG = "Fake message error"
 
@@ -71,19 +66,15 @@ UNMANAGED_DEVICE = dict(
 
 
 class UnmanagedDeviceSpec(unittest.TestCase,
-                          ModuleContructorTestCase,
-                          ValidateEtagTestCase,
-                          ErrorHandlingTestCase):
+                          OneViewBaseTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function
-    ValidateEtagTestCase has common tests for the validate_etag attribute, also provides the mocks used in this test
+    OneViewBaseTestCase has common tests for the main function, also provides the mocks used in this test
     case.
     """
 
     def setUp(self):
         self.configure_mocks(self, UnmanagedDeviceModule)
         self.resource = self.mock_ov_client.unmanaged_devices
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.unmanaged_devices.get_by)
 
     def test_should_add(self):
         self.resource.get_by.return_value = []
@@ -97,11 +88,11 @@ class UnmanagedDeviceSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=UNMANAGED_DEVICE_ADDED,
+            msg=UnmanagedDeviceModule.MSG_CREATED,
             ansible_facts=dict(unmanaged_device=UNMANAGED_DEVICE)
         )
 
-    @mock.patch('oneview_unmanaged_device.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_not_update_when_data_is_equals(self, mock_resource_compare):
         self.resource.get_by.return_value = [UNMANAGED_DEVICE_FOR_PRESENT]
 
@@ -115,11 +106,11 @@ class UnmanagedDeviceSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=NOTHING_TO_DO,
+            msg=UnmanagedDeviceModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(unmanaged_device=UNMANAGED_DEVICE_FOR_PRESENT)
         )
 
-    @mock.patch('oneview_unmanaged_device.resource_compare')
+    @mock.patch.object(ResourceComparator, 'compare')
     def test_should_update_the_unmanaged_device(self, mock_resource_compare):
         self.resource.get_by.return_value = [UNMANAGED_DEVICE_FOR_PRESENT]
         self.resource.update.return_value = UNMANAGED_DEVICE
@@ -138,7 +129,7 @@ class UnmanagedDeviceSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=UNMANAGED_DEVICE_UPDATED,
+            msg=UnmanagedDeviceModule.MSG_UPDATED,
             ansible_facts=dict(unmanaged_device=UNMANAGED_DEVICE)
         )
 
@@ -154,7 +145,7 @@ class UnmanagedDeviceSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=UNMANAGED_DEVICE_REMOVED
+            msg=UnmanagedDeviceModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_not_exist(self):
@@ -166,7 +157,7 @@ class UnmanagedDeviceSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=NOTHING_TO_DO
+            msg=UnmanagedDeviceModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_delete_all_resources(self):
@@ -180,7 +171,7 @@ class UnmanagedDeviceSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=UNMANAGED_DEVICE_SET_REMOVED
+            msg=UnmanagedDeviceModule.MSG_SET_REMOVED
         )
 
 

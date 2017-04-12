@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,15 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.extras.comparators import resource_compare
-    from hpOneView.exceptions import HPOneViewException
 
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -31,39 +26,28 @@ module: oneview_unmanaged_device
 short_description: Manage OneView Unmanaged Device resources.
 description:
     - Provides an interface to manage Unmanaged Device resources. Can create, update, or delete.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.0"
 author: "Bruno Souza (@bsouza)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Unmanaged Device resource.
-              'present' will ensure data properties are compliant with OneView.
-              'absent' will remove the resource from OneView, if it exists.
+              C(present) will ensure data properties are compliant with OneView.
+              C(absent) will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
     data:
         description:
             - List with Unmanaged Device properties.
         required: true
-    validate_etag:
-        description:
-            - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
-              for the resource matches the ETag provided in the data.
-        default: true
-        choices: ['true', 'false']
 notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
-    - "To rename an unamnaged device you must inform a 'newName' in the data argument. The rename is non-idempotent"
+    - "To rename an Unamnaged Device you must inform a C(newName) in the data argument. The rename is non-idempotent"
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -123,107 +107,43 @@ unmanaged_device:
     type: complex
 '''
 
-UNMANAGED_DEVICE_ADDED = 'Unmanaged Device added successfully.'
-UNMANAGED_DEVICE_UPDATED = 'Unmanaged Device updated successfully.'
-UNMANAGED_DEVICE_REMOVED = 'Unmanaged Device removed successfully.'
-UNMANAGED_DEVICE_SET_REMOVED = 'Unmanaged device set deleted successfully.'
-NOTHING_TO_DO = 'Nothing to do.'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class UnmanagedDeviceModule(object):
+class UnmanagedDeviceModule(OneViewModuleBase):
+    MSG_CREATED = 'Unmanaged Device added successfully.'
+    MSG_UPDATED = 'Unmanaged Device updated successfully.'
+    MSG_DELETED = 'Unmanaged Device removed successfully.'
+    MSG_SET_REMOVED = 'Unmanaged device set deleted successfully.'
+    MSG_ALREADY_ABSENT = 'Unmanaged Device is already absent.'
+    MSG_ALREADY_EXIST = 'Unmanaged Device is already present.'
 
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         state=dict(
             required=True,
             choices=['present', 'absent']
         ),
-        data=dict(required=True, type='dict'),
-        validate_etag=dict(
-            required=False,
-            type='bool',
-            default=True)
+        data=dict(required=True, type='dict')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
-
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+        super(UnmanagedDeviceModule, self).__init__(additional_arg_spec=self.argument_spec,
+                                                    validate_etag_support=True)
 
         self.resource_client = self.oneview_client.unmanaged_devices
 
-    def run(self):
-        try:
-            if not self.module.params.get('validate_etag'):
-                self.oneview_client.connection.disable_etag_validation()
+    def execute_module(self):
+        resource = self.get_by_name(self.data["name"]) if 'name' in self.data else None
 
-            data = self.module.params["data"]
-            state = self.module.params["state"]
-            facts = dict()
-
-            if state == "present":
-                changed, msg, facts = self.__present(data)
-            elif state == "absent":
-                changed, msg = self.__absent(data)
-
-            self.module.exit_json(changed=changed, msg=msg, **facts)
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
-
-    def __present(self, data):
-        resource = self.__get_by_name(data["name"])
-
-        if not resource:
-            changed, message, resource = self.__add(data)
-        else:
-            changed, message, resource = self.__update(data, resource)
-
-        return changed, message, dict(ansible_facts=dict(unmanaged_device=resource))
-
-    def __get_by_name(self, name):
-        resources = self.resource_client.get_by('name', name) or [None]
-        return resources[0]
-
-    def __add(self, data):
-        return True, UNMANAGED_DEVICE_ADDED, self.resource_client.add(data)
-
-    def __update(self, data, resource):
-        if "newName" in data:
-            data['name'] = data.pop('newName')
-
-        merged_data = resource.copy()
-        merged_data.update(data)
-
-        is_equal = resource_compare(resource, merged_data)
-
-        if not is_equal:
-            return True, UNMANAGED_DEVICE_UPDATED, self.resource_client.update(merged_data)
-        else:
-            return False, NOTHING_TO_DO, resource
-
-    def __absent(self, data):
-        changed, message = False, NOTHING_TO_DO
-
-        if "name" in data:
-            resource = self.__get_by_name(data["name"])
-
-            if resource:
-                changed = self.resource_client.remove(resource)
-
-            if changed:
-                message = UNMANAGED_DEVICE_REMOVED
-
-        elif "filter" in data:
-            self.resource_client.remove_all(**data)
-            changed, message = True, UNMANAGED_DEVICE_SET_REMOVED
-
-        return changed, message
+        if self.state == "present":
+            return self.resource_present(resource, 'unmanaged_device', 'add')
+        elif self.state == "absent":
+            if not resource and "filter" in self.data:
+                self.resource_client.remove_all(**self.data)
+                return dict(changed=True, msg=self.MSG_SET_REMOVED)
+            else:
+                return self.resource_absent(resource, 'remove')
 
 
 def main():
