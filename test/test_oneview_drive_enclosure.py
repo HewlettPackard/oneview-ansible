@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@
 import unittest
 import yaml
 
-from oneview_drive_enclosure import DriveEnclosureModule, DRIVE_ENCLOSURE_NAME_REQUIRED, DRIVE_ENCLOSURE_NOT_FOUND
-
-from utils import ModuleContructorTestCase
-from utils import ErrorHandlingTestCase
+from oneview_module_loader import DriveEnclosureModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -83,13 +81,10 @@ YAML_WITHOUT_NAME = """
 
 
 class DriveEnclosureSpec(unittest.TestCase,
-                         ModuleContructorTestCase,
-                         ErrorHandlingTestCase):
+                         OneViewBaseTestCase):
     def setUp(self):
         self.configure_mocks(self, DriveEnclosureModule)
         self.drive_enclosures = self.mock_ov_client.drive_enclosures
-
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.drive_enclosures.get_by)
 
     def test_should_raise_exception_when_name_not_defined(self):
         self.mock_ansible_module.params = yaml.load(YAML_WITHOUT_NAME)
@@ -97,7 +92,7 @@ class DriveEnclosureSpec(unittest.TestCase,
         DriveEnclosureModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=DRIVE_ENCLOSURE_NAME_REQUIRED
+            msg=DriveEnclosureModule.MSG_NAME_REQUIRED
         )
 
     def test_should_raise_exception_when_resource_not_found(self):
@@ -107,7 +102,7 @@ class DriveEnclosureSpec(unittest.TestCase,
         DriveEnclosureModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=DRIVE_ENCLOSURE_NOT_FOUND
+            msg=DriveEnclosureModule.MSG_NOT_FOUND
         )
 
     def test_should_power_off(self):

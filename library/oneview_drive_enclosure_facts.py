@@ -1,7 +1,7 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,16 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.common import transform_list_to_dict
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -33,26 +26,12 @@ module: oneview_drive_enclosure_facts
 short_description: Retrieve the facts about one or more of the OneView Drive Enclosures.
 description:
     - Retrieve the facts about one or more of the Drive Enclosures from OneView.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.0.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
-    params:
-      description:
-        - List of params to delimit, filter and sort the list of resources.
-        - "params allowed:
-          'start': The first item to return, using 0-based indexing.
-          'count': The number of resources to return.
-          'filter': A general filter/query string to narrow the list of items returned.
-          'sort': The sort order of the returned data set."
-      required: false
     name:
       description:
         - Drive Enclosure name.
@@ -60,13 +39,15 @@ options:
     options:
       description:
         - "List with options to gather additional facts about Drive Enclosure related resources.
-          Options allowed: portMap. To gather additional facts it is required to inform the Drive Enclosure name.
+          Options allowed: C(portMap). To gather additional facts it is required to inform the Drive Enclosure name.
           Otherwise, these options will be ignored."
       required: false
 notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
     - This resource is only available on HPE Synergy.
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
@@ -116,53 +97,39 @@ drive_enclosure_port_map:
     returned: When requested, but can be null.
     type: complex
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class DriveEnclosureFactsModule(object):
+class DriveEnclosureFactsModule(OneViewModuleBase):
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
         params=dict(required=False, type='dict')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(DriveEnclosureFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.resource_client = self.oneview_client.drive_enclosures
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
+    def execute_module(self):
+        facts = {}
+        name = self.module.params.get('name')
+
+        if name:
+            drive_enclosures = self.resource_client.get_by('name', name)
+            if drive_enclosures:
+                drive_enclosures_uri = drive_enclosures[0]['uri']
+                if self.options:
+                    if self.options.get('portMap'):
+                        facts['drive_enclosure_port_map'] = self.resource_client.get_port_map(drive_enclosures_uri)
         else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            drive_enclosures = self.resource_client.get_all(**self.facts_params)
 
-    def run(self):
-        try:
-            name = self.module.params['name']
-            options = self.module.params.get('options')
-            facts = {}
+        facts['drive_enclosures'] = drive_enclosures
 
-            if name:
-                drive_enclosures = self.oneview_client.drive_enclosures.get_by('name', name)
-                if drive_enclosures:
-                    drive_enclosures_uri = drive_enclosures[0]['uri']
-                    if options:
-                        options = transform_list_to_dict(options)
-                        if options.get('portMap'):
-                            facts['drive_enclosure_port_map'] = \
-                                self.oneview_client.drive_enclosures.get_port_map(drive_enclosures_uri)
-            else:
-                params = self.module.params.get('params') or {}
-
-                drive_enclosures = self.oneview_client.drive_enclosures.get_all(**params)
-
-            facts['drive_enclosures'] = drive_enclosures
-
-            self.module.exit_json(changed=False, ansible_facts=facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg=exception.args[0])
+        return dict(changed=False, ansible_facts=facts)
 
 
 def main():
