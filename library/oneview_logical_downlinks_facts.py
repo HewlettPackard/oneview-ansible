@@ -1,7 +1,7 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,21 +15,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-
-from ansible.module_utils.basic import *
-
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'metadata_version': '1.0',
+                    'status': ['stableinterface'],
+                    'supported_by': 'curated'}
 
 DOCUMENTATION = '''
 ---
 module: oneview_logical_downlinks_facts
 short_description: Retrieve facts about one or more of the OneView Logical Downlinks.
+version_added: "2.3"
 description:
     - Retrieve facts about one or more of the Logical Downlinks from OneView.
 requirements:
@@ -37,30 +31,18 @@ requirements:
     - "hpOneView >= 2.0.1"
 author: "Bruno Souza (@bsouza)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
-    params:
-      description:
-        - List of params to delimit, filter and sort the list of resources.
-        - "params allowed:
-          'start': The first item to return, using 0-based indexing.
-          'count': The number of resources to return.
-          'filter': A general filter/query string to narrow the list of items returned.
-          'sort': The sort order of the returned data set."
-      required: false
     name:
-      description:
-        - Logical Downlink name.
-      required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+        description:
+          - Logical Downlink name.
+        required: false
+    excludeEthernet:
+        description:
+          - Excludes any facts about Ethernet networks from the Logical Downlinks.
+        required: false
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
@@ -106,52 +88,40 @@ logical_interconnects:
     returned: Always, but can be null.
     type: list
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class LogicalDownlinksFactsModule(object):
-    argument_spec = dict(
-        config=dict(required=False, type='str'),
-        name=dict(required=False, type='str'),
-        excludeEthernet=dict(type='bool', default=False),
-        params=dict(required=False, type='dict'),
-    )
-
+class LogicalDownlinksFactsModule(OneViewModuleBase):
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        argument_spec = dict(
+            name=dict(required=False, type='str'),
+            excludeEthernet=dict(type='bool', default=False),
+            params=dict(required=False, type='dict'),
+        )
+        super(LogicalDownlinksFactsModule, self).__init__(additional_arg_spec=argument_spec)
+        self.resource_client = self.oneview_client.logical_downlinks
 
-        if not self.module.params['config']:
-            oneview_client = OneViewClient.from_environment_variables()
+    def execute_module(self):
+        name = self.module.params.get("name")
+        excludeEthernet = self.module.params.get("excludeEthernet")
+        logical_downlinks = None
+
+        if name and excludeEthernet:
+            logical_downlinks_by_name = self.__get_by_name(name)
+            logical_downlinks = []
+            if logical_downlinks_by_name:
+                logical_downlink = logical_downlinks_by_name[0]
+                logical_downlinks = self.resource_client.get_without_ethernet(id_or_uri=logical_downlink["uri"])
+        elif name:
+            logical_downlinks = self.__get_by_name(name)
+        elif excludeEthernet:
+            logical_downlinks = self.resource_client.get_all_without_ethernet()
         else:
-            oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+            logical_downlinks = self.resource_client.get_all(**self.facts_params)
 
-        self.resource_client = oneview_client.logical_downlinks
-
-    def run(self):
-        try:
-            name = self.module.params.get("name")
-            excludeEthernet = self.module.params.get("excludeEthernet")
-            logical_downlinks = None
-
-            if name and excludeEthernet:
-                logical_downlinks_by_name = self.__get_by_name(name)
-                logical_downlinks = []
-                if logical_downlinks_by_name:
-                    logical_downlink = logical_downlinks_by_name[0]
-                    logical_downlinks = self.resource_client.get_without_ethernet(id_or_uri=logical_downlink["uri"])
-            elif name:
-                logical_downlinks = self.__get_by_name(name)
-            elif excludeEthernet:
-                logical_downlinks = self.resource_client.get_all_without_ethernet()
-            else:
-                params = self.module.params.get('params') or {}
-                logical_downlinks = self.resource_client.get_all(**params)
-
-            self.module.exit_json(changed=False, ansible_facts=dict(logical_downlinks=logical_downlinks))
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=False, ansible_facts=dict(logical_downlinks=logical_downlinks))
 
     def __get_by_name(self, name):
         return self.resource_client.get_by('name', name)
