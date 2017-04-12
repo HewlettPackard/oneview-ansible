@@ -1,6 +1,7 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,17 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.module_utils.basic import *
-from copy import deepcopy
-
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -33,45 +26,36 @@ module: oneview_logical_switch
 short_description: Manage OneView Logical Switch resources.
 description:
     - Provides an interface to manage Logical Switch resources. Can create, update, delete, or refresh.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
 author: "Mariana Kreisig (@marikrg)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Logical Switch resource.
-              'present' creates a Logical Switch, if it doesn't exist. To update the Logical Switch, use the 'updated'
+              C(present) creates a Logical Switch, if it doesn't exist. To update the Logical Switch, use the C(updated)
               state instead.
-              'updated' ensures the Logical Switch is updated. Currently OneView only supports updating the credentials
-              and name of the Logical Switch. To change the name of the Logical Switch, a 'newName' in the data must be
+              C(updated) ensures the Logical Switch is updated. Currently OneView only supports updating the credentials
+              and name of the Logical Switch. To change the name of the Logical Switch, a C(newName) in the data must be
               provided. The update operation is non-idempotent.
-              'absent' removes the resource from OneView, if it exists.
-              'refreshed' reclaims the top-of-rack switches in the logical switch. This operation is non-idempotent.
+              C(absent) removes the resource from OneView, if it exists.
+              C(refreshed) reclaims the top-of-rack switches in the logical switch. This operation is non-idempotent.
         choices: ['present', 'updated', 'absent', 'refreshed']
+        required: true
     data:
       description:
         - List with the Logical Switches properties. You can choose set the Logical Switch Group by
-          logicalSwitchGroupName or logicalSwitchGroupUri.
+          C(logicalSwitchGroupName) or C(logicalSwitchGroupUri).
       required: true
-    validate_etag:
-      description:
-        - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
-          for the resource matches the ETag provided in the data.
-      default: true
-      choices: ['true', 'false']
+
 notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
     - This resource is only available on C7000 enclosures
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -168,82 +152,64 @@ logical_switch:
     type: complex
 '''
 
-LOGICAL_SWITCH_CREATED = 'Logical Switch created successfully.'
-LOGICAL_SWITCH_UPDATED = 'Logical Switch updated successfully.'
-LOGICAL_SWITCH_DELETED = 'Logical Switch deleted successfully.'
-LOGICAL_SWITCH_ALREADY_EXIST = 'Logical Switch already exists.'
-LOGICAL_SWITCH_ALREADY_ABSENT = 'Nothing to do.'
-LOGICAL_SWITCH_REFRESHED = 'Logical Switch refreshed.'
-LOGICAL_SWITCH_NOT_FOUND = 'Logical Switch not found.'
-LOGICAL_SWITCH_GROUP_NOT_FOUND = 'Logical Switch Group not found.'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from copy import deepcopy
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewException, HPOneViewResourceNotFound
 
 
-class LogicalSwitchModule(object):
-    argument_spec = dict(
-        config=dict(required=False, type='str'),
-        state=dict(
-            required=True,
-            choices=['present', 'updated', 'absent', 'refreshed']
-        ),
-        data=dict(required=True, type='dict'),
-        validate_etag=dict(
-            required=False,
-            type='bool',
-            default=True)
-    )
+class LogicalSwitchModule(OneViewModuleBase):
+    MSG_CREATED = 'Logical Switch created successfully.'
+    MSG_UPDATED = 'Logical Switch updated successfully.'
+    MSG_DELETED = 'Logical Switch deleted successfully.'
+    MSG_ALREADY_EXIST = 'Logical Switch already exists.'
+    MSG_ALREADY_ABSENT = 'Nothing to do.'
+    MSG_REFRESHED = 'Logical Switch refreshed.'
+    MSG_LOGICAL_SWITCH_NOT_FOUND = 'Logical Switch not found.'
+    MSG_LOGICAL_SWITCH_GROUP_NOT_FOUND = 'Logical Switch Group not found.'
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        argument_spec = dict(
+            state=dict(
+                required=True,
+                choices=['present', 'updated', 'absent', 'refreshed']
+            ),
+            data=dict(required=True, type='dict')
+        )
+        super(LogicalSwitchModule, self).__init__(additional_arg_spec=argument_spec,
+                                                  validate_etag_support=True)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+        self.resource_client = self.oneview_client.logical_switches
 
-    def run(self):
-        state = self.module.params['state']
+    def execute_module(self):
         data = deepcopy(self.module.params['data'])
-
-        try:
-            if not self.module.params.get('validate_etag'):
-                self.oneview_client.connection.disable_etag_validation()
-
-            if state == 'present':
-                self.__present(data)
-            elif state == 'updated':
-                self.__update(data)
-            elif state == 'absent':
-                self.__absent(data)
-            elif state == 'refreshed':
-                self.__refresh(data)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
-
-    def __present(self, data):
         resource = self.__get_by_name(data)
+
+        if self.state == 'present':
+            changed, msg, ansible_facts = self.__present(data, resource)
+        elif self.state == 'absent':
+            return self.resource_absent(resource)
+        elif self.state == 'updated':
+            changed, msg, ansible_facts = self.__update(data, resource)
+        elif self.state == 'refreshed':
+            changed, msg, ansible_facts = self.__refresh(data, resource)
+
+        return dict(changed=changed, msg=msg, ansible_facts=ansible_facts)
+
+    def __present(self, data, resource):
         self.__replace_group_name_by_uri(data)
+        resource = self.__get_by_name(data)
 
         if not resource:
-            self.__create(data)
+            created_resource = self.oneview_client.logical_switches.create(data)
+            return True, self.MSG_CREATED, dict(logical_switch=created_resource)
         else:
-            self.module.exit_json(changed=False, msg=LOGICAL_SWITCH_ALREADY_EXIST,
-                                  ansible_facts=dict(logical_switch=resource))
+            return False, self.MSG_ALREADY_EXIST, dict(logical_switch=resource)
 
-    def __create(self, data):
-        created_resource = self.oneview_client.logical_switches.create(data)
-
-        self.module.exit_json(changed=True,
-                              msg=LOGICAL_SWITCH_CREATED,
-                              ansible_facts=dict(logical_switch=created_resource))
-
-    def __update(self, data):
-        resource = self.__get_by_name(data)
-
-        if resource:
+    def __update(self, data, resource):
+        if not resource:
+            raise HPOneViewResourceNotFound(self.MSG_LOGICAL_SWITCH_NOT_FOUND)
+        else:
             data['logicalSwitch']['uri'] = resource['uri']
 
             if 'logicalSwitchGroupUri' not in data['logicalSwitch']:
@@ -256,33 +222,14 @@ class LogicalSwitchModule(object):
 
             self.__replace_group_name_by_uri(data)
             created_resource = self.oneview_client.logical_switches.update(data)
+            return True, self.MSG_UPDATED, dict(logical_switch=created_resource)
 
-            self.module.exit_json(changed=True,
-                                  msg=LOGICAL_SWITCH_UPDATED,
-                                  ansible_facts=dict(logical_switch=created_resource))
+    def __refresh(self, data, resource):
+        if not resource:
+            raise HPOneViewResourceNotFound(self.MSG_LOGICAL_SWITCH_NOT_FOUND)
         else:
-            raise HPOneViewResourceNotFound(LOGICAL_SWITCH_NOT_FOUND)
-
-    def __absent(self, data):
-        resource = self.__get_by_name(data)
-
-        if resource:
-            self.oneview_client.logical_switches.delete(resource)
-            self.module.exit_json(changed=True,
-                                  msg=LOGICAL_SWITCH_DELETED)
-        else:
-            self.module.exit_json(changed=False, msg=LOGICAL_SWITCH_ALREADY_ABSENT)
-
-    def __refresh(self, data):
-        resource = self.__get_by_name(data)
-
-        if resource:
             logical_switch = self.oneview_client.logical_switches.refresh(resource['uri'])
-            self.module.exit_json(changed=True,
-                                  msg=LOGICAL_SWITCH_REFRESHED,
-                                  ansible_facts=dict(logical_switch=logical_switch))
-        else:
-            raise HPOneViewResourceNotFound(LOGICAL_SWITCH_NOT_FOUND)
+            return True, self.MSG_REFRESHED, dict(logical_switch=logical_switch)
 
     def __get_by_name(self, data):
         if 'logicalSwitch' not in data:
@@ -300,7 +247,7 @@ class LogicalSwitchModule(object):
                 data['logicalSwitch'].pop('logicalSwitchGroupName')
                 data['logicalSwitch']['logicalSwitchGroupUri'] = logical_switch_group[0]['uri']
             else:
-                raise HPOneViewResourceNotFound(LOGICAL_SWITCH_GROUP_NOT_FOUND)
+                raise HPOneViewResourceNotFound(self.MSG_LOGICAL_SWITCH_GROUP_NOT_FOUND)
 
 
 def main():
