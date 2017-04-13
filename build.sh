@@ -28,23 +28,40 @@ exit_code_tests=0
 exit_code_flake8=0
 exit_code_coveralls=0
 
-# Change current path
-echo "Changing current directory to: ${BASH_SOURCE%/*}"
-cd ${BASH_SOURCE%/*}
-export ANSIBLE_LIBRARY=library
+setup () {
+  # Change the current path and set the environment variables
+  echo "Changing current directory to: ${BASH_SOURCE%/*}"
+  cd ${BASH_SOURCE%/*}
+  export ANSIBLE_LIBRARY=library
 
-# Checks PYTHON_SDK
-if [ -z ${PYTHON_SDK+x} ]; then
-  export PYTHON_SDK=../python-hpOneView:dependencies/python-hpICsp
-fi
+  if [ -z ${PYTHON_SDK+x} ]; then
+    export PYTHON_SDK=../python-hpOneView:dependencies/python-hpICsp
+  fi
 
-export PYTHONPATH=$PYTHON_SDK:$ANSIBLE_LIBRARY:$PYTHONPATH
+  export PYTHONPATH=$PYTHON_SDK:$ANSIBLE_LIBRARY:$PYTHONPATH
+}
 
-# Find site packages
-site_packages=$(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
+update_doc_fragments () {
+  # NOTE: Set the destination path to copy the oneview doc fragments in an env var named DOC_FRAGMENTS_PATH.
+  # Otherwise, the destination will be defined automatically.
+  docfragments="build-doc/module_docs_fragments/oneview.py"
 
-# Copy OneView doc fragements to the Ansible located in the site packages
-cp -f build-doc/module_docs_fragments/oneview.py ${site_packages}/ansible/utils/module_docs_fragments/
+  if [ "$DOC_FRAGMENTS_PATH" ]; then
+    cp -f $docfragments $DOC_FRAGMENTS_PATH
+  else
+    # Find site packages. If it exists, OneView doc fragment will be copied to the discovered path
+    site_packages=$(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
+    if [ -d "${site_packages}/ansible/utils/module_docs_fragments/" ]; then
+      cp -f $docfragments ${site_packages}/ansible/utils/module_docs_fragments/
+    else
+      # Copy OneView doc fragments to the Ansible codebase path
+      ansible_path=$(echo $(which ansible) | sed -e 's/\/bin\/ansible//g')
+      if [ "$ansible_path" ]; then
+        cp -f $docfragments ${ansible_path}/lib/ansible/utils/module_docs_fragments/
+      fi
+    fi
+  fi
+}
 
 print_summary () {
   if [ $2 -eq 0 ]; then
@@ -73,6 +90,10 @@ validate_modules () {
     exit_code_module_validation=1
   fi
 }
+
+setup
+update_doc_fragments
+
 
 echo -e "\n${COLOR_START}Validating modules${COLOR_END}"
 validate_modules
