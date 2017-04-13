@@ -254,7 +254,7 @@ Manage the Artifact Bundle resource.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Artifact Bundle properties and its associated states.  |
-| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>downloaded</li>  <li>archive_downloaded</li>  <li>backup_uploaded</li>  <li>backup_created</li>  <li>extracted</li>  <li>backup_extracted</li> </ul> |  Indicates the desired state for the Artifact Bundle resource. 'present' will ensure data properties are compliant with OneView. 'absent' will remove the resource from OneView, if it exists. 'downloaded' will download the Artifact Bundle to the file path provided. 'archive_downloaded' will download the Artifact Bundle archive to the file path provided. 'backup_uploaded' will upload the Backup for the Artifact Bundle from the file path provided. 'backup_created' will create a Backup for the Artifact Bundle. 'extracted' will extract an Artifact Bundle. 'backup_extracted' will extract an Artifact Bundle from the Backup.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>downloaded</li>  <li>archive_downloaded</li>  <li>backup_uploaded</li>  <li>backup_created</li>  <li>extracted</li>  <li>backup_extracted</li> </ul> |  Indicates the desired state for the Artifact Bundle resource. `present` will ensure data properties are compliant with OneView. When the artifact bundle already exists, only the name is updated. Changes in any other attribute value is ignored. `absent` will remove the resource from OneView, if it exists. `downloaded` will download the Artifact Bundle to the file path provided. `archive_downloaded` will download the Artifact Bundle archive to the file path provided. `backup_uploaded` will upload the Backup for the Artifact Bundle from the file path provided. `backup_created` will create a Backup for the Artifact Bundle. `extracted` will extract an Artifact Bundle. `backup_extracted` will extract an Artifact Bundle from the Backup.  |
 
 
  
@@ -269,8 +269,8 @@ Manage the Artifact Bundle resource.
       name: 'Artifact Bundle'
       description: 'Description of Artifact Bundles Test'
       buildPlans:
-        resourceUri: '/rest/build-plans/ab65bb06-4387-48a0-9a5d-0b0da2888508'
-        readOnly: 'false'
+        - resourceUri: '/rest/build-plans/ab65bb06-4387-48a0-9a5d-0b0da2888508'
+          readOnly: 'false'
   delegate_to: localhost
 
 - name: Download the Artifact Bundle to the file path provided
@@ -367,6 +367,8 @@ Manage the Artifact Bundle resource.
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
 
 ---
 
@@ -387,8 +389,8 @@ Retrieve facts about the Artifact Bundle.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the Artifact Bundle.  |
-| options  |   No  |  | |  List with options to gather additional facts about the Artifact Bundle. Options allowed: 'allBackups' gets the list of backups for the Artifact Bundles. 'backupForAnArtifactBundle' gets the list of backups for the Artifact Bundle.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: 'start': The first item to return, using 0-based indexing. 'count': The number of resources to return. 'filter': A general filter/query string to narrow the list of items returned. 'sort': The sort order of the returned data set.  |
+| options  |   No  |  | |  List with options to gather additional facts about the Artifact Bundle. Options allowed: `allBackups` gets the list of backups for the Artifact Bundles. `backupForAnArtifactBundle` gets the list of backups for the Artifact Bundle.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
@@ -457,6 +459,8 @@ Retrieve facts about the Artifact Bundle.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---

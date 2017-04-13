@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     artifact_bundle_name_update: 'Artifact Bundle Updated'
     artifact_bundle_description: 'Description of Artifact Bundles Test'
     deployment_group_uri: '/rest/deployment-groups/beb9081a-1494-459c-b037-24fa838c7440'
-    build_plan_uri: '/rest/build-plans/e48052b0-2944-4579-8e81-730efffcfe81'
+    build_plan_uri: '/rest/build-plans/f99ce495-7aa1-41b5-91c0-a4e6a5076ef5'
     build_plan_read_only: 'false'
     artifact_download_path: '~/downloaded_artifact.zip'
     artifact_archive_download_path: '~/downloaded_archive.zip'
@@ -36,8 +36,8 @@
           name: '{{ artifact_bundle_name }}'
           description: '{{ artifact_bundle_description }}'
           buildPlans:
-            resourceUri: '{{ build_plan_uri }}'
-            readOnly: '{{ build_plan_read_only }}'
+            - resourceUri: '{{ build_plan_uri }}'
+              readOnly: '{{ build_plan_read_only }}'
       delegate_to: localhost
 
     - name: Download the Artifact Bundle to the file path provided

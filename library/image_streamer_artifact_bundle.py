@@ -36,7 +36,8 @@ options:
     state:
       description:
         - Indicates the desired state for the Artifact Bundle resource.
-          C(present) will ensure data properties are compliant with OneView.
+          C(present) will ensure data properties are compliant with OneView. When the artifact bundle already exists,
+          only the name is updated. Changes in any other attribute value is ignored.
           C(absent) will remove the resource from OneView, if it exists.
           C(downloaded) will download the Artifact Bundle to the file path provided.
           C(archive_downloaded) will download the Artifact Bundle archive to the file path provided.
@@ -65,8 +66,8 @@ EXAMPLES = '''
       name: 'Artifact Bundle'
       description: 'Description of Artifact Bundles Test'
       buildPlans:
-        resourceUri: '/rest/build-plans/ab65bb06-4387-48a0-9a5d-0b0da2888508'
-        readOnly: 'false'
+        - resourceUri: '/rest/build-plans/ab65bb06-4387-48a0-9a5d-0b0da2888508'
+          readOnly: 'false'
   delegate_to: localhost
 
 - name: Download the Artifact Bundle to the file path provided
@@ -198,21 +199,16 @@ class ArtifactBundleModule(OneViewModuleBase):
 
         if self.state == 'present':
             changed, msg, ansible_facts = self.__present(self.data, resource)
-
         elif self.state == 'absent':
             return self.resource_absent(resource)
-
         elif self.state == 'downloaded':
             changed, msg, ansible_facts = self.__download(self.data, resource)
         elif self.state == 'archive_downloaded':
             changed, msg, ansible_facts = self.__download_archive(self.data, resource)
-
         elif self.state == 'backup_uploaded':
             changed, msg, ansible_facts = self.__upload_backup(self.data)
-
         elif self.state == 'backup_created':
             changed, msg, ansible_facts = self.__create_backup(self.data)
-
         elif self.state == 'extracted':
             changed, msg, ansible_facts = self.__extract(resource)
         elif self.state == 'backup_extracted':
@@ -239,7 +235,6 @@ class ArtifactBundleModule(OneViewModuleBase):
         return changed, msg, facts
 
     def __create(self, data):
-        data['buildPlans'] = [data['buildPlans']]
         resource = self.i3s_client.artifact_bundles.create(data)
         return True, self.MSG_CREATED, dict(artifact_bundle=resource)
 
