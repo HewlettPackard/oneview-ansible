@@ -89,18 +89,14 @@ class ServerHardwareTypeFactsModule(OneViewModuleBase):
 
     def execute_module(self):
 
-        ansible_facts = {}
+        name = self.module.params.get('name')
 
-        if self.module.params.get('name'):
-            ansible_facts['server_hardware_types'] = self.oneview_client.server_hardware_types.get_by(
-                'name', self.module.params['name']
-            )
+        if name:
+            server_hardware_types = self.oneview_client.server_hardware_types.get_by('name', name)
         else:
-            ansible_facts['server_hardware_types'] = self.oneview_client.server_hardware_types.get_all(
-                **self.facts_params
-            )
+            server_hardware_types = self.oneview_client.server_hardware_types.get_all(**self.facts_params)
 
-        return dict(changed=False, ansible_facts=ansible_facts)
+        return dict(changed=False, ansible_facts=dict(server_hardware_types=server_hardware_types))
 
 
 def main():

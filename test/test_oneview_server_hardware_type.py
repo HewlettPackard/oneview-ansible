@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,15 +16,8 @@
 import unittest
 import yaml
 
-from oneview_server_hardware_type import (ServerHardwareTypeModule,
-                                          SERVER_HARDWARE_TYPE_DELETED,
-                                          SERVER_HARDWARE_TYPE_ALREADY_ABSENT,
-                                          SERVER_HARDWARE_TYPE_ALREADY_UPDATED,
-                                          SERVER_HARDWARE_TYPE_UPDATED,
-                                          SERVER_HARDWARE_TYPE_NOT_FOUND)
-from test.utils import ModuleContructorTestCase
-from test.utils import ValidateEtagTestCase
-from test.utils import ErrorHandlingTestCase
+from oneview_module_loader import ServerHardwareTypeModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -56,21 +49,10 @@ DICT_DEFAULT_SERVER_HARDWARE_TYPE = yaml.load(YAML_SERVER_HARDWARE_TYPE)["data"]
 DICT_DEFAULT_SERVER_HARDWARE_TYPE_CHANGED = yaml.load(YAML_SERVER_HARDWARE_TYPE_CHANGE)["data"]
 
 
-class ServerHardwareTypeSpec(unittest.TestCase,
-                             ModuleContructorTestCase,
-                             ValidateEtagTestCase,
-                             ErrorHandlingTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function
-    ValidateEtagTestCase has common tests for the validate_etag attribute, also provides the mocks used in this test
-    case.
-    ErrorHandlingTestCase has common tests for the module error handling.
-    """
-
+class ServerHardwareTypeSpec(unittest.TestCase, OneViewBaseTestCase):
     def setUp(self):
         self.configure_mocks(self, ServerHardwareTypeModule)
         self.resource = self.mock_ov_client.server_hardware_types
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by)
 
     def test_should_update_the_server_hardware_type(self):
         srv_hw_type = DICT_DEFAULT_SERVER_HARDWARE_TYPE.copy()
@@ -85,7 +67,7 @@ class ServerHardwareTypeSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SERVER_HARDWARE_TYPE_UPDATED,
+            msg=ServerHardwareTypeModule.MSG_UPDATED,
             ansible_facts=dict(server_hardware_type={"name": "name"})
         )
 
@@ -98,7 +80,7 @@ class ServerHardwareTypeSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SERVER_HARDWARE_TYPE_ALREADY_UPDATED,
+            msg=ServerHardwareTypeModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(server_hardware_type=DICT_DEFAULT_SERVER_HARDWARE_TYPE)
         )
 
@@ -110,9 +92,8 @@ class ServerHardwareTypeSpec(unittest.TestCase,
         ServerHardwareTypeModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=True,
-            msg=SERVER_HARDWARE_TYPE_DELETED
+            msg=ServerHardwareTypeModule.MSG_DELETED
         )
 
     def test_should_do_nothing_when_server_hardware_type_not_exist(self):
@@ -123,9 +104,8 @@ class ServerHardwareTypeSpec(unittest.TestCase,
         ServerHardwareTypeModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            ansible_facts={},
             changed=False,
-            msg=SERVER_HARDWARE_TYPE_ALREADY_ABSENT
+            msg=ServerHardwareTypeModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_fail_when_server_hardware_type_was_not_found(self):
@@ -136,7 +116,7 @@ class ServerHardwareTypeSpec(unittest.TestCase,
         ServerHardwareTypeModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SERVER_HARDWARE_TYPE_NOT_FOUND
+            msg=ServerHardwareTypeModule.MSG_RESOURCE_NOT_FOUND
         )
 
 
