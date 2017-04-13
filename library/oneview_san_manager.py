@@ -102,7 +102,7 @@ class SanManagerModule(OneViewModuleBase):
     MSG_UPDATED = 'SAN Manager updated successfully.'
     MSG_DELETED = 'SAN Manager deleted successfully.'
     MSG_ALREADY_PRESENT = 'SAN Manager is already present.'
-    MSG_ALREADY_ABSENT = 'Nothing to do.'
+    MSG_ALREADY_ABSENT = 'SAN Manager is already absent.'
     MSG_SAN_MANAGER_PROVIDER_DISPLAY_NAME_NOT_FOUND = "The provider '{}' was not found."
 
     argument_spec = dict(

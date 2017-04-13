@@ -163,7 +163,7 @@ class LogicalSwitchModule(OneViewModuleBase):
     MSG_UPDATED = 'Logical Switch updated successfully.'
     MSG_DELETED = 'Logical Switch deleted successfully.'
     MSG_ALREADY_PRESENT = 'Logical Switch is already present.'
-    MSG_ALREADY_ABSENT = 'Nothing to do.'
+    MSG_ALREADY_ABSENT = 'Logical Switch is already absent.'
     MSG_REFRESHED = 'Logical Switch refreshed.'
     MSG_LOGICAL_SWITCH_NOT_FOUND = 'Logical Switch not found.'
     MSG_LOGICAL_SWITCH_GROUP_NOT_FOUND = 'Logical Switch Group not found.'

@@ -120,7 +120,7 @@ class ScopeModule(OneViewModuleBase):
     MSG_UPDATED = 'Scope updated successfully.'
     MSG_DELETED = 'Scope deleted successfully.'
     MSG_ALREADY_PRESENT = 'Scope is already present.'
-    MSG_ALREADY_ABSENT = 'Nothing to do.'
+    MSG_ALREADY_ABSENT = 'Scope is already absent.'
     MSG_RESOURCE_ASSIGNMENTS_UPDATED = 'Scope Resource Assignments updated successfully.'
     MSG_RESOURCE_NOT_FOUND = 'Scope not found.'
 

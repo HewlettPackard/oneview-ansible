@@ -264,7 +264,7 @@ from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
 
 class EnclosureModule(OneViewModuleBase):
     MSG_DELETED = 'Enclosure removed successfully.'
-    MSG_ALREADY_ABSENT = 'Nothing to do.'
+    MSG_ALREADY_ABSENT = 'Enclosure is already absent.'
     MSG_CREATED = 'Enclosure added successfully.'
     MSG_UPDATED = 'Enclosure updated successfully.'
     MSG_ALREADY_PRESENT = 'Enclosure is already present.'
