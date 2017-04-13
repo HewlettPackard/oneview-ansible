@@ -171,7 +171,7 @@ class UnmanagedDeviceSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=UnmanagedDeviceModule.MSG_SET_REMOVED
+            msg=UnmanagedDeviceModule.MSG_SET_DELETED
         )
 
 
