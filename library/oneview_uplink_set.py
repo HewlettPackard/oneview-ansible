@@ -23,6 +23,7 @@ DOCUMENTATION = '''
 ---
 module: oneview_uplink_set
 short_description: Manage OneView Uplink Set resources.
+version_added: "2.3"
 description:
     - Provides an interface to manage Uplink Set resources. Can create, update, or delete.
 requirements:
@@ -33,18 +34,18 @@ options:
     state:
         description:
             - Indicates the desired state for the Uplink Set resource.
-              'present' will ensure data properties are compliant with OneView.
-              'absent' will remove the resource from OneView, if it exists.
+              C(present) will ensure data properties are compliant with OneView.
+              C(absent) will remove the resource from OneView, if it exists.
               The key used to find the resource to perform the operation is a compound key, that consists of
               the name of the uplink set and the URI (or name) of the Logical Interconnect combined. You can choose to
               set the Logical Interconnect by logicalInterconnectUri or logicalInterconnectName.
         choices: ['present', 'absent']
     data:
-      description:
-        - List with Uplink Set properties.
-      required: true
+        description:
+            - List with Uplink Set properties.
+        required: true
 notes:
-    - "To rename an uplink set you must inform a 'newName' in the data argument. The rename is non-idempotent"
+    - "To rename an uplink set you must inform a C(newName) in the data argument. The rename is non-idempotent"
 
 extends_documentation_fragment:
     - oneview

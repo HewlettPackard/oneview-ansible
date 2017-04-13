@@ -23,6 +23,7 @@ DOCUMENTATION = '''
 ---
 module: oneview_uplink_set_facts
 short_description: Retrieve facts about one or more of the OneView Uplink Sets.
+version_added: "2.3"
 description:
     - Retrieve facts about one or more of the Uplink Sets from OneView.
 requirements:
