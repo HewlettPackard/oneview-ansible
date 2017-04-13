@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,15 +16,8 @@
 import copy
 import unittest
 
-from oneview_scope import (ScopeModule,
-                           SCOPE_CREATED,
-                           SCOPE_UPDATED,
-                           SCOPE_ALREADY_EXIST,
-                           SCOPE_DELETED,
-                           SCOPE_ALREADY_ABSENT,
-                           SCOPE_RESOURCE_ASSIGNMENTS_UPDATED,
-                           SCOPE_NOT_FOUND)
-from test.utils import ModuleContructorTestCase, ValidateEtagTestCase, ErrorHandlingTestCase
+from oneview_module_loader import ScopeModule
+from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -59,24 +52,10 @@ PARAMS_RESOURCE_ASSIGNMENTS = dict(
 )
 
 
-class ScopeModuleSpec(unittest.TestCase,
-                      ModuleContructorTestCase,
-                      ValidateEtagTestCase,
-                      ErrorHandlingTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function
-
-    ValidateEtagTestCase has common tests for the validate_etag attribute, also provides the mocks used in this test
-    case.
-
-    ErrorHandlingTestCase has common tests for the module error handling.
-    """
-
+class ScopeModuleSpec(unittest.TestCase, OneViewBaseTestCase):
     def setUp(self):
         self.configure_mocks(self, ScopeModule)
         self.resource = self.mock_ov_client.scopes
-
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.resource.get_by_name)
 
     def test_should_create_new_scope_when_not_found(self):
         self.resource.get_by_name.return_value = None
@@ -87,7 +66,7 @@ class ScopeModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SCOPE_CREATED,
+            msg=ScopeModule.MSG_CREATED,
             ansible_facts=dict(scope=RESOURCE)
         )
 
@@ -99,7 +78,7 @@ class ScopeModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SCOPE_ALREADY_EXIST,
+            msg=ScopeModule.MSG_ALREADY_EXIST,
             ansible_facts=dict(scope=RESOURCE)
         )
 
@@ -112,7 +91,7 @@ class ScopeModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SCOPE_UPDATED,
+            msg=ScopeModule.MSG_UPDATED,
             ansible_facts=dict(scope=RESOURCE_UPDATED)
         )
 
@@ -124,7 +103,7 @@ class ScopeModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=SCOPE_DELETED
+            msg=ScopeModule.MSG_DELETED
         )
 
     def test_should_not_delete_when_scope_not_found(self):
@@ -135,7 +114,7 @@ class ScopeModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SCOPE_ALREADY_ABSENT
+            msg=ScopeModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_update_resource_assignments(self):
@@ -148,7 +127,7 @@ class ScopeModuleSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(scope=RESOURCE),
-            msg=SCOPE_RESOURCE_ASSIGNMENTS_UPDATED
+            msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_UPDATED
         )
 
     def test_should_fail_when_scope_not_found(self):
@@ -158,7 +137,7 @@ class ScopeModuleSpec(unittest.TestCase,
         ScopeModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SCOPE_NOT_FOUND
+            msg=ScopeModule.MSG_RESOURCE_NOT_FOUND
         )
 
 
