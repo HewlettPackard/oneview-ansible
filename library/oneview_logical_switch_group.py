@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,16 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.extras.comparators import resource_compare
-    from hpOneView.exceptions import HPOneViewException
-    from hpOneView.exceptions import HPOneViewResourceNotFound
 
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -32,40 +26,29 @@ module: oneview_logical_switch_group
 short_description: Manage OneView Logical Switch Group resources.
 description:
     - "Provides an interface to manage Logical Switch Group resources. Can add, update, remove."
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 3.1.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     state:
         description:
             - Indicates the desired state for the Logical Switch Group resource.
-              'present' will ensure data properties are compliant with OneView.
-              'absent' will remove the resource from OneView, if it exists.
+              C(present) will ensure data properties are compliant with OneView.
+              C(absent) will remove the resource from OneView, if it exists.
         choices: ['present', 'absent']
         required: true
     data:
         description:
             - List with Logical Switch Group properties and its associated states.
         required: true
-    validate_etag:
-        description:
-            - When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag
-              for the resource matches the ETag provided in the data.
-        default: true
-        choices: ['true', 'false']
 notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
     - This resource is only available on C7000 enclosures
+
+extends_documentation_fragment:
+    - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -118,89 +101,40 @@ logical_switch_group:
     type: complex
 '''
 
-LOGICAL_SWITCH_GROUP_CREATED = 'Logical Switch Group created successfully.'
-LOGICAL_SWITCH_GROUP_UPDATED = 'Logical Switch Group updated successfully.'
-LOGICAL_SWITCH_GROUP_ALREADY_UPDATED = 'Logical Switch Group is already present.'
-LOGICAL_SWITCH_GROUP_DELETED = 'Logical Switch Group deleted successfully.'
-LOGICAL_SWITCH_GROUP_ALREADY_ABSENT = 'Logical Switch Group is already absent.'
-SWITCH_TYPE_NOT_FOUND = 'Switch type was not found.'
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
 
 
-class LogicalSwitchGroupModule(object):
+class LogicalSwitchGroupModule(OneViewModuleBase):
+    MSG_CREATED = 'Logical Switch Group created successfully.'
+    MSG_UPDATED = 'Logical Switch Group updated successfully.'
+    MSG_ALREADY_EXIST = 'Logical Switch Group is already present.'
+    MSG_DELETED = 'Logical Switch Group deleted successfully.'
+    MSG_ALREADY_ABSENT = 'Logical Switch Group is already absent.'
+    MSG_SWITCH_TYPE_NOT_FOUND = 'Switch type was not found.'
+
     argument_spec = dict(
-        config=dict(required=False, type='str'),
         state=dict(
             required=True,
             choices=['present', 'absent']
         ),
-        data=dict(required=True, type='dict'),
-        validate_etag=dict(
-            required=False,
-            type='bool',
-            default=True)
+        data=dict(required=True, type='dict')
     )
 
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        super(LogicalSwitchGroupModule, self).__init__(additional_arg_spec=self.argument_spec,
+                                                       validate_etag_support=True)
 
-        if not self.module.params['config']:
-            self.oneview_client = OneViewClient.from_environment_variables()
-        else:
-            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+        self.resource_client = self.oneview_client.logical_switch_groups
 
-    def run(self):
-        try:
-            if not self.module.params.get('validate_etag'):
-                self.oneview_client.connection.disable_etag_validation()
+    def execute_module(self):
+        resource = self.get_by_name(self.data['name'])
 
-            state = self.module.params['state']
-            data = self.module.params['data']
-            changed, msg, ansible_facts = False, '', {}
-
-            resource = (self.oneview_client.logical_switch_groups.get_by("name", data['name']) or [None])[0]
-
-            if state == 'present':
-                changed, msg, ansible_facts = self.__present(data, resource)
-            elif state == 'absent':
-                changed, msg, ansible_facts = self.__absent(resource)
-
-            self.module.exit_json(changed=changed,
-                                  msg=msg,
-                                  ansible_facts=ansible_facts)
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg=exception.args[0])
-
-    def __present(self, data, resource):
-
-        changed = False
-        msg = ''
-
-        if "newName" in data:
-            data["name"] = data.pop("newName")
-
-        self.__replace_name_by_uris(data)
-
-        if not resource:
-            resource = self.oneview_client.logical_switch_groups.create(data)
-            changed = True
-            msg = LOGICAL_SWITCH_GROUP_CREATED
-        else:
-            merged_data = resource.copy()
-            merged_data.update(data)
-
-            if not resource_compare(resource, merged_data):
-                # update resource
-                changed = True
-                resource = self.oneview_client.logical_switch_groups.update(merged_data)
-                msg = LOGICAL_SWITCH_GROUP_UPDATED
-            else:
-                msg = LOGICAL_SWITCH_GROUP_ALREADY_UPDATED
-
-        return changed, msg, dict(logical_switch_group=resource)
+        if self.state == 'present':
+            self.__replace_name_by_uris(self.data)
+            return self.resource_present(resource, 'logical_switch_group')
+        elif self.state == 'absent':
+            return self.resource_absent(resource)
 
     def __replace_name_by_uris(self, resource):
         switch_map_template = resource.get('switchMapTemplate')
@@ -218,14 +152,7 @@ class LogicalSwitchGroupModule(object):
         if switch_type:
             return switch_type[0]
         else:
-            raise HPOneViewResourceNotFound(SWITCH_TYPE_NOT_FOUND)
-
-    def __absent(self, resource):
-        if resource:
-            self.oneview_client.logical_switch_groups.delete(resource)
-            return True, LOGICAL_SWITCH_GROUP_DELETED, {}
-        else:
-            return False, LOGICAL_SWITCH_GROUP_ALREADY_ABSENT, {}
+            raise HPOneViewResourceNotFound(self.MSG_SWITCH_TYPE_NOT_FOUND)
 
 
 def main():
