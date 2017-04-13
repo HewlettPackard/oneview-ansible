@@ -117,7 +117,7 @@ from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
 class DatacenterModule(OneViewModuleBase):
     MSG_CREATED = 'Data Center added successfully.'
     MSG_UPDATED = 'Data Center updated successfully.'
-    MSG_ALREADY_EXIST = 'Data Center is already present.'
+    MSG_ALREADY_PRESENT = 'Data Center is already present.'
     MSG_DELETED = 'Data Center removed successfully.'
     MSG_ALREADY_ABSENT = 'Data Center is already absent.'
     MSG_RACK_NOT_FOUND = 'Rack was not found.'

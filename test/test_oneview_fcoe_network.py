@@ -79,7 +79,7 @@ class FcoeNetworkSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=FcoeNetworkModule.MSG_ALREADY_EXIST,
+            msg=FcoeNetworkModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(fcoe_network=DEFAULT_FCOE_NETWORK_TEMPLATE)
         )
 

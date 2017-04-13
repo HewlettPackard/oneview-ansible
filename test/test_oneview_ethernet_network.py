@@ -121,7 +121,7 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=EthernetNetworkModule.MSG_ALREADY_EXIST,
+            msg=EthernetNetworkModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(ethernet_network=DEFAULT_ENET_TEMPLATE)
         )
 

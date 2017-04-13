@@ -134,7 +134,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ServerHardwareModule.MSG_ALREADY_ADDED,
+            msg=ServerHardwareModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(server_hardware={"name": "name"})
         )
 

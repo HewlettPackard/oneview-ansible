@@ -112,7 +112,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ServerProfileTemplateModule.MSG_ALREADY_EXIST,
+            msg=ServerProfileTemplateModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE)
         )
 

@@ -92,7 +92,7 @@ from module_utils.oneview import OneViewModuleBase, HPOneViewValueError
 class StorageVolumeTemplateModule(OneViewModuleBase):
     MSG_CREATED = 'Storage Volume Template created successfully.'
     MSG_UPDATED = 'Storage Volume Template updated successfully.'
-    MSG_ALREADY_EXIST = 'Storage Volume Template is already updated.'
+    MSG_ALREADY_PRESENT = 'Storage Volume Template is already updated.'
     MSG_DELETED = 'Storage Volume Template deleted successfully.'
     MSG_ALREADY_ABSENT = 'Storage Volume Template is already absent.'
     MSG_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: data.name"

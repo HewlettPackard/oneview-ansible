@@ -117,7 +117,7 @@ class StorageSystemModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=StorageSystemModule.MSG_ALREADY_UPDATED,
+            msg=StorageSystemModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(storage_system=DICT_DEFAULT_STORAGE_SYSTEM)
         )
 
@@ -132,7 +132,7 @@ class StorageSystemModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=StorageSystemModule.MSG_ALREADY_UPDATED,
+            msg=StorageSystemModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(storage_system=dict_by_name.copy())
         )
 

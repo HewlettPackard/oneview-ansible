@@ -80,7 +80,7 @@ class FcNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=FcNetworkModule.MSG_ALREADY_EXIST,
+            msg=FcNetworkModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(fc_network=DEFAULT_FC_NETWORK_TEMPLATE)
         )
 

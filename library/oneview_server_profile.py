@@ -180,7 +180,7 @@ class ServerProfileModule(OneViewModuleBase):
     MSG_TEMPLATE_NOT_FOUND = "Informed Server Profile Template '{}' not found"
     MSG_HARDWARE_NOT_FOUND = "Informed Server Hardware '{}' not found"
     MSG_CREATED = "Server Profile created."
-    MSG_ALREADY_UPDATED = 'Server Profile is already updated.'
+    MSG_ALREADY_PRESENT = 'Server Profile is already present.'
     MSG_UPDATED = 'Server profile updated'
     MSG_DELETED = 'Deleted profile'
     MSG_ALREADY_ABSENT = 'Nothing do.'
@@ -271,7 +271,7 @@ class ServerProfileModule(OneViewModuleBase):
                 changed = True
                 msg = self.MSG_UPDATED
             else:
-                msg = self.MSG_ALREADY_UPDATED
+                msg = self.MSG_ALREADY_PRESENT
 
         return created, changed, msg, resource
 

@@ -108,7 +108,7 @@ from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
 class LogicalSwitchGroupModule(OneViewModuleBase):
     MSG_CREATED = 'Logical Switch Group created successfully.'
     MSG_UPDATED = 'Logical Switch Group updated successfully.'
-    MSG_ALREADY_EXIST = 'Logical Switch Group is already present.'
+    MSG_ALREADY_PRESENT = 'Logical Switch Group is already present.'
     MSG_DELETED = 'Logical Switch Group deleted successfully.'
     MSG_ALREADY_ABSENT = 'Logical Switch Group is already absent.'
     MSG_SWITCH_TYPE_NOT_FOUND = 'Switch type was not found.'

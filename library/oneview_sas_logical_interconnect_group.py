@@ -111,7 +111,7 @@ class SasLogicalInterconnectGroupModule(OneViewModuleBase):
     MSG_CREATED = 'SAS Logical Interconnect Group created successfully.'
     MSG_UPDATED = 'SAS Logical Interconnect Group updated successfully.'
     MSG_DELETED = 'SAS Logical Interconnect Group deleted successfully.'
-    MSG_ALREADY_EXIST = 'SAS Logical Interconnect Group already exists.'
+    MSG_ALREADY_PRESENT = 'SAS Logical Interconnect Group is already present.'
     MSG_ALREADY_ABSENT = 'SAS Logical Interconnect Group is already absent.'
     RESOURCE_FACT_NAME = 'sas_logical_interconnect_group'
 

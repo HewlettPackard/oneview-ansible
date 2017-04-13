@@ -112,7 +112,7 @@ from module_utils.oneview import OneViewModuleBase, HPOneViewValueError
 class PlanScriptModule(OneViewModuleBase):
     MSG_CREATED = 'Plan Script created successfully.'
     MSG_UPDATED = 'Plan Script updated successfully.'
-    MSG_ALREADY_EXIST = 'Plan Script is already present.'
+    MSG_ALREADY_PRESENT = 'Plan Script is already present.'
     MSG_DELETED = 'Plan Script deleted successfully.'
     MSG_ALREADY_ABSENT = 'Plan Script is already absent.'
     MSG_DIFFERENCES_RETRIEVED = 'Plan Script differences retrieved successfully.'

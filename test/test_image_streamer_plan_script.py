@@ -97,7 +97,7 @@ class PlanScriptSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=PlanScriptModule.MSG_ALREADY_EXIST,
+            msg=PlanScriptModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(plan_script=self.PLAN_SCRIPT_UPDATE['data'])
         )
 

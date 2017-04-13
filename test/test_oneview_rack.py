@@ -78,7 +78,7 @@ class RackModuleSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=RackModule.MSG_ALREADY_EXIST,
+            msg=RackModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(rack=DEFAULT_RACK_TEMPLATE)
         )
 

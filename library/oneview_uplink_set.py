@@ -109,7 +109,7 @@ class UplinkSetModule(OneViewModuleBase):
     MSG_CREATED = 'Uplink Set created successfully.'
     MSG_UPDATED = 'Uplink Set updated successfully.'
     MSG_DELETED = 'Uplink Set deleted successfully.'
-    MSG_ALREADY_EXIST = 'Uplink Set already exists.'
+    MSG_ALREADY_PRESENT = 'Uplink Set is already present.'
     MSG_ALREADY_ABSENT = 'Nothing to do.'
     MSG_LOGICAL_INTERCONNECT_NOT_FOUND = "Logical Interconnect not found."
     RESOURCE_FACT_NAME = 'uplink_set'

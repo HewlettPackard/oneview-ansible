@@ -80,7 +80,7 @@ class ServerHardwareTypeSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ServerHardwareTypeModule.MSG_ALREADY_EXIST,
+            msg=ServerHardwareTypeModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(server_hardware_type=DICT_DEFAULT_SERVER_HARDWARE_TYPE)
         )
 

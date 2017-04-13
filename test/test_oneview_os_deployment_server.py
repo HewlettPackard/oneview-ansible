@@ -231,7 +231,7 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=OsDeploymentServerModule.MSG_ALREADY_EXIST,
+            msg=OsDeploymentServerModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(os_deployment_server=self.DEPLOYMENT_SERVER_UPDATE['data'])
         )
 

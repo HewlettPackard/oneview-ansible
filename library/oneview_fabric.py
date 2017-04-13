@@ -71,7 +71,7 @@ from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, R
 
 class FabricModule(OneViewModuleBase):
     MSG_NOT_FOUND = "Informed Fabric was not found."
-    MSG_ALREADY_EXIST = "No change found"
+    MSG_ALREADY_PRESENT = "No change found"
 
     def __init__(self):
         argument_spec = dict(
@@ -95,7 +95,7 @@ class FabricModule(OneViewModuleBase):
         merged_data.update(self.data['reservedVlanRangeParameters'])
 
         if ResourceComparator.compare(resource_vlan_range, merged_data):
-            return dict(changed=False, msg=self.MSG_ALREADY_EXIST, ansible_facts=dict(fabric=resource))
+            return dict(changed=False, msg=self.MSG_ALREADY_PRESENT, ansible_facts=dict(fabric=resource))
         else:
             return self.__update_vlan_range(self.data, resource)
 

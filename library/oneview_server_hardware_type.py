@@ -90,7 +90,7 @@ from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
 
 class ServerHardwareTypeModule(OneViewModuleBase):
     MSG_UPDATED = 'Server Hardware Type updated successfully.'
-    MSG_ALREADY_EXIST = 'Server Hardware Type is already present.'
+    MSG_ALREADY_PRESENT = 'Server Hardware Type is already present.'
     MSG_DELETED = 'Server Hardware Type deleted successfully.'
     MSG_ALREADY_ABSENT = 'Server Hardware Type is already absent.'
     MSG_RESOURCE_NOT_FOUND = 'Server Hardware Type was not found for this operation.'
@@ -114,7 +114,7 @@ class ServerHardwareTypeModule(OneViewModuleBase):
             return self.__absent(resource)
 
     def __present(self, resource):
-        changed, msg = False, self.MSG_ALREADY_EXIST
+        changed, msg = False, self.MSG_ALREADY_PRESENT
 
         if not resource:
             raise HPOneViewResourceNotFound(self.MSG_RESOURCE_NOT_FOUND)

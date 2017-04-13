@@ -144,7 +144,7 @@ class LogicalInterconnectGroupGeneralSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=LogicalInterconnectGroupModule.MSG_ALREADY_EXIST,
+            msg=LogicalInterconnectGroupModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
         )
 

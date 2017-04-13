@@ -266,7 +266,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         self.assertEqual(facts,
                          dict(
                              changed=False,
-                             msg=OneViewModuleBase.MSG_ALREADY_EXIST,
+                             msg=OneViewModuleBase.MSG_ALREADY_PRESENT,
                              ansible_facts=dict(resource=self.RESOURCE_COMMON.copy()))
                          )
 

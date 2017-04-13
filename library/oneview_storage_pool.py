@@ -79,8 +79,8 @@ from module_utils.oneview import OneViewModuleBase, HPOneViewValueError
 
 
 class StoragePoolModule(OneViewModuleBase):
-    MSG_ADDED = 'Storage Pool added successfully.'
-    MSG_ALREADY_ADDED = 'Storage Pool is already present.'
+    MSG_CREATED = 'Storage Pool added successfully.'
+    MSG_ALREADY_PRESENT = 'Storage Pool is already present.'
     MSG_DELETED = 'Storage Pool deleted successfully.'
     MSG_ALREADY_ABSENT = 'Storage Pool is already absent.'
     MSG_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: data.poolName"
@@ -111,12 +111,12 @@ class StoragePoolModule(OneViewModuleBase):
     def __present(self, data, resource):
 
         changed = False
-        msg = self.MSG_ALREADY_ADDED
+        msg = self.MSG_ALREADY_PRESENT
 
         if not resource:
             resource = self.oneview_client.storage_pools.add(data)
             changed = True
-            msg = self.MSG_ADDED
+            msg = self.MSG_CREATED
 
         return dict(changed=changed,
                     msg=msg,
