@@ -115,7 +115,7 @@ class UnmanagedDeviceModule(OneViewModuleBase):
     MSG_CREATED = 'Unmanaged Device added successfully.'
     MSG_UPDATED = 'Unmanaged Device updated successfully.'
     MSG_DELETED = 'Unmanaged Device removed successfully.'
-    MSG_SET_REMOVED = 'Unmanaged device set deleted successfully.'
+    MSG_SET_DELETED = 'Unmanaged device set deleted successfully.'
     MSG_ALREADY_ABSENT = 'Unmanaged Device is already absent.'
     MSG_ALREADY_EXIST = 'Unmanaged Device is already present.'
 
@@ -141,7 +141,7 @@ class UnmanagedDeviceModule(OneViewModuleBase):
         elif self.state == "absent":
             if not resource and "filter" in self.data:
                 self.resource_client.remove_all(**self.data)
-                return dict(changed=True, msg=self.MSG_SET_REMOVED)
+                return dict(changed=True, msg=self.MSG_SET_DELETED)
             else:
                 return self.resource_absent(resource, 'remove')
 
