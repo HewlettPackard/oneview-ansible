@@ -1,7 +1,7 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -15,42 +15,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-
-from ansible.module_utils.basic import *
-try:
-    from hpOneView.oneview_client import OneViewClient
-    from hpOneView.exceptions import HPOneViewException
-
-    HAS_HPE_ONEVIEW = True
-except ImportError:
-    HAS_HPE_ONEVIEW = False
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 module: oneview_task_facts
 short_description: Retrieve facts about the OneView Tasks.
 description:
     - Retrieve facts about the OneView Tasks.
+version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 2.0.1"
 author: "Bruno Souza (@bsouza)"
 options:
-    config:
-      description:
-        - Path to a .json configuration file containing the OneView client configuration.
-          The configuration file is optional. If the file path is not provided, the configuration will be loaded from
-          environment variables.
-      required: false
     params:
       description:
         - "List with parameters to help filter the tasks.
-          Params allowed: count, fields, filter, query, sort, start, and view."
+          Params allowed: C(count), C(fields), C(filter), C(query), C(sort), C(start), and C(view)."
       required: false
-notes:
-    - "A sample configuration file for the config parameter can be found at:
-       https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json"
-    - "Check how to use environment variables for configuration at:
-       https://github.com/HewlettPackard/oneview-ansible#environment-variables"
+
+extends_documentation_fragment:
+    - oneview
 '''
 
 EXAMPLES = '''
@@ -78,35 +65,24 @@ tasks:
     returned: Always, but can be null.
     type: list
 '''
-HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+from ansible.module_utils.basic import AnsibleModule
+from module_utils.oneview import OneViewModuleBase
 
 
-class TaskFactsModule(object):
-    argument_spec = dict(
-        config=dict(required=False, type='str'),
-        params=dict(required=False, type='dict')
-    )
-
+class TaskFactsModule(OneViewModuleBase):
     def __init__(self):
-        self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
-        if not HAS_HPE_ONEVIEW:
-            self.module.fail_json(msg=HPE_ONEVIEW_SDK_REQUIRED)
+        argument_spec = dict(
+            params=dict(required=False, type='dict')
+        )
+        super(TaskFactsModule, self).__init__(additional_arg_spec=argument_spec)
 
-        if not self.module.params['config']:
-            oneview_client = OneViewClient.from_environment_variables()
-        else:
-            oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+        self.resource_client = self.oneview_client.tasks
 
-        self.resource_client = oneview_client.tasks
+    def execute_module(self):
+        facts = self.resource_client.get_all(**self.facts_params)
 
-    def run(self):
-        try:
-            params = self.module.params.get('params') or {}
-            facts = self.resource_client.get_all(**params)
-            self.module.exit_json(changed=False, ansible_facts=dict(tasks=facts))
-
-        except HPOneViewException as exception:
-            self.module.fail_json(msg='; '.join(str(e) for e in exception.args))
+        return dict(changed=False, ansible_facts=dict(tasks=facts))
 
 
 def main():

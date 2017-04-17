@@ -8209,7 +8209,7 @@ Retrieve facts about the OneView Tasks.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| params  |   No  |  | |  List with parameters to help filter the tasks. Params allowed: count, fields, filter, query, sort, start, and view.  |
+| params  |   No  |  | |  List with parameters to help filter the tasks. Params allowed: `count`, `fields`, `filter`, `query`, `sort`, `start`, and `view`.  |
 
 
  
@@ -8249,6 +8249,8 @@ Retrieve facts about the OneView Tasks.
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---

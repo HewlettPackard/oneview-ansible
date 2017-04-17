@@ -34,7 +34,7 @@ MSG_GENERIC = "Generic message"
 
 class OneViewModuleBaseSpec(unittest.TestCase):
     """
-    PreloadedMocksBaseTestCase provides the mocks used in this test case.
+    OneViewModuleBaseSpec provides the mocks used in this test case.
     """
     mock_ov_client_from_json_file = None
     mock_ov_client_from_env_vars = None
