@@ -3518,7 +3518,7 @@ Retrieve facts about one or more of the OneView Logical Downlinks.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| logical_interconnects   | The list of logical downlinks. |  Always, but can be null. |  list |
+| logical_downlinks   | The list of logical downlinks. |  Always, but can be null. |  list |
 
 
 #### Notes
