@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-
 import unittest
 from oneview_module_loader import LogicalDownlinksFactsModule
 from hpe_test_utils import FactsParamsTestCase
@@ -110,10 +109,9 @@ class LogicalDownlinksFactsSpec(unittest.TestCase,
 
     def test_should_get_without_ethernet(self):
         logical_downlinks = [LOGICAL_DOWNLINK]
-        logical_downlinks_without_ethernet = []
 
         self.logical_downlinks.get_by.return_value = logical_downlinks
-        self.logical_downlinks.get_without_ethernet.return_value = logical_downlinks_without_ethernet
+        self.logical_downlinks.get_without_ethernet.return_value = []
 
         self.mock_ansible_module.params = PARAMS_FOR_GET_WITHOUT_ETHERNET
 
@@ -124,7 +122,25 @@ class LogicalDownlinksFactsSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(logical_downlinks=logical_downlinks_without_ethernet)
+            ansible_facts=dict(logical_downlinks=[])
+        )
+
+    def test_should_not_get_without_ethernet_when_not_found(self):
+        logical_downlinks = []
+
+        self.logical_downlinks.get_by.return_value = logical_downlinks
+        self.logical_downlinks.get_without_ethernet.return_value = []
+
+        self.mock_ansible_module.params = PARAMS_FOR_GET_WITHOUT_ETHERNET
+
+        LogicalDownlinksFactsModule().run()
+
+        self.logical_downlinks.get_by.assert_called_once_with('name', LOGICAL_DOWNLINK_NAME)
+        self.logical_downlinks.get_without_ethernet.not_been_called()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(logical_downlinks=[])
         )
 
 
