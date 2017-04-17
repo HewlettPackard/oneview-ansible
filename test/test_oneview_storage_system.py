@@ -82,12 +82,6 @@ del DICT_DEFAULT_STORAGE_SYSTEM['credentials']['password']
 
 class StorageSystemModuleSpec(unittest.TestCase,
                               OneViewBaseTestCase):
-    """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-    ValidateEtagTestCase has common tests for the validate_etag attribute.
-    """
-
     def setUp(self):
         self.configure_mocks(self, StorageSystemModule)
         self.resource = self.mock_ov_client.storage_systems

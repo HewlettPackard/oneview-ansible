@@ -35,7 +35,7 @@ class OneViewBaseTestCase(object):
         """
         Preload mocked OneViewClient instance and AnsibleModule
         Args:
-            test_case (object): class instance (self) that are inheriting from ModuleContructorTestCase
+            test_case (object): class instance (self) that are inheriting from OneViewBaseTestCase
             testing_class (object): class being tested
         """
         self.testing_class = testing_class

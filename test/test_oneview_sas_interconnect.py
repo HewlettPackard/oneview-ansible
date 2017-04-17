@@ -43,10 +43,8 @@ class StateCheck(object):
 class SasInterconnectModuleSpec(unittest.TestCase,
                                 OneViewBaseTestCase):
     """
-    ModuleContructorTestCase has common tests for class constructor and main function,
-    also provides the mocks used in this test case
-
-    ErrorHandlingTestCase has common tests for the module error handling.
+    OneViewBaseTestCase has common tests for class constructor and main function,
+    and also provides the mocks used in this test case.
     """
 
     def setUp(self):
