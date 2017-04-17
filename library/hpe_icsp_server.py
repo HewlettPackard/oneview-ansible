@@ -40,6 +40,11 @@ options:
         'absent' will remove the resource from ICsp, if it exists.
         'network_configured' will set the network configuration.
     choices: ['present', 'absent', 'network_configured']
+  api_version:
+    description:
+      - ICsp API version.
+    required: true
+    default: 300
   icsp_host:
     description:
       - ICsp hostname.
@@ -131,6 +136,7 @@ SERVER_PERSONALITY_DATA_REQUIRED = 'server_personality_data must be informed.'
 class ICspServerModule(object):
     argument_spec = dict(
         # Connection
+        api_version=dict(required=True, type='int', default=300),
         icsp_host=dict(required=True, type='str'),
         username=dict(required=True, type='str'),
         password=dict(required=True, type='str'),
@@ -169,10 +175,11 @@ class ICspServerModule(object):
     def __authenticate(self):
         # Credentials
         icsp_host = self.module.params['icsp_host']
+        icsp_api_version = self.module.params['api_version']
         username = self.module.params['username']
         password = self.module.params['password']
 
-        con = hpICsp.connection(icsp_host)
+        con = hpICsp.connection(icsp_host, icsp_api_version)
 
         credential = {'userName': username, 'password': password}
         con.login(credential)

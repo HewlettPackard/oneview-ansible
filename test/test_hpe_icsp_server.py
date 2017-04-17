@@ -32,6 +32,7 @@ SERVER_IP = "16.124.135.239"
 
 YAML_SERVER_PRESENT = """
     state: present
+    api_version: 300
     icsp_host: "16.124.133.245"
     username: "Administrator"
     password: "admin"
@@ -43,6 +44,7 @@ YAML_SERVER_PRESENT = """
 
 YAML_SERVER_ABSENT = """
     state: absent
+    api_version: 300
     icsp_host: "16.124.133.251"
     username: "Administrator"
     password: "admin"
@@ -51,6 +53,7 @@ YAML_SERVER_ABSENT = """
 
 YAML_NETWORK_CONFIGURED = """
     state: network_configured
+    api_version: 300
     icsp_host: "16.124.133.245"
     username: "Administrator"
     password: "admin"

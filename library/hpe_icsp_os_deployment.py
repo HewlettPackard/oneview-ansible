@@ -20,6 +20,7 @@ import urllib
 from hpICsp.exceptions import *
 from ansible.module_utils.basic import *
 
+
 __author__ = 'ChakruHP, tiagomtotti'
 
 DOCUMENTATION = '''
@@ -32,6 +33,11 @@ requirements:
     - "python >= 2.7.9"
     - "hpICsp"
 options:
+  api_version:
+    description:
+      - ICsp API version.
+    required: true
+    default: 300
   icsp_host:
     description:
       - ICsp hostname.
@@ -108,6 +114,7 @@ def get_server_by_serial(con, serial_number):
 def deploy_server(module):
     # Credentials
     icsp_host = module.params['icsp_host']
+    icsp_api_version = module.params['api_version']
     username = module.params['username']
     password = module.params['password']
 
@@ -116,7 +123,7 @@ def deploy_server(module):
     os_build_plan = module.params['os_build_plan']
     custom_attributes = module.params['custom_attributes']
     personality_data = module.params['personality_data']
-    con = hpICsp.connection(icsp_host)
+    con = hpICsp.connection(icsp_host, icsp_api_version)
 
     # Create objects for all necessary resources.
     credential = {'userName': username, 'password': password}
@@ -177,6 +184,7 @@ def deploy_server(module):
 def main():
     module = AnsibleModule(
         argument_spec=dict(
+            api_version=dict(required=True, type='int', default=300),
             icsp_host=dict(required=True, type='str'),
             username=dict(required=True, type='str'),
             password=dict(required=True, type='str'),

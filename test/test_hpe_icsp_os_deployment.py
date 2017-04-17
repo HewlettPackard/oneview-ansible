@@ -24,6 +24,7 @@ from copy import deepcopy
 
 TASK_OS_DEPLOYMENT = {
     "icsp_host": "16.124.133.251",
+    "api_version": 300,
     "username": "Administrator",
     "password": "admin",
     "server_id": "VCGYZ33007",

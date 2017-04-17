@@ -48,11 +48,11 @@ from hpICsp.exceptions import *
 
 class connectionHPOneView(object):
 
-    def __init__(self, applianceIp):
+    def __init__(self, applianceIp, api_version=102):
         self._session = None
         self._host = applianceIp
         self._cred = None
-        self._apiVersion = 300
+        self._apiVersion = api_version
         self._headers = {
             'X-API-Version': self._apiVersion,
             'Accept': 'application/json, */*',
