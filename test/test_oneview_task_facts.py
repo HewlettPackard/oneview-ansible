@@ -16,11 +16,9 @@
 
 import unittest
 
-from oneview_task_facts import TaskFactsModule
+from oneview_module_loader import TaskFactsModule
 
-from test.utils import ModuleContructorTestCase
-from test.utils import FactsParamsTestCase
-from test.utils import ErrorHandlingTestCase
+from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -68,14 +66,11 @@ ALL_TASKS = [TASK]
 
 
 class TaskFactsSpec(unittest.TestCase,
-                    ModuleContructorTestCase,
-                    FactsParamsTestCase,
-                    ErrorHandlingTestCase):
+                    FactsParamsTestCase):
 
     def setUp(self):
         self.configure_mocks(self, TaskFactsModule)
         FactsParamsTestCase.configure_client_mock(self, self.mock_ov_client.tasks)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.mock_ov_client.tasks.get_all)
 
     def test_get_all(self):
         self.mock_ov_client.tasks.get_all.return_value = ALL_TASKS
