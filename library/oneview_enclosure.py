@@ -264,10 +264,10 @@ from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
 
 class EnclosureModule(OneViewModuleBase):
     MSG_DELETED = 'Enclosure removed successfully.'
-    MSG_ALREADY_ABSENT = 'Nothing to do.'
+    MSG_ALREADY_ABSENT = 'Enclosure is already absent.'
     MSG_CREATED = 'Enclosure added successfully.'
     MSG_UPDATED = 'Enclosure updated successfully.'
-    MSG_ALREADY_EXIST = 'Enclosure already exists.'
+    MSG_ALREADY_PRESENT = 'Enclosure is already present.'
     MSG_RECONFIGURED = 'Enclosure reconfigured successfully.'
     MSG_REFRESHED = 'Enclosure refreshed successfully.'
     MSG_ENCLOSURE_NOT_FOUND = 'Enclosure not found.'
@@ -396,7 +396,7 @@ class EnclosureModule(OneViewModuleBase):
 
     def __present(self, resource_by_name, data):
         changed = False
-        message = self.MSG_ALREADY_EXIST
+        message = self.MSG_ALREADY_PRESENT
 
         configuration_data = data.copy()
 

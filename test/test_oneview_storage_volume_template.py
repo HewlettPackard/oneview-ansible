@@ -106,7 +106,7 @@ class StorageVolumeTemplatePresentStateSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=StorageVolumeTemplateModule.MSG_ALREADY_EXIST,
+            msg=StorageVolumeTemplateModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(storage_volume_template=STORAGE_VOLUME_TEMPLATE)
         )
 

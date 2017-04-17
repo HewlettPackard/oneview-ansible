@@ -139,7 +139,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=PowerDeviceModule.MSG_ALREADY_EXIST,
+            msg=PowerDeviceModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(power_device=DEFAULT_POWER_DEVICE)
         )
 

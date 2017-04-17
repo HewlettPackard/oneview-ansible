@@ -84,7 +84,7 @@ class NetworkSetModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=NetworkSetModule.MSG_ALREADY_EXIST,
+            msg=NetworkSetModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(network_set=NETWORK_SET)
         )
 

@@ -96,7 +96,7 @@ class OsDeploymentServerModule(OneViewModuleBase):
     MSG_CREATED = 'Deployment Server created successfully.'
     MSG_UPDATED = 'Deployment Server updated successfully.'
     MSG_DELETED = 'Deployment Server deleted successfully.'
-    MSG_ALREADY_EXIST = 'Deployment Server already exists.'
+    MSG_ALREADY_PRESENT = 'Deployment Server is already present.'
     MSG_ALREADY_ABSENT = 'Deployment Server is already absent.'
     MSG_NETWORK_NOT_FOUND = 'Network "{}" not found.'
     MSG_APPLIANCE_NOT_FOUND = 'Appliance "{}" not found.'
@@ -148,7 +148,7 @@ class OsDeploymentServerModule(OneViewModuleBase):
                 changed = True
                 msg = self.MSG_UPDATED
             else:
-                msg = self.MSG_ALREADY_EXIST
+                msg = self.MSG_ALREADY_PRESENT
 
         return dict(changed=changed,
                     msg=msg,

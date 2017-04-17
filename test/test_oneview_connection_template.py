@@ -86,7 +86,7 @@ class ConnectionTemplateModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ConnectionTemplateModule.MSG_ALREADY_EXIST,
+            msg=ConnectionTemplateModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(connection_template=self.DICT_CONNECTION_TEMPLATE)
         )
 

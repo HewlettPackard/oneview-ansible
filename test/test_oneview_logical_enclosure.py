@@ -144,7 +144,7 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=LogicalEnclosureModule.MSG_ALREADY_UPDATED,
+            msg=LogicalEnclosureModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(logical_enclosure=DICT_DEFAULT_LOGICAL_ENCLOSURE)
         )
 

@@ -128,7 +128,7 @@ class GoldenImageModule(OneViewModuleBase):
     MSG_CREATED = 'Golden Image created successfully.'
     MSG_UPLOADED = 'Golden Image uploaded successfully.'
     MSG_UPDATED = 'Golden Image updated successfully.'
-    MSG_ALREADY_UPDATED = 'Golden Image is already present.'
+    MSG_ALREADY_PRESENT = 'Golden Image is already present.'
     MSG_DELETED = 'Golden Image deleted successfully.'
     MSG_DOWNLOADED = 'Golden Image downloaded successfully.'
     MSG_ARCHIVE_DOWNLOADED = 'Golden Image archive downloaded successfully.'
@@ -209,7 +209,7 @@ class GoldenImageModule(OneViewModuleBase):
                 changed = True
                 msg = self.MSG_UPDATED
             else:
-                msg = self.MSG_ALREADY_UPDATED
+                msg = self.MSG_ALREADY_PRESENT
 
         return changed, msg, dict(golden_image=resource)
 

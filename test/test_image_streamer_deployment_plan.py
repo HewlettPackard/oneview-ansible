@@ -84,7 +84,7 @@ class DeploymentPlanSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=DeploymentPlanModule.MSG_ALREADY_EXIST,
+            msg=DeploymentPlanModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(deployment_plan=self.DEPLOYMENT_PLAN_UPDATE['data'])
         )
 

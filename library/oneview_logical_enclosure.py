@@ -181,7 +181,7 @@ from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, R
 
 class LogicalEnclosureModule(OneViewModuleBase):
     MSG_UPDATED = 'Logical Enclosure updated successfully.'
-    MSG_ALREADY_UPDATED = 'Logical Enclosure already updated.'
+    MSG_ALREADY_PRESENT = 'Logical Enclosure is already present.'
     MSG_REQUIRED = "An existing Logical Enclosure is required."
     MSG_UPDATED_FROM_GROUP = 'Logical Enclosure updated from group successfully.'
     MSG_FIRMWARE_UPDATED = 'Logical Enclosure firmware updated.'
@@ -269,7 +269,7 @@ class LogicalEnclosureModule(OneViewModuleBase):
             existent_resource = self.oneview_client.logical_enclosures.update(merged_data)
             return True, self.MSG_UPDATED, dict(logical_enclosure=existent_resource)
         else:
-            return False, self.MSG_ALREADY_UPDATED, dict(logical_enclosure=existent_resource)
+            return False, self.MSG_ALREADY_PRESENT, dict(logical_enclosure=existent_resource)
 
     def __update_script(self, data, logical_enclosure):
         script = data.pop("configurationScript")

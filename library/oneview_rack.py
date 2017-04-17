@@ -102,7 +102,7 @@ class RackModule(OneViewModuleBase):
     MSG_CREATED = 'Rack added successfully.'
     MSG_UPDATED = 'Rack updated successfully.'
     MSG_DELETED = 'Rack removed successfully.'
-    MSG_ALREADY_EXIST = 'Rack already exists.'
+    MSG_ALREADY_PRESENT = 'Rack is already present.'
     MSG_ALREADY_ABSENT = 'Rack is already absent.'
 
     argument_spec = dict(

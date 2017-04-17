@@ -1419,7 +1419,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ServerProfileModule.MSG_ALREADY_UPDATED,
+            msg=ServerProfileModule.MSG_ALREADY_PRESENT,
             ansible_facts=mock_facts
         )
 

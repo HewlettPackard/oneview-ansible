@@ -128,7 +128,7 @@ from module_utils.oneview import OneViewModuleBase, HPOneViewValueError, HPOneVi
 class PowerDeviceModule(OneViewModuleBase):
     MSG_CREATED = 'Power Device added successfully.'
     MSG_IPDU_ADDED = 'iPDU added successfully.'
-    MSG_ALREADY_EXIST = 'Power Device is already present.'
+    MSG_ALREADY_PRESENT = 'Power Device is already present.'
     MSG_DELETED = 'Power Device deleted successfully.'
     MSG_UPDATED = 'Power Device updated successfully.'
     MSG_ALREADY_ABSENT = 'Power Device is already absent.'

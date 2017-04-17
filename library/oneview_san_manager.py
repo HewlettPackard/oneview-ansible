@@ -101,8 +101,8 @@ class SanManagerModule(OneViewModuleBase):
     MSG_CREATED = 'SAN Manager created successfully.'
     MSG_UPDATED = 'SAN Manager updated successfully.'
     MSG_DELETED = 'SAN Manager deleted successfully.'
-    MSG_ALREADY_EXIST = 'SAN Manager already exists.'
-    MSG_ALREADY_ABSENT = 'Nothing to do.'
+    MSG_ALREADY_PRESENT = 'SAN Manager is already present.'
+    MSG_ALREADY_ABSENT = 'SAN Manager is already absent.'
     MSG_SAN_MANAGER_PROVIDER_DISPLAY_NAME_NOT_FOUND = "The provider '{}' was not found."
 
     argument_spec = dict(
@@ -136,7 +136,7 @@ class SanManagerModule(OneViewModuleBase):
             merged_data.update(self.data)
 
             if ResourceComparator.compare(resource, merged_data):
-                return False, self.MSG_ALREADY_EXIST, resource
+                return False, self.MSG_ALREADY_PRESENT, resource
             else:
 
                 # If connectionInfo is not provided, its removed because the password is required for update.

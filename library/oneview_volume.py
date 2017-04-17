@@ -186,7 +186,7 @@ class VolumeModule(OneViewModuleBase):
     MSG_SNAPSHOT_DELETED = 'Volume snapshot deleted successfully.'
     MSG_NOT_FOUND = 'Volume not found.'
     MSG_SNAPSHOT_NOT_FOUND = 'Snapshot not found.'
-    MSG_ALREADY_ABSENT = 'Nothing to do.'
+    MSG_ALREADY_ABSENT = 'Volume is already absent.'
     MSG_NO_OPTIONS_PROVIDED = 'No options provided.'
     MSG_NEW_NAME_INVALID = 'Rename failed: the new name provided is being used by another Volume.'
 

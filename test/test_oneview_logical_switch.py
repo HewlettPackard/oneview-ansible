@@ -119,7 +119,7 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=LogicalSwitchModule.MSG_ALREADY_EXIST,
+            msg=LogicalSwitchModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(logical_switch=LOGICAL_SWITCH_FROM_ONEVIEW)
         )
 

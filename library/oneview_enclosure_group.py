@@ -99,7 +99,7 @@ class EnclosureGroupModule(OneViewModuleBase):
     MSG_CREATED = 'Enclosure Group created successfully.'
     MSG_UPDATED = 'Enclosure Group updated successfully.'
     MSG_DELETED = 'Enclosure Group deleted successfully.'
-    MSG_ALREADY_EXIST = 'Enclosure Group already exists.'
+    MSG_ALREADY_PRESENT = 'Enclosure Group is already present.'
     MSG_ALREADY_ABSENT = 'Enclosure Group is already absent.'
 
     argument_spec = dict(

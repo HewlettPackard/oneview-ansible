@@ -149,7 +149,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ArtifactBundleModule.MSG_ALREADY_EXIST,
+            msg=ArtifactBundleModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(artifact_bundle=self.ARTIFACT_BUNDLE))
 
     def test_upload_backup_artifact_bundle(self):
@@ -262,7 +262,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ArtifactBundleModule.MSG_ALREADY_EXIST,
+            msg=ArtifactBundleModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(artifact_bundle=self.ARTIFACT_BUNDLE)
         )
 
@@ -277,7 +277,7 @@ class ArtifactBundleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=ArtifactBundleModule.MSG_ALREADY_EXIST,
+            msg=ArtifactBundleModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(artifact_bundle=self.ARTIFACT_BUNDLE)
         )
 

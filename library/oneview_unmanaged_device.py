@@ -117,7 +117,7 @@ class UnmanagedDeviceModule(OneViewModuleBase):
     MSG_DELETED = 'Unmanaged Device removed successfully.'
     MSG_SET_DELETED = 'Unmanaged device set deleted successfully.'
     MSG_ALREADY_ABSENT = 'Unmanaged Device is already absent.'
-    MSG_ALREADY_EXIST = 'Unmanaged Device is already present.'
+    MSG_ALREADY_PRESENT = 'Unmanaged Device is already present.'
 
     argument_spec = dict(
         state=dict(

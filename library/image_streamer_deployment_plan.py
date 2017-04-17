@@ -93,7 +93,7 @@ from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
 class DeploymentPlanModule(OneViewModuleBase):
     MSG_CREATED = 'Deployment Plan created successfully.'
     MSG_UPDATED = 'Deployment Plan updated successfully.'
-    MSG_ALREADY_EXIST = 'Deployment Plan is already present.'
+    MSG_ALREADY_PRESENT = 'Deployment Plan is already present.'
     MSG_DELETED = 'Deployment Plan deleted successfully.'
     MSG_ALREADY_ABSENT = 'Deployment Plan is already absent.'
     MSG_BUILD_PLAN_WAS_NOT_FOUND = 'OS Build Plan was not found.'

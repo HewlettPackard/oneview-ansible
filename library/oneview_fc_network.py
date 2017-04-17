@@ -87,7 +87,7 @@ class FcNetworkModule(OneViewModuleBase):
     MSG_CREATED = 'FC Network created successfully.'
     MSG_UPDATED = 'FC Network updated successfully.'
     MSG_DELETED = 'FC Network deleted successfully.'
-    MSG_ALREADY_EXIST = 'FC Network already exists.'
+    MSG_ALREADY_PRESENT = 'FC Network is already present.'
     MSG_ALREADY_ABSENT = 'FC Network is already absent.'
     RESOURCE_FACT_NAME = 'fc_network'
 

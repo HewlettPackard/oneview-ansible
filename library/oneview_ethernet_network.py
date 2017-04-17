@@ -132,7 +132,7 @@ class EthernetNetworkModule(OneViewModuleBase):
     MSG_CREATED = 'Ethernet Network created successfully.'
     MSG_UPDATED = 'Ethernet Network updated successfully.'
     MSG_DELETED = 'Ethernet Network deleted successfully.'
-    MSG_ALREADY_EXIST = 'Ethernet Network already exists.'
+    MSG_ALREADY_PRESENT = 'Ethernet Network is already present.'
     MSG_ALREADY_ABSENT = 'Ethernet Network is already absent.'
 
     MSG_BULK_CREATED = 'Ethernet Networks created successfully.'

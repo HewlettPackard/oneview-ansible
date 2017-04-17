@@ -60,7 +60,7 @@ class StoragePoolModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=StoragePoolModule.MSG_ADDED,
+            msg=StoragePoolModule.MSG_CREATED,
             ansible_facts=dict(storage_pool={"name": "name"})
         )
 
@@ -72,7 +72,7 @@ class StoragePoolModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=StoragePoolModule.MSG_ALREADY_ADDED,
+            msg=StoragePoolModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(storage_pool=DICT_DEFAULT_STORAGE_POOL)
         )
 

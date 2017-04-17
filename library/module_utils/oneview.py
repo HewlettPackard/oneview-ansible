@@ -47,8 +47,8 @@ except ImportError:
 class OneViewModuleBase(object):
     MSG_CREATED = 'Resource created successfully.'
     MSG_UPDATED = 'Resource updated successfully.'
-    MSG_ALREADY_EXIST = 'Resource already exists.'
     MSG_DELETED = 'Resource deleted successfully.'
+    MSG_ALREADY_PRESENT = 'Resource is already present.'
     MSG_ALREADY_ABSENT = 'Resource is already absent.'
     HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
@@ -212,7 +212,7 @@ class OneViewModuleBase(object):
             merged_data.update(self.data)
 
             if ResourceComparator.compare(resource, merged_data):
-                msg = self.MSG_ALREADY_EXIST
+                msg = self.MSG_ALREADY_PRESENT
             else:
                 resource = self.resource_client.update(merged_data)
                 changed = True

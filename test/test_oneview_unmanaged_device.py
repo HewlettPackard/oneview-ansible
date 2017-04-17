@@ -106,7 +106,7 @@ class UnmanagedDeviceSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=UnmanagedDeviceModule.MSG_ALREADY_EXIST,
+            msg=UnmanagedDeviceModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(unmanaged_device=UNMANAGED_DEVICE_FOR_PRESENT)
         )
 

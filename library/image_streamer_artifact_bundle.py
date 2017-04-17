@@ -169,7 +169,7 @@ class ArtifactBundleModule(OneViewModuleBase):
     MSG_UPDATED = 'Artifact Bundle updated successfully.'
     MSG_DELETED = 'Artifact Bundle deleted successfully.'
     MSG_ALREADY_ABSENT = 'Artifact Bundle is already absent.'
-    MSG_ALREADY_EXIST = 'Artifact Bundle already exists.'
+    MSG_ALREADY_PRESENT = 'Artifact Bundle is already present.'
     MSG_DOWNLOADED = 'Artifact Bundle downloaded successfully.'
     MSG_UPLOADED = 'Artifact Bundle uploaded successfully.'
     MSG_BACKUP_UPLOADED = 'Backup for Artifact Bundle uploaded successfully.'
@@ -230,7 +230,7 @@ class ArtifactBundleModule(OneViewModuleBase):
             changed, msg, facts = self.__create(data)
         else:
             changed = False
-            msg = self.MSG_ALREADY_EXIST
+            msg = self.MSG_ALREADY_PRESENT
             facts = dict(artifact_bundle=resource)
         return changed, msg, facts
 
@@ -251,7 +251,7 @@ class ArtifactBundleModule(OneViewModuleBase):
             msg = self.MSG_UPDATED
         else:
             changed = False
-            msg = self.MSG_ALREADY_EXIST
+            msg = self.MSG_ALREADY_PRESENT
         return changed, msg, dict(artifact_bundle=resource)
 
     def __download(self, data, resource):
@@ -273,7 +273,7 @@ class ArtifactBundleModule(OneViewModuleBase):
             msg = self.MSG_UPLOADED
         else:
             changed = False
-            msg = self.MSG_ALREADY_EXIST
+            msg = self.MSG_ALREADY_PRESENT
         return changed, msg, dict(artifact_bundle=artifact_bundle)
 
     def __upload_backup(self, data):

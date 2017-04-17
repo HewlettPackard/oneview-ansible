@@ -162,8 +162,8 @@ class LogicalSwitchModule(OneViewModuleBase):
     MSG_CREATED = 'Logical Switch created successfully.'
     MSG_UPDATED = 'Logical Switch updated successfully.'
     MSG_DELETED = 'Logical Switch deleted successfully.'
-    MSG_ALREADY_EXIST = 'Logical Switch already exists.'
-    MSG_ALREADY_ABSENT = 'Nothing to do.'
+    MSG_ALREADY_PRESENT = 'Logical Switch is already present.'
+    MSG_ALREADY_ABSENT = 'Logical Switch is already absent.'
     MSG_REFRESHED = 'Logical Switch refreshed.'
     MSG_LOGICAL_SWITCH_NOT_FOUND = 'Logical Switch not found.'
     MSG_LOGICAL_SWITCH_GROUP_NOT_FOUND = 'Logical Switch Group not found.'
@@ -204,7 +204,7 @@ class LogicalSwitchModule(OneViewModuleBase):
             created_resource = self.oneview_client.logical_switches.create(data)
             return True, self.MSG_CREATED, dict(logical_switch=created_resource)
         else:
-            return False, self.MSG_ALREADY_EXIST, dict(logical_switch=resource)
+            return False, self.MSG_ALREADY_PRESENT, dict(logical_switch=resource)
 
     def __update(self, data, resource):
         if not resource:

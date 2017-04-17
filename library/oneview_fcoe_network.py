@@ -80,7 +80,7 @@ class FcoeNetworkModule(OneViewModuleBase):
     MSG_CREATED = 'FCoE Network created successfully.'
     MSG_UPDATED = 'FCoE Network updated successfully.'
     MSG_DELETED = 'FCoE Network deleted successfully.'
-    MSG_ALREADY_EXIST = 'FCoE Network already exists.'
+    MSG_ALREADY_PRESENT = 'FCoE Network is already present.'
     MSG_ALREADY_ABSENT = 'FCoE Network is already absent.'
     RESOURCE_FACT_NAME = 'fcoe_network'
 

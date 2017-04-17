@@ -104,7 +104,7 @@ class ServerProfileTemplateModule(OneViewModuleBase):
     MSG_CREATED = 'Server Profile Template created successfully.'
     MSG_UPDATED = 'Server Profile Template updated successfully.'
     MSG_DELETED = 'Server Profile Template deleted successfully.'
-    MSG_ALREADY_EXIST = 'Server Profile Template already exists.'
+    MSG_ALREADY_PRESENT = 'Server Profile Template is already present.'
     MSG_ALREADY_ABSENT = 'Server Profile Template is already absent.'
     MSG_SRV_HW_TYPE_NOT_FOUND = 'Server Hardware Type not found: '
     MSG_ENCLOSURE_GROUP_NOT_FOUND = 'Enclosure Group not found: '
@@ -162,7 +162,7 @@ class ServerProfileTemplateModule(OneViewModuleBase):
         equal = ResourceComparator.compare(merged_data, resource)
 
         if equal:
-            msg = self.MSG_ALREADY_EXIST
+            msg = self.MSG_ALREADY_PRESENT
         else:
             resource = self.resource_client.update(resource=merged_data, id_or_uri=merged_data["uri"])
             msg = self.MSG_UPDATED

@@ -92,7 +92,7 @@ class NetworkSetModule(OneViewModuleBase):
     MSG_CREATED = 'Network Set created successfully.'
     MSG_UPDATED = 'Network Set updated successfully.'
     MSG_DELETED = 'Network Set deleted successfully.'
-    MSG_ALREADY_EXIST = 'Network Set already exists.'
+    MSG_ALREADY_PRESENT = 'Network Set is already present.'
     MSG_ALREADY_ABSENT = 'Network Set is already absent.'
     MSG_ETHERNET_NETWORK_NOT_FOUND = 'Ethernet Network not found: '
     RESOURCE_FACT_NAME = 'network_set'

@@ -81,7 +81,7 @@ class BuildPlanSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=BuildPlanModule.MSG_ALREADY_EXIST,
+            msg=BuildPlanModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(build_plan=self.BUILD_PLAN_UPDATE['data'])
         )
 

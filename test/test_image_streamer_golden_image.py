@@ -162,7 +162,7 @@ class GoldenImageSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=GoldenImageModule.MSG_ALREADY_UPDATED,
+            msg=GoldenImageModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(golden_image=self.GOLDEN_IMAGE_UPDATE['data'])
         )
 

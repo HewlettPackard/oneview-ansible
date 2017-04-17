@@ -61,7 +61,7 @@ from module_utils.oneview import OneViewModuleBase
 
 class FirmwareDriverModule(OneViewModuleBase):
     MSG_DELETED = 'Firmware driver deleted successfully.'
-    MSG_ALREADY_ABSENT = 'Nothing to do.'
+    MSG_ALREADY_ABSENT = 'Firmware driver is already absent.'
 
     def __init__(self):
         argument_spec = dict(state=dict(required=True, choices=['absent']),

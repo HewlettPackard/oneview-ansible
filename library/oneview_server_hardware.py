@@ -141,7 +141,7 @@ from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, H
 
 class ServerHardwareModule(OneViewModuleBase):
     MSG_ADDED = 'Server Hardware added successfully.'
-    MSG_ALREADY_ADDED = 'Server Hardware is already present.'
+    MSG_ALREADY_PRESENT = 'Server Hardware is already present.'
     MSG_POWER_STATE_UPDATED = 'Server Hardware power state changed successfully.'
     MSG_REFRESH_STATE_UPDATED = 'Server Hardware refresh state changed successfully.'
     MSG_ILO_FIRMWARE_VERSION_UPDATED = 'Server Hardware iLO firmware version updated successfully.'
@@ -238,7 +238,7 @@ class ServerHardwareModule(OneViewModuleBase):
             resource = self.oneview_client.server_hardware.add(self.data)
             return True, self.MSG_ADDED, dict(server_hardware=resource)
         else:
-            return False, self.MSG_ALREADY_ADDED, dict(server_hardware=resource)
+            return False, self.MSG_ALREADY_PRESENT, dict(server_hardware=resource)
 
     def __set_power_state(self, resource):
         resource = self.oneview_client.server_hardware.update_power_state(self.data['powerStateData'], resource['uri'])

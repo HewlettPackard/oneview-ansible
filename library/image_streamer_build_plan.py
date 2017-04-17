@@ -92,7 +92,7 @@ from module_utils.oneview import OneViewModuleBase, HPOneViewValueError
 class BuildPlanModule(OneViewModuleBase):
     MSG_CREATED = 'OS Build Plan created successfully.'
     MSG_UPDATED = 'OS Build Plan updated successfully.'
-    MSG_ALREADY_EXIST = 'OS Build Plan is already present.'
+    MSG_ALREADY_PRESENT = 'OS Build Plan is already present.'
     MSG_DELETED = 'OS Build Plan deleted successfully.'
     MSG_ALREADY_ABSENT = 'OS Build Plan is already absent.'
 

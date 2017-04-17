@@ -105,7 +105,7 @@ class SasLogicalInterconnectGroupSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=SasLogicalInterconnectGroupModule.MSG_ALREADY_EXIST,
+            msg=SasLogicalInterconnectGroupModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(sas_logical_interconnect_group=DEFAULT_SAS_LIG_TEMPLATE)
         )
 
