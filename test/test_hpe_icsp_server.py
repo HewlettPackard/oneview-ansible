@@ -19,6 +19,7 @@
 import unittest
 import mock
 import yaml
+import json
 
 from test.utils import create_ansible_mock_yaml, create_ansible_mock
 
@@ -207,8 +208,10 @@ class IcspServerSpec(unittest.TestCase):
 
         ICspServerModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(
-            msg='{"errorCode": "INVALID_RESOURCE", "message": "Fake Message", "details": "Details"}')
+        # Load called args and convert to dict to prevent str comparison with different reordering (Python 3.5)
+        fail_json_args_msg = mock_ansible_instance.fail_json.call_args[1]['msg']
+        error_raised = json.loads(fail_json_args_msg)
+        self.assertEqual(error_raised, exeption_value)
 
     def test_should_fail_with_args_joined_when_common_exception_raised_on_delete(self):
         self.mock_connection.get.return_value = SERVERS

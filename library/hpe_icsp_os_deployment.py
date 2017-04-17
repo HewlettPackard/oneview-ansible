@@ -147,11 +147,12 @@ def deploy_server(module):
         return module.exit_json(changed=False, msg="Server already deployed.", ansible_facts={'icsp_server': server})
 
     if custom_attributes:
-        ca_list = [
-            {
-                'key': ca.keys()[0],
-                'values': [{'scope': 'server', 'value': str(ca.values()[0])}]} for ca in custom_attributes
-        ]
+        ca_list = []
+
+        for ca in custom_attributes:
+            ca_list.append({
+                'key': list(ca.keys())[0],
+                'values': [{'scope': 'server', 'value': str(list(ca.values())[0])}]})
 
         ca_list.extend(server['customAttributes'])
         server['customAttributes'] = ca_list
