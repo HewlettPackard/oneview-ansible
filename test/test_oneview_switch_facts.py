@@ -1,5 +1,7 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,9 +18,8 @@
 
 import unittest
 from oneview_switch_facts import SwitchFactsModule
-from test.utils import FactsParamsTestCase
-from test.utils import ModuleContructorTestCase
-from test.utils import ErrorHandlingTestCase
+from hpe_test_utils import FactsParamsTestCase
+
 
 ERROR_MSG = 'Fake message error'
 
@@ -49,14 +50,12 @@ ALL_SWITCHES = [SWITCH, dict(name='172.18.20.2')]
 
 
 class SwitchFactsSpec(unittest.TestCase,
-                      ModuleContructorTestCase,
-                      FactsParamsTestCase,
-                      ErrorHandlingTestCase):
+                      FactsParamsTestCase):
+
     def setUp(self):
         self.configure_mocks(self, SwitchFactsModule)
         self.switches = self.mock_ov_client.switches
         FactsParamsTestCase.configure_client_mock(self, self.switches)
-        ErrorHandlingTestCase.configure(self, method_to_fire=self.switches.get_by)
 
     def test_should_get_all(self):
         self.switches.get_all.return_value = ALL_SWITCHES
