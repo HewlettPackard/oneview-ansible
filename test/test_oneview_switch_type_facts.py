@@ -18,7 +18,7 @@
 
 import unittest
 
-from oneview_switch_type_facts import SwitchTypeFactsModule
+from oneview_module_loader import SwitchTypeFactsModule
 from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
