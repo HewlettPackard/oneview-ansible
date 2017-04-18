@@ -119,7 +119,7 @@ class SasInterconnectModule(OneViewModuleBase):
     def execute_module(self):
         name = self.module.params.get('name')
 
-        facts = {}
+        changed, msg, facts = False, '', dict()
         sas_interconnect = self.__get_by_name(name)
 
         if self.state == 'refreshed':
@@ -131,8 +131,6 @@ class SasInterconnectModule(OneViewModuleBase):
             msg = self.states_success_message[self.state]
         elif self.states.get(self.state):
             changed, msg, facts['sas_interconnect'] = self.change_state(self.state, sas_interconnect)
-        else:
-            changed, msg, facts = False, '', dict()
 
         return dict(changed=changed, msg=msg, ansible_facts=facts)
 
