@@ -30,9 +30,10 @@ description:
       can have actions taken upon it.
 requirements:
     - "python >= 2.7.9"
-    - "hpICsp = 1.0"
+    - "hpICsp >= 1.0.1"
+version_added: "2.3"
 author:
-    - "Tiago Totti(@tiagomtotti)"
+    - "Tiago Totti (@tiagomtotti)"
 options:
   state:
     description:

@@ -115,7 +115,7 @@ Deploy the operating system on a server using HPE ICsp.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpICsp
+  * hpICsp >= 1.0.1
 
 #### Options
 
@@ -169,7 +169,7 @@ Adds, removes and configures servers in ICsp.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpICsp = 1.0
+  * hpICsp >= 1.0.1
 
 #### Options
 

@@ -19,6 +19,7 @@ install:
   - pip install mock
   - pip install git+https://github.com/HewlettPackard/python-hpOneView.git
   - pip install coveralls
+  - pip install hpICsp
   - |
       if [[ $ANSIBLE == 2.1 || $ANSIBLE == 2.2 ]]; then
         pip install git+https://github.com/sivel/ansible-testing.git#egg=ansible_testing;
