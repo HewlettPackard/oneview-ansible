@@ -18,6 +18,7 @@
 
 import unittest
 
+from copy import deepcopy
 from oneview_module_loader import VolumeModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -93,7 +94,6 @@ PARAMS_FOR_SNAPSHOT_DELETED = dict(
 
 class VolumeModuleSpec(unittest.TestCase,
                        OneViewBaseTestCase):
-
     def setUp(self):
         self.configure_mocks(self, VolumeModule)
         self.resource = self.mock_ov_client.volumes
@@ -213,6 +213,20 @@ class VolumeModuleSpec(unittest.TestCase,
             msg=VolumeModule.MSG_NOT_FOUND
         )
 
+    def test_should_fail_when_is_missing_data_attributes_on_shapshot_creation(self):
+        self.resource.get_by.return_value = [EXISTENT_VOLUME]
+
+        params = deepcopy(PARAMS_FOR_SNAPSHOT_CREATED)
+        del params['data']['snapshotParameters']
+
+        self.mock_ansible_module.params = params
+
+        VolumeModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=VolumeModule.MSG_NO_OPTIONS_PROVIDED
+        )
+
     def test_should_delete_snapshot(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
         self.resource.get_snapshot_by.return_value = [{'uri': SNAPSHOT_URI}]
@@ -224,6 +238,36 @@ class VolumeModuleSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=VolumeModule.MSG_SNAPSHOT_DELETED
+        )
+
+    def test_should_fail_when_is_missing_data_attributes_on_shapshot_deletion(self):
+        self.resource.get_by.return_value = [EXISTENT_VOLUME]
+        self.resource.get_snapshot_by.return_value = [{'uri': SNAPSHOT_URI}]
+
+        params = deepcopy(PARAMS_FOR_SNAPSHOT_DELETED)
+        del params['data']['snapshotParameters']
+
+        self.mock_ansible_module.params = params
+
+        VolumeModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=VolumeModule.MSG_NO_OPTIONS_PROVIDED
+        )
+
+    def test_should_fail_when_name_is_missing_on_shapshot_deletion(self):
+        self.resource.get_by.return_value = [EXISTENT_VOLUME]
+        self.resource.get_snapshot_by.return_value = [{'uri': SNAPSHOT_URI}]
+
+        params = deepcopy(PARAMS_FOR_SNAPSHOT_DELETED)
+        del params['data']['snapshotParameters']['name']
+
+        self.mock_ansible_module.params = params
+
+        VolumeModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=VolumeModule.MSG_NO_OPTIONS_PROVIDED
         )
 
     def test_should_not_delete_snapshot_when_resource_not_exist(self):
