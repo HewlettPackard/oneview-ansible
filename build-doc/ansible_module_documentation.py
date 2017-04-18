@@ -22,10 +22,12 @@ except ImportError:
     # Ignored for the unit tests
     pass
 from fnmatch import fnmatch
+from builtins import map
+from six import iteritems
 import os
 import yaml
 import re
-from six import iteritems
+
 
 DOCUMENTATION = '''
 ---
@@ -165,7 +167,7 @@ def format_dict(ancestor):
         for (key, value) in iteritems(ancestor):
             ancestor[key] = format_dict(value)
     elif isinstance(ancestor, list):
-        ancestor = map(format_dict, ancestor)
+        ancestor = list(map(format_dict, ancestor))
     elif isinstance(ancestor, bool):
         return ancestor
     else:

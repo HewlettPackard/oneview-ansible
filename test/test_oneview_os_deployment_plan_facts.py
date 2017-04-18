@@ -18,7 +18,7 @@
 
 import unittest
 
-from oneview_os_deployment_plan_facts import OsDeploymentPlanFactsModule
+from oneview_module_loader import OsDeploymentPlanFactsModule, ResourceComparator
 from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
@@ -158,22 +158,24 @@ class OsDeploymentPlanFactsSpec(unittest.TestCase,
 
         OsDeploymentPlanFactsModule().run()
 
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            ansible_facts={'os_deployment_plans': [OS_DEPLOYMENT_PLAN_WITH_NIC],
-                           'os_deployment_plan_custom_attributes':
-                               {'os_custom_attributes_for_server_profile':
-                                   [
-                                       {'name': 'name1', 'value': 'value1'},
-                                       {'name': 'name3', 'value': 'value3'},
-                                       {'name': 'name1.dhcp', 'value': False},
-                                       {'name': 'name1.networkuri', 'value': ''},
-                                       {'name': 'name1.connectionid', 'value': ''},
-                                       {'name': 'name1.ipv4disable', 'value': False},
-                                       {'name': 'name1.constraint', 'value': 'auto'}
-                                   ]}
-                           }
-        )
+        exit_json_args = self.mock_ansible_module.exit_json.call_args[1]
+        expected_args = dict(changed=False,
+                             ansible_facts={'os_deployment_plans': [OS_DEPLOYMENT_PLAN_WITH_NIC],
+                                            'os_deployment_plan_custom_attributes':
+                                                {'os_custom_attributes_for_server_profile':
+                                                    [
+                                                        {'name': 'name1', 'value': 'value1'},
+                                                        {'name': 'name3', 'value': 'value3'},
+                                                        {'name': 'name1.dhcp', 'value': False},
+                                                        {'name': 'name1.constraint', 'value': 'auto'},
+                                                        {'name': 'name1.connectionid', 'value': ''},
+                                                        {'name': 'name1.networkuri', 'value': ''},
+                                                        {'name': 'name1.ipv4disable', 'value': False}
+                                                    ]}
+                                            })
+
+        # Using ResourceComparator due to random list ordering of the Python 3
+        self.assertTrue(ResourceComparator.compare(exit_json_args, expected_args))
 
 
 if __name__ == '__main__':
