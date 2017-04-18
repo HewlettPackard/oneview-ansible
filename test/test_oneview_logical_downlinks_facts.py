@@ -113,7 +113,7 @@ class LogicalDownlinksFactsSpec(unittest.TestCase,
         logical_downlinks = [LOGICAL_DOWNLINK]
 
         self.logical_downlinks.get_by.return_value = logical_downlinks
-        self.logical_downlinks.get_without_ethernet.return_value = []
+        self.logical_downlinks.get_without_ethernet.return_value = {'name': 'Logical Downlink Without Ethernet'}
 
         self.mock_ansible_module.params = PARAMS_FOR_GET_WITHOUT_ETHERNET
 
@@ -124,14 +124,14 @@ class LogicalDownlinksFactsSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(logical_downlinks=[])
+            ansible_facts=dict(logical_downlinks=[{'name': 'Logical Downlink Without Ethernet'}])
         )
 
     def test_should_not_get_without_ethernet_when_not_found(self):
         logical_downlinks = []
 
         self.logical_downlinks.get_by.return_value = logical_downlinks
-        self.logical_downlinks.get_without_ethernet.return_value = []
+        self.logical_downlinks.get_without_ethernet.return_value = None
 
         self.mock_ansible_module.params = PARAMS_FOR_GET_WITHOUT_ETHERNET
 
