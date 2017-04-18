@@ -243,10 +243,6 @@ class LogicalEnclosureModule(OneViewModuleBase):
         new_logical_enclosure = self.oneview_client.logical_enclosures.create(data)
         return True, self.MSG_CREATED, dict(logical_enclosure=new_logical_enclosure)
 
-    def __get_by_name(self, data):
-        result = self.oneview_client.logical_enclosures.get_by('name', data['name'])
-        return result[0] if result else None
-
     def __absent(self, logical_enclosure):
         if logical_enclosure:
             changed = True
