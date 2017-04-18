@@ -18,7 +18,7 @@
 
 import unittest
 
-from oneview_logical_switch_facts import LogicalSwitchFactsModule, EXAMPLES
+from oneview_module_loader import LogicalSwitchFactsModule
 from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
