@@ -47,8 +47,8 @@ from hpICsp import connectionHPOneView
 
 class connection(connectionHPOneView):
 
-    def __init__(self, applianceIp):
-        super(connection, self).__init__(applianceIp)
+    def __init__(self, applianceIp, api_version=102):
+        super(connection, self).__init__(applianceIp, api_version)
 
     def encode_multipart_formdata(self, fileName,extension):
         BOUNDARY = '----------ThIs_Is_tHe_bouNdaRY_$'
