@@ -2,13 +2,28 @@ language: python
 python:
   - 2.7
   - 3.5
+env:
+  - ANSIBLE=2.1 PYPI_VERSION='2.1.5.0'
+  - ANSIBLE=2.2 PYPI_VERSION='2.2.2.0'
+  - ANSIBLE=2.3 PYPI_VERSION='2.3.0.0'
+  - ANSIBLE=src-2.3 BRANCH='stable-2.3'  # source code is required to run the sanity test validate-modules
 install:
-  - pip install ansible==2.1.1.0
-  - pip install git+https://github.com/sivel/ansible-testing.git#egg=ansible_testing
+  - if [[ $PYPI_VERSION ]]; then pip install ansible==$PYPI_VERSION; fi
   - pip install flake8
   - pip install mock
   - pip install git+https://github.com/HewlettPackard/python-hpOneView.git
   - pip install coveralls
+  - |
+      if [[ $ANSIBLE == 2.1 || $ANSIBLE == 2.2 ]]; then
+        pip install git+https://github.com/sivel/ansible-testing.git#egg=ansible_testing;
+      fi
+before_script:
+  - |
+      if [[ $BRANCH ]]; then
+        git clone -b $BRANCH --single-branch https://github.com/ansible/ansible.git;
+        source ./ansible/hacking/env-setup;
+        pip install pyyaml jinja2 nose pytest passlib pycrypto six voluptuous;
+      fi
 script:
   - export ANSIBLE_LIBRARY=$PWD/library
   - export PYTHONPATH=$ANSIBLE_LIBRARY:$PYTHONPATH
