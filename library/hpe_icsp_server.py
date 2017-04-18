@@ -15,11 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import hpICsp
-from hpICsp.exceptions import *
-from ansible.module_utils.basic import *
 
-__author__ = 'tiagomtotti'
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -31,7 +30,9 @@ description:
       can have actions taken upon it.
 requirements:
     - "python >= 2.7.9"
-    - "hpICsp"
+    - "hpICsp = 1.0"
+author:
+    - "Tiago Totti(@tiagomtotti)"
 options:
   state:
     description:
@@ -123,6 +124,11 @@ target_server:
     returned: On states 'present' and 'network_configured' . Can be null.
     type: complex
 '''
+
+import json
+import hpICsp
+from hpICsp.exceptions import HPICspException
+from ansible.module_utils.basic import AnsibleModule
 
 SERVER_CREATED = "Server created: '{}'"
 SERVER_ALREADY_PRESENT = "Server is already present."

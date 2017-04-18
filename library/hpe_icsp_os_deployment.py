@@ -15,13 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import hpICsp
-import urllib
-from hpICsp.exceptions import *
-from ansible.module_utils.basic import *
 
-
-__author__ = 'ChakruHP, tiagomtotti'
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -32,6 +29,9 @@ description:
 requirements:
     - "python >= 2.7.9"
     - "hpICsp"
+author:
+    - "Tiago Totti(@tiagomtotti)"
+    - "Chakravarthy Racharla(@ChakruHP)"
 options:
   api_version:
     description:
@@ -89,6 +89,11 @@ icsp_server:
     returned: When the module runs successfully, but can be null.
     type: complex
 '''
+
+import time
+import hpICsp
+import urllib
+from ansible.module_utils.basic import AnsibleModule
 
 
 def get_build_plan(con, bp_name):
