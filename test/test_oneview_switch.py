@@ -50,7 +50,6 @@ SWITCH = dict(
 
 class SwitchModuleSpec(unittest.TestCase,
                        OneViewBaseTestCase):
-
     def setUp(self):
         self.configure_mocks(self, SwitchModule)
         self.resource = self.mock_ov_client.switches
@@ -91,6 +90,16 @@ class SwitchModuleSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SwitchModule.MSG_PORTS_UPDATED
+        )
+
+    def test_should_fail_when_switch_not_found_on_update_ports(self):
+        self.resource.get_by.return_value = []
+        self.mock_ansible_module.params = PARAMS_PORTS_UPDATED
+
+        SwitchModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=SwitchModule.MSG_NOT_FOUND
         )
 
 

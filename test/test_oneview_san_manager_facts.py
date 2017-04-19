@@ -53,7 +53,7 @@ class SanManagerFactsSpec(unittest.TestCase, FactsParamsTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(san_managers=(self.PRESENT_SAN_MANAGERS))
+            ansible_facts=dict(san_managers=self.PRESENT_SAN_MANAGERS)
         )
 
     def test_should_get_by_display_name(self):
@@ -64,7 +64,18 @@ class SanManagerFactsSpec(unittest.TestCase, FactsParamsTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(san_managers=(self.PRESENT_SAN_MANAGERS))
+            ansible_facts=dict(san_managers=self.PRESENT_SAN_MANAGERS)
+        )
+
+    def test_should_return_empty_list_when_get_by_display_name_is_null(self):
+        self.san_managers.get_by_provider_display_name.return_value = None
+        self.mock_ansible_module.params = self.PARAMS_GET_BY_PROVIDER_DISPLAY_NAME
+
+        SanManagerFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(san_managers=[])
         )
 
 

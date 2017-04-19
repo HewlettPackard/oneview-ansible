@@ -105,10 +105,9 @@ class LogicalDownlinksFactsModule(OneViewModuleBase):
 
     def execute_module(self):
         name = self.module.params.get("name")
-        excludeEthernet = self.module.params.get("excludeEthernet")
-        logical_downlinks = None
+        exclude_ethernet = self.module.params.get("excludeEthernet")
 
-        if name and excludeEthernet:
+        if name and exclude_ethernet:
             logical_downlinks = []
             logical_downlink_by_name = self.get_by_name(name)
             if logical_downlink_by_name:
@@ -119,7 +118,7 @@ class LogicalDownlinksFactsModule(OneViewModuleBase):
 
         elif name:
             logical_downlinks = self.resource_client.get_by('name', name)
-        elif excludeEthernet:
+        elif exclude_ethernet:
             logical_downlinks = self.resource_client.get_all_without_ethernet()
         else:
             logical_downlinks = self.resource_client.get_all(**self.facts_params)

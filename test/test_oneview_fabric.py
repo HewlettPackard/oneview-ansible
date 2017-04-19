@@ -26,7 +26,6 @@ NO_CHANGE_MSG = 'No change found'
 
 class FabricModuleSpec(unittest.TestCase,
                        OneViewBaseTestCase):
-
     PRESENT_FABRIC_VLAN_RANGE = dict(
         name="DefaultFabric",
         uri="/rest/fabrics/421fe408-589a-4a7e-91c5-a998e1cf3ec1",
@@ -83,6 +82,18 @@ class FabricModuleSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(fabric=self.PRESENT_FABRIC_VLAN_RANGE)
+        )
+
+    def test_should_fail_update_vlan_range_when_fabric_not_found(self):
+        self.resource.get_by.return_value = []
+        self.resource.update_reserved_vlan_range.return_value = self.PRESENT_FABRIC_VLAN_RANGE
+
+        self.mock_ansible_module.params = self.FABRIC_PARAMS
+
+        FabricModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=FabricModule.MSG_NOT_FOUND
         )
 
     def test_should_not_update_when_data_is_equals(self):
