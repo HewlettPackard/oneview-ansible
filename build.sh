@@ -44,18 +44,18 @@ setup () {
 update_doc_fragments () {
   # NOTE: Set the destination path to copy the oneview doc fragments in an env var named DOC_FRAGMENTS_PATH.
   # Otherwise, the destination will be defined automatically.
-  docfragments="build-doc/module_docs_fragments/oneview.py"
+  local docfragments="build-doc/module_docs_fragments/oneview.py"
 
   if [ "$DOC_FRAGMENTS_PATH" ]; then
     cp -f $docfragments $DOC_FRAGMENTS_PATH
   else
     # Find site packages. If it exists, OneView doc fragment will be copied to the discovered path
-    site_packages=$(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")
+    local site_packages=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
     if [ -d "${site_packages}/ansible/utils/module_docs_fragments/" ]; then
       cp -f $docfragments ${site_packages}/ansible/utils/module_docs_fragments/
     else
       # Copy OneView doc fragments to the Ansible codebase path
-      ansible_path=$(echo $(which ansible) | sed -e 's/\/bin\/ansible//g')
+      local ansible_path=$(echo $(which ansible) | sed -e 's/\/bin\/ansible//g')
       if [ "$ansible_path" ]; then
         cp -f $docfragments ${ansible_path}/lib/ansible/utils/module_docs_fragments/
       fi
@@ -74,20 +74,25 @@ print_summary () {
 
 validate_modules () {
   if hash ansible-validate-modules 2>/dev/null; then
+    local command="ansible-validate-modules library --exclude module_utils"
+  elif [[ $ANSIBLE_HOME ]]; then
+    local command="${ANSIBLE_HOME}/test/sanity/validate-modules/validate-modules library/image_streamer_*.py library/oneview_*.py"
+  else
+    echo "WARNING: Skipping module validation. Unable to find 'ansible-validate-modules' or 'validate-modules'."
+  fi
+
+  if [[ $command ]]; then
     while read -r line
     do
       if [[ "$line" =~ "GPLv3" ]]; then
-        echo "IGNORED ERROR: GPLv3 license header not found"
+        continue
       else
         if [[ "$line" =~ "ERROR:" || "$line" =~ "IGNORE:" ]]; then
           exit_code_module_validation=1
         fi
         echo "$line"
       fi
-    done < <(ansible-validate-modules library --exclude module_utils)
-  else
-    echo "ERROR: ansible-validate-modules is not installed."
-    exit_code_module_validation=1
+    done < <($command)
   fi
 }
 
@@ -130,7 +135,7 @@ fi
 
 
 echo -e "\n${COLOR_START}Running tests${COLOR_END}"
-python -m unittest discover
+python -m unittest discover test/
 exit_code_tests=$?
 
 
