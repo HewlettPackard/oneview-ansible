@@ -112,6 +112,19 @@ class ServerProfileTemplateFactsSpec(unittest.TestCase,
             ansible_facts=dict(server_profile_templates=[BASIC_TEMPLATE])
         )
 
+    def test_should_return_empty_list_when_template_by_name_returns_null(self):
+        self.mock_ov_client.server_profile_templates.get_by_name.return_value = None
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
+
+        ServerProfileTemplateFactsModule().run()
+
+        self.mock_ov_client.server_profile_templates.get_by_name.assert_called_once_with(name=TEMPLATE_NAME)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(server_profile_templates=[])
+        )
+
     def test_should_get_template_by_name_with_new_profile(self):
         self.mock_ov_client.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
         self.mock_ov_client.server_profile_templates.get_new_profile.return_value = PROFILE

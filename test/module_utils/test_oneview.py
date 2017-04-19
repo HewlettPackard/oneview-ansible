@@ -2394,6 +2394,20 @@ class ServerProfileMergerTest(unittest.TestCase):
         self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_EMBED][SPKeys.LOGICAL_DRIVES],
                          expected_drives)
 
+    def test_merge_when_drives_have_incomplete_data(self):
+        controller_embedded = deepcopy(self.CONTROLLER_EMBEDDED)
+        controller_embedded[SPKeys.LOGICAL_DRIVES][0] = {}
+
+        data = dict(name="Profile101",
+                    localStorage=dict(controllers=[controller_embedded.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        expected_drive = self.CONTROLLER_EMBEDDED[SPKeys.LOGICAL_DRIVES][1]
+        self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][0][SPKeys.LOGICAL_DRIVES][1],
+                         expected_drive)
+
     def test_merge_when_drives_from_embedded_controller_have_changed_item(self):
         """
         Test the drive merge, although it's not supported by OneView.

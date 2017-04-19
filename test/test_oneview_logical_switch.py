@@ -18,9 +18,9 @@
 
 import unittest
 
+from copy import deepcopy
 from hpe_test_utils import OneViewBaseTestCase
 from oneview_module_loader import LogicalSwitchModule
-
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -90,7 +90,6 @@ PARAMS_FOR_REFRESH = dict(
 
 class LogicalSwitchModuleSpec(unittest.TestCase,
                               OneViewBaseTestCase):
-
     def setUp(self):
         self.configure_mocks(self, LogicalSwitchModule)
         self.resource = self.mock_ov_client.logical_switches
@@ -171,6 +170,17 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=LogicalSwitchModule.MSG_LOGICAL_SWITCH_GROUP_NOT_FOUND
+        )
+
+    def test_should_fail_on_update_when_logical_switch_attribute_missing(self):
+        params = deepcopy(PARAMS_FOR_UPDATE_WITH_SWITCHES_AND_GROUPS)
+        del params['data']['logicalSwitch']
+        self.mock_ansible_module.params = params
+
+        LogicalSwitchModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=LogicalSwitchModule.MSG_LOGICAL_SWITCH_NOT_FOUND
         )
 
     def test_should_update_with_current_switches_and_group_when_not_provided(self):

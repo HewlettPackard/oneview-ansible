@@ -22,7 +22,6 @@ from copy import deepcopy
 from oneview_module_loader import ArtifactBundleModule, ResourceComparator
 from hpe_test_utils import OneViewBaseTestCase
 
-
 ERROR_MSG = 'Fake message error'
 
 
@@ -227,11 +226,31 @@ class ArtifactBundleSpec(unittest.TestCase,
             ansible_facts=dict(artifact_bundle_deployment_group=self.DEPLOYMENT_GROUP))
 
     def test_update_artifact_bundle(self):
-
         artifact_bundle_updated = deepcopy(self.ARTIFACT_BUNDLE)
         artifact_bundle_updated['name'] = 'Artifact Bundle Updated'
 
         self.i3s.artifact_bundles.get_by.return_value = [self.ARTIFACT_BUNDLE]
+        self.i3s.artifact_bundles.update.return_value = artifact_bundle_updated
+
+        self.mock_ansible_module.params = self.TASK_UPDATE
+
+        ArtifactBundleModule().run()
+
+        self.i3s.artifact_bundles.update.assert_called_once_with(
+            artifact_bundle_updated
+        )
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ArtifactBundleModule.MSG_UPDATED,
+            ansible_facts=dict(artifact_bundle=artifact_bundle_updated)
+        )
+
+    def test_update_artifact_bundle_by_newname(self):
+        artifact_bundle_updated = deepcopy(self.ARTIFACT_BUNDLE)
+        artifact_bundle_updated['name'] = 'Artifact Bundle Updated'
+
+        self.i3s.artifact_bundles.get_by.side_effect = [None, [self.ARTIFACT_BUNDLE]]
         self.i3s.artifact_bundles.update.return_value = artifact_bundle_updated
 
         self.mock_ansible_module.params = self.TASK_UPDATE

@@ -433,6 +433,17 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_ENCLOSURE_NOT_FOUND)
 
+    def test_should_fail_when_name_is_not_in_data(self):
+        self.enclosures.get_by.return_value = []
+
+        params = deepcopy(PARAMS_FOR_RECONFIGURED)
+        del params['data']['name']
+
+        self.mock_ansible_module.params = params
+        EnclosureModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_ENCLOSURE_NOT_FOUND)
+
     def test_should_refresh_enclosure(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
         self.enclosures.get.return_value = ENCLOSURE_FROM_ONEVIEW
