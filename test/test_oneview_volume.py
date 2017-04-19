@@ -213,7 +213,7 @@ class VolumeModuleSpec(unittest.TestCase,
             msg=VolumeModule.MSG_NOT_FOUND
         )
 
-    def test_should_fail_when_is_missing_data_attributes_on_shapshot_creation(self):
+    def test_should_fail_when_is_missing_data_attributes_on_snapshot_creation(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
 
         params = deepcopy(PARAMS_FOR_SNAPSHOT_CREATED)
@@ -240,7 +240,7 @@ class VolumeModuleSpec(unittest.TestCase,
             msg=VolumeModule.MSG_SNAPSHOT_DELETED
         )
 
-    def test_should_fail_when_is_missing_data_attributes_on_shapshot_deletion(self):
+    def test_should_fail_when_is_missing_data_attributes_on_snapshot_deletion(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
         self.resource.get_snapshot_by.return_value = [{'uri': SNAPSHOT_URI}]
 
@@ -255,7 +255,7 @@ class VolumeModuleSpec(unittest.TestCase,
             msg=VolumeModule.MSG_NO_OPTIONS_PROVIDED
         )
 
-    def test_should_fail_when_name_is_missing_on_shapshot_deletion(self):
+    def test_should_fail_when_name_is_missing_on_snapshot_deletion(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
         self.resource.get_snapshot_by.return_value = [{'uri': SNAPSHOT_URI}]
 
