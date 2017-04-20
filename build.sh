@@ -127,8 +127,6 @@ if [ -z "$TRAVIS" ]; then
 else
   echo -e "\n${COLOR_START}Running Coveralls${COLOR_END}"
   coverage run --source=library/ -m unittest discover test/
-  # Append module_utils tests
-  coverage run -a --source=library/ -m unittest discover test/module_utils
   coveralls
   exit_code_coveralls=$?
 fi
