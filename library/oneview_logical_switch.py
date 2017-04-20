@@ -198,7 +198,6 @@ class LogicalSwitchModule(OneViewModuleBase):
 
     def __present(self, data, resource):
         self.__replace_group_name_by_uri(data)
-        resource = self.__get_by_name(data)
 
         if not resource:
             created_resource = self.oneview_client.logical_switches.create(data)

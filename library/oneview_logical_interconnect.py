@@ -258,6 +258,7 @@ class LogicalInterconnectModule(OneViewModuleBase):
         if not resource:
             raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
 
+        changed, msg, ansible_facts = False, '', dict()
         uri = resource['uri']
 
         if self.state == 'compliant':
@@ -282,8 +283,6 @@ class LogicalInterconnectModule(OneViewModuleBase):
             changed, msg, ansible_facts = self.__install_firmware(uri, self.data)
         elif self.state == 'telemetry_configuration_updated':
             changed, msg, ansible_facts = self.__update_telemetry_configuration(resource, self.data)
-        else:
-            changed, msg, ansible_facts = False, '', dict()
 
         if ansible_facts:
             result = dict(changed=changed, msg=msg, ansible_facts=ansible_facts)

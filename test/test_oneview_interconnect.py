@@ -17,6 +17,7 @@
 ###
 import unittest
 
+from copy import deepcopy
 from oneview_module_loader import InterconnectModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -32,7 +33,6 @@ def create_params_for(power_state):
 
 class InterconnectModuleSpec(unittest.TestCase,
                              OneViewBaseTestCase):
-
     FAKE_URI = "/rest/interconnects/748d4699-62ff-454e-8ec8-773815c4aa2f"
 
     INTERCONNECT_IP = '172.18.1.114'
@@ -310,6 +310,24 @@ class InterconnectModuleSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=InterconnectModule.MSG_PORTS_UPDATED,
+            ansible_facts=dict(interconnect=fake_interconnect)
+        )
+
+    def test_should_not_update_when_ports_not_provided(self):
+        self.mock_ansible_module.params = deepcopy(self.PARAMS_FOR_UPDATE_PORTS)
+        self.mock_ansible_module.params['ports'] = []
+
+        fake_interconnect = dict(uri=self.FAKE_URI)
+        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
+        self.mock_ov_client.interconnects.update_ports.return_value = fake_interconnect
+
+        InterconnectModule().run()
+
+        self.mock_ov_client.interconnects.get_by.assert_called_with('interconnectIP', self.INTERCONNECT_IP)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=InterconnectModule.MSG_PORTS_ALREADY_UPDATED,
             ansible_facts=dict(interconnect=fake_interconnect)
         )
 

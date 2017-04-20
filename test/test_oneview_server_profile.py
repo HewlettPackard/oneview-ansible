@@ -501,6 +501,23 @@ class ServerProfileModuleSpec(unittest.TestCase,
             msg=ServerProfileModule.MSG_ERROR_ALLOCATE_SERVER_HARDWARE
         )
 
+    def test_should_stop_trying_create_when_unexpected_error_code_is_raised(self):
+        self.mock_ov_client.server_profiles.get_by_name.return_value = None
+        self.mock_ov_client.server_profiles.create.side_effect = HPOneViewTaskError(msg=FAKE_MSG_ERROR,
+                                                                                    error_code='unexpected')
+        self.mock_ov_client.server_profiles.get_available_targets.return_value = AVAILABLE_TARGETS
+        self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+
+        ServerProfileModule().run()
+
+        self.mock_ov_client.server_profiles.get_available_targets.assert_called_once()
+        self.mock_ov_client.server_profiles.create.assert_called_once()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=FAKE_MSG_ERROR
+        )
+
     def test_should_fail_when_exception_is_not_related_with_server_hardware(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.server_profiles.create.side_effect = HPOneViewException(FAKE_MSG_ERROR)
@@ -798,8 +815,10 @@ class ServerProfileModuleSpec(unittest.TestCase,
             ]
         }
         expected_dict = deepcopy(params['data'])
-        expected_dict['sanStorage']['volumeAttachments'][0] = {"id": 1, "volumeStoragePoolUri": "/rest/storage-pools/1"}
-        expected_dict['sanStorage']['volumeAttachments'][1] = {"id": 2, "volumeStoragePoolUri": "/rest/storage-pools/2"}
+        expected_dict['sanStorage']['volumeAttachments'][0] = {"id": 1,
+                                                               "volumeStoragePoolUri": "/rest/storage-pools/1"}
+        expected_dict['sanStorage']['volumeAttachments'][1] = {"id": 2,
+                                                               "volumeStoragePoolUri": "/rest/storage-pools/2"}
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.storage_pools.get_by.side_effect = [[pool1], [pool2]]
@@ -888,8 +907,10 @@ class ServerProfileModuleSpec(unittest.TestCase,
             ]
         }
         expected = deepcopy(params['data'])
-        expected['sanStorage']['volumeAttachments'][0] = {"id": 1, "volumeStorageSystemUri": "/rest/storage-systems/1"}
-        expected['sanStorage']['volumeAttachments'][1] = {"id": 2, "volumeStorageSystemUri": "/rest/storage-systems/2"}
+        expected['sanStorage']['volumeAttachments'][0] = {"id": 1,
+                                                          "volumeStorageSystemUri": "/rest/storage-systems/1"}
+        expected['sanStorage']['volumeAttachments'][1] = {"id": 2,
+                                                          "volumeStorageSystemUri": "/rest/storage-systems/2"}
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.storage_systems.get_by.side_effect = [[storage_system1], [storage_system2]]
@@ -1310,7 +1331,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
         expected_drives[1].pop(SPKeys.DRIVE_NUMBER)
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertEqual(args[0][SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][0][SPKeys.LOGICAL_DRIVES], expected_drives)
+        self.assertEqual(args[0][SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][0][SPKeys.LOGICAL_DRIVES],
+                         expected_drives)
 
     def test_should_remove_lun_from_san_volumes_before_create_when_luntype_is_auto(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
@@ -1717,7 +1739,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         expected_drives = DRIVES_CONTROLLER_EMBEDDED
         args, _ = self.mock_ov_client.server_profiles.update.call_args
-        self.assertEqual(args[0][SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][0][SPKeys.LOGICAL_DRIVES], expected_drives)
+        self.assertEqual(args[0][SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][0][SPKeys.LOGICAL_DRIVES],
+                         expected_drives)
 
     @mock.patch.object(ResourceComparator, 'compare')
     def test_should_not_remove_lun_from_san_volumes_before_update_when_luntype_is_auto(self,
