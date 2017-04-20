@@ -19,7 +19,6 @@
 import unittest
 import mock
 import hpe_icsp_os_deployment
-from test.utils import create_ansible_mock
 from copy import deepcopy
 
 TASK_OS_DEPLOYMENT = {
@@ -37,6 +36,8 @@ DEFAULT_SERVER = {"name": "SP-01",
                   "uri": "/uri/239",
                   "ilo": {"ipAddress": "16.124.135.239"},
                   "state": "",
+                  'attributes': {'osdServerId': '123456',
+                                 'osdServerSerialNumber': 'VCGYZ33007'},
                   "customAttributes": []}
 
 DEFAULT_SERVER_UPDATED = {"name": "SP-01",
@@ -47,7 +48,7 @@ DEFAULT_SERVER_UPDATED = {"name": "SP-01",
                               [{'values': [{'scope': 'server', 'value': "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"}],
                                 'key': 'SSH_CERT'}]}
 
-DEFAULT_BUILD_PLAN = {"name": "BuildPlanName2", "uri": "/rest/os-deployment-build-plans/222"}
+DEFAULT_BUILD_PLAN = {"name": "RHEL 7.2 x64", "uri": "/rest/os-deployment-build-plans/222"}
 
 
 class IcspServerSpec(unittest.TestCase):
@@ -55,17 +56,14 @@ class IcspServerSpec(unittest.TestCase):
         self.patcher_ansible_module = mock.patch('hpe_icsp_os_deployment.AnsibleModule')
         self.mock_ansible_module = self.patcher_ansible_module.start()
 
+        self.mock_ansible_instance = mock.Mock()
+        self.mock_ansible_module.return_value = self.mock_ansible_instance
+
         self.patcher_icsp_service = mock.patch('hpe_icsp_os_deployment.hpICsp')
         self.mock_icsp = self.patcher_icsp_service.start()
 
         self.patcher_time_sleep = mock.patch('time.sleep', return_value=None)
         self.mock_time_sleep = self.patcher_time_sleep.start()
-
-        self.patcher_get_server_by_serial = mock.patch('hpe_icsp_os_deployment.get_server_by_serial')
-        self.mock_get_server_by_serial = self.patcher_get_server_by_serial.start()
-
-        self.patcher_get_build_plan = mock.patch('hpe_icsp_os_deployment.get_build_plan')
-        self.mock_get_build_plan = self.patcher_get_build_plan.start()
 
         self.mock_connection = mock.Mock()
         self.mock_connection.login.return_value = {}
@@ -86,91 +84,102 @@ class IcspServerSpec(unittest.TestCase):
     def tearDown(self):
         self.patcher_ansible_module.stop()
         self.patcher_icsp_service.stop()
-        self.patcher_get_build_plan.stop()
-        self.patcher_get_server_by_serial.stop()
         self.patcher_time_sleep.stop()
+
+    def get_as_rest_collection(self, server):
+        return {
+            'members': server,
+            'count': len(server)
+        }
 
     def test_should_not_add_server_when_already_present(self):
         server_already_deployed = dict(DEFAULT_SERVER, state="OK")
-        self.mock_get_build_plan.return_value = DEFAULT_BUILD_PLAN
-        self.mock_get_server_by_serial.return_value = {'uri': '/rest/os-deployment-servers/123456'}
+
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN]),
+                                                self.get_as_rest_collection([DEFAULT_SERVER])]
+
         self.mock_server_service.get_server.return_value = server_already_deployed
 
-        mock_ansible_instance = create_ansible_mock(TASK_OS_DEPLOYMENT)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = TASK_OS_DEPLOYMENT
 
         hpe_icsp_os_deployment.main()
 
         self.mock_time_sleep.assert_not_called()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False, msg="Server already deployed.", ansible_facts={'icsp_server': server_already_deployed}
         )
 
     def test_should_fail_after_try_get_server_by_serial_21_times(self):
-        self.mock_get_build_plan.return_value = DEFAULT_BUILD_PLAN
-        self.mock_get_server_by_serial.return_value = None
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN])]
+
         self.mock_server_service.get_server.return_value = DEFAULT_SERVER
 
-        mock_ansible_instance = create_ansible_mock(TASK_OS_DEPLOYMENT)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = TASK_OS_DEPLOYMENT
 
-        hpe_icsp_os_deployment.main()
+        with mock.patch('hpe_icsp_os_deployment.get_server_by_serial') as mock_get_srv_ser:
+            mock_get_srv_ser.return_value = None
+            hpe_icsp_os_deployment.main()
 
         times_sleep_called = self.mock_time_sleep.call_count
         self.assertEqual(21, times_sleep_called)
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg='Cannot find server in ICSP.')
+        self.mock_ansible_instance.fail_json.assert_called_once_with(msg='Cannot find server in ICSP.')
 
     def test_should_deploy_server(self):
-        self.mock_get_build_plan.return_value = DEFAULT_BUILD_PLAN
-        self.mock_get_server_by_serial.side_effect = [DEFAULT_SERVER]
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN]),
+                                                self.get_as_rest_collection([DEFAULT_SERVER])]
 
         self.mock_server_service.get_server.side_effect = [DEFAULT_SERVER, DEFAULT_SERVER_UPDATED]
 
-        mock_ansible_instance = create_ansible_mock(TASK_OS_DEPLOYMENT)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = TASK_OS_DEPLOYMENT
 
         hpe_icsp_os_deployment.main()
 
         times_sleep_called = self.mock_time_sleep.call_count
         self.assertEqual(0, times_sleep_called)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(changed=True, msg='OS Deployed Successfully.',
-                                                                ansible_facts={'icsp_server': DEFAULT_SERVER_UPDATED})
+        self.mock_ansible_instance.exit_json.assert_called_once_with(changed=True, msg='OS Deployed Successfully.',
+                                                                     ansible_facts={
+                                                                         'icsp_server': DEFAULT_SERVER_UPDATED})
 
     def test_should_try_deploy_server_3_times(self):
-        self.mock_get_build_plan.return_value = DEFAULT_BUILD_PLAN
-        self.mock_get_server_by_serial.side_effect = [None, None, DEFAULT_SERVER]
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN]),
+                                                self.get_as_rest_collection([]),
+                                                self.get_as_rest_collection([]),
+                                                self.get_as_rest_collection([DEFAULT_SERVER])]
 
         self.mock_server_service.get_server.side_effect = [DEFAULT_SERVER, DEFAULT_SERVER_UPDATED]
 
-        mock_ansible_instance = create_ansible_mock(TASK_OS_DEPLOYMENT)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = TASK_OS_DEPLOYMENT
 
         hpe_icsp_os_deployment.main()
 
         times_sleep_called = self.mock_time_sleep.call_count
         self.assertEqual(2, times_sleep_called)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(changed=True, msg='OS Deployed Successfully.',
-                                                                ansible_facts={'icsp_server': DEFAULT_SERVER_UPDATED})
+        self.mock_ansible_instance.exit_json.assert_called_once_with(changed=True, msg='OS Deployed Successfully.',
+                                                                     ansible_facts={
+                                                                         'icsp_server': DEFAULT_SERVER_UPDATED})
 
     def test_should_fail_when_os_build_plan_not_found(self):
-        self.mock_get_build_plan.return_value = None
-        self.mock_get_server_by_serial.side_effect = [None, None, DEFAULT_SERVER]
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([]),
+                                                self.get_as_rest_collection([]),
+                                                self.get_as_rest_collection([]),
+                                                self.get_as_rest_collection([DEFAULT_SERVER])]
+
         self.mock_server_service.get_server.return_value = DEFAULT_SERVER
 
-        mock_ansible_instance = create_ansible_mock(TASK_OS_DEPLOYMENT)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = TASK_OS_DEPLOYMENT
 
         hpe_icsp_os_deployment.main()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg='Cannot find OS Build plan: RHEL 7.2 x64')
+        self.mock_ansible_instance.fail_json.assert_called_once_with(msg='Cannot find OS Build plan: RHEL 7.2 x64')
 
     def test_should_update_server_when_task_include_network_personalization(self):
-        self.mock_get_build_plan.return_value = DEFAULT_BUILD_PLAN
-        self.mock_get_server_by_serial.return_value = DEFAULT_SERVER
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN]),
+                                                self.get_as_rest_collection([DEFAULT_SERVER])]
+
         self.mock_server_service.get_server.side_effect = [DEFAULT_SERVER, DEFAULT_SERVER_UPDATED]
         self.mock_icsp.common.monitor_execution.return_value = {}
         self.mock_icsp_jobs.add_job.return_value = {"job mock return"}
@@ -178,8 +187,7 @@ class IcspServerSpec(unittest.TestCase):
         task_with_network_personalization = deepcopy(TASK_OS_DEPLOYMENT)
         network_config = {"network_config": {"hostname": "test-web.io.fc.hpe.com", "domain": "demo.com"}}
         task_with_network_personalization['personality_data'] = network_config
-        mock_ansible_instance = create_ansible_mock(task_with_network_personalization)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = task_with_network_personalization
 
         hpe_icsp_os_deployment.main()
 
@@ -194,8 +202,8 @@ class IcspServerSpec(unittest.TestCase):
         self.mock_icsp.common.monitor_execution.assert_has_calls(calls)
 
     def test_should_update_server_when_task_include_custom_attributes(self):
-        self.mock_get_build_plan.return_value = DEFAULT_BUILD_PLAN
-        self.mock_get_server_by_serial.return_value = DEFAULT_SERVER
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN]),
+                                                self.get_as_rest_collection([DEFAULT_SERVER])]
 
         self.mock_server_service.get_server.side_effect = [DEFAULT_SERVER, DEFAULT_SERVER_UPDATED]
         self.mock_server_service.update_server.return_value = DEFAULT_SERVER_UPDATED
@@ -203,8 +211,7 @@ class IcspServerSpec(unittest.TestCase):
         task_with_custom_attr = deepcopy(TASK_OS_DEPLOYMENT)
         custom_attr = [{"SSH_CERT": "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"}]
         task_with_custom_attr['custom_attributes'] = custom_attr
-        mock_ansible_instance = create_ansible_mock(task_with_custom_attr)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = task_with_custom_attr
 
         hpe_icsp_os_deployment.main()
 
@@ -215,5 +222,48 @@ class IcspServerSpec(unittest.TestCase):
 
         self.mock_server_service.update_server.assert_called_once_with(personality_data)
 
-    if __name__ == '__main__':
-        unittest.main()
+    def test_get_server_by_serial_with_matching_result(self):
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_SERVER])]
+
+        server = hpe_icsp_os_deployment.get_server_by_serial(self.mock_connection, 'VCGYZ33007')
+
+        expected = {'uri': '/rest/os-deployment-servers/123456'}
+        self.mock_connection.get.assert_called_once_with(
+            '/rest/index/resources?category=osdserver&query=\'osdServerSerialNumber:"VCGYZ33007"\'')
+
+        self.assertEqual(server, expected)
+
+    def test_get_server_by_serial_with_non_matching_result(self):
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_SERVER])]
+
+        server = hpe_icsp_os_deployment.get_server_by_serial(self.mock_connection, '000')
+
+        self.mock_connection.get.assert_called_once_with(
+            '/rest/index/resources?category=osdserver&query=\'osdServerSerialNumber:"000"\'')
+
+        self.assertIsNone(server)
+
+    def test_get_build_plan_with_matching_result(self):
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN])]
+
+        server = hpe_icsp_os_deployment.get_build_plan(self.mock_connection, 'RHEL 7.2 x64')
+
+        expected = {'name': 'RHEL 7.2 x64', 'uri': '/rest/os-deployment-build-plans/222'}
+        self.mock_connection.get.assert_called_once_with(
+            '/rest/index/resources?filter="name=\'RHEL%207.2%20x64\'"&category=osdbuildplan')
+
+        self.assertEqual(server, expected)
+
+    def test_get_build_plan_with_non_matching_result(self):
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN])]
+
+        server = hpe_icsp_os_deployment.get_build_plan(self.mock_connection, 'BuildPlan')
+
+        self.mock_connection.get.assert_called_once_with(
+            '/rest/index/resources?filter="name=\'BuildPlan\'"&category=osdbuildplan')
+
+        self.assertIsNone(server)
+
+
+if __name__ == '__main__':
+    unittest.main()

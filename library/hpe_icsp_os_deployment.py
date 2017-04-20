@@ -91,14 +91,18 @@ icsp_server:
     type: complex
 '''
 
+from future import standard_library
+
+standard_library.install_aliases()
+
 import time
 import hpICsp
-import urllib
+from urllib.parse import quote
 from ansible.module_utils.basic import AnsibleModule
 
 
 def get_build_plan(con, bp_name):
-    search_uri = '/rest/index/resources?filter="name=\'' + urllib.quote(bp_name) + '\'"&category=osdbuildplan'
+    search_uri = '/rest/index/resources?filter="name=\'' + quote(bp_name) + '\'"&category=osdbuildplan'
     search_result = con.get(search_uri)
 
     if search_result['count'] > 0 and search_result['members'][0]['name'] == bp_name:
@@ -109,11 +113,14 @@ def get_build_plan(con, bp_name):
 def get_server_by_serial(con, serial_number):
     search_uri = '/rest/index/resources?category=osdserver&query=\'osdServerSerialNumber:\"' + serial_number + '\"\''
     search_result = con.get(search_uri)
-    same_serial_number = search_result['members'][0]['attributes']['osdServerSerialNumber'] == serial_number
-    if search_result['count'] > 0 and same_serial_number:
-        server_id = search_result['members'][0]['attributes']['osdServerId']
-        server = {'uri': '/rest/os-deployment-servers/' + server_id}
-        return server
+    if search_result['count'] > 0:
+        same_serial_number = search_result['members'][0]['attributes']['osdServerSerialNumber'] == serial_number
+
+        if same_serial_number:
+            server_id = search_result['members'][0]['attributes']['osdServerId']
+            server = {'uri': '/rest/os-deployment-servers/' + server_id}
+            return server
+
     return None
 
 
