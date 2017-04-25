@@ -17,6 +17,8 @@
   * [image_streamer_plan_script - Manage the Image Streamer Plan Script resources.](#image_streamer_plan_script)
   * [image_streamer_plan_script_facts - Retrieve facts about the Image Streamer Plan Scripts.](#image_streamer_plan_script_facts)
   * [oneview_alert_facts - Retrieve facts about the OneView Alerts.](#oneview_alert_facts)
+  * [oneview_appliance_time_and_locale_configuration - Manage OneView Appliance Locale and Time Configuration.](#oneview_appliance_time_and_locale_configuration)
+  * [oneview_appliance_time_and_locale_configuration_facts - Retrieve the facts about the OneView appliance time and locale configuration.](#oneview_appliance_time_and_locale_configuration_facts)
   * [oneview_connection_template - Manage the OneView Connection Template resources.](#oneview_connection_template)
   * [oneview_connection_template_facts - Retrieve facts about the OneView Connection Templates.](#oneview_connection_template_facts)
   * [oneview_datacenter - Manage OneView Data Center resources.](#oneview_datacenter)
@@ -1292,6 +1294,110 @@ Retrieve facts about the OneView Alerts.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | alerts   | The list of alerts. |  Always, but can be null. |  list |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_appliance_time_and_locale_configuration
+Manage OneView Appliance Locale and Time Configuration.
+
+#### Synopsis
+ Provides an interface to manage Appliance Locale and Time Configuration. It can only update it.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.1.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with the Appliance Locale and Time Configuration properties.  |
+| state  |   |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Appliance Locale and Time Configuration. `present` will ensure data properties are compliant with OneView.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Ensure that the Appliance Locale and Time Configuration is present with locale 'en_US.UTF-8'
+  oneview_appliance_time_and_locale_configuration:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      locale: 'en_US.UTF-8'
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_time_and_locale_configuration   | Has the facts about the OneView Appliance Locale and Time Configuration. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_appliance_time_and_locale_configuration_facts
+Retrieve the facts about the OneView appliance time and locale configuration.
+
+#### Synopsis
+ Retrieve the facts about the OneView appliance time and locale configuration.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Gather facts about the Appliance time and locale configuration
+  oneview_appliance_time_and_locale_configuration_facts:
+    config: "{{ config_file_path }}"
+
+- debug: var=appliance_time_and_locale_configuration
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_time_and_locale_configuration   | Has all the OneView facts about the Appliance time and locale configuration. |  Always. |  complex |
 
 
 #### Notes
