@@ -15,13 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import hpICsp
-import urllib
-from hpICsp.exceptions import *
-from ansible.module_utils.basic import *
 
-
-__author__ = 'ChakruHP, tiagomtotti'
+ANSIBLE_METADATA = {'status': ['stableinterface'],
+                    'supported_by': 'curated',
+                    'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -31,12 +28,16 @@ description:
     - Deploy the operating system on a server based on the available ICsp OS build plan.
 requirements:
     - "python >= 2.7.9"
-    - "hpICsp"
+    - "hpICsp >= 1.0.1"
+version_added: "2.3"
+author:
+    - "Tiago Totti (@tiagomtotti)"
+    - "Chakravarthy Racharla (@ChakruHP)"
 options:
   api_version:
     description:
       - ICsp API version.
-    required: true
+    required: false
     default: 300
   icsp_host:
     description:
@@ -90,9 +91,18 @@ icsp_server:
     type: complex
 '''
 
+from future import standard_library
+
+standard_library.install_aliases()
+
+import time
+import hpICsp
+from urllib.parse import quote
+from ansible.module_utils.basic import AnsibleModule
+
 
 def get_build_plan(con, bp_name):
-    search_uri = '/rest/index/resources?filter="name=\'' + urllib.quote(bp_name) + '\'"&category=osdbuildplan'
+    search_uri = '/rest/index/resources?filter="name=\'' + quote(bp_name) + '\'"&category=osdbuildplan'
     search_result = con.get(search_uri)
 
     if search_result['count'] > 0 and search_result['members'][0]['name'] == bp_name:
@@ -103,11 +113,14 @@ def get_build_plan(con, bp_name):
 def get_server_by_serial(con, serial_number):
     search_uri = '/rest/index/resources?category=osdserver&query=\'osdServerSerialNumber:\"' + serial_number + '\"\''
     search_result = con.get(search_uri)
-    same_serial_number = search_result['members'][0]['attributes']['osdServerSerialNumber'] == serial_number
-    if search_result['count'] > 0 and same_serial_number:
-        server_id = search_result['members'][0]['attributes']['osdServerId']
-        server = {'uri': '/rest/os-deployment-servers/' + server_id}
-        return server
+    if search_result['count'] > 0:
+        same_serial_number = search_result['members'][0]['attributes']['osdServerSerialNumber'] == serial_number
+
+        if same_serial_number:
+            server_id = search_result['members'][0]['attributes']['osdServerId']
+            server = {'uri': '/rest/os-deployment-servers/' + server_id}
+            return server
+
     return None
 
 
@@ -185,10 +198,10 @@ def deploy_server(module):
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            api_version=dict(required=True, type='int', default=300),
+            api_version=dict(type='int', default=300),
             icsp_host=dict(required=True, type='str'),
             username=dict(required=True, type='str'),
-            password=dict(required=True, type='str'),
+            password=dict(required=True, type='str', no_log=True),
             server_id=dict(required=True, type='str'),
             os_build_plan=dict(required=True, type='str'),
             custom_attributes=dict(required=False, type='list', default=None),

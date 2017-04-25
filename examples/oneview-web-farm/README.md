@@ -19,7 +19,7 @@ Basically this playbook will:
 - Python >= 2.7.9
 - Ansible >= 2.0.2
 - HPE OneView Python SDK must be installed - available at: https://github.com/HewlettPackard/python-hpOneView.
-- HPE ICsp installed - available at: `dependencies/python-hpICsp`.
+- HPE ICsp installed - available at https://github.com/HewlettPackard/python-hpICsp.
 
 ## Running the example
 

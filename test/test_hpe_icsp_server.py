@@ -21,11 +21,13 @@ import mock
 import yaml
 import json
 
-from test.utils import create_ansible_mock_yaml, create_ansible_mock
-
-from hpe_icsp_server import ICspServerModule
-from hpe_icsp_server import SERVER_ALREADY_PRESENT, SERVER_ALREADY_ABSENT, CUSTOM_ATTR_NETWORK_UPDATED, \
-    SERVER_PERSONALITY_DATA_REQUIRED, SERVER_NOT_FOUND
+from hpe_icsp_server import (ICspServerModule,
+                             main as hpe_icsp_server_main,
+                             SERVER_ALREADY_PRESENT,
+                             SERVER_ALREADY_ABSENT,
+                             CUSTOM_ATTR_NETWORK_UPDATED,
+                             SERVER_PERSONALITY_DATA_REQUIRED,
+                             SERVER_NOT_FOUND)
 
 from hpICsp.exceptions import HPICspInvalidResource
 
@@ -102,6 +104,9 @@ class IcspServerSpec(unittest.TestCase):
         self.patcher_ansible_module = mock.patch('hpe_icsp_server.AnsibleModule')
         self.mock_ansible_module = self.patcher_ansible_module.start()
 
+        self.mock_ansible_instance = mock.Mock()
+        self.mock_ansible_module.return_value = self.mock_ansible_instance
+
         self.patcher_icsp_service = mock.patch('hpe_icsp_server.hpICsp')
         self.mock_icsp = self.patcher_icsp_service.start()
 
@@ -118,12 +123,11 @@ class IcspServerSpec(unittest.TestCase):
 
     def test_should_not_add_server_when_already_present(self):
         self.mock_connection.get.return_value = SERVERS
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_PRESENT)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = yaml.load(YAML_SERVER_PRESENT)
 
         ICspServerModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
             msg=SERVER_ALREADY_PRESENT,
             ansible_facts=dict(target_server=DEFAULT_SERVER)
@@ -137,10 +141,9 @@ class IcspServerSpec(unittest.TestCase):
         self.mock_icsp.common = mock.Mock()
         self.mock_icsp.common.monitor_execution.return_value = {}
 
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_PRESENT)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = yaml.load(YAML_SERVER_PRESENT)
 
-        ICspServerModule().run()
+        hpe_icsp_server_main()
 
         ilo_body = {'ipAddress': "16.124.135.239",
                     'username': "Admin",
@@ -149,7 +152,7 @@ class IcspServerSpec(unittest.TestCase):
         self.mock_server_service.add_server.assert_called_once_with(ilo_body)
         self.mock_icsp.common.monitor_execution.assert_called_once_with(JOB_RESOURCE, ICSP_JOBS)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg="Server created: '/uri/239'",
             ansible_facts=dict(target_server=DEFAULT_SERVER)
@@ -159,8 +162,7 @@ class IcspServerSpec(unittest.TestCase):
         self.mock_connection.get.side_effect = [{'members': []}, SERVERS]
         self.mock_server_service.add_server.side_effect = Exception("message")
 
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_PRESENT)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = yaml.load(YAML_SERVER_PRESENT)
 
         try:
             ICspServerModule().run()
@@ -172,14 +174,13 @@ class IcspServerSpec(unittest.TestCase):
     def test_should_not_try_delete_server_when_it_is_already_absent(self):
         self.mock_connection.get.return_value = {'members': []}
         self.mock_server_service.delete_server.return_value = {}
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_ABSENT)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = yaml.load(YAML_SERVER_ABSENT)
 
         ICspServerModule().run()
 
         self.mock_server_service.delete_server.assert_not_called()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
             msg=SERVER_ALREADY_ABSENT
         )
@@ -189,14 +190,13 @@ class IcspServerSpec(unittest.TestCase):
 
         self.mock_server_service.delete_server.return_value = {}
 
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_ABSENT)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = yaml.load(YAML_SERVER_ABSENT)
 
         ICspServerModule().run()
 
         self.mock_server_service.delete_server.assert_called_once_with("/uri/239")
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg="Server '/uri/239' removed successfully from ICsp."
         )
@@ -206,13 +206,12 @@ class IcspServerSpec(unittest.TestCase):
         exeption_value = {"message": "Fake Message", "details": "Details", "errorCode": "INVALID_RESOURCE"}
         self.mock_server_service.delete_server.side_effect = HPICspInvalidResource(exeption_value)
 
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_ABSENT)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = yaml.load(YAML_SERVER_ABSENT)
 
         ICspServerModule().run()
 
         # Load called args and convert to dict to prevent str comparison with different reordering (Python 3.5)
-        fail_json_args_msg = mock_ansible_instance.fail_json.call_args[1]['msg']
+        fail_json_args_msg = self.mock_ansible_instance.fail_json.call_args[1]['msg']
         error_raised = json.loads(fail_json_args_msg)
         self.assertEqual(error_raised, exeption_value)
 
@@ -220,20 +219,18 @@ class IcspServerSpec(unittest.TestCase):
         self.mock_connection.get.return_value = SERVERS
         self.mock_server_service.delete_server.side_effect = Exception("Fake Message", "INVALID_RESOURCE")
 
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_SERVER_ABSENT)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = yaml.load(YAML_SERVER_ABSENT)
 
         ICspServerModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg='Fake Message; INVALID_RESOURCE')
+        self.mock_ansible_instance.fail_json.assert_called_once_with(msg='Fake Message; INVALID_RESOURCE')
 
     def test_should_configure_network(self):
         self.mock_connection.get.side_effect = [SERVERS, SERVERS]
         self.mock_connection.post.return_value = JOB_RESOURCE
         self.mock_server_service.get_server.return_value = DEFAULT_SERVER
 
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_NETWORK_CONFIGURED)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = yaml.load(YAML_NETWORK_CONFIGURED)
 
         ICspServerModule().run()
 
@@ -251,7 +248,7 @@ class IcspServerSpec(unittest.TestCase):
 
         self.mock_connection.post.assert_called_once_with(uri, network_config)
 
-        mock_ansible_instance.exit_json.assert_called_once_with(
+        self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
             msg=CUSTOM_ATTR_NETWORK_UPDATED,
             ansible_facts=dict(target_server=DEFAULT_SERVER)
@@ -264,36 +261,34 @@ class IcspServerSpec(unittest.TestCase):
         params_config_network = yaml.load(YAML_NETWORK_CONFIGURED)
         params_config_network['server_personality_data'] = {}
 
-        mock_ansible_instance = create_ansible_mock(params_config_network)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = params_config_network
 
         ICspServerModule().run()
 
-        mock_ansible_instance.fail_json.assert_called_once_with(msg=SERVER_PERSONALITY_DATA_REQUIRED)
+        self.mock_ansible_instance.fail_json.assert_called_once_with(msg=SERVER_PERSONALITY_DATA_REQUIRED)
 
     def test_should_fail_when_try_configure_network_for_not_found_server(self):
         self.mock_connection.get.return_value = {'members': []}
 
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_NETWORK_CONFIGURED)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = yaml.load(YAML_NETWORK_CONFIGURED)
 
         ICspServerModule().run()
 
-        mock_ansible_instance.exit_json.assert_called_once_with(changed=False, msg=SERVER_NOT_FOUND)
+        self.mock_ansible_instance.exit_json.assert_called_once_with(changed=False, msg=SERVER_NOT_FOUND)
 
     def test_expect_exception_not_caught_when_configure_network_raise_exception(self):
         self.mock_connection.get.return_value = SERVERS
         self.mock_connection.post.side_effect = Exception("message")
 
-        mock_ansible_instance = create_ansible_mock_yaml(YAML_NETWORK_CONFIGURED)
-        self.mock_ansible_module.return_value = mock_ansible_instance
+        self.mock_ansible_instance.params = yaml.load(YAML_NETWORK_CONFIGURED)
 
         try:
-            ICspServerModule().run()
+            hpe_icsp_server_main()
         except Exception as e:
             self.assertEqual("message", e.args[0])
         else:
             self.fail("Expected Exception was not raised")
 
-    if __name__ == '__main__':
-        unittest.main()
+
+if __name__ == '__main__':
+    unittest.main()

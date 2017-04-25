@@ -31,11 +31,12 @@ exit_code_coveralls=0
 setup () {
   # Change the current path and set the environment variables
   echo "Changing current directory to: ${BASH_SOURCE%/*}"
+  echo ${PYTHON_SDK}
   cd ${BASH_SOURCE%/*}
   export ANSIBLE_LIBRARY=library
 
   if [ -z ${PYTHON_SDK+x} ]; then
-    export PYTHON_SDK=../python-hpOneView:dependencies/python-hpICsp
+    export PYTHON_SDK=../python-hpOneView
   fi
 
   export PYTHONPATH=$PYTHON_SDK:$ANSIBLE_LIBRARY:$PYTHONPATH
@@ -76,7 +77,7 @@ validate_modules () {
   if hash ansible-validate-modules 2>/dev/null; then
     local command="ansible-validate-modules library --exclude module_utils"
   elif [[ $ANSIBLE_HOME ]]; then
-    local command="${ANSIBLE_HOME}/test/sanity/validate-modules/validate-modules library/image_streamer_*.py library/oneview_*.py"
+    local command="${ANSIBLE_HOME}/test/sanity/validate-modules/validate-modules library/*.py"
   else
     echo "WARNING: Skipping module validation. Unable to find 'ansible-validate-modules' or 'validate-modules'."
   fi
