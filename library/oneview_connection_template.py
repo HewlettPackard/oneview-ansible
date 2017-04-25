@@ -34,7 +34,7 @@ options:
     state:
         description:
             - Indicates the desired state for the Connection Template resource.
-              C('present') will ensure data properties are compliant with OneView.
+              C(present) will ensure data properties are compliant with OneView.
         choices: ['present']
         required: true
     data:
