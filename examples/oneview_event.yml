@@ -22,7 +22,6 @@
       oneview_event:
         config: "{{ config }}"
         state: present
-        validate_etag: False
         data:
           description: "This is a very simple test event"
           eventTypeID: "hp.justATest"
@@ -34,7 +33,6 @@
       oneview_event:
         config: "{{ config }}"
         state: present
-        validate_etag: False
         data:
           description: "This is a very simple test event"
           serviceEventSource: "true"

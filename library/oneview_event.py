@@ -78,7 +78,6 @@ class EventModule(OneViewModuleBase):
     RESOURCE_FACT_NAME = 'event'
 
     def __init__(self):
-
         additional_arg_spec = dict(data=dict(required=True, type='dict'),
                                    state=dict(
                                        required=True,
@@ -88,37 +87,12 @@ class EventModule(OneViewModuleBase):
 
         self.resource_client = self.oneview_client.events
 
-    def resource_present(self, resource, fact_name):
-        """
-        Implementation of the present state for the OneView resource 'Event'.
-        It creates the resource. This operation is not idempotent as there is
-        no way to query for a resource other than its uri.
-
-        Args:
-            resource (dict):
-                Resource to create.
-            fact_name (str):
-                Name of the fact returned to the Ansible.
-
-        Returns:
-            A dictionary with the expected arguments for the event
-        """
-        changed = False
-        resource = self.resource_client.create(self.data)
-        msg = self.MSG_CREATED
-        changed = True
-
-        return dict(
-            msg=msg,
-            changed=changed,
-            ansible_facts={fact_name: resource}
-        )
-
     def execute_module(self):
         resource = None
 
         if self.state == 'present':
-            return self.resource_present(resource, self.RESOURCE_FACT_NAME)
+            resource = self.resource_client.create(self.data)
+            return dict(changed=True, msg=self.MSG_CREATED, ansible_facts=dict(event=resource))
 
 
 def main():
