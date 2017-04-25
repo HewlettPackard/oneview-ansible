@@ -45,7 +45,7 @@ options:
   api_version:
     description:
       - ICsp API version.
-    required: true
+    required: false
     default: 300
   icsp_host:
     description:
@@ -143,10 +143,10 @@ SERVER_PERSONALITY_DATA_REQUIRED = 'server_personality_data must be informed.'
 class ICspServerModule(object):
     argument_spec = dict(
         # Connection
-        api_version=dict(required=True, type='int', default=300),
+        api_version=dict(type='int', default=300),
         icsp_host=dict(required=True, type='str'),
         username=dict(required=True, type='str'),
-        password=dict(required=True, type='str'),
+        password=dict(required=True, type='str', no_log=True),
         # options
         state=dict(
             required=True,
@@ -155,8 +155,8 @@ class ICspServerModule(object):
         # server data
         server_ipAddress=dict(required=True, type='str'),
         server_username=dict(required=True, type='str'),
-        server_password=dict(required=True, type='str'),
-        server_port=dict(required=False, type='int', default=443),
+        server_password=dict(required=True, type='str', no_log=True),
+        server_port=dict(type='int', default=443),
         server_personality_data=dict(required=False, type='dict')
     )
 

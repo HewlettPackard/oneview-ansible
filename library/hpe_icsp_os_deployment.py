@@ -37,7 +37,7 @@ options:
   api_version:
     description:
       - ICsp API version.
-    required: true
+    required: false
     default: 300
   icsp_host:
     description:
@@ -198,10 +198,10 @@ def deploy_server(module):
 def main():
     module = AnsibleModule(
         argument_spec=dict(
-            api_version=dict(required=True, type='int', default=300),
+            api_version=dict(type='int', default=300),
             icsp_host=dict(required=True, type='str'),
             username=dict(required=True, type='str'),
-            password=dict(required=True, type='str'),
+            password=dict(required=True, type='str', no_log=True),
             server_id=dict(required=True, type='str'),
             os_build_plan=dict(required=True, type='str'),
             custom_attributes=dict(required=False, type='list', default=None),
