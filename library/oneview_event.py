@@ -35,7 +35,7 @@ options:
     state:
         description:
             - Indicates the desired state for the Event.
-              C(present) will ensure data properties are compliant with OneView
+              C(present) will ensure data properties are compliant with OneView. This operation is non-idempotent.
         choices: ['present']
     data:
         description:
@@ -44,7 +44,6 @@ options:
 
 extends_documentation_fragment:
     - oneview
-    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -85,8 +84,7 @@ class EventModule(OneViewModuleBase):
                                        required=True,
                                        choices=['present']))
 
-        super(EventModule, self).__init__(additional_arg_spec=additional_arg_spec,
-                                          validate_etag_support=True)
+        super(EventModule, self).__init__(additional_arg_spec=additional_arg_spec)
 
         self.resource_client = self.oneview_client.events
 
