@@ -62,7 +62,8 @@ class ApplianceTimeAndLocaleConfigurationFactsModule(OneViewModuleBase):
 
     def execute_module(self):
         appliance_time_and_locale_configuration = self.oneview_client.appliance_time_and_locale_configuration.get()
-        return dict(changed=False, ansible_facts=dict(appliance_time_and_locale_configuration=appliance_time_and_locale_configuration))
+        return dict(changed=False,
+                    ansible_facts=dict(appliance_time_and_locale_configuration=appliance_time_and_locale_configuration))
 
 
 def main():

@@ -71,9 +71,7 @@ class ApplianceTimeAndLocaleConfigurationModule(OneViewModuleBase):
     MSG_ALREADY_PRESENT = 'Appliance Locale and Time Configuration is already configured.'
     RESOURCE_FACT_NAME = 'appliance_time_and_locale_configuration'
 
-
     def __init__(self):
-
         additional_arg_spec = dict(data=dict(required=True, type='dict'),
                                    state=dict(
                                        required=True,
