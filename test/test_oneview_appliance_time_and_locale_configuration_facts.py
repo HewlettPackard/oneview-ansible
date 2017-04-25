@@ -21,8 +21,6 @@ import unittest
 from oneview_module_loader import ApplianceTimeAndLocaleConfigurationFactsModule
 from hpe_test_utils import OneViewBaseTestCase
 
-ERROR_MSG = 'Fake message error'
-
 PARAMS_GET = dict(
     config='config.json',
     name=None

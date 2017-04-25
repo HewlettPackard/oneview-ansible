@@ -20,8 +20,6 @@ import unittest
 from oneview_module_loader import ApplianceTimeAndLocaleConfigurationModule
 from hpe_test_utils import OneViewBaseTestCase
 
-FAKE_MSG_ERROR = 'Fake message error'
-
 DEFAULT_CONFIGURATION_TEMPLATE = dict(
     locale='en_US.UTF-8',
     localeDisplayName='English (United States)',
