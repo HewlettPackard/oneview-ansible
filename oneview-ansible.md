@@ -29,6 +29,8 @@
   * [oneview_enclosure_group_facts - Retrieve facts about one or more of the OneView Enclosure Groups.](#oneview_enclosure_group_facts)
   * [oneview_ethernet_network - Manage OneView Ethernet Network resources.](#oneview_ethernet_network)
   * [oneview_ethernet_network_facts - Retrieve the facts about one or more of the OneView Ethernet Networks.](#oneview_ethernet_network_facts)
+  * [oneview_event - Manage OneView Events.](#oneview_event)
+  * [oneview_event_facts - Retrieve the facts about one or more of the OneView Events.](#oneview_event_facts)
   * [oneview_fabric - Manage OneView Fabric resources.](#oneview_fabric)
   * [oneview_fabric_facts - Retrieve the facts about one or more of the OneView Fabrics.](#oneview_fabric_facts)
   * [oneview_fc_network - Manage OneView Fibre Channel Network resources.](#oneview_fc_network)
@@ -2442,6 +2444,130 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
 | enet_associated_profiles   | Has all the OneView facts about the profiles which are using the Ethernet network. |  When requested, but can be null. |  complex |
 | enet_associated_uplink_groups   | Has all the OneView facts about the uplink sets which are using the Ethernet network. |  When requested, but can be null. |  complex |
 | ethernet_networks   | Has all the OneView facts about the Ethernet Networks. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_event
+Manage OneView Events.
+
+#### Synopsis
+ Provides an interface to manage Events. Can only create.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.1.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with the Event properties.  |
+| state  |   |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Event. `present` will ensure data properties are compliant with OneView `absent` will remove the resource from OneView, if it exists.  |
+| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Ensure that the Event is present using a test type id
+  oneview_event:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      description: "This is a very simple test event"
+      eventTypeID: "hp.justATest"
+      eventDetails: [{
+                      eventItemName: "ipv4Address",
+                      eventItemValue: "198.51.100.5",
+                      isThisVarbindData: "false",
+                      varBindOrderIndex: -1
+                      }]
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| event   | Has the facts about the OneView Events. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_event_facts
+Retrieve the facts about one or more of the OneView Events.
+
+#### Synopsis
+ Retrieve the facts about one or more of the Events from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| name  |   No  |  | |  Event name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Gather facts about all Events
+  oneview_event_facts:
+    config: "{{ config_file_path }}"
+
+- debug: var=events
+
+- name: Gather paginated, filtered and sorted facts about Events
+  oneview_event_facts:
+    config: "{{ config }}"
+    params:
+      start: 1
+      count: 3
+      sort: 'description:descending'
+      filter: 'eventTypeID=hp.justATest'
+- debug: var=events
+
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| events   | Has all the OneView facts about the Events. |  Always, but can be null. |  complex |
 
 
 #### Notes
