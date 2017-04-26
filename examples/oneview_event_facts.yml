@@ -18,7 +18,7 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
-    - name: "Gather facts about all Events"
+    - name: Gather facts about all Events
       oneview_event_facts:
         config: "{{ config }}"
       delegate_to: localhost
@@ -31,6 +31,6 @@
         params:
           start: 0
           count: 3
-          sort: 'description:descending'
-          filter: 'eventTypeID=hp.justATest'
+          sort: description:descending
+          filter: eventTypeID=hp.justATest
     - debug: var=events

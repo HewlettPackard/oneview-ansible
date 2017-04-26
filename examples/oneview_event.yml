@@ -1,5 +1,5 @@
 ###
-# Copyright (2016) Hewlett Packard Enterprise Development LP
+# Copyright (2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -23,9 +23,13 @@
         config: "{{ config }}"
         state: present
         data:
-          description: "This is a very simple test event"
-          eventTypeID: "hp.justATest"
-          eventDetails: [{ eventItemName: "ipv4Address", eventItemValue: "198.51.100.5", isThisVarbindData: "false", varBindOrderIndex: -1}]
+          description: This is a very simple test event
+          eventTypeID: hp.justATest
+          eventDetails:
+            - eventItemName: ipv4Address
+              eventItemValue: 198.51.100.5
+              isThisVarbindData: false
+              varBindOrderIndex: -1
       delegate_to: localhost
       register: event_1
 
@@ -34,18 +38,21 @@
         config: "{{ config }}"
         state: present
         data:
-          description: "This is a very simple test event"
-          serviceEventSource: "true"
-          serviceEventDetails: {
-              caseId: "1234",
-              primaryContact: "contactDetails",
-              remoteSupportState: "Submitted"
-          }
-          severity: "OK"
-          healthCategory: "PROCESSOR"
-          eventTypeID: "hp.justATest"
-          rxTime: "2012-05-14T20:23:56.688Z"
-          urgency: "None"
-          eventDetails: [{ eventItemName: "ipv4Address", eventItemValue: "198.51.100.5", isThisVarbindData: "false", varBindOrderIndex: -1}]
+          description: This is a very simple test event
+          serviceEventSource: true
+          serviceEventDetails:
+            caseId: 1234
+            primaryContact: contactDetails
+            remoteSupportState: Submitted
+          severity: OK
+          healthCategory: PROCESSOR
+          eventTypeID: hp.justATest
+          rxTime: '2012-05-14T20:23:56.688Z'
+          urgency: None
+          eventDetails:
+            - eventItemName: ipv4Address
+              eventItemValue: 198.51.100.5
+              isThisVarbindData: false
+              varBindOrderIndex: -1
       delegate_to: localhost
       register: event_1
