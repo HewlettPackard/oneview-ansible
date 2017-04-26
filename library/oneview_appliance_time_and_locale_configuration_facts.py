@@ -34,7 +34,6 @@ author:
     "Thiago Miotto (@tmiotto)"
 extends_documentation_fragment:
     - oneview
-    - oneview.factsparams
 '''
 
 EXAMPLES = '''

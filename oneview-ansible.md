@@ -123,7 +123,7 @@ Deploy the operating system on a server using HPE ICsp.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| api_version  |   Yes  |  300  | |  ICsp API version.  |
+| api_version  |   No  |  300  | |  ICsp API version.  |
 | custom_attributes  |   No  |  | |  Custom Attributes.  |
 | icsp_host  |   Yes  |  | |  ICsp hostname.  |
 | os_build_plan  |   Yes  |  | |  OS Build plan.  |
@@ -177,7 +177,7 @@ Adds, removes and configures servers in ICsp.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| api_version  |   Yes  |  300  | |  ICsp API version.  |
+| api_version  |   No  |  300  | |  ICsp API version.  |
 | icsp_host  |   Yes  |  | |  ICsp hostname.  |
 | password  |   Yes  |  | |  ICsp password.  |
 | server_ipAddress  |   Yes  |  | |  The IP address of the iLO of the server.  |
@@ -1376,7 +1376,6 @@ Retrieve the facts about the OneView appliance time and locale configuration.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
  
