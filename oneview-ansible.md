@@ -2488,12 +2488,11 @@ Manage OneView Events.
     data:
       description: "This is a very simple test event"
       eventTypeID: "hp.justATest"
-      eventDetails: [{
-                      eventItemName: "ipv4Address",
-                      eventItemValue: "198.51.100.5",
-                      isThisVarbindData: "false",
-                      varBindOrderIndex: -1
-                      }]
+      eventDetails:
+        - eventItemName: ipv4Address
+          eventItemValue: 198.51.100.5
+          isThisVarbindData: false
+          varBindOrderIndex: -1
 
 ```
 
