@@ -21,6 +21,8 @@ import mock
 import hpe_icsp_os_deployment
 from copy import deepcopy
 
+MODULE_NAME = 'hpe_icsp_os_deployment'
+
 TASK_OS_DEPLOYMENT = {
     "icsp_host": "16.124.133.251",
     "api_version": 300,
@@ -51,15 +53,15 @@ DEFAULT_SERVER_UPDATED = {"name": "SP-01",
 DEFAULT_BUILD_PLAN = {"name": "RHEL 7.2 x64", "uri": "/rest/os-deployment-build-plans/222"}
 
 
-class IcspServerSpec(unittest.TestCase):
+class IcspOsDeploymentSpec(unittest.TestCase):
     def setUp(self):
-        self.patcher_ansible_module = mock.patch('hpe_icsp_os_deployment.AnsibleModule')
+        self.patcher_ansible_module = mock.patch(MODULE_NAME + '.AnsibleModule')
         self.mock_ansible_module = self.patcher_ansible_module.start()
 
         self.mock_ansible_instance = mock.Mock()
         self.mock_ansible_module.return_value = self.mock_ansible_instance
 
-        self.patcher_icsp_service = mock.patch('hpe_icsp_os_deployment.hpICsp')
+        self.patcher_icsp_service = mock.patch(MODULE_NAME + '.hpICsp')
         self.mock_icsp = self.patcher_icsp_service.start()
 
         self.patcher_time_sleep = mock.patch('time.sleep', return_value=None)
@@ -117,7 +119,7 @@ class IcspServerSpec(unittest.TestCase):
 
         self.mock_ansible_instance.params = TASK_OS_DEPLOYMENT
 
-        with mock.patch('hpe_icsp_os_deployment.get_server_by_serial') as mock_get_srv_ser:
+        with mock.patch(MODULE_NAME + '.get_server_by_serial') as mock_get_srv_ser:
             mock_get_srv_ser.return_value = None
             hpe_icsp_os_deployment.main()
 

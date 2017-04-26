@@ -22,14 +22,11 @@ import yaml
 import json
 
 from hpe_icsp_server import (ICspServerModule,
-                             main as hpe_icsp_server_main,
-                             SERVER_ALREADY_PRESENT,
-                             SERVER_ALREADY_ABSENT,
-                             CUSTOM_ATTR_NETWORK_UPDATED,
-                             SERVER_PERSONALITY_DATA_REQUIRED,
-                             SERVER_NOT_FOUND)
+                             main as hpe_icsp_server_main)
 
 from hpICsp.exceptions import HPICspInvalidResource
+
+MODULE_NAME = 'hpe_icsp_server'
 
 SERVER_IP = "16.124.135.239"
 
@@ -101,13 +98,13 @@ JOB_RESOURCE = {"uri": "/rest/os-deployment-jobs/123456"}
 
 class IcspServerSpec(unittest.TestCase):
     def setUp(self):
-        self.patcher_ansible_module = mock.patch('hpe_icsp_server.AnsibleModule')
+        self.patcher_ansible_module = mock.patch(MODULE_NAME + '.AnsibleModule')
         self.mock_ansible_module = self.patcher_ansible_module.start()
 
         self.mock_ansible_instance = mock.Mock()
         self.mock_ansible_module.return_value = self.mock_ansible_instance
 
-        self.patcher_icsp_service = mock.patch('hpe_icsp_server.hpICsp')
+        self.patcher_icsp_service = mock.patch(MODULE_NAME + '.hpICsp')
         self.mock_icsp = self.patcher_icsp_service.start()
 
         self.mock_connection = mock.Mock()
@@ -129,7 +126,7 @@ class IcspServerSpec(unittest.TestCase):
 
         self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            msg=SERVER_ALREADY_PRESENT,
+            msg=ICspServerModule.SERVER_ALREADY_PRESENT,
             ansible_facts=dict(target_server=DEFAULT_SERVER)
         )
 
@@ -182,7 +179,7 @@ class IcspServerSpec(unittest.TestCase):
 
         self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=False,
-            msg=SERVER_ALREADY_ABSENT
+            msg=ICspServerModule.SERVER_ALREADY_ABSENT
         )
 
     def test_should_delete_server(self):
@@ -250,7 +247,7 @@ class IcspServerSpec(unittest.TestCase):
 
         self.mock_ansible_instance.exit_json.assert_called_once_with(
             changed=True,
-            msg=CUSTOM_ATTR_NETWORK_UPDATED,
+            msg=ICspServerModule.CUSTOM_ATTR_NETWORK_UPDATED,
             ansible_facts=dict(target_server=DEFAULT_SERVER)
         )
 
@@ -265,7 +262,8 @@ class IcspServerSpec(unittest.TestCase):
 
         ICspServerModule().run()
 
-        self.mock_ansible_instance.fail_json.assert_called_once_with(msg=SERVER_PERSONALITY_DATA_REQUIRED)
+        self.mock_ansible_instance.fail_json.assert_called_once_with(
+            msg=ICspServerModule.SERVER_PERSONALITY_DATA_REQUIRED)
 
     def test_should_fail_when_try_configure_network_for_not_found_server(self):
         self.mock_connection.get.return_value = {'members': []}
@@ -274,7 +272,8 @@ class IcspServerSpec(unittest.TestCase):
 
         ICspServerModule().run()
 
-        self.mock_ansible_instance.exit_json.assert_called_once_with(changed=False, msg=SERVER_NOT_FOUND)
+        self.mock_ansible_instance.exit_json.assert_called_once_with(changed=False,
+                                                                     msg=ICspServerModule.SERVER_NOT_FOUND)
 
     def test_expect_exception_not_caught_when_configure_network_raise_exception(self):
         self.mock_connection.get.return_value = SERVERS

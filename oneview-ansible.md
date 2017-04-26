@@ -123,7 +123,7 @@ Deploy the operating system on a server using HPE ICsp.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| api_version  |   Yes  |  300  | |  ICsp API version.  |
+| api_version  |   No  |  300  | |  ICsp API version.  |
 | custom_attributes  |   No  |  | |  Custom Attributes.  |
 | icsp_host  |   Yes  |  | |  ICsp hostname.  |
 | os_build_plan  |   Yes  |  | |  OS Build plan.  |
@@ -177,7 +177,7 @@ Adds, removes and configures servers in ICsp.
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| api_version  |   Yes  |  300  | |  ICsp API version.  |
+| api_version  |   No  |  300  | |  ICsp API version.  |
 | icsp_host  |   Yes  |  | |  ICsp hostname.  |
 | password  |   Yes  |  | |  ICsp password.  |
 | server_ipAddress  |   Yes  |  | |  The IP address of the iLO of the server.  |
