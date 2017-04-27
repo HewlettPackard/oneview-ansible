@@ -30,7 +30,7 @@ description:
       can have actions taken upon it.
 requirements:
     - "python >= 2.7.9"
-    - "hpICsp >= 1.0.1"
+    - "hpICsp >= 1.0.2"
 version_added: "2.3"
 author:
     - "Tiago Totti (@tiagomtotti)"
@@ -131,16 +131,16 @@ import hpICsp
 from hpICsp.exceptions import HPICspException
 from ansible.module_utils.basic import AnsibleModule
 
-SERVER_CREATED = "Server created: '{}'"
-SERVER_ALREADY_PRESENT = "Server is already present."
-SERVER_ALREADY_ABSENT = "Target server is already absent in ICsp."
-SERVER_REMOVED = "Server '{}' removed successfully from ICsp."
-CUSTOM_ATTR_NETWORK_UPDATED = 'Network Custom Attribute Updated.'
-SERVER_NOT_FOUND = "Target server is not present in ICsp."
-SERVER_PERSONALITY_DATA_REQUIRED = 'server_personality_data must be informed.'
-
 
 class ICspServerModule(object):
+    SERVER_CREATED = "Server created: '{}'"
+    SERVER_ALREADY_PRESENT = "Server is already present."
+    SERVER_ALREADY_ABSENT = "Target server is already absent in ICsp."
+    SERVER_REMOVED = "Server '{}' removed successfully from ICsp."
+    CUSTOM_ATTR_NETWORK_UPDATED = 'Network Custom Attribute Updated.'
+    SERVER_NOT_FOUND = "Target server is not present in ICsp."
+    SERVER_PERSONALITY_DATA_REQUIRED = 'server_personality_data must be informed.'
+
     argument_spec = dict(
         # Connection
         api_version=dict(type='int', default=300),
@@ -196,7 +196,7 @@ class ICspServerModule(object):
         # check if server exists
         if target_server:
             return self.module.exit_json(changed=False,
-                                         msg=SERVER_ALREADY_PRESENT,
+                                         msg=self.SERVER_ALREADY_PRESENT,
                                          ansible_facts=dict(target_server=target_server))
 
         return self._add_server()
@@ -204,7 +204,7 @@ class ICspServerModule(object):
     def __absent(self, target_server):
         # check if server exists
         if not target_server:
-            return self.module.exit_json(changed=False, msg=SERVER_ALREADY_ABSENT)
+            return self.module.exit_json(changed=False, msg=self.SERVER_ALREADY_ABSENT)
 
         server_uri = target_server['uri']
         servers_service = hpICsp.servers(self.connection)
@@ -212,7 +212,7 @@ class ICspServerModule(object):
         try:
             servers_service.delete_server(server_uri)
             return self.module.exit_json(changed=True,
-                                         msg=SERVER_REMOVED.format(server_uri))
+                                         msg=self.SERVER_REMOVED.format(server_uri))
 
         except HPICspException as icsp_exe:
             self.module.fail_json(msg=json.dumps(icsp_exe.__dict__))
@@ -224,11 +224,11 @@ class ICspServerModule(object):
         personality_data = self.module.params.get('server_personality_data')
 
         if not personality_data:
-            return self.module.fail_json(msg=SERVER_PERSONALITY_DATA_REQUIRED)
+            return self.module.fail_json(msg=self.SERVER_PERSONALITY_DATA_REQUIRED)
 
         # check if server exists
         if not target_server:
-            return self.module.exit_json(changed=False, msg=SERVER_NOT_FOUND)
+            return self.module.exit_json(changed=False, msg=self.SERVER_NOT_FOUND)
 
         server_data = {"serverUri": target_server['uri'], "personalityData": personality_data, "skipReboot": True}
         network_config = {"serverData": [server_data], "failMode": None, "osbpUris": []}
@@ -239,7 +239,7 @@ class ICspServerModule(object):
         servers_service = hpICsp.servers(self.connection)
         server = servers_service.get_server(target_server['uri'])
         return self.module.exit_json(changed=True,
-                                     msg=CUSTOM_ATTR_NETWORK_UPDATED,
+                                     msg=self.CUSTOM_ATTR_NETWORK_UPDATED,
                                      ansible_facts={'target_server': server})
 
     def __add_write_only_job(self, body):
@@ -279,7 +279,7 @@ class ICspServerModule(object):
         # gets the target server added to ICsp to return on ansible facts
         target_server = self.__get_server_by_ilo_address(ilo_address)
         return self.module.exit_json(changed=True,
-                                     msg=SERVER_CREATED.format(target_server['uri']),
+                                     msg=self.SERVER_CREATED.format(target_server['uri']),
                                      ansible_facts=dict(target_server=target_server))
 
 

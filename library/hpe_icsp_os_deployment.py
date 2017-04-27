@@ -28,7 +28,7 @@ description:
     - Deploy the operating system on a server based on the available ICsp OS build plan.
 requirements:
     - "python >= 2.7.9"
-    - "hpICsp >= 1.0.1"
+    - "hpICsp >= 1.0.2"
 version_added: "2.3"
 author:
     - "Tiago Totti (@tiagomtotti)"
