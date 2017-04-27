@@ -58,6 +58,8 @@ from oneview_enclosure_group import EnclosureGroupModule
 from oneview_enclosure_group_facts import EnclosureGroupFactsModule
 from oneview_ethernet_network import EthernetNetworkModule
 from oneview_ethernet_network_facts import EthernetNetworkFactsModule
+from oneview_event import EventModule
+from oneview_event_facts import EventFactsModule
 from oneview_fabric import FabricModule
 from oneview_fabric_facts import FabricFactsModule
 from oneview_fc_network import FcNetworkModule
