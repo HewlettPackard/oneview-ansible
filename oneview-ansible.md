@@ -119,7 +119,7 @@ Deploy the operating system on a server using HPE ICsp.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpICsp >= 1.0.1
+  * hpICsp >= 1.0.2
 
 #### Options
 
@@ -173,7 +173,7 @@ Adds, removes and configures servers in ICsp.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpICsp >= 1.0.1
+  * hpICsp >= 1.0.2
 
 #### Options
 
@@ -1318,7 +1318,7 @@ Manage OneView Appliance Locale and Time Configuration.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 3.2.0
 
 #### Options
 
@@ -1371,7 +1371,7 @@ Retrieve the facts about the OneView appliance time and locale configuration.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 3.2.0
 
 #### Options
 
@@ -2571,7 +2571,7 @@ Manage OneView Events.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 3.2.0
 
 #### Options
 
@@ -2630,7 +2630,7 @@ Retrieve the facts about one or more of the OneView Events.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 3.2.0
 
 #### Options
 
