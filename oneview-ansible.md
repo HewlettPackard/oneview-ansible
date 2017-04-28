@@ -7009,6 +7009,20 @@ Manage OneView Server Profile resources.
 - debug: var=compliance_preview
 - debug: var=created
 
+- name: Create a Server Profile with connections
+  oneview_server_profile:
+    config: "{{ config }}"
+    data:
+      name: "server-profile-with-connections"
+      connections:
+        - id: 1
+          name: connection1
+          functionType: Ethernet
+          portId: Auto
+          requestedMbps: 2500
+          networkName: eth-demo
+  delegate_to: localhost
+
 - name : Remediate compliance issues
   oneview_server_profile:
      config: "{{ config }}"

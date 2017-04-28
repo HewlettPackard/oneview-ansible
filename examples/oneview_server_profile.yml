@@ -14,23 +14,44 @@
 # limitations under the License.
 ###
 ---
+# This example contains examples of server profiles with basic configuration.
+# Some other examples of how to create a server profile with advanced settings available:
+#
+# End-to-end example of how to create a Server Profile with SAN storage settings, with a new storage volume created
+# upon profile creation:
+#    - examples/c7000_environment_setup.yml
+#
+# End-to-end example of how to create a Server Profile with Local Storage:
+#   - examples/synergy_environment_setup.yml
+#
+# # HPE ICsp Bare metal server provisioning:
+#   - examples/ICsp
+#   - examples/oneview-web-farm
+#
+# HPE Image Streamer Bare metal server provisioning:
+#   - examples/ImageStreamer
+#   - exampĺes/synergy_create_server_profile_with_deployment_plan.yml
+#   - examples/synergy_image_streamer.yml
+#   - examples/synergy_server_profile_os_deploy.yml
+##
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    # Name of the server profile template that will be used to provision the server profile
-    - ov_template: 'BL460c Gen9 1'
-    # Set the uri of an existent enclosure group to run this example
-    - enclosure_group_uri: '/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89'
-    # Set the uri of an existent server hardware type to run this example
-    - server_hardware_type_uri: '/rest/server-hardware-types/79F8B345-19E9-416D-9EE5-E6804A192B17'
-
+    # Set the name of the server profile template that will be used to provision the server profile
+    - ov_template: 'SY 480 Gen9 1'
+    # Set the name of an existing enclosure group to run this example
+    - enclosure_group_name: 'encl-group1'
+    # Set the name of an existing server hardware type to run this example
+    - server_hardware_type_name: 'SY 480 Gen9 1'
+    # Set the name of an existing ethernet network
+    - network_name: 'eth-demo'
   tasks:
-    - name : Create Server Profile from a Server Profile Template
+    - name: Create a Server Profile from a Server Profile Template
       oneview_server_profile:
-         config: "{{ config }}"
-         data:
-           server_template: "{{ ov_template }}"
-           name: "{{ inventory_hostname }}"
+        config: "{{ config }}"
+        data:
+          server_template: "{{ ov_template }}"
+          name: "{{ inventory_hostname }}"
       delegate_to: localhost
       register: result
 
@@ -42,16 +63,32 @@
     - debug: var=compliance_preview
     - debug: var=created
 
-    - name : Update Server Profile
+    - name: Create a Server Profile with connections
       oneview_server_profile:
-         config: "{{ config }}"
-         state: "present"
-         data:
-           name: "{{ inventory_hostname }}"
-           affinity: "BayAndServer"
-           bootMode:
-              manageMode: True
-              mode: "BIOS"
+        config: "{{ config }}"
+        data:
+          name: "{{ inventory_hostname }}-with-connections"
+          connections:
+            - id: 1
+              name: connection1
+              functionType: Ethernet
+              portId: Auto
+              requestedMbps: 2500
+              networkName: "{{ network_name }}"
+      delegate_to: localhost
+
+    - debug: msg="{{ server_profile }}"
+
+    - name: Update Server Profile
+      oneview_server_profile:
+        config: "{{ config }}"
+        state: "present"
+        data:
+          name: "{{ inventory_hostname }}"
+          affinity: "BayAndServer"
+          bootMode:
+            manageMode: True
+            mode: "BIOS"
       delegate_to: localhost
       register: result
 
@@ -59,43 +96,53 @@
 
     - debug: var=server_profile
 
-    - name : Remediate compliance issues
+    - name: Remediate compliance issues
       oneview_server_profile:
-         config: "{{ config }}"
-         state: "compliant"
-         data:
-           name: "{{ inventory_hostname }}"
+        config: "{{ config }}"
+        state: "compliant"
+        data:
+          name: "{{ inventory_hostname }}"
       delegate_to: localhost
       register: result
 
     - debug: msg="{{ result.msg }}"
 
-    - name : Delete the Server Profile
+    - name: Delete the Server Profile created from a Server Profile Template
       oneview_server_profile:
-         config: "{{ config }}"
-         state: "absent"
-         data:
-           name: "{{ inventory_hostname }}"
+        config: "{{ config }}"
+        state: "absent"
+        data:
+          name: "{{ inventory_hostname }}"
       delegate_to: localhost
       register: result
 
     - debug: msg="{{ result.msg }}"
 
-    - name : Create Server Profile without specifying a template
+    - name: Delete the Server Profile created with connections
       oneview_server_profile:
-         config: "{{ config }}"
-         data:
-           name: "{{ inventory_hostname }}"
-           serverHardwareTypeUri: "{{ server_hardware_type_uri }}"
-           enclosureGroupUri: "{{ enclosure_group_uri }}"
+        config: "{{ config }}"
+        state: "absent"
+        data:
+          name: "{{ inventory_hostname }}-with-connections"
+      delegate_to: localhost
+
+    - debug: msg="{{ result.msg }}"
+
+    - name: Create Server Profile without specifying a template
+      oneview_server_profile:
+        config: "{{ config }}"
+        data:
+          name: "{{ inventory_hostname }}"
+          serverHardwareTypeName: "{{ server_hardware_type_name }}"
+          enclosureGroupName: "{{ enclosure_group_name }}"
       delegate_to: localhost
 
     - debug: var=server_profile
 
-    - name : Delete the Server Profile
+    - name: Delete the Server Profile
       oneview_server_profile:
-         config: "{{ config }}"
-         state: "absent"
-         data:
-           name: "{{ inventory_hostname }}"
+        config: "{{ config }}"
+        state: "absent"
+        data:
+          name: "{{ inventory_hostname }}"
       delegate_to: localhost
