@@ -14,9 +14,6 @@
 # limitations under the License.
 ###
 ---
-  ###
-  # This playbook upload an Artifact Bundle, extracts its content and uses the
-  ###
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
