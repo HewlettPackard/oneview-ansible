@@ -153,7 +153,16 @@ class ScopeModule(OneViewModuleBase):
         if not resource:
             raise HPOneViewResourceNotFound(self.MSG_RESOURCE_NOT_FOUND)
 
-        scope = self.resource_client.update_resource_assignments(resource['uri'], self.data.get('resourceAssignments'))
+        if self.oneview_client.api_version < 500:
+            scope = self.resource_client.update_resource_assignments(resource['uri'],
+                                                                     self.data.get('resourceAssignments'))
+        else:
+            if self.data.get('resourceAssignments').get('addedResourceUris'):
+                scope = self.resource_client.patch(resource['uri'], 'replace', '/addedResourceUris',
+                                                   self.data.get('resourceAssignments').get('addedResourceUris'))
+            if self.data.get('resourceAssignments').get('removedResourceUris'):
+                scope = self.resource_client.patch(resource['uri'], 'replace', '/removedResourceUris',
+                                                   self.data.get('resourceAssignments').get('removedResourceUris'))
 
         return dict(changed=True,
                     msg=self.MSG_RESOURCE_ASSIGNMENTS_UPDATED,

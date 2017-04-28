@@ -19,9 +19,9 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     # Set the URI of existent resources to be added to the scope resource assignments
-    resource_uri_1: '/rest/fc-networks/faa540ab-a4eb-456c-aa47-98969756d4e7'
-    resource_uri_2: '/rest/fc-networks/4cf6f8f9-3edb-4ddb-9df8-03b2a8ada0bb'
-    resource_uri_3: '/rest/fc-networks/4ee791d7-6f2a-4a2e-85ce-994be04fa94a'
+    resource_uri_1: '/rest/ethernet-networks/ac023377-1a16-4ef4-9e25-029e0d246b81'
+    resource_uri_2: '/rest/ethernet-networks/52ecf04a-11f6-4aa9-89a3-97d6ec594fac'
+    resource_uri_3: '/rest/ethernet-networks/1c3a156b-1998-4cee-bf72-8122e4ca3696'
   tasks:
     - name: Create a scope
       oneview_scope:
