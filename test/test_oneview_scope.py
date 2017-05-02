@@ -53,6 +53,14 @@ PARAMS_RESOURCE_ASSIGNMENTS = dict(
                                        removedResourceUris=['/rest/resource/id-3']))
 )
 
+PARAMS_NO_RESOURCE_ASSIGNMENTS = dict(
+    config='config.json',
+    state='resource_assignments_updated',
+    data=dict(name='ScopeName',
+              resourceAssignments=dict(addedResourceUris=None,
+                                       removedResourceUris=None))
+)
+
 
 class ScopeModuleSpec(unittest.TestCase, OneViewBaseTestCase):
     def setUp(self):
@@ -130,6 +138,19 @@ class ScopeModuleSpec(unittest.TestCase, OneViewBaseTestCase):
             changed=True,
             ansible_facts=dict(scope=RESOURCE),
             msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_UPDATED
+        )
+
+    def test_should_not_update_resource_assignments(self):
+        self.resource.get_by_name.return_value = RESOURCE
+        self.resource.patch.return_value = RESOURCE
+        self.mock_ansible_module.params = copy.deepcopy(PARAMS_NO_RESOURCE_ASSIGNMENTS)
+
+        ScopeModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(scope=RESOURCE),
+            msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED
         )
 
     def test_should_fail_when_scope_not_found(self):

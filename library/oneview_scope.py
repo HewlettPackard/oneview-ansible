@@ -122,6 +122,7 @@ class ScopeModule(OneViewModuleBase):
     MSG_ALREADY_PRESENT = 'Scope is already present.'
     MSG_ALREADY_ABSENT = 'Scope is already absent.'
     MSG_RESOURCE_ASSIGNMENTS_UPDATED = 'Scope Resource Assignments updated successfully.'
+    MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED = 'Scope Resource Assignments were not updated'
     MSG_RESOURCE_NOT_FOUND = 'Scope not found.'
 
     argument_spec = dict(
@@ -157,12 +158,18 @@ class ScopeModule(OneViewModuleBase):
             scope = self.resource_client.update_resource_assignments(resource['uri'],
                                                                      self.data.get('resourceAssignments'))
         else:
-            if self.data.get('resourceAssignments').get('addedResourceUris'):
+            add_resources = self.data.get('resourceAssignments').get('addedResourceUris')
+            remove_resources = self.data.get('resourceAssignments').get('removedResourceUris')
+            if add_resources:
                 scope = self.resource_client.patch(resource['uri'], 'replace', '/addedResourceUris',
                                                    self.data.get('resourceAssignments').get('addedResourceUris'))
-            if self.data.get('resourceAssignments').get('removedResourceUris'):
+            if remove_resources:
                 scope = self.resource_client.patch(resource['uri'], 'replace', '/removedResourceUris',
                                                    self.data.get('resourceAssignments').get('removedResourceUris'))
+            if not add_resources and not remove_resources:
+                return dict(changed=False,
+                            msg=self.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED,
+                            ansible_facts=dict(scope=resource))
 
         return dict(changed=True,
                     msg=self.MSG_RESOURCE_ASSIGNMENTS_UPDATED,
