@@ -121,7 +121,7 @@ class ScopeModuleSpec(unittest.TestCase, OneViewBaseTestCase):
 
     def test_should_update_resource_assignments(self):
         self.resource.get_by_name.return_value = RESOURCE
-        self.resource.update_resource_assignments.return_value = RESOURCE
+        self.resource.patch.return_value = RESOURCE
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_RESOURCE_ASSIGNMENTS)
 
         ScopeModule().run()
