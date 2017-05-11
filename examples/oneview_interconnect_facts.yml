@@ -114,3 +114,13 @@
 
     - debug: msg="Interconnect '{{ interconnects[0]['name'] }}'"
     - debug: var=interconnect_port
+
+    - name: Gather facts about the small-form pluggable modules
+      oneview_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ interconnect_name }}"
+        options:
+            - pluggableModuleInformation
+
+    - debug: msg="Interconnect '{{ interconnects[0]['name'] }}'"
+    - debug: var=interconnect_pluggable_module_information
