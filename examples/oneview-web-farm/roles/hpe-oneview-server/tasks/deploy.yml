@@ -61,7 +61,7 @@
     config: "{{ playbook_dir }}/../oneview_config.json"
     state: power_state_set
     data:
-      hostname : "{{ server_hardware.name }}"
+      name : "{{ server_hardware.name }}"
       powerStateData:
         powerState: "On"
         powerControl: "MomentaryPress"
