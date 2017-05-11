@@ -59,7 +59,6 @@ EXAMPLES = '''
       emailAddress: testUser@example.com
       enabled: true
       fullName: testUser101
-    delegate_to: localhost
 
 - name: Ensure that the User is present with enabled 'false'
   oneview_user:
@@ -68,7 +67,6 @@ EXAMPLES = '''
     data:
       userName: testUser
       enabled: false
-    delegate_to: localhost
 
 - name: Ensure that the User is absent
   oneview_user:
@@ -76,7 +74,6 @@ EXAMPLES = '''
     state: absent
     data:
       userName: testUser
-    delegate_to: localhost
 
 - name: Set the password of specified user
   oneview_user:
@@ -85,7 +82,6 @@ EXAMPLES = '''
     data:
       userName: testUser
       password: newPass1234
-    delegate_to: localhost
 '''
 
 RETURN = '''
@@ -122,10 +118,12 @@ class UserModule(OneViewModuleBase):
         self.resource_client = self.oneview_client.users
 
     def execute_module(self):
-        # Allows usage of 'name' or 'userName' instead of enforcing 'userName'.
-        # 'name' takes precedence over 'userName' if used.
-        if self.data.get("name") is not None:
-            self.data["userName"] = self.data.pop("name")
+        # Allows usage of 'name' or 'userName' instead of enforcing 'userName'
+        try:
+            if self.data.pop("name") is not None:
+                self.data["userName"] = self.data.pop("name")
+        except KeyError:
+            pass
         try:
             resource = self.resource_client.get_by('name', self.data['userName'])
         except HPOneViewException:
@@ -168,11 +166,11 @@ class UserModule(OneViewModuleBase):
     def __set_password(self, resource):
 
         if not resource:
-            raise HPOneViewException('The specified user does not exist.')
+            raise HPOneViewException('The user specified does not exist')
         if 'password' not in self.data:
-            raise HPOneViewException('This state requires a password to be declared.')
+            raise HPOneViewException('This state requires a password to be declared')
         resource = self.resource_client.update(self.data)
-        return dict(changed=True, msg=self.MSG_PASSWORD_UPDATED, ansible_facts=dict(user=resource))
+        return dict(changed=True, msg=self.MSG_PASSWORD_UPDATED)
 
 
 def main():

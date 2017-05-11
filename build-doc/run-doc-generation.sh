@@ -17,4 +17,4 @@
 cd ${BASH_SOURCE%/*}
 echo "Changing current directory to: ${BASH_SOURCE%/*}"
 export ANSIBLE_LIBRARY=.
-ansible-playbook  -i "localhost," -c local  generate_documentation.yml
+ansible-playbook -i 'localhost,' -c local -e 'ansible_python_interpreter=python' generate_documentation.yml

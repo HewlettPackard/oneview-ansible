@@ -17,16 +17,13 @@
 ###
 import unittest
 
-from oneview_module_loader import (UserModule,
-                                   HPOneViewException)
+from oneview_module_loader import UserModule
 from hpe_test_utils import OneViewBaseTestCase
-from copy import deepcopy
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 DEFAULT_PARAMS = dict(
     userName='testUser',
-    password='secret',
     emailAddress='testUser@example.com',
     enabled='true',
     fullName='testUser101'
@@ -41,7 +38,7 @@ PARAMS_FOR_PRESENT = dict(
 PARAMS_WITH_CHANGES = dict(
     config='config.json',
     state='present',
-    data=dict(name=DEFAULT_PARAMS['userName'],
+    data=dict(userName=DEFAULT_PARAMS['userName'],
               enabled=False)
 )
 
@@ -69,7 +66,7 @@ class UserModuleSpec(unittest.TestCase, OneViewBaseTestCase):
         self.resource = self.mock_ov_client.users
 
     def test_should_create_new_user(self):
-        self.resource.get_by.side_effect = HPOneViewException('FAKE_MSG_ERROR')
+        self.resource.get_by.return_value = []
         self.resource.create.return_value = DEFAULT_PARAMS
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
@@ -83,9 +80,7 @@ class UserModuleSpec(unittest.TestCase, OneViewBaseTestCase):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        data_for_comparison = deepcopy(DEFAULT_PARAMS)
-        data_for_comparison.pop('password')
-        self.resource.get_by.return_value = data_for_comparison
+        self.resource.get_by.return_value = DEFAULT_PARAMS
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -94,7 +89,7 @@ class UserModuleSpec(unittest.TestCase, OneViewBaseTestCase):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=UserModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(user=data_for_comparison)
+            ansible_facts=dict(user=DEFAULT_PARAMS)
         )
 
     def test_update_when_data_has_modified_attributes(self):
@@ -138,9 +133,6 @@ class UserModuleSpec(unittest.TestCase, OneViewBaseTestCase):
         )
 
     def test_set_password_to_a_user(self):
-
-        self.resource.get_by.return_value = DEFAULT_PARAMS
-        self.resource.update.return_value = DEFAULT_PARAMS
         self.mock_ansible_module.params = PARAMS_FOR_SET_PASSWORD
 
         UserModule().run()
@@ -148,28 +140,7 @@ class UserModuleSpec(unittest.TestCase, OneViewBaseTestCase):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=UserModule.MSG_PASSWORD_UPDATED,
-            ansible_facts=dict(user=DEFAULT_PARAMS)
         )
-
-    def test_requires_password_for_set_password(self):
-
-        self.resource.get_by.return_value = DEFAULT_PARAMS
-        data_for_comparison = deepcopy(PARAMS_FOR_SET_PASSWORD)
-        data_for_comparison['data'].pop('password')
-        self.mock_ansible_module.params = data_for_comparison
-
-        UserModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg='This state requires a password to be declared.')
-
-    def test_requires_existing_resource_for_set_password(self):
-
-        self.resource.get_by.return_value = []
-        self.mock_ansible_module.params = PARAMS_FOR_SET_PASSWORD
-
-        UserModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg='The specified user does not exist.')
 
 
 if __name__ == '__main__':
