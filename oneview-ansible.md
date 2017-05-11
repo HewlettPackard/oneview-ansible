@@ -18025,7 +18025,6 @@ Manage OneView Users.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the User properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>set_password</li> </ul> |  Indicates the desired state for the User. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists. `set_password` will set a user password to the value specified. This operation is non-idempotent.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -18042,6 +18041,7 @@ Manage OneView Users.
       emailAddress: testUser@example.com
       enabled: true
       fullName: testUser101
+    delegate_to: localhost
 
 - name: Ensure that the User is present with enabled 'false'
   oneview_user:
@@ -18050,6 +18050,7 @@ Manage OneView Users.
     data:
       userName: testUser
       enabled: false
+    delegate_to: localhost
 
 - name: Ensure that the User is absent
   oneview_user:
@@ -18057,6 +18058,7 @@ Manage OneView Users.
     state: absent
     data:
       userName: testUser
+    delegate_to: localhost
 
 - name: Set the password of specified user
   oneview_user:
@@ -18065,6 +18067,7 @@ Manage OneView Users.
     data:
       userName: testUser
       password: newPass1234
+    delegate_to: localhost
 
 ```
 
@@ -18124,8 +18127,9 @@ Retrieve the facts about one or more of the OneView Users.
     params:
       start: 1
       count: 3
-      sort: 'name:descending'
-      filter: 'fabricType=FabricAttach'
+      sort: 'emailAddress:descending'
+      filter: 'enabled=true'
+
 - debug: var=users
 
 - name: Gather facts about a User by name
@@ -18143,7 +18147,7 @@ Retrieve the facts about one or more of the OneView Users.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| users   | Has all the OneView facts about the Users. |  Always, but can be null. |  complex |
+| users   | It has all the OneView facts about the Users. |  Always, but can be null. |  complex |
 
 
 #### Notes

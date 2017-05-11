@@ -56,8 +56,9 @@ EXAMPLES = '''
     params:
       start: 1
       count: 3
-      sort: 'name:descending'
-      filter: 'fabricType=FabricAttach'
+      sort: 'emailAddress:descending'
+      filter: 'enabled=true'
+
 - debug: var=users
 
 - name: Gather facts about a User by name

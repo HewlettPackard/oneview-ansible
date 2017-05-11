@@ -133,6 +133,9 @@ class UserModuleSpec(unittest.TestCase, OneViewBaseTestCase):
         )
 
     def test_set_password_to_a_user(self):
+
+        self.resource.get_by.return_value = DEFAULT_PARAMS
+        self.resource.update.return_value = DEFAULT_PARAMS
         self.mock_ansible_module.params = PARAMS_FOR_SET_PASSWORD
 
         UserModule().run()
@@ -140,6 +143,7 @@ class UserModuleSpec(unittest.TestCase, OneViewBaseTestCase):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=UserModule.MSG_PASSWORD_UPDATED,
+            ansible_facts=dict(user=DEFAULT_PARAMS)
         )
 
 
