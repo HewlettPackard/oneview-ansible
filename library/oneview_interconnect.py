@@ -29,7 +29,7 @@ description:
       device reset, reset port protection, and update the interconnect ports.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.2.1"
+    - "hpOneView >= 3.3.0"
 author: "Bruno Souza (@bsouza)"
 options:
     state:

@@ -28,7 +28,7 @@ description:
     - Retrieve facts about one or more of the Interconnects from OneView.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.2.0"
+    - "hpOneView >= 3.3.0"
 author: "Bruno Souza (@bsouza)"
 options:
     name:
@@ -44,7 +44,7 @@ options:
           C(portStatistics) gets the statistics for the specified port name on an interconnect.
           C(subPortStatistics) gets the subport statistics on an interconnect.
           C(ports) gets all interconnect ports.
-          C(port) gets a specific interconnect port."
+          C(port) gets a specific interconnect port.
           C(pluggableModuleInformation) gets all the SFP information."
         - "To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be
           ignored."
@@ -152,6 +152,7 @@ EXAMPLES = '''
 
 - debug: var=interconnects
 - debug: var=interconnect_pluggable_module_information
+
 '''
 
 RETURN = '''
