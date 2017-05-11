@@ -43,7 +43,6 @@
   * [oneview_firmware_driver - Provides an interface to remove Firmware Driver resources.](#oneview_firmware_driver)
   * [oneview_firmware_driver_facts - Retrieve the facts about one or more of the OneView Firmware Drivers.](#oneview_firmware_driver_facts)
   * [oneview_interconnect - Manage the OneView Interconnect resources.](#oneview_interconnect)
-  * [oneview_interconnect_facts - Retrieve facts about one or more of the OneView Interconnects.](#oneview_interconnect_facts)
   * [oneview_interconnect_link_topology_facts - Retrieve facts about the OneView Interconnect Link Topologies.](#oneview_interconnect_link_topology_facts)
   * [oneview_interconnect_type_facts - Retrieve facts about one or more of the OneView Interconnect Types.](#oneview_interconnect_type_facts)
   * [oneview_internal_link_set_facts - Retrieve facts about the OneView Internal Link Sets.](#oneview_internal_link_set_facts)
@@ -3275,7 +3274,7 @@ Manage the OneView Interconnect resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 3.2.1
 
 #### Options
 
@@ -3285,7 +3284,7 @@ Manage the OneView Interconnect resources.
 | ip  |   No  |  | |  Interconnect IP address.  |
 | name  |   No  |  | |  Interconnect name.  |
 | ports  |   No  |  | |  List with ports to update. This option should be used together with `update_ports` state.  |
-| state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>device_reset</li>  <li>update_ports</li>  <li>reset_port_protection</li> </ul> |  Indicates the desired state for the Interconnect resource. `powered_on` turns the power on. `powered_off` turns the power off. `uid_on` turns the UID light on. `uid_off` turns the UID light off. `device_reset` perform a device reset. `update_ports` updates the interconnect ports. `reset_port_protection` triggers a reset of port protection.  |
+| state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>device_reset</li>  <li>update_ports</li>  <li>reset_port_protection</li>  <li>reconfigured</li> </ul> |  Indicates the desired state for the Interconnect resource. `powered_on` turns the power on. `powered_off` turns the power off. `uid_on` turns the UID light on. `uid_off` turns the UID light off. `device_reset` perform a device reset. `update_ports` updates the interconnect ports. `reset_port_protection` triggers a reset of port protection. `reconfigured` will reapply the appliance's configuration on the interconnect. This includes running the same configuration steps that were performed as part of the interconnect add by the enclosure.  |
 
 
  
@@ -3310,6 +3309,12 @@ Manage the OneView Interconnect resources.
     state: 'uid_on'
     ip: '172.18.1.114'
 
+- name: Reconfigures the interconnect that matches the ip 172.18.1.114
+  oneview_interconnect:
+    config: "{{ config_file_path }}"
+    state: 'reconfigured'
+    ip: '172.18.1.114'
+
 ```
 
 
@@ -3319,146 +3324,6 @@ Manage the OneView Interconnect resources.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | interconnect   | Has the facts about the OneView Interconnect. |  Always. Can be null. |  complex |
-
-
-#### Notes
-
-- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
-
-- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
-
-- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
-
-
----
-
-
-## oneview_interconnect_facts
-Retrieve facts about one or more of the OneView Interconnects.
-
-#### Synopsis
- Retrieve facts about one or more of the Interconnects from OneView.
-
-#### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView >= 2.0.1
-
-#### Options
-
-| Parameter     | Required    | Default  | Choices    | Comments |
-| ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| name  |   No  |  | |  Interconnect name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Interconnect. Options allowed: `nameServers` gets the named servers for an interconnect. `statistics` gets the statistics from an interconnect. `portStatistics` gets the statistics for the specified port name on an interconnect. `subPortStatistics` gets the subport statistics on an interconnect. `ports` gets all interconnect ports. `port` gets a specific interconnect port.  To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be ignored.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
-
-
- 
-#### Examples
-
-```yaml
-- name: Gather facts about all interconnects
-  oneview_interconnect_facts:
-    config: "{{ config }}"
-
-- debug: var=interconnects
-
-- name: Gather paginated, filtered and sorted facts about Interconnects
-  oneview_interconnect_facts:
-    config: "{{ config }}"
-    params:
-      start: 0
-      count: 5
-      sort: 'name:descending'
-      filter: "enclosureName='0000A66101'"
-
-- debug: var=interconnects
-
-- name: Gather facts about the interconnect that matches the specified name
-  oneview_interconnect_facts:
-    config: "{{ config }}"
-    name: '0000A66102, interconnect 2'
-
-- debug: var=interconnects
-
-
-- name: Gather facts about the interconnect that matches the specified name and its name servers
-  oneview_interconnect_facts:
-    config: "{{ config }}"
-    name: '0000A66102, interconnect 2'
-    options:
-        - nameServers
-
-- debug: var=interconnects
-- debug: var=interconnect_name_servers
-
-- name: Gather facts about statistics for the Interconnect named '0000A66102, interconnect 2'
-  oneview_interconnect_facts:
-    config: "{{ config }}"
-    name: '0000A66102, interconnect 2'
-    options:
-        - statistics
-
-- debug: var=interconnects
-- debug: var=interconnect_statistics
-
-- name: Gather facts about statistics for the Port named 'd3' of the Interconnect named '0000A66102, interconnect 2'
-  oneview_interconnect_facts:
-    config: "{{ config }}"
-    name: '0000A66102, interconnect 2'
-    options:
-        - portStatistics: 'd3'
-
-- debug: var=interconnects
-- debug: var=interconnect_port_statistics
-
-- name: Gather facts about statistics for the sub Port number '1' of the Interconnect named 'Enc2, interconnect 2'
-  oneview_interconnect_facts:
-    config: "{{ config }}"
-    name: 'Enc2, interconnect 2'
-    options:
-        - subPortStatistics:
-            portName: 'd4'
-            subportNumber: 1
-
-- debug: var=interconnects
-- debug: var=interconnect_subport_statistics
-
-- name: Gather facts about all the Interconnect ports
-  oneview_interconnect_facts:
-    config: "{{ config }}"
-    name: '0000A66102, interconnect 2'
-    options:
-        - ports
-
-- debug: var=interconnects
-- debug: var=interconnect_ports
-
-- name: Gather facts about an Interconnect port
-  oneview_interconnect_facts:
-    config: "{{ config }}"
-    name: '0000A66102, interconnect 2'
-    options:
-        - port: d1
-
-- debug: var=interconnects
-- debug: var=interconnect_port
-
-```
-
-
-
-#### Return Values
-
-| Name          | Description  | Returned | Type       |
-| ------------- |-------------| ---------|----------- |
-| interconnect_name_servers   | The named servers for an interconnect. |  When requested, but can be null. |  list |
-| interconnect_port   | The interconnect port. |  When requested, but can be null. |  dict |
-| interconnect_port_statistics   | Statistics for the specified port name on an interconnect. |  When requested, but can be null. |  dict |
-| interconnect_ports   | All interconnect ports. |  When requested, but can be null. |  list |
-| interconnect_statistics   | Has all the OneView facts about the Interconnect Statistics. |  When requested, but can be null. |  dict |
-| interconnect_subport_statistics   | The subport statistics on an interconnect. |  When requested, but can be null. |  dict |
-| interconnects   | The list of interconnects. |  Always, but can be null. |  list |
 
 
 #### Notes

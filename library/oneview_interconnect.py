@@ -29,7 +29,7 @@ description:
       device reset, reset port protection, and update the interconnect ports.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 3.2.1"
 author: "Bruno Souza (@bsouza)"
 options:
     state:
@@ -42,6 +42,8 @@ options:
               C(device_reset) perform a device reset.
               C(update_ports) updates the interconnect ports.
               C(reset_port_protection) triggers a reset of port protection.
+              C(reconfigured) will reapply the appliance's configuration on the interconnect. This includes running
+              the same configuration steps that were performed as part of the interconnect add by the enclosure.
         choices: [
             'powered_on',
             'powered_off',
@@ -49,7 +51,8 @@ options:
             'uid_off',
             'device_reset',
             'update_ports',
-            'reset_port_protection'
+            'reset_port_protection',
+            'reconfigured'
         ]
     name:
       description:
@@ -86,6 +89,12 @@ EXAMPLES = '''
     config: "{{ config_file_path }}"
     state: 'uid_on'
     ip: '172.18.1.114'
+
+- name: Reconfigures the interconnect that matches the ip 172.18.1.114
+  oneview_interconnect:
+    config: "{{ config_file_path }}"
+    state: 'reconfigured'
+    ip: '172.18.1.114'
 '''
 
 RETURN = '''
@@ -112,10 +121,11 @@ class InterconnectModule(OneViewModuleBase):
     MSG_UID_STATE_ALREADY_ON = "Interconnect UID state is already On."
     MSG_UID_STATE_OFF = "Interconnect UID turned Off succesfully."
     MSG_UID_STATE_ALREADY_OFF = "Interconnect UID state is already Off."
-    MSG_RESET = 'Interconnect Device Reset successfully.'
+    MSG_RESET = 'Interconnect Device Reset successful.'
     MSG_PORTS_UPDATED = 'Interconnect ports updated successfully.'
     MSG_PORTS_ALREADY_UPDATED = 'Interconnect ports already updated.'
     MSG_RESET_PORT_PROTECTION = 'Port protection reset successfully.'
+    MSG_RECONFIGURED = 'Interconnect reconfigured successfully.'
     MSG_INTERCONNECT_NOT_FOUND = "The Interconnect was not found."
 
     states = dict(
@@ -137,7 +147,8 @@ class InterconnectModule(OneViewModuleBase):
                     'uid_off',
                     'device_reset',
                     'update_ports',
-                    'reset_port_protection'
+                    'reset_port_protection',
+                    'reconfigured'
                 ]
             ),
             name=dict(required=False, type='str'),
@@ -154,6 +165,8 @@ class InterconnectModule(OneViewModuleBase):
             changed, msg, resource = self.update_ports(interconnect)
         elif state_name == 'reset_port_protection':
             changed, msg, resource = self.reset_port_protection(interconnect)
+        elif state_name == 'reconfigured':
+            changed, msg, resource = self.reconfigure(interconnect)
         else:
             state = self.states[state_name]
 
@@ -225,6 +238,10 @@ class InterconnectModule(OneViewModuleBase):
     def reset_port_protection(self, resource):
         updated_resource = self.oneview_client.interconnects.reset_port_protection(id_or_uri=resource['uri'])
         return True, self.MSG_RESET_PORT_PROTECTION, updated_resource
+
+    def reconfigure(self, resource):
+        updated_resource = self.oneview_client.interconnects.update_configuration(id_or_uri=resource['uri'])
+        return True, self.MSG_RECONFIGURED, updated_resource
 
 
 def main():

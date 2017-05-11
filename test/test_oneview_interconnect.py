@@ -77,6 +77,13 @@ class InterconnectModuleSpec(unittest.TestCase,
         ip=INTERCONNECT_IP
     )
 
+    PARAMS_FOR_UPDATE_CONFIGURATION = dict(
+        config='config.json',
+        state='reconfigured',
+        name=None,
+        ip=INTERCONNECT_IP
+    )
+
     def setUp(self):
         self.configure_mocks(self, InterconnectModule)
 
@@ -348,6 +355,24 @@ class InterconnectModuleSpec(unittest.TestCase,
             msg=InterconnectModule.MSG_RESET_PORT_PROTECTION,
             ansible_facts=dict(interconnect=fake_interconnect)
         )
+
+        def test_should_update_configuration(self):
+            self.mock_ansible_module.params = self.PARAMS_FOR_UPDATE_CONFIGURATION
+
+            fake_interconnect = dict(uri=self.FAKE_URI)
+            self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
+            self.mock_ov_client.interconnects.update_configuration.return_value = fake_interconnect
+
+            InterconnectModule().run()
+
+            self.mock_ov_client.interconnects.get_by.assert_called_with('interconnectIP', self.INTERCONNECT_IP)
+            self.mock_ov_client.interconnects.update_configuration.assert_called_with(id_or_uri=self.FAKE_URI)
+
+            self.mock_ansible_module.exit_json.assert_called_once_with(
+                changed=True,
+                msg=InterconnectModule.MSG_RECONFIGURED,
+                ansible_facts=dict(interconnect=fake_interconnect)
+            )
 
 
 if __name__ == '__main__':
