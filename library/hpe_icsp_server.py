@@ -130,6 +130,7 @@ import json
 import hpICsp
 from hpICsp.exceptions import HPICspException
 from ansible.module_utils.basic import AnsibleModule
+from module_utils.icsp import ICspHelper
 
 
 class ICspServerModule(object):
@@ -163,12 +164,13 @@ class ICspServerModule(object):
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
         self.connection = self.__authenticate()
+        self.icsp_helper = ICspHelper(self.connection)
 
     def run(self):
 
         state = self.module.params['state']
         ilo_address = self.module.params['server_ipAddress']
-        target_server = self.__get_server_by_ilo_address(ilo_address)
+        target_server = self.icsp_helper.get_server_by_ilo_address(ilo_address)
 
         if state == 'present':
             self.__present(target_server)
@@ -246,17 +248,6 @@ class ICspServerModule(object):
         body = self.connection.post("/rest/os-deployment-jobs/?writeOnly=true", body)
         return body
 
-    def __get_server_by_ilo_address(self, ilo):
-        servers = self.connection.get("/rest/os-deployment-servers/?count=-1")
-        srv = self.__filter_by_ilo(servers['members'], ilo)
-        return srv
-
-    def __filter_by_ilo(self, seq, value):
-        for srv in seq:
-            if srv['ilo']['ipAddress'] == value:
-                return srv
-        return None
-
     def _add_server(self):
         ilo_address = self.module.params['server_ipAddress']
 
@@ -277,7 +268,7 @@ class ICspServerModule(object):
         # So if we got this far, the job execution finished as expected
 
         # gets the target server added to ICsp to return on ansible facts
-        target_server = self.__get_server_by_ilo_address(ilo_address)
+        target_server = self.icsp_helper.get_server_by_ilo_address(ilo_address)
         return self.module.exit_json(changed=True,
                                      msg=self.SERVER_CREATED.format(target_server['uri']),
                                      ansible_facts=dict(target_server=target_server))
