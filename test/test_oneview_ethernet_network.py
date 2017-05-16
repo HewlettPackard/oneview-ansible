@@ -67,6 +67,13 @@ YAML_RESET_CONNECTION_TEMPLATE = """
           name: 'network name'
 """
 
+PARAMS_FOR_SCOPES_SET = dict(
+    config='config.json',
+    state='scopes_set',
+    data=dict(name=DEFAULT_ETHERNET_NAME,
+              scopeUris=['rest/scopes/01SC0123456', 'rest/scopes/02SC0123456'])
+)
+
 PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
@@ -340,6 +347,50 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=EthernetNetworkModule.MSG_ETHERNET_NETWORK_NOT_FOUND
+        )
+
+    def test_update_scopes_when_different(self):
+        data_merged = DEFAULT_ENET_TEMPLATE.copy()
+        data_merged['scopeUris'] = []
+        data_merged['uri'] = 'rest/ethernet-networks/ETH0123456'
+        params_to_scope = PARAMS_FOR_SCOPES_SET.copy()
+
+        self.resource.get_by.return_value = [data_merged]
+        self.resource.patch.return_value = data_merged
+
+        self.mock_ansible_module.params = params_to_scope
+
+        EthernetNetworkModule().run()
+
+        self.resource.patch.assert_called_once_with(data_merged['uri'],
+                                                    operation='replace',
+                                                    path='/scopeUris',
+                                                    value=['rest/scopes/01SC0123456', 'rest/scopes/02SC0123456'])
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(ethernet_network_scopes_set=data_merged),
+            msg=EthernetNetworkModule.MSG_SCOPES_CHANGED
+        )
+
+    def test_should_do_nothing_when_scopes_are_the_same(self):
+        data_merged = DEFAULT_ENET_TEMPLATE.copy()
+        data_merged['scopeUris'] = ['rest/scopes/02SC0123456', 'rest/scopes/01SC0123456']
+        data_merged['uri'] = 'rest/ethernet-networks/ETH0123456'
+        params_to_scope = PARAMS_FOR_SCOPES_SET.copy()
+
+        self.resource.get_by.return_value = [data_merged]
+
+        self.mock_ansible_module.params = params_to_scope
+
+        EthernetNetworkModule().run()
+
+        self.resource.patch.not_been_called()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(ethernet_network_scopes_set=data_merged),
+            msg=EthernetNetworkModule.MSG_SCOPES_PRESENT
         )
 
 

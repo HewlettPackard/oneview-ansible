@@ -11517,7 +11517,7 @@ Manage OneView Ethernet Network resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 3.3.0
 
 #### Options
 
@@ -11525,7 +11525,7 @@ Manage OneView Ethernet Network resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Ethernet Network properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>default_bandwidth_reset</li> </ul> |  Indicates the desired state for the Ethernet Network resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists. `default_bandwidth_reset` will reset the network connection template to the default.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>default_bandwidth_reset</li>  <li>scopes_set</li> </ul> |  Indicates the desired state for the Ethernet Network resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists. `default_bandwidth_reset` will reset the network connection template to the default. `scopes_set` will set the scopes specified to the network.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
@@ -11588,6 +11588,17 @@ Manage OneView Ethernet Network resources.
     state: default_bandwidth_reset
     data:
       name: 'Test Ethernet Network'
+  delegate_to: localhost
+
+- name: Add scopes to the ethernet network
+  oneview_ethernet_network:
+    config: "{{ config_file_path }}"
+    state: scopes_set
+    data:
+      name: 'Test Ethernet Network'
+      scopeUris:
+        - '/rest/scopes/00SC123456'
+        - '/rest/scopes/01SC123456'
   delegate_to: localhost
 
 ```
@@ -12408,7 +12419,7 @@ Manage the OneView Interconnect resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.2.0
+  * hpOneView >= 3.3.0
 
 #### Options
 
@@ -12480,7 +12491,7 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.2.0
+  * hpOneView >= 3.3.0
 
 #### Options
 

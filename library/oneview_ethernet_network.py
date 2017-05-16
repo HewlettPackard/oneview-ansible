@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 3.3.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     state:
@@ -38,7 +38,8 @@ options:
               C(present) will ensure data properties are compliant with OneView.
               C(absent) will remove the resource from OneView, if it exists.
               C(default_bandwidth_reset) will reset the network connection template to the default.
-        choices: ['present', 'absent', 'default_bandwidth_reset']
+              C(scopes_set) will set the scopes specified to the network.
+        choices: ['present', 'absent', 'default_bandwidth_reset', 'scopes_set']
     data:
         description:
             - List with Ethernet Network properties.
@@ -105,6 +106,17 @@ EXAMPLES = '''
     data:
       name: 'Test Ethernet Network'
   delegate_to: localhost
+
+- name: Add scopes to the ethernet network
+  oneview_ethernet_network:
+    config: "{{ config_file_path }}"
+    state: scopes_set
+    data:
+      name: 'Test Ethernet Network'
+      scopeUris:
+        - '/rest/scopes/00SC123456'
+        - '/rest/scopes/01SC123456'
+  delegate_to: localhost
 '''
 
 RETURN = '''
@@ -141,6 +153,9 @@ class EthernetNetworkModule(OneViewModuleBase):
     MSG_CONNECTION_TEMPLATE_RESET = 'Ethernet Network connection template was reset to the default.'
     MSG_ETHERNET_NETWORK_NOT_FOUND = 'Ethernet Network was not found.'
 
+    MSG_SCOPES_PRESENT = 'Ethernet Network is already in the speficied scopes.'
+    MSG_SCOPES_CHANGED = 'Ethernet Network scopes changed.'
+
     RESOURCE_FACT_NAME = 'ethernet_network'
 
     def __init__(self):
@@ -148,7 +163,7 @@ class EthernetNetworkModule(OneViewModuleBase):
         argument_spec = dict(
             state=dict(
                 required=True,
-                choices=['present', 'absent', 'default_bandwidth_reset']
+                choices=['present', 'absent', 'default_bandwidth_reset', 'scopes_set']
             ),
             data=dict(required=True, type='dict'),
         )
@@ -173,6 +188,8 @@ class EthernetNetworkModule(OneViewModuleBase):
             return self.resource_absent(resource)
         elif self.state == 'default_bandwidth_reset':
             changed, msg, ansible_facts = self.__default_bandwidth_reset(resource)
+        elif self.state == 'scopes_set':
+            changed, msg, ansible_facts = self.__scopes_set(resource, self.data)
 
         return dict(changed=changed, msg=msg, ansible_facts=ansible_facts)
 
@@ -248,6 +265,19 @@ class EthernetNetworkModule(OneViewModuleBase):
 
         return changed, self.MSG_CONNECTION_TEMPLATE_RESET, dict(
             ethernet_network_connection_template=connection_template)
+
+    def __scopes_set(self, resource, data):
+        changed = False
+        msg = self.MSG_SCOPES_PRESENT
+        scope_uris = data['scopeUris']
+        state = dict(operation='replace', path='/scopeUris', value=scope_uris)
+
+        if not resource['scopeUris'] or set(resource['scopeUris']) != set(scope_uris):
+            resource = self.oneview_client.ethernet_networks.patch(resource['uri'], **state)
+            changed = True
+            msg = self.MSG_SCOPES_CHANGED
+
+        return changed, msg, dict(ethernet_network_scopes_set=resource)
 
 
 def main():
