@@ -126,6 +126,51 @@ class FcoeNetworkSpec(unittest.TestCase,
             msg=FcoeNetworkModule.MSG_ALREADY_ABSENT
         )
 
+    def test_update_scopes_when_different(self):
+        params_to_scope = PARAMS_FOR_PRESENT.copy()
+        params_to_scope['data']['scopeUris'] = ['test']
+        self.mock_ansible_module.params = params_to_scope
+
+        resource_data = DEFAULT_FCOE_NETWORK_TEMPLATE.copy()
+        resource_data['scopeUris'] = ['fake']
+        resource_data['uri'] = 'rest/fcoe/fake'
+        self.resource.get_by.return_value = [resource_data]
+
+        patch_return = resource_data.copy()
+        patch_return['scopeUris'] = ['test']
+        self.resource.patch.return_value = patch_return
+
+        FcoeNetworkModule().run()
+
+        self.resource.patch.assert_called_once_with('rest/fcoe/fake',
+                                                    operation='replace',
+                                                    path='/scopeUris',
+                                                    value=['test'])
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(fcoe_network=patch_return),
+            msg=FcoeNetworkModule.MSG_UPDATED
+        )
+
+    def test_should_do_nothing_when_scopes_are_the_same(self):
+        params_to_scope = PARAMS_FOR_PRESENT.copy()
+        params_to_scope['data']['scopeUris'] = ['test']
+        self.mock_ansible_module.params = params_to_scope
+
+        resource_data = DEFAULT_FCOE_NETWORK_TEMPLATE.copy()
+        resource_data['scopeUris'] = ['test']
+        self.resource.get_by.return_value = [resource_data]
+
+        FcoeNetworkModule().run()
+
+        self.resource.patch.not_been_called()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(fcoe_network=resource_data),
+            msg=FcoeNetworkModule.MSG_ALREADY_PRESENT
+        )
 
 if __name__ == '__main__':
     unittest.main()

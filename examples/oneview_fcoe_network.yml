@@ -17,6 +17,9 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    network_scope_uris:
+      - '/rest/scopes/d0324c4b-56c9-485b-b7dd-8f6218a4b5bb'
+      - '/rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412'
   tasks:
     - name: Create a FCoE Network
       oneview_fcoe_network:
@@ -44,6 +47,15 @@
           name: 'Test FCoE Network'
           newName: 'Test FCoE Network - Changed'
           vlanId: 201
+      delegate_to: localhost
+
+    - name: Update the FCoE Network with two scopes
+      oneview_fcoe_network:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test FCoE Network - Changed'
+          scopeUris: "{{ network_scope_uris }}"
       delegate_to: localhost
 
     - name: Delete the FCoE Network
