@@ -70,7 +70,7 @@ YAML_RESET_CONNECTION_TEMPLATE = """
 PARAMS_FOR_SCOPES_SET = dict(
     config='config.json',
     state='present',
-    data=dict(name=DEFAULT_ETHERNET_NAME, scopeUris='XURUBIRUCA')
+    data=dict(name=DEFAULT_ETHERNET_NAME)
 )
 
 PARAMS_FOR_ABSENT = dict(

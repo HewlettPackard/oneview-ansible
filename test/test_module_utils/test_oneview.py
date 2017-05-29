@@ -324,25 +324,26 @@ class OneViewModuleBaseSpec(unittest.TestCase):
                              msg=OneViewModuleBase.MSG_ALREADY_ABSENT)
                          )
 
-    def test_update_scopes_when_not_defined_before(self):
+
+    def scope_update_helper(self, before_value=None, action_value=None, expected_value=None):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT.copy()
 
         ov_base = OneViewModuleBase()
         ov_base.resource_client = mock.Mock()
         ov_base.resource_client.patch.return_value = {'return': 'value'}
         ov_base.data = self.RESOURCE_COMMON.copy()
-        ov_base.data['scopeUris'] = None
+        ov_base.data['scopeUris'] = before_value
 
         facts = ov_base.resource_scopes_set(dict(changed=False,
                                                  ansible_facts=dict(resource=ov_base.data),
                                                  msg=OneViewModuleBase.MSG_ALREADY_PRESENT),
                                             'resource',
-                                            ['test'])
+                                            action_value)
 
         ov_base.resource_client.patch.assert_called_once_with(ov_base.data['uri'],
                                                               operation='replace',
                                                               path='/scopeUris',
-                                                              value=['test'])
+                                                              value=expected_value)
 
         self.assertEqual(facts,
                          dict(
@@ -350,87 +351,19 @@ class OneViewModuleBaseSpec(unittest.TestCase):
                              msg=OneViewModuleBase.MSG_UPDATED,
                              ansible_facts=dict(resource={'return': 'value'}))
                          )
+
+
+    def test_update_scopes_when_not_defined_before(self):
+        self.scope_update_helper(before_value=None, action_value=['test'], expected_value=['test'])
 
     def test_update_scopes_when_empty_before(self):
-        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT.copy()
-
-        ov_base = OneViewModuleBase()
-        ov_base.resource_client = mock.Mock()
-        ov_base.resource_client.patch.return_value = {'return': 'value'}
-        ov_base.data = self.RESOURCE_COMMON.copy()
-        ov_base.data['scopeUris'] = []
-
-        facts = ov_base.resource_scopes_set(dict(changed=False,
-                                                 ansible_facts=dict(resource=ov_base.data),
-                                                 msg=OneViewModuleBase.MSG_ALREADY_PRESENT),
-                                            'resource',
-                                            ['test'])
-
-        ov_base.resource_client.patch.assert_called_once_with(ov_base.data['uri'],
-                                                              operation='replace',
-                                                              path='/scopeUris',
-                                                              value=['test'])
-
-        self.assertEqual(facts,
-                         dict(
-                             changed=True,
-                             msg=OneViewModuleBase.MSG_UPDATED,
-                             ansible_facts=dict(resource={'return': 'value'}))
-                         )
+        self.scope_update_helper(before_value=[], action_value=['test'], expected_value=['test'])
 
     def test_update_scopes_with_empty_list(self):
-        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT.copy()
-
-        ov_base = OneViewModuleBase()
-        ov_base.resource_client = mock.Mock()
-        ov_base.resource_client.patch.return_value = {'return': 'value'}
-        ov_base.data = self.RESOURCE_COMMON.copy()
-        ov_base.data['scopeUris'] = ['test1', 'test2']
-
-        facts = ov_base.resource_scopes_set(dict(changed=False,
-                                                 ansible_facts=dict(resource=ov_base.data),
-                                                 msg=OneViewModuleBase.MSG_ALREADY_PRESENT),
-                                            'resource',
-                                            [])
-
-        ov_base.resource_client.patch.assert_called_once_with(ov_base.data['uri'],
-                                                              operation='replace',
-                                                              path='/scopeUris',
-                                                              value=[])
-
-        self.assertEqual(facts,
-                         dict(
-                             changed=True,
-                             msg=OneViewModuleBase.MSG_UPDATED,
-                             ansible_facts=dict(resource={'return': 'value'}))
-                         )
+        self.scope_update_helper(before_value=['test1', 'test2'], action_value=[], expected_value=[])
 
     def test_update_scopes_with_none(self):
-        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT.copy()
-
-        ov_base = OneViewModuleBase()
-        ov_base.resource_client = mock.Mock()
-        ov_base.resource_client.patch.return_value = {'return': 'value'}
-        ov_base.data = self.RESOURCE_COMMON.copy()
-        ov_base.data['scopeUris'] = ['test1', 'test2']
-
-        facts = ov_base.resource_scopes_set(dict(changed=False,
-                                                 ansible_facts=dict(resource=ov_base.data),
-                                                 msg=OneViewModuleBase.MSG_ALREADY_PRESENT),
-                                            'resource',
-                                            None)
-
-        ov_base.resource_client.patch.assert_called_once_with(ov_base.data['uri'],
-                                                              operation='replace',
-                                                              path='/scopeUris',
-                                                              value=[])
-
-        self.assertEqual(facts,
-                         dict(
-                             changed=True,
-                             msg=OneViewModuleBase.MSG_UPDATED,
-                             ansible_facts=dict(resource={'return': 'value'}))
-                         )
+        self.scope_update_helper(before_value=['test1', 'test2'], action_value=None, expected_value=[])
 
     def test_should_do_nothing_when_scopes_are_the_same(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT.copy()
@@ -455,7 +388,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
                              ansible_facts=dict(resource=ov_base.data))
                          )
 
-    def test_should_do_nothing_when_scopes_empty_and_remove_all(self):
+    def test_should_do_nothing_when_scopes_empty_and_none_wanted(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT.copy()
 
         ov_base = OneViewModuleBase()
