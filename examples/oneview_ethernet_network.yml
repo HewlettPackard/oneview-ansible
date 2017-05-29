@@ -38,65 +38,83 @@
               typicalBandwidth: 1000
       delegate_to: localhost
 
-    - name: Update the Ethernet Network changing bandwidth and purpose
+    # - name: Update the Ethernet Network changing bandwidth and purpose
+    #   oneview_ethernet_network:
+    #     config: "{{ config }}"
+    #     state: present
+    #     data:
+    #       name: '{{ network_name }}'
+    #       purpose: Management
+    #       bandwidth:
+    #           maximumBandwidth: 3000
+    #           typicalBandwidth: 2000
+    #   delegate_to: localhost
+    #
+    # - name: Reset to the default network connection template
+    #   oneview_ethernet_network:
+    #     config: "{{ config }}"
+    #     state: default_bandwidth_reset
+    #     data:
+    #       name: '{{ network_name }}'
+    #   delegate_to: localhost
+    #
+    # - name: Add Scopes to the Ethernet Network
+    #   oneview_ethernet_network:
+    #     config: "{{ config }}"
+    #     state: present
+    #     data:
+    #       name: "{{ network_name }}"
+    #       scopeUris: "{{ network_scope_uris }}"
+    #   delegate_to: localhost
+    #
+    # - name: Rename the Ethernet Network to 'Updated Ethernet Network'
+    #   oneview_ethernet_network:
+    #     config: "{{ config }}"
+    #     state: present
+    #     data:
+    #       name: '{{ network_name }}'
+    #       newName: 'Updated Ethernet Network'
+    #   delegate_to: localhost
+    #
+    # - name: Delete the Ethernet Network
+    #   oneview_ethernet_network:
+    #     config: "{{ config }}"
+    #     state: absent
+    #     data:
+    #       name: 'Updated Ethernet Network'
+    #   delegate_to: localhost
+    #   register: deleted
+    #
+    # - name: Create Ethernet Networks in bulk
+    #   oneview_ethernet_network:
+    #     config: "{{ config }}"
+    #     state: present
+    #     data:
+    #       vlanIdRange: '1-3,5,7'
+    #       purpose: General
+    #       namePrefix: TestNetwork
+    #       smartLink: false
+    #       privateNetwork: false
+    #       bandwidth:
+    #           maximumBandwidth: 10000
+    #           typicalBandwidth: 2000
+    #   delegate_to: localhost
+    # - debug: msg="{{ethernet_network_bulk | map(attribute='name') | list }}"
+
+    - name: Add one scope to the Ethernet Network
       oneview_ethernet_network:
         config: "{{ config }}"
         state: present
         data:
-          name: '{{ network_name }}'
-          purpose: Management
-          bandwidth:
-              maximumBandwidth: 3000
-              typicalBandwidth: 2000
+          name: "{{ network_name }}"
+          scopeUris: []
       delegate_to: localhost
 
-    - name: Reset to the default network connection template
+    - name: Update the Ethernet Network with two scopes
       oneview_ethernet_network:
         config: "{{ config }}"
-        state: default_bandwidth_reset
-        data:
-          name: '{{ network_name }}'
-      delegate_to: localhost
-
-    - name: Add Scopes to the Ethernet Network
-      oneview_ethernet_network:
-        config: "{{ config }}"
-        state: scopes_set
+        state: present
         data:
           name: "{{ network_name }}"
           scopeUris: "{{ network_scope_uris }}"
       delegate_to: localhost
-
-    - name: Rename the Ethernet Network to 'Updated Ethernet Network'
-      oneview_ethernet_network:
-        config: "{{ config }}"
-        state: present
-        data:
-          name: '{{ network_name }}'
-          newName: 'Updated Ethernet Network'
-      delegate_to: localhost
-
-    - name: Delete the Ethernet Network
-      oneview_ethernet_network:
-        config: "{{ config }}"
-        state: absent
-        data:
-          name: 'Updated Ethernet Network'
-      delegate_to: localhost
-      register: deleted
-
-    - name: Create Ethernet Networks in bulk
-      oneview_ethernet_network:
-        config: "{{ config }}"
-        state: present
-        data:
-          vlanIdRange: '1-3,5,7'
-          purpose: General
-          namePrefix: TestNetwork
-          smartLink: false
-          privateNetwork: false
-          bandwidth:
-              maximumBandwidth: 10000
-              typicalBandwidth: 2000
-      delegate_to: localhost
-    - debug: msg="{{ethernet_network_bulk | map(attribute='name') | list }}"
