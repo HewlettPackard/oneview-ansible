@@ -324,7 +324,6 @@ class OneViewModuleBaseSpec(unittest.TestCase):
                              msg=OneViewModuleBase.MSG_ALREADY_ABSENT)
                          )
 
-
     def scope_update_helper(self, before_value=None, action_value=None, expected_value=None):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT.copy()
 
@@ -351,7 +350,6 @@ class OneViewModuleBaseSpec(unittest.TestCase):
                              msg=OneViewModuleBase.MSG_UPDATED,
                              ansible_facts=dict(resource={'return': 'value'}))
                          )
-
 
     def test_update_scopes_when_not_defined_before(self):
         self.scope_update_helper(before_value=None, action_value=['test'], expected_value=['test'])
