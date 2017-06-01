@@ -11980,7 +11980,7 @@ Manage OneView Fibre Channel Network resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 4.0.0
 
 #### Options
 
@@ -12010,6 +12010,16 @@ Manage OneView Fibre Channel Network resources.
     data:
       name: 'New FC Network'
       fabricType: 'DirectAttach'
+
+- name: Ensure that the Fibre Channel Network is present and is inserted in the desired scopes
+  oneview_fc_network:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'New FC Network'
+      scopeUris:
+        - '/rest/scopes/00SC123456'
+        - '/rest/scopes/01SC123456'
 
 - name: Ensure that the Fibre Channel Network is absent
   oneview_fc_network:
@@ -12118,7 +12128,7 @@ Manage OneView FCoE Network resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 4.0.0
 
 #### Options
 
@@ -12141,6 +12151,17 @@ Manage OneView FCoE Network resources.
     data:
       name: 'Test FCoE Network'
       vlanId: '201'
+
+- name: Update the FCOE network scopes
+  oneview_fcoe_network:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'New FCoE Network'
+      scopeUris:
+        - '/rest/scopes/00SC123456'
+        - '/rest/scopes/01SC123456'
+  delegate_to: localhost
 
 - name: Ensure that FCoE Network is absent
   oneview_fcoe_network:
@@ -12312,14 +12333,33 @@ Provides an interface to remove Firmware Driver resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| name  |   Yes  |  | |  Firmware driver name.  |
-| state  |   |  | <ul> <li>absent</li> </ul> |  Indicates the desired state for the Firmware Driver. `absent` will remove the resource from OneView, if it exists.  |
+| data  |   No  |  | |  List with the Firmware Driver properties.  |
+| name  |   No  |  | |  Firmware driver name.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Firmware Driver. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
 
 
  
 #### Examples
 
 ```yaml
+- name: Create the Firmware Driver using names to find the baseline and hotfix firmwares.
+  oneview_firmware_driver:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      customBaselineName: "Service Pack for ProLiant - Custom"
+      baselineName: "Service Pack for ProLiant"
+      hotfixNames: ['hotfix 1', 'hotfix 2']
+
+- name: Create the Firmware Driver using URIs to find the baseline and hotfix firmwares.
+  oneview_firmware_driver:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      customBaselineName: "Service Pack for ProLiant - Custom"
+      baselineUri: "/rest/firmware-driver/SPP1"
+      hotfixUris: ['/rest/firmware-driver/hotfix1', '/rest/firmware-driver/hotfix2']
+
 - name: Ensure that Firmware Driver is absent
   oneview_firmware_driver:
     config: "{{ config_file_path }}"

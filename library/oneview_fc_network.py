@@ -128,6 +128,7 @@ class FcNetworkModule(OneViewModuleBase):
             result = self.resource_scopes_set(result, 'fc_network', scope_uris)
         return result
 
+
 def main():
     FcNetworkModule().run()
 

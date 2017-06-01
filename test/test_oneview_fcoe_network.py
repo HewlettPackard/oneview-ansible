@@ -172,5 +172,6 @@ class FcoeNetworkSpec(unittest.TestCase,
             msg=FcoeNetworkModule.MSG_ALREADY_PRESENT
         )
 
+
 if __name__ == '__main__':
     unittest.main()

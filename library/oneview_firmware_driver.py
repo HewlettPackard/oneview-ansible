@@ -35,17 +35,40 @@ options:
     state:
         description:
             - Indicates the desired state for the Firmware Driver.
+              C(present) will ensure data properties are compliant with OneView.
               C(absent) will remove the resource from OneView, if it exists.
-        choices: ['absent']
+        choices: ['present', 'absent']
     name:
       description:
         - Firmware driver name.
-      required: True
+      required: False
+    data:
+      description:
+          - List with the Firmware Driver properties.
+      required: False
 extends_documentation_fragment:
     - oneview
 '''
 
 EXAMPLES = '''
+- name: Create the Firmware Driver using names to find the baseline and hotfix firmwares.
+  oneview_firmware_driver:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      customBaselineName: "Service Pack for ProLiant - Custom"
+      baselineName: "Service Pack for ProLiant"
+      hotfixNames: ['hotfix 1', 'hotfix 2']
+
+- name: Create the Firmware Driver using URIs to find the baseline and hotfix firmwares.
+  oneview_firmware_driver:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      customBaselineName: "Service Pack for ProLiant - Custom"
+      baselineUri: "/rest/firmware-driver/SPP1"
+      hotfixUris: ['/rest/firmware-driver/hotfix1', '/rest/firmware-driver/hotfix2']
+
 - name: Ensure that Firmware Driver is absent
   oneview_firmware_driver:
     config: "{{ config_file_path }}"
@@ -56,23 +79,72 @@ EXAMPLES = '''
 RETURN = ''' # '''
 
 from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase
+from module_utils.oneview import (OneViewModuleBase, HPOneViewException)
 
 
 class FirmwareDriverModule(OneViewModuleBase):
+    MSG_CREATED = 'Firmware driver created successfully.'
+    MSG_UPDATED = 'Firmware driver updated successfully.'
+    MSG_ALREADY_PRESENT = 'Firmware driver is already present.'
     MSG_DELETED = 'Firmware driver deleted successfully.'
     MSG_ALREADY_ABSENT = 'Firmware driver is already absent.'
+    RESOURCE_FACT_NAME = 'firmware_driver'
 
     def __init__(self):
-        argument_spec = dict(state=dict(required=True, choices=['absent']),
-                             name=dict(required=True, type='str'))
+        argument_spec = dict(state=dict(required=True, choices=['absent', 'present']),
+                             name=dict(required=False, type='str'),
+                             data=dict(required=False, type='dict'))
 
         super(FirmwareDriverModule, self).__init__(additional_arg_spec=argument_spec)
         self.resource_client = self.oneview_client.firmware_drivers
 
     def execute_module(self):
-        resource = self.get_by_name(self.module.params.get("name"))
-        return self.resource_absent(resource)
+        self.data = self.data or {}
+        # Checks for the name and data['customBaselineName'] params for a name attribute to the Firmware Driver.
+        if not self.data.get('customBaselineName') and not self.module.params.get('name'):
+            msg = 'A "name" parameter or a "customBaselineName" field inside the "data" parameter'
+            msg += 'is required for this operation.'
+            raise Exception(msg)
+
+        if self.data and self.data.get('customBaselineName'):
+            fw_name = self.data['customBaselineName']
+        elif self.module.params.get('name'):
+            fw_name = self.module.params['name']
+
+        # Allow usage of baselineName instead of baselineUri
+        if self.data and self.data.get('baselineName'):
+            baseline_name = self.data.pop('baselineName', "")
+            spp = self.get_by_name(baseline_name)
+            if spp:
+                self.data['baselineUri'] = spp['uri']
+            else:
+                raise HPOneViewException('Baseline SPP named "%s" not found in OneView Appliance.' % baseline_name)
+
+        # Allow usage of hotfixNames instead of hotfixUris
+        if self.data and self.data.get('hotfixNames'):
+            hotfix_names = self.data.pop('hotfixNames', [])
+            self.data['hotfixUris'] = self.data.get('hotfixUris') or []
+            for hotfix_name in hotfix_names:
+                hotfix = self.get_by_name(hotfix_name)
+                if hotfix:
+                    self.data['hotfixUris'].append(hotfix['uri'])
+                else:
+                    raise HPOneViewException('Hotfix named "%s" not found in OneView Appliance.' % hotfix_name)
+
+        resource = self.get_by_name(fw_name)
+
+        if self.state == 'present':
+            changed, msg, firmware_driver = self.__present(resource)
+            return dict(changed=changed, msg=msg, ansible_facts=firmware_driver)
+        elif self.state == 'absent':
+            return self.resource_absent(resource)
+
+    def __present(self, resource):
+        if not resource:
+            resource = self.oneview_client.firmware_drivers.create(self.data)
+            return True, self.MSG_CREATED, dict(firmware_driver=resource)
+        else:
+            return False, self.MSG_ALREADY_PRESENT, dict(firmware_driver=resource)
 
 
 def main():
