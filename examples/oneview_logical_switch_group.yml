@@ -19,6 +19,9 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     switch_type_name: 'Cisco Nexus 50xx'
+    scope_uris:
+       - '/rest/scopes/55e2d191-50ad-44d4-b75b-053c0add58a7'
+       - '/rest/scopes/f2a06fee-a692-4ea5-98b3-a4f83fe5e3e8'
   tasks:
     - name: Create a Logical Switch Group
       oneview_logical_switch_group:
@@ -44,6 +47,7 @@
         data:
             name: "OneView Test Logical Switch Group"
             newName: "Test Logical Switch Group"
+            scopeUris: "{{ scope_uris }}"
             switchMapTemplate:
                 switchMapEntryTemplates:
                     - logicalLocation:
@@ -54,10 +58,10 @@
                       permittedSwitchTypeName: '{{ switch_type_name }}'
       delegate_to: localhost
 
-    - name: Delete the Logical Switch Group
-      oneview_logical_switch_group:
-        config: "{{ config }}"
-        state: absent
-        data:
-            name: 'Test Logical Switch Group'
-      delegate_to: localhost
+    # - name: Delete the Logical Switch Group
+    #   oneview_logical_switch_group:
+    #     config: "{{ config }}"
+    #     state: absent
+    #     data:
+    #         name: 'Test Logical Switch Group'
+    #   delegate_to: localhost

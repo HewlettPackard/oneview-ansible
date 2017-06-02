@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 4.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -69,13 +69,16 @@ EXAMPLES = '''
                   permittedSwitchTypeUri: '/rest/switch-types/2f36bc8f-65d8-4ea2-9300-750180402a5e'
   delegate_to: localhost
 
-- name: Update the Logical Switch Group
+- name: Update the Logical Switch Group and make sure it is present in the desired scopes
   oneview_logical_switch_group:
     config: "{{ config }}"
     state: present
     data:
         name: "OneView Test Logical Switch Group"
         newName: "Test Logical Switch Group"
+        scopeUris:
+          - '/rest/scopes/00SC123456'
+          - '/rest/scopes/01SC123456'
         switchMapTemplate:
             switchMapEntryTemplates:
                 - logicalLocation:
@@ -132,9 +135,17 @@ class LogicalSwitchGroupModule(OneViewModuleBase):
 
         if self.state == 'present':
             self.__replace_name_by_uris(self.data)
-            return self.resource_present(resource, 'logical_switch_group')
+            # return self.resource_present(resource, 'logical_switch_group')
+            return self.__present(resource)
         elif self.state == 'absent':
             return self.resource_absent(resource)
+
+    def __present(self, resource):
+        scope_uris = self.data.pop('scopeUris', None)
+        result = self.resource_present(resource, 'logical_switch_group')
+        if scope_uris:
+            result = self.resource_scopes_set(result, 'logical_switch_group', scope_uris)
+        return result
 
     def __replace_name_by_uris(self, resource):
         switch_map_template = resource.get('switchMapTemplate')

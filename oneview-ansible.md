@@ -13846,7 +13846,7 @@ Manage OneView Logical Switch Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 4.0.0
 
 #### Options
 
@@ -13879,13 +13879,16 @@ Manage OneView Logical Switch Group resources.
                   permittedSwitchTypeUri: '/rest/switch-types/2f36bc8f-65d8-4ea2-9300-750180402a5e'
   delegate_to: localhost
 
-- name: Update the Logical Switch Group
+- name: Update the Logical Switch Group and make sure it is present in the desired scopes
   oneview_logical_switch_group:
     config: "{{ config }}"
     state: present
     data:
         name: "OneView Test Logical Switch Group"
         newName: "Test Logical Switch Group"
+        scopeUris:
+          - '/rest/scopes/00SC123456'
+          - '/rest/scopes/01SC123456'
         switchMapTemplate:
             switchMapEntryTemplates:
                 - logicalLocation:
