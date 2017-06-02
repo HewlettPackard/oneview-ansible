@@ -135,7 +135,6 @@ class LogicalSwitchGroupModule(OneViewModuleBase):
 
         if self.state == 'present':
             self.__replace_name_by_uris(self.data)
-            # return self.resource_present(resource, 'logical_switch_group')
             return self.__present(resource)
         elif self.state == 'absent':
             return self.resource_absent(resource)
