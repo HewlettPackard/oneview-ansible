@@ -13488,7 +13488,7 @@ Manage OneView Logical Interconnect Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 4.0.0
 
 #### Options
 
@@ -13523,6 +13523,16 @@ Manage OneView Logical Interconnect Group resources.
                       type: "Enclosure"
             permittedInterconnectTypeName: 'HP VC Flex-10/10D Module'
             # Alternatively you can inform permittedInterconnectTypeUri
+
+- name: Ensure that the Logical Interconnect Group has the specified scopes
+  oneview_logical_interconnect_group:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Test Logical Interconnect Group'
+      scopeUris:
+        - '/rest/scopes/00SC123456'
+        - '/rest/scopes/01SC123456'
 
 - name: Ensure that the Logical Interconnect Group is present with name 'Test'
   oneview_logical_interconnect_group:
