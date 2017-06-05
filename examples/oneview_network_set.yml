@@ -17,8 +17,11 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    ethernet_network_1_name: 'Test Ethernet Network_1' # Define a Name of an Ethernet Network to add on the Network Set
+    ethernet_network_1_name: 'Test Ethernet 1' # Define a Name of an Ethernet Network to add on the Network Set
     ethernet_network_2_uri: '/rest/ethernet-networks/d7643aca-01e1-4fc0-a678-e1529ebd955d' # Define a URI of another Ethernet Network to add on the Network Set
+    network_set_scope_uris:
+      - /rest/scopes/483d4056-03a3-4eed-a606-e1d32e14dd61
+      - '/rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412'
   tasks:
     - name: Create a Network Set
       oneview_network_set:
@@ -29,6 +32,15 @@
           networkUris:
             - '{{ ethernet_network_1_name }}'  # can be a name
             - '{{ ethernet_network_2_uri }}'   # or a URI
+      delegate_to: localhost
+
+    - name: Update the Network set with two scopes
+      oneview_network_set:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: OneViewSDK Test Network Set
+          scopeUris: "{{ network_set_scope_uris }}"
       delegate_to: localhost
 
     - name: Update the Network Set name to 'OneViewSDK Test Network Set - Renamed' and change the associated networks

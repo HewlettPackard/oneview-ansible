@@ -14214,7 +14214,7 @@ Manage OneView Network Set resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 4.0.0
 
 #### Options
 
@@ -14256,6 +14256,17 @@ Manage OneView Network Set resources.
     state: absent
     data:
         name: 'OneViewSDK Test Network Set - Renamed'
+
+- name: Update the Network set with two scopes
+  oneview_network_set:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: OneViewSDK Test Network Set
+      scopeUris:
+        - /rest/scopes/01SC123456
+        - /rest/scopes/02SC123456
+  delegate_to: localhost
 
 ```
 
