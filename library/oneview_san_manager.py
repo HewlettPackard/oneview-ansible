@@ -146,7 +146,7 @@ class SanManagerModule(OneViewModuleBase):
         else:
             msg = 'A "name" or "connectionInfo" must be provided inside the "data" field for this operation. '
             msg += 'If a "connectionInfo" is provided, the "Host" name is considered as the "name" for the resource.'
-            raise Exception(msg)
+            raise HPOneViewValueError(msg.format())
 
         resource = self.resource_client.get_by_name(resource_name)
 
@@ -181,16 +181,15 @@ class SanManagerModule(OneViewModuleBase):
 
     def __connection_information_set(self, resource):
         if not resource:
-            changed, msg, san_manager = self.__present(resource)
-            return dict(changed=changed, msg=msg, ansible_facts=dict(san_manager=san_manager))
+            return self.__present(resource)
         else:
             merged_data = resource.copy()
             merged_data.update(self.data)
-            self.data.pop('refreshState', None)
+            merged_data.pop('refreshState', None)
             if not self.data.get('connectionInfo', None):
                 raise HPOneViewValueError('A connectionInfo field is required for this operation.')
             updated_san_manager = self.resource_client.update(resource=merged_data, id_or_uri=resource['uri'])
-            return dict(changed=True, msg=self.MSG_UPDATED, ansible_facts=dict(san_manager=updated_san_manager))
+            return True, self.MSG_UPDATED, updated_san_manager
 
     def __get_provider_uri_by_display_name(self, data):
         display_name = data.get('providerDisplayName')
