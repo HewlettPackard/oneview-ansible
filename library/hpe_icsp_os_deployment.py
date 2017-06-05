@@ -102,9 +102,9 @@ standard_library.install_aliases()
 
 import time
 import hpICsp
-from urllib.parse import quote
 from ansible.module_utils.basic import AnsibleModule
 from module_utils.icsp import ICspHelper
+
 
 def deploy_server(module):
     # Credentials
@@ -127,7 +127,6 @@ def deploy_server(module):
     credential = {'userName': username, 'password': password}
     con.login(credential)
 
-    bp = hpICsp.buildPlans(con)
     jb = hpICsp.jobs(con)
     sv = hpICsp.servers(con)
 
@@ -140,7 +139,7 @@ def deploy_server(module):
     while True:
         if ilo_address:
             server = icsphelper.get_server_by_ilo_address(ilo_address)
-        else: 
+        else:
             server = icsphelper.get_server_by_serial(server_id)
         if server:
             break

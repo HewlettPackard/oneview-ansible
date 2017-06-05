@@ -31,6 +31,7 @@ from module_utils.oneview import (HPOneViewException,
                                   ServerProfileMerger,
                                   ServerProfileReplaceNamesByUris,
                                   ResourceComparator)
+from module_utils.icsp import ICspHelper
 from image_streamer_artifact_bundle import ArtifactBundleModule
 from image_streamer_artifact_bundle_facts import ArtifactBundleFactsModule
 from image_streamer_build_plan import BuildPlanModule

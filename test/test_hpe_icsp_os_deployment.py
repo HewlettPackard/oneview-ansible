@@ -29,6 +29,7 @@ TASK_OS_DEPLOYMENT = {
     "username": "Administrator",
     "password": "admin",
     "server_id": "VCGYZ33007",
+    "server_ipAddress": None,
     "os_build_plan": "RHEL 7.2 x64",
     "personality_data": None,
     "custom_attributes": None
@@ -119,7 +120,7 @@ class IcspOsDeploymentSpec(unittest.TestCase):
 
         self.mock_ansible_instance.params = TASK_OS_DEPLOYMENT
 
-        with mock.patch(MODULE_NAME + '.get_server_by_serial') as mock_get_srv_ser:
+        with mock.patch(MODULE_NAME + '.ICspHelper.get_server_by_serial') as mock_get_srv_ser:
             mock_get_srv_ser.return_value = None
             hpe_icsp_os_deployment.main()
 
@@ -165,12 +166,7 @@ class IcspOsDeploymentSpec(unittest.TestCase):
                                                                          'icsp_server': DEFAULT_SERVER_UPDATED})
 
     def test_should_fail_when_os_build_plan_not_found(self):
-        self.mock_connection.get.side_effect = [self.get_as_rest_collection([]),
-                                                self.get_as_rest_collection([]),
-                                                self.get_as_rest_collection([]),
-                                                self.get_as_rest_collection([DEFAULT_SERVER])]
-
-        self.mock_server_service.get_server.return_value = DEFAULT_SERVER
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([])]
 
         self.mock_ansible_instance.params = TASK_OS_DEPLOYMENT
 
@@ -223,48 +219,6 @@ class IcspOsDeploymentSpec(unittest.TestCase):
              'key': 'SSH_CERT'}]
 
         self.mock_server_service.update_server.assert_called_once_with(personality_data)
-
-    def test_get_server_by_serial_with_matching_result(self):
-        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_SERVER])]
-
-        server = hpe_icsp_os_deployment.get_server_by_serial(self.mock_connection, 'VCGYZ33007')
-
-        expected = {'uri': '/rest/os-deployment-servers/123456'}
-        self.mock_connection.get.assert_called_once_with(
-            '/rest/index/resources?category=osdserver&query=\'osdServerSerialNumber:"VCGYZ33007"\'')
-
-        self.assertEqual(server, expected)
-
-    def test_get_server_by_serial_with_non_matching_result(self):
-        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_SERVER])]
-
-        server = hpe_icsp_os_deployment.get_server_by_serial(self.mock_connection, '000')
-
-        self.mock_connection.get.assert_called_once_with(
-            '/rest/index/resources?category=osdserver&query=\'osdServerSerialNumber:"000"\'')
-
-        self.assertIsNone(server)
-
-    def test_get_build_plan_with_matching_result(self):
-        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN])]
-
-        server = hpe_icsp_os_deployment.get_build_plan(self.mock_connection, 'RHEL 7.2 x64')
-
-        expected = {'name': 'RHEL 7.2 x64', 'uri': '/rest/os-deployment-build-plans/222'}
-        self.mock_connection.get.assert_called_once_with(
-            '/rest/index/resources?filter="name=\'RHEL%207.2%20x64\'"&category=osdbuildplan')
-
-        self.assertEqual(server, expected)
-
-    def test_get_build_plan_with_non_matching_result(self):
-        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN])]
-
-        server = hpe_icsp_os_deployment.get_build_plan(self.mock_connection, 'BuildPlan')
-
-        self.mock_connection.get.assert_called_once_with(
-            '/rest/index/resources?filter="name=\'BuildPlan\'"&category=osdbuildplan')
-
-        self.assertIsNone(server)
 
 
 if __name__ == '__main__':
