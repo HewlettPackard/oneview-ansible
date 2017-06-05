@@ -18,7 +18,7 @@
 
 ANSIBLE_METADATA = {'metadata_version': '1.0',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -37,7 +37,9 @@ options:
             - Indicates the desired state for the Uplink Set resource.
               C(present) ensures data properties are compliant with OneView.
               C(absent) removes the resource from OneView, if it exists.
-        choices: ['present', 'absent']
+              C(connection_information_set) updates the connection information for the SAN Manager. This operation is
+              non-idempotent.
+        choices: ['present', 'absent', connection_information_set]
     data:
       description:
         - List with SAN Manager properties.
@@ -66,12 +68,29 @@ EXAMPLES = '''
         - name: UseSsl
           value: true
 
-- name: Update the SAN Manager
+- name: Sets the SAN Manager connection information
+  oneview_san_manager:
+    config: "{{ config_path }}"
+    state: connection_information_set
+    data:
+      connectionInfo:
+        - name: Host
+          value: '172.18.15.1'
+        - name: Port
+          value: '5989'
+        - name: Username
+          value: 'username'
+        - name: Password
+          value: 'password'
+        - name: UseSsl
+          value: true
+
+- name: Refreshes the SAN Manager
   oneview_san_manager:
     config: "{{ config_path }}"
     state: present
     data:
-      providerDisplayName: 'Brocade Network Advisor'
+      name: '172.18.15.1'
       refreshState: 'RefreshPending'
 
 - name: Delete the SAN Manager recently created
@@ -79,7 +98,7 @@ EXAMPLES = '''
     config: "{{ config_path }}"
     state: absent
     data:
-      providerDisplayName: 'Brocade Network Advisor'
+      name: '172.18.15.1'
 '''
 
 RETURN = '''
@@ -108,7 +127,7 @@ class SanManagerModule(OneViewModuleBase):
     argument_spec = dict(
         state=dict(
             required=True,
-            choices=['present', 'absent']
+            choices=['present', 'absent', 'connection_information_set']
         ),
         data=dict(required=True, type='dict')
     )
@@ -118,7 +137,18 @@ class SanManagerModule(OneViewModuleBase):
         self.resource_client = self.oneview_client.san_managers
 
     def execute_module(self):
-        resource = self.resource_client.get_by_provider_display_name(self.data['providerDisplayName'])
+        if self.data.get('connectionInfo'):
+            for connection_hash in self.data.get('connectionInfo'):
+                if connection_hash.get('name') == 'Host':
+                    resource_name = connection_hash.get('value')
+        elif self.data.get('name'):
+            resource_name = self.data.get('name')
+        else:
+            msg = 'A "name" or "connectionInfo" must be provided inside the "data" field for this operation. '
+            msg += 'If a "connectionInfo" is provided, the "Host" name is considered as the "name" for the resource.'
+            raise HPOneViewValueError(msg.format())
+
+        resource = self.resource_client.get_by_name(resource_name)
 
         if self.state == 'present':
             changed, msg, san_manager = self.__present(resource)
@@ -126,6 +156,10 @@ class SanManagerModule(OneViewModuleBase):
 
         elif self.state == 'absent':
             return self.resource_absent(resource, method='remove')
+
+        elif self.state == 'connection_information_set':
+            changed, msg, san_manager = self.__connection_information_set(resource)
+            return dict(changed=changed, msg=msg, ansible_facts=dict(san_manager=san_manager))
 
     def __present(self, resource):
         if not resource:
@@ -135,16 +169,27 @@ class SanManagerModule(OneViewModuleBase):
             merged_data = resource.copy()
             merged_data.update(self.data)
 
+            # Remove 'connectionInfo' from comparison, since it is not possible to validate it.
+            resource.pop('connectionInfo', None)
+            merged_data.pop('connectionInfo', None)
+
             if ResourceComparator.compare(resource, merged_data):
                 return False, self.MSG_ALREADY_PRESENT, resource
             else:
-
-                # If connectionInfo is not provided, its removed because the password is required for update.
-                if 'connectionInfo' not in self.data:
-                    merged_data.pop('connectionInfo')
-
                 updated_san_manager = self.resource_client.update(resource=merged_data, id_or_uri=resource['uri'])
                 return True, self.MSG_UPDATED, updated_san_manager
+
+    def __connection_information_set(self, resource):
+        if not resource:
+            return self.__present(resource)
+        else:
+            merged_data = resource.copy()
+            merged_data.update(self.data)
+            merged_data.pop('refreshState', None)
+            if not self.data.get('connectionInfo', None):
+                raise HPOneViewValueError('A connectionInfo field is required for this operation.')
+            updated_san_manager = self.resource_client.update(resource=merged_data, id_or_uri=resource['uri'])
+            return True, self.MSG_UPDATED, updated_san_manager
 
     def __get_provider_uri_by_display_name(self, data):
         display_name = data.get('providerDisplayName')

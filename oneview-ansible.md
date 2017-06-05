@@ -5767,7 +5767,7 @@ Manage OneView SAN Manager resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with SAN Manager properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Uplink Set resource. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>connection_information_set</li> </ul> |  Indicates the desired state for the Uplink Set resource. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists. `connection_information_set` updates the connection information for the SAN Manager. This operation is non-idempotent.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
@@ -5793,12 +5793,29 @@ Manage OneView SAN Manager resources.
         - name: UseSsl
           value: true
 
-- name: Update the SAN Manager
+- name: Sets the SAN Manager connection information
+  oneview_san_manager:
+    config: "{{ config_path }}"
+    state: connection_information_set
+    data:
+      connectionInfo:
+        - name: Host
+          value: '172.18.15.1'
+        - name: Port
+          value: '5989'
+        - name: Username
+          value: 'username'
+        - name: Password
+          value: 'password'
+        - name: UseSsl
+          value: true
+
+- name: Refreshes the SAN Manager
   oneview_san_manager:
     config: "{{ config_path }}"
     state: present
     data:
-      providerDisplayName: 'Brocade Network Advisor'
+      name: '172.18.15.1'
       refreshState: 'RefreshPending'
 
 - name: Delete the SAN Manager recently created
@@ -5806,7 +5823,7 @@ Manage OneView SAN Manager resources.
     config: "{{ config_path }}"
     state: absent
     data:
-      providerDisplayName: 'Brocade Network Advisor'
+      name: '172.18.15.1'
 
 ```
 
