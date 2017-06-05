@@ -106,8 +106,6 @@
   * [oneview_unmanaged_device_facts - Retrieve facts about one or more of the OneView Unmanaged Device.](#oneview_unmanaged_device_facts)
   * [oneview_uplink_set - Manage OneView Uplink Set resources.](#oneview_uplink_set)
   * [oneview_uplink_set_facts - Retrieve facts about one or more of the OneView Uplink Sets.](#oneview_uplink_set_facts)
-  * [oneview_user - Manage OneView Users.](#oneview_user)
-  * [oneview_user_facts - Retrieve the facts about one or more of the OneView Users.](#oneview_user_facts)
   * [oneview_volume - Manage OneView Volume resources.](#oneview_volume)
   * [oneview_volume_facts - Retrieve facts about the OneView Volumes.](#oneview_volume_facts)
 
@@ -2382,7 +2380,7 @@ Manage OneView Ethernet Network resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 3.1.0
 
 #### Options
 
@@ -2453,17 +2451,6 @@ Manage OneView Ethernet Network resources.
     state: default_bandwidth_reset
     data:
       name: 'Test Ethernet Network'
-  delegate_to: localhost
-
-- name: Update the ethernet network scopes
-  oneview_ethernet_network:
-    config: "{{ config_file_path }}"
-    state: present
-    data:
-      name: 'Test Ethernet Network'
-      scopeUris:
-        - '/rest/scopes/00SC123456'
-        - '/rest/scopes/01SC123456'
   delegate_to: localhost
 
 ```
@@ -2845,7 +2832,7 @@ Manage OneView Fibre Channel Network resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 3.1.0
 
 #### Options
 
@@ -2875,16 +2862,6 @@ Manage OneView Fibre Channel Network resources.
     data:
       name: 'New FC Network'
       fabricType: 'DirectAttach'
-
-- name: Ensure that the Fibre Channel Network is present and is inserted in the desired scopes
-  oneview_fc_network:
-    config: "{{ config_file_path }}"
-    state: present
-    data:
-      name: 'New FC Network'
-      scopeUris:
-        - '/rest/scopes/00SC123456'
-        - '/rest/scopes/01SC123456'
 
 - name: Ensure that the Fibre Channel Network is absent
   oneview_fc_network:
@@ -2993,7 +2970,7 @@ Manage OneView FCoE Network resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 3.1.0
 
 #### Options
 
@@ -3016,17 +2993,6 @@ Manage OneView FCoE Network resources.
     data:
       name: 'Test FCoE Network'
       vlanId: '201'
-
-- name: Update the FCOE network scopes
-  oneview_fcoe_network:
-    config: "{{ config_file_path }}"
-    state: present
-    data:
-      name: 'New FCoE Network'
-      scopeUris:
-        - '/rest/scopes/00SC123456'
-        - '/rest/scopes/01SC123456'
-  delegate_to: localhost
 
 - name: Ensure that FCoE Network is absent
   oneview_fcoe_network:
@@ -3198,33 +3164,14 @@ Provides an interface to remove Firmware Driver resources.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| data  |   No  |  | |  List with the Firmware Driver properties.  |
-| name  |   No  |  | |  Firmware driver name.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Firmware Driver. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
+| name  |   Yes  |  | |  Firmware driver name.  |
+| state  |   |  | <ul> <li>absent</li> </ul> |  Indicates the desired state for the Firmware Driver. `absent` will remove the resource from OneView, if it exists.  |
 
 
  
 #### Examples
 
 ```yaml
-- name: Create the Firmware Driver using names to find the baseline and hotfix firmwares.
-  oneview_firmware_driver:
-    config: "{{ config_file_path }}"
-    state: present
-    data:
-      customBaselineName: "Service Pack for ProLiant - Custom"
-      baselineName: "Service Pack for ProLiant"
-      hotfixNames: ['hotfix 1', 'hotfix 2']
-
-- name: Create the Firmware Driver using URIs to find the baseline and hotfix firmwares.
-  oneview_firmware_driver:
-    config: "{{ config_file_path }}"
-    state: present
-    data:
-      customBaselineName: "Service Pack for ProLiant - Custom"
-      baselineUri: "/rest/firmware-driver/SPP1"
-      hotfixUris: ['/rest/firmware-driver/hotfix1', '/rest/firmware-driver/hotfix2']
-
 - name: Ensure that Firmware Driver is absent
   oneview_firmware_driver:
     config: "{{ config_file_path }}"
@@ -3324,7 +3271,7 @@ Manage the OneView Interconnect resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.3.0
+  * hpOneView >= 2.0.1
 
 #### Options
 
@@ -3334,7 +3281,7 @@ Manage the OneView Interconnect resources.
 | ip  |   No  |  | |  Interconnect IP address.  |
 | name  |   No  |  | |  Interconnect name.  |
 | ports  |   No  |  | |  List with ports to update. This option should be used together with `update_ports` state.  |
-| state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>device_reset</li>  <li>update_ports</li>  <li>reset_port_protection</li>  <li>reconfigured</li> </ul> |  Indicates the desired state for the Interconnect resource. `powered_on` turns the power on. `powered_off` turns the power off. `uid_on` turns the UID light on. `uid_off` turns the UID light off. `device_reset` perform a device reset. `update_ports` updates the interconnect ports. `reset_port_protection` triggers a reset of port protection. `reconfigured` will reapply the appliance's configuration on the interconnect. This includes running the same configuration steps that were performed as part of the interconnect add by the enclosure.  |
+| state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>device_reset</li>  <li>update_ports</li>  <li>reset_port_protection</li> </ul> |  Indicates the desired state for the Interconnect resource. `powered_on` turns the power on. `powered_off` turns the power off. `uid_on` turns the UID light on. `uid_off` turns the UID light off. `device_reset` perform a device reset. `update_ports` updates the interconnect ports. `reset_port_protection` triggers a reset of port protection.  |
 
 
  
@@ -3357,12 +3304,6 @@ Manage the OneView Interconnect resources.
   oneview_interconnect:
     config: "{{ config_file_path }}"
     state: 'uid_on'
-    ip: '172.18.1.114'
-
-- name: Reconfigures the interconnect that matches the ip 172.18.1.114
-  oneview_interconnect:
-    config: "{{ config_file_path }}"
-    state: 'reconfigured'
     ip: '172.18.1.114'
 
 ```
@@ -3396,7 +3337,7 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.3.0
+  * hpOneView >= 2.0.1
 
 #### Options
 
@@ -3404,7 +3345,7 @@ Retrieve facts about one or more of the OneView Interconnects.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Interconnect name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Interconnect. Options allowed: `nameServers` gets the named servers for an interconnect. `statistics` gets the statistics from an interconnect. `portStatistics` gets the statistics for the specified port name on an interconnect. `subPortStatistics` gets the subport statistics on an interconnect. `ports` gets all interconnect ports. `port` gets a specific interconnect port. `pluggableModuleInformation` gets all the SFP information.  To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be ignored.  |
+| options  |   No  |  | |  List with options to gather additional facts about Interconnect. Options allowed: `nameServers` gets the named servers for an interconnect. `statistics` gets the statistics from an interconnect. `portStatistics` gets the statistics for the specified port name on an interconnect. `subPortStatistics` gets the subport statistics on an interconnect. `ports` gets all interconnect ports. `port` gets a specific interconnect port.  To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be ignored.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
@@ -3499,17 +3440,6 @@ Retrieve facts about one or more of the OneView Interconnects.
 - debug: var=interconnects
 - debug: var=interconnect_port
 
-- name: Gather facts about all the SFPs plugged
-  oneview_interconnect_facts:
-    config: "{{ config }}"
-    name: '0000A66102, interconnect 2'
-    options:
-        - pluggableModuleInformation
-
-- debug: var=interconnects
-- debug: var=interconnect_pluggable_module_information
-
-
 ```
 
 
@@ -3519,7 +3449,6 @@ Retrieve facts about one or more of the OneView Interconnects.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | interconnect_name_servers   | The named servers for an interconnect. |  When requested, but can be null. |  list |
-| interconnect_pluggable_module_information   | The plugged SFPs information. |  When requested, but can be null. |  list |
 | interconnect_port   | The interconnect port. |  When requested, but can be null. |  dict |
 | interconnect_port_statistics   | Statistics for the specified port name on an interconnect. |  When requested, but can be null. |  dict |
 | interconnect_ports   | All interconnect ports. |  When requested, but can be null. |  list |
@@ -4073,7 +4002,7 @@ Manage OneView Logical Interconnect resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 3.1.0
 
 #### Options
 
@@ -4081,7 +4010,7 @@ Manage OneView Logical Interconnect resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the options.  |
-| state  |   |  | <ul> <li>compliant</li>  <li>ethernet_settings_updated</li>  <li>internal_networks_updated</li>  <li>settings_updated</li>  <li>forwarding_information_base_generated</li>  <li>qos_aggregated_configuration_updated</li>  <li>snmp_configuration_updated</li>  <li>port_monitor_updated</li>  <li>configuration_updated</li>  <li>firmware_installed</li>  <li>telemetry_configuration_updated</li> </ul> |  Indicates the desired state for the Logical Interconnect resource. `compliant` brings the logical interconnect back to a consistent state. `ethernet_settings_updated` updates the Ethernet interconnect settings for the logical interconnect. `internal_networks_updated` updates the internal networks on the logical interconnect. This operation is non-idempotent. `settings_updated` updates the Logical Interconnect settings. `forwarding_information_base_generated` generates the forwarding information base dump file for the logical interconnect. This operation is non-idempotent and asynchronous. `qos_aggregated_configuration_updated` updates the QoS aggregated configuration for the logical interconnect. `snmp_configuration_updated` updates the SNMP configuration for the logical interconnect. `port_monitor_updated` updates the port monitor configuration of a logical interconnect. `configuration_updated` asynchronously applies or re-applies the logical interconnect configuration to all managed interconnects. This operation is non-idempotent. `firmware_installed` installs firmware to a logical interconnect. The three operations that are supported for the firmware update are Stage (uploads firmware to the interconnect), Activate (installs firmware on the interconnect) and Update (which does a Stage and Activate in a sequential manner). All of them are non-idempotent. `telemetry_configuration_updated` updates the telemetry configuration of a logical interconnect. `scopes_updated` updates the scopes associated with the logical interconnect.  |
+| state  |   |  | <ul> <li>compliant</li>  <li>ethernet_settings_updated</li>  <li>internal_networks_updated</li>  <li>settings_updated</li>  <li>forwarding_information_base_generated</li>  <li>qos_aggregated_configuration_updated</li>  <li>snmp_configuration_updated</li>  <li>port_monitor_updated</li>  <li>configuration_updated</li>  <li>firmware_installed</li>  <li>telemetry_configuration_updated</li> </ul> |  Indicates the desired state for the Logical Interconnect resource. `compliant` brings the logical interconnect back to a consistent state. `ethernet_settings_updated` updates the Ethernet interconnect settings for the logical interconnect. `internal_networks_updated` updates the internal networks on the logical interconnect. This operation is non-idempotent. `settings_updated` updates the Logical Interconnect settings. `forwarding_information_base_generated` generates the forwarding information base dump file for the logical interconnect. This operation is non-idempotent and asynchronous. `qos_aggregated_configuration_updated` updates the QoS aggregated configuration for the logical interconnect. `snmp_configuration_updated` updates the SNMP configuration for the logical interconnect. `port_monitor_updated` updates the port monitor configuration of a logical interconnect. `configuration_updated` asynchronously applies or re-applies the logical interconnect configuration to all managed interconnects. This operation is non-idempotent. `firmware_installed` installs firmware to a logical interconnect. The three operations that are supported for the firmware update are Stage (uploads firmware to the interconnect), Activate (installs firmware on the interconnect) and Update (which does a Stage and Activate in a sequential manner). All of them are non-idempotent. `telemetry_configuration_updated` updates the telemetry configuration of a logical interconnect.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
@@ -4195,18 +4124,6 @@ Manage OneView Logical Interconnect resources.
 
 - debug: var=telemetry_configuration
 
-- name: Updates the scopes of a logical interconnect.
-  oneview_logical_interconnect:
-  config: "{{ config_file_path }}"
-  state: scopes_updated
-  data:
-    name: "Name of the Logical Interconnect"
-    scopeUris:
-      - '/rest/scopes/00SC123456'
-      - '/rest/scopes/01SC123456'
-
-- debug: var=scope_uris
-
 ```
 
 
@@ -4219,7 +4136,6 @@ Manage OneView Logical Interconnect resources.
 | li_firmware   | Has the OneView facts about the installed Firmware. |  On 'firmware_installed' state, but can be null. |  complex |
 | port_monitor   | Has the OneView facts about the Port Monitor Configuration. |  On 'port_monitor_updated' state, but can be null. |  complex |
 | qos_configuration   | Has the OneView facts about the QoS Configuration. |  On 'qos_aggregated_configuration_updated' state, but can be null. |  complex |
-| scope_uris   | Has the scope URIs the specified logical interconnect is inserted into. |  On 'scopes_updated' state, but can be null. |  complex |
 | snmp_configuration   | Has the OneView facts about the SNMP Configuration. |  On 'snmp_configuration_updated' state, but can be null. |  complex |
 | storage_volume_template   | Has the OneView facts about the Logical Interconnect. |  On 'compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',               and 'configuration_updated' states, but can be null. |  complex |
 | telemetry_configuration   | Has the OneView facts about the Telemetry Configuration. |  On 'telemetry_configuration_updated' state, but can be null. |  complex |
@@ -4353,7 +4269,7 @@ Manage OneView Logical Interconnect Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 3.1.0
 
 #### Options
 
@@ -4388,16 +4304,6 @@ Manage OneView Logical Interconnect Group resources.
                       type: "Enclosure"
             permittedInterconnectTypeName: 'HP VC Flex-10/10D Module'
             # Alternatively you can inform permittedInterconnectTypeUri
-
-- name: Ensure that the Logical Interconnect Group has the specified scopes
-  oneview_logical_interconnect_group:
-    config: "{{ config_file_path }}"
-    state: present
-    data:
-      name: 'Test Logical Interconnect Group'
-      scopeUris:
-        - '/rest/scopes/00SC123456'
-        - '/rest/scopes/01SC123456'
 
 - name: Ensure that the Logical Interconnect Group is present with name 'Test'
   oneview_logical_interconnect_group:
@@ -4721,7 +4627,7 @@ Manage OneView Logical Switch Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 3.1.0
 
 #### Options
 
@@ -4754,16 +4660,13 @@ Manage OneView Logical Switch Group resources.
                   permittedSwitchTypeUri: '/rest/switch-types/2f36bc8f-65d8-4ea2-9300-750180402a5e'
   delegate_to: localhost
 
-- name: Update the Logical Switch Group and make sure it is present in the desired scopes
+- name: Update the Logical Switch Group
   oneview_logical_switch_group:
     config: "{{ config }}"
     state: present
     data:
         name: "OneView Test Logical Switch Group"
         newName: "Test Logical Switch Group"
-        scopeUris:
-          - '/rest/scopes/00SC123456'
-          - '/rest/scopes/01SC123456'
         switchMapTemplate:
             switchMapEntryTemplates:
                 - logicalLocation:
@@ -8936,160 +8839,6 @@ Retrieve facts about one or more of the OneView Uplink Sets.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | uplink_sets   | Has all the OneView facts about the Uplink Sets. |  Always, but can be null. |  complex |
-
-
-#### Notes
-
-- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
-
-- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
-
-- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
-
-
----
-
-
-## oneview_user
-Manage OneView Users.
-
-#### Synopsis
- Provides an interface to manage Users. Can create, update, and delete.
-
-#### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView >= 3.2.0
-
-#### Options
-
-| Parameter     | Required    | Default  | Choices    | Comments |
-| ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| data  |   Yes  |  | |  List with the User properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>set_password</li> </ul> |  Indicates the desired state for the User. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists. `set_password` will set a user password to the value specified. This operation is non-idempotent.  |
-
-
- 
-#### Examples
-
-```yaml
-- name: Ensure that the User is present using the default configuration
-  oneview_user:
-    config: "{{ config_file_path }}"
-    state: present
-    data:
-      userName: testUser
-      password: pass1234
-      emailAddress: testUser@example.com
-      enabled: true
-      fullName: testUser101
-    delegate_to: localhost
-
-- name: Ensure that the User is present with enabled 'false'
-  oneview_user:
-    config: "{{ config_file_path }}"
-    state: present
-    data:
-      userName: testUser
-      enabled: false
-    delegate_to: localhost
-
-- name: Ensure that the User is absent
-  oneview_user:
-    config: "{{ config_file_path }}"
-    state: absent
-    data:
-      userName: testUser
-    delegate_to: localhost
-
-- name: Set the password of specified user
-  oneview_user:
-    config: "{{ config_file_path }}"
-    state: set_password
-    data:
-      userName: testUser
-      password: newPass1234
-    delegate_to: localhost
-
-```
-
-
-
-#### Return Values
-
-| Name          | Description  | Returned | Type       |
-| ------------- |-------------| ---------|----------- |
-| user   | Has the facts about the OneView Users. |  On state 'present'. Can be null. |  complex |
-
-
-#### Notes
-
-- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
-
-- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
-
-- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
-
-
----
-
-
-## oneview_user_facts
-Retrieve the facts about one or more of the OneView Users.
-
-#### Synopsis
- Retrieve the facts about one or more of the Users from OneView.
-
-#### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView >= 3.2.0
-
-#### Options
-
-| Parameter     | Required    | Default  | Choices    | Comments |
-| ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| name  |   No  |  | |  User name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
-
-
- 
-#### Examples
-
-```yaml
-- name: Gather facts about all Users
-  oneview_user_facts:
-    config: "{{ config_file_path }}"
-
-- debug: var=users
-
-- name: Gather paginated, filtered and sorted facts about Users
-  oneview_user_facts:
-    config: "{{ config }}"
-    params:
-      start: 1
-      count: 3
-      sort: 'emailAddress:descending'
-      filter: 'enabled=true'
-
-- debug: var=users
-
-- name: Gather facts about a User by name
-  oneview_user_facts:
-    config: "{{ config_file_path }}"
-    name: user name
-
-- debug: var=users
-
-```
-
-
-
-#### Return Values
-
-| Name          | Description  | Returned | Type       |
-| ------------- |-------------| ---------|----------- |
-| users   | It has all the OneView facts about the Users. |  Always, but can be null. |  complex |
 
 
 #### Notes

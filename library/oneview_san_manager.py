@@ -169,7 +169,7 @@ class SanManagerModule(OneViewModuleBase):
             merged_data = resource.copy()
             merged_data.update(self.data)
 
-            # Remove 'connectionInfo' from comparisson, since it is not possible to validate it.
+            # Remove 'connectionInfo' from comparison, since it is not possible to validate it.
             resource.pop('connectionInfo', None)
             merged_data.pop('connectionInfo', None)
 

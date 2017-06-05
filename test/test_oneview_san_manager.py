@@ -168,7 +168,7 @@ class SanManagerModuleSpec(unittest.TestCase,
             msg=SanManagerModule.MSG_ALREADY_ABSENT
         )
 
-    def test_should_fail_when_provider_display_name_not_found(self):
+    def test_should_fail_when_name_not_found(self):
         self.resource.get_by_name.return_value = []
         self.resource.get_provider_uri.return_value = None
 
@@ -229,8 +229,6 @@ class SanManagerModuleSpec(unittest.TestCase,
         )
 
     def test_should_fail_when_required_attribute_missing(self):
-        # bad_return = DEFAULT_SAN_MANAGER_TEMPLATE.copy()
-        # bad_return.pop('connectionInfo')
         bad_params = self.PARAMS_FOR_CONNECTION_INFORMATION_SET.copy()
         bad_params['data'] = self.PARAMS_FOR_CONNECTION_INFORMATION_SET['data'].copy()
         bad_params['data'].pop('connectionInfo')

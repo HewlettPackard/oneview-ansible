@@ -71,7 +71,7 @@
             - name: SnmpAuthString
               value: "{{ manager_password_cisco }}"
       delegate_to: localhost
-    #
+
     - name: Update the "'{{ manager_host_brocade }}'" SAN Manager
       oneview_san_manager:
         config: "{{ config }}"
@@ -99,7 +99,7 @@
           refreshState: 'RefreshPending'
       delegate_to: localhost
 
-    - name: Remove the Brocade SAN Manager recently added
+    - name: Remove the '{{ manager_host_brocade }}' Brocade SAN Manager
       oneview_san_manager:
         config: "{{ config }}"
         state: absent
@@ -107,7 +107,7 @@
           name: '{{ manager_host_brocade }}'
       delegate_to: localhost
 
-    - name: Remove the Cisco SAN Manager recently added
+    - name: Remove the '{{ manager_host_brocade }}' Cisco SAN Manager
       oneview_san_manager:
         config: "{{ config }}"
         state: absent
