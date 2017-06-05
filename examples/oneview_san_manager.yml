@@ -18,44 +18,99 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
 
-    ## To run this sample you must define the following resources for a Brocade Network Advisor
-    manager_host: '172.18.15.1'
-    manager_port: '5989'
-    manager_username: ''
-    manager_password: ''
+    ## To run this sample you must define the following information for a Brocade Network Advisor and a Cisco Switch
+    # Vars for Brocade Network Advisor
+    manager_host_brocade: '<san_manager1_host_name_or_ip>'
+    manager_port_brocade: <san_manager1_port>
+    manager_username_brocade: '<san_manager1_user_name>'
+    manager_password_brocade: '<san_manager1_password>'
+    # Vars for Cisco Switch
+    manager_host_cisco: '<san_manager2_host_name_or_ip>'
+    manager_port_cisco: <san_manager2_port>
+    manager_username_cisco: '<san_manager2_user_name>'
+    manager_password_cisco: '<san_manager2_password>'
   tasks:
     - name: Ensure a Device Manager for the Brocade SAN Provider is present
       oneview_san_manager:
         config: "{{ config }}"
         state: present
         data:
+          name: '{{ manager_host_brocade }}'
           providerDisplayName: 'Brocade Network Advisor'
           connectionInfo:
             - name: Host
-              value: '{{ manager_host }}'
+              value: '{{ manager_host_brocade }}'
             - name: Port
-              value: '{{ manager_port }}'
+              value: '{{ manager_port_brocade }}'
             - name: Username
-              value: '{{ manager_username }}'
+              value: '{{ manager_username_brocade }}'
             - name: Password
-              value: '{{ manager_password }}'
+              value: '{{ manager_password_brocade }}'
             - name: UseSsl
               value: true
       delegate_to: localhost
 
-    - name: Update the SAN Manager
+    - name: Ensure a Device Manager for the Cisco SAN Provider is present
       oneview_san_manager:
         config: "{{ config }}"
         state: present
         data:
-          providerDisplayName: 'Brocade Network Advisor'
+          name: "{{ manager_host_cisco }}"
+          providerDisplayName: Cisco
+          connectionInfo:
+            - name: Host
+              value: "{{ manager_host_cisco }}"
+            - name: SnmpPort
+              value: "{{ manager_port_cisco }}"
+            - name: SnmpUserName
+              value: "{{ manager_username_cisco }}"
+            - name: SnmpAuthLevel
+              value: authnopriv
+            - name: SnmpAuthProtocol
+              value: sha
+            - name: SnmpAuthString
+              value: "{{ manager_password_cisco }}"
+      delegate_to: localhost
+    #
+    - name: Update the "'{{ manager_host_brocade }}'" SAN Manager
+      oneview_san_manager:
+        config: "{{ config }}"
+        state: connection_information_set
+        data:
+          connectionInfo:
+            - name: Host
+              value: '{{ manager_host_brocade }}'
+            - name: Port
+              value: '{{ manager_port_brocade }}'
+            - name: Username
+              value: '{{ manager_username_brocade }}'
+            - name: Password
+              value: '{{ manager_password_brocade }}'
+            - name: UseSsl
+              value: true
+      delegate_to: localhost
+
+    - name: Refreshes the "'{{ manager_host_brocade }}'" SAN Manager
+      oneview_san_manager:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ manager_host_brocade }}'
           refreshState: 'RefreshPending'
       delegate_to: localhost
 
-    - name: Delete the SAN Manager recently created
+    - name: Remove the Brocade SAN Manager recently added
       oneview_san_manager:
         config: "{{ config }}"
         state: absent
         data:
-          providerDisplayName: 'Brocade Network Advisor'
+          name: '{{ manager_host_brocade }}'
+      delegate_to: localhost
+
+    - name: Remove the Cisco SAN Manager recently added
+      oneview_san_manager:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: '{{ manager_host_cisco }}'
       delegate_to: localhost
