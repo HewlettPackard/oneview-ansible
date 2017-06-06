@@ -164,13 +164,13 @@ class ICspServerModule(object):
     def __init__(self):
         self.module = AnsibleModule(argument_spec=self.argument_spec, supports_check_mode=False)
         self.connection = self.__authenticate()
-        self.icsp_helper = ICspHelper(self.connection)
+        self.icsphelper = ICspHelper(self.connection)
 
     def run(self):
 
         state = self.module.params['state']
         ilo_address = self.module.params['server_ipAddress']
-        target_server = self.icsp_helper.get_server_by_ilo_address(ilo_address)
+        target_server = self.icsphelper.get_server_by_ilo_address(ilo_address)
 
         if state == 'present':
             self.__present(target_server)
@@ -268,7 +268,7 @@ class ICspServerModule(object):
         # So if we got this far, the job execution finished as expected
 
         # gets the target server added to ICsp to return on ansible facts
-        target_server = self.icsp_helper.get_server_by_ilo_address(ilo_address)
+        target_server = self.icsphelper.get_server_by_ilo_address(ilo_address)
         return self.module.exit_json(changed=True,
                                      msg=self.SERVER_CREATED.format(target_server['uri']),
                                      ansible_facts=dict(target_server=target_server))

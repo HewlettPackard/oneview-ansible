@@ -129,6 +129,60 @@ class IcspOsDeploymentSpec(unittest.TestCase):
 
         self.mock_ansible_instance.fail_json.assert_called_once_with(msg='Cannot find server in ICSP.')
 
+    def test_should_fail_after_try_get_server_by_ilo_address_21_times(self):
+        task_os_deployment = dict(TASK_OS_DEPLOYMENT, server_id=None, server_ipAddress="16.124.135.239")
+
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN])]
+
+        self.mock_server_service.get_server.return_value = DEFAULT_SERVER
+
+        self.mock_ansible_instance.params = task_os_deployment
+
+        with mock.patch(MODULE_NAME + '.ICspHelper.get_server_by_ilo_address') as mock_get_srv_ser:
+            mock_get_srv_ser.return_value = None
+            hpe_icsp_os_deployment.main()
+
+        times_sleep_called = self.mock_time_sleep.call_count
+        self.assertEqual(21, times_sleep_called)
+
+        self.mock_ansible_instance.fail_json.assert_called_once_with(msg='Cannot find server in ICSP.')
+
+    def test_should_deploy_server_with_server_id(self):
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN]),
+                                                self.get_as_rest_collection([DEFAULT_SERVER])]
+
+        self.mock_server_service.get_server.side_effect = [DEFAULT_SERVER, DEFAULT_SERVER_UPDATED]
+
+        self.mock_ansible_instance.params = TASK_OS_DEPLOYMENT
+
+        hpe_icsp_os_deployment.main()
+
+        times_sleep_called = self.mock_time_sleep.call_count
+        self.assertEqual(0, times_sleep_called)
+
+        self.mock_ansible_instance.exit_json.assert_called_once_with(changed=True, msg='OS Deployed Successfully.',
+                                                                     ansible_facts={
+                                                                         'icsp_server': DEFAULT_SERVER_UPDATED})
+
+    def test_should_deploy_server_with_server_ipAddress(self):
+        task_os_deployment = dict(TASK_OS_DEPLOYMENT, server_id=None, server_ipAddress="16.124.135.239")
+
+        self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN]),
+                                                self.get_as_rest_collection([DEFAULT_SERVER])]
+
+        self.mock_server_service.get_server.side_effect = [DEFAULT_SERVER, DEFAULT_SERVER_UPDATED]
+
+        self.mock_ansible_instance.params = task_os_deployment
+
+        hpe_icsp_os_deployment.main()
+
+        times_sleep_called = self.mock_time_sleep.call_count
+        self.assertEqual(0, times_sleep_called)
+
+        self.mock_ansible_instance.exit_json.assert_called_once_with(changed=True, msg='OS Deployed Successfully.',
+                                                                     ansible_facts={
+                                                                         'icsp_server': DEFAULT_SERVER_UPDATED})
+
     def test_should_deploy_server(self):
         self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN]),
                                                 self.get_as_rest_collection([DEFAULT_SERVER])]
@@ -221,9 +275,9 @@ class IcspOsDeploymentSpec(unittest.TestCase):
         self.mock_server_service.update_server.assert_called_once_with(personality_data)
 
     def test_should_fail_when_no_serial_no_ilo_ip_in_params(self):
-        task_params = dict(TASK_OS_DEPLOYMENT, server_id=None)
+        task_os_deployment = dict(TASK_OS_DEPLOYMENT, server_id=None)
 
-        self.mock_ansible_instance.params = task_params
+        self.mock_ansible_instance.params = task_os_deployment
 
         hpe_icsp_os_deployment.main()
 
