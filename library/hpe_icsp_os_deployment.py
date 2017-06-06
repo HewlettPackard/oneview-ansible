@@ -53,8 +53,8 @@ options:
     required: true
   server_id:
     description:
-      - Server ID.
-    required: true
+      - Server ID. Deprecated, IP address is preferred (server_ipAddress).
+    required: false
   server_ipAddress:
     description:
       - The IP address of the iLO of the server.
@@ -119,6 +119,10 @@ def deploy_server(module):
     custom_attributes = module.params['custom_attributes']
     personality_data = module.params['personality_data']
     ilo_address = module.params['server_ipAddress']
+
+    if ilo_address is None and server_id is None:
+        return module.fail_json(
+            msg='No server information provided. Param \"server_id\" or \"server_ipAddress\" must be specified.')
 
     con = hpICsp.connection(icsp_host, icsp_api_version)
     icsphelper = ICspHelper(con)
@@ -189,7 +193,7 @@ def main():
             icsp_host=dict(required=True, type='str'),
             username=dict(required=True, type='str'),
             password=dict(required=True, type='str', no_log=True),
-            server_id=dict(required=True, type='str'),
+            server_id=dict(required=False, type='str'),
             server_ipAddress=dict(required=False, type='str'),
             os_build_plan=dict(required=True, type='str'),
             custom_attributes=dict(required=False, type='list', default=None),

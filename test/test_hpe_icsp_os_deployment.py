@@ -220,6 +220,16 @@ class IcspOsDeploymentSpec(unittest.TestCase):
 
         self.mock_server_service.update_server.assert_called_once_with(personality_data)
 
+    def test_should_fail_when_no_serial_no_ilo_ip_in_params(self):
+        task_params = dict(TASK_OS_DEPLOYMENT, server_id=None)
+
+        self.mock_ansible_instance.params = task_params
+
+        hpe_icsp_os_deployment.main()
+
+        self.mock_ansible_instance.fail_json.assert_called_once_with(
+            msg='No server information provided. Param \"server_id\" or \"server_ipAddress\" must be specified.')
+
 
 if __name__ == '__main__':
     unittest.main()
