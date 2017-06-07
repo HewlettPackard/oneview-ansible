@@ -17,7 +17,7 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
+                    'supported_by': 'community',
                     'metadata_version': '1.0'}
 
 DOCUMENTATION = '''
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 4.0.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     state:
@@ -38,8 +38,8 @@ options:
               C(present) creates a Logical Switch, if it doesn't exist. To update the Logical Switch, use the C(updated)
               state instead.
               C(updated) ensures the Logical Switch is updated. Currently OneView only supports updating the credentials
-              and name of the Logical Switch. To change the name of the Logical Switch, a C(newName) in the data must be
-              provided. The update operation is non-idempotent.
+              , scopes and name of the Logical Switch. To change the name of the Logical Switch, a C(newName) in the
+              data must be provided. The update operation is non-idempotent.
               C(absent) removes the resource from OneView, if it exists.
               C(refreshed) reclaims the top-of-rack switches in the logical switch. This operation is non-idempotent.
         choices: ['present', 'updated', 'absent', 'refreshed']
@@ -127,6 +127,9 @@ EXAMPLES = '''
               value: 'ssh_password_switch_2'
               valueFormat: 'SecuritySensitive'
               valueType: 'String'
+      scopes:
+        - '/rest/scopes/d1f79dea-6393-4bb0-9723-8adc9b96de94'
+
 
 - name: Reclaim the top-of-rack switches in the logical switch
   oneview_logical_switch:
@@ -190,7 +193,10 @@ class LogicalSwitchModule(OneViewModuleBase):
         elif self.state == 'absent':
             return self.resource_absent(resource)
         elif self.state == 'updated':
+            scope_uris = data.pop('scopeUris', None)
             changed, msg, ansible_facts = self.__update(data, resource)
+            result = self.resource_scopes_set(dict(ansible_facts=ansible_facts), 'logical_switch', scope_uris)
+            changed, msg, result['ansible_facts']
         elif self.state == 'refreshed':
             changed, msg, ansible_facts = self.__refresh(data, resource)
 
@@ -209,6 +215,7 @@ class LogicalSwitchModule(OneViewModuleBase):
         if not resource:
             raise HPOneViewResourceNotFound(self.MSG_LOGICAL_SWITCH_NOT_FOUND)
         else:
+            # scope_uris = data.pop('scopeUris', None)
             data['logicalSwitch']['uri'] = resource['uri']
 
             if 'logicalSwitchGroupUri' not in data['logicalSwitch']:
@@ -220,8 +227,11 @@ class LogicalSwitchModule(OneViewModuleBase):
                 data['logicalSwitch']['name'] = data['logicalSwitch'].pop('newName')
 
             self.__replace_group_name_by_uri(data)
-            created_resource = self.oneview_client.logical_switches.update(data)
-            return True, self.MSG_UPDATED, dict(logical_switch=created_resource)
+            updated_resource = self.oneview_client.logical_switches.update(data)
+            # if scope_uris is not None:
+            #     patch_arguments = [updated_resource['uri'], 'replace', '/scopeUris', scope_uris]
+            #     updated_resource = self.resource_client.patch(*patch_arguments)
+            return True, self.MSG_UPDATED, dict(logical_switch=updated_resource)
 
     def __refresh(self, data, resource):
         if not resource:
