@@ -8,4 +8,3 @@ examples/vars/config.yml
 *~
 examples/vars/os_attributes.yaml
 **/.coverage
-htmlcov

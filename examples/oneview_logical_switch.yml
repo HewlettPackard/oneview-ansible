@@ -20,15 +20,11 @@
     config: '{{ playbook_dir }}/oneview_config.json'
 
     # The following variables must be set to run this example.
-    # logical_switch_group_name: 'Logical Switch Group Cisco Nexus 55xx'  # Logical Switch Group which the logical switch is derived from
-    logical_switch_group_name: '<lsg_name>'  # Logical Switch Group which the logical switch is derived from
-    ip_address_switch_1: '<lsg1_ip>'  # IP address/hostname of Switch 1
-    ip_address_switch_2: '<lsg2_ip>'  # IP address/hostname of Switch 2
-    ssh_username: '<lsg1&2_user_name>'  # SSH Username
-    ssh_password: 'lsg1&2_password'  # SSH Password
-
-    scopes:
-      - '/rest/scopes/d1f79dea-6393-4bb0-9723-8adc9b96de94'
+    logical_switch_group_name: 'Logical Switch Group Cisco Nexus 55xx'  # Logical Switch Group which the logical switch is derived from
+    ip_address_switch_1: '172.18.16.1'  # IP address/hostname of Switch 1
+    ip_address_switch_2: '172.18.16.2'  # IP address/hostname of Switch 2
+    ssh_username: ''  # SSH Username
+    ssh_password: ''  # SSH Password
 
     credential_configuration:
       connectionProperties:
@@ -68,34 +64,33 @@
             - '{{ credential_configuration }}'
       delegate_to: localhost
 
-    - name: Update the Logical Switch name, scopes and credentials
+    - name: Update the Logical Switch name and credentials
       oneview_logical_switch:
         config: "{{ config }}"
         state: updated
         data:
           logicalSwitch:
             name: 'Test Logical Switch'
-            # newName: 'Test Logical Switch - Renamed'
+            newName: 'Test Logical Switch - Renamed'
           logicalSwitchCredentials:
             - '{{ credential_configuration }}'
             - '{{ credential_configuration }}'
-          scopeUris: "{{ scopes }}"
       delegate_to: localhost
 
-    # - name: Reclaim the top-of-rack switches in the logical switch
-    #   oneview_logical_switch:
-    #     config: "{{ config }}"
-    #     state: refreshed
-    #     data:
-    #       logicalSwitch:
-    #         name: 'Test Logical Switch - Renamed'
-    #   delegate_to: localhost
-    #
-    # - name: Delete the Logical Switch
-    #   oneview_logical_switch:
-    #     config: "{{ config }}"
-    #     state: absent
-    #     data:
-    #       logicalSwitch:
-    #         name: 'Test Logical Switch - Renamed'
-    #   delegate_to: localhost
+    - name: Reclaim the top-of-rack switches in the logical switch
+      oneview_logical_switch:
+        config: "{{ config }}"
+        state: refreshed
+        data:
+          logicalSwitch:
+            name: 'Test Logical Switch - Renamed'
+      delegate_to: localhost
+
+    - name: Delete the Logical Switch
+      oneview_logical_switch:
+        config: "{{ config }}"
+        state: absent
+        data:
+          logicalSwitch:
+            name: 'Test Logical Switch - Renamed'
+      delegate_to: localhost
