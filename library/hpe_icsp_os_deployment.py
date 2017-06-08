@@ -53,8 +53,12 @@ options:
     required: true
   server_id:
     description:
-      - Server ID.
-    required: true
+      - Server ID. Deprecated, IP address is preferred (server_ipAddress).
+    required: false
+  server_ipAddress:
+    description:
+      - The IP address of the iLO of the server.
+    required: false
   os_build_plan:
     description:
       - OS Build plan.
@@ -78,6 +82,7 @@ EXAMPLES = '''
     username: "{{ icsp_username }}"
     password: "{{ icsp_password }}"
     server_id: "{{ server_profile.serialNumber }}"
+    server_ipAddress: "{{server_iLO_ip}}"
     os_build_plan: "{{ os_build_plan }}"
     custom_attributes: "{{ osbp_custom_attributes }}"
     personality_data: "{{ network_config }}"
@@ -97,31 +102,8 @@ standard_library.install_aliases()
 
 import time
 import hpICsp
-from urllib.parse import quote
 from ansible.module_utils.basic import AnsibleModule
-
-
-def get_build_plan(con, bp_name):
-    search_uri = '/rest/index/resources?filter="name=\'' + quote(bp_name) + '\'"&category=osdbuildplan'
-    search_result = con.get(search_uri)
-
-    if search_result['count'] > 0 and search_result['members'][0]['name'] == bp_name:
-        return search_result['members'][0]
-    return None
-
-
-def get_server_by_serial(con, serial_number):
-    search_uri = '/rest/index/resources?category=osdserver&query=\'osdServerSerialNumber:\"' + serial_number + '\"\''
-    search_result = con.get(search_uri)
-    if search_result['count'] > 0:
-        same_serial_number = search_result['members'][0]['attributes']['osdServerSerialNumber'] == serial_number
-
-        if same_serial_number:
-            server_id = search_result['members'][0]['attributes']['osdServerId']
-            server = {'uri': '/rest/os-deployment-servers/' + server_id}
-            return server
-
-    return None
+from module_utils.icsp import ICspHelper
 
 
 def deploy_server(module):
@@ -136,24 +118,33 @@ def deploy_server(module):
     os_build_plan = module.params['os_build_plan']
     custom_attributes = module.params['custom_attributes']
     personality_data = module.params['personality_data']
+    ilo_address = module.params['server_ipAddress']
+
+    if ilo_address is None and server_id is None:
+        return module.fail_json(
+            msg='No server information provided. Param \"server_id\" or \"server_ipAddress\" must be specified.')
+
     con = hpICsp.connection(icsp_host, icsp_api_version)
+    icsphelper = ICspHelper(con)
 
     # Create objects for all necessary resources.
     credential = {'userName': username, 'password': password}
     con.login(credential)
 
-    bp = hpICsp.buildPlans(con)
     jb = hpICsp.jobs(con)
     sv = hpICsp.servers(con)
 
-    bp = get_build_plan(con, os_build_plan)
+    bp = icsphelper.get_build_plan(os_build_plan)
 
     if bp is None:
         return module.fail_json(msg='Cannot find OS Build plan: ' + os_build_plan)
 
     timeout = 600
     while True:
-        server = get_server_by_serial(con, server_id)
+        if ilo_address:
+            server = icsphelper.get_server_by_ilo_address(ilo_address)
+        else:
+            server = icsphelper.get_server_by_serial(server_id)
         if server:
             break
         if timeout < 0:
@@ -202,7 +193,8 @@ def main():
             icsp_host=dict(required=True, type='str'),
             username=dict(required=True, type='str'),
             password=dict(required=True, type='str', no_log=True),
-            server_id=dict(required=True, type='str'),
+            server_id=dict(required=False, type='str'),
+            server_ipAddress=dict(required=False, type='str'),
             os_build_plan=dict(required=True, type='str'),
             custom_attributes=dict(required=False, type='list', default=None),
             personality_data=dict(required=False, type='dict', default=None)
