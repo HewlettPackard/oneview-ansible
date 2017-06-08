@@ -17526,7 +17526,7 @@ Provides an interface to remove ToR Switch resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   Yes  |  | |  Switch name.  |
-| state  |   |  | <ul> <li>absent</li>  <li>ports_updated</li> </ul> |  Indicates the desired state for the Switch resource. `absent` will remove the resource from OneView, if it exists. `ports_updated` will update the switch ports.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>ports_updated</li> </ul> |  Indicates the desired state for the Switch resource. `present` will update the switch scopes, if they differ from what is declared. `absent` will remove the resource from OneView, if it exists. `ports_updated` will update the switch ports.  |
 
 
  

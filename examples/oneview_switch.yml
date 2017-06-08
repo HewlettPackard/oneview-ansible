@@ -18,7 +18,7 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    name: "172.18.16.1" # change for your switch name
+    name: "172.18.16.91" # change for your switch name
     port_id: "ca520119-1329-496b-8e44-43092e937eae:1.32"
     port_name: "1.32"
   tasks:
@@ -28,9 +28,19 @@
         state: ports_updated
         name: "{{ name }}"
         data:
-          - "portId": "{{ port_id }}"
-            "portName": "{{ port_name }}"
-            "enabled": true
+          ports:
+            - portId: "{{ port_id }}"
+              portName: "{{ port_name }}"
+              enabled: true
+      delegate_to: localhost
+
+    - name: Update the scopes on the specified switch
+      oneview_switch:
+        config: "{{ config }}"
+        state: present
+        name: "{{ name }}"
+        data:
+            scopeUris: ['/rest/scopes/d1f79dea-6393-4bb0-9723-8adc9b96de94']
       delegate_to: localhost
 
     - name: Delete the Switch
