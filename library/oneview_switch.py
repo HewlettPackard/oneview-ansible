@@ -33,7 +33,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.0"
+    - "hpOneView >= 4.0.0"
 author: "Bruno Souza (@bsouza)"
 options:
     state:
