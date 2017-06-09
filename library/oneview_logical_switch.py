@@ -215,7 +215,6 @@ class LogicalSwitchModule(OneViewModuleBase):
         if not resource:
             raise HPOneViewResourceNotFound(self.MSG_LOGICAL_SWITCH_NOT_FOUND)
         else:
-            # scope_uris = data.pop('scopeUris', None)
             data['logicalSwitch']['uri'] = resource['uri']
 
             if 'logicalSwitchGroupUri' not in data['logicalSwitch']:
@@ -228,9 +227,6 @@ class LogicalSwitchModule(OneViewModuleBase):
 
             self.__replace_group_name_by_uri(data)
             updated_resource = self.oneview_client.logical_switches.update(data)
-            # if scope_uris is not None:
-            #     patch_arguments = [updated_resource['uri'], 'replace', '/scopeUris', scope_uris]
-            #     updated_resource = self.resource_client.patch(*patch_arguments)
             return True, self.MSG_UPDATED, dict(logical_switch=updated_resource)
 
     def __refresh(self, data, resource):
