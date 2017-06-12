@@ -17,7 +17,6 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - switch_type_name: "Cisco Nexus 6xxx"  # set the name of an existent switch type to run this example
   tasks:
     - name: Gather facts about all Switch Types
       oneview_switch_type_facts:
@@ -40,7 +39,7 @@
     - name: Gather facts about a Switch Type by name
       oneview_switch_type_facts:
         config: "{{ config }}"
-        name: "{{ switch_type_name }}"
+        name: "{{ switch_types[0].name }}"
       delegate_to: localhost
 
     - debug: msg="Switch Type found by name {{ switch_types[0].name }} has URI {{ switch_types[0].uri }}"
