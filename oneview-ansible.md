@@ -17518,7 +17518,7 @@ Provides an interface to remove ToR Switch resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpOneView >= 4.0.0
 
 #### Options
 

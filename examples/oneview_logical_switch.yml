@@ -20,7 +20,6 @@
     config: '{{ playbook_dir }}/oneview_config.json'
 
     # The following variables must be set to run this example.
-    logical_switch_group_name: 'Logical Switch Group Cisco Nexus 55xx'  # Logical Switch Group which the logical switch is derived from
     logical_switch_group_name: '<lsg_name>'  # Logical Switch Group which the logical switch is derived from
     ip_address_switch_1: '<lsg1_ip>'  # IP address/hostname of Switch 1
     ip_address_switch_2: '<lsg2_ip>'  # IP address/hostname of Switch 2
