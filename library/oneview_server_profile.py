@@ -280,6 +280,8 @@ class ServerProfileModule(OneViewModuleBase):
         else:
             merged_data = ServerProfileMerger().merge_data(resource, data)
 
+            self.__validations_for_os_custom_attributes(merged_data, resource)
+
             if not ResourceComparator.compare(resource, merged_data):
                 resource = self.__update_server_profile(merged_data)
                 changed = True
@@ -288,6 +290,37 @@ class ServerProfileModule(OneViewModuleBase):
                 msg = self.MSG_ALREADY_PRESENT
 
         return created, changed, msg, resource
+
+    # Removes .mac entries from resource os_custom_attributes if no .mac passed into data params.
+    # Swaps True values for 'true' string, and False values for 'false' string to avoid common user errors.
+    def __validations_for_os_custom_attributes(self, merged_data, resource):
+        attributes_merged = merged_data.get('osDeploymentSettings', {}).get('osCustomAttributes', None)
+        attributes_resource = resource.get('osDeploymentSettings', {}).get('osCustomAttributes', None)
+        mac_positions_in_merged_data = self.__find_in_array_of_hashes(attributes_merged, '.mac', -4)
+        mac_positions_in_resource = self.__find_in_array_of_hashes(attributes_resource, '.mac', -4)
+        if not mac_positions_in_merged_data:
+            for index in sorted(mac_positions_in_resource, reverse=True):
+                del attributes_resource[index]
+        if attributes_merged:
+            for attribute in attributes_merged:
+                if attribute['value'] is True:
+                    attribute['value'] = 'true'
+                elif attribute['value'] is False:
+                    attribute['value'] = 'false'
+
+    # Searches for a key or suffix of a key inside an array of hashes. The search looks for {'name': <key>} pairs
+    # inside the array.
+    # Returns an array containing the positions of matches.
+    def __find_in_array_of_hashes(self, array_of_hashes, key, part=None):
+        if array_of_hashes is None or key is None:
+            return []
+        matches = []
+        for position in range(0, len(array_of_hashes)):
+            single_array = array_of_hashes[position].get('name', None)
+            if single_array:
+                if single_array[part:] == key:
+                    matches.append(position)
+        return matches
 
     def __update_server_profile(self, profile_with_updates):
         logger.debug(msg="Updating Server Profile")
