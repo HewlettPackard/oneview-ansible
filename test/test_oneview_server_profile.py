@@ -700,13 +700,12 @@ class ServerProfileModuleSpec(unittest.TestCase,
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_replace_server_hardware_type_name_by_uri(self):
-        SERVER_HARDWARE_TEMPLATE_URI = "/rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C"
-        sht = {"name": "SY 480 Gen9 1", "uri": SERVER_HARDWARE_TEMPLATE_URI}
+        server_hardware_template = {"name": "SY 480 Gen9 1", "uri": SERVER_HARDWARE_TEMPLATE_URI}
         params = deepcopy(PARAMS_FOR_PRESENT)
         params['data']['serverHardwareTypeName'] = "SY 480 Gen9 1"
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
-        self.mock_ov_client.server_hardware_types.get_by.return_value = [sht]
+        self.mock_ov_client.server_hardware_types.get_by.return_value = [server_hardware_template]
 
         self.mock_ansible_module.params = params
 
