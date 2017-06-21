@@ -64,6 +64,20 @@ PARAMS_FOR_PRESENT = dict(
     data=BASIC_PROFILE
 )
 
+PARAMS_FOR_UPDATE = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name=SERVER_PROFILE_NAME,
+        serverHardwareTypeUri=SHT_URI,
+        enclosureGroupUri=ENCLOSURE_GROUP_URI,
+        uri=SERVER_PROFILE_URI,
+        osDeploymentSettings=dict(osCustomAttributes=[{'name': 'test.ipv4', 'value': 'fakeip'},
+                                                      {'name': 'test.ipv4disable', 'value': False},
+                                                      {'name': 'test.dhcp', 'value': True}])
+    )
+)
+
 PARAMS_FOR_COMPLIANT = dict(
     config='config.json',
     state='compliant',
@@ -1812,6 +1826,28 @@ class ServerProfileModuleSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ServerProfileModule.MSG_DELETED
+        )
+
+    @mock.patch.object(ResourceComparator, 'compare')
+    def test_sbla(self, mock_resource_compare):
+        profile_data = deepcopy(CREATED_BASIC_PROFILE)
+        profile_data['osDeploymentSettings'] = dict(osCustomAttributes=[{'name': 'test.mac', 'value': 'fakemac'},
+                                                                        {'name': 'test.ipv4', 'value': 'fakeip'},
+                                                                        {'name': 'test.ipv4disable', 'value': 'false'},
+                                                                        {'name': 'test.dhcp', 'value': 'true'}])
+
+        mock_resource_compare.return_value = True
+        mock_facts = gather_facts(self.mock_ov_client)
+        mock_facts['server_profile']['osDeploymentSettings'] = profile_data['osDeploymentSettings']
+        self.mock_ov_client.server_profiles.get_by_name.return_value = profile_data
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_UPDATE)
+
+        ServerProfileModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ServerProfileModule.MSG_ALREADY_PRESENT,
+            ansible_facts=mock_facts
         )
 
 
