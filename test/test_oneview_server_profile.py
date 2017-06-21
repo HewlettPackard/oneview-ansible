@@ -34,7 +34,7 @@ from hpe_test_utils import OneViewBaseTestCase
 
 SERVER_PROFILE_NAME = "Profile101"
 SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
-SHT_URI = "/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B"
+SERVER_HARDWARE_TEMPLATE_URI = "/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B"
 ENCLOSURE_GROUP_URI = "/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89"
 TEMPLATE_URI = '/rest/server-profile-templates/9a156b04-fce8-40b0-b0cd-92ced1311dda'
 FAKE_SERVER_HARDWARE = {'uri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'}
@@ -46,14 +46,14 @@ TASK_ERROR = HPOneViewTaskError(msg=FAKE_MSG_ERROR, error_code='AssignProfileToD
 
 BASIC_PROFILE = dict(
     name=SERVER_PROFILE_NAME,
-    serverHardwareTypeUri=SHT_URI,
+    serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI,
     enclosureGroupUri=ENCLOSURE_GROUP_URI,
     uri=SERVER_PROFILE_URI
 )
 
 BASIC_TEMPLATE = dict(
     name="Server-Template-7000",
-    serverHardwareTypeUri=SHT_URI,
+    serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI,
     enclosureGroupUri=ENCLOSURE_GROUP_URI,
     uri='/rest/server-profile-templates/9a156b04-fce8-40b0-b0cd-92ced1311dda'
 )
@@ -69,7 +69,7 @@ PARAMS_FOR_UPDATE = dict(
     state='present',
     data=dict(
         name=SERVER_PROFILE_NAME,
-        serverHardwareTypeUri=SHT_URI,
+        serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI,
         enclosureGroupUri=ENCLOSURE_GROUP_URI,
         uri=SERVER_PROFILE_URI,
         osDeploymentSettings=dict(osCustomAttributes=[{'name': 'test.ipv4', 'value': 'fakeip'},
@@ -700,8 +700,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
         self.mock_ansible_module.fail_json.assert_called_once_with(msg=expected_error)
 
     def test_should_replace_server_hardware_type_name_by_uri(self):
-        sht_uri = "/rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C"
-        sht = {"name": "SY 480 Gen9 1", "uri": sht_uri}
+        SERVER_HARDWARE_TEMPLATE_URI = "/rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C"
+        sht = {"name": "SY 480 Gen9 1", "uri": SERVER_HARDWARE_TEMPLATE_URI}
         params = deepcopy(PARAMS_FOR_PRESENT)
         params['data']['serverHardwareTypeName'] = "SY 480 Gen9 1"
 
@@ -713,7 +713,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         args, _ = self.mock_ov_client.server_profiles.create.call_args
-        self.assertEqual(args[0].get('serverHardwareTypeUri'), sht_uri)
+        self.assertEqual(args[0].get('serverHardwareTypeUri'), SERVER_HARDWARE_TEMPLATE_URI)
         self.assertEqual(args[0].get('serverHardwareTypeName'), None)
 
     def test_should_fail_when_server_hardware_type_name_not_found(self):
@@ -1416,7 +1416,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
     @mock.patch.object(ResourceComparator, 'compare')
     def test_should_power_off_before_update_when_data_changed(self, mock_resource_compare):
         fake_profile_data = deepcopy(BASIC_PROFILE)
-        fake_profile_data['serverHardwareUri'] = SHT_URI
+        fake_profile_data['serverHardwareUri'] = SERVER_HARDWARE_TEMPLATE_URI
 
         mock_resource_compare.return_value = False
 
@@ -1430,8 +1430,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
         ServerProfileModule().run()
 
         power_set_calls = [
-            mock.call(dict(powerState='Off', powerControl='PressAndHold'), SHT_URI),
-            mock.call(dict(powerState='On', powerControl='MomentaryPress'), SHT_URI)]
+            mock.call(dict(powerState='Off', powerControl='PressAndHold'), SERVER_HARDWARE_TEMPLATE_URI),
+            mock.call(dict(powerState='On', powerControl='MomentaryPress'), SERVER_HARDWARE_TEMPLATE_URI)]
         self.mock_ov_client.server_hardware.update_power_state.assert_has_calls(power_set_calls)
 
         self.mock_ov_client.server_profiles.update.assert_called_once_with(fake_profile_data, SERVER_PROFILE_URI)
@@ -1829,9 +1829,10 @@ class ServerProfileModuleSpec(unittest.TestCase,
         )
 
     @mock.patch.object(ResourceComparator, 'compare')
-    def test_sbla(self, mock_resource_compare):
+    def test_should_not_update_when_mac_not_passed_in_deployment_settings(self, mock_resource_compare):
         profile_data = deepcopy(CREATED_BASIC_PROFILE)
-        profile_data['osDeploymentSettings'] = dict(osCustomAttributes=[{'name': 'test.mac', 'value': 'fakemac'},
+        profile_data['osDeploymentSettings'] = dict(osDeploymentPlanUri='/rest/fake',
+                                                    osCustomAttributes=[{'name': 'test.mac', 'value': 'fakemac'},
                                                                         {'name': 'test.ipv4', 'value': 'fakeip'},
                                                                         {'name': 'test.ipv4disable', 'value': 'false'},
                                                                         {'name': 'test.dhcp', 'value': 'true'}])
@@ -1840,6 +1841,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
         mock_facts = gather_facts(self.mock_ov_client)
         mock_facts['server_profile']['osDeploymentSettings'] = profile_data['osDeploymentSettings']
         self.mock_ov_client.server_profiles.get_by_name.return_value = profile_data
+        self.mock_ov_client.os_deployment_plans.get.return_value = dict(additionalParameters=[{'name': 'test',
+                                                                                               'caType': 'nic'}])
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_UPDATE)
 
         ServerProfileModule().run()
