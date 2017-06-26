@@ -280,6 +280,8 @@ class ServerProfileModule(OneViewModuleBase):
         else:
             merged_data = ServerProfileMerger().merge_data(resource, data)
 
+            self.__validations_for_os_custom_attributes(data, merged_data, resource)
+
             if not ResourceComparator.compare(resource, merged_data):
                 resource = self.__update_server_profile(merged_data)
                 changed = True
@@ -288,6 +290,44 @@ class ServerProfileModule(OneViewModuleBase):
                 msg = self.MSG_ALREADY_PRESENT
 
         return created, changed, msg, resource
+
+    # Removes .mac entries from resource os_custom_attributes if no .mac passed into data params.
+    # Swaps True values for 'true' string, and False values for 'false' string to avoid common user errors.
+    def __validations_for_os_custom_attributes(self, data, merged_data, resource):
+        if not data.get('osDeploymentSettings', {}).get('osCustomAttributes', None):
+            return False
+        attributes_merged = merged_data.get('osDeploymentSettings', {}).get('osCustomAttributes', None)
+        attributes_resource = resource.get('osDeploymentSettings', {}).get('osCustomAttributes', None)
+        dp_uri = resource.get('osDeploymentSettings', {}).get('osDeploymentPlanUri', None)
+        dp = self.oneview_client.os_deployment_plans.get(dp_uri)
+        nics = []
+        if dp:
+            for parameter in dp['additionalParameters']:
+                if parameter['caType'] == 'nic':
+                    nics.append(parameter['name'])
+        mac_positions_in_merged_data = self.__find_in_array_of_hashes(attributes_merged, '.mac', -4)
+        mac_positions_in_resource = self.__find_in_array_of_hashes(attributes_resource, '.mac', -4)
+        if not mac_positions_in_merged_data:
+            for index in sorted(mac_positions_in_resource, reverse=True):
+                if attributes_resource[index].get('name').split('.')[0] in nics:
+                    del attributes_resource[index]
+        if attributes_merged:
+            for attribute in attributes_merged:
+                if attribute['value'] is True:
+                    attribute['value'] = 'true'
+                elif attribute['value'] is False:
+                    attribute['value'] = 'false'
+
+    # Searches for a key or suffix of a key inside an array of hashes. The search looks for {'name': <key>} pairs
+    # inside the array.
+    # Returns an array containing the positions of matches.
+    def __find_in_array_of_hashes(self, array_of_hashes, key, part=None):
+        matches = []
+        for position in range(0, len(array_of_hashes)):
+            attribute_name = array_of_hashes[position].get('name', None)
+            if attribute_name and attribute_name[part:] == key:
+                matches.append(position)
+        return matches
 
     def __update_server_profile(self, profile_with_updates):
         logger.debug(msg="Updating Server Profile")
