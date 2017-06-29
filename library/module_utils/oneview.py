@@ -732,7 +732,8 @@ class ServerProfileReplaceNamesByUris(object):
         volume_attachments = (data.get('sanStorage') or {}).get('volumeAttachments') or []
         if len(volume_attachments) > 0:
             for volume in volume_attachments:
-                self.__replace_name_by_uri(volume, 'volumeName', self.VOLUME_NOT_FOUND, self.oneview_client.volumes)
+                if volume.get('volumeUri', 'Replace'):
+                    self.__replace_name_by_uri(volume, 'volumeName', self.VOLUME_NOT_FOUND, self.oneview_client.volumes)
                 self.__replace_name_by_uri(volume, 'volumeStoragePoolName', self.STORAGE_POOL_NOT_FOUND,
                                            self.oneview_client.storage_pools)
                 self.__replace_name_by_uri(volume, 'volumeStorageSystemName', self.STORAGE_SYSTEM_NOT_FOUND,
