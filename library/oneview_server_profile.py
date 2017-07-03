@@ -59,6 +59,8 @@ notes:
        volumeAttachments list), serverHardwareTypeName or  serverHardwareTypeUri, enclosureName or enclosureUri,
        firmwareBaselineName or firmwareBaselineUri (on the firmware), and sasLogicalJBODName or sasLogicalJBODUri (on
        the sasLogicalJBODs list)"
+    - "If you define the volumeUri as null in the volumeAttachments list, it will be understood that the volume
+       does not exists, so it will be created along with the server profile"
 
 extends_documentation_fragment:
     - oneview

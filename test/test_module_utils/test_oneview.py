@@ -1270,6 +1270,25 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         self.assertEqual(sp_data, expected_dict)
 
+    def test_should_not_replace_volume_names_when_volume_uri_is_none(self):
+        volume2 = {"name": "volume2", "uri": "/rest/storage-volumes/2"}
+        sp_data = deepcopy(self.BASIC_PROFILE)
+        sp_data['sanStorage'] = {
+            "volumeAttachments": [
+                {"id": 1, "volumeName": "volume1", "volumeUri": None},
+                {"id": 2, "volumeName": "volume2"}
+            ]
+        }
+        expected_dict = deepcopy(sp_data)
+        expected_dict['sanStorage']['volumeAttachments'][0] = {"id": 1, "volumeName": "volume1", "volumeUri": None}
+        expected_dict['sanStorage']['volumeAttachments'][1] = {"id": 2, "volumeUri": "/rest/storage-volumes/2"}
+
+        self.mock_ov_client.volumes.get_by.side_effect = [[volume2]]
+
+        ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
+
+        self.assertEqual(sp_data, expected_dict)
+
     def test_should_not_replace_when_inform_volume_uri(self):
         sp_data = deepcopy(self.BASIC_PROFILE)
         sp_data['sanStorage'] = {
