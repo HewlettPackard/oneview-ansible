@@ -131,7 +131,8 @@ Deploy the operating system on a server using HPE ICsp.
 | os_build_plan  |   Yes  |  | |  OS Build plan.  |
 | password  |   Yes  |  | |  ICsp password.  |
 | personality_data  |   No  |  | |  Personality Data.  |
-| server_id  |   Yes  |  | |  Server ID.  |
+| server_id  |   No  |  | |  Server ID. Deprecated, IP address is preferred (server_ipAddress).  |
+| server_ipAddress  |   No  |  | |  The IP address of the iLO of the server.  |
 | username  |   Yes  |  | |  ICsp username.  |
 
 
@@ -145,6 +146,7 @@ Deploy the operating system on a server using HPE ICsp.
     username: "{{ icsp_username }}"
     password: "{{ icsp_password }}"
     server_id: "{{ server_profile.serialNumber }}"
+    server_ipAddress: "{{server_iLO_ip}}"
     os_build_plan: "{{ os_build_plan }}"
     custom_attributes: "{{ osbp_custom_attributes }}"
     personality_data: "{{ network_config }}"
@@ -7302,6 +7304,8 @@ Manage OneView Server Profile resources.
 
 - For the following data, you can provide either a name or a URI: enclosureGroupName or enclosureGroupUri, osDeploymentPlanName or osDeploymentPlanUri (on the osDeploymentSettings), networkName or networkUri (on the connections list), volumeName or volumeUri (on the volumeAttachments list), volumeStoragePoolName or volumeStoragePoolUri (on the volumeAttachments list), volumeStorageSystemName or volumeStorageSystemUri (on the volumeAttachments list), serverHardwareTypeName or  serverHardwareTypeUri, enclosureName or enclosureUri, firmwareBaselineName or firmwareBaselineUri (on the firmware), and sasLogicalJBODName or sasLogicalJBODUri (on the sasLogicalJBODs list)
 
+- If you define the volumeUri as null in the volumeAttachments list, it will be understood that the volume does not exist, so it will be created along with the server profile. Be warned that everytime this option is executed it will always be understood that a new volume needs to be created, so this will not be idempotent. It is strongly recommended to ensure volumes with ansible and then assign them to the desired server profile.
+
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
@@ -7517,6 +7521,8 @@ Manage OneView Server Profile Template resources.
 #### Notes
 
 - For the following data, you can provide either a name  or a URI: enclosureGroupName or enclosureGroupUri, osDeploymentPlanName or osDeploymentPlanUri (on the osDeploymentSettings), networkName or networkUri (on the connections list), volumeName or volumeUri (on the volumeAttachments list), volumeStoragePoolName or volumeStoragePoolUri (on the volumeAttachments list), volumeStorageSystemName or volumeStorageSystemUri (on the volumeAttachments list), serverHardwareTypeName or  serverHardwareTypeUri, enclosureName or enclosureUri, firmwareBaselineName or firmwareBaselineUri (on the firmware), and sasLogicalJBODName or sasLogicalJBODUri (on the sasLogicalJBODs list)
+
+- If you define the volumeUri as null in the volumeAttachments list, it will be understood that the volume does not exist, so it will be created along with the server profile. Be warned that everytime this option is executed it will always be understood that a new volume needs to be created, so this will not be idempotent. It is strongly recommended to ensure volumes with ansible and then assign them to the desired server profile template.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
