@@ -1,0 +1,82 @@
+###
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    user_name: testUser
+    email: testUser@example.com
+  tasks:
+    - name: Create a User
+      oneview_user:
+        config: "{{ config }}"
+        state: present
+        data:
+          userName: "{{ user_name }}"
+          password: myPass1234
+          emailAddress: "{{ email }}"
+          enabled: true
+          fullName: testUser101
+          mobilePhone: '555-2121'
+          officePhone: '555-1212'
+          roles:
+            - Read only
+      delegate_to: localhost
+      register: user_1
+
+    - name: Do nothing with the User when no changes are provided
+      oneview_user:
+        config: "{{ config }}"
+        state: present
+        data:
+          userName: "{{ user_name }}"
+          emailAddress: "{{ email }}"
+          enabled: true
+      delegate_to: localhost
+
+    - name: Update the User changing the attribute enabled to False
+      oneview_user:
+        config: "{{ config }}"
+        state: present
+        data:
+          userName: "{{ user_name }}"
+          enabled: false
+      delegate_to: localhost
+
+    - name: Sets a new password for the user
+      oneview_user:
+        config: "{{ config }}"
+        state: set_password
+        data:
+          userName: "{{ user_name }}"
+          password: myNEWPass1234
+      delegate_to: localhost
+
+    - name: Delete the User
+      oneview_user:
+        config: "{{ config }}"
+        state: absent
+        data: "{{ user_1.ansible_facts.user }}"
+      delegate_to: localhost
+      register: deleted
+
+    - name: Do nothing when User is absent
+      oneview_user:
+        config: "{{ config }}"
+        state: absent
+        data: "{{ user_1.ansible_facts.user }}"
+      delegate_to: localhost
+      register: deleted
