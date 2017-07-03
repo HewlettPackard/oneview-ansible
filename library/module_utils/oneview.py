@@ -734,6 +734,11 @@ class ServerProfileReplaceNamesByUris(object):
             for volume in volume_attachments:
                 if volume.get('volumeUri', 'Replace'):
                     self.__replace_name_by_uri(volume, 'volumeName', self.VOLUME_NOT_FOUND, self.oneview_client.volumes)
+                else:
+                    logger.debug("The volumeUri is null in the volumeAttachments list, it will be understood "
+                                 "that the volume does not exist, so it will be created along with the server "
+                                 "profile. Be warned that it will always trigger a new creation, so it will not "
+                                 " be idempotent.")
                 self.__replace_name_by_uri(volume, 'volumeStoragePoolName', self.STORAGE_POOL_NOT_FOUND,
                                            self.oneview_client.storage_pools)
                 self.__replace_name_by_uri(volume, 'volumeStorageSystemName', self.STORAGE_SYSTEM_NOT_FOUND,

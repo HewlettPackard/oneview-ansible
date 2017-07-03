@@ -51,7 +51,7 @@ notes:
        firmwareBaselineName or firmwareBaselineUri (on the firmware), and sasLogicalJBODName or sasLogicalJBODUri (on
        the sasLogicalJBODs list)"
     - "If you define the volumeUri as null in the volumeAttachments list, it will be understood that the volume
-       does not exists, so it will be created along with the server profile. Be warned that everytime this option
+       does not exist, so it will be created along with the server profile. Be warned that everytime this option
        is executed it will always be understood that a new volume needs to be created, so this will not be idempotent.
        It is strongly recommended to ensure volumes with ansible and then assign them to the desired server profile
        template."
