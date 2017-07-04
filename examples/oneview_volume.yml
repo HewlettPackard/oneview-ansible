@@ -41,8 +41,8 @@
         state: present
         data:
           name: 'Volume with Storage Pool'
-          provisionedCapacity: 2684354560  # 2.5GB
-          allocatedCapacity: 3758096384  # 3.5GB
+          provisionedCapacity: 2684354560  # 2.5GB - The volume actual size
+          allocatedCapacity: 3758096384  # 3.5GB - The allocated size for this volume
       delegate_to: localhost
 
     - name: Create a volume with a specified Snapshot Pool
