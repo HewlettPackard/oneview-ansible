@@ -106,6 +106,8 @@
   * [oneview_unmanaged_device_facts - Retrieve facts about one or more of the OneView Unmanaged Device.](#oneview_unmanaged_device_facts)
   * [oneview_uplink_set - Manage OneView Uplink Set resources.](#oneview_uplink_set)
   * [oneview_uplink_set_facts - Retrieve facts about one or more of the OneView Uplink Sets.](#oneview_uplink_set_facts)
+  * [oneview_user - Manage OneView Users.](#oneview_user)
+  * [oneview_user_facts - Retrieve the facts about one or more of the OneView Users.](#oneview_user_facts)
   * [oneview_volume - Manage OneView Volume resources.](#oneview_volume)
   * [oneview_volume_facts - Retrieve facts about the OneView Volumes.](#oneview_volume_facts)
 
@@ -8845,6 +8847,160 @@ Retrieve facts about one or more of the OneView Uplink Sets.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | uplink_sets   | Has all the OneView facts about the Uplink Sets. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_user
+Manage OneView Users.
+
+#### Synopsis
+ Provides an interface to manage Users. Can create, update, and delete.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.2.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with the User properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>set_password</li> </ul> |  Indicates the desired state for the User. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists. `set_password` will set a user password to the value specified. This operation is non-idempotent.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Ensure that the User is present using the default configuration
+  oneview_user:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      userName: testUser
+      password: pass1234
+      emailAddress: testUser@example.com
+      enabled: true
+      fullName: testUser101
+    delegate_to: localhost
+
+- name: Ensure that the User is present with enabled 'false'
+  oneview_user:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      userName: testUser
+      enabled: false
+    delegate_to: localhost
+
+- name: Ensure that the User is absent
+  oneview_user:
+    config: "{{ config_file_path }}"
+    state: absent
+    data:
+      userName: testUser
+    delegate_to: localhost
+
+- name: Set the password of specified user
+  oneview_user:
+    config: "{{ config_file_path }}"
+    state: set_password
+    data:
+      userName: testUser
+      password: newPass1234
+    delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| user   | Has the facts about the OneView Users. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_user_facts
+Retrieve the facts about one or more of the OneView Users.
+
+#### Synopsis
+ Retrieve the facts about one or more of the Users from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.2.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| name  |   No  |  | |  User name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Gather facts about all Users
+  oneview_user_facts:
+    config: "{{ config_file_path }}"
+
+- debug: var=users
+
+- name: Gather paginated, filtered and sorted facts about Users
+  oneview_user_facts:
+    config: "{{ config }}"
+    params:
+      start: 1
+      count: 3
+      sort: 'emailAddress:descending'
+      filter: 'enabled=true'
+
+- debug: var=users
+
+- name: Gather facts about a User by name
+  oneview_user_facts:
+    config: "{{ config_file_path }}"
+    name: user name
+
+- debug: var=users
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| users   | It has all the OneView facts about the Users. |  Always, but can be null. |  complex |
 
 
 #### Notes

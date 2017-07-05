@@ -134,5 +134,7 @@ from oneview_unmanaged_device import UnmanagedDeviceModule
 from oneview_unmanaged_device_facts import UnmanagedDeviceFactsModule
 from oneview_uplink_set import UplinkSetModule
 from oneview_uplink_set_facts import UplinkSetFactsModule
+from oneview_user import UserModule
+from oneview_user_facts import UserFactsModule
 from oneview_volume import VolumeModule
 from oneview_volume_facts import VolumeFactsModule
