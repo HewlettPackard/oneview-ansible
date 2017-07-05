@@ -122,12 +122,10 @@ class UserModule(OneViewModuleBase):
         self.resource_client = self.oneview_client.users
 
     def execute_module(self):
-        # Allows usage of 'name' or 'userName' instead of enforcing 'userName'
-        try:
-            if self.data.pop("name") is not None:
-                self.data["userName"] = self.data.pop("name")
-        except KeyError:
-            pass
+        # Allows usage of 'name' or 'userName' instead of enforcing 'userName'.
+        # 'name' takes precedence over 'userName' if used.
+        if self.data.get("name") is not None:
+            self.data["userName"] = self.data.pop("name")
         try:
             resource = self.resource_client.get_by('name', self.data['userName'])
         except HPOneViewException:
@@ -170,9 +168,9 @@ class UserModule(OneViewModuleBase):
     def __set_password(self, resource):
 
         if not resource:
-            raise HPOneViewException('The user specified does not exist')
+            raise HPOneViewException('The specified user does not exist.')
         if 'password' not in self.data:
-            raise HPOneViewException('This state requires a password to be declared')
+            raise HPOneViewException('This state requires a password to be declared.')
         resource = self.resource_client.update(self.data)
         return dict(changed=True, msg=self.MSG_PASSWORD_UPDATED, ansible_facts=dict(user=resource))
 
