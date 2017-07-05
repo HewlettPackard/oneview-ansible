@@ -17,8 +17,8 @@
 - hosts: all
   vars:
     config: '{{ playbook_dir }}/oneview_config.json'
-    storage_pool_uri:  # set a Storage Pool URI to run this example
-    storage_system_uri:  # set a Storage System URI to run this example
+    storage_pool_uri: # set a Storage Pool URI to run this example
+    storage_system_uri: # set a Storage System URI to run this example
     # wwn:  # set a WWN to add a volume using the WWN of the volume (optional)
   tasks:
     - name: Create a Volume with a specified Storage Pool
@@ -31,8 +31,18 @@
           provisioningParameters:
               provisionType: 'Full'
               shareable: True
-              requestedCapacity: 1073741824  # 1GB
+              requestedCapacity: 2147483648  # 2GB
               storagePoolUri: '{{ storage_pool_uri }}'
+      delegate_to: localhost
+
+    - name: Extend the Volume size
+      oneview_volume:
+        config: '{{ config }}'
+        state: present
+        data:
+          name: 'Volume with Storage Pool'
+          provisionedCapacity: 2684354560  # 2.5GB - The volume actual size
+          allocatedCapacity: 3758096384  # 3.5GB - The allocated size for this volume
       delegate_to: localhost
 
     - name: Create a volume with a specified Snapshot Pool
