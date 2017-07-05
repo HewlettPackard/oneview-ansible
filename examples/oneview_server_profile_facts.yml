@@ -75,6 +75,7 @@
        options:
            - schema
            - compliancePreview
+           - newProfileTemplate
            - profilePorts:
               serverHardwareTypeUri: "{{server_hardware_type_uri}}"
               enclosureGroupUri: "{{enclosure_group_uri}}"
@@ -100,6 +101,7 @@
     - debug: var=server_profiles
     - debug: var=server_profile_schema
     - debug: var=server_profile_compliance_preview
+    - debug: var=server_profile_new_profile_template
     - debug: var=server_profile_profile_ports
     - debug: var=server_profile_messages
     - debug: var=server_profile_transformation
