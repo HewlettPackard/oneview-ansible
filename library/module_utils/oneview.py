@@ -325,7 +325,7 @@ class ResourceComparator():
         resource1 = deepcopy(first_resource)
         resource2 = deepcopy(second_resource)
 
-        debug_resources = "resource1 = {0}, resource2 = {1}".format(resource1, resource2)
+        debug_resources = "\nresource1: \n{0} \nresource2: \n{1}".format(resource1, resource2)
 
         # The first resource is True / Not Null and the second resource is False / Null
         if resource1 and not resource2:

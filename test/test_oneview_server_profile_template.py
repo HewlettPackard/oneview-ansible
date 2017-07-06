@@ -214,6 +214,29 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase,
             msg=ServerProfileTemplateModule.MSG_ALREADY_ABSENT
         )
 
+    def test_should_accept_a_sp_as_base(self):
+        modified_data = deepcopy(CREATED_BASIC_TEMPLATE)
+        modified_data['name'] = None
+        params_with_sp = deepcopy(PARAMS_FOR_PRESENT)
+        params_with_sp['data'] = dict(name='ProfileTemplate101', serverProfileName='sp1')
+        self.mock_ov_client.server_profiles.get_by.return_value = [dict(name='ProfileTemplate101',
+                                                                        serverProfileName='sp1',
+                                                                        uri='fake')]
+        self.mock_ov_client.server_profiles.get_new_profile_template.return_value = modified_data
+
+        self.resource.get_by_name.return_value = []
+        self.resource.create.return_value = CREATED_BASIC_TEMPLATE
+
+        self.mock_ansible_module.params = params_with_sp
+
+        ServerProfileTemplateModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerProfileTemplateModule.MSG_CREATED,
+            ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE)
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
