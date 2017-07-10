@@ -38,13 +38,14 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     # Set the name of the server profile template that will be used to provision the server profile
-    - ov_template: 'SY 480 Gen9 1'
+    - ov_template: SY 480 Gen9 1
+    - ov_template: spt1
     # Set the name of an existing enclosure group to run this example
-    - enclosure_group_name: 'encl-group1'
+    - enclosure_group_name: eg1
     # Set the name of an existing server hardware type to run this example
-    - server_hardware_type_name: 'SY 480 Gen9 1'
+    - server_hardware_type_name: SY 480 Gen9 2
     # Set the name of an existing ethernet network
-    - network_name: 'eth-demo'
+    - network_name: eth1
   tasks:
     - name: Create a Server Profile from a Server Profile Template
       oneview_server_profile:
@@ -88,7 +89,8 @@
           affinity: "BayAndServer"
           bootMode:
             manageMode: True
-            mode: "BIOS"
+            mode: "UEFI"
+            pxeBootPolicy: "Auto"
       delegate_to: localhost
       register: result
 
