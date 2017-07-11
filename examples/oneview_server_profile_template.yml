@@ -22,13 +22,13 @@
     enclosure_group_name: eg1
     server_profile_name: sp1
   tasks:
-    - name: Create a server profile template based on a server profile with modified attributes
+    - name: Create a server profile template
       oneview_server_profile_template:
         config: "{{ config }}"
         state: present
         data:
           name: "{{ server_profile_template_name }}"
-          serverProfileName: "{{ server_profile_name }}"  # Optional - Server Profile that this SPT will be based on
+          serverProfileName: "{{ server_profile_name }}" # Optional - Server Profile to base this SPT on
           serverHardwareTypeName: "{{ server_hardware_type_name }}"
           enclosureGroupName: "{{ enclosure_group_name }}"
       delegate_to: localhost
