@@ -30,7 +30,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 4.0.0"
 author:
     - "Chakravarthy Racharla"
     - "Camila Balestrin (@balestrinc)"

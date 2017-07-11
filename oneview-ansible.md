@@ -16453,7 +16453,7 @@ Manage OneView Server Profile resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 4.0.0
 
 #### Options
 
@@ -16591,7 +16591,7 @@ Retrieve facts about the OneView Server Profiles.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Server Profile name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Server Profile related resources. Options allowed: `schema`, `compliancePreview`, `profilePorts`, `messages`, `transformation`, `available_networks`, `available_servers`, `available_storage_system`, `available_storage_systems`, `available_targets`  To gather facts about `compliancePreview`, `messages` and `transformation` it is required to inform the Server Profile name. Otherwise, these options will be ignored.  |
+| options  |   No  |  | |  List with options to gather additional facts about Server Profile related resources. Options allowed: `schema`, `compliancePreview`, `profilePorts`, `messages`, `transformation`, `available_networks`, `available_servers`, `available_storage_system`, `available_storage_systems`, `available_targets`, `newProfileTemplate`,  To gather facts about `compliancePreview`, `messages`, `newProfileTemplate` and `transformation` a Server Profile name is required. Otherwise, these options will be ignored.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
@@ -16647,6 +16647,7 @@ Retrieve facts about the OneView Server Profiles.
    options:
         - schema
         - compliancePreview
+        - newProfileTemplate
         - profilePorts:
            enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
            serverHardwareTypeUri: '/rest/server-hardware-types/C8DEF9A6-9586-465E-A951-3070988BC226'
@@ -16672,6 +16673,7 @@ Retrieve facts about the OneView Server Profiles.
 - debug: var=server_profiles
 - debug: var=server_profile_schema
 - debug: var=server_profile_compliance_preview
+- debug: var=server_profile_new_profile_template
 - debug: var=server_profile_profile_ports
 - debug: var=server_profile_messages
 - debug: var=server_profile_transformation
@@ -16696,6 +16698,7 @@ Retrieve facts about the OneView Server Profiles.
 | server_profile_available_targets   | Has the facts about the target servers and empty device bays that are available for assignment to the server profile. |  When requested, but can be null. |  complex |
 | server_profile_compliance_preview   | Has all the facts about the manual and automatic updates required to make the server profile compliant with its template. |  When requested, but can be null. |  complex |
 | server_profile_messages   | Has the facts about the profile status messages associated with the profile. |  When requested, but can be null. |  complex |
+| server_profile_new_profile_template   | Has the facts derived from a server profile, which can be used to generate a server profile template. |  When requested, but can be null. |  complex |
 | server_profile_profile_ports   | Has the facts about the port model associated with the profile. |  When requested, but can be null. |  complex |
 | server_profile_schema   | Has the facts about the Server Profile schema. |  When requested, but can be null. |  complex |
 | server_profile_transformation   | Has the facts about the transformation of an existing profile by supplying a new server hardware type and/or enclosure group. |  When requested, but can be null. |  complex |
