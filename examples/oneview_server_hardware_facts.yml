@@ -71,6 +71,7 @@
            - javaRemoteConsoleUrl   # optional
            - environmentalConfig    # optional
            - iloSsoUrl              # optional
+           - physicalServerHardware # optional
            - remoteConsoleUrl       # optional
            - utilization:           # optional
                     fields : 'AveragePower'
@@ -83,6 +84,7 @@
     - debug: var=server_hardware_env_config
     - debug: var=server_hardware_java_remote_console_url
     - debug: var=server_hardware_ilo_sso_url
+    - debug: var=server_hardware_physical_server_hardware
     - debug: var=server_hardware_remote_console_url
     - debug: var=server_hardware_utilization
 

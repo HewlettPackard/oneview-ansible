@@ -36,10 +36,10 @@ PARAMS_WITH_OPTIONS = dict(
     config='config.json',
     name="Test Server Hardware",
     options=[
-        'bios', 'javaRemoteConsoleUrl', 'environmentalConfig', 'iloSsoUrl', 'remoteConsoleUrl', 'firmware',
-        {"utilization": {"fields": 'AveragePower',
-                         "filter": 'startDate=2016-05-30T03:29:42.000Z',
-                         "view": 'day'}}]
+        'bios', 'javaRemoteConsoleUrl', 'environmentalConfig', 'iloSsoUrl', 'physicalServerHardware',
+        'remoteConsoleUrl', 'firmware', {"utilization": {"fields": 'AveragePower',
+                                                         "filter": 'startDate=2016-05-30T03:29:42.000Z',
+                                                         "view": 'day'}}]
 )
 
 PARAMS_WITH_ALL_FIRMWARES_WITHOUT_FILTER = dict(
@@ -88,11 +88,12 @@ class ServerHardwareFactsSpec(unittest.TestCase, FactsParamsTestCase):
         )
 
     def test_should_get_server_hardware_by_name_with_options(self):
-        self.server_hardware.get_by.return_value = [{"name": "Server Hardware Name", "uri": "resuri"}]
+        self.server_hardware.get_by.return_value = [{"name": "Server Hardware Name", "uri": "res_uri"}]
         self.server_hardware.get_bios.return_value = {'subresource': 'value'}
         self.server_hardware.get_environmental_configuration.return_value = {'subresource': 'value'}
         self.server_hardware.get_java_remote_console_url.return_value = {'subresource': 'value'}
         self.server_hardware.get_ilo_sso_url.return_value = {'subresource': 'value'}
+        self.server_hardware.get_physical_server_hardware.return_value = {'subresource': 'value'}
         self.server_hardware.get_remote_console_url.return_value = {'subresource': 'value'}
         self.server_hardware.get_utilization.return_value = {'subresource': 'value'}
         self.server_hardware.get_firmware.return_value = {'subresource': 'firmware'}
@@ -102,8 +103,9 @@ class ServerHardwareFactsSpec(unittest.TestCase, FactsParamsTestCase):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts={'server_hardwares': [{'name': 'Server Hardware Name', 'uri': 'resuri'}],
+            ansible_facts={'server_hardwares': [{'name': 'Server Hardware Name', 'uri': 'res_uri'}],
                            'server_hardware_remote_console_url': {'subresource': 'value'},
+                           'server_hardware_physical_server_hardware': {'subresource': 'value'},
                            'server_hardware_utilization': {'subresource': 'value'},
                            'server_hardware_ilo_sso_url': {'subresource': 'value'},
                            'server_hardware_bios': {'subresource': 'value'},

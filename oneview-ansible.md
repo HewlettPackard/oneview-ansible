@@ -9268,7 +9268,8 @@ Deploy the operating system on a server using HPE ICsp.
 | os_build_plan  |   Yes  |  | |  OS Build plan.  |
 | password  |   Yes  |  | |  ICsp password.  |
 | personality_data  |   No  |  | |  Personality Data.  |
-| server_id  |   Yes  |  | |  Server ID.  |
+| server_id  |   No  |  | |  Server ID. Deprecated, IP address is preferred (server_ipAddress).  |
+| server_ipAddress  |   No  |  | |  The IP address of the iLO of the server.  |
 | username  |   Yes  |  | |  ICsp username.  |
 
 
@@ -9282,6 +9283,7 @@ Deploy the operating system on a server using HPE ICsp.
     username: "{{ icsp_username }}"
     password: "{{ icsp_password }}"
     server_id: "{{ server_profile.serialNumber }}"
+    server_ipAddress: "{{server_iLO_ip}}"
     os_build_plan: "{{ os_build_plan }}"
     custom_attributes: "{{ osbp_custom_attributes }}"
     personality_data: "{{ network_config }}"
@@ -16051,7 +16053,7 @@ Manage OneView Server Hardware resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Server Hardware properties and its associated states.  |
-| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>ilo_firmware_version_updated</li>  <li>ilo_state_reset</li>  <li>uid_state_on</li>  <li>uid_state_off</li>  <li>environmental_configuration_set</li> </ul> |  Indicates the desired state for the Server Hardware resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists. `power_state_set` will set the power state of the Server Hardware. `refresh_state_set` will set the refresh state of the Server Hardware. `ilo_firmware_version_updated` will update the iLO firmware version of the Server Hardware. `ilo_state_reset` will reset the iLO state. `uid_state_on` will set on the UID state, if necessary. `uid_state_off` will set on the UID state, if necessary. `environmental_configuration_set` will set the environmental configuration of the Server Hardware.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>ilo_firmware_version_updated</li>  <li>ilo_state_reset</li>  <li>uid_state_on</li>  <li>uid_state_off</li>  <li>environmental_configuration_set</li> </ul> |  Indicates the desired state for the Server Hardware resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists. `power_state_set` will set the power state of the Server Hardware. `refresh_state_set` will set the refresh state of the Server Hardware. `ilo_firmware_version_updated` will update the iLO firmware version of the Server Hardware. `ilo_state_reset` will reset the iLO state. `uid_state_on` will set on the UID state, if necessary. `uid_state_off` will set off the UID state, if necessary. `environmental_configuration_set` will set the environmental configuration of the Server Hardware.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
@@ -16071,6 +16073,16 @@ Manage OneView Server Hardware resources.
          licensingIntent: "OneView"
          configurationState: "Managed"
   delegate_to: localhost
+
+- name: Ensure that the Server Hardware is present and is inserted in the desired scopes
+  oneview_server_hardware:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name : "172.18.6.15"
+      scopeUris:
+        - '/rest/scopes/00SC123456'
+        - '/rest/scopes/01SC123456'
 
 - name: Power Off the server hardware
   oneview_server_hardware:
@@ -16158,7 +16170,7 @@ Retrieve facts about the OneView Server Hardwares.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpOneView >= 4.0.0
 
 #### Options
 
@@ -16166,7 +16178,7 @@ Retrieve facts about the OneView Server Hardwares.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Server Hardware name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Server Hardware related resources. Options allowed: `bios`, `javaRemoteConsoleUrl`, `environmentalConfig`, `iloSsoUrl`, `remoteConsoleUrl`, `utilization`, `firmware`, and `firmwares`.  |
+| options  |   No  |  | |  List with options to gather additional facts about Server Hardware related resources. Options allowed: `bios`, `javaRemoteConsoleUrl`, `environmentalConfig`, `iloSsoUrl`, `remoteConsoleUrl`, `utilization`, `firmware`, `firmwares` and `physicalServerHardware`.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
@@ -16223,6 +16235,7 @@ Retrieve facts about the OneView Server Hardwares.
    options:
        - bios                   # optional
        - javaRemoteConsoleUrl   # optional
+       - physicalServerHardware   # optional
        - environmentalConfig    # optional
        - iloSsoUrl              # optional
        - remoteConsoleUrl       # optional
@@ -16238,6 +16251,7 @@ Retrieve facts about the OneView Server Hardwares.
 - debug: var=server_hardware_env_config
 - debug: var=server_hardware_java_remote_console_url
 - debug: var=server_hardware_ilo_sso_url
+- debug: var=server_hardware_physical_server_hardware
 - debug: var=server_hardware_remote_console_url
 - debug: var=server_hardware_utilization
 - debug: var=server_hardware_firmware
@@ -16266,6 +16280,7 @@ Retrieve facts about the OneView Server Hardwares.
 | server_hardware_firmwares   | Has all the facts about the firmwares inventory across all servers. |  When requested, but can be null. |  complex |
 | server_hardware_ilo_sso_url   | Has the facts about the Server Hardware iLO SSO url. |  When requested, but can be null. |  complex |
 | server_hardware_java_remote_console_url   | Has the facts about the Server Hardware java remote console url. |  When requested, but can be null. |  complex |
+| server_hardware_physical_server_hardware   | Has all the facts describing an 'SDX' partition. Used with SDX enclosures only. |  When requested, but can be null. |  complex |
 | server_hardware_remote_console_url   | Has the facts about the Server Hardware remote console url. |  When requested, but can be null. |  complex |
 | server_hardware_utilization   | Has all the facts about the Server Hardware utilization. |  When requested, but can be null. |  complex |
 | server_hardwares   | Has all the OneView facts about the Server Hardware. |  Always, but can be null. |  complex |
@@ -16274,6 +16289,8 @@ Retrieve facts about the OneView Server Hardwares.
 #### Notes
 
 - The options `firmware` and `firmwares` are only available for API version 300 or later.
+
+- The option `physicalServerHardware` is only available for API version 500 or later on SDX enclosures.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 

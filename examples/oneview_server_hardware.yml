@@ -17,7 +17,11 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    server_hardware_name: 'Encl1, bay 2'
+    server_hardware_hostname: '<server_hardware_host_name>'
+    server_hardware_username: '<server_hardware_user_name>'
+    server_hardware_password: '<server_hardware_user_password>'
+    scope_uris:
+      - '<scope_uri_1>'
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
@@ -32,6 +36,7 @@
              force : false
              licensingIntent: "OneView"
              configurationState: "Managed"
+             scopeUris: "{{ scope_uris }}"
       delegate_to: localhost
 
     - name: Do nothing when the server hardware is already present
@@ -52,7 +57,7 @@
         config: "{{ config }}"
         state: power_state_set
         data:
-            name : '{{ server_hardware_name }}'
+            name : '{{ server_hardware_hostname }}'
             powerStateData:
                 powerState: "Off"
                 powerControl: "MomentaryPress"
@@ -63,7 +68,7 @@
         config: "{{ config }}"
         state: power_state_set
         data:
-            name : '{{ server_hardware_name }}'
+            name : '{{ server_hardware_hostname }}'
             powerStateData:
                 powerState: "On"
                 powerControl: "MomentaryPress"
@@ -74,7 +79,7 @@
         config: "{{ config }}"
         state: refresh_state_set
         data:
-            name : '{{ server_hardware_name }}'
+            name : '{{ server_hardware_hostname }}'
             refreshStateData:
                 refreshState : "RefreshPending"
       delegate_to: localhost
@@ -84,7 +89,7 @@
         config: "{{ config }}"
         state: ilo_firmware_version_updated
         data:
-            name : '{{ server_hardware_name }}'
+            name : '{{ server_hardware_hostname }}'
       delegate_to: localhost
 
     - name: Reset the Server Hardware iLO State
@@ -92,7 +97,7 @@
         config: "{{ config }}"
         state: ilo_state_reset
         data:
-            name: '{{ server_hardware_name }}'
+            name: '{{ server_hardware_hostname }}'
       delegate_to: localhost
 
     - name: Set the server UID state off
@@ -100,7 +105,7 @@
         config: "{{ config }}"
         state: uid_state_off
         data:
-            name: '{{ server_hardware_name }}'
+            name: '{{ server_hardware_hostname }}'
       delegate_to: localhost
 
     - name: Remove the server hardware by its IP

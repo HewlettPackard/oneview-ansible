@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.0"
+    - "hpOneView >= 4.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     name:
@@ -40,10 +40,11 @@ options:
       description:
         - "List with options to gather additional facts about Server Hardware related resources.
           Options allowed: C(bios), C(javaRemoteConsoleUrl), C(environmentalConfig), C(iloSsoUrl), C(remoteConsoleUrl),
-          C(utilization), C(firmware), and C(firmwares)."
+          C(utilization), C(firmware), C(firmwares) and C(physicalServerHardware)."
       required: false
 notes:
     - The options C(firmware) and C(firmwares) are only available for API version 300 or later.
+    - The option C(physicalServerHardware) is only available for API version 500 or later on SDX enclosures.
 extends_documentation_fragment:
     - oneview
     - oneview.factsparams
@@ -99,6 +100,7 @@ EXAMPLES = '''
    options:
        - bios                   # optional
        - javaRemoteConsoleUrl   # optional
+       - physicalServerHardware   # optional
        - environmentalConfig    # optional
        - iloSsoUrl              # optional
        - remoteConsoleUrl       # optional
@@ -114,6 +116,7 @@ EXAMPLES = '''
 - debug: var=server_hardware_env_config
 - debug: var=server_hardware_java_remote_console_url
 - debug: var=server_hardware_ilo_sso_url
+- debug: var=server_hardware_physical_server_hardware
 - debug: var=server_hardware_remote_console_url
 - debug: var=server_hardware_utilization
 - debug: var=server_hardware_firmware
@@ -174,6 +177,11 @@ server_hardware_firmwares:
     description: Has all the facts about the firmwares inventory across all servers.
     returned: When requested, but can be null.
     type: complex
+
+server_hardware_physical_server_hardware:
+    description: Has all the facts describing an 'SDX' partition. Used with SDX enclosures only.
+    returned: When requested, but can be null.
+    type: complex
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -223,6 +231,9 @@ class ServerHardwareFactsModule(OneViewModuleBase):
                 server_hardware['uri'])
         if options.get('iloSsoUrl'):
             ansible_facts['server_hardware_ilo_sso_url'] = srv_hw_client.get_ilo_sso_url(server_hardware['uri'])
+        if options.get('physicalServerHardware'):
+            ansible_facts['server_hardware_physical_server_hardware'] = srv_hw_client.get_physical_server_hardware(
+                server_hardware['uri'])
         if options.get('remoteConsoleUrl'):
             ansible_facts['server_hardware_remote_console_url'] = srv_hw_client.get_remote_console_url(
                 server_hardware['uri'])

@@ -42,7 +42,7 @@ options:
               C(ilo_firmware_version_updated) will update the iLO firmware version of the Server Hardware.
               C(ilo_state_reset) will reset the iLO state.
               C(uid_state_on) will set on the UID state, if necessary.
-              C(uid_state_off) will set on the UID state, if necessary.
+              C(uid_state_off) will set off the UID state, if necessary.
               C(environmental_configuration_set) will set the environmental configuration of the Server Hardware.
         choices: ['present', 'absent', 'power_state_set', 'refresh_state_set', 'ilo_firmware_version_updated',
                   'ilo_state_reset','uid_state_on', 'uid_state_off', 'environmental_configuration_set']
@@ -70,6 +70,16 @@ EXAMPLES = '''
          licensingIntent: "OneView"
          configurationState: "Managed"
   delegate_to: localhost
+
+- name: Ensure that the Server Hardware is present and is inserted in the desired scopes
+  oneview_server_hardware:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name : "172.18.6.15"
+      scopeUris:
+        - '/rest/scopes/00SC123456'
+        - '/rest/scopes/01SC123456'
 
 - name: Power Off the server hardware
   oneview_server_hardware:
@@ -194,7 +204,7 @@ class ServerHardwareModule(OneViewModuleBase):
     def execute_module(self):
 
         if self.state == 'present':
-            changed, msg, ansible_facts = self.__present()
+            return self.__present()
 
         else:
             if not self.data.get('name'):
@@ -234,11 +244,26 @@ class ServerHardwareModule(OneViewModuleBase):
 
         resource = self.__get_server_hardware(self.data['hostname'])
 
+        scope_uris = self.data.pop('scopeUris', None)
+
+        result = dict()
+
         if not resource:
             resource = self.oneview_client.server_hardware.add(self.data)
-            return True, self.MSG_ADDED, dict(server_hardware=resource)
+            result = dict(
+                changed=True,
+                msg=self.MSG_ADDED,
+                ansible_facts={'server_hardware': resource}
+            )
         else:
-            return False, self.MSG_ALREADY_PRESENT, dict(server_hardware=resource)
+            result = dict(
+                changed=False,
+                msg=self.MSG_ALREADY_PRESENT,
+                ansible_facts={'server_hardware': resource}
+            )
+        if scope_uris is not None:
+            result = self.resource_scopes_set(result, 'server_hardware', scope_uris)
+        return result
 
     def __set_power_state(self, resource):
         resource = self.oneview_client.server_hardware.update_power_state(self.data['powerStateData'], resource['uri'])
