@@ -22,12 +22,13 @@
     enclosure_group_name: eg1
     server_profile_name: sp1
   tasks:
-    - name: Create a basic connection-less server profile template
+    - name: Create a server profile template based on a server profile with modified attributes
       oneview_server_profile_template:
         config: "{{ config }}"
         state: present
         data:
           name: "{{ server_profile_template_name }}"
+          serverProfileName: "{{ server_profile_name }}"  # Optional - Server Profile that this SPT will be based on
           serverHardwareTypeName: "{{ server_hardware_type_name }}"
           enclosureGroupName: "{{ enclosure_group_name }}"
       delegate_to: localhost
@@ -42,8 +43,8 @@
           enclosureGroupName: "{{ enclosure_group_name }}"
           bootMode:
             manageMode: true
-            mode: "UEFI"
-            pxeBootPolicy: "Auto"
+            mode: UEFI
+            pxeBootPolicy: Auto
       delegate_to: localhost
 
     - name: Delete the Server Profile Template
@@ -55,23 +56,6 @@
       delegate_to: localhost
 
     - name: Do nothing when Server Profile Template is absent
-      oneview_server_profile_template:
-        config: "{{ config }}"
-        state: absent
-        data:
-          name: "{{ server_profile_template_name }}"
-      delegate_to: localhost
-
-    - name: Create a server profile template based on a server profile
-      oneview_server_profile_template:
-        config: "{{ config }}"
-        state: present
-        data:
-          name: "{{ server_profile_template_name }}"
-          serverProfileName: "{{ server_profile_name }}"  # Server Profile that this SPT will be based on
-      delegate_to: localhost
-
-    - name: Delete the Server Profile Template
       oneview_server_profile_template:
         config: "{{ config }}"
         state: absent
