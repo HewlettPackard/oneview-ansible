@@ -29,10 +29,14 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 4.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     ip_hostname:
+      description:
+        - Storage System IP or hostname.
+      required: false
+    hostname:
       description:
         - Storage System IP or hostname.
       required: false
@@ -45,9 +49,12 @@ options:
         - "List with options to gather additional facts about a Storage System and related resources.
           Options allowed:
           C(hostTypes) gets the list of supported host types.
-          C(storagePools) gets a list of storage pools belonging to the specified storage system."
-        - "To gather facts about C(storagePools) it is required to inform either the argument C(name) or C(ip_hostname).
-          Otherwise, this option will be ignored."
+          C(storagePools) gets a list of storage pools belonging to the specified storage system.
+          C(reachablePorts) gets a list of storage system reachable ports. Accepts C(params).
+            An additional C(networks) list param can be used to restrict the search for only these ones"
+          C(templates) gets a list of storage templates belonging to the storage system."
+        - "To gather facts about C(storagePools), C(reachablePorts), and C(templates) it is required to inform
+            either the argument C(name), C(ip_hostname), or C(hostname). Otherwise, this option will be ignored."
       required: false
 extends_documentation_fragment:
     - oneview
@@ -73,10 +80,18 @@ EXAMPLES = '''
 
 - debug: var=storage_systems
 
-- name: Gather facts about a Storage System by IP
+- name: Gather facts about a Storage System by IP (ip_hostname)
   oneview_storage_system_facts:
     config: "{{ config }}"
     ip_hostname: "172.18.11.12"
+  delegate_to: localhost
+
+- debug: var=storage_systems
+
+- name: Gather facts about a Storage System by IP (hostname)
+  oneview_storage_system_facts:
+    config: "{{ config }}"
+    hostname: "172.18.11.12"
   delegate_to: localhost
 
 - debug: var=storage_systems
@@ -103,6 +118,30 @@ EXAMPLES = '''
 - debug: var=storage_system_host_types
 - debug: var=storage_system_pools
 
+- name: Gather queried facts about Storage System reachable ports
+  oneview_storage_system_facts:
+    config: "{{ config }}"
+    hostname: "172.18.11.12"
+    options:
+        - reachablePorts
+    params:
+      networks:
+        - /rest/fc-networks/01FC123456
+        - /rest/fc-networks/02FC123456
+      sort: 'name:descending'
+
+- debug: var=storage_system_reachable_ports
+
+- name: Gather facts about Storage System storage templates
+  oneview_storage_system_facts:
+    config: "{{ config }}"
+    hostname: "172.18.11.12"
+    options:
+      - templates
+    params:
+      sort: 'name:descending'
+
+- debug: var=storage_system_templates
 '''
 
 RETURN = '''
@@ -120,6 +159,16 @@ storage_system_pools:
     description: Has all the OneView facts about the Storage Systems - Storage Pools.
     returned: When requested, but can be null.
     type: complex
+
+storage_system_reachable_ports:
+    description: Has all the OneView facts about the Storage Systems reachable ports.
+    returned: When requested, but can be null.
+    type: complex
+
+storage_system_templates:
+    description: Has all the OneView facts about the Storage Systems - Storage Templates.
+    returned: When requested, but can be null.
+    type: complex
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -131,6 +180,7 @@ class StorageSystemFactsModule(OneViewModuleBase):
         argument_spec = dict(
             name=dict(required=False, type='str'),
             ip_hostname=dict(required=False, type='str'),
+            hostname=dict(required=False, type='str'),
             options=dict(required=False, type='list'),
             params=dict(required=False, type='dict'),
         )
@@ -141,9 +191,16 @@ class StorageSystemFactsModule(OneViewModuleBase):
     def execute_module(self):
         facts = {}
         is_specific_storage_system = True
+        # This allows using both "ip_hostname" and "hostname" regardless api_version
+        if self.oneview_client.api_version >= 500:
+            get_method = self.oneview_client.storage_systems.get_by_hostname
+        else:
+            get_method = self.oneview_client.storage_systems.get_by_ip_hostname
+
         if self.module.params.get('ip_hostname'):
-            storage_systems = self.oneview_client.storage_systems.get_by_ip_hostname(
-                self.module.params.get('ip_hostname'))
+            storage_systems = get_method(self.module.params['ip_hostname'])
+        elif self.module.params.get('hostname'):
+            storage_systems = get_method(self.module.params['hostname'])
         elif self.module.params.get('name'):
             storage_systems = self.oneview_client.storage_systems.get_by_name(self.module.params['name'])
         else:
@@ -164,8 +221,15 @@ class StorageSystemFactsModule(OneViewModuleBase):
 
             if storage_system and is_specific_storage_system:
                 storage_uri = storage_system['uri']
+                query_params = self.module.params.get('params', {})
                 if self.options.get('storagePools'):
                     facts['storage_system_pools'] = self.oneview_client.storage_systems.get_storage_pools(storage_uri)
+                if self.options.get('reachablePorts'):
+                    facts['storage_system_reachable_ports'] = \
+                      self.oneview_client.storage_systems.get_reachable_ports(storage_uri, **query_params)
+                if self.options.get('templates'):
+                    facts['storage_system_templates'] = \
+                      self.oneview_client.storage_systems.get_templates(storage_uri, **query_params)
 
 
 def main():

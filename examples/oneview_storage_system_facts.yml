@@ -17,7 +17,8 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - storage_system_name: "ThreePAR7200-4555"
+    - storage_system_name: ThreePAR-1
+    - storage_system_ip: 172.18.11.11
   tasks:
     - name: Gather facts about all Storage Systems
       oneview_storage_system_facts:
@@ -33,14 +34,21 @@
           start: 0
           count: 3
           sort: 'name:descending'
-          filter: managedDomain=TestDomain
 
     - debug: var=storage_systems
 
-    - name: Gather facts about a Storage System by IP
+    - name: Gather facts about a Storage System by IP (ip_hostname)
       oneview_storage_system_facts:
         config: "{{ config }}"
-        ip_hostname: "172.18.11.12"
+        ip_hostname: "{{ storage_system_ip }}"
+      delegate_to: localhost
+
+    - debug: var=storage_systems
+
+    - name: Gather facts about a Storage System by IP (hostname)
+      oneview_storage_system_facts:
+        config: "{{ config }}"
+        hostname: "{{ storage_system_ip }}"
       delegate_to: localhost
 
     - debug: var=storage_systems
@@ -71,3 +79,28 @@
       delegate_to: localhost
 
     - debug: var=storage_system_pools
+
+    - name: Gather queried facts about Storage System reachable ports
+      oneview_storage_system_facts:
+        config: "{{ config }}"
+        hostname: "{{ storage_system_ip }}"
+        options:
+            - reachablePorts
+        params:
+          networks:
+            - /rest/fc-networks/01FC123456
+            - /rest/fc-networks/02FC123456
+          sort: 'name:descending'
+
+    - debug: var=storage_system_reachable_ports
+
+    - name: Gather facts about the Storage System storage templates
+      oneview_storage_system_facts:
+        config: "{{ config }}"
+        hostname: "{{ storage_system_ip }}"
+        options:
+          - templates
+        params:
+          sort: 'name:descending'
+
+    - debug: var=storage_system_templates
