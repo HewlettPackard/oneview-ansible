@@ -17,9 +17,9 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    enclosure_name: 'Test-Enclosure'
-    is_c7000: False
-    is_synergy: True
+    enclosure_name: '0000A66101'
+    is_c7000: true
+    is_synergy: false
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
@@ -39,6 +39,19 @@
       when: is_c7000
       delegate_to: localhost
 
+    - name: Ensure the Enclosure framelink with ipv6 '{{ enclosure_hostname }}' is present
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: present
+        data:
+          hostname: '{{ enclosure_hostname }}'
+      when: is_synergy
+      delegate_to: localhost
+
+    # Waiting for 10 seconds before attempting operations on enclosure
+    - wait_for: port=22 host="{{ ansible_host }}" delay=10
+      connection: local
+
     # This play is compatible with C7000 Enclosures
     - name: Do nothing with the Enclosure when no changes are provided
       oneview_enclosure:
@@ -55,6 +68,10 @@
       when: is_c7000
       delegate_to: localhost
 
+    # Waiting for 10 seconds before attempting operations on enclosure
+    - wait_for: port=22 host="{{ ansible_host }}" delay=10
+      connection: local
+
     - name: Update the name of the enclosure to "Test-Enclosure-Renamed"
       oneview_enclosure:
         config: "{{ config }}"
@@ -63,6 +80,10 @@
           name: '{{ enclosure_name }}'
           newName: 'Test-Enclosure-Renamed'
       delegate_to: localhost
+
+    # Waiting for 10 seconds before attempting operations on enclosure
+    - wait_for: port=22 host="{{ ansible_host }}" delay=10
+      connection: local
 
     - name: Update the name of the rack to "Rack-Renamed" and rename the Enclosure again
       oneview_enclosure:
