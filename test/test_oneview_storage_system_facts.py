@@ -37,6 +37,11 @@ PARAMS_GET_BY_IP_HOSTNAME = dict(
     ip_hostname='10.0.0.0'
 )
 
+PARAMS_GET_BY_HOSTNAME = dict(
+    config='config.json',
+    hostname='10.0.0.0'
+)
+
 PARAMS_GET_HOST_TYPES = dict(
     config='config.json',
     options=["hostTypes"]
@@ -66,6 +71,7 @@ class StorageSystemFactsSpec(unittest.TestCase,
     def setUp(self):
         self.configure_mocks(self, StorageSystemFactsModule)
         self.storage_systems = self.mock_ov_client.storage_systems
+        self.mock_ov_client.api_version = 300
         FactsParamsTestCase.configure_client_mock(self, self.storage_systems)
 
     def test_should_get_all_storage_system(self):
@@ -99,6 +105,18 @@ class StorageSystemFactsSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(storage_systems=({"ip_hostname": "10.0.0.0"}))
+        )
+
+    def test_should_get_storage_system_by_hostname(self):
+        self.mock_ov_client.api_version = 500
+        self.storage_systems.get_by_hostname.return_value = {"hostname": "10.0.0.0"}
+        self.mock_ansible_module.params = PARAMS_GET_BY_HOSTNAME
+
+        StorageSystemFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(storage_systems=({"hostname": "10.0.0.0"}))
         )
 
     def test_should_get_all_host_types(self):

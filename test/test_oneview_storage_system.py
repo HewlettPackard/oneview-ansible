@@ -38,6 +38,24 @@ YAML_STORAGE_SYSTEM = """
                 deviceType: FC
           """
 
+YAML_STORAGE_SYSTEM_500 = """
+        config: "{{ config }}"
+        state: present
+        data:
+            credentials:
+                username: user
+                password: pass
+            hostname: '10.0.0.0'
+            family: StoreServ
+            deviceSpecificAttributes:
+                managedDomain: TestDomain
+                managedPools:
+                  - domain: TestDomain
+                    type: StoragePoolV2
+                    name: CPG_FC-AO
+                    deviceType: FC
+          """
+
 YAML_STORAGE_SYSTEM_BY_NAME = """
     config: "{{ config }}"
     state: present
@@ -85,8 +103,9 @@ class StorageSystemModuleSpec(unittest.TestCase,
     def setUp(self):
         self.configure_mocks(self, StorageSystemModule)
         self.resource = self.mock_ov_client.storage_systems
+        self.mock_ov_client.api_version = 300
 
-    def test_should_create_new_storage_system(self):
+    def test_should_add_new_storage_system_with_credentials_from_api300(self):
         self.resource.get_by_ip_hostname.return_value = None
         self.resource.add.return_value = {"name": "name"}
         self.resource.update.return_value = {"name": "name"}
@@ -94,6 +113,31 @@ class StorageSystemModuleSpec(unittest.TestCase,
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM)
 
         StorageSystemModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=StorageSystemModule.MSG_ADDED,
+            ansible_facts=dict(storage_system={"name": "name"})
+        )
+
+    def test_should_add_new_storage_system_with_credentials_from_api500(self):
+        self.mock_ov_client.api_version = 500
+        self.resource.get_by_hostname.return_value = None
+        self.resource.add.return_value = {"name": "name"}
+        self.resource.update.return_value = {"name": "name"}
+
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_500)
+
+        StorageSystemModule().run()
+
+        self.resource.add.assert_called_once_with(
+            {
+                'username': 'user',
+                'password': 'pass',
+                'hostname': '10.0.0.0',
+                'family': 'StoreServ'
+            }
+        )
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,

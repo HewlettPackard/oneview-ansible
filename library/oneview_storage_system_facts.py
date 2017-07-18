@@ -226,10 +226,10 @@ class StorageSystemFactsModule(OneViewModuleBase):
                     facts['storage_system_pools'] = self.oneview_client.storage_systems.get_storage_pools(storage_uri)
                 if self.options.get('reachablePorts'):
                     facts['storage_system_reachable_ports'] = \
-                      self.oneview_client.storage_systems.get_reachable_ports(storage_uri, **query_params)
+                        self.oneview_client.storage_systems.get_reachable_ports(storage_uri, **query_params)
                 if self.options.get('templates'):
                     facts['storage_system_templates'] = \
-                      self.oneview_client.storage_systems.get_templates(storage_uri, **query_params)
+                        self.oneview_client.storage_systems.get_templates(storage_uri, **query_params)
 
 
 def main():

@@ -9228,7 +9228,6 @@ Retrieve facts about the OneView Volumes.
   * [oneview_storage_pool - Manage OneView Storage Pool resources.](#oneview_storage_pool)
   * [oneview_storage_pool_facts - Retrieve facts about one or more Storage Pools.](#oneview_storage_pool_facts)
   * [oneview_storage_system - Manage OneView Storage System resources.](#oneview_storage_system)
-  * [oneview_storage_system_facts - Retrieve facts about the OneView Storage Systems.](#oneview_storage_system_facts)
   * [oneview_storage_volume_attachment - Provides an interface to remove extra presentations from a specified server profile.](#oneview_storage_volume_attachment)
   * [oneview_storage_volume_attachment_facts - Retrieve facts about the OneView Storage Volume Attachments.](#oneview_storage_volume_attachment_facts)
   * [oneview_storage_volume_template - Manage OneView Storage Volume Template resources.](#oneview_storage_volume_template)
@@ -17033,7 +17032,7 @@ Manage OneView Storage System resources.
 #### Examples
 
 ```yaml
-- name: Create a Storage System with one managed pool
+- name: Add a Storage System with one managed pool (before API500)
   oneview_storage_system:
     config: "{{ config }}"
     state: present
@@ -17051,13 +17050,42 @@ Manage OneView Storage System resources.
 
   delegate_to: localhost
 
-- name: Remove the storage system by its IP
+- name: Add a StoreServ Storage System with one managed pool (API500 onwards)
+  oneview_storage_system:
+    config: "{{ config }}"
+    state: present
+    data:
+      credentials:
+          username: '{{ storage_system_username }}'
+          password: '{{ storage_system_password }}'
+      hostname: '{{ storage_system_ip }}'
+      family: StoreServ
+      deviceSpecificAttributes:
+          managedDomain: TestDomain
+          managedPools:
+              - domain: TestDomain
+                type: StoragePoolV2
+                name: CPG_FC-AO
+                deviceType: FC
+
+  delegate_to: localhost
+
+- name: Remove the storage system by its IP (before API500)
   oneview_storage_system:
     config: "{{ config }}"
     state: absent
     data:
         credentials:
             ip_hostname: 172.18.11.12
+  delegate_to: localhost
+
+- name: Remove the storage system by its IP (API500 onwards)
+  oneview_storage_system:
+    config: "{{ config }}"
+    state: absent
+    data:
+        credentials:
+            hostname: 172.18.11.12
   delegate_to: localhost
 
 ```
@@ -17069,105 +17097,6 @@ Manage OneView Storage System resources.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | storage_system   | Has the OneView facts about the Storage System. |  On state 'present'. Can be null. |  complex |
-
-
-#### Notes
-
-- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
-
-- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
-
-- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
-
-
----
-
-
-## oneview_storage_system_facts
-Retrieve facts about the OneView Storage Systems.
-
-#### Synopsis
- Retrieve facts about the Storage Systems from OneView.
-
-#### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView >= 2.0.1
-
-#### Options
-
-| Parameter     | Required    | Default  | Choices    | Comments |
-| ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| ip_hostname  |   No  |  | |  Storage System IP or hostname.  |
-| name  |   No  |  | |  Storage System name.  |
-| options  |   No  |  | |  List with options to gather additional facts about a Storage System and related resources. Options allowed: `hostTypes` gets the list of supported host types. `storagePools` gets a list of storage pools belonging to the specified storage system.  To gather facts about `storagePools` it is required to inform either the argument `name` or `ip_hostname`. Otherwise, this option will be ignored.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
-
-
- 
-#### Examples
-
-```yaml
-- name: Gather facts about all Storage Systems
-  oneview_storage_system_facts:
-    config: "{{ config }}"
-  delegate_to: localhost
-
-- debug: var=storage_systems
-
-- name: Gather paginated, filtered and sorted facts about Storage Systems
-  oneview_storage_system_facts:
-    config: "{{ config }}"
-    params:
-      start: 0
-      count: 3
-      sort: 'name:descending'
-      filter: managedDomain=TestDomain
-
-- debug: var=storage_systems
-
-- name: Gather facts about a Storage System by IP
-  oneview_storage_system_facts:
-    config: "{{ config }}"
-    ip_hostname: "172.18.11.12"
-  delegate_to: localhost
-
-- debug: var=storage_systems
-
-
-- name: Gather facts about a Storage System by name
-  oneview_storage_system_facts:
-    config: "{{ config }}"
-    name: "ThreePAR7200-4555"
-  delegate_to: localhost
-
-- debug: var=storage_systems
-
-- name: Gather facts about a Storage System and all options
-  oneview_storage_system_facts:
-    config: "{{ config }}"
-    name: "ThreePAR7200-4555"
-    options:
-        - hostTypes
-        - storagePools
-  delegate_to: localhost
-
-- debug: var=storage_systems
-- debug: var=storage_system_host_types
-- debug: var=storage_system_pools
-
-
-```
-
-
-
-#### Return Values
-
-| Name          | Description  | Returned | Type       |
-| ------------- |-------------| ---------|----------- |
-| storage_system_host_types   | Has all the OneView facts about the supported host types. |  When requested, but can be null. |  complex |
-| storage_system_pools   | Has all the OneView facts about the Storage Systems - Storage Pools. |  When requested, but can be null. |  complex |
-| storage_systems   | Has all the OneView facts about the Storage Systems. |  Always, but can be null. |  complex |
 
 
 #### Notes
