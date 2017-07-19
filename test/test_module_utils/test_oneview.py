@@ -1368,11 +1368,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         expected_dict['sanStorage']['volumeAttachments'][0] = {"id": 1, "volumeName": "volume1", "volumeUri": None}
         expected_dict['sanStorage']['volumeAttachments'][1] = {"id": 2, "volumeUri": "/rest/storage-volumes/2"}
 
-<<<<<<< HEAD
         self.mock_ov_client.volumes.get_by.return_value = [volume2]
-=======
-        self.mock_ov_client.volumes.get_by.side_effect = [[volume2]]
->>>>>>> c420c1d... Added tests for volume creation along with server profile
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
