@@ -51,7 +51,7 @@ options:
           C(hostTypes) gets the list of supported host types.
           C(storagePools) gets a list of storage pools belonging to the specified storage system.
           C(reachablePorts) gets a list of storage system reachable ports. Accepts C(params).
-            An additional C(networks) list param can be used to restrict the search for only these ones"
+            An additional C(networks) list param can be used to restrict the search for only these ones.
           C(templates) gets a list of storage templates belonging to the storage system."
         - "To gather facts about C(storagePools), C(reachablePorts), and C(templates) it is required to inform
             either the argument C(name), C(ip_hostname), or C(hostname). Otherwise, this option will be ignored."
