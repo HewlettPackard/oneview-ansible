@@ -128,8 +128,9 @@ class ScopeModuleSpec(unittest.TestCase, OneViewBaseTestCase):
         )
 
     def test_should_update_resource_assignments(self):
+        self.mock_ov_client.api_version = 300
         self.resource.get_by_name.return_value = RESOURCE
-        self.resource.patch.return_value = RESOURCE
+        self.resource.update_resource_assignments.return_value = RESOURCE
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_RESOURCE_ASSIGNMENTS)
 
         ScopeModule().run()
@@ -140,9 +141,10 @@ class ScopeModuleSpec(unittest.TestCase, OneViewBaseTestCase):
             msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_UPDATED
         )
 
-    def test_should_not_update_resource_assignments(self):
+    def test_should_not_update_resource_assignments_in_api500(self):
+        self.mock_ov_client.api_version = 500
         self.resource.get_by_name.return_value = RESOURCE
-        self.resource.patch.return_value = RESOURCE
+        self.resource.update_resource_assignments.return_value = RESOURCE
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_NO_RESOURCE_ASSIGNMENTS)
 
         ScopeModule().run()
@@ -151,6 +153,20 @@ class ScopeModuleSpec(unittest.TestCase, OneViewBaseTestCase):
             changed=False,
             ansible_facts=dict(scope=RESOURCE),
             msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED
+        )
+
+    def test_should_add_and_remove_resource_assignments_in_api500(self):
+        self.mock_ov_client.api_version = 500
+        self.resource.get_by_name.return_value = RESOURCE
+        self.resource.patch.return_value = RESOURCE
+        self.mock_ansible_module.params = copy.deepcopy(PARAMS_RESOURCE_ASSIGNMENTS)
+
+        ScopeModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(scope=RESOURCE),
+            msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_UPDATED
         )
 
     def test_should_fail_when_scope_not_found(self):
