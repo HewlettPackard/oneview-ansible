@@ -108,7 +108,7 @@ from ansible.module_utils.basic import AnsibleModule
 from module_utils.oneview import (OneViewModuleBase,
                                   HPOneViewResourceNotFound,
                                   HPOneViewValueError)
-from hpOneView.common import extract_id_from_uri
+from hpOneView.resources.resource import extract_id_from_uri
 
 
 class InterconnectModule(OneViewModuleBase):

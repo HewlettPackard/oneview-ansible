@@ -199,7 +199,7 @@ interconnect_pluggable_module_information:
 
 from ansible.module_utils.basic import AnsibleModule
 from module_utils.oneview import OneViewModuleBase
-from hpOneView.common import extract_id_from_uri
+from hpOneView.resources.resource import extract_id_from_uri
 
 
 class InterconnectFactsModule(OneViewModuleBase):
