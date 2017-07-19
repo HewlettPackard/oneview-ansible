@@ -45,7 +45,18 @@ PARAMS_GET_BY_HOSTNAME = dict(
 PARAMS_GET_HOST_TYPES = dict(
     config='config.json',
     options=["hostTypes"]
+)
 
+PARAMS_GET_REACHABLE_PORTS = dict(
+    config='config.json',
+    hostname='10.0.0.0',
+    options=["reachablePorts"]
+)
+
+PARAMS_GET_TEMPLATES = dict(
+    config='config.json',
+    hostname='10.0.0.0',
+    options=["templates"]
 )
 
 HOST_TYPES = [
@@ -131,6 +142,36 @@ class StorageSystemFactsSpec(unittest.TestCase,
             ansible_facts=dict(
                 storage_system_host_types=HOST_TYPES,
                 storage_systems=[{"name": "Storage System Name"}])
+        )
+
+    def test_should_get_reachable_ports(self):
+        self.mock_ov_client.api_version = 500
+        self.storage_systems.get_reachable_ports.return_value = [{'port': 'port1'}]
+        self.storage_systems.get_by_hostname.return_value = {"name": "Storage System Name", "uri": "rest/123"}
+        self.mock_ansible_module.params = PARAMS_GET_REACHABLE_PORTS
+
+        StorageSystemFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                storage_system_reachable_ports=[{'port': 'port1'}],
+                storage_systems={"name": "Storage System Name", "uri": "rest/123"})
+        )
+
+    def test_should_get_templates(self):
+        self.mock_ov_client.api_version = 500
+        self.storage_systems.get_templates.return_value = [{'template': 'temp'}]
+        self.storage_systems.get_by_hostname.return_value = {"name": "Storage System Name", "uri": "rest/123"}
+        self.mock_ansible_module.params = PARAMS_GET_TEMPLATES
+
+        StorageSystemFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                storage_system_templates=[{'template': 'temp'}],
+                storage_systems={"name": "Storage System Name", "uri": "rest/123"})
         )
 
     def test_should_get_storage_pools_system_by_name(self):
