@@ -158,8 +158,8 @@ class ScopeModule(OneViewModuleBase):
             scope = self.resource_client.update_resource_assignments(resource['uri'],
                                                                      self.data.get('resourceAssignments'))
         else:
-            add_resources = self.data.get('resourceAssignments').get('addedResourceUris')
-            remove_resources = self.data.get('resourceAssignments').get('removedResourceUris')
+            add_resources = self.data.get('resourceAssignments').get('addedResourceUris') is not None
+            remove_resources = self.data.get('resourceAssignments').get('removedResourceUris') is not None
             if add_resources:
                 scope = self.resource_client.patch(resource['uri'], 'replace', '/addedResourceUris',
                                                    self.data.get('resourceAssignments').get('addedResourceUris'))
