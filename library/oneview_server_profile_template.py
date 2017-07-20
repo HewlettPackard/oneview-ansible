@@ -166,7 +166,8 @@ class ServerProfileTemplateModule(OneViewModuleBase):
             server_profiles = self.oneview_client.server_profiles.get_by('name', data.pop('serverProfileName'))
             if server_profiles:
                 spt_from_sp = self.oneview_client.server_profiles.get_new_profile_template(server_profiles[0]['uri'])
-                for key, value in spt_from_sp.items():
+                copy_of_spt_from_sp = spt_from_sp.copy()
+                for key, value in copy_of_spt_from_sp.items():
                     if value is None:
                         del spt_from_sp[key]
                 spt_from_sp.update(data)
