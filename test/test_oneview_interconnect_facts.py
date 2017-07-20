@@ -234,24 +234,24 @@ class InterconnectFactsSpec(unittest.TestCase,
             ansible_facts=dict(interconnects=self.MOCK_INTERCONNECTS, interconnect_port=fake_port)
         )
 
-        def test_should_get_pluggable_module_information(self):
-            fake_sfp_info = [dict(t=1), dict(t=2)]
+    def test_should_get_pluggable_module_information(self):
+        fake_sfp_info = [dict(t=1), dict(t=2)]
 
-            self.interconnects.get_by.return_value = self.MOCK_INTERCONNECTS
-            self.interconnects.get_pluggable_module_information.return_value = fake_sfp_info
+        self.interconnects.get_by.return_value = self.MOCK_INTERCONNECTS
+        self.interconnects.get_pluggable_module_information.return_value = fake_sfp_info
 
-            self.mock_ansible_module.params = self.PARAMS_PLUGGABLE_MODULE
+        self.mock_ansible_module.params = self.PARAMS_PLUGGABLE_MODULE
 
-            InterconnectFactsModule().run()
+        InterconnectFactsModule().run()
 
-            self.interconnects.get_by.assert_called_once_with('name', self.INTERCONNECT_NAME)
-            self.interconnects.get_pluggable_module_information.assert_called_once_with(self.INTERCONNECT_URI)
+        self.interconnects.get_by.assert_called_once_with('name', self.INTERCONNECT_NAME)
+        self.interconnects.get_pluggable_module_information.assert_called_once_with(self.INTERCONNECT_URI)
 
-            self.mock_ansible_module.exit_json.assert_called_once_with(
-                changed=False,
-                ansible_facts=dict(interconnects=self.MOCK_INTERCONNECTS,
-                                   interconnect_pluggable_module_information=fake_sfp_info)
-            )
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(interconnects=self.MOCK_INTERCONNECTS,
+                               interconnect_pluggable_module_information=fake_sfp_info)
+        )
 
 
 if __name__ == '__main__':
