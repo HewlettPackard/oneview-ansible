@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 4.0.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     state:
@@ -75,6 +75,17 @@ EXAMPLES = '''
     state: absent
     data:
         name: 'OneViewSDK Test Network Set - Renamed'
+
+- name: Update the Network set with two scopes
+  oneview_network_set:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: OneViewSDK Test Network Set
+      scopeUris:
+        - /rest/scopes/01SC123456
+        - /rest/scopes/02SC123456
+  delegate_to: localhost
 '''
 
 RETURN = '''
@@ -113,10 +124,17 @@ class NetworkSetModule(OneViewModuleBase):
         resource = self.get_by_name(self.data.get('name'))
 
         if self.state == 'present':
-            self.__replace_network_name_by_uri(self.data)
-            return self.resource_present(resource, self.RESOURCE_FACT_NAME)
+            return self.__present(resource)
         elif self.state == 'absent':
             return self.resource_absent(resource)
+
+    def __present(self, resource):
+        scope_uris = self.data.pop('scopeUris', None)
+        self.__replace_network_name_by_uri(self.data)
+        result = self.resource_present(resource, self.RESOURCE_FACT_NAME)
+        if scope_uris is not None:
+            result = self.resource_scopes_set(result, self.RESOURCE_FACT_NAME, scope_uris)
+        return result
 
     def __get_ethernet_network_by_name(self, name):
         result = self.oneview_client.ethernet_networks.get_by('name', name)

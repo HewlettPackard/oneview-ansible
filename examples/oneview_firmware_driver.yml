@@ -17,8 +17,20 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    firmware_name: "" # provide your firwmare name here
+    firmware_name: "<custom_firmware_name>" # provide your firwmare name here
+    baseline_firmware_name: "<SPP_baseline_name>" # provide the name of the SPP to be used as base for the custom SPP creation
+    hotfix_firmware_list: [<list_containing_URIs_to_hotfixes_desired>] # provide array containing list of hotfixes to be included in the custom SPP
   tasks:
+    - name: Create the Firmware Driver
+      oneview_firmware_driver:
+        config: "{{ config }}"
+        state: present
+        data:
+          customBaselineName: "{{ firmware_name }}"
+          baselineName: "{{ baseline_firmware_name }}"
+          hotfixNames: "{{ hotfix_firmware_list }}"
+      delegate_to: localhost
+
     - name: Delete the Firmware Driver
       oneview_firmware_driver:
         config: "{{ config }}"

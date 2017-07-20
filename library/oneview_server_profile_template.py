@@ -104,6 +104,10 @@ from module_utils.oneview import (OneViewModuleBase,
                                   ServerProfileMerger,
                                   ResourceComparator)
 
+# To activate logs, setup the environment var LOGFILE
+# e.g.: export LOGFILE=/tmp/ansible-oneview.log
+logger = OneViewModuleBase.get_logger(__file__)
+
 
 class ServerProfileTemplateModule(OneViewModuleBase):
     MSG_CREATED = 'Server Profile Template created successfully.'
@@ -144,6 +148,8 @@ class ServerProfileTemplateModule(OneViewModuleBase):
 
         ServerProfileReplaceNamesByUris().replace(self.oneview_client, data)
 
+        data = self.__spt_from_sp(data) or data
+
         if not template:
             changed, msg, resource = self.__create(data)
         else:
@@ -154,6 +160,18 @@ class ServerProfileTemplateModule(OneViewModuleBase):
             msg=msg,
             ansible_facts=dict(server_profile_template=resource)
         )
+
+    def __spt_from_sp(self, data):
+        if data.get('serverProfileName'):
+            server_profiles = self.oneview_client.server_profiles.get_by('name', data.pop('serverProfileName'))
+            if server_profiles:
+                spt_from_sp = self.oneview_client.server_profiles.get_new_profile_template(server_profiles[0]['uri'])
+                copy_of_spt_from_sp = spt_from_sp.copy()
+                for key, value in copy_of_spt_from_sp.items():
+                    if value is None:
+                        del spt_from_sp[key]
+                spt_from_sp.update(data)
+                return spt_from_sp
 
     def __create(self, data):
         resource = self.resource_client.create(data)

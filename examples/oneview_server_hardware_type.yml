@@ -58,7 +58,7 @@
         config: "{{ config }}"
         state: absent
         data:
-            hostname : '{{ server_hardware_hostname }}'
+            name : '{{ server_hardware_hostname }}'
       delegate_to: localhost
 
     - name: Delete the Server Hardware Type

@@ -28,7 +28,7 @@ description:
     - Retrieve facts about one or more of the Interconnects from OneView.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 3.3.0"
 author: "Bruno Souza (@bsouza)"
 options:
     name:
@@ -44,7 +44,8 @@ options:
           C(portStatistics) gets the statistics for the specified port name on an interconnect.
           C(subPortStatistics) gets the subport statistics on an interconnect.
           C(ports) gets all interconnect ports.
-          C(port) gets a specific interconnect port."
+          C(port) gets a specific interconnect port.
+          C(pluggableModuleInformation) gets all the SFP information."
         - "To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be
           ignored."
       required: false
@@ -141,6 +142,17 @@ EXAMPLES = '''
 
 - debug: var=interconnects
 - debug: var=interconnect_port
+
+- name: Gather facts about all the SFPs plugged
+  oneview_interconnect_facts:
+    config: "{{ config }}"
+    name: '0000A66102, interconnect 2'
+    options:
+        - pluggableModuleInformation
+
+- debug: var=interconnects
+- debug: var=interconnect_pluggable_module_information
+
 '''
 
 RETURN = '''
@@ -178,11 +190,16 @@ interconnect_port:
     description: The interconnect port.
     returned: When requested, but can be null.
     type: dict
+
+interconnect_pluggable_module_information:
+    description: The plugged SFPs information.
+    returned: When requested, but can be null.
+    type: list
 '''
 
 from ansible.module_utils.basic import AnsibleModule
 from module_utils.oneview import OneViewModuleBase
-from hpOneView.common import extract_id_from_uri
+from hpOneView.resources.resource import extract_id_from_uri
 
 
 class InterconnectFactsModule(OneViewModuleBase):
@@ -243,6 +260,10 @@ class InterconnectFactsModule(OneViewModuleBase):
             port_id = "{}:{}".format(extract_id_from_uri(interconnect_uri), port_name)
             port = self.oneview_client.interconnects.get_port(interconnect_uri, port_id)
             facts['interconnect_port'] = port
+
+        if self.options.get('pluggableModuleInformation'):
+            sfp_info = self.oneview_client.interconnects.get_pluggable_module_information(interconnect_uri)
+            facts['interconnect_pluggable_module_information'] = sfp_info
 
 
 def main():

@@ -19,6 +19,9 @@
     config: "{{ playbook_dir }}/oneview_config.json"
     # Inform the permitted Interconnect Type URI to configure Interconnect Map
     permitted_interconnect_type_name: 'HP VC Flex-10/10D Module'
+    scope_uris:
+      - '/rest/scopes/d0324c4b-56c9-485b-b7dd-8f6218a4b5bb'
+      - '/rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412'
   tasks:
     - name: Create a Logical Interconnect Group
       oneview_logical_interconnect_group:
@@ -57,6 +60,15 @@
         data:
           name: 'Test Logical Interconnect Group'
           description: 'New Description'
+      delegate_to: localhost
+
+    - name: Update the Logical Interconnect Group with two scopes
+      oneview_logical_interconnect_group:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: Test Logical Interconnect Group
+          scopeUris: "{{ scope_uris }}"
       delegate_to: localhost
 
     - name: Rename the Logical Interconnect Group to 'Updated Logical Interconnect Group'

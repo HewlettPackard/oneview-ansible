@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 4.0.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     state:
@@ -105,6 +105,17 @@ EXAMPLES = '''
     data:
       name: 'Test Ethernet Network'
   delegate_to: localhost
+
+- name: Update the ethernet network scopes
+  oneview_ethernet_network:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Test Ethernet Network'
+      scopeUris:
+        - '/rest/scopes/00SC123456'
+        - '/rest/scopes/01SC123456'
+  delegate_to: localhost
 '''
 
 RETURN = '''
@@ -179,6 +190,7 @@ class EthernetNetworkModule(OneViewModuleBase):
     def __present(self, resource):
 
         bandwidth = self.data.pop('bandwidth', None)
+        scope_uris = self.data.pop('scopeUris', None)
         result = self.resource_present(resource, self.RESOURCE_FACT_NAME)
 
         if bandwidth:
@@ -186,6 +198,9 @@ class EthernetNetworkModule(OneViewModuleBase):
                 if not result['changed']:
                     result['changed'] = True
                     result['msg'] = self.MSG_UPDATED
+
+        if scope_uris is not None:
+            result = self.resource_scopes_set(result, 'ethernet_network', scope_uris)
 
         return result
 

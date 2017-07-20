@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 4.0.0"
 author: "Bruno Souza (@bsouza)"
 options:
     state:
@@ -63,6 +63,16 @@ EXAMPLES = '''
     data:
       name: 'New FC Network'
       fabricType: 'DirectAttach'
+
+- name: Ensure that the Fibre Channel Network is present and is inserted in the desired scopes
+  oneview_fc_network:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'New FC Network'
+      scopeUris:
+        - '/rest/scopes/00SC123456'
+        - '/rest/scopes/01SC123456'
 
 - name: Ensure that the Fibre Channel Network is absent
   oneview_fc_network:
@@ -107,9 +117,16 @@ class FcNetworkModule(OneViewModuleBase):
         resource = self.get_by_name(self.data['name'])
 
         if self.state == 'present':
-            return self.resource_present(resource, self.RESOURCE_FACT_NAME)
+            return self.__present(resource)
         elif self.state == 'absent':
             return self.resource_absent(resource)
+
+    def __present(self, resource):
+        scope_uris = self.data.pop('scopeUris', None)
+        result = self.resource_present(resource, self.RESOURCE_FACT_NAME)
+        if scope_uris is not None:
+            result = self.resource_scopes_set(result, 'fc_network', scope_uris)
+        return result
 
 
 def main():

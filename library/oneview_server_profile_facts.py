@@ -41,9 +41,9 @@ options:
         - "List with options to gather additional facts about Server Profile related resources.
           Options allowed: C(schema), C(compliancePreview), C(profilePorts), C(messages), C(transformation),
           C(available_networks), C(available_servers), C(available_storage_system), C(available_storage_systems),
-          C(available_targets)"
-        - "To gather facts about C(compliancePreview), C(messages) and C(transformation) it is required to inform the
-          Server Profile name. Otherwise, these options will be ignored."
+          C(available_targets), C(newProfileTemplate),"
+        - "To gather facts about C(compliancePreview), C(messages), C(newProfileTemplate) and C(transformation)
+           a Server Profile name is required. Otherwise, these options will be ignored."
       required: false
 
 extends_documentation_fragment:
@@ -100,6 +100,7 @@ EXAMPLES = '''
    options:
         - schema
         - compliancePreview
+        - newProfileTemplate
         - profilePorts:
            enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
            serverHardwareTypeUri: '/rest/server-hardware-types/C8DEF9A6-9586-465E-A951-3070988BC226'
@@ -125,6 +126,7 @@ EXAMPLES = '''
 - debug: var=server_profiles
 - debug: var=server_profile_schema
 - debug: var=server_profile_compliance_preview
+- debug: var=server_profile_new_profile_template
 - debug: var=server_profile_profile_ports
 - debug: var=server_profile_messages
 - debug: var=server_profile_transformation
@@ -150,6 +152,12 @@ server_profile_compliance_preview:
     description:
         Has all the facts about the manual and automatic updates required to make the server profile compliant
         with its template.
+    returned: When requested, but can be null.
+    type: complex
+
+server_profile_new_profile_template:
+    description:
+        Has the facts derived from a server profile, which can be used to generate a server profile template.
     returned: When requested, but can be null.
     type: complex
 
@@ -253,6 +261,9 @@ class ServerProfileFactsModule(OneViewModuleBase):
 
             if options.get('compliancePreview'):
                 facts['server_profile_compliance_preview'] = client.get_compliance_preview(profile_uri)
+
+            if options.get('newProfileTemplate'):
+                facts['server_profile_new_profile_template'] = client.get_new_profile_template(profile_uri)
 
         if options.get('schema'):
             facts['server_profile_schema'] = client.get_schema()

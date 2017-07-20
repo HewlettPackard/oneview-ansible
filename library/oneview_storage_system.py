@@ -49,7 +49,7 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = '''
-- name: Create a Storage System with one managed pool
+- name: Add a Storage System with one managed pool (before API500)
   oneview_storage_system:
     config: "{{ config }}"
     state: present
@@ -67,13 +67,42 @@ EXAMPLES = '''
 
   delegate_to: localhost
 
-- name: Remove the storage system by its IP
+- name: Add a StoreServ Storage System with one managed pool (API500 onwards)
+  oneview_storage_system:
+    config: "{{ config }}"
+    state: present
+    data:
+      credentials:
+          username: '{{ storage_system_username }}'
+          password: '{{ storage_system_password }}'
+      hostname: '{{ storage_system_ip }}'
+      family: StoreServ
+      deviceSpecificAttributes:
+          managedDomain: TestDomain
+          managedPools:
+              - domain: TestDomain
+                type: StoragePoolV2
+                name: CPG_FC-AO
+                deviceType: FC
+
+  delegate_to: localhost
+
+- name: Remove the storage system by its IP (before API500)
   oneview_storage_system:
     config: "{{ config }}"
     state: absent
     data:
         credentials:
             ip_hostname: 172.18.11.12
+  delegate_to: localhost
+
+- name: Remove the storage system by its IP (API500 onwards)
+  oneview_storage_system:
+    config: "{{ config }}"
+    state: absent
+    data:
+        credentials:
+            hostname: 172.18.11.12
   delegate_to: localhost
 '''
 
@@ -94,11 +123,11 @@ class StorageSystemModule(OneViewModuleBase):
     MSG_ALREADY_PRESENT = 'Storage System is already present.'
     MSG_DELETED = 'Storage System deleted successfully.'
     MSG_ALREADY_ABSENT = 'Storage System is already absent.'
-    MSG_MANDATORY_FIELDS_MISSING = 'At least one mandatory field must be provided: name or credentials.ip_hostname.'
+    MSG_MANDATORY_FIELDS_MISSING = "At least one mandatory field must be provided: name or credentials.hostname" \
+                                   "(credentials.ip_hostname if API version lower than 500 )."
     MSG_CREDENTIALS_MANDATORY = "The attribute 'credentials' is mandatory for Storage System creation."
 
     def __init__(self):
-
         argument_spec = dict(
             state=dict(
                 required=True,
@@ -112,7 +141,10 @@ class StorageSystemModule(OneViewModuleBase):
         self.resource_client = self.oneview_client.storage_systems
 
     def execute_module(self):
-        resource = self.__get_resource()
+        if self.oneview_client.api_version < 500:
+            resource = self.__get_resource_hostname('ip_hostname', 'newIp_hostname')
+        else:
+            resource = self.__get_resource_hostname('hostname', 'newHostname')
 
         if self.state == 'present':
             return self.__present(resource)
@@ -120,22 +152,28 @@ class StorageSystemModule(OneViewModuleBase):
             return self.resource_absent(resource, 'remove')
 
     def __present(self, resource):
-
         changed = False
         msg = ''
 
         if not resource:
             if 'credentials' not in self.data:
                 raise HPOneViewValueError(self.MSG_CREDENTIALS_MANDATORY)
-            resource = self.oneview_client.storage_systems.add(self.data['credentials'])
+            if self.oneview_client.api_version < 500:
+                resource = self.oneview_client.storage_systems.add(self.data['credentials'])
+            else:
+                options = self.data['credentials'].copy()
+                options['family'] = self.data.get('family', None)
+                options['hostname'] = self.data.get('hostname', None)
+                resource = self.oneview_client.storage_systems.add(options)
+
             changed = True
             msg = self.MSG_ADDED
 
         merged_data = resource.copy()
         merged_data.update(self.data)
 
+        # remove password, it cannot be used in comparison
         if 'credentials' in merged_data and 'password' in merged_data['credentials']:
-            # remove password, it cannot be used in comparison
             del merged_data['credentials']['password']
 
         if not ResourceComparator.compare(resource, merged_data):
@@ -151,13 +189,17 @@ class StorageSystemModule(OneViewModuleBase):
                     msg=msg,
                     ansible_facts=dict(storage_system=resource))
 
-    def __get_resource(self):
-        if 'credentials' in self.data and self.data['credentials'].get('ip_hostname'):
-            resource = self.oneview_client.storage_systems.get_by_ip_hostname(self.data['credentials']['ip_hostname'])
-
-            if self.data['credentials'].get('newIp_hostname'):
-                self.data['credentials']['ip_hostname'] = self.data['credentials'].pop('newIp_hostname')
-
+    def __get_resource_hostname(self, hostname_key, new_hostname_key):
+        hostname = self.data.get(hostname_key, None)
+        if 'credentials' in self.data and hostname is None:
+            hostname = self.data['credentials'].get(hostname_key, None)
+        if hostname:
+            get_method = getattr(self.oneview_client.storage_systems, "get_by_{}".format(hostname_key))
+            resource = get_method(hostname)
+            if self.data['credentials'].get(new_hostname_key):
+                self.data['credentials'][hostname_key] = self.data['credentials'].pop(new_hostname_key)
+            elif self.data.get(new_hostname_key):
+                self.data[hostname_key] = self.data.pop(new_hostname_key)
             return resource
         elif self.data.get('name'):
             return self.oneview_client.storage_systems.get_by_name(self.data['name'])

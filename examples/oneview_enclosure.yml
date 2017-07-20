@@ -17,9 +17,8 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    enclosure_name: 'Test-Enclosure'
-    is_c7000: False
-    is_synergy: True
+    enclosure_name: 0000A66101
+    variant: C7000
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
@@ -36,8 +35,21 @@
           name: '{{ enclosure_name }}'
           licensingIntent : 'OneView'
           rackName: 'Rack-Name'
-      when: is_c7000
+      when: variant == 'C7000'
       delegate_to: localhost
+
+    - name: Ensure the Enclosure framelink with ipv6 '{{ enclosure_hostname }}' is present
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: present
+        data:
+          hostname: '{{ enclosure_hostname }}'
+      when: variant == 'Synergy'
+      delegate_to: localhost
+
+    # Waiting for 10 seconds before attempting operations on enclosure
+    - wait_for: port=22 host="{{ ansible_host }}" delay=10
+      connection: local
 
     # This play is compatible with C7000 Enclosures
     - name: Do nothing with the Enclosure when no changes are provided
@@ -52,8 +64,12 @@
           name: '{{ enclosure_name }}'
           licensingIntent : 'OneView'
           rackName: 'Rack-Name'
-      when: is_c7000
+      when: variant == 'C7000'
       delegate_to: localhost
+
+    # Waiting for 10 seconds before attempting operations on enclosure
+    - wait_for: port=22 host="{{ ansible_host }}" delay=10
+      connection: local
 
     - name: Update the name of the enclosure to "Test-Enclosure-Renamed"
       oneview_enclosure:
@@ -63,6 +79,10 @@
           name: '{{ enclosure_name }}'
           newName: 'Test-Enclosure-Renamed'
       delegate_to: localhost
+
+    # Waiting for 10 seconds before attempting operations on enclosure
+    - wait_for: port=22 host="{{ ansible_host }}" delay=10
+      connection: local
 
     - name: Update the name of the rack to "Rack-Renamed" and rename the Enclosure again
       oneview_enclosure:
@@ -99,12 +119,12 @@
         data:
           name: '{{ enclosure_name }}'
           supportDataCollectionState: 'PendingCollection'
-      when: is_c7000
+      when: variant == 'C7000'
       delegate_to: localhost
       ignore_errors: yes
       register: result
     - debug: var=result.msg
-      when: is_c7000
+      when: variant == 'C7000'
 
     # This state is only available on HPE Synergy.
     - name: Set the appliance bay power state on
@@ -114,11 +134,11 @@
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 3
-      when: is_synergy
+      when: variant == 'Synergy'
       delegate_to: localhost
       register: result
     - debug: var=result.msg
-      when: is_synergy
+      when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy.
     - name: Set the appliance UID state off
@@ -127,11 +147,11 @@
         state: uid_off
         data:
           name: '{{ enclosure_name }}'
-      when: is_synergy
+      when: variant == 'Synergy'
       delegate_to: localhost
       register: result
     - debug: var=result.msg
-      when: is_synergy
+      when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy.
     - name: Set the appliance UID state on
@@ -140,11 +160,11 @@
         state: uid_on
         data:
           name: '{{ enclosure_name }}'
-      when: is_synergy
+      when: variant == 'Synergy'
       delegate_to: localhost
       register: result
     - debug: var=result.msg
-      when: is_synergy
+      when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy.
     - name: Set the UID for the Synergy Frame Link Module state on
@@ -154,11 +174,11 @@
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 1
-      when: is_synergy
+      when: variant == 'Synergy'
       delegate_to: localhost
       register: result
     - debug: var=result.msg
-      when: is_synergy
+      when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy.
     - name: Set the UID for the Synergy Frame Link Module state off
@@ -168,11 +188,11 @@
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 1
-      when: is_synergy
+      when: variant == 'Synergy'
       delegate_to: localhost
       register: result
     - debug: var=result.msg
-      when: is_synergy
+      when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy.
     - name: E-Fuse the Synergy Frame Link Module bay 1
@@ -182,11 +202,11 @@
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 1
-      when: is_synergy
+      when: variant == 'Synergy'
       delegate_to: localhost
       register: result
     - debug: var=result.msg
-      when: is_synergy
+      when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy.
     - name: Reset the Synergy Frame Link Module bay 2
@@ -196,11 +216,11 @@
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 2
-      when: is_synergy
+      when: variant == 'Synergy'
       delegate_to: localhost
       register: result
     - debug: var=result.msg
-      when: is_synergy
+      when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy.
     - name: E-Fuse the appliance bay 1
@@ -210,11 +230,11 @@
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 1
-      when: is_synergy
+      when: variant == 'Synergy'
       delegate_to: localhost
       register: result
     - debug: var=result.msg
-      when: is_synergy
+      when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy.
     - name: E-Fuse the device bay 10
@@ -224,11 +244,11 @@
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 10
-      when: is_synergy
+      when: variant == 'Synergy'
       delegate_to: localhost
       register: result
     - debug: var=result.msg
-      when: is_synergy
+      when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy.
     - name: Reset the device bay 11
@@ -238,11 +258,11 @@
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 11
-      when: is_synergy
+      when: variant == 'Synergy'
       delegate_to: localhost
       register: result
     - debug: var=result.msg
-      when: is_synergy
+      when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy.
     - name: E-Fuse the IC bay 3
@@ -252,11 +272,11 @@
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 3
-      when: is_synergy
+      when: variant == 'Synergy'
       delegate_to: localhost
       register: result
     - debug: var=result.msg
-      when: is_synergy
+      when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy.
     - name: Set the active Synergy Frame Link Module on bay 2
@@ -266,11 +286,11 @@
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 2
-      when: is_synergy
+      when: variant == 'Synergy'
       delegate_to: localhost
       register: result
     - debug: var=result.msg
-      when: is_synergy
+      when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy.
     - name: Release IPv4 address in the device bay 3
@@ -280,11 +300,11 @@
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 3
-      when: is_synergy
+      when: variant == 'Synergy'
       delegate_to: localhost
       register: result
     - debug: var=result.msg
-      when: is_synergy
+      when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy
     - name: Release IPv4 address in the interconnect bay 6
@@ -294,11 +314,11 @@
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 6
-      when: is_synergy
+      when: variant == 'Synergy'
       delegate_to: localhost
       register: result
     - debug: var=result.msg
-      when: is_synergy
+      when: variant == 'Synergy'
 
     - name: Remove the Enclosure
       oneview_enclosure:

@@ -162,6 +162,52 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
             msg=LogicalSwitchGroupModule.MSG_SWITCH_TYPE_NOT_FOUND
         )
 
+    def test_update_scopes_when_different(self):
+        params_to_scope = yaml.load(YAML_LOGICAL_SWITCH_GROUP).copy()
+        params_to_scope['data']['scopeUris'] = ['test']
+        params_to_scope['data']['uri'] = 'rest/fw/fake'
+        self.mock_ansible_module.params = params_to_scope
+
+        different_resource = params_to_scope['data'].copy()
+        different_resource['scopeUris'] = ['fake']
+        self.resource.get_by.return_value = [different_resource]
+        self.mock_ov_client.switch_types.get_by.return_value = [{'uri': SWITCH_TYPE_URI}]
+
+        self.resource.patch.return_value = params_to_scope['data']
+
+        LogicalSwitchGroupModule().run()
+
+        self.resource.patch.assert_called_once_with('rest/fw/fake',
+                                                    operation='replace',
+                                                    path='/scopeUris',
+                                                    value=['test'])
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(logical_switch_group=params_to_scope['data']),
+            msg=LogicalSwitchGroupModule.MSG_UPDATED
+        )
+
+    def test_should_do_nothing_when_scopes_are_the_same(self):
+        params_to_scope = yaml.load(YAML_LOGICAL_SWITCH_GROUP).copy()
+        params_to_scope['data']['scopeUris'] = ['test']
+        self.mock_ansible_module.params = params_to_scope
+
+        resource_data = params_to_scope['data'].copy()
+        resource_data['scopeUris'] = ['test']
+        self.resource.get_by.return_value = [resource_data]
+        self.mock_ov_client.switch_types.get_by.return_value = [{'uri': SWITCH_TYPE_URI}]
+
+        LogicalSwitchGroupModule().run()
+
+        self.resource.patch.not_been_called()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(logical_switch_group=resource_data),
+            msg=LogicalSwitchGroupModule.MSG_ALREADY_PRESENT
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -38,6 +38,24 @@ YAML_STORAGE_SYSTEM = """
                 deviceType: FC
           """
 
+YAML_STORAGE_SYSTEM_500 = """
+        config: "{{ config }}"
+        state: present
+        data:
+            credentials:
+                username: user
+                password: pass
+            hostname: '10.0.0.0'
+            family: StoreServ
+            deviceSpecificAttributes:
+                managedDomain: TestDomain
+                managedPools:
+                  - domain: TestDomain
+                    type: StoragePoolV2
+                    name: CPG_FC-AO
+                    deviceType: FC
+          """
+
 YAML_STORAGE_SYSTEM_BY_NAME = """
     config: "{{ config }}"
     state: present
@@ -68,6 +86,23 @@ YAML_STORAGE_SYSTEM_CHANGES = """
                 deviceType: FC
       """
 
+YAML_STORAGE_SYSTEM_CHANGES_500 = """
+        config: "{{ config }}"
+        state: present
+        data:
+            credentials:
+                username: '{{ storage_system_username }}'
+                password: '{{ storage_system_password }}'
+            hostname: '{{ storage_system_ip_hostname }}'
+            newHostname: 'New IP Hostname'
+            managedDomain: TestDomain
+            managedPools:
+              - domain: TestDomain
+                type: StoragePoolV2
+                name: CPG_FC-AO
+                deviceType: FC
+      """
+
 YAML_STORAGE_SYSTEM_ABSENT = """
         config: "{{ config }}"
         state: absent
@@ -78,6 +113,8 @@ YAML_STORAGE_SYSTEM_ABSENT = """
 
 DICT_DEFAULT_STORAGE_SYSTEM = yaml.load(YAML_STORAGE_SYSTEM)["data"]
 del DICT_DEFAULT_STORAGE_SYSTEM['credentials']['password']
+DICT_DEFAULT_STORAGE_SYSTEM_500 = yaml.load(YAML_STORAGE_SYSTEM_500)["data"]
+del DICT_DEFAULT_STORAGE_SYSTEM_500['credentials']['password']
 
 
 class StorageSystemModuleSpec(unittest.TestCase,
@@ -85,8 +122,9 @@ class StorageSystemModuleSpec(unittest.TestCase,
     def setUp(self):
         self.configure_mocks(self, StorageSystemModule)
         self.resource = self.mock_ov_client.storage_systems
+        self.mock_ov_client.api_version = 300
 
-    def test_should_create_new_storage_system(self):
+    def test_should_add_new_storage_system_with_credentials_from_api300(self):
         self.resource.get_by_ip_hostname.return_value = None
         self.resource.add.return_value = {"name": "name"}
         self.resource.update.return_value = {"name": "name"}
@@ -94,6 +132,31 @@ class StorageSystemModuleSpec(unittest.TestCase,
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM)
 
         StorageSystemModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=StorageSystemModule.MSG_ADDED,
+            ansible_facts=dict(storage_system={"name": "name"})
+        )
+
+    def test_should_add_new_storage_system_with_credentials_from_api500(self):
+        self.mock_ov_client.api_version = 500
+        self.resource.get_by_hostname.return_value = None
+        self.resource.add.return_value = {"name": "name"}
+        self.resource.update.return_value = {"name": "name"}
+
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_500)
+
+        StorageSystemModule().run()
+
+        self.resource.add.assert_called_once_with(
+            {
+                'username': 'user',
+                'password': 'pass',
+                'hostname': '10.0.0.0',
+                'family': 'StoreServ'
+            }
+        )
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -161,6 +224,24 @@ class StorageSystemModuleSpec(unittest.TestCase,
         self.resource.update.return_value = data_merged
 
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_CHANGES)
+
+        StorageSystemModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=StorageSystemModule.MSG_UPDATED,
+            ansible_facts=dict(storage_system=data_merged)
+        )
+
+    def test_update_when_data_has_modified_attributes_when_api500(self):
+        self.mock_ov_client.api_version = 500
+        data_merged = DICT_DEFAULT_STORAGE_SYSTEM_500.copy()
+        data_merged['credentials']['newHostname'] = '10.10.10.10'
+
+        self.resource.get_by_hostname.return_value = DICT_DEFAULT_STORAGE_SYSTEM_500
+        self.resource.update.return_value = data_merged
+
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_CHANGES_500)
 
         StorageSystemModule().run()
 

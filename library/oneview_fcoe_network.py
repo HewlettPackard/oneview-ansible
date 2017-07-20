@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 4.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -56,6 +56,17 @@ EXAMPLES = '''
     data:
       name: 'Test FCoE Network'
       vlanId: '201'
+
+- name: Update the FCOE network scopes
+  oneview_fcoe_network:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'New FCoE Network'
+      scopeUris:
+        - '/rest/scopes/00SC123456'
+        - '/rest/scopes/01SC123456'
+  delegate_to: localhost
 
 - name: Ensure that FCoE Network is absent
   oneview_fcoe_network:
@@ -100,9 +111,16 @@ class FcoeNetworkModule(OneViewModuleBase):
         resource = self.get_by_name(self.data.get('name'))
 
         if self.state == 'present':
-            return self.resource_present(resource, self.RESOURCE_FACT_NAME)
+            return self.__present(resource)
         elif self.state == 'absent':
             return self.resource_absent(resource)
+
+    def __present(self, resource):
+        scope_uris = self.data.pop('scopeUris', None)
+        result = self.resource_present(resource, self.RESOURCE_FACT_NAME)
+        if scope_uris is not None:
+            result = self.resource_scopes_set(result, 'fcoe_network', scope_uris)
+        return result
 
 
 def main():

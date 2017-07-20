@@ -17,6 +17,10 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    network_name: 'Ansible Test FC Network'
+    network_scope_uris:
+      - '/rest/scopes/d0324c4b-56c9-485b-b7dd-8f6218a4b5bb'
+      - '/rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412'
   tasks:
     - name: Create a Fibre Channel Network
       oneview_fc_network:
@@ -24,7 +28,7 @@
         state: present
         validate_etag: False
         data:
-          name: 'Test FC Network'
+          name: "{{ network_name }}"
           fabricType: 'FabricAttach'
           linkStabilityTime: '30'
           autoLoginRedistribution: true
@@ -36,7 +40,7 @@
         config: "{{ config }}"
         state: present
         data:
-          name: 'Test FC Network'
+          name: "{{ network_name }}"
           fabricType: 'FabricAttach'
           linkStabilityTime: '30'
           autoLoginRedistribution: true
@@ -47,10 +51,19 @@
         config: "{{ config }}"
         state: present
         data:
-          name: 'Test FC Network'
+          name: "{{ network_name }}"
           autoLoginRedistribution: True
           fabricType: 'FabricAttach'
           linkStabilityTime: '30'
+      delegate_to: localhost
+
+    - name: Update the FC Network with two scopes
+      oneview_fc_network:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: "{{ network_name }}"
+          scopeUris: "{{ network_scope_uris }}"
       delegate_to: localhost
 
     - name: Delete the Fibre Channel Network

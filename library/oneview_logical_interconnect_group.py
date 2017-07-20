@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 4.0.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     state:
@@ -67,6 +67,16 @@ EXAMPLES = '''
                       type: "Enclosure"
             permittedInterconnectTypeName: 'HP VC Flex-10/10D Module'
             # Alternatively you can inform permittedInterconnectTypeUri
+
+- name: Ensure that the Logical Interconnect Group has the specified scopes
+  oneview_logical_interconnect_group:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Test Logical Interconnect Group'
+      scopeUris:
+        - '/rest/scopes/00SC123456'
+        - '/rest/scopes/01SC123456'
 
 - name: Ensure that the Logical Interconnect Group is present with name 'Test'
   oneview_logical_interconnect_group:
@@ -119,10 +129,20 @@ class LogicalInterconnectGroupModule(OneViewModuleBase):
         resource = self.get_by_name(self.data['name'])
 
         if self.state == 'present':
-            self.__replace_name_by_uris(self.data)
-            return self.resource_present(resource, self.RESOURCE_FACT_NAME)
+            return self.__present(resource)
         elif self.state == 'absent':
             return self.resource_absent(resource)
+
+    def __present(self, resource):
+        scope_uris = self.data.pop('scopeUris', None)
+
+        self.__replace_name_by_uris(self.data)
+        result = self.resource_present(resource, self.RESOURCE_FACT_NAME)
+
+        if scope_uris is not None:
+            result = self.resource_scopes_set(result, 'logical_interconnect_group', scope_uris)
+
+        return result
 
     def __replace_name_by_uris(self, data):
         map_template = data.get('interconnectMapTemplate')

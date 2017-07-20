@@ -224,6 +224,36 @@ class OneViewModuleBase(object):
             ansible_facts={fact_name: resource}
         )
 
+    def resource_scopes_set(self, state, fact_name, scope_uris):
+        """
+        Generic implementation of the scopes update PATCH for the OneView resources.
+        It checks if the resource needs to be updated with the current scopes.
+        This method is meant to be run after ensuring the present state.
+
+        Args:
+            state (dict):
+                Dict containing the data from the last state results in the resource.
+                It needs to have the 'msg', 'changed', and 'ansible_facts' entries.
+            fact_name (str):
+                Name of the fact returned to the Ansible.
+            scope_uris (list)
+                List with all the scope URIs to be added to the resource.
+
+        Returns:
+            A dictionary with the expected arguments for the AnsibleModule.exit_json
+        """
+        if scope_uris is None:
+            scope_uris = []
+        resource = state['ansible_facts'][fact_name]
+        operation_data = dict(operation='replace', path='/scopeUris', value=scope_uris)
+
+        if resource['scopeUris'] is None or set(resource['scopeUris']) != set(scope_uris):
+            state['ansible_facts'][fact_name] = self.resource_client.patch(resource['uri'], **operation_data)
+            state['changed'] = True
+            state['msg'] = self.MSG_UPDATED
+
+        return state
+
     @staticmethod
     def transform_list_to_dict(list_):
         """
@@ -295,7 +325,7 @@ class ResourceComparator():
         resource1 = deepcopy(first_resource)
         resource2 = deepcopy(second_resource)
 
-        debug_resources = "resource1 = {0}, resource2 = {1}".format(resource1, resource2)
+        debug_resources = "\nresource1: \n{0} \nresource2: \n{1}".format(resource1, resource2)
 
         # The first resource is True / Not Null and the second resource is False / Null
         if resource1 and not resource2:

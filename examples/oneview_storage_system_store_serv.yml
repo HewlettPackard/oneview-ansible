@@ -1,0 +1,73 @@
+###
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    storage_domain: 'TestDomain'
+    storage_system_name : 'ThreePAR-2'
+  vars_files:
+    - "{{ playbook_dir }}/vars/config.yml"
+  tasks:
+    - name: Add a StoreServ Storage System with one managed pool
+      oneview_storage_system:
+        config: "{{ config }}"
+        state: present
+        data:
+          credentials:
+              username: '{{ storage_system_username }}'
+              password: '{{ storage_system_password }}'
+          hostname: '{{ storage_system_ip }}'
+          family: StoreServ
+          deviceSpecificAttributes:
+              managedDomain: '{{ storage_domain }}'
+              managedPools:
+                - name: CPG-SSD
+                  deviceType: SSD
+                  domain: TestDomain
+                  uuid: 7d3e53e4-05a6-4974-9212-5f8c7cba5ad9
+
+      delegate_to: localhost
+
+    - name: Update the Storage System removing one managed pool using name as key
+      oneview_storage_system:
+        config: "{{ config }}"
+        state: present
+        data:
+            name: '{{ storage_system_name }}'
+            deviceSpecificAttributes:
+                managedDomain: '{{ storage_domain }}'
+                managedPools: []
+
+      delegate_to: localhost
+
+    - name: Remove the storage system by its IP
+      oneview_storage_system:
+        config: "{{ config }}"
+        state: absent
+        validate_etag: False
+        data:
+          credentials:
+              hostname: '{{ storage_system_ip }}'
+      delegate_to: localhost
+
+    - name: Do nothing when the storage system is already removed (by name)
+      oneview_storage_system:
+        config: "{{ config }}"
+        state: absent
+        data:
+            name: '{{ storage_system_name }}'
+      delegate_to: localhost

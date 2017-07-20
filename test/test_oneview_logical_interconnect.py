@@ -40,7 +40,7 @@ LOGICAL_INTERCONNECT = {'uri': '/rest/logical-interconnects/id',
                             'sampleInterval': 250,
                             'uri': '/rest/logical-interconnects/123/telemetry-configurations/abc'
                         },
-
+                        'scopeUris': 'rest/scopes/test'
                         }
 
 
@@ -191,6 +191,13 @@ class LogicalInterconnectModuleSpec(unittest.TestCase,
         data=dict(name='Name of the Logical Interconnect',
                   firmware=dict(command='Update',
                                 spp='filename-of-the-firmware-to-install')))
+
+    PARAMS_SCOPES = dict(
+        config='config.json',
+        state='scopes_updated',
+        data=dict(name='Name of the Logical Interconnect')
+    )
+
     PARAMS_FIRMWARE_WITH_SPP_URI = dict(
         config='config.json',
         state='firmware_installed',
@@ -575,6 +582,49 @@ class LogicalInterconnectModuleSpec(unittest.TestCase,
             changed=True,
             msg=LogicalInterconnectModule.MSG_TELEMETRY_CONFIGURATION_UPDATED,
             ansible_facts=dict(telemetry_configuration=telemetry_config)
+        )
+
+    def test_update_scopes_when_different(self):
+        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+
+        params_to_scope = self.PARAMS_SCOPES.copy()
+        params_to_scope['data']['scopeUris'] = ['test']
+        self.mock_ansible_module.params = params_to_scope
+
+        patch_return = LOGICAL_INTERCONNECT.copy()
+        patch_return['scopeUris'] = ['test']
+        self.resource.patch.return_value = patch_return
+
+        LogicalInterconnectModule().run()
+
+        self.resource.patch.assert_called_once_with('/rest/logical-interconnects/id',
+                                                    operation='replace',
+                                                    path='/scopeUris',
+                                                    value=['test'])
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(scope_uris=['test']),
+            msg=LogicalInterconnectModule.MSG_SCOPES_UPDATED
+        )
+
+    def test_should_do_nothing_when_scopes_are_the_same(self):
+        params_to_scope = self.PARAMS_SCOPES.copy()
+        params_to_scope['data']['scopeUris'] = ['test']
+        self.mock_ansible_module.params = params_to_scope
+
+        resource_data = LOGICAL_INTERCONNECT.copy()
+        resource_data['scopeUris'] = ['test']
+        self.resource.get_by_name.return_value = resource_data
+
+        LogicalInterconnectModule().run()
+
+        self.resource.patch.not_been_called()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(scope_uris=['test']),
+            msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED
         )
 
 

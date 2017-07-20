@@ -31,7 +31,8 @@ LOGICAL_SWITCH_FROM_ONEVIEW = dict(
     uri='/rest/logical-switches/f0d7ad37-2053-46ac-bb11-4ebdd079bb66',
     logicalSwitchGroupUri='/rest/logical-switch-groups/af370d9a-f2f4-4beb-a1f1-670930d6741d',
     switchCredentialConfiguration=[{'logicalSwitchManagementHost': '172.16.1.1'},
-                                   {'logicalSwitchManagementHost': '172.16.1.2'}]
+                                   {'logicalSwitchManagementHost': '172.16.1.2'}],
+    scopeUris=[]
 )
 
 PARAMS_FOR_PRESENT = dict(
@@ -71,7 +72,8 @@ PARAMS_FOR_UPDATE_WITH_SWITCHES_AND_GROUPS = dict(
                 {'logicalSwitchManagementHost': '172.16.1.4'}
             ]
         ),
-        logicalSwitchCredentials=[]
+        logicalSwitchCredentials=[],
+        scopeUris=['/rest/scopes/fake']
     )  # assume this list contains the switches credentials
 )
 
@@ -274,6 +276,62 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=LogicalSwitchModule.MSG_LOGICAL_SWITCH_NOT_FOUND
         )
+
+    def test_update_scopes_when_different(self):
+        self.resource.get_by.side_effect = [[LOGICAL_SWITCH_FROM_ONEVIEW], []]
+        self.resource.update.return_value = LOGICAL_SWITCH_FROM_ONEVIEW
+        self.logical_switch_group_client.get_by.return_value = [{'uri': '/rest/logical-switch-groups/aa-bb-cc'}]
+
+        self.mock_ansible_module.params = PARAMS_FOR_UPDATE_WITH_SWITCHES_AND_GROUPS
+        self.resource.patch.return_value = LOGICAL_SWITCH_FROM_ONEVIEW
+
+        LogicalSwitchModule().run()
+
+        data_for_update = {
+            'logicalSwitch': {
+                'name': 'Test Logical Switch',
+                'uri': LOGICAL_SWITCH_FROM_ONEVIEW['uri'],
+                'logicalSwitchGroupUri': '/rest/logical-switch-groups/aa-bb-cc',
+                'switchCredentialConfiguration': [{'logicalSwitchManagementHost': '172.16.1.3'},
+                                                  {'logicalSwitchManagementHost': '172.16.1.4'}],
+
+            },
+            'logicalSwitchCredentials': []
+
+        }
+        self.resource.update.assert_called_once_with(data_for_update)
+        self.resource.patch.assert_called_once_with('/rest/logical-switches/f0d7ad37-2053-46ac-bb11-4ebdd079bb66',
+                                                    operation='replace',
+                                                    path='/scopeUris',
+                                                    value=['/rest/scopes/fake'])
+
+    def test_should_not_update_scopes_when_same(self):
+        LS_WITH_SCOPE = LOGICAL_SWITCH_FROM_ONEVIEW.copy()
+        LS_WITH_SCOPE['scopeUris'] = ['/rest/birl']
+        self.resource.get_by.side_effect = [[LS_WITH_SCOPE], []]
+        self.resource.update.return_value = LS_WITH_SCOPE
+        self.logical_switch_group_client.get_by.return_value = [{'uri': '/rest/logical-switch-groups/aa-bb-cc'}]
+
+        self.mock_ansible_module.params = PARAMS_FOR_UPDATE_WITH_SWITCHES_AND_GROUPS
+        self.resource.patch.return_value = LS_WITH_SCOPE
+
+        LogicalSwitchModule().run()
+
+        data_for_update = {
+            'logicalSwitch': {
+                'name': 'Test Logical Switch',
+                'uri': LS_WITH_SCOPE['uri'],
+                'logicalSwitchGroupUri': '/rest/logical-switch-groups/aa-bb-cc',
+                'switchCredentialConfiguration': [{'logicalSwitchManagementHost': '172.16.1.3'},
+                                                  {'logicalSwitchManagementHost': '172.16.1.4'}],
+
+            },
+            'logicalSwitchCredentials': []
+
+        }
+
+        self.resource.update.assert_called_once_with(data_for_update)
+        self.resource.patch.not_been_called()
 
 
 if __name__ == '__main__':

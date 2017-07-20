@@ -44,6 +44,7 @@ PARAMS_WITH_OPTIONS = dict(
     options=[
         'schema',
         'compliancePreview',
+        'newProfileTemplate',
         {'profilePorts': {
             'enclosureGroupUri': ENCLOSURE_GROUP_URI,
             'serverHardwareTypeUri': HARDWARE_TYPE_URI,
@@ -143,6 +144,7 @@ class ServerProfileFactsSpec(unittest.TestCase,
         self.mock_ov_client.server_profiles.get_messages.return_value = mock_option_return
         self.mock_ov_client.server_profiles.get_transformation.return_value = mock_option_return
         self.mock_ov_client.server_profiles.get_compliance_preview.return_value = mock_option_return
+        self.mock_ov_client.server_profiles.get_new_profile_template.return_value = mock_option_return
         self.mock_ov_client.server_profiles.get_schema.return_value = mock_option_return
         self.mock_ov_client.server_profiles.get_profile_ports.return_value = mock_option_return
         self.mock_ov_client.server_profiles.get_available_networks.return_value = mock_option_return
@@ -160,6 +162,7 @@ class ServerProfileFactsSpec(unittest.TestCase,
             PROFILE_URI, enclosureGroupUri=ENCLOSURE_GROUP_URI, serverHardwareTypeUri=HARDWARE_TYPE_URI,
             serverHardwareUri=HARDWARE_URI)
         self.mock_ov_client.server_profiles.get_compliance_preview.assert_called_once_with(PROFILE_URI)
+        self.mock_ov_client.server_profiles.get_new_profile_template.assert_called_once_with(PROFILE_URI)
         self.mock_ov_client.server_profiles.get_schema.assert_called_once_with()
         self.mock_ov_client.server_profiles.get_profile_ports.assert_called_once_with(
             enclosureGroupUri=ENCLOSURE_GROUP_URI,
@@ -184,6 +187,7 @@ class ServerProfileFactsSpec(unittest.TestCase,
             ansible_facts={'server_profiles': [{'name': 'Server Profile Name', 'uri': PROFILE_URI}],
                            'server_profile_schema': mock_option_return,
                            'server_profile_compliance_preview': mock_option_return,
+                           'server_profile_new_profile_template': mock_option_return,
                            'server_profile_profile_ports': mock_option_return,
                            'server_profile_messages': mock_option_return,
                            'server_profile_transformation': mock_option_return,

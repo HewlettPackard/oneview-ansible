@@ -67,6 +67,12 @@ YAML_RESET_CONNECTION_TEMPLATE = """
           name: 'network name'
 """
 
+PARAMS_FOR_SCOPES_SET = dict(
+    config='config.json',
+    state='present',
+    data=dict(name=DEFAULT_ETHERNET_NAME)
+)
+
 PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
@@ -340,6 +346,52 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=EthernetNetworkModule.MSG_ETHERNET_NETWORK_NOT_FOUND
+        )
+
+    def test_update_scopes_when_different(self):
+        params_to_scope = PARAMS_FOR_PRESENT.copy()
+        params_to_scope['data']['scopeUris'] = ['test']
+        self.mock_ansible_module.params = params_to_scope
+
+        resource_data = DEFAULT_ENET_TEMPLATE.copy()
+        resource_data['scopeUris'] = ['fake']
+        resource_data['uri'] = 'rest/ethernet/fake'
+        self.resource.get_by.return_value = [resource_data]
+
+        patch_return = resource_data.copy()
+        patch_return['scopeUris'] = ['test']
+        self.resource.patch.return_value = patch_return
+
+        EthernetNetworkModule().run()
+
+        self.resource.patch.assert_called_once_with('rest/ethernet/fake',
+                                                    operation='replace',
+                                                    path='/scopeUris',
+                                                    value=['test'])
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(ethernet_network=patch_return),
+            msg=EthernetNetworkModule.MSG_UPDATED
+        )
+
+    def test_should_do_nothing_when_scopes_are_the_same(self):
+        params_to_scope = PARAMS_FOR_PRESENT.copy()
+        params_to_scope['data']['scopeUris'] = ['test']
+        self.mock_ansible_module.params = params_to_scope
+
+        resource_data = DEFAULT_ENET_TEMPLATE.copy()
+        resource_data['scopeUris'] = ['test']
+        self.resource.get_by.return_value = [resource_data]
+
+        EthernetNetworkModule().run()
+
+        self.resource.patch.not_been_called()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(ethernet_network=resource_data),
+            msg=EthernetNetworkModule.MSG_ALREADY_PRESENT
         )
 
 

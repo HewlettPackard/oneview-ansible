@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 4.0.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     state:
@@ -53,6 +53,7 @@ options:
               the interconnect) and Update (which does a Stage and Activate in a sequential manner). All of them are
               non-idempotent.
               C(telemetry_configuration_updated) updates the telemetry configuration of a logical interconnect.
+              C(scopes_updated) updates the scopes associated with the logical interconnect.
         choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
                   'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
                   'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated', 'firmware_installed',
@@ -173,6 +174,18 @@ EXAMPLES = '''
       sampleInterval: 300
 
 - debug: var=telemetry_configuration
+
+- name: Updates the scopes of a logical interconnect.
+  oneview_logical_interconnect:
+  config: "{{ config_file_path }}"
+  state: scopes_updated
+  data:
+    name: "Name of the Logical Interconnect"
+    scopeUris:
+      - '/rest/scopes/00SC123456'
+      - '/rest/scopes/01SC123456'
+
+- debug: var=scope_uris
 '''
 
 RETURN = '''
@@ -211,6 +224,11 @@ telemetry_configuration:
     description: Has the OneView facts about the Telemetry Configuration.
     returned: On 'telemetry_configuration_updated' state, but can be null.
     type: complex
+
+scope_uris:
+    description: Has the scope URIs the specified logical interconnect is inserted into.
+    returned: On 'scopes_updated' state, but can be null.
+    type: complex
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -229,6 +247,7 @@ class LogicalInterconnectModule(OneViewModuleBase):
     MSG_SNMP_UPDATED = 'SNMP configuration updated successfully.'
     MSG_PORT_MONITOR_UPDATED = 'Port Monitor configuration updated successfully.'
     MSG_CONFIGURATION_UPDATED = 'Configuration on the Logical Interconnect updated successfully.'
+    MSG_SCOPES_UPDATED = 'Scopes on the Logical Interconnect updated successfully.'
     MSG_TELEMETRY_CONFIGURATION_UPDATED = 'Telemetry configuration updated successfully.'
     MSG_FIRMWARE_INSTALLED = 'Firmware updated successfully.'
     MSG_NOT_FOUND = 'Logical Interconnect not found.'
@@ -242,7 +261,7 @@ class LogicalInterconnectModule(OneViewModuleBase):
             choices=['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
                      'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
                      'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated',
-                     'firmware_installed', 'telemetry_configuration_updated']
+                     'firmware_installed', 'telemetry_configuration_updated', 'scopes_updated']
         ),
         data=dict(required=True, type='dict')
     )
@@ -250,6 +269,7 @@ class LogicalInterconnectModule(OneViewModuleBase):
     def __init__(self):
         super(LogicalInterconnectModule, self).__init__(additional_arg_spec=self.argument_spec,
                                                         validate_etag_support=True)
+        self.resource_client = self.oneview_client.logical_interconnects
 
     def execute_module(self):
 
@@ -283,6 +303,8 @@ class LogicalInterconnectModule(OneViewModuleBase):
             changed, msg, ansible_facts = self.__install_firmware(uri, self.data)
         elif self.state == 'telemetry_configuration_updated':
             changed, msg, ansible_facts = self.__update_telemetry_configuration(resource, self.data)
+        elif self.state == 'scopes_updated':
+            changed, msg, ansible_facts = self.__update_scopes(resource, self.data)
 
         if ansible_facts:
             result = dict(changed=changed, msg=msg, ansible_facts=ansible_facts)
@@ -415,6 +437,21 @@ class LogicalInterconnectModule(OneViewModuleBase):
 
         return True, self.MSG_TELEMETRY_CONFIGURATION_UPDATED, dict(
             telemetry_configuration=result.get('telemetryConfiguration'))
+
+    def __update_scopes(self, resource, data):
+
+        scope_uris = self.data.pop('scopeUris', None)
+        result = dict(changed=False,
+                      msg=self.MSG_NO_CHANGES_PROVIDED,
+                      ansible_facts=dict(scope_uris=resource))
+        if scope_uris is not None:
+            result = self.resource_scopes_set(result, 'scope_uris', scope_uris)
+            if result['changed']:
+                result['msg'] = self.MSG_SCOPES_UPDATED
+
+        result['ansible_facts']['scope_uris'] = result['ansible_facts']['scope_uris'].pop('scopeUris', None)
+
+        return result['changed'], result['msg'], result['ansible_facts']
 
     def __get_by_name(self, data):
         return self.oneview_client.logical_interconnects.get_by_name(data['name'])
