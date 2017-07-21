@@ -106,7 +106,7 @@ class FirmwareDriverModule(OneViewModuleBase):
             msg += 'is required for this operation.'
             raise HPOneViewException(msg)
 
-        if data and data.get('customBaselineName'):
+        if data.get('customBaselineName'):
             fw_name = data['customBaselineName']
         elif self.module.params.get('name'):
             fw_name = self.module.params['name']
@@ -130,7 +130,7 @@ class FirmwareDriverModule(OneViewModuleBase):
     def __parse_data(self):
         data = self.data.copy()
         # Allow usage of baselineName instead of baselineUri
-        if data and data.get('baselineName'):
+        if data.get('baselineName'):
             baseline_name = data.pop('baselineName', "")
             spp = self.get_by_name(baseline_name)
             if spp:
@@ -141,7 +141,7 @@ class FirmwareDriverModule(OneViewModuleBase):
         # Allow usage of hotfixNames instead of hotfixUris
         if data and data.get('hotfixNames'):
             hotfix_names = data.pop('hotfixNames', [])
-            data['hotfixUris'] = data.get('hotfixUris') or []
+            data['hotfixUris'] = data.get('hotfixUris', [])
             for hotfix_name in hotfix_names:
                 hotfix = self.get_by_name(hotfix_name)
                 if hotfix:
