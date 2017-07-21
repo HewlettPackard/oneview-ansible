@@ -99,37 +99,17 @@ class FirmwareDriverModule(OneViewModuleBase):
         self.resource_client = self.oneview_client.firmware_drivers
 
     def execute_module(self):
-        self.data = self.data or {}
+        data = self.data or {}
         # Checks for the name and data['customBaselineName'] params for a name attribute to the Firmware Driver.
-        if not self.data.get('customBaselineName') and not self.module.params.get('name'):
+        if not data.get('customBaselineName') and not self.module.params.get('name'):
             msg = 'A "name" parameter or a "customBaselineName" field inside the "data" parameter'
             msg += 'is required for this operation.'
-            raise Exception(msg)
+            raise HPOneViewException(msg)
 
-        if self.data and self.data.get('customBaselineName'):
-            fw_name = self.data['customBaselineName']
+        if data.get('customBaselineName'):
+            fw_name = data['customBaselineName']
         elif self.module.params.get('name'):
             fw_name = self.module.params['name']
-
-        # Allow usage of baselineName instead of baselineUri
-        if self.data and self.data.get('baselineName'):
-            baseline_name = self.data.pop('baselineName', "")
-            spp = self.get_by_name(baseline_name)
-            if spp:
-                self.data['baselineUri'] = spp['uri']
-            else:
-                raise HPOneViewException('Baseline SPP named "%s" not found in OneView Appliance.' % baseline_name)
-
-        # Allow usage of hotfixNames instead of hotfixUris
-        if self.data and self.data.get('hotfixNames'):
-            hotfix_names = self.data.pop('hotfixNames', [])
-            self.data['hotfixUris'] = self.data.get('hotfixUris') or []
-            for hotfix_name in hotfix_names:
-                hotfix = self.get_by_name(hotfix_name)
-                if hotfix:
-                    self.data['hotfixUris'].append(hotfix['uri'])
-                else:
-                    raise HPOneViewException('Hotfix named "%s" not found in OneView Appliance.' % hotfix_name)
 
         resource = self.get_by_name(fw_name)
 
@@ -141,10 +121,34 @@ class FirmwareDriverModule(OneViewModuleBase):
 
     def __present(self, resource):
         if not resource:
-            resource = self.oneview_client.firmware_drivers.create(self.data)
+            data = self.__parse_data()
+            resource = self.oneview_client.firmware_drivers.create(data)
             return True, self.MSG_CREATED, dict(firmware_driver=resource)
         else:
             return False, self.MSG_ALREADY_PRESENT, dict(firmware_driver=resource)
+
+    def __parse_data(self):
+        data = self.data.copy()
+        # Allow usage of baselineName instead of baselineUri
+        if data.get('baselineName'):
+            baseline_name = data.pop('baselineName', "")
+            spp = self.get_by_name(baseline_name)
+            if spp:
+                data['baselineUri'] = spp['uri']
+            else:
+                raise HPOneViewException('Baseline SPP named "%s" not found in OneView Appliance.' % baseline_name)
+
+        # Allow usage of hotfixNames instead of hotfixUris
+        if data and data.get('hotfixNames'):
+            hotfix_names = data.pop('hotfixNames', [])
+            data['hotfixUris'] = data.get('hotfixUris', [])
+            for hotfix_name in hotfix_names:
+                hotfix = self.get_by_name(hotfix_name)
+                if hotfix:
+                    data['hotfixUris'].append(hotfix['uri'])
+                else:
+                    raise HPOneViewException('Hotfix named "%s" not found in OneView Appliance.' % hotfix_name)
+        return data
 
 
 def main():

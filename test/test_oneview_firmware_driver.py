@@ -18,6 +18,7 @@
 
 import unittest
 from oneview_module_loader import FirmwareDriverModule
+from module_utils.oneview import (OneViewClient)
 from hpe_test_utils import OneViewBaseTestCase
 
 FIRMWARE_DRIVER_NAME = "Service Pack for ProLiant.iso"
@@ -55,11 +56,14 @@ class FirmwareDriverModuleSpec(unittest.TestCase, OneViewBaseTestCase):
         self.resource = self.mock_ov_client.firmware_drivers
 
     def test_should_create_new_firmware_driver(self):
-        self.resource.get_by.side_effect = [
-                                           [dict(uri='/rest/fake1')],
-                                           [dict(uri='/rest/fake2')],
-                                           [dict(uri='/rest/fake3')],
-                                           []]
+        my_arr = [[],
+                  [dict(uri='/rest/fake1')],
+                  [dict(uri='/rest/fake2')],
+                  [dict(uri='/rest/fake3')],
+                  ]
+
+        self.resource.get_by.side_effect = my_arr
+
         self.resource.create.return_value = FIRMWARE_DRIVER_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
@@ -107,6 +111,43 @@ class FirmwareDriverModuleSpec(unittest.TestCase, OneViewBaseTestCase):
             changed=False,
             msg=FirmwareDriverModule.MSG_ALREADY_ABSENT
         )
+
+    def test_shoul_fail_when_missing_name_(self):
+        fake_data = FIRMWARE_DRIVER_TEMPLATE.copy()
+        fake_data.pop('customBaselineName')
+        params_missing_name = PARAMS_FOR_PRESENT.copy()
+        params_missing_name['data'] = fake_data
+        msg = 'A "name" parameter or a "customBaselineName" field inside the "data" parameter'
+        msg += 'is required for this operation.'
+        self.mock_ansible_module.params = params_missing_name
+
+        FirmwareDriverModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=msg)
+
+    def test_should_fail_if_SPP_does_not_exist(self):
+        msg = 'Baseline SPP named "SPP1" '
+        msg += 'not found in OneView Appliance.'
+
+        self.resource.get_by.side_effect = [[], []]
+
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        FirmwareDriverModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=msg)
+
+    def test_should_fail_if_hotfix_does_not_exist(self):
+        msg = 'Hotfix named "hotfix1" '
+        msg += 'not found in OneView Appliance.'
+
+        self.resource.get_by.side_effect = [[], [dict(uri='/rest/fake1')], []]
+
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        FirmwareDriverModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg=msg)
 
 
 if __name__ == '__main__':
