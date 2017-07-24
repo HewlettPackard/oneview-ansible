@@ -1074,6 +1074,48 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
             msg=EnclosureModule.MSG_SUPPORT_DATA_COLLECTION_STATE_ALREADY_SET
         )
 
+    def test_update_scopes_when_different(self):
+        params_to_scope = deepcopy(PARAMS_FOR_PRESENT_NO_HOSTNAME)
+        params_to_scope['data']['scopeUris'] = ['test']
+        self.mock_ansible_module.params = params_to_scope
+
+        resource_data = deepcopy(PARAMS_FOR_PRESENT_NO_HOSTNAME)['data']
+        resource_data['uri'] = 'rest/enclosures/fake'
+        resource_data['scopeUris'] = []
+
+        self.enclosures.get_by.return_value = [resource_data]
+        self.enclosures.patch.return_value = params_to_scope['data']
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.assert_called_once_with('rest/enclosures/fake',
+                                                      operation='replace',
+                                                      path='/scopeUris',
+                                                      value=['test'])
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=params_to_scope['data']),
+            msg=EnclosureModule.MSG_UPDATED
+        )
+
+    def test_should_do_nothing_when_scopes_are_the_same(self):
+        params_to_scope = deepcopy(PARAMS_FOR_PRESENT_NO_HOSTNAME)
+        params_to_scope['data']['scopeUris'] = ['test']
+        self.mock_ansible_module.params = params_to_scope
+
+        self.enclosures.get_by.return_value = [params_to_scope['data']]
+
+        EnclosureModule().run()
+
+        self.enclosures.patch.not_been_called()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(enclosure=params_to_scope['data']),
+            msg=EnclosureModule.MSG_ALREADY_PRESENT
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
