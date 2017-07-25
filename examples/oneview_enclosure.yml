@@ -19,6 +19,8 @@
     config: "{{ playbook_dir }}/oneview_config.json"
     enclosure_name: 0000A66101
     variant: C7000
+    scope_uris:
+      - '/rest/scopes/9dd1856d-2490-4013-92a5-c7bf89bd9f0f'
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
@@ -35,6 +37,7 @@
           name: '{{ enclosure_name }}'
           licensingIntent : 'OneView'
           rackName: 'Rack-Name'
+          scopeUris: "{{ scope_uris }}"
       when: variant == 'C7000'
       delegate_to: localhost
 

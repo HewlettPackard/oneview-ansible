@@ -249,6 +249,16 @@ EXAMPLES = '''
     data:
       name: 'Test-Enclosure'
       supportDataCollectionState: 'PendingCollection'
+
+- name: Ensure that the Enclosure is present and is inserted in the desired scopes
+  oneview_enclosure:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Test-Enclosure'
+      scopeUris:
+        - '/rest/scopes/00SC123456'
+        - '/rest/scopes/01SC123456'
 '''
 
 RETURN = '''
@@ -403,6 +413,7 @@ class EnclosureModule(OneViewModuleBase):
         name = configuration_data.pop('newName', configuration_data.pop('name', None))
         rack_name = configuration_data.pop('rackName', None)
         calibrated_max_power = configuration_data.pop('calibratedMaxPower', None)
+        scope_uris = configuration_data.pop('scopeUris', None)
 
         if 'hostname' in data:
             resource = self.__get_by_hostname(data['hostname'])
@@ -427,6 +438,13 @@ class EnclosureModule(OneViewModuleBase):
             self.__set_calibrated_max_power(resource, calibrated_max_power)
             changed = True
             message = self.MSG_UPDATED
+
+        if scope_uris is not None:
+            state = {'ansible_facts': {'enclosure': resource}, 'changed': changed, 'msg': message}
+            result = self.resource_scopes_set(state, 'enclosure', scope_uris)
+            resource = result['ansible_facts']['enclosure']
+            changed = result['changed']
+            message = result['msg']
 
         return changed, message, resource
 

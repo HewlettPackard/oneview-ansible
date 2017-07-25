@@ -2090,6 +2090,16 @@ Manage OneView Enclosure resources.
       name: 'Test-Enclosure'
       supportDataCollectionState: 'PendingCollection'
 
+- name: Ensure that the Enclosure is present and is inserted in the desired scopes
+  oneview_enclosure:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Test-Enclosure'
+      scopeUris:
+        - '/rest/scopes/00SC123456'
+        - '/rest/scopes/01SC123456'
+
 ```
 
 
