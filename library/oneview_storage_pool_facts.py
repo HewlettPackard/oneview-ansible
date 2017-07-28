@@ -30,12 +30,19 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 4.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     name:
       description:
         - Storage Pool name.
+      required: false
+    options:
+      description:
+        - "List with options to gather additional facts about Storage Pools.
+          Options allowed:
+          C(reachableStoragePools) gets the list of reachable Storage pools based on the network param.
+          If the network param is not specified it gets all of them."
       required: false
 extends_documentation_fragment:
     - oneview
@@ -68,11 +75,31 @@ EXAMPLES = '''
   delegate_to: localhost
 
 - debug: var=storage_pools
+
+- name: Gather facts about the reachable Storage Pools
+  oneview_storage_pool_facts:
+    config: "{{ config }}"
+    options:
+        - reachableStoragePools
+    params:
+        sort: 'name:ascending'
+        filter: status='OK'
+        networks:
+            - /rest/network/123456A
+            - /rest/network/123456B
+  delegate_to: localhost
+
+- debug: var=storage_pools_reachable_storage_pools
 '''
 
 RETURN = '''
 storage_pools:
     description: Has all the OneView facts about the Storage Pools.
+    returned: Always, but can be null.
+    type: complex
+
+storage_pools_reachable_storage_pools:
+    description: Has all the OneView facts about the Reachable Storage Pools.
     returned: Always, but can be null.
     type: complex
 '''
@@ -86,6 +113,7 @@ class StoragePoolFactsModule(OneViewModuleBase):
         argument_spec = dict(
             name=dict(required=False, type='str'),
             params=dict(required=False, type='dict'),
+            options=dict(required=False, type='list')
         )
         super(StoragePoolFactsModule, self).__init__(additional_arg_spec=argument_spec)
         self.resource_client = self.oneview_client.storage_pools
@@ -96,7 +124,18 @@ class StoragePoolFactsModule(OneViewModuleBase):
         else:
             storage_pool = self.oneview_client.storage_pools.get_all(**self.facts_params)
 
-        return dict(changed=False, ansible_facts=dict(storage_pools=storage_pool))
+        self.__get_options(facts, storage_pool)
+
+        facts['storage_pools'] = storage_pool
+
+        return dict(changed=False, ansible_facts=facts)
+
+    def __get_options(self, facts, storage_pool):
+        if self.options:
+            if self.options.get('reachableStoragePools'):
+                query_params = self.module.params.get('params', {})
+                facts['storage_pools_reachable_storage_pools'] = \
+                    self.oneview_client.storage_pool.get_reachable_storage_pools(**query_params)
 
 
 def main():
