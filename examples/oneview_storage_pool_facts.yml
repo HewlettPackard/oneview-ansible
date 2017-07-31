@@ -17,6 +17,9 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
+    - networks_query:
+      - /rest/network/01
+      - /rest/network/02
   tasks:
     - name: Gather facts about all Storage Pools
       oneview_storage_pool_facts:
@@ -42,4 +45,14 @@
         name: "CPG_FC-AO"
       delegate_to: localhost
 
-    - debug: var=storage_pools
+    - name: Gather facts about reachable storage pools
+      oneview_storage_pool_facts:
+        config: "{{ config }}"
+        options:
+          - reachableStoragePools
+        params:
+          filter: status='OK'
+          networks: '{{ networks_query }}'
+      delegate_to: localhost
+
+    - debug: var=storage_pools_reachable_storage_pools

@@ -32,6 +32,12 @@ PARAMS_GET_BY_NAME = dict(
     name="Test Storage Pools"
 )
 
+PARAMS_GET_REACHABLE_STORAGE_POOLS = dict(
+    config='config.json',
+    name="Test Storage Pools",
+    options=["reachableStoragePools"]
+)
+
 
 class StoragePoolFactsSpec(unittest.TestCase,
                            FactsParamsTestCase):
@@ -39,6 +45,7 @@ class StoragePoolFactsSpec(unittest.TestCase,
         self.configure_mocks(self, StoragePoolFactsModule)
         self.storage_pools = self.mock_ov_client.storage_pools
         FactsParamsTestCase.configure_client_mock(self, self.storage_pools)
+        self.mock_ov_client.api_version = 300
 
     def test_should_get_all_storage_pool(self):
         self.storage_pools.get_all.return_value = {"name": "Storage Pool Name"}
@@ -60,6 +67,21 @@ class StoragePoolFactsSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(storage_pools=({"name": "Storage Pool Name"}))
+        )
+
+    def test_should_get_reachable_storage_pools(self):
+        self.mock_ov_client.api_version = 500
+        self.storage_pools.get_by.return_value = {"name": "Storage Pool Name"}
+        self.storage_pools.get_reachable_storage_pools.return_value = [{'reachable': 'test'}]
+        self.mock_ansible_module.params = PARAMS_GET_REACHABLE_STORAGE_POOLS
+
+        StoragePoolFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                storage_pools_reachable_storage_pools=[{'reachable': 'test'}],
+                storage_pools={"name": "Storage Pool Name"})
         )
 
 
