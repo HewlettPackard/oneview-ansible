@@ -31,6 +31,23 @@ YAML_STORAGE_POOL = """
            poolName: "FST_CPG2"
           """
 
+YAML_STORAGE_POOL_500 = """
+        config: "{{ config }}"
+        state: present
+        data:
+           storageSystemUri: "/rest/storage-systems/TXQ1010307"
+           name: "FST_CPG2"
+           isManaged: True
+          """
+
+YAML_STORAGE_POOL_ABSENT_500 = """
+        config: "{{ config }}"
+        state: absent
+        data:
+           storageSystemUri: "/rest/storage-systems/TXQ1010307"
+           name: "FST_CPG2"
+          """
+
 YAML_STORAGE_POOL_MISSING_KEY = """
     config: "{{ config }}"
     state: present
@@ -46,6 +63,7 @@ YAML_STORAGE_POOL_ABSENT = """
         """
 
 DICT_DEFAULT_STORAGE_POOL = yaml.load(YAML_STORAGE_POOL)["data"]
+DICT_DEFAULT_STORAGE_POOL_500 = yaml.load(YAML_STORAGE_POOL_500)["data"]
 
 
 class StoragePoolModuleSpec(unittest.TestCase,
@@ -101,7 +119,7 @@ class StoragePoolModuleSpec(unittest.TestCase,
             msg=StoragePoolModule.MSG_ALREADY_ABSENT
         )
 
-    def test_should_fail_when_key_is_missing(self):
+    def test_should_fail_when_key_is_missing_api300(self):
         self.mock_ov_client.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL]
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL_MISSING_KEY)
 
@@ -109,6 +127,70 @@ class StoragePoolModuleSpec(unittest.TestCase,
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
             msg=StoragePoolModule.MSG_MANDATORY_FIELD_MISSING
+        )
+
+    def test_should_fail_when_key_is_missing_api500(self):
+        self.mock_ov_client.api_version = 500
+        self.mock_ov_client.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL]
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL_MISSING_KEY)
+
+        StoragePoolModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=StoragePoolModule.MSG_MANDATORY_FIELD_MISSING
+        )
+
+    def test_update_when_storage_pool_already_exists_and_is_different_api500(self):
+        self.mock_ov_client.api_version = 500
+        update_params = yaml.load(YAML_STORAGE_POOL_500)
+        update_params['data']['isManaged'] = False
+        self.mock_ansible_module.params = update_params
+
+        self.mock_ov_client.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL_500]
+        self.mock_ov_client.storage_pools.update.return_value = update_params
+
+        StoragePoolModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=StoragePoolModule.MSG_UPDATED,
+            ansible_facts=dict(storage_pool=update_params)
+        )
+
+    def test_update_should_do_nothing_when_storage_pool_already_exists_and_is_equal_api500(self):
+        self.mock_ov_client.api_version = 500
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL_500)
+
+        self.mock_ov_client.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL_500]
+
+        StoragePoolModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=StoragePoolModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(storage_pool=DICT_DEFAULT_STORAGE_POOL_500)
+        )
+
+    def test_should_fail_when_present_but_storage_pool_is_absent_api500(self):
+        self.mock_ov_client.api_version = 500
+        self.mock_ov_client.storage_pools.get_by.return_value = []
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL_500)
+
+        StoragePoolModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=StoragePoolModule.MSG_RESOURCE_NOT_FOUND
+        )
+
+    def test_should_fail_when_absent_but_storage_pool_exists_api500(self):
+        self.mock_ov_client.api_version = 500
+        self.mock_ov_client.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL_500]
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL_ABSENT_500)
+
+        StoragePoolModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=StoragePoolModule.MSG_RESOURCE_FOUND
         )
 
 
