@@ -1,4 +1,4 @@
-#!/usr/bin/python
+    #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
 # Copyright (2016-2017) Hewlett Packard Enterprise Development LP
@@ -106,7 +106,8 @@ class StoragePoolModule(OneViewModuleBase):
     MSG_UPDATED = 'Storage Pool was updated.'
     MSG_DELETED = 'Storage Pool deleted successfully.'
     MSG_ALREADY_ABSENT = 'Storage Pool is already absent.'
-    MSG_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: data.poolName (prior to API500) or data.name (API500 onwards)"
+    MSG_MANDATORY_FIELD_MISSING = "Mandatory field was not informed:" \
+                                  " data.poolName (prior to API500) or data.name (API500 onwards)"
     MSG_RESOURCE_NOT_FOUND = "The resource was not found. It is not possible to add it in API500 onwards." \
                              "It can only be inventoried once through storage systems"
     MSG_RESOURCE_FOUND = "The resource was found. It is not possible to remove it in API500 onwards." \
@@ -175,8 +176,6 @@ class StoragePoolModule(OneViewModuleBase):
                             ansible_facts=dict(storage_pool=None))
         else:
             return self.resource_absent(resource, 'remove')
-
-
 
 
 def main():

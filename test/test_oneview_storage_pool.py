@@ -52,6 +52,7 @@ class StoragePoolModuleSpec(unittest.TestCase,
                             OneViewBaseTestCase):
     def setUp(self):
         self.configure_mocks(self, StoragePoolModule)
+        self.mock_ov_client.api_version = 300
 
     def test_should_create_new_storage_pool(self):
         self.mock_ov_client.storage_pools.get_by.return_value = []

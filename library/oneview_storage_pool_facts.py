@@ -119,23 +119,22 @@ class StoragePoolFactsModule(OneViewModuleBase):
         self.resource_client = self.oneview_client.storage_pools
 
     def execute_module(self):
+        facts = {}
         if self.module.params.get('name'):
             storage_pool = self.oneview_client.storage_pools.get_by('name', self.module.params['name'])
         else:
             storage_pool = self.oneview_client.storage_pools.get_all(**self.facts_params)
 
-        self.__get_options(facts, storage_pool)
-
         facts['storage_pools'] = storage_pool
-
+        self.__get_options(facts)
         return dict(changed=False, ansible_facts=facts)
 
-    def __get_options(self, facts, storage_pool):
+    def __get_options(self, facts):
         if self.options:
             if self.options.get('reachableStoragePools'):
                 query_params = self.module.params.get('params', {})
                 facts['storage_pools_reachable_storage_pools'] = \
-                    self.oneview_client.storage_pool.get_reachable_storage_pools(**query_params)
+                    self.resource_client.get_reachable_storage_pools(**query_params)
 
 
 def main():
