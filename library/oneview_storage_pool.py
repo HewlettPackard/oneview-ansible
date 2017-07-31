@@ -1,4 +1,4 @@
-    #!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
 # Copyright (2016-2017) Hewlett Packard Enterprise Development LP
@@ -127,7 +127,6 @@ class StoragePoolModule(OneViewModuleBase):
 
     def execute_module(self):
         resource = self.__get_by('name') if self.oneview_client.api_version >= 500 else self.__get_by('poolName')
-        # raise HPOneViewValueError(resource)
 
         if self.state == 'present':
             return self.__present(self.data, resource)
