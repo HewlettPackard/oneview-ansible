@@ -171,6 +171,20 @@ class StoragePoolModuleSpec(unittest.TestCase,
             ansible_facts=dict(storage_pool=DICT_DEFAULT_STORAGE_POOL_500)
         )
 
+    def test_update_should_do_nothing_when_storage_pool_is_absent_and_do_not_exists_api500(self):
+        self.mock_ov_client.api_version = 500
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL_ABSENT_500)
+
+        self.mock_ov_client.storage_pools.get_by.return_value = []
+
+        StoragePoolModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=StoragePoolModule.MSG_ALREADY_ABSENT,
+            ansible_facts=dict(storage_pool=None)
+        )
+
     def test_should_fail_when_present_but_storage_pool_is_absent_api500(self):
         self.mock_ov_client.api_version = 500
         self.mock_ov_client.storage_pools.get_by.return_value = []
