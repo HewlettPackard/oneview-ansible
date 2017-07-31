@@ -109,9 +109,9 @@ class StoragePoolModule(OneViewModuleBase):
     MSG_MANDATORY_FIELD_MISSING = "Mandatory field was not informed:" \
                                   " data.poolName (prior to API500) or data.name (API500 onwards)"
     MSG_RESOURCE_NOT_FOUND = "The resource was not found. It is not possible to add it in API500 onwards." \
-                             "It can only be inventoried once through storage systems"
+                             "The addition of Storage Pools can only be performed once through the Storage Systems."
     MSG_RESOURCE_FOUND = "The resource was found. It is not possible to remove it in API500 onwards." \
-                         "It can only be not inventoried once through storage systems"
+                         "The addition of Storage Pools can only be performed once through the Storage Systems."
 
     def __init__(self):
         argument_spec = dict(
