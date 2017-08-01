@@ -41,6 +41,12 @@ PARAMS_FOR_PRESENT_WITH_URI = dict(
     data=dict(uri=DEFAULT_SUBNET_TEMPLATE['uri'])
 )
 
+PARAMS_FOR_INVALID = dict(
+    config='config.json',
+    state='present',
+    data=dict(type=DEFAULT_SUBNET_TEMPLATE['type'])
+)
+
 PARAMS_WITH_CHANGES = dict(
     config='config.json',
     state='present',
@@ -103,6 +109,15 @@ class IdPoolsIpv4SubnetModuleSpec(unittest.TestCase,
             changed=False,
             msg=IdPoolsIpv4SubnetModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(id_pools_ipv4_subnets=DEFAULT_SUBNET_TEMPLATE)
+        )
+
+    def test_should_fail_with_missing_required_attributes(self):
+        self.mock_ansible_module.params = PARAMS_FOR_INVALID
+
+        IdPoolsIpv4SubnetModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg=IdPoolsIpv4SubnetModule.MSG_VALUE_ERROR
         )
 
     def test_update_when_data_has_modified_attributes(self):
