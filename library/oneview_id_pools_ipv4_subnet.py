@@ -93,7 +93,7 @@ class IdPoolsIpv4SubnetModule(OneViewModuleBase):
                                        choices=['present', 'absent']))
 
         super(IdPoolsIpv4SubnetModule, self).__init__(additional_arg_spec=additional_arg_spec,
-                                                validate_etag_support=True)
+                                                      validate_etag_support=True)
 
         self.resource_client = self.oneview_client.id_pools_ipv4_subnets
 
@@ -113,29 +113,6 @@ class IdPoolsIpv4SubnetModule(OneViewModuleBase):
         elif self.state == 'absent':
             return self.resource_absent(resource)
 
-    def __present(self, resource):
-        changed = False
-
-        if not resource:
-            resource = getattr(self.resource_client, create_method)(self.data)
-            msg = self.MSG_CREATED
-            changed = True
-        else:
-            if ResourceComparator.compare(self.data, resource):
-                msg = self.MSG_ALREADY_PRESENT
-            else:
-                raise Exception("\n\n{}\n\n\n{}".format(self.data, resource))
-                merged_data = resource.copy()
-                merged_data.update(self.data)
-                resource = self.resource_client.update(merged_data)
-                changed = True
-                msg = self.MSG_UPDATED
-
-        return dict(
-            msg=msg,
-            changed=changed,
-            ansible_facts=dict(id_pools_ipv4_subnet=resource)
-        )
 
 def main():
     IdPoolsIpv4SubnetModule().run()

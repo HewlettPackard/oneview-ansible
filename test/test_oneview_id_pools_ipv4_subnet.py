@@ -56,7 +56,7 @@ PARAMS_FOR_ABSENT = dict(
 
 
 class IdPoolsIpv4SubnetModuleSpec(unittest.TestCase,
-                          OneViewBaseTestCase):
+                                  OneViewBaseTestCase):
     """
     OneViewBaseTestCase provides the mocks used in this test case
     """

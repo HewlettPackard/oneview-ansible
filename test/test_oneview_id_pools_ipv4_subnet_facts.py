@@ -47,7 +47,7 @@ PRESENT_SUBNETS = [DEFAULT_SUBNET.copy()]
 
 
 class IdPoolsIpv4SubnetFactsSpec(unittest.TestCase,
-                         FactsParamsTestCase):
+                                 FactsParamsTestCase):
     def setUp(self):
         self.configure_mocks(self, IdPoolsIpv4SubnetFactsModule)
         self.id_pools_ipv4_subnets = self.mock_ov_client.id_pools_ipv4_subnets
