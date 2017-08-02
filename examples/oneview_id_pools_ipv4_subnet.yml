@@ -52,18 +52,18 @@
           domain: awesome.com
       delegate_to: localhost
 
-    # - name: Delete the ID Pools IPV4 Subnet
-    #   oneview_id_pools_ipv4_subnet:
-    #     config: "{{ config }}"
-    #     state: absent
-    #     data:
-    #       name: '{{ subnet_name }}'
-    #   delegate_to: localhost
-    #
-    # - name: Do nothing when ID Pools IPV4 Subnet is absent
-    #   oneview_id_pools_ipv4_subnet:
-    #     config: "{{ config }}"
-    #     state: absent
-    #     data:
-    #       name: '{{ subnet_name }}'
-    #   delegate_to: localhost
+    - name: Delete the ID Pools IPV4 Subnet
+      oneview_id_pools_ipv4_subnet:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: '{{ subnet_name }}'
+      delegate_to: localhost
+
+    - name: Do nothing when ID Pools IPV4 Subnet is absent
+      oneview_id_pools_ipv4_subnet:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: '{{ subnet_name }}'
+      delegate_to: localhost
