@@ -72,7 +72,7 @@ class IdPoolsIpv4SubnetFactsSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(id_pools_ipv4_subnets=DEFAULT_SUBNET)
+            ansible_facts=dict(id_pools_ipv4_subnets=PRESENT_SUBNETS)
         )
 
     def test_should_get_id_pools_ipv4_subnet_by_uri(self):
@@ -83,7 +83,7 @@ class IdPoolsIpv4SubnetFactsSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(id_pools_ipv4_subnets=DEFAULT_SUBNET)
+            ansible_facts=dict(id_pools_ipv4_subnets=PRESENT_SUBNETS)
         )
 
 

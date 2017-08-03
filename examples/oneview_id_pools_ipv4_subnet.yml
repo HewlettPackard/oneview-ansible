@@ -19,7 +19,7 @@
     config: "{{ playbook_dir }}/oneview_config.json"
     subnet_name: Test ID Pools IPV4 Subnet
   tasks:
-    - name: Ensure the an ID Pools IPV4 Subnet exists
+    - name: Ensure the ID Pools IPV4 Subnet exists
       oneview_id_pools_ipv4_subnet:
         config: "{{ config }}"
         state: present

@@ -42,6 +42,9 @@
   * [oneview_firmware_bundle - Upload OneView Firmware Bundle resources.](#oneview_firmware_bundle)
   * [oneview_firmware_driver - Provides an interface to remove Firmware Driver resources.](#oneview_firmware_driver)
   * [oneview_firmware_driver_facts - Retrieve the facts about one or more of the OneView Firmware Drivers.](#oneview_firmware_driver_facts)
+  * [oneview_id_pools_ipv4_range - Manage OneView ID pools IPV4 Range resources.](#oneview_id_pools_ipv4_range)
+  * [oneview_id_pools_ipv4_subnet - Manage OneView ID pools IPV4 Subnet resources.](#oneview_id_pools_ipv4_subnet)
+  * [oneview_id_pools_ipv4_subnet_facts - Retrieve the facts about one or more of the OneView ID Pools IPV4 Subnets.](#oneview_id_pools_ipv4_subnet_facts)
   * [oneview_interconnect - Manage the OneView Interconnect resources.](#oneview_interconnect)
   * [oneview_interconnect_facts - Retrieve facts about one or more of the OneView Interconnects.](#oneview_interconnect_facts)
   * [oneview_interconnect_link_topology_facts - Retrieve facts about the OneView Interconnect Link Topologies.](#oneview_interconnect_link_topology_facts)
@@ -3314,6 +3317,198 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | firmware_drivers   | Has all the OneView facts about the Firmware Drivers. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_id_pools_ipv4_range
+Manage OneView ID pools IPV4 Range resources.
+
+#### Synopsis
+ Provides an interface to manage ID pools IPV4 Range resources. Can create, update, or delete.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 4.0.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with ID pools IPV4 Range properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the ID pools IPV4 Range resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
+| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Ensure that ID pools IPV4 Range is present using the default configuration
+  oneview_id_pools_ipv4_range:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Test ID pools IPV4 Range'
+
+- name: Ensure that ID pools IPV4 Range is absent
+  oneview_id_pools_ipv4_range:
+    config: "{{ config_file_path }}"
+    state: absent
+    data:
+      name: 'ID pools IPV4 Range'
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| id_pools_ipv4_range   | Has the facts about the OneView ID pools IPV4 Ranges. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_id_pools_ipv4_subnet
+Manage OneView ID pools IPV4 Subnet resources.
+
+#### Synopsis
+ Provides an interface to manage ID pools IPV4 Subnet resources. Can create, update, or delete.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 4.0.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with ID pools IPV4 Subnet properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the ID pools IPV4 Subnet resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
+| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Ensure that ID pools IPV4 Subnet is present using the default configuration
+  oneview_id_pools_ipv4_subnet:
+    config: "{{ config_file_path }}"
+    state: present
+    data:
+      name: 'Test ID pools IPV4 Subnet'
+      vlanId: '201'
+
+- name: Ensure that ID pools IPV4 Subnet is absent
+  oneview_id_pools_ipv4_subnet:
+    config: "{{ config_file_path }}"
+    state: absent
+    data:
+      name: 'ID pools IPV4 Subnet'
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| id_pools_ipv4_subnet   | Has the facts about the OneView ID pools IPV4 Subnets. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_id_pools_ipv4_subnet_facts
+Retrieve the facts about one or more of the OneView ID Pools IPV4 Subnets.
+
+#### Synopsis
+ Retrieve the facts about one or more of the ID Pools IPV4 Subnets from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| name  |   No  |  | |  ID Pools IPV4 Subnet name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| uri  |   No  |  | |  ID Pools IPV4 Subnet ID or URI.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Gather facts about all ID Pools IPV4 Subnets
+  oneview_id_pools_ipv4_subnet_facts:
+    config: "{{ config_file_path }}"
+
+- debug: var=id_pools_ipv4_subnets
+
+- name: Gather paginated, filtered and sorted facts about ID Pools IPV4 Subnets
+  oneview_id_pools_ipv4_subnet_facts:
+    config: "{{ config }}"
+    params:
+      start: 1
+      count: 3
+      sort: 'name:descending'
+- debug: var=id_pools_ipv4_subnets
+
+- name: Gather facts about a ID Pools IPV4 Subnet by name
+  oneview_id_pools_ipv4_subnet_facts:
+    config: "{{ config_file_path }}"
+    name: IPV4Subnet_01
+
+- debug: var=id_pools_ipv4_subnets
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| id_pools_ipv4_subnets   | Has all the OneView facts about the ID Pools IPV4 Subnets. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -7761,7 +7956,7 @@ Manage OneView Storage Pool resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 4.0.0
 
 #### Options
 
@@ -7769,14 +7964,14 @@ Manage OneView Storage Pool resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Storage Pool properties and its associated states.  |
-| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage Pool resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage Pool resource. `present` will ensure data properties are compliant with OneView. From API500 onwards it is only possible to update its state. `absent` will remove the resource from OneView, if it exists. From API500 onwards absent state is immutable.  |
 
 
  
 #### Examples
 
 ```yaml
-- name: Create a Storage Pool
+- name: Create a Storage Pool (prior to API500)
   oneview_storage_pool:
     config: "{{ config }}"
     state: present
@@ -7785,12 +7980,32 @@ Manage OneView Storage Pool resources.
        poolName: "FST_CPG2"
   delegate_to: localhost
 
-- name: Delete the Storage Pool
+- name: Delete the Storage Pool (prior to API500)
   oneview_storage_pool:
     config: "{{ config }}"
     state: absent
     data:
        poolName: "FST_CPG2"
+  delegate_to: localhost
+
+- name: Ensure the storage pool 'FST_CPG2' is managed by the appliance (API500 onwards)
+  oneview_storage_pool:
+    config: "{{ config }}"
+    state: present
+    data:
+       storageSystemUri: "/rest/storage-systems/TXQ1010307"
+       poolName: FST_CPG2
+       isManaged: True
+  delegate_to: localhost
+
+- name: Ensure the storage pool 'FST_CPG2' is unmanaged (API500 onwards)
+  oneview_storage_pool:
+    config: "{{ config }}"
+    state: present
+    data:
+       storageSystemUri: "/rest/storage-systems/TXQ1010307"
+       poolName: FST_CPG2
+       isManaged: False
   delegate_to: localhost
 
 ```
@@ -7824,7 +8039,7 @@ Retrieve facts about one or more Storage Pools.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 4.0.0
 
 #### Options
 
@@ -7832,6 +8047,7 @@ Retrieve facts about one or more Storage Pools.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Storage Pool name.  |
+| options  |   No  |  | |  List with options to gather additional facts about Storage Pools. Options allowed: `reachableStoragePools` gets the list of reachable Storage pools based on the network param. If the network param is not specified it gets all of them.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
@@ -7865,6 +8081,21 @@ Retrieve facts about one or more Storage Pools.
 
 - debug: var=storage_pools
 
+- name: Gather facts about the reachable Storage Pools
+  oneview_storage_pool_facts:
+    config: "{{ config }}"
+    options:
+        - reachableStoragePools
+    params:
+        sort: 'name:ascending'
+        filter: status='OK'
+        networks:
+            - /rest/network/123456A
+            - /rest/network/123456B
+  delegate_to: localhost
+
+- debug: var=storage_pools_reachable_storage_pools
+
 ```
 
 
@@ -7874,6 +8105,7 @@ Retrieve facts about one or more Storage Pools.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | storage_pools   | Has all the OneView facts about the Storage Pools. |  Always, but can be null. |  complex |
+| storage_pools_reachable_storage_pools   | Has all the OneView facts about the Reachable Storage Pools. |  Always, but can be null. |  complex |
 
 
 #### Notes

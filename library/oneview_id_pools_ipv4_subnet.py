@@ -109,7 +109,7 @@ class IdPoolsIpv4SubnetModule(OneViewModuleBase):
         self.data['type'] = self.data.get('type', 'Subnet')
 
         if self.state == 'present':
-            return self.resource_present(resource, 'id_pools_ipv4_subnets')
+            return self.resource_present(resource, 'id_pools_ipv4_subnet')
         elif self.state == 'absent':
             return self.resource_absent(resource)
 
