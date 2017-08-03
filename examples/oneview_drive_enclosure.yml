@@ -18,13 +18,14 @@
 - hosts: all
   vars:
     - config_file_path: "{{ playbook_dir }}/oneview_config.json"
+    - drive_enclosure_name: '0000A66101, bay 1'
   tasks:
     - name: Power On the Drive Enclosure
       oneview_drive_enclosure:
         config: "{{ config_file_path }}"
         state: power_state_set
         data:
-            name: '0000A66101, bay 1'
+            name: "{{ drive_enclosure_name }}"
             powerState: 'On'
       delegate_to: localhost
 
@@ -33,7 +34,7 @@
         config: "{{ config_file_path }}"
         state: uid_state_set
         data:
-            name: '0000A66101, bay 1'
+            name: "{{ drive_enclosure_name }}"
             uidState: 'Off'
       delegate_to: localhost
 
@@ -42,7 +43,7 @@
         config: "{{ config_file_path }}"
         state: hard_reset_state_set
         data:
-            name: '0000A66101, bay 1'
+            name: "{{ drive_enclosure_name }}"
       delegate_to: localhost
 
     - name: Refresh the Drive Enclosure
@@ -50,6 +51,6 @@
         config: "{{ config_file_path }}"
         state: refresh_state_set
         data:
-            name: '0000A66101, bay 1'
+            name: "{{ drive_enclosure_name }}"
             refreshState: 'RefreshPending'
       delegate_to: localhost
