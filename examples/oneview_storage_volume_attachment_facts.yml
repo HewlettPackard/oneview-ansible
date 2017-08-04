@@ -17,7 +17,17 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
+    - server_profile_name: sp1
+    - storage_volume_name: v1
   tasks:
+    - name: Gather facts about the storage volume associated with the storage volume attachment
+      oneview_volume_facts:
+        config: "{{ config }}"
+        name: "{{ storage_volume_name }}"
+      delegate_to: localhost
+
+    - set_fact: volume="{{storage_volumes[0]}}"
+
     - name: Gather facts about all Storage Volume Attachments
       oneview_storage_volume_attachment_facts:
         config: "{{ config }}"
@@ -32,15 +42,15 @@
           start: 0
           count: 2
           sort: 'name:descending'
-          filter: "storageVolumeUri='/rest/storage-volumes/E5B84BC8-75CF-4305-8DB5-7585A2979351'"
+          filter: "storageVolumeUri='{{ volume['uri'] }}'"
 
     - debug: var=storage_volume_attachments
 
     - name: Gather facts about a Storage Volume Attachment by Server Profile Name and Volume Uri
       oneview_storage_volume_attachment_facts:
         config: "{{ config }}"
-        serverProfileName: "sp-bdd"
-        storageVolumeUri: "/rest/storage-volumes/89118052-A367-47B6-9F60-F26073D1D85E"
+        serverProfileName: "{{ server_profile_name }}"
+        storageVolumeUri: "{{ volume['uri'] }}"
       delegate_to: localhost
 
     - debug: var=storage_volume_attachments
@@ -59,11 +69,12 @@
     - debug: var=extra_unmanaged_storage_volumes
 
 
+    # NOTE: This is only compatible with API200 and API300
     - name: Gather facts about volume attachment paths
       oneview_storage_volume_attachment_facts:
         config: "{{ config }}"
-        serverProfileName: "sp-bdd"
-        storageVolumeName: "volume-attachment-demo"
+        serverProfileName: "{{ server_profile_name }}"
+        storageVolumeName: "{{ storage_volume_name }}"
         options:
           - paths
       delegate_to: localhost
@@ -72,11 +83,12 @@
     - debug: var=storage_volume_attachment_paths
 
 
+    # NOTE: This is only compatible with API200 and API300
     - name: Gather facts about volume attachment path by id
       oneview_storage_volume_attachment_facts:
         config: "{{ config }}"
-        serverProfileName: "sp-bdd"
-        storageVolumeName: "volume-attachment-demo"
+        serverProfileName: "{{ server_profile_name }}"
+        storageVolumeName: "{{ storage_volume_name }}"
         options:
           - paths:
                 pathId: '9DFC8953-15A4-4EA9-AB65-23AE663F48D4'

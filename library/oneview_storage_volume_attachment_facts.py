@@ -175,7 +175,7 @@ class StorageVolumeAttachmentFactsModule(OneViewModuleBase):
         self.resource_client = self.oneview_client.storage_volume_attachments
 
         resource_uri = self.oneview_client.storage_volume_attachments.URI
-        self.__search_attachment_uri = str(resource_uri) + "?filter=storageVolumeUri='{}'&filter=hostName='{}'"
+        self.__search_attachment_uri = str(resource_uri) + "?filter=storageVolumeUri='{}'"
 
     def execute_module(self):
         facts = {}

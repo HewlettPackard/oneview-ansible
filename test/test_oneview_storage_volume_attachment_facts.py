@@ -22,8 +22,7 @@ from hpe_test_utils import FactsParamsTestCase
 ERROR_MSG = 'Fake message error'
 
 URI = "/rest/storage-volume-attachments?" \
-      "filter=storageVolumeUri='/rest/storage-volumes/12345-AAA-BBBB-CCCC-121212AA'" \
-      "&filter=hostName='ProfileTest'"
+      "filter=storageVolumeUri='/rest/storage-volumes/12345-AAA-BBBB-CCCC-121212AA'"
 
 PARAMS_GET_ALL = dict(
     config='config.json'
