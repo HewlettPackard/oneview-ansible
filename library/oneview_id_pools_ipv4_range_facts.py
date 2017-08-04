@@ -47,7 +47,7 @@ options:
           Options allowed:
           C(allocatedFragments) gets all fragments that have been allocated in range.
           C(freeFragments) gets all free fragments in an IPv4 range."
-        required: false
+      required: false
 
 extends_documentation_fragment:
     - oneview
