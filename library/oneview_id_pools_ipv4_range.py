@@ -118,7 +118,7 @@ class IdPoolsIpv4RangeModule(OneViewModuleBase):
         if not resource:
             response = self.resource_present(resource, 'id_pools_ipv4_range')
         else:
-            # Enabled can be only True, False or None. Using not found default 'X' for comparison purposes.
+            # Enabled can be True, False or None. Using not found default 'X' for comparison purposes.
             enabled = self.data.pop('enabled', 'X')
             if self.data.get('newName'):
                 self.data['name'] = self.data.pop('newName')
