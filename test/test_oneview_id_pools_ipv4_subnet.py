@@ -82,7 +82,7 @@ class IdPoolsIpv4SubnetModuleSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=IdPoolsIpv4SubnetModule.MSG_CREATED,
-            ansible_facts=dict(id_pools_ipv4_subnets=DEFAULT_SUBNET_TEMPLATE)
+            ansible_facts=dict(id_pools_ipv4_subnet=DEFAULT_SUBNET_TEMPLATE)
         )
 
     def test_should_not_update_when_data_is_equals(self):
@@ -95,7 +95,7 @@ class IdPoolsIpv4SubnetModuleSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=IdPoolsIpv4SubnetModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(id_pools_ipv4_subnets=DEFAULT_SUBNET_TEMPLATE)
+            ansible_facts=dict(id_pools_ipv4_subnet=DEFAULT_SUBNET_TEMPLATE)
         )
 
     def test_should_get_the_same_resource_by_uri(self):
@@ -108,7 +108,7 @@ class IdPoolsIpv4SubnetModuleSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=IdPoolsIpv4SubnetModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(id_pools_ipv4_subnets=DEFAULT_SUBNET_TEMPLATE)
+            ansible_facts=dict(id_pools_ipv4_subnet=DEFAULT_SUBNET_TEMPLATE)
         )
 
     def test_should_fail_with_missing_required_attributes(self):
@@ -134,7 +134,7 @@ class IdPoolsIpv4SubnetModuleSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=IdPoolsIpv4SubnetModule.MSG_UPDATED,
-            ansible_facts=dict(id_pools_ipv4_subnets=data_merged)
+            ansible_facts=dict(id_pools_ipv4_subnet=data_merged)
         )
 
     def test_should_remove_id_pools_ipv4_subnet(self):
