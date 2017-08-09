@@ -86,16 +86,18 @@ storage_volume_template:
 '''
 
 import collections
+
 from copy import deepcopy
 from module_utils.oneview import OneViewModuleBase, ResourceComparator, HPOneViewValueError
+
+from ansible.compat.six import iteritems
 from ansible.module_utils.basic import AnsibleModule
 
 
 def _update_dict_with_depth(ov_resource, user_resource):
-    for key, value in user_resource.iteritems():
+    for key, value in iteritems(user_resource):
         if isinstance(value, collections.Mapping):
-            r = _update_dict_with_depth(ov_resource.get(key, {}), value)
-            ov_resource[key] = r
+            ov_resource[key] = _update_dict_with_depth(ov_resource.get(key, {}), value)
         else:
             ov_resource[key] = user_resource[key]
     return ov_resource
@@ -130,7 +132,6 @@ class StorageVolumeTemplateModule(OneViewModuleBase):
 
         if self.state == 'present':
             return self._present(self.data, resource)
-            # return self.resource_present(resource, fact_name='storage_volume_template')
         elif self.state == 'absent':
             return self.resource_absent(resource)
 
