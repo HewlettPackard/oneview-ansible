@@ -85,8 +85,20 @@ storage_volume_template:
     type: complex
 '''
 
+import collections
+from copy import deepcopy
+from module_utils.oneview import OneViewModuleBase, ResourceComparator, HPOneViewValueError
 from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase, HPOneViewValueError
+
+
+def _update_dict_with_depth(ov_resource, user_resource):
+    for key, value in user_resource.iteritems():
+        if isinstance(value, collections.Mapping):
+            r = _update_dict_with_depth(ov_resource.get(key, {}), value)
+            ov_resource[key] = r
+        else:
+            ov_resource[key] = user_resource[key]
+    return ov_resource
 
 
 class StorageVolumeTemplateModule(OneViewModuleBase):
@@ -117,9 +129,30 @@ class StorageVolumeTemplateModule(OneViewModuleBase):
         resource = self.get_by_name(self.data['name'])
 
         if self.state == 'present':
-            return self.resource_present(resource, fact_name='storage_volume_template')
+            return self._present(self.data, resource)
+            # return self.resource_present(resource, fact_name='storage_volume_template')
         elif self.state == 'absent':
             return self.resource_absent(resource)
+
+    def _present(self, data, resource):
+        if not resource:
+            return self.resource_present(resource, fact_name='storage_volume_template')
+        else:
+            changed = False
+            merged_data = _update_dict_with_depth(deepcopy(resource), data)
+
+            if ResourceComparator.compare(resource, merged_data):
+                msg = self.MSG_ALREADY_PRESENT
+            else:
+                resource = self.resource_client.update(merged_data)
+                changed = True
+                msg = self.MSG_UPDATED
+
+            return dict(
+                msg=msg,
+                changed=changed,
+                ansible_facts={'storage_volume_template': resource}
+            )
 
 
 def main():
