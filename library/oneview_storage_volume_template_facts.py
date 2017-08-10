@@ -38,7 +38,8 @@ options:
       required: false
     options:
       description:
-        - "Retrieve additional facts. Options available: C(connectableVolumeTemplates)."
+        - "Retrieve additional facts.
+            Options available: C(connectableVolumeTemplates), C(reachableVolumeTemplates), C(compatibleSystems)"
       required: false
 extends_documentation_fragment:
     - oneview
@@ -83,6 +84,21 @@ EXAMPLES = '''
 
 - debug: var=storage_volume_templates
 - debug: var=connectable_volume_templates
+
+- name: Gather facts about the reachable Storage Volume Templates
+  oneview_storage_volume_template_facts:
+    config: "{{ config }}"
+    options:
+      - reachableVolumeTemplates
+  delegate_to: localhost
+
+- name: Gather facts about Storage Systems compatible to the SVT
+  oneview_storage_volume_template_facts:
+    config: "{{ config }}"
+    name: "{{ volume_template_name }}"
+    options:
+      - compatibleSystems
+  delegate_to: localhost
 '''
 
 RETURN = '''
@@ -92,7 +108,18 @@ storage_volume_templates:
     type: complex
 
 connectable_volume_templates:
-    description: Has facts about the Connectable Storage Volume Templates.
+    description: Has facts about the Connectable Storage Volume Templates. API version <= 300  only.
+    returned: When requested, but can be null.
+    type: complex
+
+reachable_volume_templates:
+    description: Has facts about the Reachable Storage Volume Templates. API version 500+ only.
+    returned: When requested, but can be null.
+    type: complex
+
+compatible_systems:
+    description: Has facts about Storage Systems compatible to the Storage Volume template.
+        API version 500+ only.
     returned: When requested, but can be null.
     type: complex
 '''
@@ -113,16 +140,22 @@ class StorageVolumeTemplateFactsModule(OneViewModuleBase):
         self.resource_client = self.oneview_client.storage_volume_templates
 
     def execute_module(self):
-
+        ansible_facts = dict(storage_volume_templates=[])
         if self.module.params.get('name'):
             storage_volume_template = self.resource_client.get_by('name', self.module.params['name'])
+            if 'compatibleSystems' in self.options and len(storage_volume_template) > 0:
+                ansible_facts['compatible_systems'] = self.resource_client.get_compatible_systems(
+                    storage_volume_template[0]['uri'])
         else:
             storage_volume_template = self.resource_client.get_all(**self.facts_params)
 
-        ansible_facts = dict(storage_volume_templates=storage_volume_template)
+        ansible_facts['storage_volume_templates'] = storage_volume_template
 
         if 'connectableVolumeTemplates' in self.options:
             ansible_facts['connectable_volume_templates'] = self.resource_client.get_connectable_volume_templates()
+
+        if 'reachableVolumeTemplates' in self.options:
+            ansible_facts['reachable_volume_templates'] = self.resource_client.get_reachable_volume_templates()
 
         return dict(changed=False, ansible_facts=ansible_facts)
 
