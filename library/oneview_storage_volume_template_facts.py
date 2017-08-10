@@ -142,14 +142,14 @@ class StorageVolumeTemplateFactsModule(OneViewModuleBase):
     def execute_module(self):
         ansible_facts = dict(storage_volume_templates=[])
         if self.module.params.get('name'):
-            storage_volume_template = self.resource_client.get_by('name', self.module.params['name'])
-            if 'compatibleSystems' in self.options and len(storage_volume_template) > 0:
+            storage_volume_templates = self.resource_client.get_by('name', self.module.params['name'])
+            if 'compatibleSystems' in self.options and len(storage_volume_templates) > 0:
                 ansible_facts['compatible_systems'] = self.resource_client.get_compatible_systems(
-                    storage_volume_template[0]['uri'])
+                    storage_volume_templates[0]['uri'])
         else:
-            storage_volume_template = self.resource_client.get_all(**self.facts_params)
+            storage_volume_templates = self.resource_client.get_all(**self.facts_params)
 
-        ansible_facts['storage_volume_templates'] = storage_volume_template
+        ansible_facts['storage_volume_templates'] = storage_volume_templates
 
         if 'connectableVolumeTemplates' in self.options:
             ansible_facts['connectable_volume_templates'] = self.resource_client.get_connectable_volume_templates()

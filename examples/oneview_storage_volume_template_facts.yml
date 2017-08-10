@@ -45,7 +45,7 @@
 
     - debug: var=storage_volume_templates
 
-    # Only available on API v500+
+    # Only available after API500
     - name: Gather facts about the reachable Storage Volume Templates
       oneview_storage_volume_template_facts:
         config: "{{ config }}"
@@ -63,7 +63,7 @@
 
     - debug: var=compatible_systems
 
-    # Only available on API v300-
+    # Only available prior to API500
     - name: Gather facts about the connectable Storage Volume Templates
       oneview_storage_volume_template_facts:
         config: "{{ config }}"
