@@ -273,14 +273,11 @@ class VolumeModule(OneViewModuleBase):
 
     def __update(self, resource):
         new_name = self.data.pop('newName', None)
-        p_new_name = self.data.get('properties').pop('newName', None)
         if new_name:
-            if self.get_by_name(new_name):
+            resource = self.get_by_name(new_name)
+            if resource:
                 raise HPOneViewValueError(self.MSG_NEW_NAME_INVALID)
-            if new_name:
-                self.data['name'] = new_name
-            else:
-                self.data['properties']['name'] = p_new_name
+            self.data['name'] = new_name
         merged_data = resource.copy()
         merged_data.update(self.data)
 
