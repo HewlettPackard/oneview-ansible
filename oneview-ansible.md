@@ -43,6 +43,7 @@
   * [oneview_firmware_driver - Provides an interface to remove Firmware Driver resources.](#oneview_firmware_driver)
   * [oneview_firmware_driver_facts - Retrieve the facts about one or more of the OneView Firmware Drivers.](#oneview_firmware_driver_facts)
   * [oneview_id_pools_ipv4_range - Manage OneView ID pools IPV4 Range resources.](#oneview_id_pools_ipv4_range)
+  * [oneview_id_pools_ipv4_range_facts - Retrieve the facts about one or more of the OneView ID Pools IPV4 Ranges.](#oneview_id_pools_ipv4_range_facts)
   * [oneview_id_pools_ipv4_subnet - Manage OneView ID pools IPV4 Subnet resources.](#oneview_id_pools_ipv4_subnet)
   * [oneview_id_pools_ipv4_subnet_facts - Retrieve the facts about one or more of the OneView ID Pools IPV4 Subnets.](#oneview_id_pools_ipv4_subnet_facts)
   * [oneview_interconnect - Manage the OneView Interconnect resources.](#oneview_interconnect)
@@ -3378,6 +3379,100 @@ Manage OneView ID pools IPV4 Range resources.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | id_pools_ipv4_range   | Has the facts about the OneView ID pools IPV4 Ranges. |  On state 'present'. Can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_id_pools_ipv4_range_facts
+Retrieve the facts about one or more of the OneView ID Pools IPV4 Ranges.
+
+#### Synopsis
+ Retrieve the facts about one or more of the ID Pools IPV4 Ranges from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 4.0.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| name  |   No  |  | |  ID Pools IPV4 Range name.  |
+| options  |   No  |  | |  List with options to gather additional facts about an IPv4 Range and related resources. Options allowed: `allocatedFragments` gets all fragments that have been allocated in range. `freeFragments` gets all free fragments in an IPv4 range.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| uri  |   No  |  | |  ID Pools IPV4 Range ID or URI.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Gather facts about all ID Pools IPV4 Ranges
+  oneview_id_pools_ipv4_range_facts:
+    config: "{{ config_file_path }}"
+
+- debug: var=id_pools_ipv4_ranges
+
+- name: Gather paginated, filtered and sorted facts about ID Pools IPV4 Ranges
+  oneview_id_pools_ipv4_range_facts:
+    config: "{{ config }}"
+    params:
+      start: 1
+      count: 3
+      sort: 'name:descending'
+- debug: var=id_pools_ipv4_ranges
+
+- name: Gather facts about a ID Pools IPV4 Range by name
+  oneview_id_pools_ipv4_range_facts:
+    config: "{{ config_file_path }}"
+    name: IPV4Range_01
+
+- debug: var=id_pools_ipv4_ranges
+
+- name: Gather facts about the 3 first ID Pools IPV4 Range free fragments
+  oneview_id_pools_ipv4_range_facts:
+    config: "{{ config_file_path }}"
+    options:
+      - freeFragments
+    name: IPV4Range_01
+    params:
+      count: 3
+      start: 0
+
+- name: Gather facts about all the ID Pools IPV4 Range allocated fragments
+  oneview_id_pools_ipv4_range_facts:
+    config: "{{ config_file_path }}"
+    options:
+      - allocatedFragments
+    name: IPV4Range_01
+    params:
+      count: -1
+      start: 0
+
+- debug: var=id_pools_ipv4_range_allocated_fragments
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| id_pools_ipv4_ranges   | Has all the OneView facts about the ID Pools IPV4 Ranges. |  Always, but can be null. |  complex |
+| id_pools_ipv4_ranges_allocated_fragments   | Has all the OneView facts about the ID Pools IPV4 Range allocated fragments. |  Always, but can be null. |  complex |
+| id_pools_ipv4_ranges_free_fragments   | Has all the OneView facts about the ID Pools IPV4 Range Free fragments. |  Always, but can be null. |  complex |
 
 
 #### Notes
@@ -9456,7 +9551,7 @@ Manage OneView Volume resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 4.0.0
 
 #### Options
 
@@ -9465,7 +9560,7 @@ Manage OneView Volume resources.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  Volume or snapshot data.  |
 | export_only  |   |  False  | |  If set to True, when the status is `absent` and the resource exists, it will be removed only from OneView.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>repaired</li>  <li>snapshot_created</li>  <li>snapshot_deleted</li> </ul> |  Indicates the desired state for the Volume resource. `present` creates/adds the resource when it does not exist, otherwise it updates the resource. When the resource already exists, the update operation is non-idempotent, since it is always called even though the given options are compliant with the existent data. To change the name of the volume, a `newName` in the _data_ must be provided. `absent` by default deletes a volume from OneView and the storage system. When export_only is True, the volume is removed only from OneView. `repaired` removes extra presentations from a specified volume on the storage system. This operation is non-idempotent. `snapshot_created` creates a snapshot for the volume specified. This operation is non-idempotent. `snapshot_deleted` deletes a snapshot from OneView and the storage system.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>repaired</li>  <li>snapshot_created</li>  <li>snapshot_deleted</li> </ul> |  Indicates the desired state for the Volume resource. `present` creates/adds the resource when it does not exist, otherwise it updates the resource. When the resource already exists, the update operation is non-convergent, since it is always called even though the given options are compliant with the existent data. To change the name of the volume, a `newName` in the _data_ must be provided. `absent` by default deletes a volume from OneView and the storage system. When export_only is True, the volume is removed only from OneView. `repaired` removes extra presentations from a specified volume on the storage system. This operation is non-idempotent. `snapshot_created` creates a snapshot for the volume specified. This operation is non-idempotent. `snapshot_deleted` deletes a snapshot from OneView and the storage system.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 

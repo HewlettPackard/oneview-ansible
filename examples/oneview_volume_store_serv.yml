@@ -1,0 +1,113 @@
+###
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: '{{ playbook_dir }}/oneview_config.json'
+    storage_system_uri: /rest/storage-systems/TXQ1010307 # set a Storage System URI to run this example
+    storage_pool_uri: /rest/storage-pools/AA2DCF3B-0306-4D32-AFA7-A7BE012392B2 # set a Storage Pool URI to run this example
+    volume_template_uri: /rest/storage-volume-templates/725c82dc-cec1-463b-8419-a7c80131ce4c # set a Storage System URI to run this example
+    main_volume_name: ONEVIEW_SDK_TEST_VOLUME_STORE_SERV
+    unmanaged_volume_name: Volumonho2
+  tasks:
+    - name: Create a Volume from template
+      oneview_volume:
+        config: '{{ config }}'
+        state: present
+        data:
+          properties:
+            name: '{{ main_volume_name }}'
+            description: 'Test volume with common creation: Storage Pool'
+            storagePool: '{{ storage_pool_uri }}'
+            size: 1073741824
+            provisioningType: Thin
+            isShareable: True
+          templateUri: '{{ volume_template_uri }}'
+          isPermanent: True
+      delegate_to: localhost
+
+    - name: Add volume from existing unmanaged volume
+      oneview_volume:
+        config: '{{ config }}'
+        state: managed
+        data:
+          storageSystemUri: '{{ storage_system_uri }}'
+          deviceVolumeName: '{{ unmanaged_volume_name }}'
+          isShareable: True
+      delegate_to: localhost
+
+    - name: Create a new snapshot for the specified volume
+      oneview_volume:
+        config: '{{ config }}'
+        state: snapshot_created
+        data:
+          name: '{{ main_volume_name }}'
+          snapshotParameters:
+            name: 'SnapshotTest'
+            description: 'New snapshot in volume'
+      delegate_to: localhost
+
+    - name: Gather facts about the snapshot created
+      oneview_volume_facts:
+        config: '{{ config }}'
+        name: "{{ main_volume_name }}"
+        options:
+          - snapshots:
+              name: SnapshotTest
+
+    - set_fact: snapshot_uri="{{ snapshots[0]['uri'] }}"
+
+    - name: Create a Volume from the snapshot
+      oneview_volume:
+        config: '{{ config }}'
+        state: present
+        data:
+          properties:
+            name: 'SnapshotVolume'
+            description: 'Test volume from Snapshot'
+            storagePool: '{{ storage_pool_uri }}'
+            size: 1073741824
+            provisioningType: Thin
+            isShareable: True
+          templateUri: '{{ volume_template_uri }}'
+          isPermanent: True
+          snapshotUri: '{{ snapshot_uri }}'
+      delegate_to: localhost
+
+    - name: Delete the volume previously created with from template
+      oneview_volume:
+        config: '{{ config }}'
+        state: absent
+        data:
+          name: '{{ main_volume_name }}'
+      delegate_to: localhost
+
+    - name: Delete the volume previously created with from the snapshot
+      oneview_volume:
+        config: '{{ config }}'
+        state: absent
+        data:
+          name: 'SnapshotVolume'
+      delegate_to: localhost
+
+    - name: Delete the previously unmanaged volume from OneView only
+      oneview_volume:
+        config: '{{ config }}'
+        state: absent
+        suppress_device_updates: True
+        data:
+          name: '{{ unmanaged_volume_name }}'
+      delegate_to: localhost
