@@ -40,6 +40,19 @@ PARAMS_GET_CONNECTED = dict(
     options=['connectableVolumeTemplates']
 )
 
+PARAMS_GET_REACHABLE = dict(
+    config='config.json',
+    options=['reachableVolumeTemplates']
+)
+
+PARAMS_GET_COMPATIBLE = dict(
+    config='config.json',
+    name="SVT1",
+    options=['compatibleSystems']
+)
+
+DEFAULT_VOLUME_TEMPLATES_RETURN = [{"name": "Storage Volume Template 1"}]
+
 
 class StorageVolumeTemplatesFactsSpec(unittest.TestCase,
                                       FactsParamsTestCase):
@@ -49,7 +62,7 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase,
         FactsParamsTestCase.configure_client_mock(self, self.storage_volume_templates)
 
     def test_should_get_all_storage_volume_templates(self):
-        self.storage_volume_templates.get_all.return_value = {"name": "Storage System Name"}
+        self.storage_volume_templates.get_all.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
 
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
@@ -57,11 +70,11 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(storage_volume_templates=({"name": "Storage System Name"}))
+            ansible_facts=dict(storage_volume_templates=(DEFAULT_VOLUME_TEMPLATES_RETURN))
         )
 
     def test_should_get_storage_volume_template_by_name(self):
-        self.storage_volume_templates.get_by.return_value = {"name": "Storage System Name"}
+        self.storage_volume_templates.get_by.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
@@ -69,13 +82,12 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(storage_volume_templates=({"name": "Storage System Name"}))
+            ansible_facts=dict(storage_volume_templates=(DEFAULT_VOLUME_TEMPLATES_RETURN))
         )
 
     def test_should_get_connectable_storage_volume_templates(self):
-        self.storage_volume_templates.get_all.return_value = {"name": "Storage System Name"}
-        self.storage_volume_templates.get_connectable_volume_templates.return_value = {
-            "name": "Storage System Name"}
+        self.storage_volume_templates.get_all.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
+        self.storage_volume_templates.get_connectable_volume_templates.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
 
         self.mock_ansible_module.params = PARAMS_GET_CONNECTED
 
@@ -83,8 +95,37 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase,
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts={'connectable_volume_templates': {'name': 'Storage System Name'},
-                           'storage_volume_templates': {'name': 'Storage System Name'}}
+            ansible_facts={'connectable_volume_templates': DEFAULT_VOLUME_TEMPLATES_RETURN,
+                           'storage_volume_templates': DEFAULT_VOLUME_TEMPLATES_RETURN}
+        )
+
+    def test_should_get_reachable_storage_volume_templates(self):
+        self.storage_volume_templates.get_all.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
+        self.storage_volume_templates.get_reachable_volume_templates.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
+
+        self.mock_ansible_module.params = PARAMS_GET_REACHABLE
+
+        StorageVolumeTemplateFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts={'reachable_volume_templates': DEFAULT_VOLUME_TEMPLATES_RETURN,
+                           'storage_volume_templates': DEFAULT_VOLUME_TEMPLATES_RETURN}
+        )
+
+    def test_should_get_compatible_systems(self):
+        self.storage_volume_templates.get_by.return_value = [{'name': 'SVT1', 'uri': '/rest/fake'}]
+        self.storage_volume_templates.get_compatible_systems.return_value = {
+            "name": "Storage System Name"}
+
+        self.mock_ansible_module.params = PARAMS_GET_COMPATIBLE
+
+        StorageVolumeTemplateFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts={'compatible_systems': {'name': 'Storage System Name'},
+                           'storage_volume_templates': [{'name': 'SVT1', 'uri': '/rest/fake'}]}
         )
 
 

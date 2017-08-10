@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
+    - volume_template_name: 'vt2'
   tasks:
     - name: Gather facts about all Storage Volume Templates
       oneview_storage_volume_template_facts:
@@ -39,16 +40,37 @@
     - name: Gather facts about a Storage Volume Template by name
       oneview_storage_volume_template_facts:
         config: "{{ config }}"
-        name: "FusionTemplateExample"
+        name: "{{ volume_template_name }}"
       delegate_to: localhost
 
     - debug: var=storage_volume_templates
 
+    # Only available after API500
+    - name: Gather facts about the reachable Storage Volume Templates
+      oneview_storage_volume_template_facts:
+        config: "{{ config }}"
+        options:
+          - reachableVolumeTemplates
+        params:
+          networks:
+            - '/rest/fcoe-networks/42ba6eca-7e89-4bf9-8ea0-51b2748a4df4'
+      delegate_to: localhost
 
+    - name: Gather facts about Storage Systems compatible to the SVT
+      oneview_storage_volume_template_facts:
+        config: "{{ config }}"
+        name: "{{ volume_template_name }}"
+        options:
+          - compatibleSystems
+      delegate_to: localhost
+
+    - debug: var=compatible_systems
+
+    # Only available prior to API500
     - name: Gather facts about the connectable Storage Volume Templates
       oneview_storage_volume_template_facts:
         config: "{{ config }}"
-        name: "FusionTemplateExample"
+        name: "{{ volume_template_name }}"
         options:
           - connectableVolumeTemplates
       delegate_to: localhost
