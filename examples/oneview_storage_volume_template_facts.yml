@@ -51,6 +51,9 @@
         config: "{{ config }}"
         options:
           - reachableVolumeTemplates
+        params:
+          networks:
+            - '/rest/fcoe-networks/42ba6eca-7e89-4bf9-8ea0-51b2748a4df4'
       delegate_to: localhost
 
     - name: Gather facts about Storage Systems compatible to the SVT
