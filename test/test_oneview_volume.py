@@ -69,6 +69,13 @@ PARAMS_FOR_ABSENT_EXPORT_ONLY = dict(
     export_only=True
 )
 
+PARAMS_FOR_ABSENT_SUPPRESS = dict(
+    config='config.json',
+    state='absent',
+    data=dict(name='Volume with Storage Pool'),
+    suppress_device_updates=True
+)
+
 PARAMS_FOR_REPAIR = dict(
     config='config.json',
     state='repaired',
@@ -127,7 +134,7 @@ class VolumeModuleSpec(unittest.TestCase,
         )
 
     def test_should_raise_exception_when_new_name_already_used(self):
-        self.resource.get_by.side_effect = [EXISTENT_VOLUME], [EXISTENT_VOLUME_WITH_NEW_NAME]
+        self.resource.get_by.side_effect = [[EXISTENT_VOLUME], [EXISTENT_VOLUME_WITH_NEW_NAME]]
         self.resource.update.return_value = EXISTENT_VOLUME.copy()
 
         self.mock_ansible_module.params = PARAMS_FOR_UPDATE
@@ -145,21 +152,36 @@ class VolumeModuleSpec(unittest.TestCase,
 
         VolumeModule().run()
 
-        self.resource.delete.assert_called_once_with(EXISTENT_VOLUME, export_only=False)
+        self.resource.delete.assert_called_once_with(EXISTENT_VOLUME, export_only=None, suppress_device_updates=None)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=VolumeModule.MSG_DELETED
         )
 
-    def test_should_remove_volume(self):
+
+    def test_should_remove_volume_with_export_only(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT_EXPORT_ONLY
 
         VolumeModule().run()
 
-        self.resource.delete.assert_called_once_with(EXISTENT_VOLUME, export_only=True)
+        self.resource.delete.assert_called_once_with(EXISTENT_VOLUME, export_only=True, suppress_device_updates=None)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=VolumeModule.MSG_DELETED
+        )
+
+    def test_should_remove_volume_with_suppress_device_updates(self):
+        self.resource.get_by.return_value = [EXISTENT_VOLUME]
+
+        self.mock_ansible_module.params = PARAMS_FOR_ABSENT_SUPPRESS
+
+        VolumeModule().run()
+
+        self.resource.delete.assert_called_once_with(EXISTENT_VOLUME, export_only=None, suppress_device_updates=True)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
