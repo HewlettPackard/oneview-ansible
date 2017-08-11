@@ -31,14 +31,14 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 4.0.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     state:
         description:
             - Indicates the desired state for the Volume resource.
               C(present) creates/adds the resource when it does not exist, otherwise it updates the resource. When the
-              resource already exists, the update operation is non-idempotent, since it is always called even though
+              resource already exists, the update operation is non-convergent, since it is always called even though
               the given options are compliant with the existent data. To change the name of the volume, a C(newName) in
               the I(data) must be provided.
               C(absent) by default deletes a volume from OneView and the storage system. When export_only is True, the
@@ -174,7 +174,7 @@ storage_volume:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound
+from module_utils.oneview import OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound, HPOneViewException
 
 
 class VolumeModule(OneViewModuleBase):
@@ -182,6 +182,8 @@ class VolumeModule(OneViewModuleBase):
     MSG_UPDATED = 'Volume updated successfully.'
     MSG_DELETED = 'Volume removed/deleted successfully.'
     MSG_REPAIRED = 'Volume repaired successfully.'
+    MSG_ALREADY_MANAGED = 'Volume is already managed by the appliance.'
+    MSG_ADDED = 'Volume is now managed by the appliance.'
     MSG_SNAPSHOT_CREATED = 'Volume snapshot created successfully.'
     MSG_SNAPSHOT_DELETED = 'Volume snapshot deleted successfully.'
     MSG_NOT_FOUND = 'Volume not found.'
@@ -194,10 +196,12 @@ class VolumeModule(OneViewModuleBase):
         argument_spec = dict(
             state=dict(
                 required=True,
-                choices=['present', 'absent', 'repaired', 'snapshot_created', 'snapshot_deleted']
+                choices=['present', 'absent', 'managed', 'repaired',
+                         'snapshot_created', 'snapshot_deleted']
             ),
             data=dict(required=True, type='dict'),
             export_only=dict(required=False, type='bool'),
+            suppress_device_updates=dict(required=False, type='bool')
         )
         super(VolumeModule, self).__init__(additional_arg_spec=argument_spec,
                                            validate_etag_support=True)
@@ -205,10 +209,16 @@ class VolumeModule(OneViewModuleBase):
         self.resource_client = self.oneview_client.volumes
 
     def execute_module(self):
-        resource = self.get_by_name(self.data.get('name'))
+        if self.data.get('deviceVolumeName'):
+            name = self.data.get('deviceVolumeName')
+        else:
+            name = self.data.get('name') or self.data.get('properties').get('name')
+        resource = self.get_by_name(name)
 
         if self.state == 'present':
             return self.__present(resource)
+        if self.state == 'managed':
+            return self.__managed(resource)
         elif self.state == 'absent':
             return self.__absent(resource)
         else:
@@ -223,37 +233,55 @@ class VolumeModule(OneViewModuleBase):
                 return self.__delete_snapshot(resource)
 
     def __present(self, resource):
-        if not resource:
+        if 'snapshotUri' in self.data:
+            return self.__create_from_snapshot()
+        elif not resource:
             return self.__create()
         else:
             return self.__update(resource)
 
-    def __absent(self, resource):
-        export_only = self.module.params.get('export_only', False)
+    def __managed(self, resource):
+        if not resource:
+            resource = self.resource_client.add_from_existing(self.data)
+            changed = True
+            msg = self.MSG_ADDED
+        else:
+            changed = False
+            msg = self.MSG_ALREADY_MANAGED
+        return dict(changed=changed, msg=msg, ansible_facts=dict(storage_volume=resource))
 
+    def __absent(self, resource):
         if resource:
-            self.oneview_client.volumes.delete(resource, export_only=export_only)
+            self.resource_client.delete(resource,
+                                        export_only=self.module.params.get('export_only'),
+                                        suppress_device_updates=self.module.params.get('suppress_device_updates'))
             return dict(changed=True, msg=self.MSG_DELETED)
         else:
             return dict(changed=False, msg=self.MSG_ALREADY_ABSENT)
 
     def __create(self):
-        created_volume = self.oneview_client.volumes.create(self.data)
+        created_volume = self.resource_client.create(self.data)
+        return dict(changed=True,
+                    msg=self.MSG_CREATED,
+                    ansible_facts=dict(storage_volume=created_volume))
 
+    def __create_from_snapshot(self):
+        created_volume = self.resource_client.create_from_snapshot(self.data)
         return dict(changed=True,
                     msg=self.MSG_CREATED,
                     ansible_facts=dict(storage_volume=created_volume))
 
     def __update(self, resource):
-        if 'newName' in self.data:
-            if self.get_by_name(self.data['newName']):
+        new_name = self.data.pop('newName', None)
+        if new_name:
+            new_resource = self.get_by_name(new_name)
+            if new_resource:
                 raise HPOneViewValueError(self.MSG_NEW_NAME_INVALID)
-            self.data['name'] = self.data.pop('newName')
-
+            self.data['name'] = new_name
         merged_data = resource.copy()
         merged_data.update(self.data)
 
-        updated_volume = self.oneview_client.volumes.update(merged_data)
+        updated_volume = self.resource_client.update(merged_data)
 
         return dict(changed=True,
                     msg=self.MSG_UPDATED,
@@ -261,14 +289,14 @@ class VolumeModule(OneViewModuleBase):
 
     def __repair(self, resource):
 
-        self.oneview_client.volumes.repair(resource['uri'])
+        self.resource_client.repair(resource['uri'])
         return dict(changed=True, msg=self.MSG_REPAIRED)
 
     def __create_snapshot(self, resource):
         if 'snapshotParameters' not in self.data:
             raise HPOneViewResourceNotFound(self.MSG_NO_OPTIONS_PROVIDED)
 
-        self.oneview_client.volumes.create_snapshot(resource['uri'], self.data['snapshotParameters'])
+        self.resource_client.create_snapshot(resource['uri'], self.data['snapshotParameters'])
         return dict(changed=True, msg=self.MSG_SNAPSHOT_CREATED)
 
     def __delete_snapshot(self, resource):
@@ -279,15 +307,15 @@ class VolumeModule(OneViewModuleBase):
         if not snapshot:
             raise HPOneViewResourceNotFound(self.MSG_SNAPSHOT_NOT_FOUND)
         else:
-            self.oneview_client.volumes.delete_snapshot(snapshot)
+            self.resource_client.delete_snapshot(snapshot)
             return dict(changed=True, msg=self.MSG_SNAPSHOT_DELETED)
 
     def __get_snapshot_by_name(self, resource, data):
         if 'name' not in data['snapshotParameters']:
             raise HPOneViewValueError(self.MSG_NO_OPTIONS_PROVIDED)
 
-        result = self.oneview_client.volumes.get_snapshot_by(resource['uri'], 'name',
-                                                             data['snapshotParameters']['name'])
+        result = self.resource_client.get_snapshot_by(resource['uri'], 'name',
+                                                      data['snapshotParameters']['name'])
         return result[0] if result else None
 
 
