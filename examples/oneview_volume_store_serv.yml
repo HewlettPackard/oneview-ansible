@@ -17,11 +17,11 @@
 - hosts: all
   vars:
     config: '{{ playbook_dir }}/oneview_config.json'
-    storage_system_uri: /rest/storage-systems/TXQ1010307 # set a Storage System URI to run this example
-    storage_pool_uri: /rest/storage-pools/AA2DCF3B-0306-4D32-AFA7-A7BE012392B2 # set a Storage Pool URI to run this example
-    volume_template_uri: /rest/storage-volume-templates/725c82dc-cec1-463b-8419-a7c80131ce4c # set a Storage System URI to run this example
-    main_volume_name: ONEVIEW_SDK_TEST_VOLUME_STORE_SERV
-    unmanaged_volume_name: Volumonho2
+    storage_system_uri: # set a Storage System URI to run this example
+    storage_pool_uri: # set a Storage Pool URI to run this example
+    volume_template_uri: # set a Storage System URI to run this example
+    main_volume_name: # set a Volume name to be used in the example
+    unmanaged_volume_name: # set a name of an unmanaged Volume in the Storage System
   tasks:
     - name: Create a Volume from template
       oneview_volume:
