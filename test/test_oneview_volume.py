@@ -59,7 +59,15 @@ PARAMS_FOR_MANAGED = dict(
     state='managed',
     data=dict(deviceVolumeName='Volume with Storage Pool'))
 
-PARAMS_FOR_UPDATE = dict(
+PARAMS_FOR_UPDATE_OK = dict(
+    config='config.json',
+    state='present',
+    data=dict(name='Volume with Storage Pool',
+              newName='NEWNAME',
+              shareable=False)
+)
+
+PARAMS_FOR_UPDATE_EXISTING = dict(
     config='config.json',
     state='present',
     data=dict(name='Volume with Storage Pool',
@@ -161,7 +169,7 @@ class VolumeModuleSpec(unittest.TestCase,
     def test_should_not_add_already_managed_volume(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
 
-        self.mock_ansible_module.params = PARAMS_FOR_MANAGED
+        self.mock_ansible_module.params = PARAMS_FOR_MANAGED.copy()
 
         VolumeModule().run()
 
@@ -175,7 +183,7 @@ class VolumeModuleSpec(unittest.TestCase,
         self.resource.get_by.side_effect = [EXISTENT_VOLUME], []
         self.resource.update.return_value = EXISTENT_VOLUME.copy()
 
-        self.mock_ansible_module.params = PARAMS_FOR_UPDATE
+        self.mock_ansible_module.params = PARAMS_FOR_UPDATE_OK
 
         VolumeModule().run()
 
@@ -187,9 +195,8 @@ class VolumeModuleSpec(unittest.TestCase,
 
     def test_should_raise_exception_when_new_name_already_used(self):
         self.resource.get_by.side_effect = [[EXISTENT_VOLUME], [EXISTENT_VOLUME_WITH_NEW_NAME]]
-        self.resource.update.return_value = EXISTENT_VOLUME.copy()
 
-        self.mock_ansible_module.params = PARAMS_FOR_UPDATE
+        self.mock_ansible_module.params = PARAMS_FOR_UPDATE_EXISTING
 
         VolumeModule().run()
 
