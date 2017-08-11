@@ -174,7 +174,7 @@ storage_volume:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound
+from module_utils.oneview import OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound, HPOneViewException
 
 
 class VolumeModule(OneViewModuleBase):
@@ -233,8 +233,8 @@ class VolumeModule(OneViewModuleBase):
                 return self.__delete_snapshot(resource)
 
     def __present(self, resource):
-        if self.data.get('snapshotUri', None):
-            return self.resource_client.create_from_snapshot(self.data)
+        if 'snapshotUri' in self.data:
+            return self.__create_from_snapshot()
         elif not resource:
             return self.__create()
         else:
@@ -265,7 +265,7 @@ class VolumeModule(OneViewModuleBase):
                     msg=self.MSG_CREATED,
                     ansible_facts=dict(storage_volume=created_volume))
 
-    def __create_from_snapshot(self, resource):
+    def __create_from_snapshot(self):
         created_volume = self.resource_client.create_from_snapshot(self.data)
         return dict(changed=True,
                     msg=self.MSG_CREATED,
@@ -274,8 +274,8 @@ class VolumeModule(OneViewModuleBase):
     def __update(self, resource):
         new_name = self.data.pop('newName', None)
         if new_name:
-            resource = self.get_by_name(new_name)
-            if resource:
+            new_resource = self.get_by_name(new_name)
+            if new_resource:
                 raise HPOneViewValueError(self.MSG_NEW_NAME_INVALID)
             self.data['name'] = new_name
         merged_data = resource.copy()
