@@ -33,7 +33,10 @@ PARAMS_GET_ALL_WITH_OPTIONS = dict(
     name=None,
     options=[
         'attachableVolumes', 'extraManagedVolumePaths'
-    ]
+    ],
+    params={
+        'networks': ['rest/fake/network']
+    }
 )
 
 PARAMS_GET_BY_NAME = dict(

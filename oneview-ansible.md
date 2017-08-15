@@ -8730,7 +8730,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Storage Volume Template name.  |
-| options  |   No  |  | |  Retrieve additional facts. Options available: `connectableVolumeTemplates`.  |
+| options  |   No  |  | |  Retrieve additional facts. Options available: `connectableVolumeTemplates`, `reachableVolumeTemplates`, `compatibleSystems`  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
@@ -8776,6 +8776,21 @@ Retrieve facts about Storage Volume Templates of the OneView.
 - debug: var=storage_volume_templates
 - debug: var=connectable_volume_templates
 
+- name: Gather facts about the reachable Storage Volume Templates
+  oneview_storage_volume_template_facts:
+    config: "{{ config }}"
+    options:
+      - reachableVolumeTemplates
+  delegate_to: localhost
+
+- name: Gather facts about Storage Systems compatible to the SVT
+  oneview_storage_volume_template_facts:
+    config: "{{ config }}"
+    name: "{{ volume_template_name }}"
+    options:
+      - compatibleSystems
+  delegate_to: localhost
+
 ```
 
 
@@ -8784,7 +8799,9 @@ Retrieve facts about Storage Volume Templates of the OneView.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| connectable_volume_templates   | Has facts about the Connectable Storage Volume Templates. |  When requested, but can be null. |  complex |
+| compatible_systems   | Has facts about Storage Systems compatible to the Storage Volume template. API version 500+ only. |  When requested, but can be null. |  complex |
+| connectable_volume_templates   | Has facts about the Connectable Storage Volume Templates. API version <= 300  only. |  When requested, but can be null. |  complex |
+| reachable_volume_templates   | Has facts about the Reachable Storage Volume Templates. API version 500+ only. |  When requested, but can be null. |  complex |
 | storage_volume_templates   | Has all the OneView facts about the Storage Volume Templates. |  Always, but can be null. |  complex |
 
 

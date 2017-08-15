@@ -135,12 +135,15 @@ class VolumeFactsModule(OneViewModuleBase):
 
     def execute_module(self):
         ansible_facts = {}
-
+        networks = self.facts_params.pop('networks', None)
         if self.module.params.get('name'):
             ansible_facts['storage_volumes'] = self.resource_client.get_by('name', self.module.params['name'])
             ansible_facts.update(self.__gather_facts_about_one_volume(ansible_facts['storage_volumes']))
         else:
             ansible_facts['storage_volumes'] = self.resource_client.get_all(**self.facts_params)
+
+        if networks:
+            self.facts_params['networks'] = networks
 
         ansible_facts.update(self.__gather_facts_from_appliance())
 
