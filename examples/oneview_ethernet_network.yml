@@ -19,8 +19,8 @@
     config: "{{ playbook_dir }}/oneview_config.json"
     network_name: 'OneViewSDK Test Ethernet Network'
     network_scope_uris:
-      - '/rest/scopes/d0324c4b-56c9-485b-b7dd-8f6218a4b5bb'
-      - '/rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412'
+      - '/rest/scopes/63d1ca81-95b3-41f1-a1ee-f9e1bc2d635f'
+      - '/rest/scopes/96661df3-fb4f-4617-a1fb-d6f11adf18d3'
   tasks:
     - name: Create an Ethernet Network
       oneview_ethernet_network:
@@ -58,7 +58,16 @@
           name: '{{ network_name }}'
       delegate_to: localhost
 
-    - name: Add Scopes to the Ethernet Network
+    - name: Ensure ethernet network has no scopes
+      oneview_ethernet_network:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: "{{ network_name }}"
+          scopeUris: []
+      delegate_to: localhost
+
+    - name: Ensure Ethernet Network has two scopes
       oneview_ethernet_network:
         config: "{{ config }}"
         state: present
@@ -100,21 +109,3 @@
               typicalBandwidth: 2000
       delegate_to: localhost
     - debug: msg="{{ethernet_network_bulk | map(attribute='name') | list }}"
-
-    - name: Add one scope to the Ethernet Network
-      oneview_ethernet_network:
-        config: "{{ config }}"
-        state: present
-        data:
-          name: "{{ network_name }}"
-          scopeUris: []
-      delegate_to: localhost
-
-    - name: Update the Ethernet Network with two scopes
-      oneview_ethernet_network:
-        config: "{{ config }}"
-        state: present
-        data:
-          name: "{{ network_name }}"
-          scopeUris: "{{ network_scope_uris }}"
-      delegate_to: localhost
