@@ -31,6 +31,8 @@ image_streamer_deployment_plan_facts
 4. Added partial support for HPE Synergy Image Streamer
 
 #### Modules added
+hpe_icsp_os_deployment
+hpe_icsp_server
 image_streamer_artifact_bundle_facts
 image_streamer_build_plan
 image_streamer_build_plan_facts
@@ -76,6 +78,7 @@ Initial release of the OneView modules for Ansible. It adds support to managing 
 This version of the module supports OneView appliances with versions 2.00.00 or higher, using the OneView REST API version 120 or 200.
 
 #### Modules added
+- hpe_icsp
 - oneview_connection_template
 - oneview_connection_template_facts
 - oneview_enclosure
