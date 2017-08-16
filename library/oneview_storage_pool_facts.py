@@ -120,10 +120,14 @@ class StoragePoolFactsModule(OneViewModuleBase):
 
     def execute_module(self):
         facts = {}
+        networks = self.facts_params.pop('networks', None)
         if self.module.params.get('name'):
             storage_pool = self.oneview_client.storage_pools.get_by('name', self.module.params['name'])
         else:
             storage_pool = self.oneview_client.storage_pools.get_all(**self.facts_params)
+
+        if networks:
+            self.facts_params['networks'] = networks
 
         facts['storage_pools'] = storage_pool
         self.__get_options(facts)

@@ -35,7 +35,10 @@ PARAMS_GET_BY_NAME = dict(
 PARAMS_GET_REACHABLE_STORAGE_POOLS = dict(
     config='config.json',
     name="Test Storage Pools",
-    options=["reachableStoragePools"]
+    options=["reachableStoragePools"],
+    params={
+        'networks': ['rest/fake/network']
+    }
 )
 
 
