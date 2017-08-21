@@ -1413,14 +1413,16 @@ class ServerProfileModuleSpec(unittest.TestCase,
         )
 
     @mock.patch.object(ResourceComparator, 'compare')
-    def test_should_power_off_before_update_when_data_changed(self, mock_resource_compare):
+    def test_should_power_off_before_update_when_required(self, mock_resource_compare):
         fake_profile_data = deepcopy(BASIC_PROFILE)
         fake_profile_data['serverHardwareUri'] = SERVER_HARDWARE_TEMPLATE_URI
+        power_on_msg = 'Some server profile attributes cannot be changed while the server hardware is powered on.'
 
         mock_resource_compare.return_value = False
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = fake_profile_data
-        self.mock_ov_client.server_profiles.update.return_value = CREATED_BASIC_PROFILE
+        self.mock_ov_client.server_profiles.update.side_effect = [HPOneViewException(power_on_msg),
+                                                                  CREATED_BASIC_PROFILE]
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
@@ -1433,13 +1435,33 @@ class ServerProfileModuleSpec(unittest.TestCase,
             mock.call(dict(powerState='On', powerControl='MomentaryPress'), SERVER_HARDWARE_TEMPLATE_URI)]
         self.mock_ov_client.server_hardware.update_power_state.assert_has_calls(power_set_calls)
 
-        self.mock_ov_client.server_profiles.update.assert_called_once_with(fake_profile_data, SERVER_PROFILE_URI)
+        assert self.mock_ov_client.server_profiles.update.mock_calls == [
+            mock.call(fake_profile_data, SERVER_PROFILE_URI), mock.call(fake_profile_data, SERVER_PROFILE_URI)]
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ServerProfileModule.MSG_UPDATED,
             ansible_facts=mock_facts
         )
+
+    @mock.patch.object(ResourceComparator, 'compare')
+    def test_should_return_error_during_update_when_unrelated_to_power(self, mock_resource_compare):
+        fake_profile_data = deepcopy(BASIC_PROFILE)
+        fake_profile_data['serverHardwareUri'] = SERVER_HARDWARE_TEMPLATE_URI
+
+        mock_resource_compare.return_value = False
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = fake_profile_data
+        self.mock_ov_client.server_profiles.update.side_effect = HPOneViewException('test')
+        self.mock_ov_client.server_hardware.update_power_state.return_value = {}
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+
+        ServerProfileModule().run()
+
+        self.mock_ov_client.server_profiles.update.assert_called_once_with(fake_profile_data, SERVER_PROFILE_URI)
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            msg="test")
 
     @mock.patch.object(ResourceComparator, 'compare')
     def test_should_not_update_when_data_is_equals(self, mock_resource_compare):

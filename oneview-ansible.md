@@ -35,6 +35,7 @@
   * [oneview_event_facts - Retrieve the facts about one or more of the OneView Events.](#oneview_event_facts)
   * [oneview_fabric - Manage OneView Fabric resources.](#oneview_fabric)
   * [oneview_fabric_facts - Retrieve the facts about one or more of the OneView Fabrics.](#oneview_fabric_facts)
+  * [oneview_fc_network_facts - Retrieve the facts about one or more of the OneView Fibre Channel Networks.](#oneview_fc_network_facts)
   * [oneview_fc_network - Manage OneView Fibre Channel Network resources.](#oneview_fc_network)
   * [oneview_fc_network_facts - Retrieve the facts about one or more of the OneView Fibre Channel Networks.](#oneview_fc_network_facts)
   * [oneview_fcoe_network - Manage OneView FCoE Network resources.](#oneview_fcoe_network)
@@ -2839,6 +2840,75 @@ Retrieve the facts about one or more of the OneView Fabrics.
 | ------------- |-------------| ---------|----------- |
 | fabric_reserved_vlan_range   | Has all the OneView facts about the reserved VLAN range |  When requested, but can be null. |  complex |
 | fabrics   | Has all the OneView facts about the Fabrics. |  Always, but can be null. |  complex |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_fc_network_facts
+Retrieve the facts about one or more of the OneView Fibre Channel Networks.
+
+#### Synopsis
+ Retrieve the facts about one or more of the Fibre Channel Networks from OneView.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 2.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| name  |   No  |  | |  Fibre Channel Network name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+
+
+ 
+#### Examples
+
+```yaml
+- name: Gather facts about all Fibre Channel Networks
+  oneview_fc_network_facts:
+    config: "{{ config_file_path }}"
+
+- debug: var=fc_networks
+
+- name: Gather paginated, filtered and sorted facts about Fibre Channel Networks
+  oneview_fc_network_facts:
+    config: "{{ config }}"
+    params:
+      start: 1
+      count: 3
+      sort: 'name:descending'
+      filter: 'fabricType=FabricAttach'
+- debug: var=fc_networks
+
+- name: Gather facts about a Fibre Channel Network by name
+  oneview_fc_network_facts:
+    config: "{{ config_file_path }}"
+    name: network name
+
+- debug: var=fc_networks
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| fc_networks   | Has all the OneView facts about the Fibre Channel Networks. |  Always, but can be null. |  complex |
 
 
 #### Notes
