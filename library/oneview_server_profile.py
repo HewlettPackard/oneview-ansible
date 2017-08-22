@@ -175,7 +175,6 @@ created:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils._text import to_native
 import time
 from module_utils.oneview import (OneViewModuleBase,
                                   ServerProfileReplaceNamesByUris,
@@ -350,7 +349,7 @@ class ServerProfileModule(OneViewModuleBase):
         try:
             resource = self.oneview_client.server_profiles.update(profile_with_updates, profile_with_updates['uri'])
         except HPOneViewException as exception:
-            error_msg = '; '.join(to_native(e) for e in exception.args)
+            error_msg = '; '.join(str(e) for e in exception.args)
             power_on_msg = 'Some server profile attributes cannot be changed while the server hardware is powered on.'
             if power_on_msg in error_msg:
                 time.sleep(10)
