@@ -288,7 +288,7 @@ class ServerProfileModule(OneViewModuleBase):
             self.__validations_for_os_custom_attributes(data, merged_data, resource)
 
             if not ResourceComparator.compare(resource, merged_data):
-                resource = self.__update_server_profile(merged_data)
+                resource = self.__update_server_profile(merged_data, resource)
                 changed = True
                 msg = self.MSG_UPDATED
             else:
@@ -334,19 +334,36 @@ class ServerProfileModule(OneViewModuleBase):
                 matches.append(position)
         return matches
 
-    def __update_server_profile(self, profile_with_updates):
+    def __update_server_profile(self, profile_with_updates, original_profile):
         logger.debug(msg="Updating Server Profile")
 
-        if profile_with_updates.get('serverHardwareUri'):
-            logger.debug("Power off the server hardware before update")
-            self.__set_server_hardware_power_state(profile_with_updates['serverHardwareUri'], 'Off')
+        # These removes are necessary in case SH associated to the SP is being changed
+        if self.data.get('enclosureUri') is None:
+            profile_with_updates.pop('enclosureUri', None)
+        if self.data.get('enclosureBay') is None:
+            profile_with_updates.pop('enclosureBay', None)
 
-        resource = self.oneview_client.server_profiles.update(profile_with_updates, profile_with_updates['uri'])
+        # Some specific SP operations require the SH to be powered off. This method attempts
+        # the update, and in case of failure mentioning powering off the SH, a Power off on
+        # the SH is attempted, followed by the update operation again and a Power On.
+        try:
+            resource = self.oneview_client.server_profiles.update(profile_with_updates, profile_with_updates['uri'])
+        except HPOneViewException as exception:
+            error_msg = '; '.join(str(e) for e in exception.args)
+            power_on_msg = 'Some server profile attributes cannot be changed while the server hardware is powered on.'
+            if power_on_msg in error_msg:
+                time.sleep(10)
+                logger.debug("Update failed due to powered on Server Hardware. Powering off before retrying.")
+                self.__set_server_hardware_power_state(original_profile['serverHardwareUri'], 'Off')
 
-        if profile_with_updates.get('serverHardwareUri'):
-            logger.debug("Power on the server hardware after update")
-            self.__set_server_hardware_power_state(profile_with_updates['serverHardwareUri'], 'On')
+                logger.debug("Retrying update operation after server power off")
+                resource = self.oneview_client.server_profiles.update(profile_with_updates,
+                                                                      profile_with_updates['uri'])
 
+                logger.debug("Powering on the server hardware after update")
+                self.__set_server_hardware_power_state(profile_with_updates['serverHardwareUri'], 'On')
+            else:
+                raise HPOneViewException(error_msg)
         return resource
 
     def __create_profile(self, data, server_profile_template):
