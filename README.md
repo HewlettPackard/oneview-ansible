@@ -149,20 +149,30 @@ In this case, you shouldn't provide the `config` argument. For example:
 
 Once you have defined the environment variables, you can run the plays.
 
-### 4. OneView 3.0
+### 4. ### Setting your OneView version
 
-The Ansible Modules for HPE OneView already supports the new API endpoints for OneView 3.0 and for HPE Synergy.
-To access this feature, you must set the API version on the OneViewClient configuration, either using the JSON configuration:
+The Ansible modules for HPE OneView support the API endpoints for HPE OneView 2.0, 3.0 and 3.10.
+
+The current `default` HPE OneView version used by the modules is `3.00`, API `300`.
+
+To use a different API, you must set the API version together with your credentials, either using the JSON configuration:
 
 ```json
-  "api_version": 300
+"api_version": 500
 ```
 OR using the Environment variable:
 
 ```bash
-export ONEVIEWSDK_API_VERSION='300'
+export ONEVIEWSDK_API_VERSION='500'
 ```
 
+If this property is not specified, it will fall back to the ```300``` default value.
+
+The API list is as follows:
+
+- HPE OneView 2.0 API version: `200`
+- HPE OneView 3.0 API version: `300`
+- HPE OneView 3.10 API version: `500`
 
 ### 5. HPE Synergy Image Streamer
 
