@@ -111,7 +111,7 @@ exit_code_playbook_validation=$?
 
 echo -e "\n${COLOR_START}Running flake8${COLOR_END}"
 if hash flake8 2>/dev/null; then
-  flake8 library test --max-line-length=120 --ignore=F401,E402,F403,F405
+  flake8 library test --max-line-length=160 --ignore=F401,E402,F403,F405
   exit_code_flake8=$?
 else
   echo "ERROR:flake8 is not installed."

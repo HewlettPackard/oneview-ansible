@@ -179,8 +179,7 @@ class StorageSystemFactsModule(OneViewModuleBase):
     def __init__(self):
         argument_spec = dict(
             name=dict(required=False, type='str'),
-            ip_hostname=dict(required=False, type='str'),
-            hostname=dict(required=False, type='str'),
+            storage_hostname=dict(required=False, type='str'),
             options=dict(required=False, type='list'),
             params=dict(required=False, type='dict'),
         )
@@ -197,10 +196,8 @@ class StorageSystemFactsModule(OneViewModuleBase):
         else:
             get_method = self.oneview_client.storage_systems.get_by_ip_hostname
 
-        if self.module.params.get('ip_hostname'):
-            storage_systems = get_method(self.module.params['ip_hostname'])
-        elif self.module.params.get('hostname'):
-            storage_systems = get_method(self.module.params['hostname'])
+        if self.module.params.get('storage_hostname'):
+            storage_systems = get_method(self.module.params['storage_hostname'])
         elif self.module.params.get('name'):
             storage_systems = self.oneview_client.storage_systems.get_by_name(self.module.params['name'])
         else:

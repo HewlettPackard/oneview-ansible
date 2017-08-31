@@ -60,6 +60,14 @@ class OneViewModuleBaseSpec(unittest.TestCase):
                        'name': 'Resource Name'
                        }
 
+    EXPECTED_ARG_SPEC = {'api_version': {'type': u'int'},
+                         'config': {'type': 'path'},
+                         'hostname': {'type': 'str'},
+                         'image_streamer_hostname': {'type': 'str'},
+                         'password': {'type': 'str'},
+                         'username': {'type': 'str'},
+                         'validate_etag': {'default': True, 'required': False, 'type': 'bool'}}
+
     def setUp(self):
         # Define OneView Client Mock (FILE)
         patcher_json_file = mock.patch.object(OneViewClient, 'from_json_file')
@@ -150,9 +158,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         self.mock_ansible_module.params['validate_etag'] = True
 
         OneViewModuleBase(validate_etag_support=True).run()
-        expected_arg_spec = {'config': {'required': False, 'type': 'str'},
-                             'validate_etag': {'default': True, 'required': False, 'type': 'bool'}}
-        self.mock_ansible_module_init.assert_called_once_with(argument_spec=expected_arg_spec,
+        self.mock_ansible_module_init.assert_called_once_with(argument_spec=self.EXPECTED_ARG_SPEC,
                                                               supports_check_mode=False)
         self.mock_ov_client.connection.enable_etag_validation.not_been_called()
         self.mock_ov_client.connection.disable_etag_validation.not_been_called()
@@ -162,9 +168,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         self.mock_ansible_module.params['validate_etag'] = False
 
         OneViewModuleBase(validate_etag_support=True).run()
-        expected_arg_spec = {'config': {'required': False, 'type': 'str'},
-                             'validate_etag': {'default': True, 'required': False, 'type': 'bool'}}
-        self.mock_ansible_module_init.assert_called_once_with(argument_spec=expected_arg_spec,
+        self.mock_ansible_module_init.assert_called_once_with(argument_spec=self.EXPECTED_ARG_SPEC,
                                                               supports_check_mode=False)
         self.mock_ov_client.connection.enable_etag_validation.not_been_called()
         self.mock_ov_client.connection.disable_etag_validation.assert_called_once()
@@ -175,7 +179,8 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         OneViewModuleBase(validate_etag_support=False).run()
 
-        expected_arg_spec = {'config': {'required': False, 'type': 'str'}}
+        expected_arg_spec = deepcopy(self.EXPECTED_ARG_SPEC)
+        expected_arg_spec.pop('validate_etag')
         self.mock_ansible_module_init.assert_called_once_with(argument_spec=expected_arg_spec,
                                                               supports_check_mode=False)
 
@@ -187,8 +192,9 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         OneViewModuleBase(validate_etag_support=False, additional_arg_spec={'options': 'list'})
 
-        expected_arg_spec = {'config': {'required': False, 'type': 'str'},
-                             'options': 'list'}
+        expected_arg_spec = deepcopy(self.EXPECTED_ARG_SPEC)
+        expected_arg_spec.pop('validate_etag')
+        expected_arg_spec['options'] = 'list'
 
         self.mock_ansible_module_init.assert_called_once_with(argument_spec=expected_arg_spec,
                                                               supports_check_mode=False)
