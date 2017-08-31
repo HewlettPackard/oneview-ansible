@@ -37,10 +37,10 @@
 
     - debug: var=storage_systems
 
-    - name: Gather facts about a Storage System by IP (ip_hostname)
+    - name: Gather facts about a Storage System by IP (storage_hostname)
       oneview_storage_system_facts:
         config: "{{ config }}"
-        ip_hostname: "{{ storage_system_ip }}"
+        storage_hostname: "{{ storage_system_ip }}"
       delegate_to: localhost
 
     - debug: var=storage_systems
@@ -48,7 +48,7 @@
     - name: Gather facts about a Storage System by IP (hostname)
       oneview_storage_system_facts:
         config: "{{ config }}"
-        hostname: "{{ storage_system_ip }}"
+        storage_hostname: "{{ storage_system_ip }}"
       delegate_to: localhost
 
     - debug: var=storage_systems
@@ -83,7 +83,7 @@
     - name: Gather queried facts about Storage System reachable ports
       oneview_storage_system_facts:
         config: "{{ config }}"
-        hostname: "{{ storage_system_ip }}"
+        storage_hostname: "{{ storage_system_ip }}"
         options:
             - reachablePorts
         params:
@@ -97,7 +97,7 @@
     - name: Gather facts about the Storage System storage templates
       oneview_storage_system_facts:
         config: "{{ config }}"
-        hostname: "{{ storage_system_ip }}"
+        storage_hostname: "{{ storage_system_ip }}"
         options:
           - templates
         params:

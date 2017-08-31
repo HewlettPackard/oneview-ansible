@@ -1,5 +1,6 @@
 # v4.0.1
 #### Bug fixes & Enhancements
+- [#172](https://github.com/HewlettPackard/oneview-ansible/issues/172) Allow credentials to be defined inside the playbooks
 - [#282](https://github.com/HewlettPackard/oneview-ansible/issues/282) Updating a Server Profile causes Server Hardware reboots for operations which do not require it
 
 # v4.0.0

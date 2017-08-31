@@ -144,6 +144,25 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         self.mock_ov_client_from_env_vars.assert_called_once()
         self.mock_ov_client_from_json_file.not_been_called()
 
+    def test_should_load_config_from_parameters(self):
+
+        self.mock_ansible_module.params = {'hostname': '172.16.1.1',
+                                           'username': 'admin',
+                                           'password': 'mypass',
+                                           'api_version': 500,
+                                           'image_streamer_hostname': '172.16.1.2'}
+
+        patcher = mock.patch('module_utils.oneview.OneViewClient', first='one', second='two')
+
+        self.addCleanup(patcher.stop)
+        self.mock_ov_client_from_credentials = patcher.start()
+
+        OneViewModuleBase()
+
+        self.mock_ov_client_from_env_vars.not_been_called()
+        self.mock_ov_client_from_json_file.not_been_called()
+        self.mock_ov_client_from_credentials.assert_called_once()
+
     def test_should_call_fail_json_when_oneview_sdk_not_installed(self):
         self.mock_ansible_module.params = {'config': 'config.json'}
 
