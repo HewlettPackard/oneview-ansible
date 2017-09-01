@@ -34,12 +34,12 @@ PARAMS_GET_BY_NAME = dict(
 
 PARAMS_GET_BY_IP_HOSTNAME = dict(
     config='config.json',
-    ip_hostname='10.0.0.0'
+    storage_hostname='10.0.0.0'
 )
 
 PARAMS_GET_BY_HOSTNAME = dict(
     config='config.json',
-    hostname='10.0.0.0'
+    storage_hostname='10.0.0.0'
 )
 
 PARAMS_GET_HOST_TYPES = dict(
@@ -49,13 +49,13 @@ PARAMS_GET_HOST_TYPES = dict(
 
 PARAMS_GET_REACHABLE_PORTS = dict(
     config='config.json',
-    hostname='10.0.0.0',
+    storage_hostname='10.0.0.0',
     options=["reachablePorts"]
 )
 
 PARAMS_GET_TEMPLATES = dict(
     config='config.json',
-    hostname='10.0.0.0',
+    storage_hostname='10.0.0.0',
     options=["templates"]
 )
 
@@ -72,7 +72,7 @@ PARAMS_GET_POOL_BY_NAME = dict(
 
 PARAMS_GET_POOL_BY_IP_HOSTNAME = dict(
     config='config.json',
-    ip_hostname='10.0.0.0',
+    storage_hostname='10.0.0.0',
     options=["storagePools"]
 )
 
@@ -109,7 +109,7 @@ class StorageSystemFactsSpec(unittest.TestCase,
 
     def test_should_get_storage_system_by_ip_hostname(self):
         self.storage_systems.get_by_ip_hostname.return_value = {"ip_hostname": "10.0.0.0"}
-        self.mock_ansible_module.params = PARAMS_GET_BY_IP_HOSTNAME
+        self.mock_ansible_module.params = PARAMS_GET_BY_HOSTNAME
 
         StorageSystemFactsModule().run()
 

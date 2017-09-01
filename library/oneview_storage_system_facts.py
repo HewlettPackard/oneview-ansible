@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 ###
 # Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
@@ -16,34 +15,28 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
 module: oneview_storage_system_facts
-short_description: Retrieve facts about the OneView Storage Systems.
+short_description: Retrieve facts about the OneView Storage Systems
 description:
     - Retrieve facts about the Storage Systems from OneView.
-version_added: "2.3"
+version_added: "2.5"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 4.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
-    ip_hostname:
+    storage_hostname:
       description:
         - Storage System IP or hostname.
-      required: false
-    hostname:
-      description:
-        - Storage System IP or hostname.
-      required: false
     name:
       description:
         - Storage System name.
-      required: false
     options:
       description:
         - "List with options to gather additional facts about a Storage System and related resources.
@@ -55,7 +48,6 @@ options:
           C(templates) gets a list of storage templates belonging to the storage system."
         - "To gather facts about C(storagePools), C(reachablePorts), and C(templates) it is required to inform
             either the argument C(name), C(ip_hostname), or C(hostname). Otherwise, this option will be ignored."
-      required: false
 extends_documentation_fragment:
     - oneview
     - oneview.factsparams
@@ -148,27 +140,27 @@ RETURN = '''
 storage_systems:
     description: Has all the OneView facts about the Storage Systems.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 storage_system_host_types:
     description: Has all the OneView facts about the supported host types.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 storage_system_pools:
     description: Has all the OneView facts about the Storage Systems - Storage Pools.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 storage_system_reachable_ports:
     description: Has all the OneView facts about the Storage Systems reachable ports.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 storage_system_templates:
     description: Has all the OneView facts about the Storage Systems - Storage Templates.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -178,11 +170,10 @@ from module_utils.oneview import OneViewModuleBase
 class StorageSystemFactsModule(OneViewModuleBase):
     def __init__(self):
         argument_spec = dict(
-            name=dict(required=False, type='str'),
-            ip_hostname=dict(required=False, type='str'),
-            hostname=dict(required=False, type='str'),
-            options=dict(required=False, type='list'),
-            params=dict(required=False, type='dict'),
+            name=dict(type='str'),
+            options=dict(type='list'),
+            params=dict(type='dict'),
+            storage_hostname=dict(type='str')
         )
 
         super(StorageSystemFactsModule, self).__init__(additional_arg_spec=argument_spec)
@@ -197,10 +188,8 @@ class StorageSystemFactsModule(OneViewModuleBase):
         else:
             get_method = self.oneview_client.storage_systems.get_by_ip_hostname
 
-        if self.module.params.get('ip_hostname'):
-            storage_systems = get_method(self.module.params['ip_hostname'])
-        elif self.module.params.get('hostname'):
-            storage_systems = get_method(self.module.params['hostname'])
+        if self.module.params.get('storage_hostname'):
+            storage_systems = get_method(self.module.params['storage_hostname'])
         elif self.module.params.get('name'):
             storage_systems = self.oneview_client.storage_systems.get_by_name(self.module.params['name'])
         else:

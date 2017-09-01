@@ -149,7 +149,32 @@ In this case, you shouldn't provide the `config` argument. For example:
 
 Once you have defined the environment variables, you can run the plays.
 
-### 4. ### Setting your OneView version
+#### Parameters in the playbook
+
+The third way to pass in your HPE OneView credentials to your tasks is through explicit specification on the task.
+
+This option allows the parameters `hostname`, `username`, `password`, `api_version` and `image_streamer_hostname` to be passed directly inside your task.
+
+```yaml
+- name: Create a Fibre Channel Network
+  oneview_fc_network:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+    state: present
+    data:
+      name: "{{ network_name }}"
+      fabricType: 'FabricAttach'
+      linkStabilityTime: '30'
+      autoLoginRedistribution: true
+  no_log: true
+  delegate_to: localhost
+```
+
+Setting `no_log: true` is highly recommended in this case, as the credentials are otherwise returned in the log after task completion.
+
+### 4. Setting your OneView version
 
 The Ansible modules for HPE OneView support the API endpoints for HPE OneView 2.0, 3.0 and 3.10.
 

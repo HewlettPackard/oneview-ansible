@@ -53,7 +53,12 @@ class OneViewModuleBase(object):
     HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
     ONEVIEW_COMMON_ARGS = dict(
-        config=dict(required=False, type='str')
+        api_version=dict(type='int'),
+        config=dict(type='path'),
+        hostname=dict(type='str'),
+        image_streamer_hostname=dict(type='str'),
+        password=dict(type='str'),
+        username=dict(type='str')
     )
 
     ONEVIEW_VALIDATE_ETAG_ARGS = dict(
@@ -74,12 +79,12 @@ class OneViewModuleBase(object):
             validate_etag_support (bool): Enables support to eTag validation.
         """
 
-        argument_spec = self.__build_argument_spec(additional_arg_spec, validate_etag_support)
+        argument_spec = self._build_argument_spec(additional_arg_spec, validate_etag_support)
 
         self.module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
 
-        self.__check_hpe_oneview_sdk()
-        self.__create_oneview_client()
+        self._check_hpe_oneview_sdk()
+        self._create_oneview_client()
 
         self.state = self.module.params.get('state')
         self.data = self.module.params.get('data')
@@ -92,7 +97,7 @@ class OneViewModuleBase(object):
 
         self.validate_etag_support = validate_etag_support
 
-    def __build_argument_spec(self, additional_arg_spec, validate_etag_support):
+    def _build_argument_spec(self, additional_arg_spec, validate_etag_support):
 
         merged_arg_spec = dict()
         merged_arg_spec.update(self.ONEVIEW_COMMON_ARGS)
@@ -105,12 +110,18 @@ class OneViewModuleBase(object):
 
         return merged_arg_spec
 
-    def __check_hpe_oneview_sdk(self):
+    def _check_hpe_oneview_sdk(self):
         if not HAS_HPE_ONEVIEW:
             self.module.fail_json(msg=self.HPE_ONEVIEW_SDK_REQUIRED)
 
-    def __create_oneview_client(self):
-        if not self.module.params['config']:
+    def _create_oneview_client(self):
+        if self.module.params.get('hostname'):
+            config = dict(ip=self.module.params['hostname'],
+                          credentials=dict(userName=self.module.params['username'], password=self.module.params['password']),
+                          api_version=self.module.params['api_version'],
+                          image_streamer_ip=self.module.params['image_streamer_hostname'])
+            self.oneview_client = OneViewClient(config)
+        elif not self.module.params['config']:
             self.oneview_client = OneViewClient.from_environment_variables()
         else:
             self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
@@ -718,17 +729,17 @@ class ServerProfileReplaceNamesByUris(object):
 
     def replace(self, oneview_client, data):
         self.oneview_client = oneview_client
-        self.__replace_os_deployment_name_by_uri(data)
-        self.__replace_enclosure_group_name_by_uri(data)
-        self.__replace_networks_name_by_uri(data)
-        self.__replace_server_hardware_type_name_by_uri(data)
-        self.__replace_volume_attachment_names_by_uri(data)
-        self.__replace_enclosure_name_by_uri(data)
-        self.__replace_interconnect_name_by_uri(data)
-        self.__replace_firmware_baseline_name_by_uri(data)
-        self.__replace_sas_logical_jbod_name_by_uri(data)
+        self._replace_os_deployment_name_by_uri(data)
+        self._replace_enclosure_group_name_by_uri(data)
+        self._replace_networks_name_by_uri(data)
+        self._replace_server_hardware_type_name_by_uri(data)
+        self._replace_volume_attachment_names_by_uri(data)
+        self._replace_enclosure_name_by_uri(data)
+        self._replace_interconnect_name_by_uri(data)
+        self._replace_firmware_baseline_name_by_uri(data)
+        self._replace_sas_logical_jbod_name_by_uri(data)
 
-    def __replace_name_by_uri(self, data, attr_name, message, resource_client):
+    def _replace_name_by_uri(self, data, attr_name, message, resource_client):
         attr_uri = attr_name.replace("Name", "Uri")
         if attr_name in data:
             name = data.pop(attr_name)
@@ -737,66 +748,66 @@ class ServerProfileReplaceNamesByUris(object):
                 raise HPOneViewResourceNotFound(message + name)
             data[attr_uri] = resource_by_name[0]['uri']
 
-    def __replace_os_deployment_name_by_uri(self, data):
+    def _replace_os_deployment_name_by_uri(self, data):
         if SPKeys.OS_DEPLOYMENT in data and data[SPKeys.OS_DEPLOYMENT]:
-            self.__replace_name_by_uri(data[SPKeys.OS_DEPLOYMENT], 'osDeploymentPlanName',
-                                       self.SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND,
-                                       self.oneview_client.os_deployment_plans)
+            self._replace_name_by_uri(data[SPKeys.OS_DEPLOYMENT], 'osDeploymentPlanName',
+                                      self.SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND,
+                                      self.oneview_client.os_deployment_plans)
 
-    def __replace_enclosure_group_name_by_uri(self, data):
-        self.__replace_name_by_uri(data, 'enclosureGroupName', self.SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND,
-                                   self.oneview_client.enclosure_groups)
+    def _replace_enclosure_group_name_by_uri(self, data):
+        self._replace_name_by_uri(data, 'enclosureGroupName', self.SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND,
+                                  self.oneview_client.enclosure_groups)
 
-    def __replace_networks_name_by_uri(self, data):
+    def _replace_networks_name_by_uri(self, data):
         if SPKeys.CONNECTIONS in data and data[SPKeys.CONNECTIONS]:
             for connection in data[SPKeys.CONNECTIONS]:
                 if 'networkName' in connection:
                     name = connection.pop('networkName', None)
-                    connection['networkUri'] = self.__get_network_by_name(name)['uri']
+                    connection['networkUri'] = self._get_network_by_name(name)['uri']
 
-    def __replace_server_hardware_type_name_by_uri(self, data):
-        self.__replace_name_by_uri(data, 'serverHardwareTypeName', self.SERVER_HARDWARE_TYPE_NOT_FOUND,
-                                   self.oneview_client.server_hardware_types)
+    def _replace_server_hardware_type_name_by_uri(self, data):
+        self._replace_name_by_uri(data, 'serverHardwareTypeName', self.SERVER_HARDWARE_TYPE_NOT_FOUND,
+                                  self.oneview_client.server_hardware_types)
 
-    def __replace_volume_attachment_names_by_uri(self, data):
+    def _replace_volume_attachment_names_by_uri(self, data):
         volume_attachments = (data.get('sanStorage') or {}).get('volumeAttachments') or []
         if len(volume_attachments) > 0:
             for volume in volume_attachments:
                 if volume.get('volumeUri', 'Replace'):
-                    self.__replace_name_by_uri(volume, 'volumeName', self.VOLUME_NOT_FOUND, self.oneview_client.volumes)
+                    self._replace_name_by_uri(volume, 'volumeName', self.VOLUME_NOT_FOUND, self.oneview_client.volumes)
                 else:
                     logger.debug("The volumeUri is null in the volumeAttachments list, it will be understood "
                                  "that the volume does not exist, so it will be created along with the server "
                                  "profile. Be warned that it will always trigger a new creation, so it will not "
                                  " be idempotent.")
-                self.__replace_name_by_uri(volume, 'volumeStoragePoolName', self.STORAGE_POOL_NOT_FOUND,
-                                           self.oneview_client.storage_pools)
-                self.__replace_name_by_uri(volume, 'volumeStorageSystemName', self.STORAGE_SYSTEM_NOT_FOUND,
-                                           self.oneview_client.storage_systems)
+                self._replace_name_by_uri(volume, 'volumeStoragePoolName', self.STORAGE_POOL_NOT_FOUND,
+                                          self.oneview_client.storage_pools)
+                self._replace_name_by_uri(volume, 'volumeStorageSystemName', self.STORAGE_SYSTEM_NOT_FOUND,
+                                          self.oneview_client.storage_systems)
 
-    def __replace_enclosure_name_by_uri(self, data):
-        self.__replace_name_by_uri(data, 'enclosureName', self.ENCLOSURE_NOT_FOUND, self.oneview_client.enclosures)
+    def _replace_enclosure_name_by_uri(self, data):
+        self._replace_name_by_uri(data, 'enclosureName', self.ENCLOSURE_NOT_FOUND, self.oneview_client.enclosures)
 
-    def __replace_interconnect_name_by_uri(self, data):
+    def _replace_interconnect_name_by_uri(self, data):
         connections = data.get('connections') or []
         if len(connections) > 0:
             for connection in connections:
-                self.__replace_name_by_uri(connection, 'interconnectName', self.INTERCONNECT_NOT_FOUND,
-                                           self.oneview_client.interconnects)
+                self._replace_name_by_uri(connection, 'interconnectName', self.INTERCONNECT_NOT_FOUND,
+                                          self.oneview_client.interconnects)
 
-    def __replace_firmware_baseline_name_by_uri(self, data):
+    def _replace_firmware_baseline_name_by_uri(self, data):
         firmware = data.get('firmware') or {}
-        self.__replace_name_by_uri(firmware, 'firmwareBaselineName', self.FIRMWARE_DRIVER_NOT_FOUND,
-                                   self.oneview_client.firmware_drivers)
+        self._replace_name_by_uri(firmware, 'firmwareBaselineName', self.FIRMWARE_DRIVER_NOT_FOUND,
+                                  self.oneview_client.firmware_drivers)
 
-    def __replace_sas_logical_jbod_name_by_uri(self, data):
+    def _replace_sas_logical_jbod_name_by_uri(self, data):
         sas_logical_jbods = (data.get('localStorage') or {}).get('sasLogicalJBODs') or []
         if len(sas_logical_jbods) > 0:
             for jbod in sas_logical_jbods:
-                self.__replace_name_by_uri(jbod, 'sasLogicalJBODName', self.SAS_LOGICAL_JBOD_NOT_FOUND,
-                                           self.oneview_client.sas_logical_jbods)
+                self._replace_name_by_uri(jbod, 'sasLogicalJBODName', self.SAS_LOGICAL_JBOD_NOT_FOUND,
+                                          self.oneview_client.sas_logical_jbods)
 
-    def __get_network_by_name(self, name):
+    def _get_network_by_name(self, name):
         fc_networks = self.oneview_client.fc_networks.get_by('name', name)
         if fc_networks:
             return fc_networks[0]
