@@ -51,7 +51,7 @@
       oneview_server_profile:
         config: "{{ config }}"
         data:
-          server_template: "{{ ov_template }}"
+          serverProfileTemplateName: "{{ ov_template }}"
           name: "{{ inventory_hostname }}"
       delegate_to: localhost
       register: result
@@ -140,6 +140,17 @@
       delegate_to: localhost
 
     - debug: var=server_profile
+
+    - name: Unassign Server Hardware from Server Profile
+      oneview_server_profile:
+        config: "{{ config }}"
+        # This is required for unassigning a SH, or creating a SP and not auto-assigning a SH
+        auto_assign_server_hardware: False
+        data:
+          name: "{{ inventory_hostname }}"
+          # Specify a blank serverHardwareName or serverHardwareUri when auto_assign_server_hardware is False to unassign a SH
+          serverHardwareName:
+      delegate_to: localhost
 
     - name: Delete the Server Profile
       oneview_server_profile:

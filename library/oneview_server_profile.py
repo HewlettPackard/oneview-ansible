@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
 ###
 # Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
@@ -16,21 +15,23 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
 module: oneview_server_profile
-short_description: Manage OneView Server Profile resources.
+short_description: Manage OneView Server Profile resources
 description:
     - Manage the servers lifecycle with OneView Server Profiles. On C(present) state, it selects a server hardware
       automatically based on the server profile configuration if no server hardware was provided.
-version_added: "2.3"
+version_added: "2.5"
 requirements:
-    - "python >= 2.7.9"
-    - "hpOneView >= 4.0.0"
+    - hpOneView >= 4.0.0
 author:
     - "Chakravarthy Racharla"
     - "Camila Balestrin (@balestrinc)"
@@ -51,6 +52,15 @@ options:
     description:
       - List with Server Profile properties.
     required: true
+  auto_assign_server_hardware:
+    description:
+      - Bool indicating whether or not a Server Hardware should be automatically retrieved and assigned to the Server Profile.
+        When set to true, creates and updates try to ensure that an available Server Hardware is assigned to the Server Profile.
+        When set to false, if no Server Hardware is specified during creation, the profile is created as 'unassigned'. If the
+        profile already has a Server Hardware assigned to it and a serverHardwareName or serverHardwareUri is specified as None,
+        the Server Profile will have its Server Hardware unassigned.
+    default: True
+    choices: [True, False]
 notes:
     - "For the following data, you can provide either a name or a URI: enclosureGroupName or enclosureGroupUri,
        osDeploymentPlanName or osDeploymentPlanUri (on the osDeploymentSettings), networkName or networkUri (on the
@@ -73,8 +83,8 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Create a Server Profile from a Server Profile Template with automatically selected hardware
   oneview_server_profile:
-    config: "{{ config }}"
-    state: "present"
+    config: /etc/oneview/oneview_config.json
+    state: present
     data:
         name: Web-Server-L2
         # You can choose either server_template or serverProfileTemplateUri to inform the Server Profile Template
@@ -82,38 +92,39 @@ EXAMPLES = '''
         server_template: Compute-node-template
         # You can inform a server_hardware or a serverHardwareUri. If any hardware was informed, it will try
         # get one available automatically
-        # server_hardware: "Encl1, bay 12"
-        # serverHardwareUri: "/rest/server-hardware/30303437-3933-4753-4831-30335835524E"
+        # server_hardware: Encl1, bay 12
+        # serverHardwareUri: /rest/server-hardware/30303437-3933-4753-4831-30335835524E
 
         # You can choose either serverHardwareTypeUri or serverHardwareTypeName to inform the Server Hardware Type
-        # serverHardwareTypeUri: '/rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C'
-        # serverHardwareTypeName: 'SY 480 Gen9 1'
+        # serverHardwareTypeUri: /rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C
+        # serverHardwareTypeName: SY 480 Gen9 1
         # You can choose either enclosureName or enclosureUri to inform the Enclosure
-        # enclosureUri: '/rest/enclosures/09SGH100Z6J1'
-        enclosureName: '0000A66102'
+        # enclosureUri: /rest/enclosures/09SGH100Z6J1
+        enclosureName: 0000A66102
         sanStorage:
-          hostOSType: 'Windows 2012 / WS2012 R2'
+          hostOSType: Windows 2012 / WS2012 R2
           manageSanStorage: true
           volumeAttachments:
             - id: 1
               # You can choose either volumeName or volumeUri to inform the Volumes
-              # volumeName: 'DemoVolume001'
-              volumeUri: '/rest/storage-volumes/BCAB376E-DA2E-450D-B053-0A9AE7E5114C'
+              # volumeName: DemoVolume001
+              volumeUri: /rest/storage-volumes/BCAB376E-DA2E-450D-B053-0A9AE7E5114C
               # You can choose either volumeStoragePoolUri or volumeStoragePoolName to inform the Volume Storage Pool
-              # volumeStoragePoolName: 'FST_CPG2'
-              volumeStoragePoolUri: '/rest/storage-pools/30303437-3933-4753-4831-30335835524E'
+              # volumeStoragePoolName: FST_CPG2
+              volumeStoragePoolUri: /rest/storage-pools/30303437-3933-4753-4831-30335835524E
               # You can choose either volumeStorageSystemUri or volumeStorageSystemName to inform the Volume Storage
               # System
-              # volumeStorageSystemName: 'ThreePAR7200-2127'
-              volumeStorageSystemUri: '/rest/storage-systems/TXQ1000307'
+              # volumeStorageSystemName: ThreePAR7200-2127
+              volumeStorageSystemUri: /rest/storage-systems/TXQ1000307
               lunType: 'Auto'
               storagePaths:
                 - isEnabled: true
                   connectionId: 1
-                  storageTargetType: 'Auto'
+                  storageTargetType: Auto
                 - isEnabled: true
                   connectionId: 2
-                  storageTargetType: 'Auto'
+                  storageTargetType: Auto
+  delegate_to: localhost
 - debug: var=server_profile
 - debug: var=serial_number
 - debug: var=server_hardware
@@ -122,9 +133,9 @@ EXAMPLES = '''
 
 - name: Create a Server Profile with connections
   oneview_server_profile:
-    config: "{{ config }}"
+    config: /etc/oneview/oneview_config.json
     data:
-      name: "server-profile-with-connections"
+      name: server-profile-with-connections
       connections:
         - id: 1
           name: connection1
@@ -134,48 +145,64 @@ EXAMPLES = '''
           networkName: eth-demo
   delegate_to: localhost
 
+- name: Unassign Server Hardware from Server Profile
+  oneview_server_profile:
+    config: /etc/oneview/oneview_config.json
+    # This is required for unassigning a SH, or creating a SP and not auto-assigning a SH
+    auto_assign_server_hardware: False
+    data:
+      name: server-profile-with-sh
+      # Specify a blank serverHardwareName or serverHardwareUri when auto_assign_server_hardware is False to unassign a SH
+      serverHardwareName:
+  delegate_to: localhost
+
 - name : Remediate compliance issues
   oneview_server_profile:
-     config: "{{ config }}"
-     state: "compliant"
-     data:
+    config: /etc/oneview/oneview_config.json
+    state: compliant
+    data:
         name: Web-Server-L2
+  delegate_to: localhost
 
 - name : Remove the server profile
   oneview_server_profile:
-    config: "{{ config }}"
-    state: "absent"
+    config: /etc/oneview/oneview_config.json
+    state: absent
     data:
         name: Web-Server-L2
+  delegate_to: localhost
 '''
 
 RETURN = '''
 server_profile:
     description: Has the OneView facts about the Server Profile.
     returned: On states 'present' and 'compliant'.
-    type: complex
+    type: dict
 serial_number:
     description: Has the Server Profile serial number.
     returned: On states 'present' and 'compliant'.
-    type: complex
+    type: dict
 server_hardware:
     description: Has the OneView facts about the Server Hardware.
     returned: On states 'present' and 'compliant'.
-    type: complex
+    type: dict
 compliance_preview:
     description:
         Has the OneView facts about the manual and automatic updates required to make the server profile
         consistent with its template.
     returned: On states 'present' and 'compliant'.
-    type: complex
+    type: dict
 created:
     description: Indicates if the Server Profile was created.
     returned: On states 'present' and 'compliant'.
     type: bool
 '''
 
-from ansible.module_utils.basic import AnsibleModule
 import time
+
+from copy import deepcopy
+
+from ansible.module_utils.basic import AnsibleModule
 from module_utils.oneview import (OneViewModuleBase,
                                   ServerProfileReplaceNamesByUris,
                                   HPOneViewValueError,
@@ -184,7 +211,6 @@ from module_utils.oneview import (OneViewModuleBase,
                                   HPOneViewTaskError,
                                   SPKeys,
                                   HPOneViewException)
-from copy import deepcopy
 
 # To activate logs, setup the environment var LOGFILE
 # e.g.: export LOGFILE=/tmp/ansible-oneview.log
@@ -213,16 +239,9 @@ class ServerProfileModule(OneViewModuleBase):
     CONCURRENCY_FAILOVER_RETRIES = 25
 
     argument_spec = dict(
-        state=dict(
-            required=False,
-            choices=[
-                'present',
-                'absent',
-                'compliant'
-            ],
-            default='present'
-        ),
-        data=dict(required=True, type='dict')
+        state=dict(choices=['present', 'absent', 'compliant'], default='present'),
+        data=dict(type='dict', required=True),
+        auto_assign_server_hardware=dict(type='bool', default=True)
     )
 
     def __init__(self):
@@ -230,6 +249,8 @@ class ServerProfileModule(OneViewModuleBase):
                                                   validate_etag_support=True)
 
     def execute_module(self):
+        self.auto_assign_server_hardware = self.module.params.get('auto_assign_server_hardware')
+
         data = deepcopy(self.data)
         server_profile_name = data.get('name')
 
@@ -255,8 +276,8 @@ class ServerProfileModule(OneViewModuleBase):
 
     def __present(self, data, resource):
 
-        server_template_name = data.pop('server_template', '')
-        server_hardware_name = data.pop('server_hardware', '')
+        server_template_name = data.pop('serverProfileTemplateName', '')
+        server_hardware_name = data.pop('serverHardwareName', '')
         server_template = None
         changed = False
         created = False
@@ -283,6 +304,18 @@ class ServerProfileModule(OneViewModuleBase):
             created = True
             msg = self.MSG_CREATED
         else:
+            # This allows unassigning a profile if a SH key is specifically passed in as None
+            if not self.auto_assign_server_hardware:
+                server_hardware_uri_exists = False
+                if 'serverHardwareUri' in self.module.params['data'].keys() or 'serverHardwareName' in self.module.params['data'].keys():
+                    server_hardware_uri_exists = True
+                if data.get('serverHardwareUri') is None and server_hardware_uri_exists:
+                    data['serverHardwareUri'] = None
+
+            # Auto assigns a Server Hardware to Server Profile if auto_assign_server_hardware is True and no SH uris exist
+            if not resource.get('serverHardwareUri') and not data.get('serverHardwareUri') and self.auto_assign_server_hardware:
+                data['serverHardwareUri'] = self._auto_assign_server_profile(data, server_template)
+
             merged_data = ServerProfileMerger().merge_data(resource, data)
 
             self.__validations_for_os_custom_attributes(data, merged_data, resource)
@@ -299,7 +332,9 @@ class ServerProfileModule(OneViewModuleBase):
     # Removes .mac entries from resource os_custom_attributes if no .mac passed into data params.
     # Swaps True values for 'true' string, and False values for 'false' string to avoid common user errors.
     def __validations_for_os_custom_attributes(self, data, merged_data, resource):
-        if not data.get('osDeploymentSettings', {}).get('osCustomAttributes', None):
+        if data.get('osDeploymentSettings') is None:
+            return False
+        elif data.get('osDeploymentSettings').get('osCustomAttributes') is None:
             return False
         attributes_merged = merged_data.get('osDeploymentSettings', {}).get('osCustomAttributes', None)
         attributes_resource = resource.get('osDeploymentSettings', {}).get('osCustomAttributes', None)
@@ -352,9 +387,10 @@ class ServerProfileModule(OneViewModuleBase):
             error_msg = '; '.join(str(e) for e in exception.args)
             power_on_msg = 'Some server profile attributes cannot be changed while the server hardware is powered on.'
             if power_on_msg in error_msg:
-                time.sleep(10)
                 logger.debug("Update failed due to powered on Server Hardware. Powering off before retrying.")
+                time.sleep(10)  # sleep timer to avoid timing issues after update operation failed
                 self.__set_server_hardware_power_state(original_profile['serverHardwareUri'], 'Off')
+                self.__set_server_hardware_power_state(profile_with_updates['serverHardwareUri'], 'Off')
 
                 logger.debug("Retrying update operation after server power off")
                 resource = self.oneview_client.server_profiles.update(profile_with_updates,
@@ -374,12 +410,7 @@ class ServerProfileModule(OneViewModuleBase):
             try:
                 tries += 1
 
-                server_hardware_uri = data.get('serverHardwareUri')
-
-                if not server_hardware_uri:
-                    # find servers that have no profile, mathing Server hardware type and enclosure group
-                    logger.debug(msg="Get an available Server Hardware for the Profile")
-                    server_hardware_uri = self.__get_available_server_hardware_uri(data, server_profile_template)
+                server_hardware_uri = self._auto_assign_server_profile(data, server_profile_template)
 
                 if server_hardware_uri:
                     logger.debug(msg="Power off the Server Hardware before create the Server Profile")
@@ -553,12 +584,23 @@ class ServerProfileModule(OneViewModuleBase):
         return server_hardwares[0] if server_hardwares else None
 
     def __set_server_hardware_power_state(self, hardware_uri, power_state='On'):
-        if power_state == 'On':
-            self.oneview_client.server_hardware.update_power_state(
-                dict(powerState='On', powerControl='MomentaryPress'), hardware_uri)
-        else:
-            self.oneview_client.server_hardware.update_power_state(
-                dict(powerState='Off', powerControl='PressAndHold'), hardware_uri)
+        if hardware_uri is not None:
+            if power_state == 'On':
+                self.oneview_client.server_hardware.update_power_state(
+                    dict(powerState='On', powerControl='MomentaryPress'), hardware_uri)
+            else:
+                self.oneview_client.server_hardware.update_power_state(
+                    dict(powerState='Off', powerControl='PressAndHold'), hardware_uri)
+
+    def _auto_assign_server_profile(self, data, server_profile_template):
+        server_hardware_uri = data.get('serverHardwareUri')
+
+        if not server_hardware_uri and self.auto_assign_server_hardware:
+            # find servers that have no profile, matching Server hardware type and enclosure group
+            logger.debug(msg="Get an available Server Hardware for the Profile")
+            server_hardware_uri = self.__get_available_server_hardware_uri(data, server_profile_template)
+
+        return server_hardware_uri
 
 
 def main():

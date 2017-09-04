@@ -62,10 +62,7 @@ class OneViewModuleBase(object):
     )
 
     ONEVIEW_VALIDATE_ETAG_ARGS = dict(
-        validate_etag=dict(
-            required=False,
-            type='bool',
-            default=True)
+        validate_etag=dict(type='bool', default=True)
     )
 
     resource_client = None

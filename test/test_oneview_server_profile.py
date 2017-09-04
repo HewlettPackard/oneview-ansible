@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 ###
 # Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
@@ -60,12 +58,14 @@ BASIC_TEMPLATE = dict(
 
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
+    auto_assign_server_hardware=True,
     state='present',
     data=BASIC_PROFILE
 )
 
 PARAMS_FOR_UPDATE = dict(
     config='config.json',
+    auto_assign_server_hardware=True,
     state='present',
     data=dict(
         name=SERVER_PROFILE_NAME,
@@ -80,6 +80,7 @@ PARAMS_FOR_UPDATE = dict(
 
 PARAMS_FOR_COMPLIANT = dict(
     config='config.json',
+    auto_assign_server_hardware=True,
     state='compliant',
     data=dict(name="Server-Template-7000")
 )
@@ -333,7 +334,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         profile_from_template = deepcopy(BASIC_PROFILE)
 
         param_for_present = deepcopy(PARAMS_FOR_PRESENT)
-        param_for_present['data']['server_template'] = 'Server-Template-7000'
+        param_for_present['data']['serverProfileTemplateName'] = 'Server-Template-7000'
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.server_profiles.create.return_value = CREATED_BASIC_PROFILE
@@ -396,7 +397,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
         param_for_present = deepcopy(PARAMS_FOR_PRESENT)
-        param_for_present['data']['server_hardware'] = "ServerHardwareName"
+        param_for_present['data']['serverHardwareName'] = "ServerHardwareName"
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.server_profiles.create.return_value = CREATED_BASIC_PROFILE
@@ -420,8 +421,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
         profile_from_template = deepcopy(BASIC_PROFILE)
 
         param_for_present = deepcopy(PARAMS_FOR_PRESENT)
-        param_for_present['data']['server_hardware'] = "ServerHardwareName"
-        param_for_present['data']['server_template'] = "TemplateA200"
+        param_for_present['data']['serverHardwareName'] = "ServerHardwareName"
+        param_for_present['data']['serverProfileTemplateName'] = "TemplateA200"
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.server_profiles.create.return_value = CREATED_BASIC_PROFILE
@@ -449,7 +450,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
     def test_should_try_create_with_informed_hardware_25_times_when_not_exists(self):
         param_for_present = deepcopy(PARAMS_FOR_PRESENT)
-        param_for_present['data']['server_hardware'] = "ServerHardwareName"
+        param_for_present['data']['serverHardwareName'] = "ServerHardwareName"
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.server_profiles.create.side_effect = TASK_ERROR
@@ -473,7 +474,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
         params_for_present = deepcopy(PARAMS_FOR_PRESENT)
-        params_for_present['data']['server_hardware'] = "ServerHardwareName"
+        params_for_present['data']['serverHardwareName'] = "ServerHardwareName"
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.server_profiles.create.side_effect = [TASK_ERROR, CREATED_BASIC_PROFILE]
@@ -553,8 +554,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
     def test_fail_when_informed_template_not_exist_for_creation(self):
         params_for_present = deepcopy(PARAMS_FOR_PRESENT)
-        params_for_present['data']['server_hardware'] = "ServerHardwareName"
-        params_for_present['data']['server_template'] = "TemplateA200"
+        params_for_present['data']['serverHardwareName'] = "ServerHardwareName"
+        params_for_present['data']['serverProfileTemplateName'] = "TemplateA200"
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
@@ -568,8 +569,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
     def test_fail_when_informed_hardware_not_exist_for_creation(self):
         params_for_present = deepcopy(PARAMS_FOR_PRESENT)
-        params_for_present['data']['server_hardware'] = "ServerHardwareName"
-        params_for_present['data']['server_template'] = "TemplateA200"
+        params_for_present['data']['serverHardwareName'] = "ServerHardwareName"
+        params_for_present['data']['serverProfileTemplateName'] = "TemplateA200"
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
         self.mock_ov_client.server_hardware.get_by.return_value = None
@@ -1393,9 +1394,10 @@ class ServerProfileModuleSpec(unittest.TestCase,
     @mock.patch.object(ResourceComparator, 'compare')
     def test_should_update_when_data_changed(self, mock_resource_compare):
         profile_data = deepcopy(BASIC_PROFILE)
+        profile_data['serverHardwareUri'] = None
         mock_resource_compare.return_value = False
 
-        self.mock_ov_client.server_profiles.get_by_name.return_value = profile_data
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.server_profiles.update.return_value = CREATED_BASIC_PROFILE
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
@@ -1498,8 +1500,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
         profile_data = deepcopy(CREATED_BASIC_PROFILE)
 
         params_for_present = deepcopy(PARAMS_FOR_PRESENT)
-        params_for_present['data']['server_hardware'] = "ServerHardwareName"
-        params_for_present['data']['server_template'] = "TemplateA200"
+        params_for_present['data']['serverHardwareName'] = "ServerHardwareName"
+        params_for_present['data']['serverProfileTemplateName'] = "TemplateA200"
 
         mock_resource_compare.return_value = False
 
@@ -1519,8 +1521,8 @@ class ServerProfileModuleSpec(unittest.TestCase,
         profile_data = deepcopy(CREATED_BASIC_PROFILE)
 
         params_for_present = deepcopy(PARAMS_FOR_PRESENT)
-        params_for_present['data']['server_hardware'] = "ServerHardwareName"
-        params_for_present['data']['server_template'] = "TemplateA200"
+        params_for_present['data']['serverHardwareName'] = "ServerHardwareName"
+        params_for_present['data']['serverProfileTemplateName'] = "TemplateA200"
 
         mock_resource_compare.return_value = False
 
@@ -1539,6 +1541,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
     @mock.patch.object(ServerProfileMerger, 'merge_data')
     def test_should_call_deep_merge_when_resource_found(self, mock_deep_merge, mock_resource_compare):
         server_profile = deepcopy(BASIC_PROFILE)
+        server_profile['serverHardwareUri'] = None
         self.mock_ov_client.server_profiles.get_by_name.return_value = server_profile
         self.mock_ov_client.server_profiles.update.return_value = CREATED_BASIC_PROFILE
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
@@ -1546,7 +1549,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        mock_deep_merge.assert_called_once_with(server_profile, PARAMS_FOR_PRESENT['data'])
+        mock_deep_merge.assert_called_once_with(server_profile, server_profile)
 
     @mock.patch.object(ResourceComparator, 'compare')
     @mock.patch.object(ServerProfileMerger, 'merge_data')
@@ -1871,6 +1874,36 @@ class ServerProfileModuleSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=ServerProfileModule.MSG_ALREADY_PRESENT,
+            ansible_facts=mock_facts
+        )
+
+    # @mock.patch.object(ResourceComparator, 'compare')
+    def test_should_unassign_server_hardware(self):
+        sp_without_sh = deepcopy(CREATED_BASIC_PROFILE)
+        sp_without_sh['serverHardwareUri'] = None
+
+        params_for_unassign = deepcopy(PARAMS_FOR_PRESENT)
+        params_for_unassign['auto_assign_server_hardware'] = False
+        params_for_unassign['data'] = deepcopy(sp_without_sh)
+
+        # mock_resource_compare.return_value = False
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(CREATED_BASIC_PROFILE)
+        self.mock_ov_client.server_profiles.update.return_value = sp_without_sh
+        self.mock_ov_client.server_hardware.update_power_state.return_value = {}
+        self.mock_ansible_module.params = deepcopy(params_for_unassign)
+
+        mock_facts = deepcopy(gather_facts(self.mock_ov_client))
+        mock_facts['server_profile']['serverHardwareUri'] = None
+        mock_facts['server_hardware'] = None
+
+        ServerProfileModule().run()
+
+        self.mock_ov_client.server_profiles.update.assert_called_once_with(sp_without_sh, sp_without_sh['uri'])
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerProfileModule.MSG_UPDATED,
             ansible_facts=mock_facts
         )
 
