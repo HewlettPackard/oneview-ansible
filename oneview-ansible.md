@@ -90,14 +90,14 @@
   * [oneview_server_hardware_facts - Retrieve facts about the OneView Server Hardwares.](#oneview_server_hardware_facts)
   * [oneview_server_hardware_type - Manage OneView Server Hardware Type resources.](#oneview_server_hardware_type)
   * [oneview_server_hardware_type_facts - Retrieve facts about Server Hardware Types of the OneView.](#oneview_server_hardware_type_facts)
-  * [oneview_server_profile - Manage OneView Server Profile resources.](#oneview_server_profile)
+  * [oneview_server_profile - Manage OneView Server Profile resources](#oneview_server_profile)
   * [oneview_server_profile_facts - Retrieve facts about the OneView Server Profiles.](#oneview_server_profile_facts)
   * [oneview_server_profile_template - Manage OneView Server Profile Template resources.](#oneview_server_profile_template)
   * [oneview_server_profile_template_facts - Retrieve facts about the Server Profile Templates from OneView.](#oneview_server_profile_template_facts)
   * [oneview_storage_pool - Manage OneView Storage Pool resources.](#oneview_storage_pool)
   * [oneview_storage_pool_facts - Retrieve facts about one or more Storage Pools.](#oneview_storage_pool_facts)
   * [oneview_storage_system - Manage OneView Storage System resources.](#oneview_storage_system)
-  * [oneview_storage_system_facts - Retrieve facts about the OneView Storage Systems.](#oneview_storage_system_facts)
+  * [oneview_storage_system_facts - Retrieve facts about the OneView Storage Systems](#oneview_storage_system_facts)
   * [oneview_storage_volume_attachment - Provides an interface to remove extra presentations from a specified server profile.](#oneview_storage_volume_attachment)
   * [oneview_storage_volume_attachment_facts - Retrieve facts about the OneView Storage Volume Attachments.](#oneview_storage_volume_attachment_facts)
   * [oneview_storage_volume_template - Manage OneView Storage Volume Template resources.](#oneview_storage_volume_template)
@@ -7611,19 +7611,19 @@ Retrieve facts about Server Hardware Types of the OneView.
 
 
 ## oneview_server_profile
-Manage OneView Server Profile resources.
+Manage OneView Server Profile resources
 
 #### Synopsis
  Manage the servers lifecycle with OneView Server Profiles. On `present` state, it selects a server hardware automatically based on the server profile configuration if no server hardware was provided.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
+| auto_assign_server_hardware  |   |  True  | <ul> <li>True</li>  <li>False</li> </ul> |  Bool indicating whether or not a Server Hardware should be automatically retrieved and assigned to the Server Profile. When set to true, creates and updates try to ensure that an available Server Hardware is assigned to the Server Profile. When set to false, if no Server Hardware is specified during creation, the profile is created as 'unassigned'. If the profile already has a Server Hardware assigned to it and a serverHardwareName or serverHardwareUri is specified as None, the Server Profile will have its Server Hardware unassigned.  |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Server Profile properties.  |
 | state  |   |  present  | <ul> <li>present</li>  <li>absent</li>  <li>compliant</li> </ul> |  Indicates the desired state for the Server Profile resource by the end of the playbook execution. `present` will ensure data properties are compliant with OneView. This operation will power off the Server Hardware before configuring the Server Profile. After it completes, the Server Hardware is powered on. `absent` will remove the resource from OneView, if it exists. `compliant` will make the server profile compliant with its server profile template, when this option was specified. If there are Offline updates, the Server Hardware is turned off before remediate compliance issues and turned on after that.  |
@@ -7636,8 +7636,8 @@ Manage OneView Server Profile resources.
 ```yaml
 - name: Create a Server Profile from a Server Profile Template with automatically selected hardware
   oneview_server_profile:
-    config: "{{ config }}"
-    state: "present"
+    config: /etc/oneview/oneview_config.json
+    state: present
     data:
         name: Web-Server-L2
         # You can choose either server_template or serverProfileTemplateUri to inform the Server Profile Template
@@ -7645,38 +7645,39 @@ Manage OneView Server Profile resources.
         server_template: Compute-node-template
         # You can inform a server_hardware or a serverHardwareUri. If any hardware was informed, it will try
         # get one available automatically
-        # server_hardware: "Encl1, bay 12"
-        # serverHardwareUri: "/rest/server-hardware/30303437-3933-4753-4831-30335835524E"
+        # server_hardware: Encl1, bay 12
+        # serverHardwareUri: /rest/server-hardware/30303437-3933-4753-4831-30335835524E
 
         # You can choose either serverHardwareTypeUri or serverHardwareTypeName to inform the Server Hardware Type
-        # serverHardwareTypeUri: '/rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C'
-        # serverHardwareTypeName: 'SY 480 Gen9 1'
+        # serverHardwareTypeUri: /rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C
+        # serverHardwareTypeName: SY 480 Gen9 1
         # You can choose either enclosureName or enclosureUri to inform the Enclosure
-        # enclosureUri: '/rest/enclosures/09SGH100Z6J1'
-        enclosureName: '0000A66102'
+        # enclosureUri: /rest/enclosures/09SGH100Z6J1
+        enclosureName: 0000A66102
         sanStorage:
-          hostOSType: 'Windows 2012 / WS2012 R2'
+          hostOSType: Windows 2012 / WS2012 R2
           manageSanStorage: true
           volumeAttachments:
             - id: 1
               # You can choose either volumeName or volumeUri to inform the Volumes
-              # volumeName: 'DemoVolume001'
-              volumeUri: '/rest/storage-volumes/BCAB376E-DA2E-450D-B053-0A9AE7E5114C'
+              # volumeName: DemoVolume001
+              volumeUri: /rest/storage-volumes/BCAB376E-DA2E-450D-B053-0A9AE7E5114C
               # You can choose either volumeStoragePoolUri or volumeStoragePoolName to inform the Volume Storage Pool
-              # volumeStoragePoolName: 'FST_CPG2'
-              volumeStoragePoolUri: '/rest/storage-pools/30303437-3933-4753-4831-30335835524E'
+              # volumeStoragePoolName: FST_CPG2
+              volumeStoragePoolUri: /rest/storage-pools/30303437-3933-4753-4831-30335835524E
               # You can choose either volumeStorageSystemUri or volumeStorageSystemName to inform the Volume Storage
               # System
-              # volumeStorageSystemName: 'ThreePAR7200-2127'
-              volumeStorageSystemUri: '/rest/storage-systems/TXQ1000307'
+              # volumeStorageSystemName: ThreePAR7200-2127
+              volumeStorageSystemUri: /rest/storage-systems/TXQ1000307
               lunType: 'Auto'
               storagePaths:
                 - isEnabled: true
                   connectionId: 1
-                  storageTargetType: 'Auto'
+                  storageTargetType: Auto
                 - isEnabled: true
                   connectionId: 2
-                  storageTargetType: 'Auto'
+                  storageTargetType: Auto
+  delegate_to: localhost
 - debug: var=server_profile
 - debug: var=serial_number
 - debug: var=server_hardware
@@ -7685,9 +7686,9 @@ Manage OneView Server Profile resources.
 
 - name: Create a Server Profile with connections
   oneview_server_profile:
-    config: "{{ config }}"
+    config: /etc/oneview/oneview_config.json
     data:
-      name: "server-profile-with-connections"
+      name: server-profile-with-connections
       connections:
         - id: 1
           name: connection1
@@ -7697,19 +7698,32 @@ Manage OneView Server Profile resources.
           networkName: eth-demo
   delegate_to: localhost
 
+- name: Unassign Server Hardware from Server Profile
+  oneview_server_profile:
+    config: /etc/oneview/oneview_config.json
+    # This is required for unassigning a SH, or creating a SP and not auto-assigning a SH
+    auto_assign_server_hardware: False
+    data:
+      name: server-profile-with-sh
+      # Specify a blank serverHardwareName or serverHardwareUri when auto_assign_server_hardware is False to unassign a SH
+      serverHardwareName:
+  delegate_to: localhost
+
 - name : Remediate compliance issues
   oneview_server_profile:
-     config: "{{ config }}"
-     state: "compliant"
-     data:
+    config: /etc/oneview/oneview_config.json
+    state: compliant
+    data:
         name: Web-Server-L2
+  delegate_to: localhost
 
 - name : Remove the server profile
   oneview_server_profile:
-    config: "{{ config }}"
-    state: "absent"
+    config: /etc/oneview/oneview_config.json
+    state: absent
     data:
         name: Web-Server-L2
+  delegate_to: localhost
 
 ```
 
@@ -7719,11 +7733,11 @@ Manage OneView Server Profile resources.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| compliance_preview   | Has the OneView facts about the manual and automatic updates required to make the server profile consistent with its template. |  On states 'present' and 'compliant'. |  complex |
+| compliance_preview   | Has the OneView facts about the manual and automatic updates required to make the server profile consistent with its template. |  On states 'present' and 'compliant'. |  dict |
 | created   | Indicates if the Server Profile was created. |  On states 'present' and 'compliant'. |  bool |
-| serial_number   | Has the Server Profile serial number. |  On states 'present' and 'compliant'. |  complex |
-| server_hardware   | Has the OneView facts about the Server Hardware. |  On states 'present' and 'compliant'. |  complex |
-| server_profile   | Has the OneView facts about the Server Profile. |  On states 'present' and 'compliant'. |  complex |
+| serial_number   | Has the Server Profile serial number. |  On states 'present' and 'compliant'. |  dict |
+| server_hardware   | Has the OneView facts about the Server Hardware. |  On states 'present' and 'compliant'. |  dict |
+| server_profile   | Has the OneView facts about the Server Profile. |  On states 'present' and 'compliant'. |  dict |
 
 
 #### Notes
@@ -8319,7 +8333,7 @@ Manage OneView Storage System resources.
 
 
 ## oneview_storage_system_facts
-Retrieve facts about the OneView Storage Systems.
+Retrieve facts about the OneView Storage Systems
 
 #### Synopsis
  Retrieve facts about the Storage Systems from OneView.
@@ -8333,11 +8347,10 @@ Retrieve facts about the OneView Storage Systems.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| hostname  |   No  |  | |  Storage System IP or hostname.  |
-| ip_hostname  |   No  |  | |  Storage System IP or hostname.  |
-| name  |   No  |  | |  Storage System name.  |
-| options  |   No  |  | |  List with options to gather additional facts about a Storage System and related resources. Options allowed: `hostTypes` gets the list of supported host types. `storagePools` gets a list of storage pools belonging to the specified storage system. `reachablePorts` gets a list of storage system reachable ports. Accepts `params`. An additional `networks` list param can be used to restrict the search for only these ones. `templates` gets a list of storage templates belonging to the storage system.  To gather facts about `storagePools`, `reachablePorts`, and `templates` it is required to inform either the argument `name`, `ip_hostname`, or `hostname`. Otherwise, this option will be ignored.  |
+| name  |   |  | |  Storage System name.  |
+| options  |   |  | |  List with options to gather additional facts about a Storage System and related resources. Options allowed: `hostTypes` gets the list of supported host types. `storagePools` gets a list of storage pools belonging to the specified storage system. `reachablePorts` gets a list of storage system reachable ports. Accepts `params`. An additional `networks` list param can be used to restrict the search for only these ones. `templates` gets a list of storage templates belonging to the storage system.  To gather facts about `storagePools`, `reachablePorts`, and `templates` it is required to inform either the argument `name`, `ip_hostname`, or `hostname`. Otherwise, this option will be ignored.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| storage_hostname  |   |  | |  Storage System IP or hostname.  |
 
 
  
@@ -8433,11 +8446,11 @@ Retrieve facts about the OneView Storage Systems.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| storage_system_host_types   | Has all the OneView facts about the supported host types. |  When requested, but can be null. |  complex |
-| storage_system_pools   | Has all the OneView facts about the Storage Systems - Storage Pools. |  When requested, but can be null. |  complex |
-| storage_system_reachable_ports   | Has all the OneView facts about the Storage Systems reachable ports. |  When requested, but can be null. |  complex |
-| storage_system_templates   | Has all the OneView facts about the Storage Systems - Storage Templates. |  When requested, but can be null. |  complex |
-| storage_systems   | Has all the OneView facts about the Storage Systems. |  Always, but can be null. |  complex |
+| storage_system_host_types   | Has all the OneView facts about the supported host types. |  When requested, but can be null. |  dict |
+| storage_system_pools   | Has all the OneView facts about the Storage Systems - Storage Pools. |  When requested, but can be null. |  dict |
+| storage_system_reachable_ports   | Has all the OneView facts about the Storage Systems reachable ports. |  When requested, but can be null. |  dict |
+| storage_system_templates   | Has all the OneView facts about the Storage Systems - Storage Templates. |  When requested, but can be null. |  dict |
+| storage_systems   | Has all the OneView facts about the Storage Systems. |  Always, but can be null. |  dict |
 
 
 #### Notes

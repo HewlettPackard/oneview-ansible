@@ -66,7 +66,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
                          'image_streamer_hostname': {'type': 'str'},
                          'password': {'type': 'str'},
                          'username': {'type': 'str'},
-                         'validate_etag': {'default': True, 'required': False, 'type': 'bool'}}
+                         'validate_etag': {'type': 'bool', 'default': True}}
 
     def setUp(self):
         # Define OneView Client Mock (FILE)
