@@ -1877,7 +1877,6 @@ class ServerProfileModuleSpec(unittest.TestCase,
             ansible_facts=mock_facts
         )
 
-    # @mock.patch.object(ResourceComparator, 'compare')
     def test_should_unassign_server_hardware(self):
         sp_without_sh = deepcopy(CREATED_BASIC_PROFILE)
         sp_without_sh['serverHardwareUri'] = None
@@ -1885,8 +1884,6 @@ class ServerProfileModuleSpec(unittest.TestCase,
         params_for_unassign = deepcopy(PARAMS_FOR_PRESENT)
         params_for_unassign['auto_assign_server_hardware'] = False
         params_for_unassign['data'] = deepcopy(sp_without_sh)
-
-        # mock_resource_compare.return_value = False
 
         self.mock_ov_client.server_profiles.get_by_name.return_value = deepcopy(CREATED_BASIC_PROFILE)
         self.mock_ov_client.server_profiles.update.return_value = sp_without_sh

@@ -389,6 +389,8 @@ class ServerProfileModule(OneViewModuleBase):
             if power_on_msg in error_msg:
                 logger.debug("Update failed due to powered on Server Hardware. Powering off before retrying.")
                 time.sleep(10)  # sleep timer to avoid timing issues after update operation failed
+
+                # When reassigning Server Hardwares, both the original and the new SH should be set to OFF
                 self.__set_server_hardware_power_state(original_profile['serverHardwareUri'], 'Off')
                 self.__set_server_hardware_power_state(profile_with_updates['serverHardwareUri'], 'Off')
 
