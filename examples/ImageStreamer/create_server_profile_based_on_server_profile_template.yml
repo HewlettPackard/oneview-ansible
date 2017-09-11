@@ -27,8 +27,8 @@
       oneview_server_profile:
         config: "{{ config }}"
         data:
-          server_hardware: "{{ server_hardware_name }}"
-          server_template: "{{ server_profile_template }}"
+          serverHardwareName: "{{ server_hardware_name }}"
+          serverProfileTemplateName: "{{ server_profile_template }}"
           name: "{{ profile_name }}"
       delegate_to: localhost      
       
