@@ -18,7 +18,6 @@
     config: '{{ playbook_dir }}/oneview_config.json'
     server_hardware_type_name: "SY 480 Gen9 3"
     enclosure_group_name: "SYN107_EG"
-    server_hardware_name1: "2-USE722C99W-M, bay 1"
     server_hardware_name2: "2-USE722C99W-M, bay 11"
     profile_name1: "profile_san"
     management_network: "Management"
@@ -27,18 +26,7 @@
 
   tasks:
 
-    - name: Power Off the server hardware
-      oneview_server_hardware:
-        config: "{{ config }}"
-        state: power_state_set
-        data:
-            name : '{{ server_hardware_name1 }}'
-            powerStateData:
-                powerState: "Off"
-                powerControl: "PressAndHold"
-      delegate_to: localhost    
-
-    - name : "Create/Update Server Profile - {{ profile_name1 }}"
+    - name : "Update Server Profile {{ profile_name1 }} initially assigned to bay 1 to bay 11, just changing the serverHardwareName"
       oneview_server_profile:
         config: "{{ config }}"
         data:

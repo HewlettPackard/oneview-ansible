@@ -25,11 +25,10 @@
     SAN_A_network: "SAN-A"
     SAN_B_network: "SAN-B"
     storage_pool_name_A: "Pool name A"
-    storage_pool_name_B: "Pool name B"
 
   tasks:
 
-    - name : "Create/Update Server Profile - {{ profile_name }}"
+    - name : "Create Server Profile {{ profile_name }} with 1 volume attachment (boot)"
       oneview_server_profile:
         config: "{{ config }}"
         data:
@@ -102,13 +101,15 @@
                 connectionId: 3
               volumeName: win_boot
               volumeStoragePoolName: "{{ storage_pool_name_A }}"
-            - id: 2
-              lunType: Auto
-              storagePaths:
-              - isEnabled: true
-                connectionId: 2
-              - isEnabled: true
-                connectionId: 3
-              volumeName: DATA1
-              volumeStoragePoolName: "{{ storage_pool_name_B }}"
-      delegate_to: localhost   
+      delegate_to: localhost      
+
+    - name: Power on the server hardware
+      oneview_server_hardware:
+        config: "{{ config }}"
+        state: power_state_set
+        data:
+          name : "{{ server_hardware.name }}"
+          powerStateData:
+            powerState: "On"
+            powerControl: "MomentaryPress"
+      delegate_to: localhost      
