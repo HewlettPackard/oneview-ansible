@@ -321,6 +321,7 @@ class ServerProfileModule(OneViewModuleBase):
             self.__validations_for_os_custom_attributes(data, merged_data, resource)
 
             if not ResourceComparator.compare(resource, merged_data):
+
                 resource = self.__update_server_profile(merged_data, resource)
                 changed = True
                 msg = self.MSG_UPDATED
@@ -333,9 +334,11 @@ class ServerProfileModule(OneViewModuleBase):
     # Swaps True values for 'true' string, and False values for 'false' string to avoid common user errors.
     def __validations_for_os_custom_attributes(self, data, merged_data, resource):
         if data.get('osDeploymentSettings') is None or resource.get('osDeploymentSettings') is None:
-            return False
-        elif data.get('osDeploymentSettings').get('osCustomAttributes') is None:
-            return False
+            return
+        elif data.get('osDeploymentSettings', {}).get('osCustomAttributes') is None:
+            return
+        elif resource.get('osDeploymentSettings', {}).get('osCustomAttributes') is None:
+            return
         attributes_merged = merged_data.get('osDeploymentSettings', {}).get('osCustomAttributes', None)
         attributes_resource = resource.get('osDeploymentSettings', {}).get('osCustomAttributes', None)
         dp_uri = resource.get('osDeploymentSettings', {}).get('osDeploymentPlanUri', None)
