@@ -124,15 +124,6 @@
                 connectionId: 4
               - isEnabled: true
                 connectionId: 5
-              volumeName: DATA3
-              volumeStoragePoolName: "{{ storage_pool_name_A }}"
-            - id: 2
-              lunType: Auto
-              storagePaths:
-              - isEnabled: true
-                connectionId: 4
-              - isEnabled: true
-                connectionId: 5
               volumeName: DATA1
               volumeStoragePoolName: "{{ storage_pool_name_B }}"
       delegate_to: localhost      
