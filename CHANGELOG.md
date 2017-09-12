@@ -3,6 +3,7 @@
 - [#172](https://github.com/HewlettPackard/oneview-ansible/issues/172) Allow credentials to be defined inside the playbooks
 - [#282](https://github.com/HewlettPackard/oneview-ansible/issues/282) Updating a Server Profile causes Server Hardware reboots for operations which do not require it
 - [#285](https://github.com/HewlettPackard/oneview-ansible/issues/285) Modules cannot unassign a Server Hardware or create SP with unassigned SH
+- [#288](https://github.com/HewlettPackard/oneview-ansible/issues/288) Adding osCustomAttributes to a SP which had none before results in failure
 
 # v4.0.0
 #### Notes

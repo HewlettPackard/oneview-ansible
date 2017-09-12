@@ -332,7 +332,7 @@ class ServerProfileModule(OneViewModuleBase):
     # Removes .mac entries from resource os_custom_attributes if no .mac passed into data params.
     # Swaps True values for 'true' string, and False values for 'false' string to avoid common user errors.
     def __validations_for_os_custom_attributes(self, data, merged_data, resource):
-        if data.get('osDeploymentSettings') is None:
+        if data.get('osDeploymentSettings') is None or resource.get('osDeploymentSettings') is None:
             return False
         elif data.get('osDeploymentSettings').get('osCustomAttributes') is None:
             return False
