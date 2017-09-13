@@ -1904,6 +1904,38 @@ class ServerProfileModuleSpec(unittest.TestCase,
             ansible_facts=mock_facts
         )
 
+    def test_validating_os_custom_attr_should_return_if_no_attributes_found_on_resource(self):
+        sp_get_value = deepcopy(CREATED_BASIC_PROFILE)
+        sp_get_value['osDeploymentSettings'] = {}
+        sp_exit_value = deepcopy(CREATED_BASIC_PROFILE)
+        sp_exit_value.update(deepcopy(PARAMS_FOR_UPDATE['data']))
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = sp_get_value
+        self.mock_ov_client.server_profiles.update.return_value = deepcopy(CREATED_BASIC_PROFILE)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_UPDATE)
+
+        ServerProfileModule().run()
+
+        self.mock_ov_client.server_profiles.update.assert_called_once_with(sp_exit_value, sp_exit_value['uri'])
+
+    def test_validating_os_custom_attr_should_return_if_no_attributes_found_on_data(self):
+        sp_get_value = deepcopy(CREATED_BASIC_PROFILE)
+        sp_get_value['osDeploymentSettings'] = {}
+        sp_exit_value = deepcopy(CREATED_BASIC_PROFILE)
+        sp_exit_value.update(deepcopy(PARAMS_FOR_UPDATE['data']))
+        sp_exit_value['osDeploymentSettings']['osCustomAttributes'] = None
+
+        params_for_update = deepcopy(PARAMS_FOR_UPDATE)
+        params_for_update['data']['osDeploymentSettings']['osCustomAttributes'] = None
+
+        self.mock_ov_client.server_profiles.get_by_name.return_value = sp_get_value
+        self.mock_ov_client.server_profiles.update.return_value = deepcopy(CREATED_BASIC_PROFILE)
+        self.mock_ansible_module.params = params_for_update
+
+        ServerProfileModule().run()
+
+        self.mock_ov_client.server_profiles.update.assert_called_once_with(sp_exit_value, sp_exit_value['uri'])
+
 
 if __name__ == '__main__':
     unittest.main()
