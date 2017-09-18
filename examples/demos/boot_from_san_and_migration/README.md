@@ -18,8 +18,8 @@ This playbook exemplifies how to create a server profile using a server profile 
 
 ### [Step 4 - Migrate a data volume to another server profile](step_4_migrate_data_volume.yml)
 This playbook exemplifies how to migrate a data volume from one server profile to another. It performs 2 tasks:
-1. Updates server profile 'profile_san' to match its original state on step 1, removing data volume identified by id 2.
-2. Updates server profile 'profile_i3s' inserting data volume removed from previous task. The connectionId used by the storage paths need to be updated to match with the SAN connections. In this case, the SAN connection ids in the server profile template were 4 and 5. 
+1. Updates server profile 'profile_san' to match its original state on step 1, removing the data volume identified by id 2.
+2. Updates server profile 'profile_i3s' inserting the data volume removed in the previous task. The connectionId used by the storage paths needs to be updated to match the SAN connections. In this case, the SAN connection ids in the server profile template were 4 and 5. 
 
 ### [Step 5 - Migrate server profile to another server hardware](step_5_migrate_server_profile.yml)
 This playbook exemplifies how to migrate a server profile from one server hardware to another. For this use case only one task must be executed:
