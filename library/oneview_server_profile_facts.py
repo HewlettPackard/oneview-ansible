@@ -218,9 +218,10 @@ from module_utils.oneview import OneViewModuleBase
 
 class ServerProfileFactsModule(OneViewModuleBase):
     argument_spec = dict(
-        name=dict(required=False, type='str'),
-        options=dict(required=False, type='list'),
-        params=dict(required=False, type='dict')
+        name=dict(type='str'),
+        uri=dict(type='str'),
+        options=dict(type='list'),
+        params=dict(type='dict')
     )
 
     def __init__(self):
@@ -235,6 +236,12 @@ class ServerProfileFactsModule(OneViewModuleBase):
             server_profiles = self.oneview_client.server_profiles.get_by("name", self.module.params['name'])
             if len(server_profiles) > 0:
                 server_profile_uri = server_profiles[0]['uri']
+        elif self.module.params.get('uri'):
+            server_profiles = []
+            server_profile = self.oneview_client.server_profiles.get(self.module.params['uri'])
+            if server_profile:
+                server_profile_uri = server_profile['uri']
+                server_profiles.append(server_profile)
         else:
             server_profiles = self.oneview_client.server_profiles.get_all(**self.facts_params)
 

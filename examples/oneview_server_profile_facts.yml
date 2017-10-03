@@ -56,6 +56,13 @@
 
     - debug: var=server_profiles
 
+    - name: Gather facts about a Server Profile by uri
+      oneview_server_profile_facts:
+        config: "{{ config }}"
+        uri: "{{server_profiles[0]['uri']}}"
+      delegate_to: localhost
+
+    - debug: var=server_profiles
 
     - name: Gather facts about available servers and bays for a given enclosure group and server hardware type
       oneview_server_profile_facts:
