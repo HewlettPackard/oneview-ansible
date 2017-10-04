@@ -48,6 +48,12 @@
 
     - debug: var=server_profile_templates
 
+    - name: Gather facts about a Server Profile Template by URI
+      oneview_server_profile_template_facts:
+        config: "{{ config }}"
+        uri: "{{server_profile_templates[0]['uri']}}"
+      delegate_to: localhost
+
     - name: Gather facts about a template and a profile with the configuration based on this template
       oneview_server_profile_template_facts:
         config: "{{ config }}"

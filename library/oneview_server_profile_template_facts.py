@@ -35,12 +35,13 @@ options:
     name:
       description:
         - Server Profile Template name.
-      required: false
+    uri:
+      description:
+        - Server Profile Template uri.
     options:
       description:
         - "List with options to gather additional facts about Server Profile Template resources.
           Options allowed: C(new_profile) and C(transformation)."
-      required: false
 notes:
     - The option C(transformation) is only available for API version 300 or later.
 
@@ -73,6 +74,12 @@ EXAMPLES = '''
     config: "{{ config }}"
     name: "ProfileTemplate101"
 
+- name: Gather facts about a Server Profile by uri
+  oneview_server_profile_facts:
+    config: "{{ config }}"
+    uri: /rest/server-profile-templates/c0868397-eff6-49ed-8151-4338702792d3
+  delegate_to: localhost
+
 - name: Gather facts about a template and a profile with the configuration based on this template
   oneview_server_profile_template_facts:
     config: "{{ config }}"
@@ -98,9 +105,10 @@ from module_utils.oneview import OneViewModuleBase
 
 class ServerProfileTemplateFactsModule(OneViewModuleBase):
     argument_spec = dict(
-        name=dict(required=False, type='str'),
-        options=dict(required=False, type='list'),
-        params=dict(required=False, type='dict')
+        name=dict(type='str'),
+        options=dict(type='list'),
+        params=dict(type='dict'),
+        uri=dict(type='str')
     )
 
     def __init__(self):
@@ -109,17 +117,23 @@ class ServerProfileTemplateFactsModule(OneViewModuleBase):
         self.resource_client = self.oneview_client.server_profile_templates
 
     def execute_module(self):
-        name = self.module.params["name"]
+        name = self.module.params.get("name")
+        uri = self.module.params.get("uri")
 
         if name:
-            facts = self.__get_by_name(name)
+            facts = self.__get_by_attribute(name, 'name')
+        elif uri:
+            facts = self.__get_by_attribute(uri, 'uri')
         else:
             facts = self.__get_all()
 
         return dict(changed=False, ansible_facts=facts)
 
-    def __get_by_name(self, name):
-        template = self.resource_client.get_by_name(name=name)
+    def __get_by_attribute(self, attribute_value, attribute_name):
+        if attribute_name == 'name':
+            template = self.resource_client.get_by_name(name=attribute_value)
+        else:
+            template = self.resource_client.get(attribute_value)
         if not template:
             return dict(server_profile_templates=[])
 

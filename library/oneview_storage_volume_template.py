@@ -90,7 +90,7 @@ import collections
 from copy import deepcopy
 from module_utils.oneview import OneViewModuleBase, ResourceComparator, HPOneViewValueError
 
-from ansible.compat.six import iteritems
+from six import iteritems
 from ansible.module_utils.basic import AnsibleModule
 
 

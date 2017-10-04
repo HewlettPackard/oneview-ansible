@@ -38,6 +38,12 @@ PARAMS_GET_BY_NAME = dict(
     options=None
 )
 
+PARAMS_GET_BY_URI = dict(
+    config='config.json',
+    uri='/rest/fake',
+    options=None
+)
+
 PARAMS_GET_BY_NAME_WITH_NEW_PROFILE = dict(
     config='config.json',
     name=TEMPLATE_NAME,
@@ -106,6 +112,19 @@ class ServerProfileTemplateFactsSpec(unittest.TestCase,
         ServerProfileTemplateFactsModule().run()
 
         self.mock_ov_client.server_profile_templates.get_by_name.assert_called_once_with(name=TEMPLATE_NAME)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(server_profile_templates=[BASIC_TEMPLATE])
+        )
+
+    def test_should_get_template_by_uri(self):
+        self.mock_ov_client.server_profile_templates.get.return_value = BASIC_TEMPLATE
+        self.mock_ansible_module.params = PARAMS_GET_BY_URI
+
+        ServerProfileTemplateFactsModule().run()
+
+        self.mock_ov_client.server_profile_templates.get.assert_called_once_with('/rest/fake')
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
