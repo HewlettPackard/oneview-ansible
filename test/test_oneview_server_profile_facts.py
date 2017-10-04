@@ -38,6 +38,10 @@ PARAMS_GET_BY_NAME = dict(
     name="Test Server Profile"
 )
 
+PARAMS_GET_BY_URI = dict(
+    config='config.json',
+    uri="/rest/fake"
+)
 PARAMS_WITH_OPTIONS = dict(
     config='config.json',
     name="Test Server Profile",
@@ -135,6 +139,20 @@ class ServerProfileFactsSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(server_profiles=servers)
+        )
+
+    def test_should_get_by_uri(self):
+        server_profile = {"name": "Server Profile Name", 'uri': '/rest/test/123'}
+
+        self.mock_ov_client.server_profiles.get.return_value = server_profile
+
+        self.mock_ansible_module.params = deepcopy(PARAMS_GET_BY_URI)
+
+        ServerProfileFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(server_profiles=[server_profile])
         )
 
     def test_should_get_server_profile_by_name_with_all_options(self):
