@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -96,7 +96,7 @@ RETURN = '''
 uplink_set:
     description: Has the OneView facts about the Uplink Set.
     returned: On state 'present'. Can be null.
-    type: complex
+    type: dict
 '''
 from ansible.module_utils.basic import AnsibleModule
 from module_utils.oneview import (OneViewModuleBase,

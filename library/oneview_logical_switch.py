@@ -18,7 +18,7 @@
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
                     'supported_by': 'community',
-                    'metadata_version': '1.0'}
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -152,7 +152,7 @@ RETURN = '''
 logical_switch:
     description: Has the facts about the OneView Logical Switch.
     returned: On the states 'present', 'updated', and 'refreshed'. Can be null.
-    type: complex
+    type: dict
 '''
 
 from copy import deepcopy

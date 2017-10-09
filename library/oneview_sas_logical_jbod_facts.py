@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -88,12 +88,12 @@ RETURN = '''
 sas_logical_jbods:
     description: Has all the OneView facts about the SAS Logical JBODs.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 sas_logical_jbod_drives:
     description: Has all the OneView facts about the list of drives allocated to a SAS logical JBOD.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 '''
 
 

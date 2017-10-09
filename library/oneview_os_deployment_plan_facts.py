@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -92,12 +92,12 @@ RETURN = '''
 os_deployment_plans:
     description: Has all the OneView facts about the Os Deployment Plans.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 os_deployment_plan_custom_attributes:
     description: Has the editable Custom Attribute facts of the Os Deployment Plans in the Server Profiles format.
     returned: When requested, but can be empty.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

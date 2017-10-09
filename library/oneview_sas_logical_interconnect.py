@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -112,12 +112,12 @@ RETURN = '''
 sas_logical_interconnect:
     description: Has the OneView facts about the SAS Logical Interconnect.
     returned: On states 'drive_enclosure_replaced', 'configuration_updated', but can be null.
-    type: complex
+    type: dict
 
 li_firmware:
     description: Has the OneView facts about the updated Firmware.
     returned: On 'firmware_updated' state, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

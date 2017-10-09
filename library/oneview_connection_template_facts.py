@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -84,12 +84,12 @@ RETURN = '''
 connection_templates:
     description: Has all the OneView facts about the Connection Templates.
     returned: Always, except when defaultConnectionTemplate is requested. Can be null.
-    type: complex
+    type: dict
 
 default_connection_template:
     description: Has the facts about the Default Connection Template.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 '''
 
 

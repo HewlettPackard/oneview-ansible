@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -104,17 +104,17 @@ RETURN = '''
 id_pools_ipv4_ranges:
     description: Has all the OneView facts about the ID Pools IPV4 Ranges.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 id_pools_ipv4_ranges_free_fragments:
     description: Has all the OneView facts about the ID Pools IPV4 Range Free fragments.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 id_pools_ipv4_ranges_allocated_fragments:
     description: Has all the OneView facts about the ID Pools IPV4 Range allocated fragments.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

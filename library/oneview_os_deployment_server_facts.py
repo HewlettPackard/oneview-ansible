@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -96,22 +96,22 @@ RETURN = '''
 os_deployment_servers:
     description: Has all the OneView facts about the OS Deployment Servers.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 os_deployment_server_networks:
     description: Has all the OneView facts about the OneView networks.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 os_deployment_server_appliances:
     description: Has all the OneView facts about all the Image Streamer resources.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 os_deployment_server_appliance:
     description: Has the facts about the particular Image Streamer resource.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

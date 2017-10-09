@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -193,42 +193,42 @@ storage_volume_template:
     description: Has the OneView facts about the Logical Interconnect.
     returned: On 'compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated', \
               and 'configuration_updated' states, but can be null.
-    type: complex
+    type: dict
 
 interconnect_fib:
     description: Has the OneView facts about the Forwarding information Base.
     returned: On 'forwarding_information_base_generated' state, but can be null.
-    type: complex
+    type: dict
 
 qos_configuration:
     description: Has the OneView facts about the QoS Configuration.
     returned: On 'qos_aggregated_configuration_updated' state, but can be null.
-    type: complex
+    type: dict
 
 snmp_configuration:
     description: Has the OneView facts about the SNMP Configuration.
     returned: On 'snmp_configuration_updated' state, but can be null.
-    type: complex
+    type: dict
 
 port_monitor:
     description: Has the OneView facts about the Port Monitor Configuration.
     returned: On 'port_monitor_updated' state, but can be null.
-    type: complex
+    type: dict
 
 li_firmware:
     description: Has the OneView facts about the installed Firmware.
     returned: On 'firmware_installed' state, but can be null.
-    type: complex
+    type: dict
 
 telemetry_configuration:
     description: Has the OneView facts about the Telemetry Configuration.
     returned: On 'telemetry_configuration_updated' state, but can be null.
-    type: complex
+    type: dict
 
 scope_uris:
     description: Has the scope URIs the specified logical interconnect is inserted into.
     returned: On 'scopes_updated' state, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

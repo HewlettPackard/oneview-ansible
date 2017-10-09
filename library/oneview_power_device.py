@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -118,7 +118,7 @@ RETURN = '''
 power_device:
     description: Has the OneView facts about the Power Device.
     returned: On states 'present', 'discovered', 'power_state_set', 'refresh_state_set', 'uid_state_set'. Can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

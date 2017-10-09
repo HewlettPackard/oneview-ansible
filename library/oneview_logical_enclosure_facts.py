@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -92,12 +92,12 @@ RETURN = '''
 logical_enclosures:
     description: Has all the OneView facts about the Logical Enclosures.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 logical_enclosure_script:
     description: Has the facts about the script of a Logical Enclosure.
     returned: When required, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

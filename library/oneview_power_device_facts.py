@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -115,22 +115,22 @@ RETURN = '''
 power_devices:
     description: Has all the OneView facts about the Power Device.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 power_device_power_state:
     description: Has all the facts about the Power state of the Power Device.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 power_device_uid_state:
     description: Has all the facts about the Power Device UID state.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 power_device_utilization:
     description: Has all the facts about the Power Device utilization.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

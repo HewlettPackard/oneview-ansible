@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -142,7 +142,7 @@ server_hardware:
     description: Has the OneView facts about the Server Hardware.
     returned: On states 'present', 'power_state_set', 'refresh_state_set', and 'ilo_firmware_version_updated'.
               Can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

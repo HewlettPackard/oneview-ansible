@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -105,23 +105,23 @@ RETURN = '''
 storage_volume_templates:
     description: Has all the OneView facts about the Storage Volume Templates.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 connectable_volume_templates:
     description: Has facts about the Connectable Storage Volume Templates. API version <= 300  only.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 reachable_volume_templates:
     description: Has facts about the Reachable Storage Volume Templates. API version 500+ only.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 compatible_systems:
     description: Has facts about Storage Systems compatible to the Storage Volume template.
         API version 500+ only.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -114,7 +114,7 @@ RETURN = '''
 golden_image:
     description: Has the OneView facts about the Golden Image.
     returned: On state 'present'.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

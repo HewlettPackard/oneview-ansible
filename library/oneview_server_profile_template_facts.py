@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -92,12 +92,12 @@ RETURN = '''
 server_profile_templates:
     description: Has all the OneView facts about the Server Profile Templates.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 new_profile:
     description: A profile object with the configuration based on this template.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 '''
 from ansible.module_utils.basic import AnsibleModule
 from module_utils.oneview import OneViewModuleBase
