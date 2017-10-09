@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -139,17 +139,17 @@ RETURN = '''
 storage_volume_attachments:
     description: Has all the OneView facts about the Storage Volume Attachments.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 extra_unmanaged_storage_volumes:
     description: Has facts about the extra unmanaged storage volumes.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 storage_volume_attachment_paths:
     description: Has facts about all paths or a specific attachment path for the specified volume attachment.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

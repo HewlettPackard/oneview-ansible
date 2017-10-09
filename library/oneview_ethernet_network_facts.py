@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -90,17 +90,17 @@ RETURN = '''
 ethernet_networks:
     description: Has all the OneView facts about the Ethernet Networks.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 enet_associated_profiles:
     description: Has all the OneView facts about the profiles which are using the Ethernet network.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 enet_associated_uplink_groups:
     description: Has all the OneView facts about the uplink sets which are using the Ethernet network.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

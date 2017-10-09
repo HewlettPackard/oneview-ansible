@@ -17,7 +17,7 @@
 from ansible.module_utils.basic import AnsibleModule
 
 try:
-    from ansible.utils import module_docs
+    from ansible.utils import plugin_docs
 except ImportError:
     # Ignored for the unit tests
     pass
@@ -120,7 +120,7 @@ def main():
                 module_file_name = os.path.normpath(os.path.join(root, file_name))
 
                 # Tuple size may vary according to the Ansible version
-                docstring = module_docs.get_docstring(module_file_name)
+                docstring = plugin_docs.get_docstring(module_file_name)
                 doc = docstring[0]
                 plainexamples = docstring[1]
                 returndocs = docstring[2]

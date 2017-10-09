@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -162,17 +162,17 @@ RETURN = '''
 logical_enclosure:
     description: Has the facts about the OneView Logical Enclosure.
     returned: On states 'present', 'firmware_updated', 'reconfigured', 'updated_from_group', and 'absent'. Can be null.
-    type: complex
+    type: dict
 
 configuration_script:
     description: Has the facts about the Logical Enclosure configuration script.
     returned: On state 'script_updated'. Can be null.
-    type: complex
+    type: dict
 
 generated_dump_uri:
     description: Has the facts about the Logical Enclosure generated support dump URI.
     returned: On state 'dumped'. Can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

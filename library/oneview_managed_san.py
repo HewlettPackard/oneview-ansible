@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -105,17 +105,17 @@ RETURN = '''
 managed_san:
     description: Has the OneView facts about the Managed SAN.
     returned: On states 'present' and 'refresh_state_set'. Can be null.
-    type: complex
+    type: dict
 
 managed_san_endpoints:
     description: Has the OneView facts about the Endpoints CSV File created.
     returned: On state 'endpoints_csv_file_created'. Can be null.
-    type: complex
+    type: dict
 
 managed_san_issues:
     description: Has the OneView facts about the unexpected zoning report created.
     returned: On state 'issues_report_created'. Can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

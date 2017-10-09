@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -59,7 +59,7 @@ RETURN = '''
 appliance_time_and_locale_configuration:
     description: Has the facts about the OneView Appliance Locale and Time Configuration.
     returned: On state 'present'. Can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

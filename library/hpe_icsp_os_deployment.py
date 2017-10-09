@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -93,7 +93,7 @@ RETURN = '''
 icsp_server:
     description: Has the facts about the server that was provisioned with ICsp.
     returned: When the module runs successfully, but can be null.
-    type: complex
+    type: dict
 '''
 
 from future import standard_library

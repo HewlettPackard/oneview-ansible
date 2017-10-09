@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -85,12 +85,12 @@ RETURN = '''
 datacenters:
     description: Has all the OneView facts about the Data Centers.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 datacenter_visual_content:
     description: Has facts about the Data Center Visual Content.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

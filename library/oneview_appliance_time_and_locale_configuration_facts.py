@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -48,7 +48,7 @@ RETURN = '''
 appliance_time_and_locale_configuration:
     description: Has all the OneView facts about the Appliance time and locale configuration.
     returned: Always.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

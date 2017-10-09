@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -151,12 +151,12 @@ RETURN = '''
 artifact_bundle:
     description: Has the OneView facts about the Artifact Bundles.
     returned: On state 'present' and 'extracted'.
-    type: complex
+    type: dict
 
 artifact_bundle_deployment_group:
     description: Has the OneView facts about the Deployment Group.
     returned: On state 'backup_extracted', 'backup_uploaded', and 'backup_created'.
-    type: complex
+    type: dict
 '''
 
 import os

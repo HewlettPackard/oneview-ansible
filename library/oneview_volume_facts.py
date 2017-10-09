@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -105,17 +105,17 @@ RETURN = '''
 storage_volumes:
     description: Has all the OneView facts about the Volumes.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 attachable_volumes:
     description: Has all the facts about the attachable volumes managed by the appliance.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 extra_managed_volume_paths:
     description: Has all the facts about the extra managed storage volume paths from the appliance.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

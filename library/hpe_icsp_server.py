@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -123,7 +123,7 @@ RETURN = '''
 target_server:
     description: Has the facts about the server that was added to ICsp.
     returned: On states 'present' and 'network_configured' . Can be null.
-    type: complex
+    type: dict
 '''
 
 import json

@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -85,7 +85,7 @@ RETURN = '''
 enclosure_groups:
     description: Has all the OneView facts about the Enclosure Groups.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 enclosure_group_script:
     description: The configuration script for an Enclosure Group.

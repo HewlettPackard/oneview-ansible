@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -122,17 +122,17 @@ RETURN = '''
 ethernet_network:
     description: Has the facts about the Ethernet Networks.
     returned: On state 'present'. Can be null.
-    type: complex
+    type: dict
 
 ethernet_network_bulk:
     description: Has the facts about the Ethernet Networks affected by the bulk insert.
     returned: When 'vlanIdRange' attribute is in data argument. Can be null.
-    type: complex
+    type: dict
 
 ethernet_network_connection_template:
     description: Has the facts about the Ethernet Network Connection Template.
     returned: On state 'default_bandwidth_reset'. Can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

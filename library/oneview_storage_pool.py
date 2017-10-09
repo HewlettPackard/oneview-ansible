@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -92,7 +92,7 @@ RETURN = '''
 storage_pool:
     description: Has the OneView facts about the Storage Pool.
     returned: On 'present' state, but can be null.
-    type: complex
+    type: dict
 '''
 
 

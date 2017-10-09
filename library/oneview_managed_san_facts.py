@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 module: oneview_managed_san_facts
@@ -117,12 +117,12 @@ managed_sans:
 managed_san_endpoints:
     description: The list of endpoints in the SAN identified by name.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 wwn_associated_sans:
     description: The list of associations between provided WWNs and the SANs.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

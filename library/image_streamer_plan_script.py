@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -97,12 +97,12 @@ RETURN = '''
 plan_script:
     description: Has the facts about the Image Streamer Plan Script.
     returned: On state 'present', but can be null.
-    type: complex
+    type: dict
 
 plan_script_differences:
     description: Has the facts about the modified contents of the Plan Script as per the selected attributes.
     returned: On state 'differences_retrieved'.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

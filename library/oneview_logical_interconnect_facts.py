@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -124,48 +124,48 @@ logical_interconnects:
 qos_aggregated_configuration:
     description: The QoS aggregated configuration for the logical interconnect.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 snmp_configuration:
     description: The SNMP configuration for a logical interconnect.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 port_monitor:
     description: The port monitor configuration of a logical interconnect.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 internal_vlans:
     description: The internal VLAN IDs for the provisioned networks on a logical interconnect.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 forwarding_information_base:
     description: The forwarding information base data for a logical interconnect.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 firmware:
     description: The installed firmware for a logical interconnect.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 unassigned_uplink_ports:
     description: "A collection of uplink ports from the member interconnects which are eligible for assignment to an
                   analyzer port on a logical interconnect."
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 telemetry_configuration:
     description: The telemetry configuration of the logical interconnect.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 ethernet_settings:
     description: The Ethernet Interconnect Settings.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

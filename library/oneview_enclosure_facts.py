@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
+ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -107,22 +107,22 @@ RETURN = '''
 enclosures:
     description: Has all the OneView facts about the Enclosures.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 enclosure_script:
     description: Has all the OneView facts about the script of an Enclosure.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 enclosure_environmental_configuration:
     description: Has all the OneView facts about the environmental configuration of an Enclosure.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 enclosure_utilization:
     description: Has all the OneView facts about the utilization of an Enclosure.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

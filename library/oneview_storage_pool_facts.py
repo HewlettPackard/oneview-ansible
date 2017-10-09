@@ -18,8 +18,8 @@
 
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -96,12 +96,12 @@ RETURN = '''
 storage_pools:
     description: Has all the OneView facts about the Storage Pools.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 storage_pools_reachable_storage_pools:
     description: Has all the OneView facts about the Reachable Storage Pools.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule

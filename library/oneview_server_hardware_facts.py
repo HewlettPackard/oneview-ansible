@@ -17,8 +17,8 @@
 ###
 
 ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'curated',
-                    'metadata_version': '1.0'}
+                    'supported_by': 'community',
+                    'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
@@ -136,52 +136,52 @@ RETURN = '''
 server_hardwares:
     description: Has all the OneView facts about the Server Hardware.
     returned: Always, but can be null.
-    type: complex
+    type: dict
 
 server_hardware_bios:
     description: Has all the facts about the Server Hardware BIOS.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 server_hardware_env_config:
     description: Has all the facts about the Server Hardware environmental configuration.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 server_hardware_java_remote_console_url:
     description: Has the facts about the Server Hardware java remote console url.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 server_hardware_ilo_sso_url:
     description: Has the facts about the Server Hardware iLO SSO url.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 server_hardware_remote_console_url:
     description: Has the facts about the Server Hardware remote console url.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 server_hardware_utilization:
     description: Has all the facts about the Server Hardware utilization.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 server_hardware_firmware:
     description: Has all the facts about the Server Hardware firmware.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 server_hardware_firmwares:
     description: Has all the facts about the firmwares inventory across all servers.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 
 server_hardware_physical_server_hardware:
     description: Has all the facts describing an 'SDX' partition. Used with SDX enclosures only.
     returned: When requested, but can be null.
-    type: complex
+    type: dict
 '''
 
 from ansible.module_utils.basic import AnsibleModule
