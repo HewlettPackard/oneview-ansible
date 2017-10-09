@@ -16,35 +16,38 @@
 # limitations under the License.
 ###
 
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
+
 ANSIBLE_METADATA = {'metadata_version': '1.1',
-                    'status': ['stableinterface'],
+                    'status': ['preview'],
                     'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
 module: oneview_san_manager_facts
-short_description: Retrieve facts about one or more of the OneView SAN Managers.
+short_description: Retrieve facts about one or more of the OneView SAN Managers
 description:
-    - Retrieve facts about one or more of the SAN Managers from OneView.
-version_added: "2.3"
+    - Retrieve facts about one or more of the SAN Managers from OneView
+version_added: "2.5"
 requirements:
-    - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
-author: "Mariana Kreisig (@marikrg)"
+    - hpOneView >= 2.0.1
+author:
+    - Felipe Bulsoni (@fgbulsoni)
+    - Thiago Miotto (@tmiotto)
+    - Adriane Cardozo (@adriane-cardozo)
 options:
     provider_display_name:
       description:
         - Provider Display Name.
-      required: false
     params:
       description:
         - List of params to delimit, filter and sort the list of resources.
         - "params allowed:
-           C(start): The first item to return, using 0-based indexing.
-           C(count): The number of resources to return.
-           C(query): A general query string to narrow the list of resources returned.
-           C(sort): The sort order of the returned data set."
-      required: false
+           - C(start): The first item to return, using 0-based indexing.
+           - C(count): The number of resources to return.
+           - C(query): A general query string to narrow the list of resources returned.
+           - C(sort): The sort order of the returned data set."
 extends_documentation_fragment:
     - oneview
 '''
@@ -52,13 +55,14 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all SAN Managers
   oneview_san_manager_facts:
-    config: "{{ config_path }}"
+    config: /etc/oneview/oneview_config.json
+  delegate_to: localhost
 
 - debug: var=san_managers
 
 - name: Gather paginated, filtered and sorted facts about SAN Managers
   oneview_san_manager_facts:
-    config: "{{ config_path }}"
+    config: /etc/oneview/oneview_config.json
     params:
       start: 0
       count: 3
@@ -70,8 +74,9 @@ EXAMPLES = '''
 
 - name: Gather facts about a SAN Manager by provider display name
   oneview_san_manager_facts:
-    config: "{{ config_path }}"
-    provider_display_name: "Brocade Network Advisor"
+    config: /etc/oneview/oneview_config.json
+    provider_display_name: Brocade Network Advisor
+  delegate_to: localhost
 
 - debug: var=san_managers
 '''
@@ -89,8 +94,8 @@ from module_utils.oneview import OneViewModuleBase
 
 class SanManagerFactsModule(OneViewModuleBase):
     argument_spec = dict(
-        provider_display_name=dict(required=False, type='str'),
-        params=dict(required=False, type='dict')
+        provider_display_name=dict(type='str'),
+        params=dict(type='dict')
     )
 
     def __init__(self):
