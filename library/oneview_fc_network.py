@@ -16,9 +16,12 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'metadata_version': '1.0',
-                    'status': ['stableinterface'],
-                    'supported_by': 'curated'}
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
@@ -26,11 +29,10 @@ module: oneview_fc_network
 short_description: Manage OneView Fibre Channel Network resources.
 description:
     - Provides an interface to manage Fibre Channel Network resources. Can create, update, and delete.
-version_added: "2.3"
+version_added: "2.4"
 requirements:
-    - "python >= 2.7.9"
     - "hpOneView >= 4.0.0"
-author: "Bruno Souza (@bsouza)"
+author: "Felipe Bulsoni (@fgbulsoni)"
 options:
     state:
         description:
@@ -84,12 +86,11 @@ EXAMPLES = '''
 
 RETURN = '''
 fc_network:
-    description: Has the facts about the OneView FC Networks.
+    description: Has the facts about the managed OneView FC Network.
     returned: On state 'present'. Can be null.
-    type: complex
+    type: dict
 '''
 
-from ansible.module_utils.basic import AnsibleModule
 from module_utils.oneview import OneViewModuleBase
 
 
@@ -117,11 +118,11 @@ class FcNetworkModule(OneViewModuleBase):
         resource = self.get_by_name(self.data['name'])
 
         if self.state == 'present':
-            return self.__present(resource)
-        elif self.state == 'absent':
+            return self._present(resource)
+        else:
             return self.resource_absent(resource)
 
-    def __present(self, resource):
+    def _present(self, resource):
         scope_uris = self.data.pop('scopeUris', None)
         result = self.resource_present(resource, self.RESOURCE_FACT_NAME)
         if scope_uris is not None:
