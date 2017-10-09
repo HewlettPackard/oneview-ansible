@@ -16,32 +16,36 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'community',
-                    'metadata_version': '1.1'}
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
 module: oneview_network_set_facts
-short_description: Retrieve facts about the OneView Network Sets.
+short_description: Retrieve facts about the OneView Network Sets
 description:
     - Retrieve facts about the Network Sets from OneView.
-version_added: "2.3"
+version_added: "2.4"
 requirements:
-    - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
-author: "Mariana Kreisig (@marikrg)"
+    - hpOneView >= 2.0.1
+author:
+    - Felipe Bulsoni (@fgbulsoni)
+    - Thiago Miotto (@tmiotto)
+    - Adriane Cardozo (@adriane-cardozo)
 options:
     name:
       description:
         - Network Set name.
-      required: false
+
     options:
       description:
         - "List with options to gather facts about Network Set.
           Option allowed: C(withoutEthernet).
           The option C(withoutEthernet) retrieves the list of network_sets excluding Ethernet networks."
-      required: false
 
 extends_documentation_fragment:
     - oneview
@@ -51,44 +55,69 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Network Sets
   oneview_network_set_facts:
-    config: '{{ config_path }}'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=network_sets
 
 - name: Gather paginated, filtered, and sorted facts about Network Sets
   oneview_network_set_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
     params:
       start: 0
       count: 3
       sort: 'name:descending'
       filter: name='netset001'
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=network_sets
 
 - name: Gather facts about all Network Sets, excluding Ethernet networks
   oneview_network_set_facts:
-    config: '{{ config_path }}'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
     options:
         - withoutEthernet
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=network_sets
 
 
 - name: Gather facts about a Network Set by name
   oneview_network_set_facts:
-    config: '{{ config_path }}'
-    name: 'Name of the Network Set'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+    name: Name of the Network Set
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=network_sets
 
 
 - name: Gather facts about a Network Set by name, excluding Ethernet networks
   oneview_network_set_facts:
-    config: '{{ config_path }}'
-    name: 'Name of the Network Set'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+    name: Name of the Network Set
     options:
         - withoutEthernet
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=network_sets
 '''
@@ -106,9 +135,9 @@ from module_utils.oneview import OneViewModuleBase
 
 class NetworkSetFactsModule(OneViewModuleBase):
     argument_spec = dict(
-        name=dict(required=False, type='str'),
-        options=dict(required=False, type='list'),
-        params=dict(required=False, type='dict'),
+        name=dict(type='str'),
+        options=dict(type='list'),
+        params=dict(type='dict'),
     )
 
     def __init__(self):
@@ -119,7 +148,7 @@ class NetworkSetFactsModule(OneViewModuleBase):
         name = self.module.params.get('name')
 
         if 'withoutEthernet' in self.options:
-            filter_by_name = "\"'name'='{}'\"".format(name) if name else ''
+            filter_by_name = ("\"'name'='%s'\"" % name) if name else ''
             network_sets = self.oneview_client.network_sets.get_all_without_ethernet(filter=filter_by_name)
         elif name:
             network_sets = self.oneview_client.network_sets.get_by('name', name)
