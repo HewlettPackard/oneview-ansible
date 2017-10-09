@@ -17,26 +17,30 @@
 ###
 
 
-ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'community',
-                    'metadata_version': '1.1'}
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
 module: oneview_logical_interconnect_group_facts
-short_description: Retrieve facts about one or more of the OneView Logical Interconnect Groups.
+short_description: Retrieve facts about one or more of the OneView Logical Interconnect Groups
 description:
-    - Retrieve facts about one or more of the Logical Interconnect Groups from OneView.
-version_added: "2.3"
+    - Retrieve facts about one or more of the Logical Interconnect Groups from OneView
+version_added: "2.5"
 requirements:
-    - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
-author: "Camila Balestrin (@balestrinc)"
+    - hpOneView >= 2.0.1
+author:
+    - Felipe Bulsoni (@fgbulsoni)
+    - Thiago Miotto (@tmiotto)
+    - Adriane Cardozo (@adriane-cardozo)
 options:
     name:
       description:
         - Logical Interconnect Group name.
-      required: false
 extends_documentation_fragment:
     - oneview
     - oneview.factsparams
@@ -45,25 +49,40 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Logical Interconnect Groups
   oneview_logical_interconnect_group_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=logical_interconnect_groups
 
 - name: Gather paginated, filtered and sorted facts about Logical Interconnect Groups
   oneview_logical_interconnect_group_facts:
-    config: "{{ config }}"
     params:
       start: 0
       count: 3
-      sort: 'name:descending'
-      filter: 'name=LIGName'
+      sort: name:descending
+      filter: name=LIGName
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=logical_interconnect_groups
 
 - name: Gather facts about a Logical Interconnect Group by name
   oneview_logical_interconnect_group_facts:
-    config: "{{ config_file_path }}"
     name: logical lnterconnect group name
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=logical_interconnect_groups
 '''
@@ -83,8 +102,8 @@ class LogicalInterconnectGroupFactsModule(OneViewModuleBase):
     def __init__(self):
 
         argument_spec = dict(
-            name=dict(required=False, type='str'),
-            params=dict(required=False, type='dict'),
+            name=dict(type='str'),
+            params=dict(type='dict'),
         )
 
         super(LogicalInterconnectGroupFactsModule, self).__init__(additional_arg_spec=argument_spec)
