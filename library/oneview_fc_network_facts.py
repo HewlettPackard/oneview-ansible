@@ -16,27 +16,27 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'community',
-                    'metadata_version': '1.1'}
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
 module: oneview_fc_network_facts
-short_description: Retrieve the facts about one or more of the OneView Fibre Channel Networks.
+short_description: Retrieve the facts about one or more of the OneView Fibre Channel Networks
 description:
     - Retrieve the facts about one or more of the Fibre Channel Networks from OneView.
-version_added: "2.3"
+version_added: "2.4"
 requirements:
-    - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - hpOneView >= 2.0.1
 author:
-    "Mariana Kreisig (@marikrg)"
+    - Felipe Bulsoni (@fgbulsoni)
+    - Thiago Miotto (@tmiotto)
+    - Adriane Cardozo (@adriane-cardozo)
 options:
     name:
       description:
         - Fibre Channel Network name.
-      required: false
 
 extends_documentation_fragment:
     - oneview
@@ -46,24 +46,27 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Fibre Channel Networks
   oneview_fc_network_facts:
-    config: "{{ config_file_path }}"
+    config: /etc/oneview/oneview_config.json
+  delegate_to: localhost
 
 - debug: var=fc_networks
 
 - name: Gather paginated, filtered and sorted facts about Fibre Channel Networks
   oneview_fc_network_facts:
-    config: "{{ config }}"
+    config: /etc/oneview/oneview_config.json
     params:
       start: 1
       count: 3
       sort: 'name:descending'
       filter: 'fabricType=FabricAttach'
+  delegate_to: localhost
 - debug: var=fc_networks
 
 - name: Gather facts about a Fibre Channel Network by name
   oneview_fc_network_facts:
-    config: "{{ config_file_path }}"
+    config: /etc/oneview/oneview_config.json
     name: network name
+  delegate_to: localhost
 
 - debug: var=fc_networks
 '''
