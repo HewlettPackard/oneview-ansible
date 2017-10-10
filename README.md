@@ -258,4 +258,10 @@ for example: **oneview_fc_network.yml**
 
 **Facts**
 
-Modules that implement facts follow the same rules of any other modules, but the filenames have a suffix: "_facts", for example: **oneview_fc_network_facts**
+Modules that implement facts follow the same rules of any other modules, but the filenames have a suffix: "\_facts", for example: **oneview_fc_network_facts**
+
+## Testing
+
+The basic test execution can be achieved by executing the `build.sh` file.
+
+Please refer to [TESTING.md](TESTING.md) for further testing information.
