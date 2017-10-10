@@ -26,7 +26,7 @@
   * [oneview_drive_enclosure - Manage OneView Drive Enclosure resources.](#oneview_drive_enclosure)
   * [oneview_drive_enclosure_facts - Retrieve the facts about one or more of the OneView Drive Enclosures.](#oneview_drive_enclosure_facts)
   * [oneview_enclosure - Manage OneView Enclosure resources.](#oneview_enclosure)
-  * [oneview_enclosure_facts - Retrieve facts about one or more Enclosures.](#oneview_enclosure_facts)
+  * [oneview_enclosure_facts - Retrieve facts about one or more Enclosures](#oneview_enclosure_facts)
   * [oneview_enclosure_group - Manage OneView Enclosure Group resources.](#oneview_enclosure_group)
   * [oneview_enclosure_group_facts - Retrieve facts about one or more of the OneView Enclosure Groups.](#oneview_enclosure_group_facts)
   * [oneview_ethernet_network - Manage OneView Ethernet Network resources.](#oneview_ethernet_network)
@@ -36,9 +36,9 @@
   * [oneview_fabric - Manage OneView Fabric resources.](#oneview_fabric)
   * [oneview_fabric_facts - Retrieve the facts about one or more of the OneView Fabrics.](#oneview_fabric_facts)
   * [oneview_fc_network - Manage OneView Fibre Channel Network resources.](#oneview_fc_network)
-  * [oneview_fc_network_facts - Retrieve the facts about one or more of the OneView Fibre Channel Networks.](#oneview_fc_network_facts)
-  * [oneview_fcoe_network - Manage OneView FCoE Network resources.](#oneview_fcoe_network)
-  * [oneview_fcoe_network_facts - Retrieve the facts about one or more of the OneView FCoE Networks.](#oneview_fcoe_network_facts)
+  * [oneview_fc_network_facts - Retrieve the facts about one or more of the OneView Fibre Channel Networks](#oneview_fc_network_facts)
+  * [oneview_fcoe_network - Manage OneView FCoE Network resources](#oneview_fcoe_network)
+  * [oneview_fcoe_network_facts - Retrieve the facts about one or more of the OneView FCoE Networks](#oneview_fcoe_network_facts)
   * [oneview_firmware_bundle - Upload OneView Firmware Bundle resources.](#oneview_firmware_bundle)
   * [oneview_firmware_driver - Provides an interface to remove Firmware Driver resources.](#oneview_firmware_driver)
   * [oneview_firmware_driver_facts - Retrieve the facts about one or more of the OneView Firmware Drivers.](#oneview_firmware_driver_facts)
@@ -57,7 +57,7 @@
   * [oneview_logical_interconnect - Manage OneView Logical Interconnect resources.](#oneview_logical_interconnect)
   * [oneview_logical_interconnect_facts - Retrieve facts about one or more of the OneView Logical Interconnects.](#oneview_logical_interconnect_facts)
   * [oneview_logical_interconnect_group - Manage OneView Logical Interconnect Group resources.](#oneview_logical_interconnect_group)
-  * [oneview_logical_interconnect_group_facts - Retrieve facts about one or more of the OneView Logical Interconnect Groups.](#oneview_logical_interconnect_group_facts)
+  * [oneview_logical_interconnect_group_facts - Retrieve facts about one or more of the OneView Logical Interconnect Groups](#oneview_logical_interconnect_group_facts)
   * [oneview_logical_switch - Manage OneView Logical Switch resources.](#oneview_logical_switch)
   * [oneview_logical_switch_facts - Retrieve the facts about one or more of the OneView Logical Switches.](#oneview_logical_switch_facts)
   * [oneview_logical_switch_group - Manage OneView Logical Switch Group resources.](#oneview_logical_switch_group)
@@ -65,7 +65,7 @@
   * [oneview_managed_san - Manage OneView Managed SAN resources.](#oneview_managed_san)
   * [oneview_managed_san_facts - Retrieve facts about the OneView Managed SANs.](#oneview_managed_san_facts)
   * [oneview_network_set - Manage OneView Network Set resources.](#oneview_network_set)
-  * [oneview_network_set_facts - Retrieve facts about the OneView Network Sets.](#oneview_network_set_facts)
+  * [oneview_network_set_facts - Retrieve facts about the OneView Network Sets](#oneview_network_set_facts)
   * [oneview_os_deployment_plan_facts - Retrieve facts about one or more Os Deployment Plans.](#oneview_os_deployment_plan_facts)
   * [oneview_os_deployment_server - Manage OneView Deployment Server resources.](#oneview_os_deployment_server)
   * [oneview_os_deployment_server_facts - Retrieve facts about one or more OS Deployment Servers.](#oneview_os_deployment_server_facts)
@@ -74,7 +74,7 @@
   * [oneview_rack - Manage OneView Racks resources.](#oneview_rack)
   * [oneview_rack_facts - Retrieve facts about Rack resources.](#oneview_rack_facts)
   * [oneview_san_manager - Manage OneView SAN Manager resources.](#oneview_san_manager)
-  * [oneview_san_manager_facts - Retrieve facts about one or more of the OneView SAN Managers.](#oneview_san_manager_facts)
+  * [oneview_san_manager_facts - Retrieve facts about one or more of the OneView SAN Managers](#oneview_san_manager_facts)
   * [oneview_sas_interconnect - Manage the OneView SAS Interconnect resources.](#oneview_sas_interconnect)
   * [oneview_sas_interconnect_facts - Retrieve facts about the OneView SAS Interconnects.](#oneview_sas_interconnect_facts)
   * [oneview_sas_interconnect_type_facts - Retrieve facts about the OneView SAS Interconnect Types.](#oneview_sas_interconnect_type_facts)
@@ -2198,7 +2198,7 @@ Manage OneView Enclosure resources.
 
 
 ## oneview_enclosure_facts
-Retrieve facts about one or more Enclosures.
+Retrieve facts about one or more Enclosures
 
 #### Synopsis
  Retrieve facts about one or more of the Enclosures from OneView.
@@ -2212,8 +2212,8 @@ Retrieve facts about one or more Enclosures.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
-| name  |   No  |  | |  Enclosure name.  |
-| options  |   No  |  | |  List with options to gather additional facts about an Enclosure and related resources. Options allowed: `script`, `environmentalConfiguration`, and `utilization`. For the option `utilization`, you can provide specific parameters.  |
+| name  |   |  | |  Enclosure name.  |
+| options  |   |  | |  List with options to gather additional facts about an Enclosure and related resources. Options allowed: `script`, `environmentalConfiguration`, and `utilization`. For the option `utilization`, you can provide specific parameters.  |
 | params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
@@ -2224,34 +2224,52 @@ Retrieve facts about one or more Enclosures.
 
 - name: Gather facts about all Enclosures
   oneview_enclosure_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+  no_log: true
+  delegate_to: localhost
 - debug: var=enclosures
 
 - name: Gather paginated, filtered and sorted facts about Enclosures
   oneview_enclosure_facts:
-    config: "{{ config }}"
     params:
       start: 0
       count: 3
-      sort: 'name:descending'
-      filter: 'status=OK'
+      sort: name:descending
+      filter: status=OK
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+  no_log: true
+  delegate_to: localhost
 - debug: var=enclosures
 
 - name: Gather facts about an Enclosure by name
   oneview_enclosure_facts:
-    config: "{{ config_file_path }}"
-    name: "Enclosure-Name"
+    name: Enclosure-Name
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+  no_log: true
   delegate_to: localhost
 - debug: var=enclosures
 
 - name: Gather facts about an Enclosure by name with options
   oneview_enclosure_facts:
-    config: "{{ config_file_path }}"
-    name: 'Test-Enclosure'
+    name: Test-Enclosure
     options:
       - script                       # optional
       - environmentalConfiguration   # optional
       - utilization                  # optional
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+  no_log: true
   delegate_to: localhost
 - debug: var=enclosures
 - debug: var=enclosure_script
@@ -2261,16 +2279,20 @@ Retrieve facts about one or more Enclosures.
 - name: "Gather facts about an Enclosure with temperature data at a resolution of one sample per day, between two
          specified dates"
   oneview_enclosure_facts:
-    config: "{{ config_file_path }}"
-    name: 'Test-Enclosure'
+    name: Test-Enclosure
     options:
       - utilization:                   # optional
-          fields: 'AmbientTemperature'
+          fields: AmbientTemperature
           filter:
-            - "startDate=2016-07-01T14:29:42.000Z"
-            - "endDate=2017-07-01T03:29:42.000Z"
-          view: 'day'
-          refresh: False
+            - startDate=2016-07-01T14:29:42.000Z
+            - endDate=2017-07-01T03:29:42.000Z
+          view: day
+          refresh: false
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+  no_log: true
   delegate_to: localhost
 - debug: var=enclosures
 - debug: var=enclosure_utilization
@@ -2284,7 +2306,7 @@ Retrieve facts about one or more Enclosures.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | enclosure_environmental_configuration   | Has all the OneView facts about the environmental configuration of an Enclosure. |  When requested, but can be null. |  dict |
-| enclosure_script   | Has all the OneView facts about the script of an Enclosure. |  When requested, but can be null. |  dict |
+| enclosure_script   | Has all the OneView facts about the script of an Enclosure. |  When requested, but can be null. |  string |
 | enclosure_utilization   | Has all the OneView facts about the utilization of an Enclosure. |  When requested, but can be null. |  dict |
 | enclosures   | Has all the OneView facts about the Enclosures. |  Always, but can be null. |  dict |
 
@@ -3031,7 +3053,7 @@ Manage OneView Fibre Channel Network resources.
 
 
 ## oneview_fc_network_facts
-Retrieve the facts about one or more of the OneView Fibre Channel Networks.
+Retrieve the facts about one or more of the OneView Fibre Channel Networks
 
 #### Synopsis
  Retrieve the facts about one or more of the Fibre Channel Networks from OneView.
@@ -3045,7 +3067,7 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
-| name  |   No  |  | |  Fibre Channel Network name.  |
+| name  |   |  | |  Fibre Channel Network name.  |
 | params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
@@ -3056,24 +3078,27 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks.
 
 - name: Gather facts about all Fibre Channel Networks
   oneview_fc_network_facts:
-    config: "{{ config_file_path }}"
+    config: /etc/oneview/oneview_config.json
+  delegate_to: localhost
 
 - debug: var=fc_networks
 
 - name: Gather paginated, filtered and sorted facts about Fibre Channel Networks
   oneview_fc_network_facts:
-    config: "{{ config }}"
+    config: /etc/oneview/oneview_config.json
     params:
       start: 1
       count: 3
       sort: 'name:descending'
       filter: 'fabricType=FabricAttach'
+  delegate_to: localhost
 - debug: var=fc_networks
 
 - name: Gather facts about a Fibre Channel Network by name
   oneview_fc_network_facts:
-    config: "{{ config_file_path }}"
+    config: /etc/oneview/oneview_config.json
     name: network name
+  delegate_to: localhost
 
 - debug: var=fc_networks
 
@@ -3103,7 +3128,7 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks.
 
 
 ## oneview_fcoe_network
-Manage OneView FCoE Network resources.
+Manage OneView FCoE Network resources
 
 #### Synopsis
  Provides an interface to manage FCoE Network resources. Can create, update, or delete.
@@ -3118,7 +3143,7 @@ Manage OneView FCoE Network resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with FCoE Network properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the FCoE Network resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
+| state  |   |  present  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the FCoE Network resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
@@ -3129,18 +3154,19 @@ Manage OneView FCoE Network resources.
 
 - name: Ensure that FCoE Network is present using the default configuration
   oneview_fcoe_network:
-    config: "{{ config_file_path }}"
+    config: '/etc/oneview/oneview_config.json'
     state: present
     data:
-      name: 'Test FCoE Network'
-      vlanId: '201'
+      name: Test FCoE Network
+      vlanId: 201
+  delegate_to: localhost
 
 - name: Update the FCOE network scopes
   oneview_fcoe_network:
-    config: "{{ config_file_path }}"
+    config: '/etc/oneview/oneview_config.json'
     state: present
     data:
-      name: 'New FCoE Network'
+      name: New FCoE Network
       scopeUris:
         - '/rest/scopes/00SC123456'
         - '/rest/scopes/01SC123456'
@@ -3148,10 +3174,11 @@ Manage OneView FCoE Network resources.
 
 - name: Ensure that FCoE Network is absent
   oneview_fcoe_network:
-    config: "{{ config_file_path }}"
+    config: '/etc/oneview/oneview_config.json'
     state: absent
     data:
-      name: 'New FCoE Network'
+      name: New FCoE Network
+  delegate_to: localhost
 
 ```
 
@@ -3179,7 +3206,7 @@ Manage OneView FCoE Network resources.
 
 
 ## oneview_fcoe_network_facts
-Retrieve the facts about one or more of the OneView FCoE Networks.
+Retrieve the facts about one or more of the OneView FCoE Networks
 
 #### Synopsis
  Retrieve the facts about one or more of the FCoE Networks from OneView.
@@ -3193,7 +3220,7 @@ Retrieve the facts about one or more of the OneView FCoE Networks.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
-| name  |   No  |  | |  FCoE Network name.  |
+| name  |   |  | |  FCoE Network name.  |
 | params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
@@ -3204,25 +3231,28 @@ Retrieve the facts about one or more of the OneView FCoE Networks.
 
 - name: Gather facts about all FCoE Networks
   oneview_fcoe_network_facts:
-    config: "{{ config_file_path }}"
+    config: /etc/oneview/oneview_config.json
+  delegate_to: localhost
 
 - debug: var=fcoe_networks
 
 - name: Gather paginated, filtered and sorted facts about FCoE Networks
   oneview_fcoe_network_facts:
-    config: "{{ config }}"
+    config: /etc/oneview/oneview_config.json
     params:
       start: 0
       count: 3
       sort: 'name:descending'
       filter: 'vlanId=2'
+  delegate_to: localhost
 
 - debug: var=fcoe_networks
 
 - name: Gather facts about a FCoE Network by name
   oneview_fcoe_network_facts:
-    config: "{{ config_file_path }}"
-    name: "Test FCoE Network Facts"
+    config: /etc/oneview/oneview_config.json
+    name: Test FCoE Network Facts
+  delegate_to: localhost
 
 - debug: var=fcoe_networks
 
@@ -4901,10 +4931,10 @@ Manage OneView Logical Interconnect Group resources.
 
 
 ## oneview_logical_interconnect_group_facts
-Retrieve facts about one or more of the OneView Logical Interconnect Groups.
+Retrieve facts about one or more of the OneView Logical Interconnect Groups
 
 #### Synopsis
- Retrieve facts about one or more of the Logical Interconnect Groups from OneView.
+ Retrieve facts about one or more of the Logical Interconnect Groups from OneView
 
 #### Requirements (on the host that executes the module)
   * hpOneView >= 2.0.1
@@ -4915,7 +4945,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
-| name  |   No  |  | |  Logical Interconnect Group name.  |
+| name  |   |  | |  Logical Interconnect Group name.  |
 | params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
@@ -4926,25 +4956,40 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups.
 
 - name: Gather facts about all Logical Interconnect Groups
   oneview_logical_interconnect_group_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=logical_interconnect_groups
 
 - name: Gather paginated, filtered and sorted facts about Logical Interconnect Groups
   oneview_logical_interconnect_group_facts:
-    config: "{{ config }}"
     params:
       start: 0
       count: 3
-      sort: 'name:descending'
-      filter: 'name=LIGName'
+      sort: name:descending
+      filter: name=LIGName
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=logical_interconnect_groups
 
 - name: Gather facts about a Logical Interconnect Group by name
   oneview_logical_interconnect_group_facts:
-    config: "{{ config_file_path }}"
     name: logical lnterconnect group name
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=logical_interconnect_groups
 
@@ -5647,7 +5692,7 @@ Manage OneView Network Set resources.
 
 
 ## oneview_network_set_facts
-Retrieve facts about the OneView Network Sets.
+Retrieve facts about the OneView Network Sets
 
 #### Synopsis
  Retrieve facts about the Network Sets from OneView.
@@ -5661,8 +5706,8 @@ Retrieve facts about the OneView Network Sets.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
-| name  |   No  |  | |  Network Set name.  |
-| options  |   No  |  | |  List with options to gather facts about Network Set. Option allowed: `withoutEthernet`. The option `withoutEthernet` retrieves the list of network_sets excluding Ethernet networks.  |
+| name  |   |  | |  Network Set name.  |
+| options  |   |  | |  List with options to gather facts about Network Set. Option allowed: `withoutEthernet`. The option `withoutEthernet` retrieves the list of network_sets excluding Ethernet networks.  |
 | params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
@@ -5673,44 +5718,69 @@ Retrieve facts about the OneView Network Sets.
 
 - name: Gather facts about all Network Sets
   oneview_network_set_facts:
-    config: '{{ config_path }}'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=network_sets
 
 - name: Gather paginated, filtered, and sorted facts about Network Sets
   oneview_network_set_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
     params:
       start: 0
       count: 3
       sort: 'name:descending'
       filter: name='netset001'
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=network_sets
 
 - name: Gather facts about all Network Sets, excluding Ethernet networks
   oneview_network_set_facts:
-    config: '{{ config_path }}'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
     options:
         - withoutEthernet
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=network_sets
 
 
 - name: Gather facts about a Network Set by name
   oneview_network_set_facts:
-    config: '{{ config_path }}'
-    name: 'Name of the Network Set'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+    name: Name of the Network Set
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=network_sets
 
 
 - name: Gather facts about a Network Set by name, excluding Ethernet networks
   oneview_network_set_facts:
-    config: '{{ config_path }}'
-    name: 'Name of the Network Set'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+    name: Name of the Network Set
     options:
         - withoutEthernet
+  no_log: true
+  delegate_to: localhost
 
 - debug: var=network_sets
 
@@ -6474,10 +6544,10 @@ Manage OneView SAN Manager resources.
 
 
 ## oneview_san_manager_facts
-Retrieve facts about one or more of the OneView SAN Managers.
+Retrieve facts about one or more of the OneView SAN Managers
 
 #### Synopsis
- Retrieve facts about one or more of the SAN Managers from OneView.
+ Retrieve facts about one or more of the SAN Managers from OneView
 
 #### Requirements (on the host that executes the module)
   * hpOneView >= 2.0.1
@@ -6488,8 +6558,8 @@ Retrieve facts about one or more of the OneView SAN Managers.
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `query`: A general query string to narrow the list of resources returned. `sort`: The sort order of the returned data set.  |
-| provider_display_name  |   No  |  | |  Provider Display Name.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `query`: A general query string to narrow the list of resources returned. - `sort`: The sort order of the returned data set.  |
+| provider_display_name  |   |  | |  Provider Display Name.  |
 
 
  
@@ -6499,13 +6569,14 @@ Retrieve facts about one or more of the OneView SAN Managers.
 
 - name: Gather facts about all SAN Managers
   oneview_san_manager_facts:
-    config: "{{ config_path }}"
+    config: /etc/oneview/oneview_config.json
+  delegate_to: localhost
 
 - debug: var=san_managers
 
 - name: Gather paginated, filtered and sorted facts about SAN Managers
   oneview_san_manager_facts:
-    config: "{{ config_path }}"
+    config: /etc/oneview/oneview_config.json
     params:
       start: 0
       count: 3
@@ -6517,8 +6588,9 @@ Retrieve facts about one or more of the OneView SAN Managers.
 
 - name: Gather facts about a SAN Manager by provider display name
   oneview_san_manager_facts:
-    config: "{{ config_path }}"
-    provider_display_name: "Brocade Network Advisor"
+    config: /etc/oneview/oneview_config.json
+    provider_display_name: Brocade Network Advisor
+  delegate_to: localhost
 
 - debug: var=san_managers
 

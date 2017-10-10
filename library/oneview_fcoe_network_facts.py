@@ -16,27 +16,30 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'community',
-                    'metadata_version': '1.1'}
+from __future__ import (absolute_import, division, print_function)
+__metaclass__ = type
+
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
 module: oneview_fcoe_network_facts
-short_description: Retrieve the facts about one or more of the OneView FCoE Networks.
+short_description: Retrieve the facts about one or more of the OneView FCoE Networks
 description:
     - Retrieve the facts about one or more of the FCoE Networks from OneView.
-version_added: "2.3"
+version_added: "2.4"
 requirements:
-    - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
-author: "Gustavo Hennig (@GustavoHennig)"
+    - hpOneView >= 2.0.1
+author:
+    - Felipe Bulsoni (@fgbulsoni)
+    - Thiago Miotto (@tmiotto)
+    - Adriane Cardozo (@adriane-cardozo)
 options:
     name:
       description:
         - FCoE Network name.
-      required: false
-
 extends_documentation_fragment:
     - oneview
     - oneview.factsparams
@@ -45,25 +48,28 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all FCoE Networks
   oneview_fcoe_network_facts:
-    config: "{{ config_file_path }}"
+    config: /etc/oneview/oneview_config.json
+  delegate_to: localhost
 
 - debug: var=fcoe_networks
 
 - name: Gather paginated, filtered and sorted facts about FCoE Networks
   oneview_fcoe_network_facts:
-    config: "{{ config }}"
+    config: /etc/oneview/oneview_config.json
     params:
       start: 0
       count: 3
       sort: 'name:descending'
       filter: 'vlanId=2'
+  delegate_to: localhost
 
 - debug: var=fcoe_networks
 
 - name: Gather facts about a FCoE Network by name
   oneview_fcoe_network_facts:
-    config: "{{ config_file_path }}"
-    name: "Test FCoE Network Facts"
+    config: /etc/oneview/oneview_config.json
+    name: Test FCoE Network Facts
+  delegate_to: localhost
 
 - debug: var=fcoe_networks
 '''
@@ -82,8 +88,8 @@ from module_utils.oneview import OneViewModuleBase
 class FcoeNetworkFactsModule(OneViewModuleBase):
     def __init__(self):
         argument_spec = dict(
-            name=dict(required=False, type='str'),
-            params=dict(required=False, type='dict')
+            name=dict(type='str'),
+            params=dict(type='dict'),
         )
 
         super(FcoeNetworkFactsModule, self).__init__(additional_arg_spec=argument_spec)
