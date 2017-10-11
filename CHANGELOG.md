@@ -1,4 +1,7 @@
 # v4.0.1
+#### Notes
+This release adds the [TESTING.md](TESTING.md) document.
+
 #### Bug fixes & Enhancements
 - [#172](https://github.com/HewlettPackard/oneview-ansible/issues/172) Allow credentials to be defined inside the playbooks
 - [#282](https://github.com/HewlettPackard/oneview-ansible/issues/282) Updating a Server Profile causes Server Hardware reboots for operations which do not require it
