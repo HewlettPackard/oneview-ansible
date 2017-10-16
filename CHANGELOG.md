@@ -11,6 +11,7 @@ This release adds the [TESTING.md](TESTING.md) document.
 - [#285](https://github.com/HewlettPackard/oneview-ansible/issues/285) Modules cannot unassign a Server Hardware or create SP with unassigned SH
 - [#288](https://github.com/HewlettPackard/oneview-ansible/issues/288) Adding osCustomAttributes to a SP which had none before results in failure
 - [#290](https://github.com/HewlettPackard/oneview-ansible/issues/290) Issue with filter on oneview_server_profile_facts
+- [#297](https://github.com/HewlettPackard/oneview-ansible/issues/297) Allow specifying a custom path for the module_utils
 
 # v4.0.0
 #### Notes
