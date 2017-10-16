@@ -95,8 +95,7 @@ user:
     type: dict
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase, ResourceComparator
+from ansible.module_utils.oneview import OneViewModuleBase, ResourceComparator
 from hpOneView.exceptions import HPOneViewException
 
 

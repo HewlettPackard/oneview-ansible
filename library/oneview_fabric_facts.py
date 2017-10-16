@@ -92,8 +92,7 @@ fabric_reserved_vlan_range:
     type: dict
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModuleBase
 
 
 class FabricFactsModule(OneViewModuleBase):

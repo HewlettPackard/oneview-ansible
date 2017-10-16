@@ -72,8 +72,7 @@ id_pools_ipv4_subnet:
     type: dict
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase, HPOneViewValueError, ResourceComparator
+from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError, ResourceComparator
 
 
 class IdPoolsIpv4SubnetModule(OneViewModuleBase):

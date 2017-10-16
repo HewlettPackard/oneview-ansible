@@ -93,8 +93,7 @@ default_connection_template:
 '''
 
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModuleBase
 
 
 class ConnectionTemplateFactsModule(OneViewModuleBase):

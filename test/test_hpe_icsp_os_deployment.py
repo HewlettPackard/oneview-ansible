@@ -18,6 +18,7 @@
 
 import unittest
 import mock
+from oneview_module_loader import ICspHelper
 import hpe_icsp_os_deployment
 from copy import deepcopy
 

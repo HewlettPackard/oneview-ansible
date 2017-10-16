@@ -98,10 +98,7 @@ uplink_set:
     returned: On state 'present'. Can be null.
     type: dict
 '''
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import (OneViewModuleBase,
-                                  HPOneViewResourceNotFound,
-                                  HPOneViewValueError)
+from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, HPOneViewValueError
 
 
 class UplinkSetModule(OneViewModuleBase):

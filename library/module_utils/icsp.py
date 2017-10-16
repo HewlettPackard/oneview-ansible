@@ -22,7 +22,7 @@ from __future__ import (absolute_import,
                         unicode_literals)
 
 from future import standard_library
-from urllib.parse import quote
+from six.moves.urllib.parse import quote
 import logging
 
 standard_library.install_aliases()

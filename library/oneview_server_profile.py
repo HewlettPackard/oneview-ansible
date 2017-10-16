@@ -202,15 +202,14 @@ import time
 
 from copy import deepcopy
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import (OneViewModuleBase,
-                                  ServerProfileReplaceNamesByUris,
-                                  HPOneViewValueError,
-                                  ServerProfileMerger,
-                                  ResourceComparator,
-                                  HPOneViewTaskError,
-                                  SPKeys,
-                                  HPOneViewException)
+from ansible.module_utils.oneview import (OneViewModuleBase,
+                                          ServerProfileReplaceNamesByUris,
+                                          HPOneViewValueError,
+                                          ServerProfileMerger,
+                                          ResourceComparator,
+                                          HPOneViewTaskError,
+                                          SPKeys,
+                                          HPOneViewException)
 
 # To activate logs, setup the environment var LOGFILE
 # e.g.: export LOGFILE=/tmp/ansible-oneview.log

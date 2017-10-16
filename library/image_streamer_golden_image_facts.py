@@ -76,8 +76,7 @@ golden_images:
     type: list
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModuleBase
 
 
 class GoldenImageFactsModule(OneViewModuleBase):

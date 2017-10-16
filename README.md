@@ -74,11 +74,11 @@ $ git clone https://github.com/HewlettPackard/oneview-ansible.git
 
 ### 2. Configure the ANSIBLE_LIBRARY environmental variable
 
-Set the environment variables `ANSIBLE_LIBRARY` and `PYTHONPATH`, specifying the `library` full path from the cloned project:
+Set the environment variables `ANSIBLE_LIBRARY` and `ANSIBLE_MODULE_UTILS`, specifying the `library` full path from the cloned project:
 
 ```bash
 $ export ANSIBLE_LIBRARY=/path/to/oneview-ansible/library
-$ export PYTHONPATH=$PYTHONPATH:$ANSIBLE_LIBRARY
+$ export ANSIBLE_MODULE_UTILS=/path/to/oneview-ansible/library/module_utils/
 ```
 
 ### 3. OneViewClient Configuration

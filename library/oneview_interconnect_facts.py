@@ -197,8 +197,7 @@ interconnect_pluggable_module_information:
     type: list
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModuleBase
 from hpOneView.resources.resource import extract_id_from_uri
 
 
