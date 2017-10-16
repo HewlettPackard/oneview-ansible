@@ -173,8 +173,7 @@ storage_volume:
     type: dict
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound, HPOneViewException
+from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound, HPOneViewException
 
 
 class VolumeModule(OneViewModuleBase):

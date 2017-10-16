@@ -160,8 +160,7 @@ artifact_bundle_deployment_group:
 '''
 
 import os
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase, ResourceComparator
+from ansible.module_utils.oneview import OneViewModuleBase, ResourceComparator
 
 
 class ArtifactBundleModule(OneViewModuleBase):

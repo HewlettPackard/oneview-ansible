@@ -175,8 +175,7 @@ generated_dump_uri:
     type: dict
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, ResourceComparator
+from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, ResourceComparator
 
 
 class LogicalEnclosureModule(OneViewModuleBase):

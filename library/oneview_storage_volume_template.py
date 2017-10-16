@@ -88,10 +88,9 @@ storage_volume_template:
 import collections
 
 from copy import deepcopy
-from module_utils.oneview import OneViewModuleBase, ResourceComparator, HPOneViewValueError
-
 from six import iteritems
-from ansible.module_utils.basic import AnsibleModule
+
+from ansible.module_utils.oneview import OneViewModuleBase, ResourceComparator, HPOneViewValueError
 
 
 def _update_dict_with_depth(ov_resource, user_resource):

@@ -121,8 +121,7 @@ power_device:
     type: dict
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound
 
 
 class PowerDeviceModule(OneViewModuleBase):

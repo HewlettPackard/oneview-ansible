@@ -108,8 +108,7 @@ san_manager:
     type: dict
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase, HPOneViewValueError, ResourceComparator
+from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError, ResourceComparator
 
 # To activate logs, setup the environment var LOGFILE
 # e.g.: export LOGFILE=/tmp/ansible-oneview.log

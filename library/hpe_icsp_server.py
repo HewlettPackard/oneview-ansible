@@ -130,7 +130,7 @@ import json
 import hpICsp
 from hpICsp.exceptions import HPICspException
 from ansible.module_utils.basic import AnsibleModule
-from module_utils.icsp import ICspHelper
+from ansible.module_utils.icsp import ICspHelper
 
 
 class ICspServerModule(object):

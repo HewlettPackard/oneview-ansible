@@ -157,8 +157,7 @@ logical_switch:
 
 from copy import deepcopy
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase, HPOneViewException, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewException, HPOneViewResourceNotFound
 
 
 class LogicalSwitchModule(OneViewModuleBase):

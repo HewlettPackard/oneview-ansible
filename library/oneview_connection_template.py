@@ -68,11 +68,7 @@ connection_template:
     type: dict
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import (OneViewModuleBase,
-                                  HPOneViewValueError,
-                                  HPOneViewResourceNotFound,
-                                  ResourceComparator)
+from ansible.module_utils.oneview import (OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound, ResourceComparator)
 
 
 class ConnectionTemplateModule(OneViewModuleBase):

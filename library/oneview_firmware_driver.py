@@ -78,8 +78,7 @@ EXAMPLES = '''
 
 RETURN = ''' # '''
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import (OneViewModuleBase, HPOneViewException)
+from ansible.module_utils.oneview import (OneViewModuleBase, HPOneViewException)
 
 
 class FirmwareDriverModule(OneViewModuleBase):

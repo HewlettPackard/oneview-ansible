@@ -18,7 +18,7 @@
 
 import unittest
 from oneview_module_loader import FirmwareDriverModule
-from module_utils.oneview import (OneViewClient)
+from ansible.module_utils.oneview import OneViewClient
 from hpe_test_utils import OneViewBaseTestCase
 
 FIRMWARE_DRIVER_NAME = "Service Pack for ProLiant.iso"

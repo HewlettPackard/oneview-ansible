@@ -103,7 +103,7 @@ standard_library.install_aliases()
 import time
 import hpICsp
 from ansible.module_utils.basic import AnsibleModule
-from module_utils.icsp import ICspHelper
+from ansible.module_utils.icsp import ICspHelper
 
 
 def deploy_server(module):

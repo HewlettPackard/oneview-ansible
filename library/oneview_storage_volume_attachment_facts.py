@@ -152,8 +152,7 @@ storage_volume_attachment_paths:
     type: dict
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase, HPOneViewValueError
+from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError
 
 SPECIFIC_ATTACHMENT_OPTIONS = ['storageVolumeAttachmentUri', 'storageVolumeUri', 'storageVolumeName',
                                'serverProfileName']

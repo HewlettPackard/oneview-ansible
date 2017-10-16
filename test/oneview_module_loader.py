@@ -22,16 +22,16 @@ So, to avoid merging issues, and maintaining the tests code equal, we create a u
 configure the imports that change from one repository to another.
 """
 
-ONEVIEW_MODULE_UTILS_PATH = 'module_utils.oneview'
+ONEVIEW_MODULE_UTILS_PATH = 'ansible.module_utils.oneview'
 
-from module_utils.oneview import (HPOneViewException,
-                                  HPOneViewTaskError,
-                                  OneViewModuleBase,
-                                  SPKeys,
-                                  ServerProfileMerger,
-                                  ServerProfileReplaceNamesByUris,
-                                  ResourceComparator)
-from module_utils.icsp import ICspHelper
+from ansible.module_utils.oneview import (HPOneViewException,
+                                          HPOneViewTaskError,
+                                          OneViewModuleBase,
+                                          SPKeys,
+                                          ServerProfileMerger,
+                                          ServerProfileReplaceNamesByUris,
+                                          ResourceComparator)
+from ansible.module_utils.icsp import ICspHelper
 from image_streamer_artifact_bundle import ArtifactBundleModule
 from image_streamer_artifact_bundle_facts import ArtifactBundleFactsModule
 from image_streamer_build_plan import BuildPlanModule

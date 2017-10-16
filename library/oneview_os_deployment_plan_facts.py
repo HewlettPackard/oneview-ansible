@@ -100,8 +100,7 @@ os_deployment_plan_custom_attributes:
     type: dict
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModuleBase
 from six import iteritems
 
 

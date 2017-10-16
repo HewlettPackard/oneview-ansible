@@ -18,7 +18,7 @@
 import unittest
 import mock
 
-from module_utils.icsp import ICspHelper
+from ansible.module_utils.icsp import ICspHelper
 
 DEFAULT_SERVER = {
     "name": "SP-01",

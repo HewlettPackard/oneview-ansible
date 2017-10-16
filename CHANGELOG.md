@@ -1,6 +1,9 @@
-# v4.0.1
+# v5.0.0
 #### Notes
 This release adds the [TESTING.md](TESTING.md) document.
+
+#### Breaking changes
+1. The PYTHONPATH variable no longer imports the oneview module_utils, now a new ENV variable must be set for the modules to work, the ANSIBLE_MODULE_UTILS variable.
 
 #### Bug fixes & Enhancements
 - [#172](https://github.com/HewlettPackard/oneview-ansible/issues/172) Allow credentials to be defined inside the playbooks
