@@ -21,6 +21,7 @@ import mock
 import yaml
 import json
 
+from oneview_module_loader import ICspHelper
 from hpe_icsp_server import (ICspServerModule,
                              main as hpe_icsp_server_main)
 
