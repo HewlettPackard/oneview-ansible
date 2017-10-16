@@ -231,7 +231,7 @@ scope_uris:
     type: dict
 '''
 
-from ansible.module_utils.oneview import (OneViewModuleBase, HPOneViewResourceNotFound, ResourceComparator, HPOneViewValueError)
+from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, ResourceComparator, HPOneViewValueError
 
 
 class LogicalInterconnectModule(OneViewModuleBase):

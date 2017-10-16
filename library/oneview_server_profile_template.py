@@ -98,7 +98,7 @@ server_profile_template:
     type: dict
 '''
 
-from ansible.module_utils.oneview import (OneViewModuleBase, ServerProfileReplaceNamesByUris, ServerProfileMerger, ResourceComparator)
+from ansible.module_utils.oneview import OneViewModuleBase, ServerProfileReplaceNamesByUris, ServerProfileMerger, ResourceComparator
 
 # To activate logs, setup the environment var LOGFILE
 # e.g.: export LOGFILE=/tmp/ansible-oneview.log
