@@ -333,12 +333,12 @@ class OneViewModuleBase(object):
     HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
     ONEVIEW_COMMON_ARGS = dict(
+        api_version=dict(type='int'),
         config=dict(type='path'),
         hostname=dict(type='str'),
-        username=dict(type='str'),
+        image_streamer_hostname=dict(type='str'),
         password=dict(type='str'),
-        api_version=dict(type='int'),
-        image_streamer_hostname=dict(type='str')
+        username=dict(type='str')
     )
 
     ONEVIEW_VALIDATE_ETAG_ARGS = dict(validate_etag=dict(type='bool', default=True))

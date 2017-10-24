@@ -42,7 +42,8 @@ from module_utils.oneview import (OneViewModuleBase,
                                   _str_sorted,
                                   merge_list_by_key,
                                   transform_list_to_dict,
-                                  compare)
+                                  compare,
+                                  get_logger)
 from module_utils.icsp import ICspHelper
 from image_streamer_artifact_bundle import ArtifactBundleModule
 from image_streamer_artifact_bundle_facts import ArtifactBundleFactsModule

@@ -16,6 +16,7 @@
 # limitations under the License.
 ###
 
+import logging
 import sys
 from module_utils import oneview
 
@@ -36,7 +37,8 @@ from module_utils.oneview import (OneViewModuleBase,
                                   _str_sorted,
                                   merge_list_by_key,
                                   transform_list_to_dict,
-                                  compare)
+                                  compare,
+                                  get_logger)
 
 MSG_GENERIC_ERROR = 'Generic error message'
 MSG_GENERIC = "Generic message"
@@ -96,6 +98,12 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         self.mock_ansible_module_init = patcher_ansible.start()
         self.mock_ansible_module = mock.Mock()
         self.mock_ansible_module_init.return_value = self.mock_ansible_module
+
+    def test_should_call_ov_exception_with_a_data(self):
+
+        error = {'message': 'Failure with data'}
+
+        OneViewModuleException(error)
 
     def test_should_call_exit_json_properly(self):
 
@@ -2631,6 +2639,37 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         self.assertFalse(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES])
+
+    @mock.patch.dict('os.environ', dict(LOGFILE='/path/log.txt'))
+    @mock.patch.object(logging, 'getLogger')
+    @mock.patch.object(logging, 'basicConfig')
+    def test_should_config_logging_when_logfile_env_var_defined(self, mock_logging_config, mock_get_logger):
+        fake_logger = mock.Mock()
+        mock_get_logger.return_value = fake_logger
+
+        get_logger('/home/dev/oneview-ansible/library/oneview_server_profile.py')
+
+        mock_get_logger.assert_called_once_with('oneview_server_profile.py')
+        fake_logger.addHandler.not_been_called()
+        mock_logging_config.assert_called_once_with(level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S',
+                                                    format='%(asctime)s %(levelname)s %(name)s %(message)s',
+                                                    filename='/path/log.txt', filemode='a')
+
+    @mock.patch('os.environ')
+    @mock.patch.object(logging, 'getLogger')
+    @mock.patch.object(logging, 'basicConfig')
+    @mock.patch.object(logging, 'NullHandler')
+    def test_should_add_null_handler_when_logfile_env_var_undefined(self, mock_null_handler, mock_logging_config,
+                                                                    mock_get_logger, mock_env):
+        mock_env.get.return_value = None
+        fake_logger = mock.Mock()
+        mock_get_logger.return_value = fake_logger
+
+        get_logger('/home/dev/oneview-ansible/library/oneview_server_profile.py')
+
+        mock_get_logger.assert_called_once_with('oneview_server_profile.py')
+        fake_logger.addHandler.assert_called_once_with(logging.NullHandler())
+        mock_logging_config.not_been_called()
 
 
 if __name__ == '__main__':
