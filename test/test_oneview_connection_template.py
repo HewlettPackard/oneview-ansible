@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
+from ansible.compat.tests import unittest, mock
 import yaml
 
 from oneview_module_loader import ConnectionTemplateModule
@@ -97,9 +97,7 @@ class ConnectionTemplateModuleSpec(unittest.TestCase,
 
         ConnectionTemplateModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ConnectionTemplateModule.MSG_MANDATORY_FIELD_MISSING
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ConnectionTemplateModule.MSG_MANDATORY_FIELD_MISSING)
 
     def test_should_fail_when_connection_template_was_not_found(self):
         self.mock_ov_client.connection_templates.get_by.return_value = []
@@ -108,9 +106,7 @@ class ConnectionTemplateModuleSpec(unittest.TestCase,
 
         ConnectionTemplateModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ConnectionTemplateModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ConnectionTemplateModule.MSG_NOT_FOUND)
 
 
 if __name__ == '__main__':

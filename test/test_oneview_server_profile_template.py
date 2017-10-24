@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
+from ansible.compat.tests import unittest, mock
 from copy import deepcopy
 from oneview_module_loader import ServerProfileTemplateModule
 from hpe_test_utils import OneViewBaseTestCase
@@ -171,8 +171,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase,
         ServerProfileTemplateModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ServerProfileTemplateModule.MSG_SRV_HW_TYPE_NOT_FOUND + 'Srv HW Type Name'
-        )
+            exception=mock.ANY, msg=ServerProfileTemplateModule.MSG_SRV_HW_TYPE_NOT_FOUND + 'Srv HW Type Name')
 
     def test_should_fail_when_enclosure_group_not_found(self):
         self.resource.get_by_name.return_value = CREATED_BASIC_TEMPLATE
@@ -185,8 +184,7 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase,
         ServerProfileTemplateModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ServerProfileTemplateModule.MSG_ENCLOSURE_GROUP_NOT_FOUND + 'EG Name'
-        )
+            exception=mock.ANY, msg=ServerProfileTemplateModule.MSG_ENCLOSURE_GROUP_NOT_FOUND + 'EG Name')
 
     def test_should_delete_when_template_exists(self):
         self.resource.get_by_name.return_value = CREATED_BASIC_TEMPLATE

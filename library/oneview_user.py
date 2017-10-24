@@ -95,8 +95,7 @@ user:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, ResourceComparator
-from hpOneView.exceptions import HPOneViewException
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleException, compare
 
 
 class UserModule(OneViewModuleBase):
@@ -127,7 +126,7 @@ class UserModule(OneViewModuleBase):
             self.data["userName"] = self.data.pop("name")
         try:
             resource = self.resource_client.get_by('name', self.data['userName'])
-        except HPOneViewException:
+        except OneViewModuleException:
             resource = None
 
         if self.state == 'present':
@@ -153,7 +152,7 @@ class UserModule(OneViewModuleBase):
             if 'password' in merged_data:
                 del merged_data['password']
 
-            if ResourceComparator.compare(resource, merged_data):
+            if compare(resource, merged_data):
                 msg = self.MSG_ALREADY_PRESENT
             else:
                 resource = self.resource_client.update(merged_data)
@@ -167,9 +166,9 @@ class UserModule(OneViewModuleBase):
     def __set_password(self, resource):
 
         if not resource:
-            raise HPOneViewException('The specified user does not exist.')
+            raise OneViewModuleException('The specified user does not exist.')
         if 'password' not in self.data:
-            raise HPOneViewException('This state requires a password to be declared.')
+            raise OneViewModuleException('This state requires a password to be declared.')
         resource = self.resource_client.update(self.data)
         return dict(changed=True, msg=self.MSG_PASSWORD_UPDATED, ansible_facts=dict(user=resource))
 

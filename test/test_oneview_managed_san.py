@@ -15,8 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import ManagedSanModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -103,9 +103,7 @@ class ManagedSanModuleSpec(unittest.TestCase,
 
         ManagedSanModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ManagedSanModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ManagedSanModule.MSG_NOT_FOUND)
 
     def test_update_refresh_state(self):
         self.resource.get_by_name.return_value = MANAGED_SAN
@@ -126,9 +124,7 @@ class ManagedSanModuleSpec(unittest.TestCase,
 
         ManagedSanModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ManagedSanModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ManagedSanModule.MSG_NOT_FOUND)
 
     def test_create_endpoints_csv_file(self):
         endpoints_csv_file = {"csvFileName": "ci-005056a65f14-172.18.15.1-SAN1_0-endpoints-2016_09_21_05_55_24.csv.gz"}
@@ -150,9 +146,7 @@ class ManagedSanModuleSpec(unittest.TestCase,
 
         ManagedSanModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ManagedSanModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ManagedSanModule.MSG_NOT_FOUND)
 
     def test_create_issues_report(self):
         issues_report = {"status": "report status"}
@@ -174,9 +168,7 @@ class ManagedSanModuleSpec(unittest.TestCase,
 
         ManagedSanModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ManagedSanModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ManagedSanModule.MSG_NOT_FOUND)
 
 
 if __name__ == '__main__':

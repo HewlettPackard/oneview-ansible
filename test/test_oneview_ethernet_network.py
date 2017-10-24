@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
+from ansible.compat.tests import unittest, mock
 import yaml
 
 from oneview_module_loader import EthernetNetworkModule
@@ -345,8 +345,8 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
         EthernetNetworkModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=EthernetNetworkModule.MSG_ETHERNET_NETWORK_NOT_FOUND
-        )
+            exception=mock.ANY,
+            msg=EthernetNetworkModule.MSG_ETHERNET_NETWORK_NOT_FOUND)
 
     def test_update_scopes_when_different(self):
         params_to_scope = PARAMS_FOR_PRESENT.copy()

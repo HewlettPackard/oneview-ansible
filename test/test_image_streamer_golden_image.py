@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
+from ansible.compat.tests import unittest, mock
 
 from oneview_module_loader import GoldenImageModule
 from hpe_test_utils import OneViewBaseTestCase
@@ -122,9 +122,7 @@ class GoldenImageSpec(unittest.TestCase,
 
         GoldenImageModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=GoldenImageModule.MSG_WAS_NOT_FOUND,
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=GoldenImageModule.MSG_WAS_NOT_FOUND,)
 
     def test_golden_image_archive_download(self):
         golden_image = self.GOLDEN_IMAGE_CREATE['data']
@@ -149,9 +147,7 @@ class GoldenImageSpec(unittest.TestCase,
 
         GoldenImageModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=GoldenImageModule.MSG_WAS_NOT_FOUND,
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=GoldenImageModule.MSG_WAS_NOT_FOUND)
 
     def test_should_not_update_when_data_is_equals(self):
         self.i3s.golden_images.get_by.return_value = [self.GOLDEN_IMAGE_UPDATE['data']]
@@ -202,9 +198,7 @@ class GoldenImageSpec(unittest.TestCase,
 
         GoldenImageModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=GoldenImageModule.MSG_CANT_CREATE_AND_UPLOAD
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=GoldenImageModule.MSG_CANT_CREATE_AND_UPLOAD)
 
     def test_should_fail_when_mandatory_attributes_are_missing(self):
         self.i3s.golden_images.get_by.return_value = []
@@ -215,9 +209,7 @@ class GoldenImageSpec(unittest.TestCase,
 
         GoldenImageModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=GoldenImageModule.MSG_MISSING_MANDATORY_ATTRIBUTES
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=GoldenImageModule.MSG_MISSING_MANDATORY_ATTRIBUTES)
 
     def test_should_fail_when_os_volume_not_found(self):
         self.i3s.golden_images.get_by.return_value = []
@@ -228,9 +220,7 @@ class GoldenImageSpec(unittest.TestCase,
 
         GoldenImageModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=GoldenImageModule.MSG_OS_VOLUME_WAS_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=GoldenImageModule.MSG_OS_VOLUME_WAS_NOT_FOUND)
 
     def test_should_fail_when_build_plan_not_found(self):
         self.i3s.golden_images.get_by.return_value = []
@@ -240,9 +230,7 @@ class GoldenImageSpec(unittest.TestCase,
 
         GoldenImageModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=GoldenImageModule.MSG_BUILD_PLAN_WAS_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=GoldenImageModule.MSG_BUILD_PLAN_WAS_NOT_FOUND)
 
 
 if __name__ == '__main__':

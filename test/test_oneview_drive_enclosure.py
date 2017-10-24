@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
+from ansible.compat.tests import unittest, mock
 import yaml
 
 from oneview_module_loader import DriveEnclosureModule
@@ -93,9 +93,7 @@ class DriveEnclosureSpec(unittest.TestCase,
 
         DriveEnclosureModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=DriveEnclosureModule.MSG_NAME_REQUIRED
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=DriveEnclosureModule.MSG_NAME_REQUIRED)
 
     def test_should_raise_exception_when_resource_not_found(self):
         self.drive_enclosures.get_by.return_value = []
@@ -103,9 +101,7 @@ class DriveEnclosureSpec(unittest.TestCase,
 
         DriveEnclosureModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=DriveEnclosureModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=DriveEnclosureModule.MSG_NOT_FOUND)
 
     def test_should_power_off(self):
         mock_return_patch = {'name': 'mock return'}

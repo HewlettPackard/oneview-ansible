@@ -19,7 +19,7 @@ import unittest
 import mock
 
 from hpe_test_utils import OneViewBaseTestCase
-from oneview_module_loader import UnmanagedDeviceModule, ResourceComparator
+from oneview_module_loader import UnmanagedDeviceModule
 
 ERROR_MSG = "Fake message error"
 
@@ -92,7 +92,7 @@ class UnmanagedDeviceSpec(unittest.TestCase,
             ansible_facts=dict(unmanaged_device=UNMANAGED_DEVICE)
         )
 
-    @mock.patch.object(ResourceComparator, 'compare')
+    @mock.patch('module_utils.oneview.compare')
     def test_should_not_update_when_data_is_equals(self, mock_resource_compare):
         self.resource.get_by.return_value = [UNMANAGED_DEVICE_FOR_PRESENT]
 
@@ -110,7 +110,7 @@ class UnmanagedDeviceSpec(unittest.TestCase,
             ansible_facts=dict(unmanaged_device=UNMANAGED_DEVICE_FOR_PRESENT)
         )
 
-    @mock.patch.object(ResourceComparator, 'compare')
+    @mock.patch('module_utils.oneview.compare')
     def test_should_update_the_unmanaged_device(self, mock_resource_compare):
         self.resource.get_by.return_value = [UNMANAGED_DEVICE_FOR_PRESENT]
         self.resource.update.return_value = UNMANAGED_DEVICE

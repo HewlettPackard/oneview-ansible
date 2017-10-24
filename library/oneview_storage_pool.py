@@ -96,7 +96,7 @@ storage_pool:
 '''
 
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound, ResourceComparator
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError, OneViewModuleResourceNotFound, compare
 
 
 class StoragePoolModule(OneViewModuleBase):
@@ -134,7 +134,7 @@ class StoragePoolModule(OneViewModuleBase):
 
     def __get_by(self, attribute):
         if not self.data.get(attribute):
-            raise HPOneViewValueError(self.MSG_MANDATORY_FIELD_MISSING)
+            raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING)
         else:
             return self.get_by_name(self.data[attribute])
 
@@ -144,7 +144,7 @@ class StoragePoolModule(OneViewModuleBase):
 
         if not resource:
             if self.oneview_client.api_version >= 500:
-                raise HPOneViewResourceNotFound(self.MSG_RESOURCE_NOT_FOUND)
+                raise OneViewModuleResourceNotFound(self.MSG_RESOURCE_NOT_FOUND)
             else:
                 resource = self.oneview_client.storage_pools.add(data)
                 changed = True
@@ -153,7 +153,7 @@ class StoragePoolModule(OneViewModuleBase):
             merged_data = resource.copy()
             merged_data.update(self.data)
 
-            if ResourceComparator.compare(resource, merged_data):
+            if compare(resource, merged_data):
                 msg = self.MSG_ALREADY_PRESENT
             else:
                 resource = self.resource_client.update(merged_data)
@@ -167,7 +167,7 @@ class StoragePoolModule(OneViewModuleBase):
     def __absent(self, data, resource):
         if self.oneview_client.api_version >= 500:
             if resource:
-                raise HPOneViewResourceNotFound(self.MSG_RESOURCE_FOUND)
+                raise OneViewModuleResourceNotFound(self.MSG_RESOURCE_FOUND)
             else:
                 return dict(changed=False,
                             msg=self.MSG_ALREADY_ABSENT,

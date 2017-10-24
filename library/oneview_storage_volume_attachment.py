@@ -74,7 +74,7 @@ server_profile:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
 
 
 class StorageVolumeAttachmentModule(OneViewModuleBase):
@@ -110,7 +110,7 @@ class StorageVolumeAttachmentModule(OneViewModuleBase):
             if profile:
                 return profile['uri']
             else:
-                raise HPOneViewResourceNotFound(self.PROFILE_NOT_FOUND)
+                raise OneViewModuleResourceNotFound(self.PROFILE_NOT_FOUND)
 
 
 def main():

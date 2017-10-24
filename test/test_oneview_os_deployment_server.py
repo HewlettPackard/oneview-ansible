@@ -15,8 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import OsDeploymentServerModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -160,9 +160,7 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
 
         OsDeploymentServerModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg='Appliance "0000A66103, appliance 2" not found.'
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg='Appliance "0000A66103, appliance 2" not found.')
 
     def test_should_fail_when_network_name_not_found(self):
         self.os_deployment_plans.get_by.return_value = []
@@ -178,9 +176,7 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
 
         OsDeploymentServerModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg='Network "Deployment" not found.'
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg='Network "Deployment" not found.')
 
     def test_should_replace_names_by_uris_before_update(self):
         self.os_deployment_plans.get_by.return_value = [{"name": "name"}]

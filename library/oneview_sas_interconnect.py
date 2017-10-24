@@ -77,7 +77,7 @@ EXAMPLES = '''
 
 RETURN = ''' # '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
 
 
 class SasInterconnectModule(OneViewModuleBase):
@@ -137,7 +137,7 @@ class SasInterconnectModule(OneViewModuleBase):
         sas_interconnects = self.resource_client.get_by('name', name)
 
         if not sas_interconnects:
-            raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
 
         return sas_interconnects[0]
 

@@ -98,11 +98,7 @@ server_profile_template:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, ServerProfileReplaceNamesByUris, ServerProfileMerger, ResourceComparator
-
-# To activate logs, setup the environment var LOGFILE
-# e.g.: export LOGFILE=/tmp/ansible-oneview.log
-logger = OneViewModuleBase.get_logger(__file__)
+from ansible.module_utils.oneview import OneViewModuleBase, ServerProfileReplaceNamesByUris, ServerProfileMerger, compare
 
 
 class ServerProfileTemplateModule(OneViewModuleBase):
@@ -178,7 +174,7 @@ class ServerProfileTemplateModule(OneViewModuleBase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        equal = ResourceComparator.compare(merged_data, resource)
+        equal = compare(merged_data, resource)
 
         if equal:
             msg = self.MSG_ALREADY_PRESENT

@@ -90,7 +90,7 @@ import collections
 from copy import deepcopy
 from six import iteritems
 
-from ansible.module_utils.oneview import OneViewModuleBase, ResourceComparator, HPOneViewValueError
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError, compare
 
 
 def _update_dict_with_depth(ov_resource, user_resource):
@@ -125,7 +125,7 @@ class StorageVolumeTemplateModule(OneViewModuleBase):
     def execute_module(self):
 
         if not self.data.get('name'):
-            raise HPOneViewValueError(self.MSG_MANDATORY_FIELD_MISSING)
+            raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING)
 
         resource = self.get_by_name(self.data['name'])
 
@@ -141,7 +141,7 @@ class StorageVolumeTemplateModule(OneViewModuleBase):
             changed = False
             merged_data = _update_dict_with_depth(deepcopy(resource), data)
 
-            if ResourceComparator.compare(resource, merged_data):
+            if compare(resource, merged_data):
                 msg = self.MSG_ALREADY_PRESENT
             else:
                 resource = self.resource_client.update(merged_data)

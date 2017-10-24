@@ -105,7 +105,7 @@ plan_script_differences:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError
 
 
 class PlanScriptModule(OneViewModuleBase):
@@ -146,7 +146,7 @@ class PlanScriptModule(OneViewModuleBase):
 
     def __retrieve_differences(self, data, resource):
         if 'content' not in data:
-            raise HPOneViewValueError(self.MSG_CONTENT_ATTRIBUTE_MANDATORY)
+            raise OneViewModuleValueError(self.MSG_CONTENT_ATTRIBUTE_MANDATORY)
 
         differences = self.i3s_client.plan_scripts.retrieve_differences(resource['uri'], data['content'])
         return dict(changed=False,

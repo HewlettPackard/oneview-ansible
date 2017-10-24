@@ -108,11 +108,7 @@ san_manager:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError, ResourceComparator
-
-# To activate logs, setup the environment var LOGFILE
-# e.g.: export LOGFILE=/tmp/ansible-oneview.log
-logger = OneViewModuleBase.get_logger(__file__)
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError, compare
 
 
 class SanManagerModule(OneViewModuleBase):
@@ -145,7 +141,7 @@ class SanManagerModule(OneViewModuleBase):
         else:
             msg = 'A "name" or "connectionInfo" must be provided inside the "data" field for this operation. '
             msg += 'If a "connectionInfo" is provided, the "Host" name is considered as the "name" for the resource.'
-            raise HPOneViewValueError(msg.format())
+            raise OneViewModuleValueError(msg.format())
 
         resource = self.resource_client.get_by_name(resource_name)
 
@@ -172,7 +168,7 @@ class SanManagerModule(OneViewModuleBase):
             resource.pop('connectionInfo', None)
             merged_data.pop('connectionInfo', None)
 
-            if ResourceComparator.compare(resource, merged_data):
+            if compare(resource, merged_data):
                 return False, self.MSG_ALREADY_PRESENT, resource
             else:
                 updated_san_manager = self.resource_client.update(resource=merged_data, id_or_uri=resource['uri'])
@@ -186,7 +182,7 @@ class SanManagerModule(OneViewModuleBase):
             merged_data.update(self.data)
             merged_data.pop('refreshState', None)
             if not self.data.get('connectionInfo', None):
-                raise HPOneViewValueError('A connectionInfo field is required for this operation.')
+                raise OneViewModuleValueError('A connectionInfo field is required for this operation.')
             updated_san_manager = self.resource_client.update(resource=merged_data, id_or_uri=resource['uri'])
             return True, self.MSG_UPDATED, updated_san_manager
 
@@ -195,7 +191,7 @@ class SanManagerModule(OneViewModuleBase):
         provider_uri = self.resource_client.get_provider_uri(display_name)
 
         if not provider_uri:
-            raise HPOneViewValueError(self.MSG_SAN_MANAGER_PROVIDER_DISPLAY_NAME_NOT_FOUND.format(display_name))
+            raise OneViewModuleValueError(self.MSG_SAN_MANAGER_PROVIDER_DISPLAY_NAME_NOT_FOUND.format(display_name))
 
         return provider_uri
 

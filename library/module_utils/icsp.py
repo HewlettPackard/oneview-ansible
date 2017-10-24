@@ -23,10 +23,8 @@ from __future__ import (absolute_import,
 
 from future import standard_library
 from six.moves.urllib.parse import quote
-import logging
 
 standard_library.install_aliases()
-logger = logging.getLogger(__name__)
 
 
 class ICspHelper(object):

@@ -18,7 +18,7 @@
 
 import unittest
 
-from oneview_module_loader import OsDeploymentPlanFactsModule, ResourceComparator
+from oneview_module_loader import OsDeploymentPlanFactsModule, compare
 from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
@@ -174,8 +174,8 @@ class OsDeploymentPlanFactsSpec(unittest.TestCase,
                                                     ]}
                                             })
 
-        # Using ResourceComparator due to random list ordering of the Python 3
-        self.assertTrue(ResourceComparator.compare(exit_json_args, expected_args))
+        # Using OneViewModuleBase.compare due to random list ordering of the Python 3
+        self.assertTrue(compare(exit_json_args, expected_args))
 
 
 if __name__ == '__main__':

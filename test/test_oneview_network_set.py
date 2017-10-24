@@ -15,8 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import NetworkSetModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -119,8 +119,7 @@ class NetworkSetModuleSpec(unittest.TestCase,
         NetworkSetModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=NetworkSetModule.MSG_ETHERNET_NETWORK_NOT_FOUND + "Name of a Network"
-        )
+            exception=mock.ANY, msg=NetworkSetModule.MSG_ETHERNET_NETWORK_NOT_FOUND + "Name of a Network")
 
     def test_should_remove_network(self):
         self.resource.get_by.return_value = [NETWORK_SET]

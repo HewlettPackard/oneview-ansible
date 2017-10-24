@@ -16,7 +16,7 @@
 # limitations under the License.
 ###
 
-import unittest
+from ansible.compat.tests import unittest, mock
 import yaml
 
 from oneview_module_loader import DatacenterModule
@@ -153,9 +153,7 @@ class DatacenterModuleSpec(unittest.TestCase,
 
         DatacenterModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=DatacenterModule.MSG_RACK_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=DatacenterModule.MSG_RACK_NOT_FOUND)
 
 
 if __name__ == '__main__':

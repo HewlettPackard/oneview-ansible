@@ -268,7 +268,7 @@ enclosure:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
 
 
 class EnclosureModule(OneViewModuleBase):
@@ -388,7 +388,7 @@ class EnclosureModule(OneViewModuleBase):
         else:
 
             if not resource:
-                raise HPOneViewResourceNotFound(self.MSG_ENCLOSURE_NOT_FOUND)
+                raise OneViewModuleResourceNotFound(self.MSG_ENCLOSURE_NOT_FOUND)
 
             if self.state == 'reconfigured':
                 changed, msg, resource = self.__reconfigure(resource)
@@ -525,7 +525,7 @@ class EnclosureModule(OneViewModuleBase):
 
             if not sub_resource:
                 # Resource doesn't have that property or subproperty
-                raise HPOneViewResourceNotFound(self.MSG_BAY_NOT_FOUND)
+                raise OneViewModuleResourceNotFound(self.MSG_BAY_NOT_FOUND)
 
             property_current_value = sub_resource.get(sub_property_name)
             state['path'] = state['path'].format(**data)

@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 import yaml
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import SasLogicalInterconnectModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -139,9 +139,7 @@ class SasLogicalInterconnectModuleSpec(unittest.TestCase,
 
         SasLogicalInterconnectModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SasLogicalInterconnectModule.MSG_NO_OPTIONS_PROVIDED
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=SasLogicalInterconnectModule.MSG_NO_OPTIONS_PROVIDED)
 
     def test_should_fail_when_compliance_cannot_resolve_names(self):
         self.resource.get_by.return_value = []
@@ -149,9 +147,7 @@ class SasLogicalInterconnectModuleSpec(unittest.TestCase,
 
         SasLogicalInterconnectModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SasLogicalInterconnectModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=SasLogicalInterconnectModule.MSG_NOT_FOUND)
 
     def test_should_update_configuration(self):
         self.resource.get_by.return_value = [SAS_LOGICAL_INTERCONNECT]
@@ -172,9 +168,7 @@ class SasLogicalInterconnectModuleSpec(unittest.TestCase,
 
         SasLogicalInterconnectModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SasLogicalInterconnectModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=SasLogicalInterconnectModule.MSG_NOT_FOUND)
 
     def test_should_install_firmware_when_spp_name_set(self):
         self.resource.get_by.return_value = [SAS_LOGICAL_INTERCONNECT]
@@ -209,9 +203,7 @@ class SasLogicalInterconnectModuleSpec(unittest.TestCase,
 
         SasLogicalInterconnectModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SasLogicalInterconnectModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=SasLogicalInterconnectModule.MSG_NOT_FOUND)
 
     def test_should_replace_drive_enclosure(self):
         self.resource.get_by.return_value = [SAS_LOGICAL_INTERCONNECT]

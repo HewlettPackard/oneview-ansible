@@ -152,7 +152,7 @@ storage_volume_attachment_paths:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError
 
 SPECIFIC_ATTACHMENT_OPTIONS = ['storageVolumeAttachmentUri', 'storageVolumeUri', 'storageVolumeName',
                                'serverProfileName']
@@ -208,7 +208,7 @@ class StorageVolumeAttachmentFactsModule(OneViewModuleBase):
             profile_name = params.get('serverProfileName')
 
             if not profile_name or not (volume_uri or params.get('storageVolumeName')):
-                raise HPOneViewValueError(self.ATTACHMENT_KEY_REQUIRED)
+                raise OneViewModuleValueError(self.ATTACHMENT_KEY_REQUIRED)
 
             if not volume_uri and params.get('storageVolumeName'):
                 volumes = self.oneview_client.volumes.get_by('name', params.get('storageVolumeName'))

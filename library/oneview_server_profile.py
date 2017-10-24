@@ -204,16 +204,12 @@ from copy import deepcopy
 
 from ansible.module_utils.oneview import (OneViewModuleBase,
                                           ServerProfileReplaceNamesByUris,
-                                          HPOneViewValueError,
+                                          OneViewModuleValueError,
                                           ServerProfileMerger,
-                                          ResourceComparator,
-                                          HPOneViewTaskError,
+                                          OneViewModuleTaskError,
                                           SPKeys,
-                                          HPOneViewException)
-
-# To activate logs, setup the environment var LOGFILE
-# e.g.: export LOGFILE=/tmp/ansible-oneview.log
-logger = OneViewModuleBase.get_logger(__file__)
+                                          OneViewModuleException,
+                                          compare)
 
 
 class ServerProfileModule(OneViewModuleBase):
@@ -286,13 +282,13 @@ class ServerProfileModule(OneViewModuleBase):
         if server_hardware_name:
             selected_server_hardware = self.__get_server_hardware_by_name(server_hardware_name)
             if not selected_server_hardware:
-                raise HPOneViewValueError(self.MSG_HARDWARE_NOT_FOUND.format(server_hardware_name))
+                raise OneViewModuleValueError(self.MSG_HARDWARE_NOT_FOUND.format(server_hardware_name))
             data['serverHardwareUri'] = selected_server_hardware['uri']
 
         if server_template_name:
             server_template = self.oneview_client.server_profile_templates.get_by_name(server_template_name)
             if not server_template:
-                raise HPOneViewValueError(self.MSG_TEMPLATE_NOT_FOUND.format(server_template_name))
+                raise OneViewModuleValueError(self.MSG_TEMPLATE_NOT_FOUND.format(server_template_name))
             data['serverProfileTemplateUri'] = server_template['uri']
         elif data.get('serverProfileTemplateUri'):
             server_template = self.oneview_client.server_profile_templates.get(data['serverProfileTemplateUri'])
@@ -319,7 +315,7 @@ class ServerProfileModule(OneViewModuleBase):
 
             self.__validations_for_os_custom_attributes(data, merged_data, resource)
 
-            if not ResourceComparator.compare(resource, merged_data):
+            if not compare(resource, merged_data):
 
                 resource = self.__update_server_profile(merged_data, resource)
                 changed = True
@@ -372,7 +368,7 @@ class ServerProfileModule(OneViewModuleBase):
         return matches
 
     def __update_server_profile(self, profile_with_updates, original_profile):
-        logger.debug(msg="Updating Server Profile")
+        self.module.log(msg="Updating Server Profile")
 
         # These removes are necessary in case SH associated to the SP is being changed
         if self.data.get('enclosureUri') is None:
@@ -385,25 +381,25 @@ class ServerProfileModule(OneViewModuleBase):
         # the SH is attempted, followed by the update operation again and a Power On.
         try:
             resource = self.oneview_client.server_profiles.update(profile_with_updates, profile_with_updates['uri'])
-        except HPOneViewException as exception:
+        except OneViewModuleException as exception:
             error_msg = '; '.join(str(e) for e in exception.args)
             power_on_msg = 'Some server profile attributes cannot be changed while the server hardware is powered on.'
             if power_on_msg in error_msg:
-                logger.debug("Update failed due to powered on Server Hardware. Powering off before retrying.")
+                self.module.log("Update failed due to powered on Server Hardware. Powering off before retrying.")
                 time.sleep(10)  # sleep timer to avoid timing issues after update operation failed
 
                 # When reassigning Server Hardwares, both the original and the new SH should be set to OFF
                 self.__set_server_hardware_power_state(original_profile['serverHardwareUri'], 'Off')
                 self.__set_server_hardware_power_state(profile_with_updates['serverHardwareUri'], 'Off')
 
-                logger.debug("Retrying update operation after server power off")
+                self.module.log("Retrying update operation after server power off")
                 resource = self.oneview_client.server_profiles.update(profile_with_updates,
                                                                       profile_with_updates['uri'])
 
-                logger.debug("Powering on the server hardware after update")
+                self.module.log("Powering on the server hardware after update")
                 self.__set_server_hardware_power_state(profile_with_updates['serverHardwareUri'], 'On')
             else:
-                raise HPOneViewException(error_msg)
+                raise OneViewModuleException(error_msg)
         return resource
 
     def __create_profile(self, data, server_profile_template):
@@ -417,17 +413,17 @@ class ServerProfileModule(OneViewModuleBase):
                 server_hardware_uri = self._auto_assign_server_profile(data, server_profile_template)
 
                 if server_hardware_uri:
-                    logger.debug(msg="Power off the Server Hardware before create the Server Profile")
+                    self.module.log(msg="Power off the Server Hardware before create the Server Profile")
                     self.__set_server_hardware_power_state(server_hardware_uri, 'Off')
 
                 # Build the data to create a new server profile based on a template if informed
                 server_profile = self.__build_new_profile_data(data, server_profile_template, server_hardware_uri)
 
-                logger.debug(msg="Request Server Profile creation")
+                self.module.log(msg="Request Server Profile creation")
                 return self.oneview_client.server_profiles.create(server_profile)
 
-            except HPOneViewTaskError as task_error:
-                logger.exception("Error code: {} Message: {}".format(str(task_error.error_code), str(task_error.msg)))
+            except OneViewModuleTaskError as task_error:
+                self.module.log("Error code: {} Message: {}".format(str(task_error.error_code), str(task_error.msg)))
                 if task_error.error_code in self.ASSIGN_HARDWARE_ERROR_CODES:
                     # if this is because the server is already assigned, someone grabbed it before we assigned,
                     # ignore and try again
@@ -436,14 +432,14 @@ class ServerProfileModule(OneViewModuleBase):
                 else:
                     raise task_error
 
-        raise HPOneViewException(self.MSG_ERROR_ALLOCATE_SERVER_HARDWARE)
+        raise OneViewModuleException(self.MSG_ERROR_ALLOCATE_SERVER_HARDWARE)
 
     def __build_new_profile_data(self, data, server_template, server_hardware_uri):
 
         server_profile_data = deepcopy(data)
 
         if server_template:
-            logger.debug(msg="Get new Profile from template")
+            self.module.log(msg="Get new Profile from template")
 
             server_profile_template = self.oneview_client.server_profile_templates.get_new_profile(
                 server_template['uri'])
@@ -501,7 +497,7 @@ class ServerProfileModule(OneViewModuleBase):
             enclosure_group = server_profile.get('enclosureGroupUri', '')
             server_hardware_type = server_profile.get('serverHardwareTypeUri', '')
 
-        logger.debug(msg="Finding an available server hardware")
+        self.module.log(msg="Finding an available server hardware")
         available_server_hardware = self.oneview_client.server_profiles.get_available_targets(
             enclosureGroupUri=enclosure_group,
             serverHardwareTypeUri=server_hardware_type)
@@ -513,7 +509,7 @@ class ServerProfileModule(OneViewModuleBase):
             server_hardware_uri = available_server_hardware['targets'][index]['serverHardwareUri']
             index = index + 1
 
-        logger.debug(msg="Found available server hardware: '{}'".format(server_hardware_uri))
+        self.module.log(msg="Found available server hardware: '{}'".format(server_hardware_uri))
         return server_hardware_uri
 
     def __delete_profile(self, server_profile):
@@ -532,30 +528,30 @@ class ServerProfileModule(OneViewModuleBase):
         msg = self.MSG_ALREADY_COMPLIANT
 
         if not server_profile.get('serverProfileTemplateUri'):
-            logger.error("Make the Server Profile compliant is not supported for this profile")
+            self.module.log("Make the Server Profile compliant is not supported for this profile")
             self.module.fail_json(msg=self.MSG_MAKE_COMPLIANT_NOT_SUPPORTED.format(server_profile['name']))
 
         elif server_profile['templateCompliance'] != 'Compliant':
-            logger.debug(
+            self.module.log(
                 "Get the preview of manual and automatic updates required to make the server profile consistent "
                 "with its template.")
             compliance_preview = self.oneview_client.server_profiles.get_compliance_preview(server_profile['uri'])
 
-            logger.debug(str(compliance_preview))
+            self.module.log(str(compliance_preview))
 
             is_offline_update = compliance_preview.get('isOnlineUpdate') is False
 
             if is_offline_update:
-                logger.debug(msg="Power off the server hardware before update from template")
+                self.module.log(msg="Power off the server hardware before update from template")
                 self.__set_server_hardware_power_state(server_profile['serverHardwareUri'], 'Off')
 
-            logger.debug(msg="Updating from template")
+            self.module.log(msg="Updating from template")
 
             server_profile = self.oneview_client.server_profiles.patch(
                 server_profile['uri'], 'replace', '/templateCompliance', 'Compliant')
 
             if is_offline_update:
-                logger.debug(msg="Power on the server hardware after update from template")
+                self.module.log(msg="Power on the server hardware after update from template")
                 self.__set_server_hardware_power_state(server_profile['serverHardwareUri'], 'On')
 
             changed = True
@@ -601,7 +597,7 @@ class ServerProfileModule(OneViewModuleBase):
 
         if not server_hardware_uri and self.auto_assign_server_hardware:
             # find servers that have no profile, matching Server hardware type and enclosure group
-            logger.debug(msg="Get an available Server Hardware for the Profile")
+            self.module.log(msg="Get an available Server Hardware for the Profile")
             server_hardware_uri = self.__get_available_server_hardware_uri(data, server_profile_template)
 
         return server_hardware_uri

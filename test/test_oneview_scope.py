@@ -16,8 +16,8 @@
 # limitations under the License.
 ###
 import copy
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import ScopeModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -175,9 +175,7 @@ class ScopeModuleSpec(unittest.TestCase, OneViewBaseTestCase):
 
         ScopeModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ScopeModule.MSG_RESOURCE_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ScopeModule.MSG_RESOURCE_NOT_FOUND)
 
 
 if __name__ == '__main__':

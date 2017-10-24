@@ -15,8 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import PowerDeviceModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -167,9 +167,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
 
         PowerDeviceModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=PowerDeviceModule.MSG_MANDATORY_FIELD_MISSING
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=PowerDeviceModule.MSG_MANDATORY_FIELD_MISSING)
 
     def test_should_remove_power_device(self):
         self.resource.get_by.return_value = [DEFAULT_POWER_DEVICE]
@@ -217,9 +215,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
 
         PowerDeviceModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=PowerDeviceModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=PowerDeviceModule.MSG_NOT_FOUND)
 
     def test_should_set_refresh_state(self):
         self.resource.get_by.return_value = [{"uri": "resourceuri"}]
@@ -242,9 +238,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
 
         PowerDeviceModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=PowerDeviceModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=PowerDeviceModule.MSG_NOT_FOUND)
 
     def test_should_set_uid_state(self):
         self.resource.get_by.return_value = [{"uri": "resourceuri"}]
@@ -267,9 +261,7 @@ class PowerDeviceModuleSpec(unittest.TestCase,
 
         PowerDeviceModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=PowerDeviceModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=PowerDeviceModule.MSG_NOT_FOUND)
 
 
 if __name__ == '__main__':

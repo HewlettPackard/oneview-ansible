@@ -113,7 +113,7 @@ storage_system:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError, ResourceComparator
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError, compare
 
 
 class StorageSystemModule(OneViewModuleBase):
@@ -156,7 +156,7 @@ class StorageSystemModule(OneViewModuleBase):
 
         if not resource:
             if 'credentials' not in self.data:
-                raise HPOneViewValueError(self.MSG_CREDENTIALS_MANDATORY)
+                raise OneViewModuleValueError(self.MSG_CREDENTIALS_MANDATORY)
             if self.oneview_client.api_version < 500:
                 resource = self.oneview_client.storage_systems.add(self.data['credentials'])
             else:
@@ -175,7 +175,7 @@ class StorageSystemModule(OneViewModuleBase):
         if 'credentials' in merged_data and 'password' in merged_data['credentials']:
             del merged_data['credentials']['password']
 
-        if not ResourceComparator.compare(resource, merged_data):
+        if not compare(resource, merged_data):
             # update the resource
             resource = self.oneview_client.storage_systems.update(merged_data)
             if not changed:
@@ -203,7 +203,7 @@ class StorageSystemModule(OneViewModuleBase):
         elif self.data.get('name'):
             return self.oneview_client.storage_systems.get_by_name(self.data['name'])
         else:
-            raise HPOneViewValueError(self.MSG_MANDATORY_FIELDS_MISSING)
+            raise OneViewModuleValueError(self.MSG_MANDATORY_FIELDS_MISSING)
 
 
 def main():

@@ -117,7 +117,7 @@ golden_image:
     type: dict
 '''
 
-from ansible.module_utils.oneview import (OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound, ResourceComparator)
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError, OneViewModuleResourceNotFound, compare
 
 
 class GoldenImageModule(OneViewModuleBase):
@@ -157,7 +157,7 @@ class GoldenImageModule(OneViewModuleBase):
             return self.resource_absent(resource)
         else:
             if not resource:
-                raise HPOneViewResourceNotFound(self.MSG_WAS_NOT_FOUND)
+                raise OneViewModuleResourceNotFound(self.MSG_WAS_NOT_FOUND)
 
             if self.state == 'downloaded':
                 changed, msg, ansible_facts = self.__download(self.data, resource)
@@ -170,7 +170,7 @@ class GoldenImageModule(OneViewModuleBase):
 
     def __check_present_consistency(self, data):
         if data.get('osVolumeURI') and data.get('localImageFilePath'):
-            raise HPOneViewValueError(self.MSG_CANT_CREATE_AND_UPLOAD)
+            raise OneViewModuleValueError(self.MSG_CANT_CREATE_AND_UPLOAD)
 
     def __present(self, data, resource):
 
@@ -195,12 +195,12 @@ class GoldenImageModule(OneViewModuleBase):
                 msg = self.MSG_UPLOADED
                 changed = True
             else:
-                raise HPOneViewValueError(self.MSG_MISSING_MANDATORY_ATTRIBUTES)
+                raise OneViewModuleValueError(self.MSG_MISSING_MANDATORY_ATTRIBUTES)
         else:
             merged_data = resource.copy()
             merged_data.update(data)
 
-            if not ResourceComparator.compare(resource, merged_data):
+            if not compare(resource, merged_data):
                 resource = self.i3s_client.golden_images.update(merged_data)
                 changed = True
                 msg = self.MSG_UPDATED
@@ -221,7 +221,7 @@ class GoldenImageModule(OneViewModuleBase):
     def __get_os_voume_by_name(self, name):
         os_volume = self.i3s_client.os_volumes.get_by_name(name)
         if not os_volume:
-            raise HPOneViewResourceNotFound(self.MSG_OS_VOLUME_WAS_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_OS_VOLUME_WAS_NOT_FOUND)
         return os_volume
 
     def __get_build_plan_by_name(self, name):
@@ -229,7 +229,7 @@ class GoldenImageModule(OneViewModuleBase):
         if build_plan:
             return build_plan[0]
         else:
-            raise HPOneViewResourceNotFound(self.MSG_BUILD_PLAN_WAS_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_BUILD_PLAN_WAS_NOT_FOUND)
 
     def __download(self, data, resource):
         self.i3s_client.golden_images.download(resource['uri'], data['destination_file_path'])

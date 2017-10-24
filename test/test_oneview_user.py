@@ -15,10 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import (UserModule,
-                                   HPOneViewException)
+                                   OneViewModuleException)
 from hpe_test_utils import OneViewBaseTestCase
 from copy import deepcopy
 
@@ -69,7 +69,7 @@ class UserModuleSpec(unittest.TestCase, OneViewBaseTestCase):
         self.resource = self.mock_ov_client.users
 
     def test_should_create_new_user(self):
-        self.resource.get_by.side_effect = HPOneViewException('FAKE_MSG_ERROR')
+        self.resource.get_by.side_effect = OneViewModuleException('FAKE_MSG_ERROR')
         self.resource.create.return_value = DEFAULT_PARAMS
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
@@ -160,7 +160,7 @@ class UserModuleSpec(unittest.TestCase, OneViewBaseTestCase):
 
         UserModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg='This state requires a password to be declared.')
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg='This state requires a password to be declared.')
 
     def test_requires_existing_resource_for_set_password(self):
 
@@ -169,7 +169,7 @@ class UserModuleSpec(unittest.TestCase, OneViewBaseTestCase):
 
         UserModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg='The specified user does not exist.')
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg='The specified user does not exist.')
 
 
 if __name__ == '__main__':

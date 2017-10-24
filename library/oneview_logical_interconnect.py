@@ -231,7 +231,7 @@ scope_uris:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, ResourceComparator, HPOneViewValueError
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, OneViewModuleValueError, compare
 
 
 class LogicalInterconnectModule(OneViewModuleBase):
@@ -272,7 +272,7 @@ class LogicalInterconnectModule(OneViewModuleBase):
         resource = self.__get_by_name(self.data)
 
         if not resource:
-            raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
 
         changed, msg, ansible_facts = False, '', dict()
         uri = resource['uri']
@@ -319,7 +319,7 @@ class LogicalInterconnectModule(OneViewModuleBase):
         ethernet_settings_merged = resource['ethernetSettings'].copy()
         ethernet_settings_merged.update(data['ethernetSettings'])
 
-        if ResourceComparator.compare(resource['ethernetSettings'], ethernet_settings_merged):
+        if compare(resource['ethernetSettings'], ethernet_settings_merged):
             return False, self.MSG_NO_CHANGES_PROVIDED, dict()
         else:
             li = self.oneview_client.logical_interconnects.update_ethernet_settings(resource['uri'],
@@ -335,7 +335,7 @@ class LogicalInterconnectModule(OneViewModuleBase):
                 ethernet_network = self.__get_ethernet_network_by_name(network_uri_or_name['name'])
                 if not ethernet_network:
                     msg = self.MSG_ETH_NETWORK_NOT_FOUND + network_uri_or_name['name']
-                    raise HPOneViewResourceNotFound(msg)
+                    raise OneViewModuleResourceNotFound(msg)
                 networks.append(ethernet_network['uri'])
             elif 'uri' in network_uri_or_name:
                 networks.append(network_uri_or_name['uri'])
@@ -350,8 +350,8 @@ class LogicalInterconnectModule(OneViewModuleBase):
         ethernet_settings_merged = self.__merge_network_settings('ethernetSettings', resource, data)
         fcoe_settings_merged = self.__merge_network_settings('fcoeSettings', resource, data)
 
-        if ResourceComparator.compare(resource['ethernetSettings'], ethernet_settings_merged) and \
-                ResourceComparator.compare(resource['fcoeSettings'], fcoe_settings_merged):
+        if compare(resource['ethernetSettings'], ethernet_settings_merged) and \
+                compare(resource['fcoeSettings'], fcoe_settings_merged):
 
             return False, self.MSG_NO_CHANGES_PROVIDED, dict(logical_interconnect=resource)
         else:
@@ -372,7 +372,7 @@ class LogicalInterconnectModule(OneViewModuleBase):
         qos_config = self.__get_qos_aggregated_configuration(uri)
         qos_config_merged = self.__merge_options(data['qosConfiguration'], qos_config)
 
-        if ResourceComparator.compare(qos_config_merged, qos_config):
+        if compare(qos_config_merged, qos_config):
             return False, self.MSG_NO_CHANGES_PROVIDED, dict()
         else:
             qos_config_updated = self.oneview_client.logical_interconnects.update_qos_aggregated_configuration(
@@ -386,7 +386,7 @@ class LogicalInterconnectModule(OneViewModuleBase):
         snmp_config = self.__get_snmp_configuration(uri)
         snmp_config_merged = self.__merge_options(data['snmpConfiguration'], snmp_config)
 
-        if ResourceComparator.compare(snmp_config_merged, snmp_config):
+        if compare(snmp_config_merged, snmp_config):
 
             return False, self.MSG_NO_CHANGES_PROVIDED, None
         else:
@@ -401,7 +401,7 @@ class LogicalInterconnectModule(OneViewModuleBase):
         monitor_config = self.__get_port_monitor_configuration(uri)
         monitor_config_merged = self.__merge_options(data['portMonitor'], monitor_config)
 
-        if ResourceComparator.compare(monitor_config_merged, monitor_config):
+        if compare(monitor_config_merged, monitor_config):
             return False, self.MSG_NO_CHANGES_PROVIDED, None
         else:
             monitor_config_updated = self.oneview_client.logical_interconnects.update_port_monitor(
@@ -485,11 +485,11 @@ class LogicalInterconnectModule(OneViewModuleBase):
 
     def __validate_options(self, subresource_type, data):
         if subresource_type not in data:
-            raise HPOneViewValueError(self.MSG_NO_OPTIONS_PROVIDED)
+            raise OneViewModuleValueError(self.MSG_NO_OPTIONS_PROVIDED)
 
     def __validate_settings(self, data):
         if 'ethernetSettings' not in data and 'fcoeSettings' not in data:
-            raise HPOneViewValueError(self.MSG_NO_OPTIONS_PROVIDED)
+            raise OneViewModuleValueError(self.MSG_NO_OPTIONS_PROVIDED)
 
     def __build_firmware_uri(self, filename):
         return '/rest/firmware-drivers/' + filename

@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 import yaml
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import StorageVolumeAttachmentModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -102,7 +102,7 @@ class StorageVolumeAttachmentSpec(unittest.TestCase,
 
         StorageVolumeAttachmentModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=StorageVolumeAttachmentModule.PROFILE_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=StorageVolumeAttachmentModule.PROFILE_NOT_FOUND)
 
     def test_should_remove_extra_presentation_by_profile_uri(self):
         self.mock_ov_client.storage_volume_attachments.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE

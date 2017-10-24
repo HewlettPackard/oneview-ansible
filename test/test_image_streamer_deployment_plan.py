@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
+from ansible.compat.tests import unittest, mock
 
 from oneview_module_loader import DeploymentPlanModule
 from hpe_test_utils import OneViewBaseTestCase
@@ -123,6 +123,7 @@ class DeploymentPlanSpec(unittest.TestCase,
         DeploymentPlanModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY,
             msg=DeploymentPlanModule.MSG_BUILD_PLAN_WAS_NOT_FOUND
         )
 

@@ -15,9 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
-import mock
 
+from ansible.compat.tests import unittest, mock
 from copy import deepcopy
 from oneview_module_loader import UplinkSetModule
 from hpe_test_utils import OneViewBaseTestCase
@@ -153,9 +152,7 @@ class UplinkSetModuleSpec(unittest.TestCase,
         self.mock_ov_client.logical_interconnects.get_by_name.assert_called_once_with(
             'Name of the Logical Interconnect')
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=UplinkSetModule.MSG_LOGICAL_INTERCONNECT_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=UplinkSetModule.MSG_LOGICAL_INTERCONNECT_NOT_FOUND)
 
     def test_should_not_update_when_data_is_equals(self):
         self.resource.get_by.return_value = self.EXISTENT_UPLINK_SETS
@@ -236,9 +233,7 @@ class UplinkSetModuleSpec(unittest.TestCase,
 
         UplinkSetModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=UplinkSetModule.MSG_KEY_REQUIRED
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=UplinkSetModule.MSG_KEY_REQUIRED)
 
     def test_should_fail_when_logical_interconnect_uri_not_set(self):
         params = deepcopy(self.PARAMS_FOR_ABSENT)
@@ -247,9 +242,7 @@ class UplinkSetModuleSpec(unittest.TestCase,
 
         UplinkSetModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=UplinkSetModule.MSG_KEY_REQUIRED
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=UplinkSetModule.MSG_KEY_REQUIRED)
 
     def test_should_fail_when_logical_interconnect_name_not_set(self):
         params = deepcopy(self.PARAMS_FOR_ABSENT_WITH_LI_NAME)
@@ -258,9 +251,7 @@ class UplinkSetModuleSpec(unittest.TestCase,
 
         UplinkSetModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=UplinkSetModule.MSG_KEY_REQUIRED
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=UplinkSetModule.MSG_KEY_REQUIRED)
 
 
 if __name__ == '__main__':

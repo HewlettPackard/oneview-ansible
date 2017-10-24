@@ -72,7 +72,7 @@ id_pools_ipv4_subnet:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError, ResourceComparator
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError
 
 
 class IdPoolsIpv4SubnetModule(OneViewModuleBase):
@@ -103,7 +103,7 @@ class IdPoolsIpv4SubnetModule(OneViewModuleBase):
             query = self.resource_client.get_all(filter="name='{}'".format(self.data.get('name')))
             resource = query[0] if query and query[0].get('name') == self.data['name'] else None
         else:
-            raise HPOneViewValueError(self.MSG_VALUE_ERROR)
+            raise OneViewModuleValueError(self.MSG_VALUE_ERROR)
 
         self.data['type'] = self.data.get('type', 'Subnet')
 

@@ -15,8 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import PlanScriptModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -136,9 +136,7 @@ class PlanScriptSpec(unittest.TestCase,
 
         PlanScriptModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=PlanScriptModule.MSG_CONTENT_ATTRIBUTE_MANDATORY
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=PlanScriptModule.MSG_CONTENT_ATTRIBUTE_MANDATORY)
 
 
 if __name__ == '__main__':

@@ -71,7 +71,7 @@ id_pools_ipv4_range:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError, ResourceComparator
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError
 
 
 class IdPoolsIpv4RangeModule(OneViewModuleBase):

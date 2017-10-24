@@ -84,7 +84,7 @@ server_hardware_type:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
 
 
 class ServerHardwareTypeModule(OneViewModuleBase):
@@ -116,7 +116,7 @@ class ServerHardwareTypeModule(OneViewModuleBase):
         changed, msg = False, self.MSG_ALREADY_PRESENT
 
         if not resource:
-            raise HPOneViewResourceNotFound(self.MSG_RESOURCE_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_RESOURCE_NOT_FOUND)
 
         if "newName" in self.data:
             self.data["name"] = self.data.pop("newName")

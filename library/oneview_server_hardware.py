@@ -145,7 +145,7 @@ server_hardware:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, HPOneViewValueError
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, OneViewModuleValueError
 
 
 class ServerHardwareModule(OneViewModuleBase):
@@ -207,7 +207,7 @@ class ServerHardwareModule(OneViewModuleBase):
 
         else:
             if not self.data.get('name'):
-                raise HPOneViewValueError(self.MSG_MANDATORY_FIELD_MISSING.format("data.name"))
+                raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING.format("data.name"))
 
             resource = self.__get_server_hardware(self.data['name'])
 
@@ -215,7 +215,7 @@ class ServerHardwareModule(OneViewModuleBase):
                 return self.resource_absent(resource, method='remove')
             else:
                 if not resource:
-                    raise HPOneViewResourceNotFound(self.MSG_SERVER_HARDWARE_NOT_FOUND)
+                    raise OneViewModuleResourceNotFound(self.MSG_SERVER_HARDWARE_NOT_FOUND)
 
                 if self.state == 'power_state_set':
                     changed, msg, ansible_facts = self.__set_power_state(resource)
@@ -239,7 +239,7 @@ class ServerHardwareModule(OneViewModuleBase):
     def __present(self):
 
         if not self.data.get('hostname'):
-            raise HPOneViewValueError(self.MSG_MANDATORY_FIELD_MISSING.format("data.hostname"))
+            raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING.format("data.hostname"))
 
         resource = self.__get_server_hardware(self.data['hostname'])
 

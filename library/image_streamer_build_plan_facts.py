@@ -76,7 +76,7 @@ build_plans:
     type: list
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
 
 
 class BuildPlanFactsModule(OneViewModuleBase):
