@@ -15,9 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import mock
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from copy import deepcopy
 from oneview_module_loader import ArtifactBundleModule, compare
 from hpe_test_utils import OneViewBaseTestCase

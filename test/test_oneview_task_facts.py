@@ -16,10 +16,8 @@
 # limitations under the License.
 ###
 
-import unittest
-
+from ansible.compat.tests import unittest
 from oneview_module_loader import TaskFactsModule
-
 from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'

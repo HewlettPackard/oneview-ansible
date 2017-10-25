@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.compat.tests import unittest, mock
 import yaml
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import DriveEnclosureModule
 from hpe_test_utils import OneViewBaseTestCase
 

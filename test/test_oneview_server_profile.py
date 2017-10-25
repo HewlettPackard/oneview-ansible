@@ -484,10 +484,14 @@ class ServerProfileModuleSpec(unittest.TestCase,
         self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
+        create_params = deepcopy(PARAMS_FOR_PRESENT['data'])
+        create_params['serverHardwareUri'] = FAKE_SERVER_HARDWARE['uri']
+
         ServerProfileModule().run()
 
-        self.mock_ov_client.server_profiles.get_available_targets.assert_called_once()
-        self.mock_ov_client.server_profiles.create.assert_called_once()
+        self.mock_ov_client.server_profiles.get_available_targets.assert_called_once_with(
+            serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI, enclosureGroupUri=ENCLOSURE_GROUP_URI)
+        self.mock_ov_client.server_profiles.create.assert_called_once_with(create_params)
 
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=FAKE_MSG_ERROR)
 
@@ -1334,7 +1338,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        self.mock_ov_client.server_profiles.create.assert_called_once()
+        self.mock_ov_client.server_profiles.create.assert_called_once_with(params['data'])
 
     def test_should_not_fail_creating_basic_server_profile_when_assignment_types_are_physical(self):
         params = deepcopy(PARAMS_FOR_PRESENT)
@@ -1347,7 +1351,7 @@ class ServerProfileModuleSpec(unittest.TestCase,
 
         ServerProfileModule().run()
 
-        self.mock_ov_client.server_profiles.create.assert_called_once()
+        self.mock_ov_client.server_profiles.create.assert_called_once_with(params['data'])
 
     @mock.patch('oneview_server_profile.compare')
     def test_should_update_when_data_changed(self, mock_resource_compare):
