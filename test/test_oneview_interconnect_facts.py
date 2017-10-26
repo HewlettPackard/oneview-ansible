@@ -15,9 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
+
 import yaml
 
+from ansible.compat.tests import unittest
 from oneview_module_loader import InterconnectFactsModule
 from hpe_test_utils import FactsParamsTestCase
 
@@ -93,7 +94,7 @@ class InterconnectFactsSpec(unittest.TestCase,
 
         InterconnectFactsModule().run()
 
-        self.interconnects.get_all.assert_called_once()
+        self.interconnects.get_all.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,

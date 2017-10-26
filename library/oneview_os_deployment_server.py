@@ -88,7 +88,7 @@ os_deployment_server:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, ResourceComparator
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, compare
 
 
 class OsDeploymentServerModule(OneViewModuleBase):
@@ -142,7 +142,7 @@ class OsDeploymentServerModule(OneViewModuleBase):
             merged_data = resource.copy()
             merged_data.update(data)
 
-            if not ResourceComparator.compare(resource, merged_data):
+            if not compare(resource, merged_data):
                 resource = self.oneview_client.os_deployment_servers.update(merged_data)
                 changed = True
                 msg = self.MSG_UPDATED
@@ -173,7 +173,7 @@ class OsDeploymentServerModule(OneViewModuleBase):
 
         fcoe_networks = self.oneview_client.fcoe_networks.get_by('name', name)
         if not fcoe_networks:
-            raise HPOneViewResourceNotFound(self.MSG_NETWORK_NOT_FOUND.format(name))
+            raise OneViewModuleResourceNotFound(self.MSG_NETWORK_NOT_FOUND.format(name))
 
         return fcoe_networks[0]['uri']
 
@@ -181,7 +181,7 @@ class OsDeploymentServerModule(OneViewModuleBase):
         appliance = self.oneview_client.os_deployment_servers.get_appliance_by_name(name)
 
         if not appliance:
-            raise HPOneViewResourceNotFound(self.MSG_APPLIANCE_NOT_FOUND.format(name))
+            raise OneViewModuleResourceNotFound(self.MSG_APPLIANCE_NOT_FOUND.format(name))
 
         return appliance['uri']
 

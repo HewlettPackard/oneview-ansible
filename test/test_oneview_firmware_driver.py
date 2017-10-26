@@ -16,7 +16,7 @@
 # limitations under the License.
 ###
 
-import unittest
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import FirmwareDriverModule
 from ansible.module_utils.oneview import OneViewClient
 from hpe_test_utils import OneViewBaseTestCase
@@ -123,7 +123,7 @@ class FirmwareDriverModuleSpec(unittest.TestCase, OneViewBaseTestCase):
 
         FirmwareDriverModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=msg)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=msg)
 
     def test_should_fail_if_SPP_does_not_exist(self):
         msg = 'Baseline SPP named "SPP1" '
@@ -135,7 +135,7 @@ class FirmwareDriverModuleSpec(unittest.TestCase, OneViewBaseTestCase):
 
         FirmwareDriverModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=msg)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=msg)
 
     def test_should_fail_if_hotfix_does_not_exist(self):
         msg = 'Hotfix named "hotfix1" '
@@ -147,7 +147,7 @@ class FirmwareDriverModuleSpec(unittest.TestCase, OneViewBaseTestCase):
 
         FirmwareDriverModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=msg)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=msg)
 
 
 if __name__ == '__main__':

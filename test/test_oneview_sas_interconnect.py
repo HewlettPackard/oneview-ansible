@@ -15,8 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import SasInterconnectModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -124,9 +124,7 @@ class SasInterconnectModuleSpec(unittest.TestCase,
         self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_NAME)
         self.resource.patch.assert_not_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SasInterconnectModule.MSG_NOT_FOUND,
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=SasInterconnectModule.MSG_NOT_FOUND)
 
     def test_should_turn_off_the_uid_when_uid_is_on(self):
         sas_interconnect = dict(uidState='On', **SAS_INTERCONNECT)

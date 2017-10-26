@@ -160,7 +160,7 @@ artifact_bundle_deployment_group:
 '''
 
 import os
-from ansible.module_utils.oneview import OneViewModuleBase, ResourceComparator
+from ansible.module_utils.oneview import OneViewModuleBase, compare
 
 
 class ArtifactBundleModule(OneViewModuleBase):
@@ -244,7 +244,7 @@ class ArtifactBundleModule(OneViewModuleBase):
         merged_data = resource.copy()
         merged_data.update(data)
 
-        if not ResourceComparator.compare(resource, merged_data):
+        if not compare(resource, merged_data):
             resource = self.i3s_client.artifact_bundles.update(merged_data)
             changed = True
             msg = self.MSG_UPDATED

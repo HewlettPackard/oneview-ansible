@@ -15,9 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
+
 import yaml
 
+from ansible.compat.tests import unittest
 from oneview_module_loader import EnclosureGroupModule
 from hpe_test_utils import OneViewBaseTestCase
 

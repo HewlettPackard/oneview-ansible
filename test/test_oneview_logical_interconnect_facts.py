@@ -16,8 +16,7 @@
 # limitations under the License.
 ###
 
-import unittest
-
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import LogicalInterconnectFactsModule
 from hpe_test_utils import FactsParamsTestCase
 
@@ -359,7 +358,7 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
 
         LogicalInterconnectFactsModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LogicalInterconnectFactsModule.MSG_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalInterconnectFactsModule.MSG_NOT_FOUND)
 
 
 if __name__ == '__main__':

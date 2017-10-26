@@ -95,7 +95,7 @@ network_set:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
 
 
 class NetworkSetModule(OneViewModuleBase):
@@ -147,7 +147,7 @@ class NetworkSetModule(OneViewModuleBase):
             if enet_network:
                 return enet_network['uri']
             else:
-                raise HPOneViewResourceNotFound(self.MSG_ETHERNET_NETWORK_NOT_FOUND + network_name_or_uri)
+                raise OneViewModuleResourceNotFound(self.MSG_ETHERNET_NETWORK_NOT_FOUND + network_name_or_uri)
 
     def __replace_network_name_by_uri(self, data):
         if 'networkUris' in data:

@@ -111,7 +111,7 @@ scope:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
 
 
 class ScopeModule(OneViewModuleBase):
@@ -151,7 +151,7 @@ class ScopeModule(OneViewModuleBase):
 
     def __update_resource_assignments(self, resource):
         if not resource:
-            raise HPOneViewResourceNotFound(self.MSG_RESOURCE_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_RESOURCE_NOT_FOUND)
 
         if self.oneview_client.api_version < 500:
             scope = self.resource_client.update_resource_assignments(resource['uri'],

@@ -85,7 +85,7 @@ build_plan:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError
 
 
 class BuildPlanModule(OneViewModuleBase):

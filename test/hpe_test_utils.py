@@ -18,7 +18,7 @@
 
 import importlib
 import yaml
-from mock import Mock, patch
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import ONEVIEW_MODULE_UTILS_PATH
 from hpOneView.oneview_client import OneViewClient
 
@@ -41,7 +41,7 @@ class OneViewBaseTestCase(object):
         self.testing_class = testing_class
 
         # Define OneView Client Mock (FILE)
-        patcher_json_file = patch.object(OneViewClient, 'from_json_file')
+        patcher_json_file = mock.patch.object(OneViewClient, 'from_json_file')
         test_case.addCleanup(patcher_json_file.stop)
         self.mock_ov_client_from_json_file = patcher_json_file.start()
 
@@ -49,10 +49,10 @@ class OneViewBaseTestCase(object):
         self.mock_ov_client = self.mock_ov_client_from_json_file.return_value
 
         # Define Ansible Module Mock
-        patcher_ansible = patch(ONEVIEW_MODULE_UTILS_PATH + '.AnsibleModule')
+        patcher_ansible = mock.patch(ONEVIEW_MODULE_UTILS_PATH + '.AnsibleModule')
         test_case.addCleanup(patcher_ansible.stop)
         mock_ansible_module = patcher_ansible.start()
-        self.mock_ansible_module = Mock()
+        self.mock_ansible_module = mock.Mock()
         mock_ansible_module.return_value = self.mock_ansible_module
 
         self.__set_module_examples()
@@ -62,9 +62,9 @@ class OneViewBaseTestCase(object):
 
         main_func = getattr(self.testing_module, 'main')
 
-        with patch.object(self.testing_class, "run") as mock_run:
+        with mock.patch.object(self.testing_class, "run") as mock_run:
             main_func()
-            mock_run.assert_called_once()
+            mock_run.assert_called_once_with()
 
     def __set_module_examples(self):
         self.testing_module = importlib.import_module(self.testing_class.__module__)

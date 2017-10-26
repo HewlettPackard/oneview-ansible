@@ -16,8 +16,7 @@
 # limitations under the License.
 ###
 
-import unittest
-
+from ansible.compat.tests import unittest
 from hpe_test_utils import FactsParamsTestCase
 from oneview_module_loader import LogicalInterconnectGroupFactsModule
 

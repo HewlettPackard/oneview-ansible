@@ -13,9 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 import yaml
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import StorageSystemModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -201,9 +201,7 @@ class StorageSystemModuleSpec(unittest.TestCase,
 
         StorageSystemModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=StorageSystemModule.MSG_MANDATORY_FIELDS_MISSING
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=StorageSystemModule.MSG_MANDATORY_FIELDS_MISSING)
 
     def test_should_fail_when_credentials_attribute_is_missing(self):
         self.resource.get_by_name.return_value = []
@@ -212,9 +210,7 @@ class StorageSystemModuleSpec(unittest.TestCase,
 
         StorageSystemModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=StorageSystemModule.MSG_CREDENTIALS_MANDATORY
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=StorageSystemModule.MSG_CREDENTIALS_MANDATORY)
 
     def test_update_when_data_has_modified_attributes(self):
         data_merged = DICT_DEFAULT_STORAGE_SYSTEM.copy()

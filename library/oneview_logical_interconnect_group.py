@@ -101,7 +101,7 @@ logical_interconnect_group:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
 
 
 class LogicalInterconnectGroupModule(OneViewModuleBase):
@@ -160,7 +160,7 @@ class LogicalInterconnectGroupModule(OneViewModuleBase):
         if i_type:
             return i_type[0]
         else:
-            raise HPOneViewResourceNotFound(self.MSG_INTERCONNECT_TYPE_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_INTERCONNECT_TYPE_NOT_FOUND)
 
 
 def main():

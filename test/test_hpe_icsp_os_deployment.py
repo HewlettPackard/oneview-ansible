@@ -16,11 +16,11 @@
 # limitations under the License.
 ###
 
-import unittest
-import mock
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import ICspHelper
-import hpe_icsp_os_deployment
 from copy import deepcopy
+
+import hpe_icsp_os_deployment
 
 MODULE_NAME = 'hpe_icsp_os_deployment'
 

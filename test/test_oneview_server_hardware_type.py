@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 import yaml
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import ServerHardwareTypeModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -117,9 +117,7 @@ class ServerHardwareTypeSpec(unittest.TestCase, OneViewBaseTestCase):
 
         ServerHardwareTypeModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ServerHardwareTypeModule.MSG_RESOURCE_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ServerHardwareTypeModule.MSG_RESOURCE_NOT_FOUND)
 
 
 if __name__ == '__main__':

@@ -135,7 +135,7 @@ ethernet_network_connection_template:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, ResourceComparator, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, compare
 
 
 class EthernetNetworkModule(OneViewModuleBase):
@@ -244,7 +244,7 @@ class EthernetNetworkModule(OneViewModuleBase):
         merged_data = connection_template.copy()
         merged_data.update({'bandwidth': bandwidth})
 
-        if not ResourceComparator.compare(connection_template, merged_data):
+        if not compare(connection_template, merged_data):
             connection_template = self.oneview_client.connection_templates.update(merged_data)
             return True, connection_template
         else:
@@ -253,7 +253,7 @@ class EthernetNetworkModule(OneViewModuleBase):
     def __default_bandwidth_reset(self, resource):
 
         if not resource:
-            raise HPOneViewResourceNotFound(self.MSG_ETHERNET_NETWORK_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_ETHERNET_NETWORK_NOT_FOUND)
 
         default_connection_template = self.oneview_client.connection_templates.get_default()
 

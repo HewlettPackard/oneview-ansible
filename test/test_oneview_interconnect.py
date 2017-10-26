@@ -15,8 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from copy import deepcopy
 from oneview_module_loader import InterconnectModule
 from hpe_test_utils import OneViewBaseTestCase
@@ -270,9 +270,7 @@ class InterconnectModuleSpec(unittest.TestCase,
 
         InterconnectModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=InterconnectModule.MSG_INTERCONNECT_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=InterconnectModule.MSG_INTERCONNECT_NOT_FOUND)
 
     def test_should_ensure_device_reset_by_ip_address(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_RESET_DEVICE_BY_IP
@@ -299,7 +297,7 @@ class InterconnectModuleSpec(unittest.TestCase,
 
         InterconnectModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=InterconnectModule.MSG_MISSING_KEY)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=InterconnectModule.MSG_MISSING_KEY)
 
     def test_should_update_the_interconnect_ports(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_UPDATE_PORTS

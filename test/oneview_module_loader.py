@@ -30,13 +30,20 @@ ONEVIEW_MODULE_UTILS_PATH = 'module_utils.oneview'
 sys.modules['ansible.module_utils.oneview'] = oneview
 sys.modules['ansible.module_utils.icsp'] = icsp
 
-from module_utils.oneview import (HPOneViewException,
-                                  HPOneViewTaskError,
-                                  OneViewModuleBase,
+from module_utils.oneview import (OneViewModuleBase,
+                                  OneViewClient,
+                                  OneViewModuleException,
+                                  OneViewModuleTaskError,
+                                  OneViewModuleValueError,
+                                  OneViewModuleResourceNotFound,
                                   SPKeys,
                                   ServerProfileMerger,
                                   ServerProfileReplaceNamesByUris,
-                                  ResourceComparator)
+                                  _str_sorted,
+                                  merge_list_by_key,
+                                  transform_list_to_dict,
+                                  compare,
+                                  get_logger)
 from module_utils.icsp import ICspHelper
 from image_streamer_artifact_bundle import ArtifactBundleModule
 from image_streamer_artifact_bundle_facts import ArtifactBundleFactsModule

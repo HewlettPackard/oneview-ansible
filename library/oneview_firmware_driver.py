@@ -78,7 +78,7 @@ EXAMPLES = '''
 
 RETURN = ''' # '''
 
-from ansible.module_utils.oneview import (OneViewModuleBase, HPOneViewException)
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleException
 
 
 class FirmwareDriverModule(OneViewModuleBase):
@@ -103,7 +103,7 @@ class FirmwareDriverModule(OneViewModuleBase):
         if not data.get('customBaselineName') and not self.module.params.get('name'):
             msg = 'A "name" parameter or a "customBaselineName" field inside the "data" parameter'
             msg += 'is required for this operation.'
-            raise HPOneViewException(msg)
+            raise OneViewModuleException(msg)
 
         if data.get('customBaselineName'):
             fw_name = data['customBaselineName']
@@ -135,7 +135,7 @@ class FirmwareDriverModule(OneViewModuleBase):
             if spp:
                 data['baselineUri'] = spp['uri']
             else:
-                raise HPOneViewException('Baseline SPP named "%s" not found in OneView Appliance.' % baseline_name)
+                raise OneViewModuleException('Baseline SPP named "%s" not found in OneView Appliance.' % baseline_name)
 
         # Allow usage of hotfixNames instead of hotfixUris
         if data and data.get('hotfixNames'):
@@ -146,7 +146,7 @@ class FirmwareDriverModule(OneViewModuleBase):
                 if hotfix:
                     data['hotfixUris'].append(hotfix['uri'])
                 else:
-                    raise HPOneViewException('Hotfix named "%s" not found in OneView Appliance.' % hotfix_name)
+                    raise OneViewModuleException('Hotfix named "%s" not found in OneView Appliance.' % hotfix_name)
         return data
 
 

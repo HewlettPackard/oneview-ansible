@@ -15,11 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
+
+from ansible.compat.tests import unittest, mock
 from copy import deepcopy
-
 from oneview_module_loader import LogicalInterconnectGroupModule
-
 from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -134,8 +133,7 @@ class LogicalInterconnectGroupGeneralSpec(unittest.TestCase,
 
         LogicalInterconnectGroupModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LogicalInterconnectGroupModule.MSG_INTERCONNECT_TYPE_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalInterconnectGroupModule.MSG_INTERCONNECT_TYPE_NOT_FOUND)
 
     def test_should_not_update_when_data_is_equals(self):
         self.resource.get_by.return_value = [DEFAULT_LIG_TEMPLATE]

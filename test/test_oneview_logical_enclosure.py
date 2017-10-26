@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 import yaml
 
+from ansible.compat.tests import unittest, mock
 from hpe_test_utils import OneViewBaseTestCase
 from oneview_module_loader import LogicalEnclosureModule
 
@@ -183,7 +183,7 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         LogicalEnclosureModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LogicalEnclosureModule.MSG_REQUIRED)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_update_script_when_resource_exists(self):
         self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
@@ -203,7 +203,7 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         LogicalEnclosureModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LogicalEnclosureModule.MSG_REQUIRED)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_generate_support_dump_when_resource_exist(self):
         self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
@@ -224,7 +224,7 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         LogicalEnclosureModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LogicalEnclosureModule.MSG_REQUIRED)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_reconfigure_when_resource_exist(self):
         self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
@@ -245,7 +245,7 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         LogicalEnclosureModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LogicalEnclosureModule.MSG_REQUIRED)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_update_from_group_when_resource_exist(self):
         self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
@@ -266,7 +266,7 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         LogicalEnclosureModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=LogicalEnclosureModule.MSG_REQUIRED)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_delete_logical_enclosure_when_resource_exist(self):
         self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE

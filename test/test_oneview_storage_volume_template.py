@@ -15,8 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from hpe_test_utils import OneViewBaseTestCase
 from oneview_module_loader import StorageVolumeTemplateModule
 
@@ -144,9 +144,7 @@ class StorageVolumeTemplatePresentStateSpec(unittest.TestCase,
 
         StorageVolumeTemplateModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=StorageVolumeTemplateModule.MSG_MANDATORY_FIELD_MISSING
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=StorageVolumeTemplateModule.MSG_MANDATORY_FIELD_MISSING)
 
 
 if __name__ == '__main__':

@@ -68,7 +68,7 @@ connection_template:
     type: dict
 '''
 
-from ansible.module_utils.oneview import (OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound, ResourceComparator)
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError, OneViewModuleResourceNotFound, compare
 
 
 class ConnectionTemplateModule(OneViewModuleBase):
@@ -93,7 +93,7 @@ class ConnectionTemplateModule(OneViewModuleBase):
         changed, msg, ansible_facts = False, '', {}
 
         if not self.data.get('name'):
-            raise HPOneViewValueError(self.MSG_MANDATORY_FIELD_MISSING)
+            raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING)
 
         resource = self.get_by_name(self.data['name'])
 
@@ -109,7 +109,7 @@ class ConnectionTemplateModule(OneViewModuleBase):
         msg = ''
 
         if not resource:
-            raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
         else:
             if 'newName' in data:
                 data['name'] = data.pop('newName')
@@ -117,7 +117,7 @@ class ConnectionTemplateModule(OneViewModuleBase):
             merged_data = resource.copy()
             merged_data.update(data)
 
-            if not ResourceComparator.compare(resource, merged_data):
+            if not compare(resource, merged_data):
                 resource = self.resource_client.update(merged_data)
                 changed = True
                 msg = self.MSG_UPDATED

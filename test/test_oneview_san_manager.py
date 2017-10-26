@@ -15,8 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import SanManagerModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -176,9 +176,7 @@ class SanManagerModuleSpec(unittest.TestCase,
 
         SanManagerModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg="The provider 'Brocade Network Advisor' was not found."
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg="The provider 'Brocade Network Advisor' was not found.")
 
     def test_should_fail_when_name_and_hosts_in_connectionInfo_missing(self):
         bad_params = self.PARAMS_FOR_PRESENT.copy()
@@ -193,7 +191,7 @@ class SanManagerModuleSpec(unittest.TestCase,
         msg = 'A "name" or "connectionInfo" must be provided inside the "data" field for this operation. '
         msg += 'If a "connectionInfo" is provided, the "Host" name is considered as the "name" for the resource.'
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=msg)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=msg)
 
     def test_connection_information_set_should_set_the_connection_information(self):
         data_merged = DEFAULT_SAN_MANAGER_TEMPLATE.copy()
@@ -242,7 +240,7 @@ class SanManagerModuleSpec(unittest.TestCase,
 
         msg = 'A connectionInfo field is required for this operation.'
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=msg)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=msg)
 
 
 if __name__ == '__main__':

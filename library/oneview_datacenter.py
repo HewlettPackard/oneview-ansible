@@ -110,7 +110,7 @@ datacenter:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
 
 
 class DatacenterModule(OneViewModuleBase):
@@ -159,7 +159,7 @@ class DatacenterModule(OneViewModuleBase):
         if racks:
             return racks[0]
         else:
-            raise HPOneViewResourceNotFound(self.MSG_RACK_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_RACK_NOT_FOUND)
 
 
 def main():

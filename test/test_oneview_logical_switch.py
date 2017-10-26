@@ -16,8 +16,8 @@
 # limitations under the License.
 ###
 
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from copy import deepcopy
 from hpe_test_utils import OneViewBaseTestCase
 from oneview_module_loader import LogicalSwitchModule
@@ -132,9 +132,7 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
 
         LogicalSwitchModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LogicalSwitchModule.MSG_LOGICAL_SWITCH_GROUP_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalSwitchModule.MSG_LOGICAL_SWITCH_GROUP_NOT_FOUND)
 
     def test_should_update_logical_switch(self):
         self.resource.get_by.side_effect = [[LOGICAL_SWITCH_FROM_ONEVIEW], []]
@@ -158,9 +156,7 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
 
         LogicalSwitchModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LogicalSwitchModule.MSG_LOGICAL_SWITCH_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalSwitchModule.MSG_LOGICAL_SWITCH_NOT_FOUND)
 
     def test_should_fail_when_group_not_found_for_update(self):
         self.resource.get_by.side_effect = [[LOGICAL_SWITCH_FROM_ONEVIEW], []]
@@ -170,9 +166,7 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
 
         LogicalSwitchModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LogicalSwitchModule.MSG_LOGICAL_SWITCH_GROUP_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalSwitchModule.MSG_LOGICAL_SWITCH_GROUP_NOT_FOUND)
 
     def test_should_fail_on_update_when_logical_switch_attribute_missing(self):
         params = deepcopy(PARAMS_FOR_UPDATE_WITH_SWITCHES_AND_GROUPS)
@@ -181,9 +175,7 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
 
         LogicalSwitchModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LogicalSwitchModule.MSG_LOGICAL_SWITCH_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalSwitchModule.MSG_LOGICAL_SWITCH_NOT_FOUND)
 
     def test_should_update_with_current_switches_and_group_when_not_provided(self):
         self.resource.get_by.side_effect = [[LOGICAL_SWITCH_FROM_ONEVIEW], []]
@@ -273,9 +265,7 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
 
         LogicalSwitchModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LogicalSwitchModule.MSG_LOGICAL_SWITCH_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalSwitchModule.MSG_LOGICAL_SWITCH_NOT_FOUND)
 
     def test_update_scopes_when_different(self):
         self.resource.get_by.side_effect = [[LOGICAL_SWITCH_FROM_ONEVIEW], []]

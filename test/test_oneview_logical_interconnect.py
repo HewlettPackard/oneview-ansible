@@ -15,9 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
-import mock
 
+from ansible.compat.tests import unittest, mock
 from hpe_test_utils import OneViewBaseTestCase
 from oneview_module_loader import LogicalInterconnectModule
 
@@ -227,9 +226,7 @@ class LogicalInterconnectModuleSpec(unittest.TestCase,
 
         LogicalInterconnectModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LogicalInterconnectModule.MSG_NO_OPTIONS_PROVIDED
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalInterconnectModule.MSG_NO_OPTIONS_PROVIDED)
 
     def test_should_return_to_a_consistent_state(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
@@ -252,9 +249,7 @@ class LogicalInterconnectModuleSpec(unittest.TestCase,
 
         LogicalInterconnectModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LogicalInterconnectModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalInterconnectModule.MSG_NOT_FOUND)
 
     def test_should_update_ethernet_settings(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
@@ -333,8 +328,7 @@ class LogicalInterconnectModuleSpec(unittest.TestCase,
         LogicalInterconnectModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LogicalInterconnectModule.MSG_ETH_NETWORK_NOT_FOUND + "Network Name 2"
-        )
+            exception=mock.ANY, msg=LogicalInterconnectModule.MSG_ETH_NETWORK_NOT_FOUND + "Network Name 2")
 
     def test_should_update_settings(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
@@ -417,9 +411,7 @@ class LogicalInterconnectModuleSpec(unittest.TestCase,
 
         LogicalInterconnectModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LogicalInterconnectModule.MSG_NO_OPTIONS_PROVIDED
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalInterconnectModule.MSG_NO_OPTIONS_PROVIDED)
 
     def test_should_generate_interconnect_fib(self):
         self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT

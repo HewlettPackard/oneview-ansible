@@ -16,8 +16,8 @@
 # limitations under the License.
 ###
 
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from copy import deepcopy
 from oneview_module_loader import VolumeModule
 from hpe_test_utils import OneViewBaseTestCase
@@ -200,9 +200,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         VolumeModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=VolumeModule.MSG_NEW_NAME_INVALID
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=VolumeModule.MSG_NEW_NAME_INVALID)
 
     def test_should_delete_volume(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
@@ -289,9 +287,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         VolumeModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=VolumeModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=VolumeModule.MSG_NOT_FOUND)
 
     def test_should_fail_when_is_missing_data_attributes_on_snapshot_creation(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
@@ -303,9 +299,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         VolumeModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=VolumeModule.MSG_NO_OPTIONS_PROVIDED
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=VolumeModule.MSG_NO_OPTIONS_PROVIDED)
 
     def test_should_delete_snapshot(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
@@ -331,9 +325,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         VolumeModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=VolumeModule.MSG_NO_OPTIONS_PROVIDED
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=VolumeModule.MSG_NO_OPTIONS_PROVIDED)
 
     def test_should_fail_when_name_is_missing_on_snapshot_deletion(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
@@ -346,9 +338,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         VolumeModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=VolumeModule.MSG_NO_OPTIONS_PROVIDED
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=VolumeModule.MSG_NO_OPTIONS_PROVIDED)
 
     def test_should_not_delete_snapshot_when_resource_not_exist(self):
         self.resource.get_by.return_value = []
@@ -357,9 +347,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         VolumeModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=VolumeModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=VolumeModule.MSG_NOT_FOUND)
 
     def test_should_not_delete_snapshot_when_snapshot_not_exist(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
@@ -369,9 +357,7 @@ class VolumeModuleSpec(unittest.TestCase,
 
         VolumeModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=VolumeModule.MSG_SNAPSHOT_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=VolumeModule.MSG_SNAPSHOT_NOT_FOUND)
 
 
 if __name__ == '__main__':

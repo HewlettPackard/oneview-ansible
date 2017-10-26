@@ -121,7 +121,7 @@ power_device:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError, OneViewModuleResourceNotFound
 
 
 class PowerDeviceModule(OneViewModuleBase):
@@ -159,7 +159,7 @@ class PowerDeviceModule(OneViewModuleBase):
         else:
 
             if not self.data.get('name'):
-                raise HPOneViewValueError(self.MSG_MANDATORY_FIELD_MISSING)
+                raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING)
 
             resource = self.get_by_name(self.data['name'])
 
@@ -185,7 +185,7 @@ class PowerDeviceModule(OneViewModuleBase):
 
     def __check_resource(self, resource):
         if not resource:
-            raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
 
     def __set_power_state(self, data, resource):
         self.__check_resource(resource)

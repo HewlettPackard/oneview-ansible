@@ -173,7 +173,7 @@ storage_volume:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewValueError, HPOneViewResourceNotFound, HPOneViewException
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError, OneViewModuleResourceNotFound, OneViewModuleException
 
 
 class VolumeModule(OneViewModuleBase):
@@ -222,7 +222,7 @@ class VolumeModule(OneViewModuleBase):
             return self.__absent(resource)
         else:
             if not resource:
-                raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
+                raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
 
             if self.state == 'repaired':
                 return self.__repair(resource)
@@ -275,7 +275,7 @@ class VolumeModule(OneViewModuleBase):
         if new_name:
             new_resource = self.get_by_name(new_name)
             if new_resource:
-                raise HPOneViewValueError(self.MSG_NEW_NAME_INVALID)
+                raise OneViewModuleValueError(self.MSG_NEW_NAME_INVALID)
             self.data['name'] = new_name
         merged_data = resource.copy()
         merged_data.update(self.data)
@@ -293,25 +293,25 @@ class VolumeModule(OneViewModuleBase):
 
     def __create_snapshot(self, resource):
         if 'snapshotParameters' not in self.data:
-            raise HPOneViewResourceNotFound(self.MSG_NO_OPTIONS_PROVIDED)
+            raise OneViewModuleResourceNotFound(self.MSG_NO_OPTIONS_PROVIDED)
 
         self.resource_client.create_snapshot(resource['uri'], self.data['snapshotParameters'])
         return dict(changed=True, msg=self.MSG_SNAPSHOT_CREATED)
 
     def __delete_snapshot(self, resource):
         if 'snapshotParameters' not in self.data:
-            raise HPOneViewResourceNotFound(self.MSG_NO_OPTIONS_PROVIDED)
+            raise OneViewModuleResourceNotFound(self.MSG_NO_OPTIONS_PROVIDED)
 
         snapshot = self.__get_snapshot_by_name(resource, self.data)
         if not snapshot:
-            raise HPOneViewResourceNotFound(self.MSG_SNAPSHOT_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_SNAPSHOT_NOT_FOUND)
         else:
             self.resource_client.delete_snapshot(snapshot)
             return dict(changed=True, msg=self.MSG_SNAPSHOT_DELETED)
 
     def __get_snapshot_by_name(self, resource, data):
         if 'name' not in data['snapshotParameters']:
-            raise HPOneViewValueError(self.MSG_NO_OPTIONS_PROVIDED)
+            raise OneViewModuleValueError(self.MSG_NO_OPTIONS_PROVIDED)
 
         result = self.resource_client.get_snapshot_by(resource['uri'], 'name',
                                                       data['snapshotParameters']['name'])

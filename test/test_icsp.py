@@ -15,9 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
-import mock
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import ICspHelper
 
 DEFAULT_SERVER = {

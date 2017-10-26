@@ -104,7 +104,7 @@ interconnect:
     type: dict
 '''
 
-from ansible.module_utils.oneview import (OneViewModuleBase, HPOneViewResourceNotFound, HPOneViewValueError)
+from ansible.module_utils.oneview import (OneViewModuleBase, OneViewModuleResourceNotFound, OneViewModuleValueError)
 from hpOneView.resources.resource import extract_id_from_uri
 
 
@@ -187,10 +187,10 @@ class InterconnectModule(OneViewModuleBase):
         elif interconnect_name:
             interconnects = self.oneview_client.interconnects.get_by('name', interconnect_name) or []
         else:
-            raise HPOneViewValueError(self.MSG_MISSING_KEY)
+            raise OneViewModuleValueError(self.MSG_MISSING_KEY)
 
         if not interconnects:
-            raise HPOneViewResourceNotFound(self.MSG_INTERCONNECT_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_INTERCONNECT_NOT_FOUND)
 
         return interconnects[0]
 

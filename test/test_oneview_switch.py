@@ -16,8 +16,8 @@
 # limitations under the License.
 ###
 
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import SwitchModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -107,9 +107,7 @@ class SwitchModuleSpec(unittest.TestCase,
 
         SwitchModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=SwitchModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=SwitchModule.MSG_NOT_FOUND)
 
     def test_update_scopes_when_different(self):
         params_to_scope = PARAMS_FOR_PRESENT.copy()

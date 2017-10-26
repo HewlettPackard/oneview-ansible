@@ -15,20 +15,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
-import mock
-from copy import deepcopy
 
-from ansible.module_utils.oneview import (OneViewModuleBase,
-                                          ResourceComparator,
-                                          ResourceMerger,
-                                          OneViewClient,
-                                          HPOneViewException,
-                                          HPOneViewValueError,
-                                          ServerProfileReplaceNamesByUris,
-                                          SPKeys,
-                                          ServerProfileMerger,
-                                          HPOneViewResourceNotFound)
+import logging
+import sys
+from module_utils import oneview
+
+ONEVIEW_MODULE_UTILS_PATH = 'module_utils.oneview'
+
+sys.modules['ansible.module_utils.oneview'] = oneview
+
+from ansible.compat.tests import unittest, mock
+from copy import deepcopy
+from module_utils.oneview import (OneViewModuleBase,
+                                  OneViewClient,
+                                  OneViewModuleException,
+                                  OneViewModuleValueError,
+                                  OneViewModuleResourceNotFound,
+                                  SPKeys,
+                                  ServerProfileMerger,
+                                  ServerProfileReplaceNamesByUris,
+                                  _str_sorted,
+                                  merge_list_by_key,
+                                  transform_list_to_dict,
+                                  compare,
+                                  get_logger)
 
 MSG_GENERIC_ERROR = 'Generic error message'
 MSG_GENERIC = "Generic message"
@@ -89,6 +99,12 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         self.mock_ansible_module = mock.Mock()
         self.mock_ansible_module_init.return_value = self.mock_ansible_module
 
+    def test_should_call_ov_exception_with_a_data(self):
+
+        error = {'message': 'Failure with data'}
+
+        OneViewModuleException(error)
+
     def test_should_call_exit_json_properly(self):
 
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
@@ -141,16 +157,16 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         OneViewModuleBase()
 
-        self.mock_ov_client_from_env_vars.assert_called_once()
+        self.mock_ov_client_from_env_vars.assert_called_once_with()
         self.mock_ov_client_from_json_file.not_been_called()
 
     def test_should_load_config_from_parameters(self):
 
-        self.mock_ansible_module.params = {'hostname': '172.16.1.1',
-                                           'username': 'admin',
-                                           'password': 'mypass',
-                                           'api_version': 500,
-                                           'image_streamer_hostname': '172.16.1.2'}
+        params = {'hostname': '172.16.1.1', 'username': 'admin', 'password': 'mypass', 'api_version': 500,
+                  'image_streamer_hostname': '172.16.1.2'}
+        params_for_expect = {'image_streamer_ip': '172.16.1.2', 'api_version': 500, 'ip': '172.16.1.1',
+                             'credentials': {'userName': 'admin', 'password': 'mypass'}}
+        self.mock_ansible_module.params = params
 
         patcher = mock.patch('module_utils.oneview.OneViewClient', first='one', second='two')
 
@@ -161,7 +177,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         self.mock_ov_client_from_env_vars.not_been_called()
         self.mock_ov_client_from_json_file.not_been_called()
-        self.mock_ov_client_from_credentials.assert_called_once()
+        self.mock_ov_client_from_credentials.assert_called_once_with(params_for_expect)
 
     def test_should_call_fail_json_when_oneview_sdk_not_installed(self):
         self.mock_ansible_module.params = {'config': 'config.json'}
@@ -169,8 +185,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         with mock.patch(OneViewModuleBase.__module__ + ".HAS_HPE_ONEVIEW", False):
             OneViewModuleBase()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg='HPE OneView Python SDK is required for this module.')
+        self.mock_ansible_module.fail_json.assert_called_once_with(msg='HPE OneView Python SDK is required for this module.')
 
     def test_should_validate_etag_when_set_as_true(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
@@ -190,7 +205,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         self.mock_ansible_module_init.assert_called_once_with(argument_spec=self.EXPECTED_ARG_SPEC,
                                                               supports_check_mode=False)
         self.mock_ov_client.connection.enable_etag_validation.not_been_called()
-        self.mock_ov_client.connection.disable_etag_validation.assert_called_once()
+        self.mock_ov_client.connection.disable_etag_validation.assert_called_once_with()
 
     def test_should_not_validate_etag_when_not_supported(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
@@ -222,13 +237,13 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
 
         mock_run = mock.Mock()
-        mock_run.side_effect = HPOneViewException(MSG_GENERIC_ERROR)
+        mock_run.side_effect = OneViewModuleException(MSG_GENERIC_ERROR)
 
         base_mod = OneViewModuleBase(validate_etag_support=True)
         base_mod.execute_module = mock_run
         base_mod.run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=MSG_GENERIC_ERROR)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=MSG_GENERIC_ERROR)
 
     def test_should_not_handle_value_error_exception(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
@@ -463,7 +478,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
     def test_transform_list_to_dict(self):
         list_ = ['one', 'two', {'tree': 3}, 'four', 5]
 
-        dict_transformed = OneViewModuleBase.transform_list_to_dict(list_=list_)
+        dict_transformed = transform_list_to_dict(list_=list_)
 
         self.assertEqual(dict_transformed,
                          {'5': True,
@@ -474,12 +489,10 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
     def test_transform_list_to_dict_with_none(self):
 
-        dict_transformed = OneViewModuleBase.transform_list_to_dict(None)
+        dict_transformed = transform_list_to_dict(None)
 
         self.assertEqual(dict_transformed, {})
 
-
-class ResourceComparatorTest(unittest.TestCase):
     DICT_ORIGINAL = {u'status': u'OK', u'category': u'fcoe-networks',
                      u'description': None, u'created': u'2016-06-13T20:39:15.991Z',
                      u'uri': u'/rest/fcoe-networks/36c56106-3b14-4f0d-8df9-627700b8e01b',
@@ -585,31 +598,31 @@ class ResourceComparatorTest(unittest.TestCase):
     }
 
     def test_resource_compare_equals(self):
-        self.assertTrue(ResourceComparator.compare(self.DICT_ORIGINAL, self.DICT_EQUAL_ORIGINAL))
+        self.assertTrue(compare(self.DICT_ORIGINAL, self.DICT_EQUAL_ORIGINAL))
 
     def test_resource_compare_missing_entry_in_first(self):
         dict1 = self.DICT_ORIGINAL.copy()
         del dict1['state']
 
-        self.assertFalse(ResourceComparator.compare(dict1, self.DICT_EQUAL_ORIGINAL))
+        self.assertFalse(compare(dict1, self.DICT_EQUAL_ORIGINAL))
 
     def test_resource_compare_missing_entry_in_second(self):
         dict2 = self.DICT_EQUAL_ORIGINAL.copy()
         del dict2['state']
 
-        self.assertFalse(ResourceComparator.compare(self.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3))
+        self.assertFalse(compare(self.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3))
 
     def test_resource_compare_different_on_level3(self):
-        self.assertFalse(ResourceComparator.compare(self.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3))
+        self.assertFalse(compare(self.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3))
 
     def test_resource_compare_equals_with_empty_eq_none(self):
-        self.assertTrue(ResourceComparator.compare(self.DICT_EMPTY_NONE1, self.DICT_EMPTY_NONE2))
+        self.assertTrue(compare(self.DICT_EMPTY_NONE1, self.DICT_EMPTY_NONE2))
 
     def test_resource_compare_equals_with_empty_eq_none_inverse(self):
-        self.assertTrue(ResourceComparator.compare(self.DICT_EMPTY_NONE2, self.DICT_EMPTY_NONE1))
+        self.assertTrue(compare(self.DICT_EMPTY_NONE2, self.DICT_EMPTY_NONE1))
 
     def test_resource_compare_equals_with_empty_eq_none_different(self):
-        self.assertFalse(ResourceComparator.compare(self.DICT_EMPTY_NONE3, self.DICT_EMPTY_NONE1))
+        self.assertFalse(compare(self.DICT_EMPTY_NONE3, self.DICT_EMPTY_NONE1))
 
     def test_resource_compare_with_double_level_list(self):
         dict1 = {list: [
@@ -622,7 +635,7 @@ class ResourceComparatorTest(unittest.TestCase):
             [4, 5, "6"]
         ]}
 
-        self.assertTrue(ResourceComparator.compare(dict1, dict2))
+        self.assertTrue(compare(dict1, dict2))
 
     def test_resource_compare_with_double_level_list_different(self):
         dict1 = {list: [
@@ -635,7 +648,7 @@ class ResourceComparatorTest(unittest.TestCase):
             [4, 5, "7"]
         ]}
 
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
     def test_comparison_with_int_and_float(self):
         dict1 = {
@@ -647,7 +660,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "lvalue": float(10)
         }
-        self.assertTrue(ResourceComparator.compare(dict1, dict2))
+        self.assertTrue(compare(dict1, dict2))
 
     def test_comparison_with_str_and_integer_float(self):
         dict1 = {
@@ -659,7 +672,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "lvalue": float(10)
         }
-        self.assertTrue(ResourceComparator.compare(dict1, dict2))
+        self.assertTrue(compare(dict1, dict2))
 
     def test_comparison_with_str_and_float(self):
         dict1 = {
@@ -671,7 +684,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "lvalue": float(10.1)
         }
-        self.assertTrue(ResourceComparator.compare(dict1, dict2))
+        self.assertTrue(compare(dict1, dict2))
 
     def test_comparison_dict_and_list(self):
         dict1 = {
@@ -683,7 +696,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "value": [1, 2, 3]
         }
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
     def test_comparison_list_and_dict(self):
         dict1 = {
@@ -695,7 +708,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "value": {"id": 123}
         }
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
     def test_comparison_with_different_float_values(self):
         dict1 = {
@@ -707,7 +720,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "lvalue": float(10.1)
         }
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
     def test_comparison_empty_list_and_none(self):
         dict1 = {
@@ -719,7 +732,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "values": None
         }
-        self.assertTrue(ResourceComparator.compare(dict1, dict2))
+        self.assertTrue(compare(dict1, dict2))
 
     def test_comparison_none_and_empty_list(self):
         dict1 = {
@@ -730,7 +743,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "values": []
         }
-        self.assertTrue(ResourceComparator.compare(dict1, dict2))
+        self.assertTrue(compare(dict1, dict2))
 
     def test_comparison_true_and_false(self):
         dict1 = {
@@ -742,7 +755,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "values": False
         }
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
     def test_comparison_false_and_true(self):
         dict1 = {
@@ -754,7 +767,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "values": True
         }
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
     def test_comparison_true_and_true(self):
         dict1 = {
@@ -766,7 +779,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "values": True
         }
-        self.assertTrue(ResourceComparator.compare(dict1, dict2))
+        self.assertTrue(compare(dict1, dict2))
 
     def test_comparison_false_and_false(self):
         dict1 = {
@@ -778,7 +791,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "values": False
         }
-        self.assertTrue(ResourceComparator.compare(dict1, dict2))
+        self.assertTrue(compare(dict1, dict2))
 
     def test_comparison_none_and_false(self):
         dict1 = {
@@ -790,7 +803,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "values": False
         }
-        self.assertTrue(ResourceComparator.compare(dict1, dict2))
+        self.assertTrue(compare(dict1, dict2))
 
     def test_comparison_false_and_none(self):
         dict1 = {
@@ -801,7 +814,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "values": None
         }
-        self.assertTrue(ResourceComparator.compare(dict1, dict2))
+        self.assertTrue(compare(dict1, dict2))
 
     def test_comparison_list_and_none_level_1(self):
         dict1 = {
@@ -813,7 +826,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name of the resource",
             "value": None
         }
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
     def test_comparison_none_and_list_level_1(self):
         dict1 = {
@@ -825,7 +838,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "value": [{"name": "item1"},
                       {"name": "item2"}]
         }
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
     def test_comparison_dict_and_none_level_1(self):
         dict1 = {
@@ -836,7 +849,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "value": None
         }
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
     def test_comparison_none_and_dict_level_1(self):
         dict1 = {
@@ -847,7 +860,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "name": "name",
             "value": {"name": "subresource"}
         }
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
     def test_comparison_none_and_dict_level_2(self):
         dict1 = {
@@ -862,7 +875,7 @@ class ResourceComparatorTest(unittest.TestCase):
                           "name": "sub-sub-resource"
                       }}
         }
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
     def test_comparison_dict_and_none_level_2(self):
         dict1 = {
@@ -877,7 +890,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "value": {"name": "subresource",
                       "value": None}
         }
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
     def test_comparison_none_and_list_level_2(self):
         dict1 = {
@@ -890,7 +903,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "value": {"name": "subresource",
                       "list": ["item1", "item2"]}
         }
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
     def test_comparison_list_and_none_level_2(self):
         dict1 = {
@@ -903,7 +916,7 @@ class ResourceComparatorTest(unittest.TestCase):
             "value": {"name": "subresource",
                       "list": None}
         }
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
     def test_comparison_list_of_dicts_with_diff_order(self):
         resource1 = {'connections': [
@@ -1106,7 +1119,7 @@ class ResourceComparatorTest(unittest.TestCase):
         ]
         }
 
-        self.assertTrue(ResourceComparator.compare(resource1, resource2))
+        self.assertTrue(compare(resource1, resource2))
 
     def test_comparison_list_when_dict_has_diff_key(self):
         dict1 = {
@@ -1122,15 +1135,13 @@ class ResourceComparatorTest(unittest.TestCase):
                       {'name': 'value1'},
                       {'name': 'value2'}]
         }
-        self.assertFalse(ResourceComparator.compare(dict1, dict2))
+        self.assertFalse(compare(dict1, dict2))
 
-
-class ResourceMergerTest(unittest.TestCase):
     def test_merge_list_by_key_when_original_list_is_empty(self):
         original_list = []
         list_with_changes = [dict(id=1, value="123")]
 
-        merged_list = ResourceMerger.merge_list_by_key(original_list, list_with_changes, key="id")
+        merged_list = merge_list_by_key(original_list, list_with_changes, key="id")
 
         expected_list = [dict(id=1, value="123")]
         self.assertEqual(merged_list, expected_list)
@@ -1139,7 +1150,7 @@ class ResourceMergerTest(unittest.TestCase):
         original_list = None
         list_with_changes = [dict(id=1, value="123")]
 
-        merged_list = ResourceMerger.merge_list_by_key(original_list, list_with_changes, key="id")
+        merged_list = merge_list_by_key(original_list, list_with_changes, key="id")
 
         expected_list = [dict(id=1, value="123")]
         self.assertEqual(merged_list, expected_list)
@@ -1151,7 +1162,7 @@ class ResourceMergerTest(unittest.TestCase):
         list_with_changes = [dict(id=1, requestedMbps=2700, allocatedVFs=3500),
                              dict(id=2, requestedMbps=1005)]
 
-        merged_list = ResourceMerger.merge_list_by_key(original_list, list_with_changes, key="id")
+        merged_list = merge_list_by_key(original_list, list_with_changes, key="id")
 
         expected_list = [dict(id=1, allocatedMbps=2500, mac="E2:4B:0D:30:00:09", requestedMbps=2700, allocatedVFs=3500),
                          dict(id=2, allocatedMbps=1000, mac="E2:4B:0D:30:00:0B", requestedMbps=1005)]
@@ -1165,7 +1176,7 @@ class ResourceMergerTest(unittest.TestCase):
         list_with_changes = [dict(id=1, requestedMbps=2700, allocatedVFs=3500),
                              dict(id=2, requestedMbps=1005)]
 
-        merged_list = ResourceMerger.merge_list_by_key(original_list, list_with_changes, key="id")
+        merged_list = merge_list_by_key(original_list, list_with_changes, key="id")
 
         expected_list = [dict(id=1, allocatedMbps=2500, mac="E2:4B:0D:30:00:09", requestedMbps=2700, allocatedVFs=3500),
                          dict(id=2, allocatedMbps=1000, mac="E2:4B:0D:30:00:0B", requestedMbps=1005)]
@@ -1178,7 +1189,7 @@ class ResourceMergerTest(unittest.TestCase):
 
         list_with_changes = [dict(id=1, requestedMbps=2700, allocatedVFs=3500)]
 
-        merged_list = ResourceMerger.merge_list_by_key(original_list, list_with_changes, key="id")
+        merged_list = merge_list_by_key(original_list, list_with_changes, key="id")
 
         expected_list = [dict(id=1, allocatedMbps=2500, mac="E2:4B:0D:30:00:09", requestedMbps=2700, allocatedVFs=3500)]
 
@@ -1190,7 +1201,7 @@ class ResourceMergerTest(unittest.TestCase):
         list_with_changes = [dict(id=1, requestedMbps=2700, allocatedVFs=3500),
                              dict(id=2, requestedMbps=1005)]
 
-        merged_list = ResourceMerger.merge_list_by_key(original_list, list_with_changes, key="id")
+        merged_list = merge_list_by_key(original_list, list_with_changes, key="id")
 
         expected_list = [dict(id=1, allocatedMbps=2500, mac="E2:4B:0D:30:00:09", requestedMbps=2700, allocatedVFs=3500),
                          dict(id=2, requestedMbps=1005)]
@@ -1201,8 +1212,8 @@ class ResourceMergerTest(unittest.TestCase):
         original_list = [dict(id=1, value1="123", value2="345")]
         list_with_changes = [dict(id=1, value1=None, value2="345-changed")]
 
-        merged_list = ResourceMerger.merge_list_by_key(original_list, list_with_changes, key="id",
-                                                       ignore_when_null=['value1', 'value2'])
+        merged_list = merge_list_by_key(original_list, list_with_changes, key="id",
+                                        ignore_when_null=['value1', 'value2'])
 
         expected_list = [dict(id=1, value1="123", value2="345-changed")]
 
@@ -1212,8 +1223,8 @@ class ResourceMergerTest(unittest.TestCase):
         original_list = [dict(id=1, value1="123", value2="345")]
         list_with_changes = [dict(id=1, value3="678")]
 
-        merged_list = ResourceMerger.merge_list_by_key(original_list, list_with_changes, key="id",
-                                                       ignore_when_null=['value1'])
+        merged_list = merge_list_by_key(original_list, list_with_changes, key="id",
+                                        ignore_when_null=['value1'])
 
         expected_list = [dict(id=1, value1="123", value2="345", value3="678")]
 
@@ -1262,7 +1273,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
-        except HPOneViewResourceNotFound as e:
+        except OneViewModuleResourceNotFound as e:
             self.assertEqual(e.msg, expected_error)
         else:
             self.fail(msg="Expected Exception was not raised")
@@ -1290,7 +1301,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
-        except HPOneViewResourceNotFound as e:
+        except OneViewModuleResourceNotFound as e:
             self.assertEqual(e.msg, message)
         else:
             self.fail(msg="Expected Exception was not raised")
@@ -1298,19 +1309,22 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
     def test_should_replace_connections_name_by_uri(self):
         conn_1 = dict(name="connection-1", networkUri='/rest/fc-networks/98')
         conn_2 = dict(name="connection-2", networkName='FC Network')
-        conn_3 = dict(name="connection-3", networkName='Ethernet Network')
+        conn_3 = dict(name="connection-3", networkName='FCoE Network')
+        conn_4 = dict(name="connection-4", networkName='Ethernet Network')
 
         sp_data = deepcopy(self.BASIC_PROFILE)
-        sp_data[SPKeys.CONNECTIONS] = [conn_1, conn_2, conn_3]
+        sp_data[SPKeys.CONNECTIONS] = [conn_1, conn_2, conn_3, conn_4]
 
-        self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], []]
+        self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], [], []]
+        self.mock_ov_client.fcoe_networks.get_by.side_effect = [[dict(uri='/rest/fcoe-networks/16')], []]
         self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
         expected_connections = [dict(name="connection-1", networkUri='/rest/fc-networks/98'),
                                 dict(name="connection-2", networkUri='/rest/fc-networks/14'),
-                                dict(name="connection-3", networkUri='/rest/ethernet-networks/18')]
+                                dict(name="connection-3", networkUri='/rest/fcoe-networks/16'),
+                                dict(name="connection-4", networkUri='/rest/ethernet-networks/18')]
 
         self.assertEqual(sp_data.get(SPKeys.CONNECTIONS), expected_connections)
 
@@ -1321,13 +1335,14 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         sp_data[SPKeys.CONNECTIONS] = [conn]
 
         self.mock_ov_client.fc_networks.get_by.return_value = []
+        self.mock_ov_client.fcoe_networks.get_by.return_value = []
         self.mock_ov_client.ethernet_networks.get_by.return_value = []
 
         expected_error = ServerProfileReplaceNamesByUris.SERVER_PROFILE_NETWORK_NOT_FOUND + "FC Network"
 
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
-        except HPOneViewResourceNotFound as e:
+        except OneViewModuleResourceNotFound as e:
             self.assertEqual(e.msg, expected_error)
         else:
             self.fail(msg="Expected Exception was not raised")
@@ -1355,7 +1370,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
-        except HPOneViewResourceNotFound as e:
+        except OneViewModuleResourceNotFound as e:
             self.assertEqual(e.msg, expected_error)
         else:
             self.fail(msg="Expected Exception was not raised")
@@ -1448,7 +1463,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
-        except HPOneViewResourceNotFound as e:
+        except OneViewModuleResourceNotFound as e:
             self.assertEqual(e.msg, expected_error)
         else:
             self.fail(msg="Expected Exception was not raised")
@@ -1524,7 +1539,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
-        except HPOneViewResourceNotFound as e:
+        except OneViewModuleResourceNotFound as e:
             self.assertEqual(e.msg, expected_error)
         else:
             self.fail(msg="Expected Exception was not raised")
@@ -1600,7 +1615,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
-        except HPOneViewResourceNotFound as e:
+        except OneViewModuleResourceNotFound as e:
             self.assertEqual(e.msg, expected_error)
         else:
             self.fail(msg="Expected Exception was not raised")
@@ -1628,7 +1643,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
-        except HPOneViewResourceNotFound as e:
+        except OneViewModuleResourceNotFound as e:
             self.assertEqual(e.msg, expected_error)
         else:
             self.fail(msg="Expected Exception was not raised")
@@ -1685,7 +1700,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         expected_error = ServerProfileReplaceNamesByUris.INTERCONNECT_NOT_FOUND + "interconnect1"
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
-        except HPOneViewResourceNotFound as e:
+        except OneViewModuleResourceNotFound as e:
             self.assertEqual(e.msg, expected_error)
         else:
             self.fail(msg="Expected Exception was not raised")
@@ -1735,7 +1750,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
-        except HPOneViewResourceNotFound as e:
+        except OneViewModuleResourceNotFound as e:
             self.assertEqual(e.msg, expected_error)
         else:
             self.fail(msg="Expected Exception was not raised")
@@ -1811,7 +1826,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
-        except HPOneViewResourceNotFound as e:
+        except OneViewModuleResourceNotFound as e:
             self.assertEqual(e.msg, expected_error)
         else:
             self.fail(msg="Expected Exception was not raised")
@@ -2318,9 +2333,9 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        list1 = sorted(merged_data[SPKeys.OS_DEPLOYMENT][SPKeys.ATTRIBUTES], key=ResourceComparator._str_sorted)
+        list1 = sorted(merged_data[SPKeys.OS_DEPLOYMENT][SPKeys.ATTRIBUTES], key=_str_sorted)
         list2 = sorted(deepcopy(self.profile_with_os_deployment)[SPKeys.OS_DEPLOYMENT][SPKeys.ATTRIBUTES],
-                       key=ResourceComparator._str_sorted)
+                       key=_str_sorted)
 
         self.assertEqual(list1, list2)
 
@@ -2422,7 +2437,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         expected_sas_logical_jbods = [self.SAS_LOGICAL_JBOD_1.copy(), item_2_merged.copy()]
         self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS], expected_sas_logical_jbods)
 
-    @mock.patch.object(ResourceMerger, 'merge_list_by_key')
+    @mock.patch.object(oneview, 'merge_list_by_key')
     def test_merge_should_ignore_logical_jbod_uri_when_null(self, mock_merge_list):
         data = dict(name="Profile101",
                     localStorage=dict(sasLogicalJBODs=[self.SAS_LOGICAL_JBOD_1.copy(), self.SAS_LOGICAL_JBOD_2.copy()]))
@@ -2624,6 +2639,37 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         self.assertFalse(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES])
+
+    @mock.patch.dict('os.environ', dict(LOGFILE='/path/log.txt'))
+    @mock.patch.object(logging, 'getLogger')
+    @mock.patch.object(logging, 'basicConfig')
+    def test_should_config_logging_when_logfile_env_var_defined(self, mock_logging_config, mock_get_logger):
+        fake_logger = mock.Mock()
+        mock_get_logger.return_value = fake_logger
+
+        get_logger('/home/dev/oneview-ansible/library/oneview_server_profile.py')
+
+        mock_get_logger.assert_called_once_with('oneview_server_profile.py')
+        fake_logger.addHandler.not_been_called()
+        mock_logging_config.assert_called_once_with(level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S',
+                                                    format='%(asctime)s %(levelname)s %(name)s %(message)s',
+                                                    filename='/path/log.txt', filemode='a')
+
+    @mock.patch('os.environ')
+    @mock.patch.object(logging, 'getLogger')
+    @mock.patch.object(logging, 'basicConfig')
+    @mock.patch.object(logging, 'NullHandler')
+    def test_should_add_null_handler_when_logfile_env_var_undefined(self, mock_null_handler, mock_logging_config,
+                                                                    mock_get_logger, mock_env):
+        mock_env.get.return_value = None
+        fake_logger = mock.Mock()
+        mock_get_logger.return_value = fake_logger
+
+        get_logger('/home/dev/oneview-ansible/library/oneview_server_profile.py')
+
+        mock_get_logger.assert_called_once_with('oneview_server_profile.py')
+        fake_logger.addHandler.assert_called_once_with(logging.NullHandler())
+        mock_logging_config.not_been_called()
 
 
 if __name__ == '__main__':

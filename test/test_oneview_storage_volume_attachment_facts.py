@@ -14,8 +14,8 @@
 # limitations under the License.
 ###
 
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import StorageVolumeAttachmentFactsModule
 from hpe_test_utils import FactsParamsTestCase
 
@@ -165,9 +165,7 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase,
 
         StorageVolumeAttachmentFactsModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=StorageVolumeAttachmentFactsModule.ATTACHMENT_KEY_REQUIRED
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=StorageVolumeAttachmentFactsModule.ATTACHMENT_KEY_REQUIRED)
 
     def test_should_fail_when_get_by_server_name_and_not_inform_volume(self):
         self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
@@ -179,9 +177,7 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase,
 
         StorageVolumeAttachmentFactsModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=StorageVolumeAttachmentFactsModule.ATTACHMENT_KEY_REQUIRED
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=StorageVolumeAttachmentFactsModule.ATTACHMENT_KEY_REQUIRED)
 
     def test_should_get_by_storage_volume_attachment_uri(self):
         self.resource.get.return_value = {"name": "Storage Volume Attachment Name"}

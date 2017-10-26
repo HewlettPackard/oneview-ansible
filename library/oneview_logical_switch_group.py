@@ -104,7 +104,7 @@ logical_switch_group:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
 
 
 class LogicalSwitchGroupModule(OneViewModuleBase):
@@ -161,7 +161,7 @@ class LogicalSwitchGroupModule(OneViewModuleBase):
         if switch_type:
             return switch_type[0]
         else:
-            raise HPOneViewResourceNotFound(self.MSG_SWITCH_TYPE_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_SWITCH_TYPE_NOT_FOUND)
 
 
 def main():

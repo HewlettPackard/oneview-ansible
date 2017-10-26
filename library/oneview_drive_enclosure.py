@@ -91,7 +91,7 @@ drive_enclosure:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, HPOneViewValueError
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, OneViewModuleValueError
 
 
 class DriveEnclosureModule(OneViewModuleBase):
@@ -143,12 +143,12 @@ class DriveEnclosureModule(OneViewModuleBase):
     def __get_drive_enclosure(self, data):
         name = data.get('name')
         if not name:
-            raise HPOneViewValueError(self.MSG_NAME_REQUIRED)
+            raise OneViewModuleValueError(self.MSG_NAME_REQUIRED)
         else:
             result = self.oneview_client.drive_enclosures.get_by('name', name)
 
             if not result:
-                raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
+                raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
 
             return result[0]
 

@@ -65,7 +65,7 @@ fabric:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, ResourceComparator
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, compare
 
 
 class FabricModule(OneViewModuleBase):
@@ -88,12 +88,12 @@ class FabricModule(OneViewModuleBase):
     def __reserved_vlan_range_updated(self):
         resource = self.get_by_name(self.data['name'])
         if not resource:
-            raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
         resource_vlan_range = resource.get('reservedVlanRange')
         merged_data = resource_vlan_range.copy()
         merged_data.update(self.data['reservedVlanRangeParameters'])
 
-        if ResourceComparator.compare(resource_vlan_range, merged_data):
+        if compare(resource_vlan_range, merged_data):
             return dict(changed=False, msg=self.MSG_ALREADY_PRESENT, ansible_facts=dict(fabric=resource))
         else:
             return self.__update_vlan_range(self.data, resource)

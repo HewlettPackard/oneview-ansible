@@ -98,7 +98,7 @@ uplink_set:
     returned: On state 'present'. Can be null.
     type: dict
 '''
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, HPOneViewValueError
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, OneViewModuleValueError
 
 
 class UplinkSetModule(OneViewModuleBase):
@@ -132,9 +132,9 @@ class UplinkSetModule(OneViewModuleBase):
 
     def __validate_key(self):
         if 'name' not in self.data:
-            raise HPOneViewValueError(self.MSG_KEY_REQUIRED)
+            raise OneViewModuleValueError(self.MSG_KEY_REQUIRED)
         if 'logicalInterconnectUri' not in self.data and 'logicalInterconnectName' not in self.data:
-            raise HPOneViewValueError(self.MSG_KEY_REQUIRED)
+            raise OneViewModuleValueError(self.MSG_KEY_REQUIRED)
 
     def __replace_logical_interconnect_name_by_uri(self):
         if 'logicalInterconnectName' in self.data:
@@ -143,7 +143,7 @@ class UplinkSetModule(OneViewModuleBase):
             if logical_interconnect:
                 self.data['logicalInterconnectUri'] = logical_interconnect['uri']
             else:
-                raise HPOneViewResourceNotFound(self.MSG_LOGICAL_INTERCONNECT_NOT_FOUND)
+                raise OneViewModuleResourceNotFound(self.MSG_LOGICAL_INTERCONNECT_NOT_FOUND)
 
     def __get_by(self, name, logical_interconnect_uri):
         uplink_sets = self.resource_client.get_by('name', name)

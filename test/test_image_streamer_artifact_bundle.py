@@ -15,11 +15,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import mock
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from copy import deepcopy
-from oneview_module_loader import ArtifactBundleModule, ResourceComparator
+from oneview_module_loader import ArtifactBundleModule, compare
 from hpe_test_utils import OneViewBaseTestCase
 
 ERROR_MSG = 'Fake message error'
@@ -267,7 +266,7 @@ class ArtifactBundleSpec(unittest.TestCase,
             ansible_facts=dict(artifact_bundle=artifact_bundle_updated)
         )
 
-    @mock.patch.object(ResourceComparator, 'compare')
+    @mock.patch('image_streamer_artifact_bundle.compare')
     def test_should_do_nothing_when_no_changes_provided(self, mock_resource_compare):
         mock_resource_compare.return_value = True
 

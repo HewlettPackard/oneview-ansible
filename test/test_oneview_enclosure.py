@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 import yaml
 
+from ansible.compat.tests import unittest, mock
 from copy import deepcopy
 from oneview_module_loader import EnclosureModule
 from hpe_test_utils import OneViewBaseTestCase
@@ -431,7 +431,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         self.mock_ansible_module.params = PARAMS_FOR_RECONFIGURED
         EnclosureModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_ENCLOSURE_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_ENCLOSURE_NOT_FOUND)
 
     def test_should_fail_when_name_is_not_in_data(self):
         self.enclosures.get_by.return_value = []
@@ -442,7 +442,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         self.mock_ansible_module.params = params
         EnclosureModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_ENCLOSURE_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_ENCLOSURE_NOT_FOUND)
 
     def test_should_refresh_enclosure(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
@@ -503,7 +503,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_fail_when_there_are_not_appliance_bays_power_on(self):
         enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, applianceBays=[])
@@ -515,7 +515,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_turn_on_uid(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
@@ -630,7 +630,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_fail_when_there_are_not_manager_bays_uid_on(self):
         enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, managerBays=[])
@@ -642,7 +642,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_turn_off_uid_manager_bay(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
@@ -690,7 +690,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_fail_when_there_are_not_manager_bays_uid_off(self):
         enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, managerBays=[])
@@ -702,7 +702,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_perform_an_e_fuse_manager_bay(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
@@ -732,7 +732,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_fail_when_there_are_not_manager_bays_e_fuse(self):
         enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, managerBays=[])
@@ -744,7 +744,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_reset_manager_bay(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
@@ -774,7 +774,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_fail_when_there_are_not_manager_bays_reset(self):
         enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, managerBays=[])
@@ -786,7 +786,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_perform_an_e_fuse_appliance_bay(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
@@ -816,7 +816,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_fail_when_there_are_not_appliance_bays_e_fuse(self):
         enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, applianceBays=[])
@@ -828,7 +828,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_perform_an_e_fuse_device_bay(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
@@ -858,7 +858,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_fail_when_there_are_not_device_bays_e_fuse(self):
         enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, deviceBays=[])
@@ -870,7 +870,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_reset_device_bay(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
@@ -900,7 +900,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_fail_when_there_are_not_device_bays_reset(self):
         enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, deviceBays=[])
@@ -912,7 +912,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_perform_an_e_fuse_interconnect(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
@@ -943,7 +943,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_fail_when_there_are_not_interconnect_bays_e_fuse(self):
         enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, interconnectBays=[])
@@ -955,7 +955,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_remove_ipv4_device_bays(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
@@ -1002,7 +1002,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_fail_when_there_are_not_device_bays_ipv4_release(self):
         enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, deviceBays=[])
@@ -1014,7 +1014,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_fail_when_interconnect_bay_not_found_ipv4(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]
@@ -1027,7 +1027,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_fail_when_there_are_not_interconnect_bays_ipv4(self):
         enclosure_without_appliance_bays = dict(ENCLOSURE_FROM_ONEVIEW, interconnectBays=[])
@@ -1039,7 +1039,7 @@ class EnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
         self.enclosures.patch.not_been_called()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(msg=EnclosureModule.MSG_BAY_NOT_FOUND)
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=EnclosureModule.MSG_BAY_NOT_FOUND)
 
     def test_should_set_state(self):
         self.enclosures.get_by.return_value = [ENCLOSURE_FROM_ONEVIEW]

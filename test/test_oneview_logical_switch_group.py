@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-import unittest
 import yaml
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import LogicalSwitchGroupModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -158,9 +158,7 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
 
         LogicalSwitchGroupModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=LogicalSwitchGroupModule.MSG_SWITCH_TYPE_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalSwitchGroupModule.MSG_SWITCH_TYPE_NOT_FOUND)
 
     def test_update_scopes_when_different(self):
         params_to_scope = yaml.load(YAML_LOGICAL_SWITCH_GROUP).copy()

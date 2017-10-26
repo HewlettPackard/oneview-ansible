@@ -15,7 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
+
+from ansible.compat.tests import unittest
 from oneview_module_loader import LogicalDownlinksFactsModule
 from hpe_test_utils import FactsParamsTestCase
 
@@ -70,7 +71,7 @@ class LogicalDownlinksFactsSpec(unittest.TestCase,
 
         LogicalDownlinksFactsModule().run()
 
-        self.logical_downlinks.get_all.assert_called_once()
+        self.logical_downlinks.get_all.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -102,7 +103,7 @@ class LogicalDownlinksFactsSpec(unittest.TestCase,
 
         LogicalDownlinksFactsModule().run()
 
-        self.logical_downlinks.get_all_without_ethernet.assert_called_once()
+        self.logical_downlinks.get_all_without_ethernet.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,

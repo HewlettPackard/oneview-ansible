@@ -16,8 +16,7 @@
 # limitations under the License.
 ###
 
-import unittest
-
+from ansible.compat.tests import unittest
 from oneview_module_loader import UnmanagedDeviceFactsModule
 from hpe_test_utils import FactsParamsTestCase
 
@@ -79,7 +78,7 @@ class UnmanagedDeviceFactsSpec(unittest.TestCase,
 
         UnmanagedDeviceFactsModule().run()
 
-        self.resource.get_all.assert_called_once()
+        self.resource.get_all.assert_called_once_with()
         self.mock_ansible_module.exit_json.assert_called_once_with(
             ansible_facts=dict(unmanaged_devices=unmanaged_devices),
             changed=False

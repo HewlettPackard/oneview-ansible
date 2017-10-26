@@ -15,8 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import IdPoolsIpv4SubnetModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -117,6 +117,7 @@ class IdPoolsIpv4SubnetModuleSpec(unittest.TestCase,
         IdPoolsIpv4SubnetModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY,
             msg=IdPoolsIpv4SubnetModule.MSG_VALUE_ERROR
         )
 

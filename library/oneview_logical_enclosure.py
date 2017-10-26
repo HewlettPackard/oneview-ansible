@@ -175,7 +175,7 @@ generated_dump_uri:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, ResourceComparator
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, compare
 
 
 class LogicalEnclosureModule(OneViewModuleBase):
@@ -214,7 +214,7 @@ class LogicalEnclosureModule(OneViewModuleBase):
             changed, msg, ansible_facts = self.__absent(logical_enclosure)
         else:
             if not logical_enclosure:
-                raise HPOneViewResourceNotFound(self.MSG_REQUIRED)
+                raise OneViewModuleResourceNotFound(self.MSG_REQUIRED)
 
             if self.state == 'firmware_updated':
                 changed, msg, ansible_facts = self.__update_firmware(self.data, logical_enclosure)
@@ -260,7 +260,7 @@ class LogicalEnclosureModule(OneViewModuleBase):
         merged_data = existent_resource.copy()
         merged_data.update(new_data)
 
-        if not ResourceComparator.compare(existent_resource, merged_data):
+        if not compare(existent_resource, merged_data):
             existent_resource = self.oneview_client.logical_enclosures.update(merged_data)
             return True, self.MSG_UPDATED, dict(logical_enclosure=existent_resource)
         else:

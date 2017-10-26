@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import unittest
 import yaml
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import ServerHardwareModule
 from hpe_test_utils import OneViewBaseTestCase
 
@@ -165,8 +165,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
         ServerHardwareModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ServerHardwareModule.MSG_MANDATORY_FIELD_MISSING.format('data.hostname')
-        )
+            exception=mock.ANY, msg=ServerHardwareModule.MSG_MANDATORY_FIELD_MISSING.format('data.hostname'))
 
     def test_should_fail_with_missing_name_attribute(self):
         self.mock_ansible_module.params = {"state": "absent",
@@ -176,9 +175,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
         ServerHardwareModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ServerHardwareModule.MSG_MANDATORY_FIELD_MISSING.format('data.name')
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ServerHardwareModule.MSG_MANDATORY_FIELD_MISSING.format('data.name'))
 
     def test_should_remove_server_hardware(self):
         self.resource.get_by.return_value = [{'name': 'name'}]
@@ -225,9 +222,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
         ServerHardwareModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ServerHardwareModule.MSG_SERVER_HARDWARE_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ServerHardwareModule.MSG_SERVER_HARDWARE_NOT_FOUND)
 
     def test_should_set_refresh_state(self):
         self.resource.get_by.return_value = [{"uri": "resourceuri"}]
@@ -250,9 +245,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
         ServerHardwareModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ServerHardwareModule.MSG_SERVER_HARDWARE_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ServerHardwareModule.MSG_SERVER_HARDWARE_NOT_FOUND)
 
     def test_should_set_ilo_firmware(self):
         self.resource.get_by.return_value = [{"uri": "resourceuri"}]
@@ -275,9 +268,7 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
         ServerHardwareModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=ServerHardwareModule.MSG_SERVER_HARDWARE_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ServerHardwareModule.MSG_SERVER_HARDWARE_NOT_FOUND)
 
     def test_should_reset_ilo_state(self):
         server_hardware_uri = "resourceuri"

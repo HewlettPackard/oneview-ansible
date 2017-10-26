@@ -16,11 +16,10 @@
 # limitations under the License.
 ###
 
-import unittest
-import mock
 import yaml
 import json
 
+from ansible.compat.tests import unittest, mock
 from oneview_module_loader import ICspHelper
 from hpe_icsp_server import (ICspServerModule,
                              main as hpe_icsp_server_main)
@@ -263,8 +262,7 @@ class IcspServerSpec(unittest.TestCase):
 
         ICspServerModule().run()
 
-        self.mock_ansible_instance.fail_json.assert_called_once_with(
-            msg=ICspServerModule.SERVER_PERSONALITY_DATA_REQUIRED)
+        self.mock_ansible_instance.fail_json.assert_called_once_with(msg=ICspServerModule.SERVER_PERSONALITY_DATA_REQUIRED)
 
     def test_should_fail_when_try_configure_network_for_not_found_server(self):
         self.mock_connection.get.return_value = {'members': []}

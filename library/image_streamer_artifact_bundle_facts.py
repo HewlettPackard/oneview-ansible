@@ -113,7 +113,7 @@ backup_for_artifact_bundle:
     type: list
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
 
 
 class ArtifactBundleFactsModule(OneViewModuleBase):

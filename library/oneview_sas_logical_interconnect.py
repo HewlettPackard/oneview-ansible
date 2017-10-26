@@ -120,7 +120,7 @@ li_firmware:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, HPOneViewValueError
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, OneViewModuleValueError
 
 
 class SasLogicalInterconnectModule(OneViewModuleBase):
@@ -152,7 +152,7 @@ class SasLogicalInterconnectModule(OneViewModuleBase):
             resource = self.get_by_name(self.data['name'])
 
             if not resource:
-                raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
+                raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
 
             if self.state == 'configuration_updated':
                 changed, msg, ansible_facts = self.__update_configuration(resource['uri'])
@@ -169,7 +169,7 @@ class SasLogicalInterconnectModule(OneViewModuleBase):
         uris = self.data.get('logicalInterconnectUris')
         if not uris:
             if 'logicalInterconnectNames' not in self.data:
-                raise HPOneViewValueError(self.MSG_NO_OPTIONS_PROVIDED)
+                raise OneViewModuleValueError(self.MSG_NO_OPTIONS_PROVIDED)
 
             uris = self.__resolve_log_interconnect_names(self.data['logicalInterconnectNames'])
 
@@ -181,7 +181,7 @@ class SasLogicalInterconnectModule(OneViewModuleBase):
         for name in interconnectNames:
             li = self.get_by_name(name)
             if not li:
-                raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
+                raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
             uris.append(li['uri'])
 
         return uris

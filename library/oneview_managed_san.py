@@ -118,7 +118,7 @@ managed_san_issues:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound, ResourceComparator
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, compare
 
 
 class ManagedSanModule(OneViewModuleBase):
@@ -144,7 +144,7 @@ class ManagedSanModule(OneViewModuleBase):
         resource = self.__get_resource(self.data)
 
         if not resource:
-            raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
 
         if self.state == 'present':
             exit_status = self.__update(self.data, resource)
@@ -164,7 +164,7 @@ class ManagedSanModule(OneViewModuleBase):
         merged_data = resource.copy()
         merged_data.update(data)
 
-        if ResourceComparator.compare(resource, merged_data):
+        if compare(resource, merged_data):
             changed = False
             msg = self.MSG_NO_CHANGES_PROVIDED
         else:

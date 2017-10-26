@@ -157,7 +157,7 @@ logical_switch:
 
 from copy import deepcopy
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewException, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleException, OneViewModuleResourceNotFound
 
 
 class LogicalSwitchModule(OneViewModuleBase):
@@ -212,7 +212,7 @@ class LogicalSwitchModule(OneViewModuleBase):
 
     def __update(self, data, resource):
         if not resource:
-            raise HPOneViewResourceNotFound(self.MSG_LOGICAL_SWITCH_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_LOGICAL_SWITCH_NOT_FOUND)
         else:
             data['logicalSwitch']['uri'] = resource['uri']
 
@@ -230,7 +230,7 @@ class LogicalSwitchModule(OneViewModuleBase):
 
     def __refresh(self, data, resource):
         if not resource:
-            raise HPOneViewResourceNotFound(self.MSG_LOGICAL_SWITCH_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_LOGICAL_SWITCH_NOT_FOUND)
         else:
             logical_switch = self.oneview_client.logical_switches.refresh(resource['uri'])
             return True, self.MSG_REFRESHED, dict(logical_switch=logical_switch)
@@ -251,7 +251,7 @@ class LogicalSwitchModule(OneViewModuleBase):
                 data['logicalSwitch'].pop('logicalSwitchGroupName')
                 data['logicalSwitch']['logicalSwitchGroupUri'] = logical_switch_group[0]['uri']
             else:
-                raise HPOneViewResourceNotFound(self.MSG_LOGICAL_SWITCH_GROUP_NOT_FOUND)
+                raise OneViewModuleResourceNotFound(self.MSG_LOGICAL_SWITCH_GROUP_NOT_FOUND)
 
 
 def main():

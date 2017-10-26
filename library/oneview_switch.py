@@ -65,7 +65,7 @@ EXAMPLES = '''
 
 RETURN = ''' # '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
 
 
 class SwitchModule(OneViewModuleBase):
@@ -95,7 +95,7 @@ class SwitchModule(OneViewModuleBase):
             return self.resource_absent(resource)
 
         if not resource:
-            raise HPOneViewResourceNotFound(self.MSG_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
         else:
             if self.state == 'present':
                 return self.__present(resource)

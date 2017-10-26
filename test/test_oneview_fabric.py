@@ -16,7 +16,7 @@
 # limitations under the License.
 ###
 
-import unittest
+from ansible.compat.tests import unittest, mock
 from hpe_test_utils import OneViewBaseTestCase
 from oneview_module_loader import FabricModule
 
@@ -92,9 +92,7 @@ class FabricModuleSpec(unittest.TestCase,
 
         FabricModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            msg=FabricModule.MSG_NOT_FOUND
-        )
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=FabricModule.MSG_NOT_FOUND)
 
     def test_should_not_update_when_data_is_equals(self):
         # Mock OneView resource functions

@@ -86,7 +86,7 @@ deployment_plan:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, HPOneViewResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
 
 
 class DeploymentPlanModule(OneViewModuleBase):
@@ -132,7 +132,7 @@ class DeploymentPlanModule(OneViewModuleBase):
         if build_plan:
             return build_plan[0]
         else:
-            raise HPOneViewResourceNotFound(self.MSG_BUILD_PLAN_WAS_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_BUILD_PLAN_WAS_NOT_FOUND)
 
 
 def main():
