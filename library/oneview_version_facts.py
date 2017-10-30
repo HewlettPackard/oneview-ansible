@@ -16,46 +16,37 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'status': ['stableinterface'],
+ANSIBLE_METADATA = {'status': ['preview'],
                     'supported_by': 'community',
                     'metadata_version': '1.1'}
 
 DOCUMENTATION = '''
 ---
 module: oneview_version
-short_description: Returns the range of possible API versions supported by the appliance.
+short_description: Returns the range of possible API versions supported by the appliance
 description:
     - Provides an interface to return the range of possible API versions supported by the appliance.
-version_added: "2.3"
+version_added: "2.5"
 requirements:
-    - "python >= 2.7.9"
-    - "hpOneView >= 3.2.0"
+    - "hpOneView >= 4.3.0"
 author: "Priyanka Sood (@soodpr)"
-options:
-    state:
-        description:
-            - Indicates the desired state for the Appliance current and minimum version.
-              C(present) will ensure data properties are compliant with OneView.
-        choices: ['present']
-    data:
-        description:
-            - List with the Appliance current version and minimum version supported.
-        required: true
-
 extends_documentation_fragment:
     - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
 - name: Ensure that the Appliance Current and minimum version is present with version '500'
-  oneview_version:
+  oneview_version_facts:
     config: "{{ config_file_path }}"
+
+- debug: var=version
 '''
 
 RETURN = '''
 appliance_version:
     description: Has the facts about the OneView current and minimum version.
-    returned: On state 'present'. Can be null.
+    returned: When requested, but can not be null
     type: dict
 '''
 

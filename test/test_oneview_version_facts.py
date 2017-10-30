@@ -22,10 +22,10 @@ from oneview_module_loader import VersionFactsModule
 from hpe_test_utils import OneViewBaseTestCase
 
 PARAMS_GET = dict(
-    config='config.json',
-    name=None
+    config='config.json'
 )
-DICT_DEFAULT_Version = [{
+
+DICT_DEFAULT_VERSION = [{
     "currentVersion": 500,
     "minimumVersion": 120
 }]
@@ -38,13 +38,13 @@ class VersionFactsSpec(unittest.TestCase, OneViewBaseTestCase):
         self.version = self.mock_ov_client.versions
 
     def test_should_get_appliance_current_version_and_minimum_version(self):
-        self.version.get_version.return_value = DICT_DEFAULT_Version
+        self.version.get_version.return_value = DICT_DEFAULT_VERSION
         self.mock_ansible_module.params = PARAMS_GET
         VersionFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(version=DICT_DEFAULT_Version)
+            ansible_facts=dict(version=DICT_DEFAULT_VERSION)
         )
 
 
