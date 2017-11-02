@@ -16,13 +16,13 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'status': ['preview'],
-                    'supported_by': 'community',
-                    'metadata_version': '1.1'}
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['preview'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
-module: oneview_version
+module: oneview_version_facts
 short_description: Returns the range of possible API versions supported by the appliance
 description:
     - Provides an interface to return the range of possible API versions supported by the appliance.
@@ -36,7 +36,7 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = '''
-- name: Ensure that the Appliance Current and minimum version is present with version '500'
+- name: Gather facts about current and minimum Version
   oneview_version_facts:
     config: "{{ config_file_path }}"
 
@@ -44,7 +44,7 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-appliance_version:
+version:
     description: Has the facts about the OneView current and minimum version.
     returned: When requested, but can not be null
     type: dict
