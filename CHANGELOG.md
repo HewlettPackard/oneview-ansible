@@ -1,4 +1,4 @@
-# v6.0.0(unreleased)
+# v5.1.0(unreleased)
 #### Notes
 This release adds new resource modules.
 
