@@ -61,5 +61,6 @@ class LoginDetailFactsSpec(unittest.TestCase, OneViewBaseTestCase):
             ansible_facts=dict(login_details=LIST_DEFAULT_LOGIN_DETAIL)
         )
 
+        
 if __name__ == '__main__':
     unittest.main()
