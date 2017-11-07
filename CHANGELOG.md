@@ -3,8 +3,8 @@
 This release adds new resource modules.
 
 #### Modules added
-version_facts
-login_details facts
+- version_facts
+- login_details_facts
 
 # v5.0.0
 #### Notes

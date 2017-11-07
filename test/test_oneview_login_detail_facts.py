@@ -21,10 +21,10 @@ from oneview_module_loader import LoginDetailFactsModule
 from hpe_test_utils import OneViewBaseTestCase
 
 PARAMS_GET_DETAILS = dict(
-    config='config.json',
+    config='config.json'
 )
 
-DICT_DEFAULT_LOGIN_DETAIL = [{
+LIST_DEFAULT_LOGIN_DETAIL = [{
     "allowLocalLogin": "true",
     "category": "null",
     "configuredLoginDomains": [
@@ -51,14 +51,14 @@ class LoginDetailFactsSpec(unittest.TestCase, OneViewBaseTestCase):
 
     def test_should_get_all_login_details(self):
         self.login_details.get_login_details.return_value = (
-            DICT_DEFAULT_LOGIN_DETAIL)
+            LIST_DEFAULT_LOGIN_DETAIL)
         self.mock_ansible_module.params = PARAMS_GET_DETAILS
 
         LoginDetailFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(login_details=DICT_DEFAULT_LOGIN_DETAIL)
+            ansible_facts=dict(login_details=LIST_DEFAULT_LOGIN_DETAIL)
         )
 
 if __name__ == '__main__':
