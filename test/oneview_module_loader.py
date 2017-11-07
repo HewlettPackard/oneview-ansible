@@ -155,3 +155,4 @@ from oneview_user import UserModule
 from oneview_user_facts import UserFactsModule
 from oneview_volume import VolumeModule
 from oneview_volume_facts import VolumeFactsModule
+from oneview_version_facts import VersionFactsModule

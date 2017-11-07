@@ -1,3 +1,10 @@
+# v5.1.0(unreleased)
+#### Notes
+This release adds new resource modules.
+
+#### Modules added
+version_facts
+
 # v5.0.0
 #### Notes
 This release adds the [TESTING.md](TESTING.md) document.
