@@ -25,23 +25,39 @@ PARAMS_GET_DETAILS = dict(
 )
 
 DICT_DEFAULT_LOGIN_DETAIL = [{
-        "type": "LoginDomainDetails", 
-        "uri": "/rest/logindetails"
+    "allowLocalLogin": "true",
+    "category": "null",
+    "configuredLoginDomains": [
+        {
+            "authProtocol": "AD",
+            "category": "users",
+            "created": "Wed Aug 02 15:37:50 UTC 2017",
+            "eTag": "Wed Aug 02 15:37:50 UTC 2017",
+            "loginDomain": "1",
+            "modified": "Wed Aug 02 15:37:50 UTC 2017",
+            "name": "wpstad.vse.rdlabs.hpecorp.net",
+            "type": "LoginDomainDetails",
+            "uri": "/rest/logindetails"
+        }
+    ]
 }]
 
 
-class LoginDetailFactsSpec(unittest.TestCase,OneViewBaseTestCase):
+class LoginDetailFactsSpec(unittest.TestCase, OneViewBaseTestCase):
+
     def setUp(self):
         self.configure_mocks(self, LoginDetailFactsModule)
         self.login_details = self.mock_ov_client.login_details
 
     def test_should_get_all_login_details(self):
-        self.login_details.get_login_details.return_value = DICT_DEFAULT_LOGIN_DETAIL
+        self.login_details.get_login_details.return_value = (
+            DICT_DEFAULT_LOGIN_DETAIL)
         self.mock_ansible_module.params = PARAMS_GET_DETAILS
 
         LoginDetailFactsModule().run()
 
-        self.mock_ansible_module.exit_json.assert_called_once_with(changed=False,
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
             ansible_facts=dict(login_details=DICT_DEFAULT_LOGIN_DETAIL)
         )
 
