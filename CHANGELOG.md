@@ -1,16 +1,12 @@
 # Ansible Modules for HPE OneView Change Log
 
-## v5.1.0(unreleased)
-#### Notes
-This release adds new resource modules.
+## v5.0.0 (unreleased)
+
+This release adds the [TESTING.md](TESTING.md) document.
 
 #### Modules added
 - oneview_version_facts
 - oneview_login_detail_facts
-
-## v5.0.0
-#### Notes
-This release adds the [TESTING.md](TESTING.md) document.
 
 #### Breaking changes
 1. On the modules setup instructions, the requirement of setting up a PYTHONPATH environment variable is being dropped and replaced by the setup of the ANSIBLE_MODULE_UTILS environment variable.
@@ -25,7 +21,7 @@ This release adds the [TESTING.md](TESTING.md) document.
 - [#297](https://github.com/HewlettPackard/oneview-ansible/issues/297) Allow specifying a custom path for the module_utils
 
 ## v4.0.0
-#### Notes
+
 This release extends the planned support of the module to OneView REST API version 500 (OneView v3.10).
 
 #### Major changes
@@ -34,11 +30,11 @@ This release extends the planned support of the module to OneView REST API versi
  3. Updated example files for most resources for improved readability and usability.
 
 ## v3.1.1
-#### Notes
+
 Minor changes and bug fixes.
 
 ## v3.1.0
-#### Notes
+
 This release adds new resource modules and achieves the planned support for the OneView REST API v300 and HPE Image Streamer.
 
 #### Modules added
@@ -83,7 +79,7 @@ This release adds new resource modules and achieves the planned support for the 
 - oneview_scope_facts
 
 ## v2.0.0
-#### Notes
+
 This release adds new resource modules and achieves the planned support for the OneView REST API on version 120 and 200, on OneView appliances with versions 2.00.00.
 
 #### Modules added
