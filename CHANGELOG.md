@@ -1,14 +1,12 @@
-# v5.1.0(unreleased)
-#### Notes
-This release adds new resource modules.
+# Ansible Modules for HPE OneView Change Log
+
+## v5.0.0 (unreleased)
+
+This release adds the [TESTING.md](TESTING.md) document.
 
 #### Modules added
-- version_facts
-- login_details_facts
-
-# v5.0.0
-#### Notes
-This release adds the [TESTING.md](TESTING.md) document.
+- oneview_version_facts
+- oneview_login_detail_facts
 
 #### Breaking changes
 1. On the modules setup instructions, the requirement of setting up a PYTHONPATH environment variable is being dropped and replaced by the setup of the ANSIBLE_MODULE_UTILS environment variable.
@@ -22,8 +20,8 @@ This release adds the [TESTING.md](TESTING.md) document.
 - [#290](https://github.com/HewlettPackard/oneview-ansible/issues/290) Issue with filter on oneview_server_profile_facts
 - [#297](https://github.com/HewlettPackard/oneview-ansible/issues/297) Allow specifying a custom path for the module_utils
 
-# v4.0.0
-#### Notes
+## v4.0.0
+
 This release extends the planned support of the module to OneView REST API version 500 (OneView v3.10).
 
 #### Major changes
@@ -31,22 +29,22 @@ This release extends the planned support of the module to OneView REST API versi
  2. Added CHANGELOG and officially adopted Semantic Versioning for the repository.
  3. Updated example files for most resources for improved readability and usability.
 
-# v3.1.1
-#### Notes
+## v3.1.1
+
 Minor changes and bug fixes.
 
-# v3.1.0
-#### Notes
+## v3.1.0
+
 This release adds new resource modules and achieves the planned support for the OneView REST API v300 and HPE Image Streamer.
 
 #### Modules added
-image_streamer_artifact_bundle
-image_streamer_artifact_bundle_facts
-image_streamer_deployment_group_facts
-image_streamer_deployment_plan
-image_streamer_deployment_plan_facts
+- image_streamer_artifact_bundle
+- image_streamer_artifact_bundle_facts
+- image_streamer_deployment_group_facts
+- image_streamer_deployment_plan
+- image_streamer_deployment_plan_facts
 
-# v3.0.0
+## v3.0.0
 #### Major changes
 1. Added support for OneView 3.0 and HPE Synergy resources
 2. Added support for the OneView REST API v300
@@ -54,34 +52,34 @@ image_streamer_deployment_plan_facts
 4. Added partial support for HPE Synergy Image Streamer
 
 #### Modules added
-hpe_icsp_os_deployment
-hpe_icsp_server
-image_streamer_artifact_bundle_facts
-image_streamer_build_plan
-image_streamer_build_plan_facts
-image_streamer_golden_image
-image_streamer_golden_image_facts
-image_streamer_os_volume_facts
-image_streamer_plan_script
-image_streamer_plan_script_facts
-oneview_alert_facts
-oneview_drive_enclosure
-oneview_drive_enclosure_facts
-oneview_os_deployment_plan_facts
-oneview_sas_interconnect
-oneview_sas_interconnect_facts
-oneview_sas_interconnect_type_facts
-oneview_sas_logical_interconnect
-oneview_sas_logical_interconnect_facts
-oneview_sas_logical_interconnect_group
-oneview_sas_logical_interconnect_group_facts
-oneview_sas_logical_jbod_attachment_facts
-oneview_sas_logical_jbod_facts
-oneview_scope
-oneview_scope_facts
+- hpe_icsp_os_deployment
+- hpe_icsp_server
+- image_streamer_artifact_bundle_facts
+- image_streamer_build_plan
+- image_streamer_build_plan_facts
+- image_streamer_golden_image
+- image_streamer_golden_image_facts
+- image_streamer_os_volume_facts
+- image_streamer_plan_script
+- image_streamer_plan_script_facts
+- oneview_alert_facts
+- oneview_drive_enclosure
+- oneview_drive_enclosure_facts
+- oneview_os_deployment_plan_facts
+- oneview_sas_interconnect
+- oneview_sas_interconnect_facts
+- oneview_sas_interconnect_type_facts
+- oneview_sas_logical_interconnect
+- oneview_sas_logical_interconnect_facts
+- oneview_sas_logical_interconnect_group
+- oneview_sas_logical_interconnect_group_facts
+- oneview_sas_logical_jbod_attachment_facts
+- oneview_sas_logical_jbod_facts
+- oneview_scope
+- oneview_scope_facts
 
-# v2.0.0
-#### Notes
+## v2.0.0
+
 This release adds new resource modules and achieves the planned support for the OneView REST API on version 120 and 200, on OneView appliances with versions 2.00.00.
 
 #### Modules added
@@ -96,7 +94,7 @@ This release adds new resource modules and achieves the planned support for the 
 - oneview_unmanaged_device.yml
 - oneview_unmanaged_device_facts.yml
 
-# v1.0.0 (Beta)
+## v1.0.0 (Beta)
 Initial release of the OneView modules for Ansible. It adds support to managing core features of OneView through the addition of the modules listed bellow.
 This version of the module supports OneView appliances with versions 2.00.00 or higher, using the OneView REST API version 120 or 200.
 
