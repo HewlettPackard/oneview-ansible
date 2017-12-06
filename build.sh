@@ -128,14 +128,14 @@ if [ -z "$TRAVIS" ]; then
 #Coveralls runs only when Travis is running the build
 else
   echo -e "\n${COLOR_START}Running Coveralls${COLOR_END}"
-  coverage run --source=library/ -m unittest discover test/
+  coverage run --source=library/ -m pytest test/
   coveralls
   exit_code_coveralls=$?
 fi
 
 
 echo -e "\n${COLOR_START}Running tests${COLOR_END}"
-python -m unittest discover test/
+python -m pytest test/
 exit_code_tests=$?
 
 
