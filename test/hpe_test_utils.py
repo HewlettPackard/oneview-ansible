@@ -21,7 +21,7 @@ import pytest
 import re
 import yaml
 
-from ansible.compat.tests import mock
+from mock import mock
 from oneview_module_loader import ONEVIEW_MODULE_UTILS_PATH
 from hpOneView.oneview_client import OneViewClient
 

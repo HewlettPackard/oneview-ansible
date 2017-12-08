@@ -40,7 +40,7 @@ setup () {
     export PYTHON_SDK=../python-hpOneView
   fi
 
-  export PYTHONPATH=$PYTHON_SDK:$ANSIBLE_LIBRARY:$PYTHONPATH
+  export PYTHONPATH="test:$PYTHON_SDK:$ANSIBLE_LIBRARY:$PYTHONPATH"
 }
 
 update_doc_fragments () {
