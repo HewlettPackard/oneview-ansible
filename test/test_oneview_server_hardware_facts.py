@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import ServerHardwareFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -58,15 +59,10 @@ PARAMS_WITH_ALL_FIRMWARES_WITH_FILTERS = dict(
 )
 
 
-class ServerHardwareFactsSpec(unittest.TestCase, FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, ServerHardwareFactsModule)
-        self.server_hardware = self.mock_ov_client.server_hardware
-
-        FactsParamsTestCase.configure_client_mock(self, self.server_hardware)
-
+@pytest.mark.resource(TestServerHardwareFactsModule='server_hardware')
+class TestServerHardwareFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_server_hardware(self):
-        self.server_hardware.get_all.return_value = {"name": "Server Hardware Name"}
+        self.resource.get_all.return_value = {"name": "Server Hardware Name"}
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         ServerHardwareFactsModule().run()
@@ -77,7 +73,7 @@ class ServerHardwareFactsSpec(unittest.TestCase, FactsParamsTestCase):
         )
 
     def test_should_get_server_hardware_by_name(self):
-        self.server_hardware.get_by.return_value = {"name": "Server Hardware Name"}
+        self.resource.get_by.return_value = {"name": "Server Hardware Name"}
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         ServerHardwareFactsModule().run()
@@ -88,15 +84,15 @@ class ServerHardwareFactsSpec(unittest.TestCase, FactsParamsTestCase):
         )
 
     def test_should_get_server_hardware_by_name_with_options(self):
-        self.server_hardware.get_by.return_value = [{"name": "Server Hardware Name", "uri": "res_uri"}]
-        self.server_hardware.get_bios.return_value = {'subresource': 'value'}
-        self.server_hardware.get_environmental_configuration.return_value = {'subresource': 'value'}
-        self.server_hardware.get_java_remote_console_url.return_value = {'subresource': 'value'}
-        self.server_hardware.get_ilo_sso_url.return_value = {'subresource': 'value'}
-        self.server_hardware.get_physical_server_hardware.return_value = {'subresource': 'value'}
-        self.server_hardware.get_remote_console_url.return_value = {'subresource': 'value'}
-        self.server_hardware.get_utilization.return_value = {'subresource': 'value'}
-        self.server_hardware.get_firmware.return_value = {'subresource': 'firmware'}
+        self.resource.get_by.return_value = [{"name": "Server Hardware Name", "uri": "res_uri"}]
+        self.resource.get_bios.return_value = {'subresource': 'value'}
+        self.resource.get_environmental_configuration.return_value = {'subresource': 'value'}
+        self.resource.get_java_remote_console_url.return_value = {'subresource': 'value'}
+        self.resource.get_ilo_sso_url.return_value = {'subresource': 'value'}
+        self.resource.get_physical_server_hardware.return_value = {'subresource': 'value'}
+        self.resource.get_remote_console_url.return_value = {'subresource': 'value'}
+        self.resource.get_utilization.return_value = {'subresource': 'value'}
+        self.resource.get_firmware.return_value = {'subresource': 'firmware'}
         self.mock_ansible_module.params = PARAMS_WITH_OPTIONS
 
         ServerHardwareFactsModule().run()
@@ -115,13 +111,13 @@ class ServerHardwareFactsSpec(unittest.TestCase, FactsParamsTestCase):
         )
 
     def test_should_get_all_firmwares_across_the_servers(self):
-        self.server_hardware.get_all.return_value = []
-        self.server_hardware.get_all_firmwares.return_value = [{'subresource': 'firmware'}]
+        self.resource.get_all.return_value = []
+        self.resource.get_all_firmwares.return_value = [{'subresource': 'firmware'}]
         self.mock_ansible_module.params = PARAMS_WITH_ALL_FIRMWARES_WITHOUT_FILTER
 
         ServerHardwareFactsModule().run()
 
-        self.server_hardware.get_all_firmwares.assert_called_once_with()
+        self.resource.get_all_firmwares.assert_called_once_with()
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts={
@@ -131,13 +127,13 @@ class ServerHardwareFactsSpec(unittest.TestCase, FactsParamsTestCase):
         )
 
     def test_should_get_all_firmwares_with_filters(self):
-        self.server_hardware.get_all.return_value = []
-        self.server_hardware.get_all_firmwares.return_value = [{'subresource': 'firmware'}]
+        self.resource.get_all.return_value = []
+        self.resource.get_all_firmwares.return_value = [{'subresource': 'firmware'}]
         self.mock_ansible_module.params = PARAMS_WITH_ALL_FIRMWARES_WITH_FILTERS
 
         ServerHardwareFactsModule().run()
 
-        self.server_hardware.get_all_firmwares.assert_called_once_with(filters=FIRMWARE_FILTERS)
+        self.resource.get_all_firmwares.assert_called_once_with(filters=FIRMWARE_FILTERS)
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts={
@@ -148,4 +144,4 @@ class ServerHardwareFactsSpec(unittest.TestCase, FactsParamsTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

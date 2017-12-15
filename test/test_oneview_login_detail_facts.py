@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
 from oneview_module_loader import LoginDetailFactsModule
-from hpe_test_utils import OneViewBaseTestCase
 
 PARAMS_GET_DETAILS = dict(
     config='config.json'
@@ -43,15 +43,14 @@ LIST_DEFAULT_LOGIN_DETAIL = [{
 }]
 
 
-class LoginDetailFactsSpec(unittest.TestCase, OneViewBaseTestCase):
-
-    def setUp(self):
-        self.configure_mocks(self, LoginDetailFactsModule)
-        self.login_details = self.mock_ov_client.login_details
+class TestLoginDetailFactsModule():
+    @pytest.fixture(autouse=True)
+    def setUp(self, mock_ansible_module, mock_ov_client):
+        self.resource = mock_ov_client.login_details
+        self.mock_ansible_module = mock_ansible_module
 
     def test_should_get_all_login_details(self):
-        self.login_details.get_login_details.return_value = (
-            LIST_DEFAULT_LOGIN_DETAIL)
+        self.resource.get_login_details.return_value = LIST_DEFAULT_LOGIN_DETAIL
         self.mock_ansible_module.params = PARAMS_GET_DETAILS
 
         LoginDetailFactsModule().run()
@@ -63,4 +62,4 @@ class LoginDetailFactsSpec(unittest.TestCase, OneViewBaseTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

@@ -16,25 +16,23 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import LogicalSwitchGroupFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
-class LogicalSwitchGroupFactsSpec(unittest.TestCase,
-                                  FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, LogicalSwitchGroupFactsModule)
-        self.logical_switch_groups = self.mock_ov_client.logical_switch_groups
-        FactsParamsTestCase.configure_client_mock(self, self.logical_switch_groups)
-
+@pytest.mark.resource(TestLogicalSwitchGroupFactsModule='logical_switch_groups')
+class TestLogicalSwitchGroupFactsModule(OneViewBaseFactsTest):
+    @pytest.fixture(autouse=True)
+    def specificSetUp(self, setUp, testing_module):
         self.PARAMS_GET_ALL = self.EXAMPLES[0]['oneview_logical_switch_group_facts']
         self.PARAMS_GET_BY_NAME = self.EXAMPLES[4]['oneview_logical_switch_group_facts']
 
     def test_should_get_logical_switch_group_by_name(self):
-        self.logical_switch_groups.get_by.return_value = {"name": "Logical Switch Group"}
+        self.resource.get_by.return_value = {"name": "Logical Switch Group"}
         self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
 
         LogicalSwitchGroupFactsModule().run()
@@ -45,7 +43,7 @@ class LogicalSwitchGroupFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_all_logical_switch_groups(self):
-        self.logical_switch_groups.get_all.return_value = {"name": "Logical Switch Group"}
+        self.resource.get_all.return_value = {"name": "Logical Switch Group"}
         self.mock_ansible_module.params = self.PARAMS_GET_ALL
 
         LogicalSwitchGroupFactsModule().run()
@@ -57,4 +55,4 @@ class LogicalSwitchGroupFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

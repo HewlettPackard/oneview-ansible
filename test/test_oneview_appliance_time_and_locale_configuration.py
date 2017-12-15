@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ApplianceTimeAndLocaleConfigurationModule
-from hpe_test_utils import OneViewBaseTestCase
 
 DEFAULT_CONFIGURATION_TEMPLATE = dict(
     locale='en_US.UTF-8',
@@ -45,15 +46,11 @@ PARAMS_WITH_CHANGES = dict(
 )
 
 
-class ApplianceTimeAndLocaleConfigurationModuleSpec(unittest.TestCase,
-                                                    OneViewBaseTestCase):
+@pytest.mark.resource(TestApplianceTimeAndLocaleConfigurationModule='appliance_time_and_locale_configuration')
+class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
     """
     OneViewBaseTestCase provides the mocks used in this test case
     """
-
-    def setUp(self):
-        self.configure_mocks(self, ApplianceTimeAndLocaleConfigurationModule)
-        self.resource = self.mock_ov_client.appliance_time_and_locale_configuration
 
     def test_should_not_update_when_data_is_equals(self):
         self.resource.get.return_value = DEFAULT_CONFIGURATION_TEMPLATE
@@ -84,4 +81,4 @@ class ApplianceTimeAndLocaleConfigurationModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

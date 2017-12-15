@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import EthernetNetworkFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -61,16 +62,10 @@ ENET_ASSOCIATED_PROFILES = [dict(uri=ENET_ASSOCIATED_PROFILE_URIS[0], name='Serv
                             dict(uri=ENET_ASSOCIATED_PROFILE_URIS[1], name='Server Profile 2')]
 
 
-class EthernetNetworkFactsSpec(unittest.TestCase,
-                               FactsParamsTestCase
-                               ):
-    def setUp(self):
-        self.configure_mocks(self, EthernetNetworkFactsModule)
-        self.ethernet_networks = self.mock_ov_client.ethernet_networks
-        FactsParamsTestCase.configure_client_mock(self, self.ethernet_networks)
-
+@pytest.mark.resource(TestEthernetNetworkFactsModule='ethernet_networks')
+class TestEthernetNetworkFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_enets(self):
-        self.ethernet_networks.get_all.return_value = PRESENT_ENETS
+        self.resource.get_all.return_value = PRESENT_ENETS
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         EthernetNetworkFactsModule().run()
@@ -81,7 +76,7 @@ class EthernetNetworkFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_enet_by_name(self):
-        self.ethernet_networks.get_by.return_value = PRESENT_ENETS
+        self.resource.get_by.return_value = PRESENT_ENETS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         EthernetNetworkFactsModule().run()
@@ -92,9 +87,9 @@ class EthernetNetworkFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_enet_by_name_with_options(self):
-        self.ethernet_networks.get_by.return_value = PRESENT_ENETS
-        self.ethernet_networks.get_associated_profiles.return_value = ENET_ASSOCIATED_PROFILE_URIS
-        self.ethernet_networks.get_associated_uplink_groups.return_value = ENET_ASSOCIATED_UPLINK_GROUP_URIS
+        self.resource.get_by.return_value = PRESENT_ENETS
+        self.resource.get_associated_profiles.return_value = ENET_ASSOCIATED_PROFILE_URIS
+        self.resource.get_associated_uplink_groups.return_value = ENET_ASSOCIATED_UPLINK_GROUP_URIS
         self.mock_ov_client.server_profiles.get.side_effect = ENET_ASSOCIATED_PROFILES
         self.mock_ov_client.uplink_sets.get.side_effect = ENET_ASSOCIATED_UPLINK_GROUPS
 
@@ -111,4 +106,4 @@ class EthernetNetworkFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

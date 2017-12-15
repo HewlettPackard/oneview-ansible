@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import EnclosureFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -65,15 +66,10 @@ ENCLOSURE_ENVIRONMENTAL_CONFIG = {
 }
 
 
-class EnclosureFactsSpec(unittest.TestCase,
-                         FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, EnclosureFactsModule)
-        self.enclosures = self.mock_ov_client.enclosures
-        FactsParamsTestCase.configure_client_mock(self, self.enclosures)
-
+@pytest.mark.resource(TestEnclosureFactsModule='enclosures')
+class TestEnclosureFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_enclosures(self):
-        self.enclosures.get_all.return_value = PRESENT_ENCLOSURES
+        self.resource.get_all.return_value = PRESENT_ENCLOSURES
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         EnclosureFactsModule().run()
@@ -84,7 +80,7 @@ class EnclosureFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_enclosure_by_name(self):
-        self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
+        self.resource.get_by.return_value = PRESENT_ENCLOSURES
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         EnclosureFactsModule().run()
@@ -96,10 +92,10 @@ class EnclosureFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_enclosure_by_name_with_options(self):
-        self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
-        self.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
-        self.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
-        self.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
+        self.resource.get_by.return_value = PRESENT_ENCLOSURES
+        self.resource.get_script.return_value = ENCLOSURE_SCRIPT
+        self.resource.get_utilization.return_value = ENCLOSURE_UTILIZATION
+        self.resource.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
@@ -115,23 +111,26 @@ class EnclosureFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_all_utilization_data(self):
-        self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
-        self.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
-        self.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
-        self.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
+        self.resource.get_by.return_value = PRESENT_ENCLOSURES
+        self.resource.get_script.return_value = ENCLOSURE_SCRIPT
+        self.resource.get_utilization.return_value = ENCLOSURE_UTILIZATION
+        self.resource.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         EnclosureFactsModule().run()
 
-        self.enclosures.get_utilization.assert_called_once_with(PRESENT_ENCLOSURES[0]['uri'], fields='', filter='',
-                                                                view='', refresh='')
+        self.resource.get_utilization.assert_called_once_with(PRESENT_ENCLOSURES[0]['uri'],
+                                                              fields='',
+                                                              filter='',
+                                                              view='',
+                                                              refresh='')
 
     def test_should_get_utilization_with_parameters(self):
-        self.enclosures.get_by.return_value = PRESENT_ENCLOSURES
-        self.enclosures.get_script.return_value = ENCLOSURE_SCRIPT
-        self.enclosures.get_utilization.return_value = ENCLOSURE_UTILIZATION
-        self.enclosures.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
+        self.resource.get_by.return_value = PRESENT_ENCLOSURES
+        self.resource.get_script.return_value = ENCLOSURE_SCRIPT
+        self.resource.get_utilization.return_value = ENCLOSURE_UTILIZATION
+        self.resource.get_environmental_configuration.return_value = ENCLOSURE_ENVIRONMENTAL_CONFIG
 
         self.mock_ansible_module.params = PARAMS_GET_UTILIZATION_WITH_PARAMS
 
@@ -139,9 +138,9 @@ class EnclosureFactsSpec(unittest.TestCase,
 
         date_filter = ["startDate=2016-06-30T03:29:42.000Z", "endDate=2016-07-01T03:29:42.000Z"]
 
-        self.enclosures.get_utilization.assert_called_once_with(
+        self.resource.get_utilization.assert_called_once_with(
             PRESENT_ENCLOSURES[0]['uri'], fields='AveragePower', filter=date_filter, view='day', refresh=True)
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

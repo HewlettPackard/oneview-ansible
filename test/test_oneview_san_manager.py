@@ -16,9 +16,12 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import copy
+import mock
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import SanManagerModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -38,44 +41,40 @@ DEFAULT_SAN_MANAGER_TEMPLATE = dict(
         }]
 )
 
+PARAMS_FOR_PRESENT = dict(
+    config='config.json',
+    state='present',
+    data=DEFAULT_SAN_MANAGER_TEMPLATE.copy()
+)
 
-class SanManagerModuleSpec(unittest.TestCase,
-                           OneViewBaseTestCase):
-    PARAMS_FOR_PRESENT = dict(
-        config='config.json',
-        state='present',
-        data=DEFAULT_SAN_MANAGER_TEMPLATE
-    )
+PARAMS_FOR_CONNECTION_INFORMATION_SET = dict(
+    config='config.json',
+    state='connection_information_set',
+    data=DEFAULT_SAN_MANAGER_TEMPLATE.copy()
+)
 
-    PARAMS_FOR_CONNECTION_INFORMATION_SET = dict(
-        config='config.json',
-        state='connection_information_set',
-        data=DEFAULT_SAN_MANAGER_TEMPLATE.copy()
-    )
+PARAMS_WITH_CHANGES = dict(
+    config='config.json',
+    state='present',
+    data=dict(name=DEFAULT_SAN_MANAGER_TEMPLATE['name'],
+              refreshState='RefreshPending')
+)
 
-    PARAMS_WITH_CHANGES = dict(
-        config='config.json',
-        state='present',
-        data=dict(name=DEFAULT_SAN_MANAGER_TEMPLATE['name'],
-                  refreshState='RefreshPending')
-    )
+PARAMS_FOR_ABSENT = dict(
+    config='config.json',
+    state='absent',
+    data=dict(name=DEFAULT_SAN_MANAGER_TEMPLATE['name'])
+)
 
-    PARAMS_FOR_ABSENT = dict(
-        config='config.json',
-        state='absent',
-        data=dict(name=DEFAULT_SAN_MANAGER_TEMPLATE['name'])
-    )
 
-    def setUp(self):
-        self.configure_mocks(self, SanManagerModule)
-        self.resource = self.mock_ov_client.san_managers
-
+@pytest.mark.resource(TestSanManagerModule='san_managers')
+class TestSanManagerModule(OneViewBaseTest):
     def test_should_add_new_san_manager(self):
         self.resource.get_by_name.return_value = []
         self.resource.get_provider_uri.return_value = '/rest/fc-sans/providers/123/device-managers'
         self.resource.add.return_value = DEFAULT_SAN_MANAGER_TEMPLATE
 
-        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         SanManagerModule().run()
 
@@ -90,7 +89,7 @@ class SanManagerModuleSpec(unittest.TestCase,
         self.resource.get_provider_uri.return_value = '/rest/fc-sans/providers/123/device-managers'
         self.resource.add.return_value = DEFAULT_SAN_MANAGER_TEMPLATE
 
-        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         SanManagerModule().run()
 
@@ -101,7 +100,7 @@ class SanManagerModuleSpec(unittest.TestCase,
         self.resource.get_by_name.return_value = DEFAULT_SAN_MANAGER_TEMPLATE
         self.resource.get_provider_uri.return_value = '/rest/fc-sans/providers/123/device-managers'
 
-        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         SanManagerModule().run()
 
@@ -119,7 +118,7 @@ class SanManagerModuleSpec(unittest.TestCase,
         self.resource.get_provider_uri.return_value = '/rest/fc-sans/providers/123/device-managers'
 
         self.resource.update.return_value = data_merged
-        self.mock_ansible_module.params = self.PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         SanManagerModule().run()
 
@@ -137,7 +136,7 @@ class SanManagerModuleSpec(unittest.TestCase,
         self.resource.get_provider_uri.return_value = '/rest/fc-sans/providers/123/device-managers'
 
         self.resource.update.return_value = merged_data
-        self.mock_ansible_module.params = self.PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         SanManagerModule().run()
 
@@ -147,7 +146,7 @@ class SanManagerModuleSpec(unittest.TestCase,
         self.resource.get_by_name.return_value = DEFAULT_SAN_MANAGER_TEMPLATE
         self.resource.get_provider_uri.return_value = '/rest/fc-sans/providers/123/device-managers'
 
-        self.mock_ansible_module.params = self.PARAMS_FOR_ABSENT.copy()
+        self.mock_ansible_module.params = PARAMS_FOR_ABSENT.copy()
 
         SanManagerModule().run()
 
@@ -159,7 +158,7 @@ class SanManagerModuleSpec(unittest.TestCase,
     def test_should_do_nothing_when_san_manager_not_exist(self):
         self.resource.get_by_name.return_value = []
 
-        self.mock_ansible_module.params = self.PARAMS_FOR_ABSENT.copy()
+        self.mock_ansible_module.params = PARAMS_FOR_ABSENT.copy()
 
         SanManagerModule().run()
 
@@ -172,15 +171,15 @@ class SanManagerModuleSpec(unittest.TestCase,
         self.resource.get_by_name.return_value = []
         self.resource.get_provider_uri.return_value = None
 
-        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         SanManagerModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg="The provider 'Brocade Network Advisor' was not found.")
 
     def test_should_fail_when_name_and_hosts_in_connectionInfo_missing(self):
-        bad_params = self.PARAMS_FOR_PRESENT.copy()
-        bad_params['data'] = self.PARAMS_FOR_PRESENT['data'].copy()
+        bad_params = PARAMS_FOR_PRESENT.copy()
+        bad_params['data'] = PARAMS_FOR_PRESENT['data'].copy()
         bad_params['data'].pop('name')
         bad_params['data'].pop('connectionInfo')
 
@@ -201,7 +200,7 @@ class SanManagerModuleSpec(unittest.TestCase,
         self.resource.get_provider_uri.return_value = '/rest/fc-sans/providers/123/device-managers'
 
         self.resource.update.return_value = data_merged
-        self.mock_ansible_module.params = self.PARAMS_FOR_CONNECTION_INFORMATION_SET
+        self.mock_ansible_module.params = PARAMS_FOR_CONNECTION_INFORMATION_SET
 
         SanManagerModule().run()
 
@@ -216,7 +215,7 @@ class SanManagerModuleSpec(unittest.TestCase,
         self.resource.get_provider_uri.return_value = '/rest/fc-sans/providers/123/device-managers'
         self.resource.add.return_value = DEFAULT_SAN_MANAGER_TEMPLATE
 
-        self.mock_ansible_module.params = self.PARAMS_FOR_CONNECTION_INFORMATION_SET
+        self.mock_ansible_module.params = PARAMS_FOR_CONNECTION_INFORMATION_SET
 
         SanManagerModule().run()
 
@@ -227,8 +226,8 @@ class SanManagerModuleSpec(unittest.TestCase,
         )
 
     def test_should_fail_when_required_attribute_missing(self):
-        bad_params = self.PARAMS_FOR_CONNECTION_INFORMATION_SET.copy()
-        bad_params['data'] = self.PARAMS_FOR_CONNECTION_INFORMATION_SET['data'].copy()
+        bad_params = PARAMS_FOR_CONNECTION_INFORMATION_SET.copy()
+        bad_params['data'] = PARAMS_FOR_CONNECTION_INFORMATION_SET['data'].copy()
         bad_params['data'].pop('connectionInfo')
 
         self.resource.get_by_name.return_value = DEFAULT_SAN_MANAGER_TEMPLATE
@@ -244,4 +243,4 @@ class SanManagerModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

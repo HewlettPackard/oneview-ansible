@@ -16,11 +16,12 @@
 # limitations under the License.
 ###
 
+import mock
+import pytest
 import yaml
 
-from ansible.compat.tests import unittest, mock
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import LogicalSwitchGroupModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -69,16 +70,12 @@ DICT_DEFAULT_LOGICAL_SWITCH_GROUP = yaml.load(YAML_LOGICAL_SWITCH_GROUP)["data"]
 DICT_DEFAULT_LOGICAL_SWITCH_GROUP_CHANGED = yaml.load(YAML_LOGICAL_SWITCH_GROUP_CHANGE)["data"]
 
 
-class LogicalSwitchModuleSpec(unittest.TestCase,
-                              OneViewBaseTestCase):
+@pytest.mark.resource(TestLogicalSwitchGroupModule='logical_switch_groups')
+class TestLogicalSwitchGroupModule(OneViewBaseTest):
     """
     OneViewBaseTestCase has a common test for the main function,
     also provides the mocks used in this test case.
     """
-
-    def setUp(self):
-        self.configure_mocks(self, LogicalSwitchGroupModule)
-        self.resource = self.mock_ov_client.logical_switch_groups
 
     def test_should_create_new_logical_switch_group(self):
         self.resource.get_by.return_value = []
@@ -208,4 +205,4 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

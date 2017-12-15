@@ -15,11 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+
+import mock
+import pytest
 import yaml
 
-from ansible.compat.tests import unittest, mock
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import StorageVolumeAttachmentModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -72,21 +74,18 @@ MOCK_SERVER_PROFILE = {
 }
 
 
-class StorageVolumeAttachmentSpec(unittest.TestCase,
-                                  OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, StorageVolumeAttachmentModule)
-
+@pytest.mark.resource(TestStorageVolumeAttachmentModule='storage_volume_attachments')
+class TestStorageVolumeAttachmentModule(OneViewBaseTest):
     def test_should_remove_extra_presentation_by_profile_name(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = MOCK_SERVER_PROFILE
-        self.mock_ov_client.storage_volume_attachments.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE
+        self.resource.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE
 
         self.mock_ansible_module.params = yaml.load(YAML_EXTRA_REMOVED_BY_NAME)
 
         StorageVolumeAttachmentModule().run()
 
         self.mock_ov_client.server_profiles.get_by_name.assert_called_once_with(SERVER_PROFILE_NAME)
-        self.mock_ov_client.storage_volume_attachments.remove_extra_presentations.assert_called_once_with(REPAIR_DATA)
+        self.resource.remove_extra_presentations.assert_called_once_with(REPAIR_DATA)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -96,7 +95,7 @@ class StorageVolumeAttachmentSpec(unittest.TestCase,
 
     def test_should_fail_when_profile_name_not_found(self):
         self.mock_ov_client.server_profiles.get_by_name.return_value = None
-        self.mock_ov_client.storage_volume_attachments.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE
+        self.resource.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE
 
         self.mock_ansible_module.params = yaml.load(YAML_EXTRA_REMOVED_BY_NAME)
 
@@ -105,13 +104,13 @@ class StorageVolumeAttachmentSpec(unittest.TestCase,
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=StorageVolumeAttachmentModule.PROFILE_NOT_FOUND)
 
     def test_should_remove_extra_presentation_by_profile_uri(self):
-        self.mock_ov_client.storage_volume_attachments.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE
+        self.resource.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE
 
         self.mock_ansible_module.params = yaml.load(YAML_EXTRA_REMOVED_BY_URI)
 
         StorageVolumeAttachmentModule().run()
 
-        self.mock_ov_client.storage_volume_attachments.remove_extra_presentations.assert_called_once_with(REPAIR_DATA)
+        self.resource.remove_extra_presentations.assert_called_once_with(REPAIR_DATA)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -121,4 +120,4 @@ class StorageVolumeAttachmentSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

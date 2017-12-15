@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import StorageSystemFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -77,16 +78,10 @@ PARAMS_GET_POOL_BY_IP_HOSTNAME = dict(
 )
 
 
-class StorageSystemFactsSpec(unittest.TestCase,
-                             FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, StorageSystemFactsModule)
-        self.storage_systems = self.mock_ov_client.storage_systems
-        self.mock_ov_client.api_version = 300
-        FactsParamsTestCase.configure_client_mock(self, self.storage_systems)
-
+@pytest.mark.resource(TestStorageSystemFactsModule='storage_systems')
+class TestStorageSystemFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_storage_system(self):
-        self.storage_systems.get_all.return_value = {"name": "Storage System Name"}
+        self.resource.get_all.return_value = {"name": "Storage System Name"}
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         StorageSystemFactsModule().run()
@@ -97,7 +92,7 @@ class StorageSystemFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_storage_system_by_name(self):
-        self.storage_systems.get_by_name.return_value = {"name": "Storage System Name"}
+        self.resource.get_by_name.return_value = {"name": "Storage System Name"}
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         StorageSystemFactsModule().run()
@@ -108,7 +103,7 @@ class StorageSystemFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_storage_system_by_ip_hostname(self):
-        self.storage_systems.get_by_ip_hostname.return_value = {"ip_hostname": "10.0.0.0"}
+        self.resource.get_by_ip_hostname.return_value = {"ip_hostname": "10.0.0.0"}
         self.mock_ansible_module.params = PARAMS_GET_BY_HOSTNAME
 
         StorageSystemFactsModule().run()
@@ -120,7 +115,7 @@ class StorageSystemFactsSpec(unittest.TestCase,
 
     def test_should_get_storage_system_by_hostname(self):
         self.mock_ov_client.api_version = 500
-        self.storage_systems.get_by_hostname.return_value = {"hostname": "10.0.0.0"}
+        self.resource.get_by_hostname.return_value = {"hostname": "10.0.0.0"}
         self.mock_ansible_module.params = PARAMS_GET_BY_HOSTNAME
 
         StorageSystemFactsModule().run()
@@ -131,8 +126,8 @@ class StorageSystemFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_all_host_types(self):
-        self.storage_systems.get_host_types.return_value = HOST_TYPES
-        self.storage_systems.get_all.return_value = [{"name": "Storage System Name"}]
+        self.resource.get_host_types.return_value = HOST_TYPES
+        self.resource.get_all.return_value = [{"name": "Storage System Name"}]
         self.mock_ansible_module.params = PARAMS_GET_HOST_TYPES
 
         StorageSystemFactsModule().run()
@@ -146,8 +141,8 @@ class StorageSystemFactsSpec(unittest.TestCase,
 
     def test_should_get_reachable_ports(self):
         self.mock_ov_client.api_version = 500
-        self.storage_systems.get_reachable_ports.return_value = [{'port': 'port1'}]
-        self.storage_systems.get_by_hostname.return_value = {"name": "Storage System Name", "uri": "rest/123"}
+        self.resource.get_reachable_ports.return_value = [{'port': 'port1'}]
+        self.resource.get_by_hostname.return_value = {"name": "Storage System Name", "uri": "rest/123"}
         self.mock_ansible_module.params = PARAMS_GET_REACHABLE_PORTS
 
         StorageSystemFactsModule().run()
@@ -161,8 +156,8 @@ class StorageSystemFactsSpec(unittest.TestCase,
 
     def test_should_get_templates(self):
         self.mock_ov_client.api_version = 500
-        self.storage_systems.get_templates.return_value = [{'template': 'temp'}]
-        self.storage_systems.get_by_hostname.return_value = {"name": "Storage System Name", "uri": "rest/123"}
+        self.resource.get_templates.return_value = [{'template': 'temp'}]
+        self.resource.get_by_hostname.return_value = {"name": "Storage System Name", "uri": "rest/123"}
         self.mock_ansible_module.params = PARAMS_GET_TEMPLATES
 
         StorageSystemFactsModule().run()
@@ -175,8 +170,8 @@ class StorageSystemFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_storage_pools_system_by_name(self):
-        self.storage_systems.get_by_name.return_value = {"name": "Storage System Name", "uri": "uri"}
-        self.storage_systems.get_storage_pools.return_value = {"name": "Storage Pool"}
+        self.resource.get_by_name.return_value = {"name": "Storage System Name", "uri": "uri"}
+        self.resource.get_storage_pools.return_value = {"name": "Storage Pool"}
         self.mock_ansible_module.params = PARAMS_GET_POOL_BY_NAME
 
         StorageSystemFactsModule().run()
@@ -190,8 +185,8 @@ class StorageSystemFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_storage_system_pools_by_ip_hostname(self):
-        self.storage_systems.get_by_ip_hostname.return_value = {"ip_hostname": "10.0.0.0", "uri": "uri"}
-        self.storage_systems.get_storage_pools.return_value = {"name": "Storage Pool"}
+        self.resource.get_by_ip_hostname.return_value = {"ip_hostname": "10.0.0.0", "uri": "uri"}
+        self.resource.get_storage_pools.return_value = {"name": "Storage Pool"}
         self.mock_ansible_module.params = PARAMS_GET_POOL_BY_IP_HOSTNAME
 
         StorageSystemFactsModule().run()
@@ -206,4 +201,4 @@ class StorageSystemFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

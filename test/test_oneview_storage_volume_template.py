@@ -16,8 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
-from hpe_test_utils import OneViewBaseTestCase
+import mock
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import StorageVolumeTemplateModule
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -65,12 +67,8 @@ PARAMS_FOR_MISSING_KEY = dict(
 )
 
 
-class StorageVolumeTemplatePresentStateSpec(unittest.TestCase,
-                                            OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, StorageVolumeTemplateModule)
-        self.resource = self.mock_ov_client.storage_volume_templates
-
+@pytest.mark.resource(TestStorageVolumeTemplateModule='storage_volume_templates')
+class TestStorageVolumeTemplateModule(OneViewBaseTest):
     def test_should_create_new_storage_volume_template(self):
         self.resource.get_by.return_value = []
         self.resource.create.return_value = {"name": "name"}
@@ -148,4 +146,4 @@ class StorageVolumeTemplatePresentStateSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

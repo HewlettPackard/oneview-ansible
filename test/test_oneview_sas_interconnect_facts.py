@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import SasInterconnectFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 SAS_INTERCONNECT_1_NAME = '0000A66103, interconnect 1'
 
@@ -43,12 +44,8 @@ PARAMS_GET_BY_NAME = dict(
 )
 
 
-class SasInterconnectFactsSpec(unittest.TestCase, FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, SasInterconnectFactsModule)
-        self.resource = self.mock_ov_client.sas_interconnects
-        FactsParamsTestCase.configure_client_mock(self, self.resource)
-
+@pytest.mark.resource(TestSasInterconnectFactsModule='sas_interconnects')
+class TestSasInterconnectFactsModule(OneViewBaseFactsTest):
     def test_get_all_sas_interconnects(self):
         all_sas_interconnects = [SAS_INTERCONNECT_1, SAS_INTERCONNECT_4]
 
@@ -79,4 +76,4 @@ class SasInterconnectFactsSpec(unittest.TestCase, FactsParamsTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import InternalLinkSetFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 
 ERROR_MSG = 'Fake message error'
@@ -36,14 +37,10 @@ PARAMS_GET_BY_NAME = dict(
 INTERNAL_LINK_SETS = [{"name": "ILS56"}, {"name": "ILS58"}, {"name": "ILS100"}]
 
 
-class InternalLinkSetFactsSpec(unittest.TestCase, FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, InternalLinkSetFactsModule)
-        self.internal_link_sets = self.mock_ov_client.internal_link_sets
-        FactsParamsTestCase.configure_client_mock(self, self.internal_link_sets)
-
+@pytest.mark.resource(TestInternalLinkSetFactsModule='internal_link_sets')
+class TestInternalLinkSetFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_internal_link_sets(self):
-        self.internal_link_sets.get_all.return_value = INTERNAL_LINK_SETS
+        self.resource.get_all.return_value = INTERNAL_LINK_SETS
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         InternalLinkSetFactsModule().run()
@@ -54,7 +51,7 @@ class InternalLinkSetFactsSpec(unittest.TestCase, FactsParamsTestCase):
         )
 
     def test_should_get_by_name(self):
-        self.internal_link_sets.get_by.return_value = [INTERNAL_LINK_SETS[1]]
+        self.resource.get_by.return_value = [INTERNAL_LINK_SETS[1]]
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         InternalLinkSetFactsModule().run()
@@ -66,4 +63,4 @@ class InternalLinkSetFactsSpec(unittest.TestCase, FactsParamsTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

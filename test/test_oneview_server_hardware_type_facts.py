@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import ServerHardwareTypeFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -32,15 +33,10 @@ PARAMS_GET_ALL = dict(
 )
 
 
-class ServerHardwareTypeFactsSpec(unittest.TestCase,
-                                  FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, ServerHardwareTypeFactsModule)
-        self.server_hardware_types = self.mock_ov_client.server_hardware_types
-        FactsParamsTestCase.configure_client_mock(self, self.server_hardware_types)
-
+@pytest.mark.resource(TestServerHardwareTypeFactsModule='server_hardware_types')
+class TestServerHardwareTypeFactsModule(OneViewBaseFactsTest):
     def test_should_get_all(self):
-        self.server_hardware_types.get_all.return_value = {"name": "Server Hardware Type Name"}
+        self.resource.get_all.return_value = {"name": "Server Hardware Type Name"}
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         ServerHardwareTypeFactsModule().run()
@@ -51,7 +47,7 @@ class ServerHardwareTypeFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_server_hardware_type_by_name(self):
-        self.server_hardware_types.get_by.return_value = [{"name": "Server Hardware Type Name"}]
+        self.resource.get_by.return_value = [{"name": "Server Hardware Type Name"}]
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         ServerHardwareTypeFactsModule().run()
@@ -63,4 +59,4 @@ class ServerHardwareTypeFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

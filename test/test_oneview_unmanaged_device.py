@@ -16,8 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
-from hpe_test_utils import OneViewBaseTestCase
+import mock
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import UnmanagedDeviceModule
 
 ERROR_MSG = "Fake message error"
@@ -64,16 +66,12 @@ UNMANAGED_DEVICE = dict(
 )
 
 
-class UnmanagedDeviceSpec(unittest.TestCase,
-                          OneViewBaseTestCase):
+@pytest.mark.resource(TestUnmanagedDeviceModule='unmanaged_devices')
+class TestUnmanagedDeviceModule(OneViewBaseTest):
     """
     OneViewBaseTestCase has common tests for the main function, also provides the mocks used in this test
     case.
     """
-
-    def setUp(self):
-        self.configure_mocks(self, UnmanagedDeviceModule)
-        self.resource = self.mock_ov_client.unmanaged_devices
 
     def test_should_add(self):
         self.resource.get_by.return_value = []
@@ -175,4 +173,4 @@ class UnmanagedDeviceSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

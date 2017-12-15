@@ -16,9 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
 from oneview_module_loader import VersionFactsModule
-from hpe_test_utils import OneViewBaseTestCase
 
 PARAMS_GET = dict(
     config='config.json'
@@ -30,14 +30,14 @@ DICT_DEFAULT_VERSION = [{
 }]
 
 
-class VersionFactsSpec(unittest.TestCase, OneViewBaseTestCase):
-
-    def setUp(self):
-        self.configure_mocks(self, VersionFactsModule)
-        self.version = self.mock_ov_client.versions
+class TestVersionFactsModule():
+    @pytest.fixture(autouse=True)
+    def setUp(self, mock_ansible_module, mock_ov_client):
+        self.resource = mock_ov_client.versions
+        self.mock_ansible_module = mock_ansible_module
 
     def test_should_get_appliance_current_version_and_minimum_version(self):
-        self.version.get_version.return_value = DICT_DEFAULT_VERSION
+        self.resource.get_version.return_value = DICT_DEFAULT_VERSION
         self.mock_ansible_module.params = PARAMS_GET
         VersionFactsModule().run()
 
@@ -48,4 +48,4 @@ class VersionFactsSpec(unittest.TestCase, OneViewBaseTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

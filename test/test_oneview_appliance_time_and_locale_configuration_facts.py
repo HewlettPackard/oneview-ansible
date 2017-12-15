@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ApplianceTimeAndLocaleConfigurationFactsModule
-from hpe_test_utils import OneViewBaseTestCase
 
 PARAMS_GET = dict(
     config='config.json',
@@ -31,14 +32,10 @@ PRESENT_CONFIGURATION = [{
 }]
 
 
-class ApplianceTimeAndLocaleConfigurationFactsSpec(unittest.TestCase,
-                                                   OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, ApplianceTimeAndLocaleConfigurationFactsModule)
-        self.appliance_time_and_locale_configuration = self.mock_ov_client.appliance_time_and_locale_configuration
-
+@pytest.mark.resource(TestApplianceTimeAndLocaleConfigurationFactsModule='appliance_time_and_locale_configuration')
+class TestApplianceTimeAndLocaleConfigurationFactsModule(OneViewBaseTest):
     def test_should_get_appliance_time_and_locale_configuration(self):
-        self.appliance_time_and_locale_configuration.get.return_value = PRESENT_CONFIGURATION
+        self.resource.get.return_value = PRESENT_CONFIGURATION
         self.mock_ansible_module.params = PARAMS_GET
 
         ApplianceTimeAndLocaleConfigurationFactsModule().run()
@@ -50,4 +47,4 @@ class ApplianceTimeAndLocaleConfigurationFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

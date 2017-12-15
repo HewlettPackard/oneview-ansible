@@ -16,9 +16,11 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import mock
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import SasInterconnectModule
-from hpe_test_utils import OneViewBaseTestCase
 
 SAS_INTERCONNECT_NAME = "0000A66103, interconnect 4"
 SAS_INTERCONNECT_URI = '/rest/sas-interconnects/3518be0e-17c1-4189-8f81-83f3724f6155'
@@ -42,16 +44,12 @@ class StateCheck(object):
         )
 
 
-class SasInterconnectModuleSpec(unittest.TestCase,
-                                OneViewBaseTestCase):
+@pytest.mark.resource(TestSasInterconnectModule='sas_interconnects')
+class TestSasInterconnectModule(OneViewBaseTest):
     """
     OneViewBaseTestCase has common tests for class constructor and main function,
     and also provides the mocks used in this test case.
     """
-
-    def setUp(self):
-        self.configure_mocks(self, SasInterconnectModule)
-        self.resource = self.mock_ov_client.sas_interconnects
 
     def test_should_refresh_the_sas_interconnect(self):
         state_check = StateCheck('refreshed')
@@ -276,4 +274,4 @@ class SasInterconnectModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

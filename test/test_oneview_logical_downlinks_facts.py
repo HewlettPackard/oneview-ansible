@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import LogicalDownlinksFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -52,26 +53,21 @@ PARAMS_FOR_GET_WITHOUT_ETHERNET = dict(
 )
 
 
-class LogicalDownlinksFactsSpec(unittest.TestCase,
-                                FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, LogicalDownlinksFactsModule)
-        self.logical_downlinks = self.mock_ov_client.logical_downlinks
-        self.configure_client_mock(self.logical_downlinks)
-
+@pytest.mark.resource(TestLogicalDownlinksFactsModule='logical_downlinks')
+class TestLogicalDownlinksFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_logical_downlinks(self):
         logical_downlinks = [
             dict(name="test1"),
             dict(name="test2")
         ]
 
-        self.logical_downlinks.get_all.return_value = logical_downlinks
+        self.resource.get_all.return_value = logical_downlinks
 
         self.mock_ansible_module.params = PARAMS_FOR_GET_ALL
 
         LogicalDownlinksFactsModule().run()
 
-        self.logical_downlinks.get_all.assert_called_once_with()
+        self.resource.get_all.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -81,13 +77,13 @@ class LogicalDownlinksFactsSpec(unittest.TestCase,
     def test_should_get_by_name(self):
         logical_downlinks = [LOGICAL_DOWNLINK]
 
-        self.logical_downlinks.get_by.return_value = logical_downlinks
+        self.resource.get_by.return_value = logical_downlinks
 
         self.mock_ansible_module.params = PARAMS_FOR_GET_BY_NAME
 
         LogicalDownlinksFactsModule().run()
 
-        self.logical_downlinks.get_by.assert_called_once_with("name", LOGICAL_DOWNLINK_NAME)
+        self.resource.get_by.assert_called_once_with("name", LOGICAL_DOWNLINK_NAME)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -97,13 +93,13 @@ class LogicalDownlinksFactsSpec(unittest.TestCase,
     def test_should_get_all_without_ethernet(self):
         logical_downlinks = [LOGICAL_DOWNLINK]
 
-        self.logical_downlinks.get_all_without_ethernet.return_value = logical_downlinks
+        self.resource.get_all_without_ethernet.return_value = logical_downlinks
 
         self.mock_ansible_module.params = PARAMS_FOR_GET_ALL_WITHOUT_ETHERNET
 
         LogicalDownlinksFactsModule().run()
 
-        self.logical_downlinks.get_all_without_ethernet.assert_called_once_with()
+        self.resource.get_all_without_ethernet.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -113,15 +109,15 @@ class LogicalDownlinksFactsSpec(unittest.TestCase,
     def test_should_get_without_ethernet(self):
         logical_downlinks = [LOGICAL_DOWNLINK]
 
-        self.logical_downlinks.get_by.return_value = logical_downlinks
-        self.logical_downlinks.get_without_ethernet.return_value = {'name': 'Logical Downlink Without Ethernet'}
+        self.resource.get_by.return_value = logical_downlinks
+        self.resource.get_without_ethernet.return_value = {'name': 'Logical Downlink Without Ethernet'}
 
         self.mock_ansible_module.params = PARAMS_FOR_GET_WITHOUT_ETHERNET
 
         LogicalDownlinksFactsModule().run()
 
-        self.logical_downlinks.get_by.assert_called_once_with('name', LOGICAL_DOWNLINK_NAME)
-        self.logical_downlinks.get_without_ethernet.assert_called_once_with(id_or_uri=LOGICAL_DOWNLINK_URI)
+        self.resource.get_by.assert_called_once_with('name', LOGICAL_DOWNLINK_NAME)
+        self.resource.get_without_ethernet.assert_called_once_with(id_or_uri=LOGICAL_DOWNLINK_URI)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -131,15 +127,15 @@ class LogicalDownlinksFactsSpec(unittest.TestCase,
     def test_should_not_get_without_ethernet_when_not_found(self):
         logical_downlinks = []
 
-        self.logical_downlinks.get_by.return_value = logical_downlinks
-        self.logical_downlinks.get_without_ethernet.return_value = None
+        self.resource.get_by.return_value = logical_downlinks
+        self.resource.get_without_ethernet.return_value = None
 
         self.mock_ansible_module.params = PARAMS_FOR_GET_WITHOUT_ETHERNET
 
         LogicalDownlinksFactsModule().run()
 
-        self.logical_downlinks.get_by.assert_called_once_with('name', LOGICAL_DOWNLINK_NAME)
-        self.logical_downlinks.get_without_ethernet.not_been_called()
+        self.resource.get_by.assert_called_once_with('name', LOGICAL_DOWNLINK_NAME)
+        self.resource.get_without_ethernet.not_been_called()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -148,4 +144,4 @@ class LogicalDownlinksFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

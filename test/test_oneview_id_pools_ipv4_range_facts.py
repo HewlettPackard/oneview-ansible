@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import IdPoolsIpv4RangeFactsModule
-from hpe_test_utils import OneViewBaseTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -88,16 +89,10 @@ PARAMS_GET_FREE_FRAGMENTS = dict(
 ALL_SUBNETS = [DEFAULT_SUBNET_TEMPLATE_1.copy(), DEFAULT_SUBNET_TEMPLATE_2.copy()]
 
 
-class IdPoolsIpv4RangeFactsSpec(unittest.TestCase,
-                                OneViewBaseTestCase):
-
-    def setUp(self):
-        self.configure_mocks(self, IdPoolsIpv4RangeFactsModule)
-        self.ranges = self.mock_ov_client.id_pools_ipv4_ranges
-        self.subnets = self.mock_ov_client.id_pools_ipv4_subnets
-
+@pytest.mark.resource(TestIdPoolsIpv4RangeFactsModule='id_pools_ipv4_ranges')
+class TestIdPoolsIpv4RangeFactsModule(OneViewBaseTest):
     def test_should_get_all_id_pools_ipv4_ranges(self):
-        self.subnets.get_all.return_value = ALL_SUBNETS
+        self.mock_ov_client.id_pools_ipv4_subnets.get_all.return_value = ALL_SUBNETS
         range_1 = DEFAULT_RANGE_TEMPLATE.copy()
         range_2 = DEFAULT_NOT_RANGE_TEMPLATE.copy()
         range_2['name'] = range_2['name'] + '2'
@@ -110,7 +105,7 @@ class IdPoolsIpv4RangeFactsSpec(unittest.TestCase,
         range_4['uri'] = range_4['uri'] + '4'
         ranges = [range_2, range_3, range_1, range_4]
 
-        self.ranges.get.side_effect = ranges
+        self.resource.get.side_effect = ranges
 
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
@@ -122,14 +117,14 @@ class IdPoolsIpv4RangeFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_all_id_pools_ipv4_ranges_from_subnet(self):
-        self.subnets.get.return_value = DEFAULT_SUBNET_TEMPLATE_2
+        self.mock_ov_client.id_pools_ipv4_subnets.get.return_value = DEFAULT_SUBNET_TEMPLATE_2
         range_1 = DEFAULT_RANGE_TEMPLATE.copy()
         range_4 = DEFAULT_NOT_RANGE_TEMPLATE.copy()
         range_4['name'] = range_4['name'] + '4'
         range_4['uri'] = range_4['uri'] + '4'
         ranges = [range_1, range_4]
 
-        self.ranges.get.side_effect = ranges
+        self.resource.get.side_effect = ranges
 
         self.mock_ansible_module.params = PARAMS_GET_ALL_FROM_SUBNET
 
@@ -141,14 +136,14 @@ class IdPoolsIpv4RangeFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_id_pools_ipv4_range_from_subnet_and_name(self):
-        self.subnets.get.return_value = DEFAULT_SUBNET_TEMPLATE_2
+        self.mock_ov_client.id_pools_ipv4_subnets.get.return_value = DEFAULT_SUBNET_TEMPLATE_2
 
         range_1 = DEFAULT_RANGE_TEMPLATE.copy()
         range_4 = DEFAULT_NOT_RANGE_TEMPLATE.copy()
         range_4['name'] = range_4['name'] + '4'
         range_4['uri'] = range_4['uri'] + '4'
         ranges = [range_1, range_4]
-        self.ranges.get.side_effect = ranges
+        self.resource.get.side_effect = ranges
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_AND_SUBNET_URI
 
@@ -160,7 +155,7 @@ class IdPoolsIpv4RangeFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_id_pools_ipv4_range_from_uri(self):
-        self.ranges.get.return_value = DEFAULT_RANGE_TEMPLATE.copy()
+        self.resource.get.return_value = DEFAULT_RANGE_TEMPLATE.copy()
 
         self.mock_ansible_module.params = PARAMS_GET_BY_URI
 
@@ -172,8 +167,8 @@ class IdPoolsIpv4RangeFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_id_pools_ipv4_ranges_allocated_fragments(self):
-        self.ranges.get.return_value = DEFAULT_RANGE_TEMPLATE.copy()
-        self.ranges.get_allocated_fragments.return_value = [{'frag': 'test'}]
+        self.resource.get.return_value = DEFAULT_RANGE_TEMPLATE.copy()
+        self.resource.get_allocated_fragments.return_value = [{'frag': 'test'}]
 
         self.mock_ansible_module.params = PARAMS_GET_ALLOCATED_FRAGMENTS
 
@@ -186,8 +181,8 @@ class IdPoolsIpv4RangeFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_id_pools_ipv4_ranges_free_fragments(self):
-        self.ranges.get.return_value = DEFAULT_RANGE_TEMPLATE.copy()
-        self.ranges.get_free_fragments.return_value = [{'frag': 'testfree'}]
+        self.resource.get.return_value = DEFAULT_RANGE_TEMPLATE.copy()
+        self.resource.get_free_fragments.return_value = [{'frag': 'testfree'}]
 
         self.mock_ansible_module.params = PARAMS_GET_FREE_FRAGMENTS
 
@@ -201,4 +196,4 @@ class IdPoolsIpv4RangeFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

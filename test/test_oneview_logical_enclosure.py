@@ -15,10 +15,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+
+import mock
+import pytest
 import yaml
 
-from ansible.compat.tests import unittest, mock
-from hpe_test_utils import OneViewBaseTestCase
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import LogicalEnclosureModule
 
 YAML_LOGICAL_ENCLOSURE = """
@@ -109,23 +111,11 @@ YAML_LOGICAL_ENCLOSURE_ABSENT = """
 DICT_DEFAULT_LOGICAL_ENCLOSURE = yaml.load(YAML_LOGICAL_ENCLOSURE)["data"]
 
 
-class LogicalEnclosureModuleSpec(unittest.TestCase,
-                                 OneViewBaseTestCase):
-    """
-    OneViewBaseTestCase has a test for main function and provides common mocks used by this test case.
-    """
-
-    def setUp(self):
-        self.configure_mocks(self, LogicalEnclosureModule)
-
-
-class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, LogicalEnclosureModule)
-
+@pytest.mark.resource(TestLogicalEnclosureModule='logical_enclosures')
+class TestLogicalEnclosureModule(OneViewBaseTest):
     def test_should_create_when_resource_not_exist(self):
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = None
-        self.mock_ov_client.logical_enclosures.create.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.get_by_name.return_value = None
+        self.resource.create.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_PRESENT)
 
         LogicalEnclosureModule().run()
@@ -137,7 +127,7 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         )
 
     def test_should_not_update_when_existing_data_is_equals(self):
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_NO_RENAME)
 
         LogicalEnclosureModule().run()
@@ -152,8 +142,8 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         data_merged = DICT_DEFAULT_LOGICAL_ENCLOSURE.copy()
         data_merged['newName'] = 'New Name'
 
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
-        self.mock_ov_client.logical_enclosures.update.return_value = data_merged
+        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.update.return_value = data_merged
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_RENAME)
 
         LogicalEnclosureModule().run()
@@ -165,8 +155,8 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         )
 
     def test_should_update_firmware_when_resource_exists(self):
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
-        self.mock_ov_client.logical_enclosures.patch.return_value = {'PATCH', 'EXECUTED'}
+        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.patch.return_value = {'PATCH', 'EXECUTED'}
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_FIRMWARE_UPDATE)
 
         LogicalEnclosureModule().run()
@@ -178,7 +168,7 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         )
 
     def test_should_not_update_firmware_when_resource_not_found(self):
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = None
+        self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_FIRMWARE_UPDATE)
 
         LogicalEnclosureModule().run()
@@ -186,7 +176,7 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_update_script_when_resource_exists(self):
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_UPDATE_SCRIPT)
 
         LogicalEnclosureModule().run()
@@ -198,7 +188,7 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         )
 
     def test_should_not_update_script_when_resource_not_found(self):
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = None
+        self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_UPDATE_SCRIPT)
 
         LogicalEnclosureModule().run()
@@ -206,8 +196,8 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_generate_support_dump_when_resource_exist(self):
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
-        self.mock_ov_client.logical_enclosures.generate_support_dump.return_value = '/rest/appliance/dumpedfile'
+        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.generate_support_dump.return_value = '/rest/appliance/dumpedfile'
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_DUMP)
 
         LogicalEnclosureModule().run()
@@ -219,7 +209,7 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         )
 
     def test_should_not_generate_support_dump_when_resource_not_found(self):
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = None
+        self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_DUMP)
 
         LogicalEnclosureModule().run()
@@ -227,8 +217,8 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_reconfigure_when_resource_exist(self):
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
-        self.mock_ov_client.logical_enclosures.update_configuration.return_value = {'Configuration', 'Updated'}
+        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.update_configuration.return_value = {'Configuration', 'Updated'}
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_CONFIGURE)
 
         LogicalEnclosureModule().run()
@@ -240,7 +230,7 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         )
 
     def test_should_not_reconfigure_when_resource_not_found(self):
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = None
+        self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_CONFIGURE)
 
         LogicalEnclosureModule().run()
@@ -248,8 +238,8 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_update_from_group_when_resource_exist(self):
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
-        self.mock_ov_client.logical_enclosures.update_from_group.return_value = {'Updated from group'}
+        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.update_from_group.return_value = {'Updated from group'}
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_UPDATE_FROM_GROUP)
 
         LogicalEnclosureModule().run()
@@ -261,7 +251,7 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         )
 
     def test_should_not_update_from_group_when_resource_not_found(self):
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = None
+        self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_UPDATE_FROM_GROUP)
 
         LogicalEnclosureModule().run()
@@ -269,8 +259,8 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_delete_logical_enclosure_when_resource_exist(self):
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
-        self.mock_ov_client.logical_enclosures.delete.return_value = True
+        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.delete.return_value = True
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_ABSENT)
 
         LogicalEnclosureModule().run()
@@ -282,7 +272,7 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
         )
 
     def test_should_do_nothing_when_resource_already_absent(self):
-        self.mock_ov_client.logical_enclosures.get_by_name.return_value = None
+        self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_ABSENT)
 
         LogicalEnclosureModule().run()
@@ -295,4 +285,4 @@ class LogicalEnclosureSpec(unittest.TestCase, OneViewBaseTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

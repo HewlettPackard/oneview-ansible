@@ -16,24 +16,24 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import mock
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import OsDeploymentServerModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
-class OsDeploymentServerkModuleSpec(unittest.TestCase,
-                                    OneViewBaseTestCase):
+@pytest.mark.resource(TestOsDeploymentServerModule='os_deployment_servers')
+class TestOsDeploymentServerModule(OneViewBaseTest):
     """
     OneViewBaseTestCase has common test for main function,
     also provides the mocks used in this test case.
     """
 
-    def setUp(self):
-        self.configure_mocks(self, OsDeploymentServerModule)
-        self.os_deployment_plans = self.mock_ov_client.os_deployment_servers
-
+    @pytest.fixture(autouse=True)
+    def specificSetUp(self, setUp, testing_module):
         # Load scenarios from module examples
         self.DEPLOYMENT_SERVER_CREATE = self.EXAMPLES[0]['oneview_os_deployment_server']
         self.DEPLOYMENT_SERVER_UPDATE = self.EXAMPLES[2]['oneview_os_deployment_server']
@@ -51,14 +51,14 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
         }
 
     def test_add_deployment_server(self):
-        self.os_deployment_plans.get_by.return_value = []
-        self.os_deployment_plans.add.return_value = {"name": "name"}
+        self.resource.get_by.return_value = []
+        self.resource.add.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = self.DEPLOYMENT_SERVER_CREATE
 
         OsDeploymentServerModule().run()
 
-        self.os_deployment_plans.add.assert_called_once_with({
+        self.resource.add.assert_called_once_with({
             "name": 'Test Deployment Server',
             "description": "OS Deployment Server",
             "mgmtNetworkUri": "/rest/ethernet-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535",
@@ -71,8 +71,8 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
         )
 
     def test_should_replace_names_by_uris_before_add(self):
-        self.os_deployment_plans.get_by.return_value = []
-        self.os_deployment_plans.add.return_value = {"name": "name"}
+        self.resource.get_by.return_value = []
+        self.resource.add.return_value = {"name": "name"}
         self.mock_ov_client.ethernet_networks.get_by.return_value = [
             {"name": "Deployment", "uri": "/rest/ethernet-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535"}]
         self.mock_ov_client.os_deployment_servers.get_appliance_by_name.return_value = {
@@ -83,7 +83,7 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
 
         OsDeploymentServerModule().run()
 
-        self.os_deployment_plans.add.assert_called_once_with({
+        self.resource.add.assert_called_once_with({
             "name": 'Test Deployment Server',
             "description": "OS Deployment Server",
             "mgmtNetworkUri": "/rest/ethernet-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535",
@@ -96,8 +96,8 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
         )
 
     def test_replace_net_names_by_uris_should_search_fc(self):
-        self.os_deployment_plans.get_by.return_value = []
-        self.os_deployment_plans.add.return_value = {"name": "name"}
+        self.resource.get_by.return_value = []
+        self.resource.add.return_value = {"name": "name"}
 
         self.mock_ov_client.ethernet_networks.get_by.return_value = []
         self.mock_ov_client.fc_networks.get_by.return_value = [
@@ -110,7 +110,7 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
 
         OsDeploymentServerModule().run()
 
-        self.os_deployment_plans.add.assert_called_once_with({
+        self.resource.add.assert_called_once_with({
             "name": 'Test Deployment Server',
             "description": "OS Deployment Server",
             "mgmtNetworkUri": "/rest/fc-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535",
@@ -123,8 +123,8 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
         )
 
     def test_replace_net_names_by_uris_should_search_fcoe(self):
-        self.os_deployment_plans.get_by.return_value = []
-        self.os_deployment_plans.add.return_value = {"name": "name"}
+        self.resource.get_by.return_value = []
+        self.resource.add.return_value = {"name": "name"}
 
         self.mock_ov_client.ethernet_networks.get_by.return_value = []
         self.mock_ov_client.fc_networks.get_by.return_value = []
@@ -138,7 +138,7 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
 
         OsDeploymentServerModule().run()
 
-        self.os_deployment_plans.add.assert_called_once_with({
+        self.resource.add.assert_called_once_with({
             "name": 'Test Deployment Server',
             "description": "OS Deployment Server",
             "mgmtNetworkUri": "/rest/fcoe-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535",
@@ -151,8 +151,8 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
         )
 
     def test_should_fail_when_appliance_name_not_found(self):
-        self.os_deployment_plans.get_by.return_value = []
-        self.os_deployment_plans.add.return_value = {"name": "name"}
+        self.resource.get_by.return_value = []
+        self.resource.add.return_value = {"name": "name"}
         self.mock_ov_client.ethernet_networks.get_by.return_value = [{"uri": "/rest/ethernet-networks/123"}]
         self.mock_ov_client.os_deployment_servers.get_appliance_by_name.return_value = None
 
@@ -163,8 +163,8 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg='Appliance "0000A66103, appliance 2" not found.')
 
     def test_should_fail_when_network_name_not_found(self):
-        self.os_deployment_plans.get_by.return_value = []
-        self.os_deployment_plans.add.return_value = {"name": "name"}
+        self.resource.get_by.return_value = []
+        self.resource.add.return_value = {"name": "name"}
         self.mock_ov_client.ethernet_networks.get_by.return_value = []
         self.mock_ov_client.fc_networks.get_by.return_value = []
         self.mock_ov_client.fcoe_networks.get_by.return_value = []
@@ -179,8 +179,8 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg='Network "Deployment" not found.')
 
     def test_should_replace_names_by_uris_before_update(self):
-        self.os_deployment_plans.get_by.return_value = [{"name": "name"}]
-        self.os_deployment_plans.update.return_value = {"name": "name"}
+        self.resource.get_by.return_value = [{"name": "name"}]
+        self.resource.update.return_value = {"name": "name"}
         self.mock_ov_client.ethernet_networks.get_by.return_value = [
             {"name": "Deployment", "uri": "/rest/ethernet-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535"}]
         self.mock_ov_client.os_deployment_servers.get_appliance_by_name.return_value = {
@@ -191,7 +191,7 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
 
         OsDeploymentServerModule().run()
 
-        self.os_deployment_plans.update.assert_called_once_with({
+        self.resource.update.assert_called_once_with({
             "name": 'Test Deployment Server',
             "description": "OS Deployment Server",
             "mgmtNetworkUri": "/rest/ethernet-networks/1b96d2b3-bc12-4757-ac72-e4cd0ef20535",
@@ -205,8 +205,8 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
         )
 
     def test_update_deployment_server(self):
-        self.os_deployment_plans.get_by.return_value = [self.DEPLOYMENT_SERVER_CREATE['data']]
-        self.os_deployment_plans.update.return_value = {"name": "name"}
+        self.resource.get_by.return_value = [self.DEPLOYMENT_SERVER_CREATE['data']]
+        self.resource.update.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = self.DEPLOYMENT_SERVER_UPDATE
 
@@ -219,7 +219,7 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.os_deployment_plans.get_by.return_value = [self.DEPLOYMENT_SERVER_UPDATE['data']]
+        self.resource.get_by.return_value = [self.DEPLOYMENT_SERVER_UPDATE['data']]
 
         del self.DEPLOYMENT_SERVER_UPDATE['data']['newName']
 
@@ -234,7 +234,7 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
         )
 
     def test_delete_deployment_server(self):
-        self.os_deployment_plans.get_by.return_value = [self.DEPLOYMENT_SERVER_CREATE['data']]
+        self.resource.get_by.return_value = [self.DEPLOYMENT_SERVER_CREATE['data']]
 
         self.mock_ansible_module.params = self.DEPLOYMENT_SERVER_DELETE
 
@@ -246,7 +246,7 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
         )
 
     def test_should_do_nothing_when_deleting_a_non_existent_deployment_server(self):
-        self.os_deployment_plans.get_by.return_value = []
+        self.resource.get_by.return_value = []
 
         self.mock_ansible_module.params = self.DEPLOYMENT_SERVER_DELETE
 
@@ -259,4 +259,4 @@ class OsDeploymentServerkModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

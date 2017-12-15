@@ -15,15 +15,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+
+import mock
 import logging
+import pytest
 import sys
+
 from module_utils import oneview
 
 ONEVIEW_MODULE_UTILS_PATH = 'module_utils.oneview'
 
 sys.modules['ansible.module_utils.oneview'] = oneview
 
-from ansible.compat.tests import unittest, mock
 from copy import deepcopy
 from module_utils.oneview import (OneViewModuleBase,
                                   OneViewClient,
@@ -43,7 +46,7 @@ MSG_GENERIC_ERROR = 'Generic error message'
 MSG_GENERIC = "Generic message"
 
 
-class OneViewModuleBaseSpec(unittest.TestCase):
+class TestOneViewModuleBase():
     """
     OneViewModuleBaseSpec provides the mocks used in this test case.
     """
@@ -77,10 +80,10 @@ class OneViewModuleBaseSpec(unittest.TestCase):
                          'username': {'type': 'str'},
                          'validate_etag': {'type': 'bool', 'default': True}}
 
+    @pytest.fixture(autouse=True)
     def setUp(self):
         # Define OneView Client Mock (FILE)
         patcher_json_file = mock.patch.object(OneViewClient, 'from_json_file')
-        self.addCleanup(patcher_json_file.stop)
         self.mock_ov_client_from_json_file = patcher_json_file.start()
 
         # Define OneView Client Mock
@@ -88,15 +91,18 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         # Define OneView Client Mock (ENV)
         patcher_env = mock.patch.object(OneViewClient, 'from_environment_variables')
-        self.addCleanup(patcher_env.stop)
         self.mock_ov_client_from_env_vars = patcher_env.start()
 
         # Define Ansible Module Mock
         patcher_ansible = mock.patch(OneViewModuleBase.__module__ + '.AnsibleModule')
-        self.addCleanup(patcher_ansible.stop)
         self.mock_ansible_module_init = patcher_ansible.start()
         self.mock_ansible_module = mock.Mock()
         self.mock_ansible_module_init.return_value = self.mock_ansible_module
+
+        yield
+        patcher_json_file.stop
+        patcher_env.stop
+        patcher_ansible.stop
 
     def test_should_call_ov_exception_with_a_data(self):
 
@@ -167,16 +173,12 @@ class OneViewModuleBaseSpec(unittest.TestCase):
                              'credentials': {'userName': 'admin', 'password': 'mypass'}}
         self.mock_ansible_module.params = params
 
-        patcher = mock.patch('module_utils.oneview.OneViewClient', first='one', second='two')
-
-        self.addCleanup(patcher.stop)
-        self.mock_ov_client_from_credentials = patcher.start()
-
-        OneViewModuleBase()
+        with mock.patch('module_utils.oneview.OneViewClient', first='one', second='two') as mock_ov_client_from_credentials:
+            OneViewModuleBase()
 
         self.mock_ov_client_from_env_vars.not_been_called()
         self.mock_ov_client_from_json_file.not_been_called()
-        self.mock_ov_client_from_credentials.assert_called_once_with(params_for_expect)
+        mock_ov_client_from_credentials.assert_called_once_with(params_for_expect)
 
     def test_should_call_fail_json_when_oneview_sdk_not_installed(self):
         self.mock_ansible_module.params = {'config': 'config.json'}
@@ -255,7 +257,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             base_mod.execute_module = mock_run
             base_mod.run()
         except ValueError as e:
-            self.assertEqual(e.args[0], MSG_GENERIC_ERROR)
+            assert(e.args[0] == MSG_GENERIC_ERROR)
         else:
             self.fail('Expected ValueError was not raised')
 
@@ -270,7 +272,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             base_mod.execute_module = mock_run
             base_mod.run()
         except Exception as e:
-            self.assertEqual(e.args[0], MSG_GENERIC_ERROR)
+            assert(e.args[0] == MSG_GENERIC_ERROR)
         else:
             self.fail('Expected Exception was not raised')
 
@@ -288,12 +290,9 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         ov_base.resource_client.create.assert_called_once_with({'name': 'Resource Name'})
 
-        self.assertEqual(facts,
-                         dict(
-                             changed=True,
+        assert facts == dict(changed=True,
                              msg=OneViewModuleBase.MSG_CREATED,
                              ansible_facts=dict(resource=expected))
-                         )
 
     def test_resource_present_should_not_update_when_data_is_equals(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
@@ -304,12 +303,9 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         facts = ov_base.resource_present(self.RESOURCE_COMMON.copy(), fact_name="resource")
 
-        self.assertEqual(facts,
-                         dict(
-                             changed=False,
+        assert facts == dict(changed=False,
                              msg=OneViewModuleBase.MSG_ALREADY_PRESENT,
                              ansible_facts=dict(resource=self.RESOURCE_COMMON.copy()))
-                         )
 
     def test_resource_present_should_update_when_data_has_modified_attributes(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
@@ -326,12 +322,9 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         ov_base.resource_client.update.assert_called_once_with(expected)
 
-        self.assertEqual(facts,
-                         dict(
-                             changed=True,
+        assert facts == dict(changed=True,
                              msg=OneViewModuleBase.MSG_UPDATED,
                              ansible_facts=dict(resource={'return': 'value'}))
-                         )
 
     def test_resource_absent_should_remove(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
@@ -342,11 +335,8 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         facts = ov_base.resource_absent(self.RESOURCE_COMMON.copy())
         ov_base.resource_client.delete.assert_called_once_with(self.RESOURCE_COMMON.copy())
 
-        self.assertEqual(facts,
-                         dict(
-                             changed=True,
+        assert facts == dict(changed=True,
                              msg=OneViewModuleBase.MSG_DELETED)
-                         )
 
     def test_resource_absent_should_do_nothing_when_not_exist(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
@@ -357,11 +347,8 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         facts = ov_base.resource_absent(None)
         ov_base.resource_client.delete.assert_not_called()
 
-        self.assertEqual(facts,
-                         dict(
-                             changed=False,
+        assert facts == dict(changed=False,
                              msg=OneViewModuleBase.MSG_ALREADY_ABSENT)
-                         )
 
     def scope_update_helper(self, before_value=None, action_value=None, expected_value=None):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT.copy()
@@ -383,12 +370,9 @@ class OneViewModuleBaseSpec(unittest.TestCase):
                                                               path='/scopeUris',
                                                               value=expected_value)
 
-        self.assertEqual(facts,
-                         dict(
-                             changed=True,
+        assert facts == dict(changed=True,
                              msg=OneViewModuleBase.MSG_UPDATED,
                              ansible_facts=dict(resource={'return': 'value'}))
-                         )
 
     def test_update_scopes_when_not_defined_before(self):
         self.scope_update_helper(before_value=None, action_value=['test'], expected_value=['test'])
@@ -418,12 +402,9 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         ov_base.resource_client.patch.assert_not_called()
 
-        self.assertEqual(facts,
-                         dict(
-                             changed=False,
+        assert facts == dict(changed=False,
                              msg=OneViewModuleBase.MSG_ALREADY_PRESENT,
                              ansible_facts=dict(resource=ov_base.data))
-                         )
 
     def test_should_do_nothing_when_scopes_empty_and_none_wanted(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT.copy()
@@ -441,12 +422,9 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         ov_base.resource_client.patch.assert_not_called()
 
-        self.assertEqual(facts,
-                         dict(
-                             changed=False,
+        assert facts == dict(changed=False,
                              msg=OneViewModuleBase.MSG_ALREADY_PRESENT,
                              ansible_facts=dict(resource=ov_base.data))
-                         )
 
     def test_get_by_name_when_resource_exists(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
@@ -459,7 +437,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         ov_base.resource_client.get_by.assert_called_once_with('name', 'name')
 
-        self.assertEqual(res, {'resource': 1})
+        assert res == {'resource': 1}
 
     def test_get_by_name_when_resource_not_found(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
@@ -472,25 +450,24 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         ov_base.resource_client.get_by.assert_called_once_with('name', 'name')
 
-        self.assertIsNone(res)
+        assert res is None
 
     def test_transform_list_to_dict(self):
         list_ = ['one', 'two', {'tree': 3}, 'four', 5]
 
         dict_transformed = transform_list_to_dict(list_=list_)
 
-        self.assertEqual(dict_transformed,
-                         {'5': True,
-                          'four': True,
-                          'one': True,
-                          'tree': 3,
-                          'two': True})
+        assert dict_transformed == {'5': True,
+                                    'four': True,
+                                    'one': True,
+                                    'tree': 3,
+                                    'two': True}
 
     def test_transform_list_to_dict_with_none(self):
 
         dict_transformed = transform_list_to_dict(None)
 
-        self.assertEqual(dict_transformed, {})
+        assert dict_transformed == {}
 
     DICT_ORIGINAL = {u'status': u'OK', u'category': u'fcoe-networks',
                      u'description': None, u'created': u'2016-06-13T20:39:15.991Z',
@@ -597,31 +574,31 @@ class OneViewModuleBaseSpec(unittest.TestCase):
     }
 
     def test_resource_compare_equals(self):
-        self.assertTrue(compare(self.DICT_ORIGINAL, self.DICT_EQUAL_ORIGINAL))
+        assert compare(self.DICT_ORIGINAL, self.DICT_EQUAL_ORIGINAL)
 
     def test_resource_compare_missing_entry_in_first(self):
         dict1 = self.DICT_ORIGINAL.copy()
         del dict1['state']
 
-        self.assertFalse(compare(dict1, self.DICT_EQUAL_ORIGINAL))
+        assert not compare(dict1, self.DICT_EQUAL_ORIGINAL)
 
     def test_resource_compare_missing_entry_in_second(self):
         dict2 = self.DICT_EQUAL_ORIGINAL.copy()
         del dict2['state']
 
-        self.assertFalse(compare(self.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3))
+        assert not compare(self.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3)
 
     def test_resource_compare_different_on_level3(self):
-        self.assertFalse(compare(self.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3))
+        assert not compare(self.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3)
 
     def test_resource_compare_equals_with_empty_eq_none(self):
-        self.assertTrue(compare(self.DICT_EMPTY_NONE1, self.DICT_EMPTY_NONE2))
+        assert compare(self.DICT_EMPTY_NONE1, self.DICT_EMPTY_NONE2)
 
     def test_resource_compare_equals_with_empty_eq_none_inverse(self):
-        self.assertTrue(compare(self.DICT_EMPTY_NONE2, self.DICT_EMPTY_NONE1))
+        assert compare(self.DICT_EMPTY_NONE2, self.DICT_EMPTY_NONE1)
 
     def test_resource_compare_equals_with_empty_eq_none_different(self):
-        self.assertFalse(compare(self.DICT_EMPTY_NONE3, self.DICT_EMPTY_NONE1))
+        assert not compare(self.DICT_EMPTY_NONE3, self.DICT_EMPTY_NONE1)
 
     def test_resource_compare_with_double_level_list(self):
         dict1 = {list: [
@@ -634,7 +611,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             [4, 5, "6"]
         ]}
 
-        self.assertTrue(compare(dict1, dict2))
+        assert compare(dict1, dict2)
 
     def test_resource_compare_with_double_level_list_different(self):
         dict1 = {list: [
@@ -647,7 +624,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             [4, 5, "7"]
         ]}
 
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_comparison_with_int_and_float(self):
         dict1 = {
@@ -659,7 +636,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "lvalue": float(10)
         }
-        self.assertTrue(compare(dict1, dict2))
+        assert compare(dict1, dict2)
 
     def test_comparison_with_str_and_integer_float(self):
         dict1 = {
@@ -671,7 +648,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "lvalue": float(10)
         }
-        self.assertTrue(compare(dict1, dict2))
+        assert compare(dict1, dict2)
 
     def test_comparison_with_str_and_float(self):
         dict1 = {
@@ -683,7 +660,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "lvalue": float(10.1)
         }
-        self.assertTrue(compare(dict1, dict2))
+        assert compare(dict1, dict2)
 
     def test_comparison_dict_and_list(self):
         dict1 = {
@@ -695,7 +672,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "value": [1, 2, 3]
         }
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_comparison_list_and_dict(self):
         dict1 = {
@@ -707,7 +684,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "value": {"id": 123}
         }
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_comparison_with_different_float_values(self):
         dict1 = {
@@ -719,7 +696,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "lvalue": float(10.1)
         }
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_comparison_empty_list_and_none(self):
         dict1 = {
@@ -731,7 +708,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "values": None
         }
-        self.assertTrue(compare(dict1, dict2))
+        assert compare(dict1, dict2)
 
     def test_comparison_none_and_empty_list(self):
         dict1 = {
@@ -742,7 +719,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "values": []
         }
-        self.assertTrue(compare(dict1, dict2))
+        assert compare(dict1, dict2)
 
     def test_comparison_true_and_false(self):
         dict1 = {
@@ -754,7 +731,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "values": False
         }
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_comparison_false_and_true(self):
         dict1 = {
@@ -766,7 +743,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "values": True
         }
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_comparison_true_and_true(self):
         dict1 = {
@@ -778,7 +755,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "values": True
         }
-        self.assertTrue(compare(dict1, dict2))
+        assert compare(dict1, dict2)
 
     def test_comparison_false_and_false(self):
         dict1 = {
@@ -790,7 +767,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "values": False
         }
-        self.assertTrue(compare(dict1, dict2))
+        assert compare(dict1, dict2)
 
     def test_comparison_none_and_false(self):
         dict1 = {
@@ -802,7 +779,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "values": False
         }
-        self.assertTrue(compare(dict1, dict2))
+        assert compare(dict1, dict2)
 
     def test_comparison_false_and_none(self):
         dict1 = {
@@ -813,7 +790,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "values": None
         }
-        self.assertTrue(compare(dict1, dict2))
+        assert compare(dict1, dict2)
 
     def test_comparison_list_and_none_level_1(self):
         dict1 = {
@@ -825,7 +802,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name of the resource",
             "value": None
         }
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_comparison_none_and_list_level_1(self):
         dict1 = {
@@ -837,7 +814,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "value": [{"name": "item1"},
                       {"name": "item2"}]
         }
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_comparison_dict_and_none_level_1(self):
         dict1 = {
@@ -848,7 +825,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "value": None
         }
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_comparison_none_and_dict_level_1(self):
         dict1 = {
@@ -859,7 +836,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "name": "name",
             "value": {"name": "subresource"}
         }
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_comparison_none_and_dict_level_2(self):
         dict1 = {
@@ -874,7 +851,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
                           "name": "sub-sub-resource"
                       }}
         }
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_comparison_dict_and_none_level_2(self):
         dict1 = {
@@ -889,7 +866,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "value": {"name": "subresource",
                       "value": None}
         }
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_comparison_none_and_list_level_2(self):
         dict1 = {
@@ -902,7 +879,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "value": {"name": "subresource",
                       "list": ["item1", "item2"]}
         }
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_comparison_list_and_none_level_2(self):
         dict1 = {
@@ -915,7 +892,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
             "value": {"name": "subresource",
                       "list": None}
         }
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_comparison_list_of_dicts_with_diff_order(self):
         resource1 = {'connections': [
@@ -1118,7 +1095,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         ]
         }
 
-        self.assertTrue(compare(resource1, resource2))
+        assert compare(resource1, resource2)
 
     def test_comparison_list_when_dict_has_diff_key(self):
         dict1 = {
@@ -1134,7 +1111,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
                       {'name': 'value1'},
                       {'name': 'value2'}]
         }
-        self.assertFalse(compare(dict1, dict2))
+        assert not compare(dict1, dict2)
 
     def test_merge_list_by_key_when_original_list_is_empty(self):
         original_list = []
@@ -1143,7 +1120,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         merged_list = merge_list_by_key(original_list, list_with_changes, key="id")
 
         expected_list = [dict(id=1, value="123")]
-        self.assertEqual(merged_list, expected_list)
+        assert merged_list == expected_list
 
     def test_merge_list_by_key_when_original_list_is_null(self):
         original_list = None
@@ -1152,7 +1129,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         merged_list = merge_list_by_key(original_list, list_with_changes, key="id")
 
         expected_list = [dict(id=1, value="123")]
-        self.assertEqual(merged_list, expected_list)
+        assert merged_list == expected_list
 
     def test_merge_list_by_key_with_same_lenght_and_order(self):
         original_list = [dict(id=1, allocatedMbps=2500, mac="E2:4B:0D:30:00:09", requestedMbps=3500),
@@ -1166,7 +1143,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         expected_list = [dict(id=1, allocatedMbps=2500, mac="E2:4B:0D:30:00:09", requestedMbps=2700, allocatedVFs=3500),
                          dict(id=2, allocatedMbps=1000, mac="E2:4B:0D:30:00:0B", requestedMbps=1005)]
 
-        self.assertEqual(merged_list, expected_list)
+        assert merged_list == expected_list
 
     def test_merge_list_by_key_with_different_order(self):
         original_list = [dict(id=2, allocatedMbps=1000, mac="E2:4B:0D:30:00:0B", requestedMbps=1000),
@@ -1180,7 +1157,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         expected_list = [dict(id=1, allocatedMbps=2500, mac="E2:4B:0D:30:00:09", requestedMbps=2700, allocatedVFs=3500),
                          dict(id=2, allocatedMbps=1000, mac="E2:4B:0D:30:00:0B", requestedMbps=1005)]
 
-        self.assertEqual(merged_list, expected_list)
+        assert merged_list == expected_list
 
     def test_merge_list_by_key_with_removed_items(self):
         original_list = [dict(id=2, allocatedMbps=1000, mac="E2:4B:0D:30:00:0B", requestedMbps=1000),
@@ -1192,7 +1169,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         expected_list = [dict(id=1, allocatedMbps=2500, mac="E2:4B:0D:30:00:09", requestedMbps=2700, allocatedVFs=3500)]
 
-        self.assertEqual(merged_list, expected_list)
+        assert merged_list == expected_list
 
     def test_merge_list_by_key_with_added_items(self):
         original_list = [dict(id=1, allocatedMbps=2500, mac="E2:4B:0D:30:00:09", requestedMbps=3500)]
@@ -1205,7 +1182,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
         expected_list = [dict(id=1, allocatedMbps=2500, mac="E2:4B:0D:30:00:09", requestedMbps=2700, allocatedVFs=3500),
                          dict(id=2, requestedMbps=1005)]
 
-        self.assertEqual(merged_list, expected_list)
+        assert merged_list == expected_list
 
     def test_merge_list_by_key_should_ignore_key_when_null(self):
         original_list = [dict(id=1, value1="123", value2="345")]
@@ -1216,7 +1193,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         expected_list = [dict(id=1, value1="123", value2="345-changed")]
 
-        self.assertEqual(merged_list, expected_list)
+        assert merged_list == expected_list
 
     def test_merge_list_by_key_should_not_fail_when_ignored_key_absent(self):
         original_list = [dict(id=1, value1="123", value2="345")]
@@ -1227,10 +1204,10 @@ class OneViewModuleBaseSpec(unittest.TestCase):
 
         expected_list = [dict(id=1, value1="123", value2="345", value3="678")]
 
-        self.assertEqual(merged_list, expected_list)
+        assert merged_list == expected_list
 
 
-class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
+class TestServerProfileReplaceNamesByUris():
     SERVER_PROFILE_NAME = "Profile101"
     SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
     SHT_URI = "/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B"
@@ -1245,10 +1222,13 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         uri=SERVER_PROFILE_URI
     )
 
+    @pytest.fixture(autouse=True)
     def setUp(self):
         patcher_json_file = mock.patch.object(OneViewClient, 'from_json_file')
-        self.addCleanup(patcher_json_file.stop)
         self.mock_ov_client = patcher_json_file.start()
+
+        yield
+        patcher_json_file.stop
 
     def test_should_replace_os_deployment_name_by_uri(self):
         uri = '/rest/os-deployment-plans/81decf85-0dff-4a5e-8a95-52994eeb6493'
@@ -1260,7 +1240,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data[SPKeys.OS_DEPLOYMENT], dict(osDeploymentPlanUri=uri))
+        assert sp_data[SPKeys.OS_DEPLOYMENT] == dict(osDeploymentPlanUri=uri)
 
     def test_should_fail_when_deployment_plan_not_found(self):
         sp_data = deepcopy(self.BASIC_PROFILE)
@@ -1273,9 +1253,9 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
         except OneViewModuleResourceNotFound as e:
-            self.assertEqual(e.msg, expected_error)
+            assert e.msg == expected_error
         else:
-            self.fail(msg="Expected Exception was not raised")
+            pytest.fail(msg="Expected Exception was not raised")
 
     def test_should_replace_enclosure_group_name_by_uri(self):
         uri = '/rest/enclosure-groups/81decf85-0dff-4a5e-8a95-52994eeb6493'
@@ -1287,8 +1267,8 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data.get('enclosureGroupUri'), uri)
-        self.assertFalse(sp_data.get('enclosureGroupName'))
+        assert sp_data.get('enclosureGroupUri') == uri
+        assert not sp_data.get('enclosureGroupName')
 
     def test_should_fail_when_enclosure_group_not_found(self):
         sp_data = deepcopy(self.BASIC_PROFILE)
@@ -1301,9 +1281,9 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
         except OneViewModuleResourceNotFound as e:
-            self.assertEqual(e.msg, message)
+            assert e.msg == message
         else:
-            self.fail(msg="Expected Exception was not raised")
+            pytest.fail(msg="Expected Exception was not raised")
 
     def test_should_replace_connections_name_by_uri(self):
         conn_1 = dict(name="connection-1", networkUri='/rest/fc-networks/98')
@@ -1325,7 +1305,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
                                 dict(name="connection-3", networkUri='/rest/fcoe-networks/16'),
                                 dict(name="connection-4", networkUri='/rest/ethernet-networks/18')]
 
-        self.assertEqual(sp_data.get(SPKeys.CONNECTIONS), expected_connections)
+        assert sp_data.get(SPKeys.CONNECTIONS) == expected_connections
 
     def test_should_fail_when_network_not_found(self):
         conn = dict(name="connection-1", networkName='FC Network')
@@ -1342,9 +1322,9 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
         except OneViewModuleResourceNotFound as e:
-            self.assertEqual(e.msg, expected_error)
+            assert e.msg == expected_error
         else:
-            self.fail(msg="Expected Exception was not raised")
+            pytest.fail(msg="Expected Exception was not raised")
 
     def test_should_replace_server_hardware_type_name_by_uri(self):
         sht_uri = "/rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C"
@@ -1356,8 +1336,8 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data.get('serverHardwareTypeUri'), sht_uri)
-        self.assertEqual(sp_data.get('serverHardwareTypeName'), None)
+        assert sp_data.get('serverHardwareTypeUri') == sht_uri
+        assert sp_data.get('serverHardwareTypeName') is None
 
     def test_should_fail_when_server_hardware_type_name_not_found(self):
         sp_data = deepcopy(self.BASIC_PROFILE)
@@ -1370,9 +1350,9 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
         except OneViewModuleResourceNotFound as e:
-            self.assertEqual(e.msg, expected_error)
+            assert e.msg == expected_error
         else:
-            self.fail(msg="Expected Exception was not raised")
+            pytest.fail(msg="Expected Exception was not raised")
 
     def test_should_replace_volume_names_by_uri(self):
         volume1 = {"name": "volume1", "uri": "/rest/storage-volumes/1"}
@@ -1392,7 +1372,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
 
     def test_should_not_replace_volume_names_when_volume_uri_is_none(self):
         volume2 = {"name": "volume2", "uri": "/rest/storage-volumes/2"}
@@ -1411,7 +1391,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
 
     def test_should_not_replace_when_inform_volume_uri(self):
         sp_data = deepcopy(self.BASIC_PROFILE)
@@ -1425,7 +1405,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.volumes.get_by.assert_not_called()
 
     def test_should_not_replace_volume_name_when_volume_attachments_is_none(self):
@@ -1437,7 +1417,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.volumes.get_by.assert_not_called()
 
     def test_should_not_replace_volume_name_when_san_storage_is_none(self):
@@ -1447,7 +1427,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.volumes.get_by.assert_not_called()
 
     def test_should_fail_when_volume_name_not_found(self):
@@ -1463,9 +1443,9 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
         except OneViewModuleResourceNotFound as e:
-            self.assertEqual(e.msg, expected_error)
+            assert e.msg == expected_error
         else:
-            self.fail(msg="Expected Exception was not raised")
+            pytest.fail(msg="Expected Exception was not raised")
 
     def test_should_replace_storage_pool_names_by_uri(self):
         pool1 = {"name": "pool1", "uri": "/rest/storage-pools/1"}
@@ -1485,7 +1465,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
 
     def test_should_not_replace_when_inform_storage_pool_uri(self):
         sp_data = deepcopy(self.BASIC_PROFILE)
@@ -1499,7 +1479,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.storage_pools.get_by.assert_not_called()
 
     def test_should_not_replace_storage_pool_name_when_volume_attachments_is_none(self):
@@ -1511,7 +1491,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.storage_pools.get_by.assert_not_called()
 
     def test_should_not_replace_storage_pool_name_when_san_storage_is_none(self):
@@ -1521,7 +1501,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.storage_pools.get_by.assert_not_called()
 
     def test_should_fail_when_storage_pool_name_not_found(self):
@@ -1539,9 +1519,9 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
         except OneViewModuleResourceNotFound as e:
-            self.assertEqual(e.msg, expected_error)
+            assert e.msg == expected_error
         else:
-            self.fail(msg="Expected Exception was not raised")
+            pytest.fail(msg="Expected Exception was not raised")
 
     def test_should_replace_storage_system_names_by_uri(self):
         storage_system1 = {"name": "system1", "uri": "/rest/storage-systems/1"}
@@ -1561,7 +1541,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected)
+        assert sp_data == expected
 
     def test_should_not_replace_when_inform_storage_system_uri(self):
         sp_data = deepcopy(self.BASIC_PROFILE)
@@ -1575,7 +1555,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.storage_systems.get_by.assert_not_called()
 
     def test_should_not_replace_storage_system_name_when_volume_attachments_is_none(self):
@@ -1587,7 +1567,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.storage_systems.get_by.assert_not_called()
 
     def test_should_not_replace_storage_system_name_when_san_storage_is_none(self):
@@ -1597,7 +1577,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.storage_systems.get_by.assert_not_called()
 
     def test_should_fail_when_storage_system_name_not_found(self):
@@ -1615,9 +1595,9 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
         except OneViewModuleResourceNotFound as e:
-            self.assertEqual(e.msg, expected_error)
+            assert e.msg == expected_error
         else:
-            self.fail(msg="Expected Exception was not raised")
+            pytest.fail(msg="Expected Exception was not raised")
 
     def test_should_replace_enclosure_name_by_uri(self):
         uri = "/rest/enclosures/09SGH100X6J1"
@@ -1629,8 +1609,8 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data.get('enclosureUri'), uri)
-        self.assertEqual(sp_data.get('enclosureName'), None)
+        assert sp_data.get('enclosureUri') == uri
+        assert sp_data.get('enclosureName') is None
 
     def test_should_fail_when_enclosure_name_not_found(self):
         sp_data = deepcopy(self.BASIC_PROFILE)
@@ -1643,9 +1623,9 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
         except OneViewModuleResourceNotFound as e:
-            self.assertEqual(e.msg, expected_error)
+            assert e.msg == expected_error
         else:
-            self.fail(msg="Expected Exception was not raised")
+            pytest.fail(msg="Expected Exception was not raised")
 
     def test_should_replace_interconnect_name_by_uri(self):
         interconnect1 = {"name": "interconnect1", "uri": "/rest/interconnects/1"}
@@ -1664,7 +1644,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected)
+        assert sp_data == expected
 
     def test_should_not_replace_when_inform_interconnect_uri(self):
         sp_data = deepcopy(self.BASIC_PROFILE)
@@ -1677,7 +1657,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.interconnects.get_by.assert_not_called()
 
     def test_should_not_replace_interconnect_name_when_connections_is_none(self):
@@ -1687,7 +1667,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.interconnects.get_by.assert_not_called()
 
     def test_should_fail_when_interconnect_name_not_found(self):
@@ -1700,9 +1680,9 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
         except OneViewModuleResourceNotFound as e:
-            self.assertEqual(e.msg, expected_error)
+            assert e.msg == expected_error
         else:
-            self.fail(msg="Expected Exception was not raised")
+            pytest.fail(msg="Expected Exception was not raised")
 
     def test_should_replace_firmware_baseline_name_by_uri(self):
         firmware_driver = {"name": "firmwareName001", "uri": "/rest/firmware-drivers/1"}
@@ -1716,7 +1696,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected)
+        assert sp_data == expected
 
     def test_should_not_replace_when_inform_firmware_baseline_uri(self):
         sp_data = deepcopy(self.BASIC_PROFILE)
@@ -1726,7 +1706,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.firmware_drivers.get_by.assert_not_called()
 
     def test_should_not_replace_firmware_baseline_name_when_firmware_is_none(self):
@@ -1736,7 +1716,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.firmware_drivers.get_by.assert_not_called()
 
     def test_should_fail_when_firmware_baseline_name_not_found(self):
@@ -1750,9 +1730,9 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
         except OneViewModuleResourceNotFound as e:
-            self.assertEqual(e.msg, expected_error)
+            assert e.msg == expected_error
         else:
-            self.fail(msg="Expected Exception was not raised")
+            pytest.fail(msg="Expected Exception was not raised")
 
     def test_should_replace_sas_logical_jbod_names_by_uris(self):
         sas_logical_jbod1 = {"name": "jbod1", "uri": "/rest/sas-logical-jbods/1"}
@@ -1772,7 +1752,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected)
+        assert sp_data == expected
 
     def test_should_not_replace_when_inform_sas_logical_jbod_uris(self):
         sp_data = deepcopy(self.BASIC_PROFILE)
@@ -1786,7 +1766,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.sas_logical_jbods.get_by.assert_not_called()
 
     def test_should_not_replace_sas_logical_jbod_names_when_jbod_list_is_none(self):
@@ -1798,7 +1778,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.sas_logical_jbods.get_by.assert_not_called()
 
     def test_should_not_replace_sas_logical_jbod_names_when_local_storage_is_none(self):
@@ -1808,7 +1788,7 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        self.assertEqual(sp_data, expected_dict)
+        assert sp_data == expected_dict
         self.mock_ov_client.sas_logical_jbods.get_by.assert_not_called()
 
     def test_should_fail_when_sas_logical_jbod_name_not_found(self):
@@ -1826,12 +1806,12 @@ class ServerProfileReplaceNamesByUrisTest(unittest.TestCase):
         try:
             ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
         except OneViewModuleResourceNotFound as e:
-            self.assertEqual(e.msg, expected_error)
+            assert e.msg == expected_error
         else:
-            self.fail(msg="Expected Exception was not raised")
+            pytest.fail(msg="Expected Exception was not raised")
 
 
-class ServerProfileMergerTest(unittest.TestCase):
+class TestServerProfileMerger():
     SERVER_PROFILE_NAME = "Profile101"
 
     CREATED_BASIC_PROFILE = dict(
@@ -1919,14 +1899,17 @@ class ServerProfileMergerTest(unittest.TestCase):
                                                                                   SAS_LOGICAL_JBOD_1]
     profile_with_local_storage[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS] = [CONTROLLER_MEZZ_1, CONTROLLER_EMBEDDED]
 
+    @pytest.fixture(autouse=True)
     def setUp(self):
         patcher_json_file = mock.patch.object(OneViewClient, 'from_json_file')
-        self.addCleanup(patcher_json_file.stop)
         self.mock_ov_client = patcher_json_file.start()
 
         self.mock_ov_client.server_hardware.get_by.return_value = [self.FAKE_SERVER_HARDWARE]
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
         self.mock_ov_client.server_profiles.update.return_value = deepcopy(self.profile_with_san_storage)
+
+        yield
+        patcher_json_file.stop
 
     def test_merge_when_connections_have_new_item(self):
         connection_added = dict(id=3, name="new-connection")
@@ -1939,7 +1922,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_connections = [self.CONNECTION_1.copy(), self.CONNECTION_2.copy(), connection_added]
-        self.assertEqual(merged_data[SPKeys.CONNECTIONS], expected_connections)
+        assert merged_data[SPKeys.CONNECTIONS] == expected_connections
 
     def test_merge_when_connections_have_removed_item(self):
         data = dict(name="Profile101",
@@ -1949,7 +1932,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_connections = [self.CONNECTION_1]
-        self.assertEqual(merged_data[SPKeys.CONNECTIONS], expected_connections)
+        assert merged_data[SPKeys.CONNECTIONS] == expected_connections
 
     def test_merge_when_connections_have_changed_item(self):
         connection_2_renamed = dict(id=2, name="connection-2-renamed", boot=dict(priority="NotBootable"))
@@ -1961,7 +1944,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         connection_2_merged = dict(id=2, name="connection-2-renamed", mac="E2:4B:0D:30:00:2A", boot=self.BOOT_CONN)
         expected_connections = [self.CONNECTION_1.copy(), connection_2_merged.copy()]
-        self.assertEqual(merged_data[SPKeys.CONNECTIONS], expected_connections)
+        assert merged_data[SPKeys.CONNECTIONS] == expected_connections
 
     def test_merge_when_connection_list_is_removed(self):
         data = dict(name="Profile101",
@@ -1970,7 +1953,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data[SPKeys.CONNECTIONS])
+        assert not merged_data[SPKeys.CONNECTIONS]
 
     def test_merge_when_connection_list_is_null(self):
         data = dict(name="Profile101",
@@ -1979,7 +1962,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data[SPKeys.CONNECTIONS])
+        assert not merged_data[SPKeys.CONNECTIONS]
 
     def test_merge_when_connection_list_not_provided(self):
         data = dict(name="Profile101")
@@ -1989,7 +1972,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_connections = [self.CONNECTION_1.copy(), self.CONNECTION_2.copy()]
-        self.assertEqual(merged_data[SPKeys.CONNECTIONS], expected_connections)
+        assert merged_data[SPKeys.CONNECTIONS] == expected_connections
 
     def test_merge_when_existing_connection_list_is_null(self):
         data = dict(name="Profile101",
@@ -2001,7 +1984,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_connections = [self.CONNECTION_1.copy(), self.CONNECTION_2.copy()]
-        self.assertEqual(merged_data[SPKeys.CONNECTIONS], expected_connections)
+        assert merged_data[SPKeys.CONNECTIONS] == expected_connections
 
     def test_merge_when_san_storage_is_equals(self):
         data = dict(name="Profile101",
@@ -2010,7 +1993,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertEqual(merged_data, resource)
+        assert merged_data == resource
 
     def test_merge_when_san_storage_has_changes(self):
         data = dict(name="Profile101",
@@ -2023,7 +2006,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         expected_san_storage = deepcopy(self.SAN_STORAGE)
         expected_san_storage['newField'] = "123"
-        self.assertEqual(merged_data[SPKeys.SAN], expected_san_storage)
+        assert merged_data[SPKeys.SAN] == expected_san_storage
 
     def test_merge_when_san_storage_is_removed_from_profile_with_san(self):
         data = dict(name="Profile101",
@@ -2034,7 +2017,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         expected_san_storage = dict(manageSanStorage=False,
                                     volumeAttachments=[])
-        self.assertEqual(merged_data[SPKeys.SAN], expected_san_storage)
+        assert merged_data[SPKeys.SAN] == expected_san_storage
 
     def test_merge_when_san_storage_is_removed_from_basic_profile(self):
         data = dict(name="Profile101",
@@ -2044,7 +2027,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data[SPKeys.SAN])
+        assert not merged_data[SPKeys.SAN]
 
     def test_merge_when_san_storage_not_provided(self):
         data = dict(name="Profile101")
@@ -2052,7 +2035,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertEqual(merged_data[SPKeys.SAN], resource[SPKeys.SAN])
+        assert merged_data[SPKeys.SAN] == resource[SPKeys.SAN]
 
     def test_merge_when_existing_san_storage_is_null(self):
         data = dict(name="Profile101",
@@ -2061,7 +2044,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertEqual(merged_data[SPKeys.SAN], self.SAN_STORAGE)
+        assert merged_data[SPKeys.SAN] == self.SAN_STORAGE
 
     def test_merge_when_volume_attachments_are_removed(self):
         data = dict(name="Profile101",
@@ -2071,7 +2054,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data[SPKeys.SAN][SPKeys.VOLUMES])
+        assert not merged_data[SPKeys.SAN][SPKeys.VOLUMES]
 
     def test_merge_when_volume_attachments_has_changes(self):
         data = dict(name="Profile101",
@@ -2083,7 +2066,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         expected_volumes = [deepcopy(self.VOLUME_1), deepcopy(self.VOLUME_2)]
         expected_volumes[0]['newField'] = "123"
-        self.assertEqual(merged_data[SPKeys.SAN][SPKeys.VOLUMES], expected_volumes)
+        assert merged_data[SPKeys.SAN][SPKeys.VOLUMES] == expected_volumes
 
     def test_merge_when_storage_paths_has_changes(self):
         data = dict(name="Profile101",
@@ -2096,8 +2079,8 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         expected_paths_storage_1 = [deepcopy(self.PATH_1), deepcopy(self.PATH_2)]
         expected_paths_storage_1[1]['newField'] = "123"
-        self.assertEqual(expected_paths_storage_1, merged_volumes[0][SPKeys.PATHS])
-        self.assertEqual([], merged_volumes[1][SPKeys.PATHS])
+        assert expected_paths_storage_1 == merged_volumes[0][SPKeys.PATHS]
+        assert [] == merged_volumes[1][SPKeys.PATHS]
 
     def test_merge_should_add_storage_path(self):
         profile = deepcopy(self.profile_with_san_storage)
@@ -2109,7 +2092,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         expected_paths = [self.PATH_1, self.PATH_2, path3]
 
-        self.assertEqual(expected_paths, merged_data[SPKeys.SAN][SPKeys.VOLUMES][0][SPKeys.PATHS])
+        assert expected_paths == merged_data[SPKeys.SAN][SPKeys.VOLUMES][0][SPKeys.PATHS]
 
     def test_merge_when_storage_paths_are_removed(self):
         data = dict(name="Profile101",
@@ -2120,7 +2103,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
         merged_volumes = merged_data[SPKeys.SAN].get(SPKeys.VOLUMES)
 
-        self.assertEqual([], merged_volumes[1][SPKeys.PATHS])
+        assert [] == merged_volumes[1][SPKeys.PATHS]
 
     def test_merge_when_bios_has_changes(self):
         data = dict(name="Profile101")
@@ -2130,7 +2113,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_bios = dict(manageBios=False, overriddenSettings=[], newField="123")
-        self.assertEqual(merged_data[SPKeys.BIOS], expected_bios)
+        assert merged_data[SPKeys.BIOS] == expected_bios
 
     def test_merge_when_bios_is_null(self):
         data = dict(name="Profile101")
@@ -2140,7 +2123,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data[SPKeys.BIOS])
+        assert not merged_data[SPKeys.BIOS]
 
     def test_merge_when_bios_not_provided(self):
         data = dict(name="Profile101")
@@ -2149,7 +2132,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_bios = dict(manageBios=False, overriddenSettings=[])
-        self.assertEqual(merged_data[SPKeys.BIOS], expected_bios)
+        assert merged_data[SPKeys.BIOS] == expected_bios
 
     def test_merge_when_existing_bios_is_null(self):
         data = dict(name="Profile101")
@@ -2159,7 +2142,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertEqual(merged_data[SPKeys.BIOS], dict(newField="123"))
+        assert merged_data[SPKeys.BIOS] == dict(newField="123")
 
     def test_merge_when_boot_has_changes(self):
         data = dict(name="Profile101")
@@ -2169,7 +2152,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_boot = dict(manageBoot=False, order=[], newField="123")
-        self.assertEqual(merged_data[SPKeys.BOOT], expected_boot)
+        assert merged_data[SPKeys.BOOT] == expected_boot
 
     def test_merge_when_boot_is_null(self):
         data = dict(name="Profile101")
@@ -2179,7 +2162,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data[SPKeys.BOOT])
+        assert not merged_data[SPKeys.BOOT]
 
     def test_merge_when_boot_not_provided(self):
         data = dict(name="Profile101")
@@ -2188,7 +2171,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_boot = dict(manageBoot=False, order=[])
-        self.assertEqual(merged_data[SPKeys.BOOT], expected_boot)
+        assert merged_data[SPKeys.BOOT] == expected_boot
 
     def test_merge_when_existing_boot_is_null(self):
         data = dict(name="Profile101")
@@ -2198,7 +2181,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertEqual(merged_data[SPKeys.BOOT], dict(newField="123"))
+        assert merged_data[SPKeys.BOOT] == dict(newField="123")
 
     def test_merge_when_boot_mode_has_changes(self):
         data = dict(name="Profile101")
@@ -2208,7 +2191,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_boot_mode = dict(manageMode=False, mode=None, pxeBootPolicy=None, newField="123")
-        self.assertEqual(merged_data[SPKeys.BOOT_MODE], expected_boot_mode)
+        assert merged_data[SPKeys.BOOT_MODE] == expected_boot_mode
 
     def test_merge_when_boot_mode_is_null(self):
         data = dict(name="Profile101")
@@ -2218,7 +2201,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data[SPKeys.BOOT_MODE])
+        assert not merged_data[SPKeys.BOOT_MODE]
 
     def test_merge_when_boot_mode_not_provided(self):
         data = dict(name="Profile101")
@@ -2227,7 +2210,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_boot_mode = dict(manageMode=False, mode=None, pxeBootPolicy=None)
-        self.assertEqual(merged_data[SPKeys.BOOT_MODE], expected_boot_mode)
+        assert merged_data[SPKeys.BOOT_MODE] == expected_boot_mode
 
     def test_merge_when_existing_boot_mode_is_null(self):
         data = dict(name="Profile101")
@@ -2237,7 +2220,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertEqual(merged_data[SPKeys.BOOT_MODE], dict(newField="123"))
+        assert merged_data[SPKeys.BOOT_MODE] == dict(newField="123")
 
     def test_merge_when_os_deployment_is_equals(self):
         data = dict(name="Profile101",
@@ -2246,7 +2229,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertEqual(merged_data, resource)
+        assert merged_data == resource
 
     def test_merge_when_os_deployment_has_changes(self):
         data = dict(name="Profile101",
@@ -2258,7 +2241,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         expected_os_deployment = deepcopy(self.OS_DEPLOYMENT_SETTINGS)
         expected_os_deployment['osDeploymentPlanUri'] = "/rest/os-deployment-plans/other-id"
-        self.assertEqual(merged_data[SPKeys.OS_DEPLOYMENT], expected_os_deployment)
+        assert merged_data[SPKeys.OS_DEPLOYMENT] == expected_os_deployment
 
     def test_merge_when_os_deployment_not_provided(self):
         data = dict(name="Profile101")
@@ -2268,7 +2251,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_os_deployment = resource[SPKeys.OS_DEPLOYMENT]
-        self.assertEqual(merged_data[SPKeys.OS_DEPLOYMENT], expected_os_deployment)
+        assert merged_data[SPKeys.OS_DEPLOYMENT] == expected_os_deployment
 
     def test_merge_when_existing_os_deployment_settings_are_null(self):
         data = dict(name="Profile101",
@@ -2280,7 +2263,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_os_deployment = deepcopy(self.OS_DEPLOYMENT_SETTINGS)
-        self.assertEqual(merged_data[SPKeys.OS_DEPLOYMENT], expected_os_deployment)
+        assert merged_data[SPKeys.OS_DEPLOYMENT] == expected_os_deployment
 
     def test_merge_when_custom_attributes_have_changes(self):
         data = dict(name="Profile101",
@@ -2292,7 +2275,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         expected_os_deployment = deepcopy(self.OS_DEPLOYMENT_SETTINGS)
         expected_os_deployment[SPKeys.ATTRIBUTES][0]['hostname'] = 'updatedhostname'
-        self.assertEqual(merged_data[SPKeys.OS_DEPLOYMENT], expected_os_deployment)
+        assert merged_data[SPKeys.OS_DEPLOYMENT] == expected_os_deployment
 
     def test_merge_when_custom_attributes_have_new_item(self):
         new_item = dict(name="password", value="secret123")
@@ -2306,7 +2289,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         expected_os_deployment = deepcopy(self.OS_DEPLOYMENT_SETTINGS)
         expected_os_deployment[SPKeys.ATTRIBUTES].append(new_item.copy())
-        self.assertEqual(merged_data[SPKeys.OS_DEPLOYMENT], expected_os_deployment)
+        assert merged_data[SPKeys.OS_DEPLOYMENT] == expected_os_deployment
 
     def test_merge_when_custom_attributes_have_removed_item(self):
         data = dict(name="Profile101",
@@ -2318,7 +2301,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         expected_os_deployment = deepcopy(self.OS_DEPLOYMENT_SETTINGS)
         expected_os_deployment[SPKeys.ATTRIBUTES].pop()
-        self.assertEqual(merged_data[SPKeys.OS_DEPLOYMENT], expected_os_deployment)
+        assert merged_data[SPKeys.OS_DEPLOYMENT] == expected_os_deployment
 
     def test_merge_when_custom_attributes_are_equals_with_different_order(self):
         data = dict(name="Profile101",
@@ -2336,7 +2319,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         list2 = sorted(deepcopy(self.profile_with_os_deployment)[SPKeys.OS_DEPLOYMENT][SPKeys.ATTRIBUTES],
                        key=_str_sorted)
 
-        self.assertEqual(list1, list2)
+        assert list1 == list2
 
     def test_merge_when_custom_attributes_have_different_values_and_order(self):
         data = dict(name="Profile101",
@@ -2356,7 +2339,7 @@ class ServerProfileMergerTest(unittest.TestCase):
                                   dict(name="hostname", value="newValue")]
         expected_os_deployment = deepcopy(self.OS_DEPLOYMENT_SETTINGS)
         expected_os_deployment[SPKeys.ATTRIBUTES] = expected_os_attributes
-        self.assertEqual(merged_data[SPKeys.OS_DEPLOYMENT], expected_os_deployment)
+        assert merged_data[SPKeys.OS_DEPLOYMENT] == expected_os_deployment
 
     def test_merge_when_custom_attributes_are_removed(self):
         data = dict(name="Profile101",
@@ -2368,7 +2351,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         expected_os_deployment = deepcopy(self.OS_DEPLOYMENT_SETTINGS)
         expected_os_deployment[SPKeys.ATTRIBUTES] = None
-        self.assertEqual(merged_data[SPKeys.OS_DEPLOYMENT], expected_os_deployment)
+        assert merged_data[SPKeys.OS_DEPLOYMENT] == expected_os_deployment
 
     def test_merge_when_existing_custom_attributes_are_null(self):
         data = dict(name="Profile101",
@@ -2378,7 +2361,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_attributes = deepcopy(self.OS_DEPLOYMENT_SETTINGS).get(SPKeys.ATTRIBUTES)
-        self.assertEqual(merged_data[SPKeys.OS_DEPLOYMENT].get(SPKeys.ATTRIBUTES), expected_attributes)
+        assert merged_data[SPKeys.OS_DEPLOYMENT].get(SPKeys.ATTRIBUTES) == expected_attributes
 
     def test_merge_when_local_storage_removed(self):
         data = dict(name="Profile101",
@@ -2387,7 +2370,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE], dict(sasLogicalJBODs=[], controllers=[]))
+        assert merged_data[SPKeys.LOCAL_STORAGE] == dict(sasLogicalJBODs=[], controllers=[])
 
     def test_merge_when_local_storage_is_null_and_existing_server_profile_is_basic(self):
         data = dict(name="Profile101",
@@ -2396,7 +2379,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data[SPKeys.LOCAL_STORAGE])
+        assert not merged_data[SPKeys.LOCAL_STORAGE]
 
     def test_merge_when_sas_logical_jbods_have_new_item(self):
         sas_logical_jbod_added = dict(id=3, deviceSlot="Mezz 1", name="new-sas-logical-jbod", driveTechnology="SataHdd")
@@ -2411,7 +2394,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         expected_sas_logical_jbods = [self.SAS_LOGICAL_JBOD_2.copy(),
                                       self.SAS_LOGICAL_JBOD_1.copy(),
                                       sas_logical_jbod_added]
-        self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS], expected_sas_logical_jbods)
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS] == expected_sas_logical_jbods
 
     def test_merge_when_sas_logical_jbods_have_removed_item(self):
         data = dict(name="Profile101",
@@ -2421,7 +2404,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_sas_logical_jbods = [self.SAS_LOGICAL_JBOD_1.copy()]
-        self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS], expected_sas_logical_jbods)
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS] == expected_sas_logical_jbods
 
     def test_merge_when_sas_logical_jbods_have_changed_item(self):
         item_2_changed = dict(id=2, numPhysicalDrives=2)
@@ -2434,7 +2417,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         item_2_merged = dict(numPhysicalDrives=2,
                              id=2, name="jbod-2", deviceSlot="Mezz 1", driveTechnology="SataHdd", status="Pending")
         expected_sas_logical_jbods = [self.SAS_LOGICAL_JBOD_1.copy(), item_2_merged.copy()]
-        self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS], expected_sas_logical_jbods)
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS] == expected_sas_logical_jbods
 
     @mock.patch.object(oneview, 'merge_list_by_key')
     def test_merge_should_ignore_logical_jbod_uri_when_null(self, mock_merge_list):
@@ -2454,7 +2437,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS])
+        assert not merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS]
 
     def test_merge_when_controllers_have_new_item(self):
         controller_added = dict(deviceSlot="Device Slot Name", mode="RAID", initialize=False, importConfiguration=True)
@@ -2467,7 +2450,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_controllers = [self.CONTROLLER_MEZZ_1.copy(), self.CONTROLLER_EMBEDDED.copy(), controller_added]
-        self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS], expected_controllers)
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS] == expected_controllers
 
     def test_merge_when_controllers_have_removed_item(self):
         data = dict(name="Profile101",
@@ -2477,7 +2460,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_controllers = [self.CONTROLLER_MEZZ_1.copy()]
-        self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS], expected_controllers)
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS] == expected_controllers
 
     def test_merge_when_controllers_have_changed_item(self):
         controller_embedded_changed = dict(deviceSlot="Embedded", initialize=True)
@@ -2492,7 +2475,7 @@ class ServerProfileMergerTest(unittest.TestCase):
                              deviceSlot="Embedded", mode="RAID", importConfiguration=True,
                              logicalDrives=self.DRIVES_CONTROLLER_EMBEDDED)
         expected_controllers = [self.CONTROLLER_MEZZ_1.copy(), item_2_merged.copy()]
-        self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS], expected_controllers)
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS] == expected_controllers
 
     def test_merge_when_controller_list_is_removed(self):
         data = dict(name="Profile101",
@@ -2501,7 +2484,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS])
+        assert not merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS]
 
     def test_merge_when_drives_from_embedded_controller_have_new_item(self):
         new_drive = dict(name="drive-3", raidLevel="RAID1", bootable=False, sasLogicalJBODId=None)
@@ -2520,7 +2503,7 @@ class ServerProfileMergerTest(unittest.TestCase):
                            new_drive]
         result = merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_EMBED][SPKeys.LOGICAL_DRIVES]
 
-        self.assertEqual(result, expected_drives)
+        assert result == expected_drives
 
     def test_merge_when_drives_from_embedded_controller_have_removed_item(self):
         controller_embedded = deepcopy(self.CONTROLLER_EMBEDDED)
@@ -2534,8 +2517,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_drives = [self.CONTROLLER_EMBEDDED[SPKeys.LOGICAL_DRIVES][0]]
-        self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_EMBED][SPKeys.LOGICAL_DRIVES],
-                         expected_drives)
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_EMBED][SPKeys.LOGICAL_DRIVES] == expected_drives
 
     def test_merge_when_drives_have_incomplete_data(self):
         controller_embedded = deepcopy(self.CONTROLLER_EMBEDDED)
@@ -2548,8 +2530,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_drive = self.CONTROLLER_EMBEDDED[SPKeys.LOGICAL_DRIVES][1]
-        self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][0][SPKeys.LOGICAL_DRIVES][1],
-                         expected_drive)
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][0][SPKeys.LOGICAL_DRIVES][1] == expected_drive
 
     def test_merge_when_drives_from_embedded_controller_have_changed_item(self):
         """
@@ -2569,8 +2550,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         drive_1_merged = dict(driveNumber=1, name="drive-1", raidLevel="RAID0", bootable=False, sasLogicalJBODId=None)
         expected_drives = [drive_1_merged,
                            self.CONTROLLER_EMBEDDED[SPKeys.LOGICAL_DRIVES][1]]
-        self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_EMBED][SPKeys.LOGICAL_DRIVES],
-                         expected_drives)
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_EMBED][SPKeys.LOGICAL_DRIVES] == expected_drives
 
     def test_merge_when_drives_from_mezz_controller_have_new_item(self):
         new_drive = dict(name=None, raidLevel="RAID1", bootable=False, sasLogicalJBODId=3)
@@ -2587,8 +2567,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         expected_drives = [self.CONTROLLER_MEZZ_1[SPKeys.LOGICAL_DRIVES][0],
                            self.CONTROLLER_MEZZ_1[SPKeys.LOGICAL_DRIVES][1],
                            new_drive]
-        self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES],
-                         expected_drives)
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES] == expected_drives
 
     def test_merge_when_drives_from_mezz_controller_have_removed_item(self):
         controller_mezz = deepcopy(self.CONTROLLER_MEZZ_1)
@@ -2602,8 +2581,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_drives = [self.CONTROLLER_MEZZ_1[SPKeys.LOGICAL_DRIVES][0]]
-        self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES],
-                         expected_drives)
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES] == expected_drives
 
     def test_merge_when_drives_from_mezz_controller_have_changed_item(self):
         """
@@ -2623,8 +2601,7 @@ class ServerProfileMergerTest(unittest.TestCase):
         drive_1_merged = dict(name=None, raidLevel="RAID0", bootable=False, sasLogicalJBODId=1)
         expected_drives = [drive_1_merged,
                            self.CONTROLLER_MEZZ_1[SPKeys.LOGICAL_DRIVES][1]]
-        self.assertEqual(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES],
-                         expected_drives)
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES] == expected_drives
 
     def test_merge_when_controller_drives_are_removed(self):
         controller_mezz = deepcopy(self.CONTROLLER_MEZZ_1)
@@ -2637,7 +2614,7 @@ class ServerProfileMergerTest(unittest.TestCase):
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        self.assertFalse(merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES])
+        assert not merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES]
 
     @mock.patch.dict('os.environ', dict(LOGFILE='/path/log.txt'))
     @mock.patch.object(logging, 'getLogger')
@@ -2672,4 +2649,4 @@ class ServerProfileMergerTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

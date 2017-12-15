@@ -16,10 +16,11 @@
 # limitations under the License.
 ###
 
+import mock
+import pytest
 
-from ansible.compat.tests import unittest, mock
 from copy import deepcopy
-from hpe_test_utils import OneViewBaseTestCase
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import LogicalSwitchModule
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -90,11 +91,10 @@ PARAMS_FOR_REFRESH = dict(
 )
 
 
-class LogicalSwitchModuleSpec(unittest.TestCase,
-                              OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, LogicalSwitchModule)
-        self.resource = self.mock_ov_client.logical_switches
+@pytest.mark.resource(TestLogicalSwitchModule='logical_switches')
+class TestLogicalSwitchModule(OneViewBaseTest):
+    @pytest.fixture(autouse=True)
+    def specificSetUp(self, setUp):
         self.logical_switch_group_client = self.mock_ov_client.logical_switch_groups
 
     def test_should_create_new_logical_switch(self):
@@ -325,4 +325,4 @@ class LogicalSwitchModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

@@ -16,10 +16,11 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import mock
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import FirmwareDriverModule
-from ansible.module_utils.oneview import OneViewClient
-from hpe_test_utils import OneViewBaseTestCase
 
 FIRMWARE_DRIVER_NAME = "Service Pack for ProLiant.iso"
 
@@ -49,12 +50,8 @@ PARAMS_ABSENT = dict(
 FIRMWARE_DRIVER = dict(name=FIRMWARE_DRIVER_NAME)
 
 
-class FirmwareDriverModuleSpec(unittest.TestCase, OneViewBaseTestCase):
-
-    def setUp(self):
-        self.configure_mocks(self, FirmwareDriverModule)
-        self.resource = self.mock_ov_client.firmware_drivers
-
+@pytest.mark.resource(TestFirmwareDriverModule='firmware_drivers')
+class TestFirmwareDriverModule(OneViewBaseTest):
     def test_should_create_new_firmware_driver(self):
         my_arr = [[],
                   [dict(uri='/rest/fake1')],
@@ -151,4 +148,4 @@ class FirmwareDriverModuleSpec(unittest.TestCase, OneViewBaseTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

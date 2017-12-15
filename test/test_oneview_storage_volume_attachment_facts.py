@@ -14,10 +14,11 @@
 # limitations under the License.
 ###
 
+import mock
+import pytest
 
-from ansible.compat.tests import unittest, mock
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import StorageVolumeAttachmentFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -50,13 +51,8 @@ RETURN_GET_BY_PROFILE_AND_VOLUME = {
 }
 
 
-class StorageVolumeAttachmentFactsSpec(unittest.TestCase,
-                                       FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, StorageVolumeAttachmentFactsModule)
-        self.resource = self.mock_ov_client.storage_volume_attachments
-        FactsParamsTestCase.configure_client_mock(self, self.resource)
-
+@pytest.mark.resource(TestStorageVolumeAttachmentFactsModule='storage_volume_attachments')
+class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
     def test_should_get_all(self):
         attachments = [ATTACHMENT, ATTACHMENT]
         self.resource.get_all.return_value = attachments
@@ -315,4 +311,4 @@ class StorageVolumeAttachmentFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

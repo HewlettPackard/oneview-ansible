@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import SwitchTypeFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -35,15 +36,10 @@ PARAMS_GET_BY_NAME = dict(
 SWITCH_TYPES = [{"name": "Test Switch Type 1"}, {"name": "Test Switch Type 2"}, {"name": "Test Switch Type 3"}]
 
 
-class SwitchTypeFactsSpec(unittest.TestCase,
-                          FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, SwitchTypeFactsModule)
-        self.switch_types = self.mock_ov_client.switch_types
-        FactsParamsTestCase.configure_client_mock(self, self.switch_types)
-
+@pytest.mark.resource(TestSwitchTypeFactsModule='switch_types')
+class TestSwitchTypeFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_switch_types(self):
-        self.switch_types.get_all.return_value = SWITCH_TYPES
+        self.resource.get_all.return_value = SWITCH_TYPES
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         SwitchTypeFactsModule().run()
@@ -54,7 +50,7 @@ class SwitchTypeFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_switch_type_by_name(self):
-        self.switch_types.get_by.return_value = [SWITCH_TYPES[1]]
+        self.resource.get_by.return_value = [SWITCH_TYPES[1]]
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         SwitchTypeFactsModule().run()
@@ -66,4 +62,4 @@ class SwitchTypeFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])
