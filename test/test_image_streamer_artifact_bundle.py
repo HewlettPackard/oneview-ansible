@@ -16,12 +16,12 @@
 # limitations under the License.
 ###
 
+import mock
 import pytest
 
-from ansible.compat.tests import mock
 from copy import deepcopy
-from oneview_module_loader import ArtifactBundleModule, compare
 from hpe_test_utils import ImageStreamerBaseTest
+from oneview_module_loader import ArtifactBundleModule
 
 ERROR_MSG = 'Fake message error'
 

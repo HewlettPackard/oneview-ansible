@@ -18,8 +18,8 @@
 
 import pytest
 
-from oneview_module_loader import DeploymentGroupFactsModule
 from hpe_test_utils import ImageStreamerBaseFactsTest
+from oneview_module_loader import DeploymentGroupFactsModule
 
 
 @pytest.mark.resource(TestDeploymentGroupFactsModule='deployment_groups')

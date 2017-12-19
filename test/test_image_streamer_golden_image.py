@@ -16,11 +16,11 @@
 # limitations under the License.
 ###
 
+import mock
 import pytest
 
-from ansible.compat.tests import mock
-from oneview_module_loader import GoldenImageModule
 from hpe_test_utils import ImageStreamerBaseTest
+from oneview_module_loader import GoldenImageModule
 
 FAKE_MSG_ERROR = 'Fake message error'
 

@@ -18,8 +18,8 @@
 
 import pytest
 
-from oneview_module_loader import BuildPlanModule
 from hpe_test_utils import ImageStreamerBaseTest
+from oneview_module_loader import BuildPlanModule
 
 FAKE_MSG_ERROR = 'Fake message error'
 

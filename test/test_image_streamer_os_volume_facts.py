@@ -18,8 +18,8 @@
 
 import pytest
 
-from oneview_module_loader import OsVolumeFactsModule
 from hpe_test_utils import ImageStreamerBaseFactsTest
+from oneview_module_loader import OsVolumeFactsModule
 
 ERROR_MSG = 'Fake message error'
 

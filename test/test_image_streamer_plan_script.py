@@ -16,11 +16,11 @@
 # limitations under the License.
 ###
 
+import mock
 import pytest
 
-from ansible.compat.tests import mock
-from oneview_module_loader import PlanScriptModule
 from hpe_test_utils import ImageStreamerBaseTest
+from oneview_module_loader import PlanScriptModule
 
 FAKE_MSG_ERROR = 'Fake message error'
 

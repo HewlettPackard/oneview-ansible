@@ -18,8 +18,8 @@
 
 import pytest
 
-from oneview_module_loader import GoldenImageFactsModule
 from hpe_test_utils import ImageStreamerBaseFactsTest
+from oneview_module_loader import GoldenImageFactsModule
 
 ERROR_MSG = 'Fake message error'
 
