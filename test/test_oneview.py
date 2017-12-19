@@ -15,7 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-
 import logging
 import sys
 from module_utils import oneview
@@ -74,7 +73,7 @@ class OneViewModuleBaseSpec(unittest.TestCase):
                          'config': {'type': 'path'},
                          'hostname': {'type': 'str'},
                          'image_streamer_hostname': {'type': 'str'},
-                         'password': {'type': 'str'},
+                         'password': {'type': 'str', 'no_log': True},
                          'username': {'type': 'str'},
                          'validate_etag': {'type': 'bool', 'default': True}}
 

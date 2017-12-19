@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 ###
 # Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
@@ -16,11 +14,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
-from oneview_module_loader import VolumeFactsModule
-from hpe_test_utils import FactsParamsTestCase
+import pytest
 
-ERROR_MSG = 'Fake message error'
+from oneview_module_loader import VolumeFactsModule
+from hpe_test_utils import OneViewBaseFactsTest
 
 PARAMS_GET_ALL = dict(
     config='config.json',
@@ -56,13 +53,8 @@ PARAMS_GET_SNAPSHOT_BY_NAME = dict(
     options=[{"snapshots": {"name": 'snapshot_name'}}])
 
 
-class VolumeFactsSpec(unittest.TestCase,
-                      FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, VolumeFactsModule)
-        self.resource = self.mock_ov_client.volumes
-        FactsParamsTestCase.configure_client_mock(self, self.resource)
-
+@pytest.mark.resource(TestVolumeFactsModule='volumes')
+class TestVolumeFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_volumes(self):
         self.resource.get_all.return_value = [{"name": "Test Volume"}]
         self.mock_ansible_module.params = PARAMS_GET_ALL
@@ -130,4 +122,4 @@ class VolumeFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])
