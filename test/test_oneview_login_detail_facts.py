@@ -18,6 +18,7 @@
 
 import pytest
 
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import LoginDetailFactsModule
 
 PARAMS_GET_DETAILS = dict(
@@ -43,12 +44,8 @@ LIST_DEFAULT_LOGIN_DETAIL = [{
 }]
 
 
-class TestLoginDetailFactsModule():
-    @pytest.fixture(autouse=True)
-    def setUp(self, mock_ansible_module, mock_ov_client):
-        self.resource = mock_ov_client.login_details
-        self.mock_ansible_module = mock_ansible_module
-
+@pytest.mark.resource(TestLoginDetailFactsModule='login_details')
+class TestLoginDetailFactsModule(OneViewBaseTest):
     def test_should_get_all_login_details(self):
         self.resource.get_login_details.return_value = LIST_DEFAULT_LOGIN_DETAIL
         self.mock_ansible_module.params = PARAMS_GET_DETAILS
