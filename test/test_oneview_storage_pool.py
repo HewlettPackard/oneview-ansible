@@ -70,6 +70,10 @@ DICT_DEFAULT_STORAGE_POOL_500 = yaml.load(YAML_STORAGE_POOL_500)["data"]
 
 @pytest.mark.resource(TestStoragePoolModule='storage_pools')
 class TestStoragePoolModule(OneViewBaseTest):
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self, setUp):
+        self.mock_ov_client.api_version = 300
+
     def test_should_create_new_storage_pool(self):
         self.mock_ov_client.storage_pools.get_by.return_value = []
         self.mock_ov_client.storage_pools.add.return_value = {"name": "name"}

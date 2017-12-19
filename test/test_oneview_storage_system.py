@@ -121,6 +121,10 @@ del DICT_DEFAULT_STORAGE_SYSTEM_500['credentials']['password']
 
 @pytest.mark.resource(TestStorageSystemModule='storage_systems')
 class TestStorageSystemModule(OneViewBaseTest):
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self, setUp):
+        self.mock_ov_client.api_version = 300
+
     def test_should_add_new_storage_system_with_credentials_from_api300(self):
         self.resource.get_by_ip_hostname.return_value = None
         self.resource.add.return_value = {"name": "name"}

@@ -80,6 +80,10 @@ PARAMS_GET_POOL_BY_IP_HOSTNAME = dict(
 
 @pytest.mark.resource(TestStorageSystemFactsModule='storage_systems')
 class TestStorageSystemFactsModule(OneViewBaseFactsTest):
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self, setUp):
+        self.mock_ov_client.api_version = 300
+
     def test_should_get_all_storage_system(self):
         self.resource.get_all.return_value = {"name": "Storage System Name"}
         self.mock_ansible_module.params = PARAMS_GET_ALL
