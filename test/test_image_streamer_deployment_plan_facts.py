@@ -16,36 +16,27 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
 from oneview_module_loader import DeploymentPlanFactsModule
-from hpe_test_utils import FactsParamsTestCase
+from hpe_test_utils import ImageStreamerBaseFactsTest
 
 ERROR_MSG = 'Fake message error'
 
 
-class DeploymentPlanFactsSpec(unittest.TestCase,
-                              FactsParamsTestCase):
+@pytest.mark.resource(TestDeploymentPlanFactsModule='deployment_plans')
+class TestDeploymentPlanFactsModule(ImageStreamerBaseFactsTest):
     """
-    FactsParamsTestCase has common tests for the parameters support.
+    ImageStreamerBaseFactsTest has common tests for the parameters support.
     """
 
-    def setUp(self):
-        self.configure_mocks(self, DeploymentPlanFactsModule)
-        self.i3s = self.mock_ov_client.create_image_streamer_client()
-
-        FactsParamsTestCase.configure_client_mock(self, self.i3s.deployment_plans)
-
-        # Load scenarios from module examples
-        self.TASK_GET_ALL = self.EXAMPLES[0]['image_streamer_deployment_plan_facts']
-        self.TASK_GET_BY_NAME = self.EXAMPLES[4]['image_streamer_deployment_plan_facts']
-
-        self.DEPLOYMENT_PLAN = dict(
-            name="Deployment Plan name",
-            uri="/rest/plan-scripts/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0")
+    DEPLOYMENT_PLAN = dict(
+        name="Deployment Plan name",
+        uri="/rest/plan-scripts/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0")
 
     def test_get_all_deployment_plans(self):
-        self.i3s.deployment_plans.get_all.return_value = [self.DEPLOYMENT_PLAN]
-        self.mock_ansible_module.params = self.TASK_GET_ALL
+        self.resource.get_all.return_value = [self.DEPLOYMENT_PLAN]
+        self.mock_ansible_module.params = self.EXAMPLES[0]['image_streamer_deployment_plan_facts']
 
         DeploymentPlanFactsModule().run()
 
@@ -55,8 +46,8 @@ class DeploymentPlanFactsSpec(unittest.TestCase,
         )
 
     def test_get_a_deployment_plan_by_name(self):
-        self.i3s.deployment_plans.get_by.return_value = [self.DEPLOYMENT_PLAN]
-        self.mock_ansible_module.params = self.TASK_GET_BY_NAME
+        self.resource.get_by.return_value = [self.DEPLOYMENT_PLAN]
+        self.mock_ansible_module.params = self.EXAMPLES[4]['image_streamer_deployment_plan_facts']
 
         DeploymentPlanFactsModule().run()
 
@@ -67,4 +58,4 @@ class DeploymentPlanFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

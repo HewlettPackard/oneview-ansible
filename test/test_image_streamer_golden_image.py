@@ -15,25 +15,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.compat.tests import unittest, mock
 
+import pytest
+
+from ansible.compat.tests import mock
 from oneview_module_loader import GoldenImageModule
-from hpe_test_utils import OneViewBaseTestCase
+from hpe_test_utils import ImageStreamerBaseTest
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
-class GoldenImageSpec(unittest.TestCase,
-                      OneViewBaseTestCase):
+@pytest.mark.resource(TestGoldenImageModule='golden_images')
+class TestGoldenImageModule(ImageStreamerBaseTest):
     """
-    OneViewBaseTestCase has common test for main function,
+    ImageStreamerBaseTest has common test for main function,
     also provides the mocks used in this test case
     """
 
-    def setUp(self):
-        self.configure_mocks(self, GoldenImageModule)
-        self.i3s = self.mock_ov_client.create_image_streamer_client()
-
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self):
         # Load scenarios from module examples
         self.GOLDEN_IMAGE_CREATE = self.EXAMPLES[0]['image_streamer_golden_image']
         self.GOLDEN_IMAGE_UPLOAD = self.EXAMPLES[1]['image_streamer_golden_image']
@@ -43,16 +43,16 @@ class GoldenImageSpec(unittest.TestCase,
         self.GOLDEN_IMAGE_DELETE = self.EXAMPLES[5]['image_streamer_golden_image']
 
     def test_create_new_golden_image(self):
-        self.i3s.golden_images.get_by.return_value = []
-        self.i3s.golden_images.create.return_value = {"name": "name"}
-        self.i3s.os_volumes.get_by_name.return_value = {'uri': '/rest/os-volumes/1'}
-        self.i3s.build_plans.get_by.return_value = [{'uri': '/rest/build-plans/1'}]
+        self.resource.get_by.return_value = []
+        self.resource.create.return_value = {"name": "name"}
+        self.mock_ov_client.os_volumes.get_by_name.return_value = {'uri': '/rest/os-volumes/1'}
+        self.mock_ov_client.build_plans.get_by.return_value = [{'uri': '/rest/build-plans/1'}]
 
         self.mock_ansible_module.params = self.GOLDEN_IMAGE_CREATE
 
         GoldenImageModule().run()
 
-        self.i3s.golden_images.create.assert_called_once_with(
+        self.resource.create.assert_called_once_with(
             {'osVolumeURI': '/rest/os-volumes/1',
              'description': 'Test Description',
              'buildPlanUri': '/rest/build-plans/1',
@@ -66,8 +66,8 @@ class GoldenImageSpec(unittest.TestCase,
         )
 
     def test_upload_a_golden_image(self):
-        self.i3s.golden_images.get_by.return_value = []
-        self.i3s.golden_images.upload.return_value = {"name": "name"}
+        self.resource.get_by.return_value = []
+        self.resource.upload.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = self.GOLDEN_IMAGE_UPLOAD
 
@@ -75,7 +75,7 @@ class GoldenImageSpec(unittest.TestCase,
 
         GoldenImageModule().run()
 
-        self.i3s.golden_images.upload.assert_called_once_with(
+        self.resource.upload.assert_called_once_with(
             file_path,
             self.GOLDEN_IMAGE_UPLOAD['data'])
 
@@ -86,8 +86,8 @@ class GoldenImageSpec(unittest.TestCase,
         )
 
     def test_update_golden_image(self):
-        self.i3s.golden_images.get_by.return_value = [self.GOLDEN_IMAGE_CREATE['data']]
-        self.i3s.golden_images.update.return_value = {"name": "name"}
+        self.resource.get_by.return_value = [self.GOLDEN_IMAGE_CREATE['data']]
+        self.resource.update.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = self.GOLDEN_IMAGE_UPDATE
 
@@ -103,13 +103,13 @@ class GoldenImageSpec(unittest.TestCase,
         golden_image = self.GOLDEN_IMAGE_CREATE['data']
         golden_image['uri'] = '/rest/golden-images/1'
 
-        self.i3s.golden_images.get_by.return_value = [golden_image]
+        self.resource.get_by.return_value = [golden_image]
         self.mock_ansible_module.params = self.GOLDEN_IMAGE_DOWNLOAD
 
         GoldenImageModule().run()
 
         download_file = self.GOLDEN_IMAGE_DOWNLOAD['data']['destination_file_path']
-        self.i3s.golden_images.download.assert_called_once_with('/rest/golden-images/1', download_file)
+        self.resource.download.assert_called_once_with('/rest/golden-images/1', download_file)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -117,7 +117,7 @@ class GoldenImageSpec(unittest.TestCase,
             ansible_facts={})
 
     def test_golden_image_download_nonexistent(self):
-        self.i3s.golden_images.get_by.return_value = []
+        self.resource.get_by.return_value = []
         self.mock_ansible_module.params = self.GOLDEN_IMAGE_DOWNLOAD
 
         GoldenImageModule().run()
@@ -128,13 +128,13 @@ class GoldenImageSpec(unittest.TestCase,
         golden_image = self.GOLDEN_IMAGE_CREATE['data']
         golden_image['uri'] = '/rest/golden-images/1'
 
-        self.i3s.golden_images.get_by.return_value = [golden_image]
+        self.resource.get_by.return_value = [golden_image]
         self.mock_ansible_module.params = self.GOLDEN_IMAGE_ARCHIVE_DOWNLOAD
 
         GoldenImageModule().run()
 
         download_file = self.GOLDEN_IMAGE_ARCHIVE_DOWNLOAD['data']['destination_file_path']
-        self.i3s.golden_images.download_archive.assert_called_once_with('/rest/golden-images/1', download_file)
+        self.resource.download_archive.assert_called_once_with('/rest/golden-images/1', download_file)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -142,7 +142,7 @@ class GoldenImageSpec(unittest.TestCase,
             ansible_facts={})
 
     def test_golden_image_archive_download_nonexistent(self):
-        self.i3s.golden_images.get_by.return_value = []
+        self.resource.get_by.return_value = []
         self.mock_ansible_module.params = self.GOLDEN_IMAGE_ARCHIVE_DOWNLOAD
 
         GoldenImageModule().run()
@@ -150,7 +150,7 @@ class GoldenImageSpec(unittest.TestCase,
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=GoldenImageModule.MSG_WAS_NOT_FOUND)
 
     def test_should_not_update_when_data_is_equals(self):
-        self.i3s.golden_images.get_by.return_value = [self.GOLDEN_IMAGE_UPDATE['data']]
+        self.resource.get_by.return_value = [self.GOLDEN_IMAGE_UPDATE['data']]
 
         del self.GOLDEN_IMAGE_UPDATE['data']['newName']
 
@@ -165,7 +165,7 @@ class GoldenImageSpec(unittest.TestCase,
         )
 
     def test_delete_golden_image(self):
-        self.i3s.golden_images.get_by.return_value = [self.GOLDEN_IMAGE_CREATE['data']]
+        self.resource.get_by.return_value = [self.GOLDEN_IMAGE_CREATE['data']]
 
         self.mock_ansible_module.params = self.GOLDEN_IMAGE_DELETE
 
@@ -177,7 +177,7 @@ class GoldenImageSpec(unittest.TestCase,
         )
 
     def test_should_do_nothing_when_deleting_a_non_existent_golden_image(self):
-        self.i3s.golden_images.get_by.return_value = []
+        self.resource.get_by.return_value = []
 
         self.mock_ansible_module.params = self.GOLDEN_IMAGE_DELETE
 
@@ -189,8 +189,8 @@ class GoldenImageSpec(unittest.TestCase,
         )
 
     def test_should_fail_when_present_is_incosistent(self):
-        self.i3s.golden_images.get_by.return_value = []
-        self.i3s.os_volumes.get_by_name.return_value = {'uri': '/rest/os-volumes/1'}
+        self.resource.get_by.return_value = []
+        self.mock_ov_client.os_volumes.get_by_name.return_value = {'uri': '/rest/os-volumes/1'}
 
         self.GOLDEN_IMAGE_CREATE['data']['localImageFilePath'] = 'filename'
 
@@ -201,7 +201,7 @@ class GoldenImageSpec(unittest.TestCase,
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=GoldenImageModule.MSG_CANT_CREATE_AND_UPLOAD)
 
     def test_should_fail_when_mandatory_attributes_are_missing(self):
-        self.i3s.golden_images.get_by.return_value = []
+        self.resource.get_by.return_value = []
 
         del self.GOLDEN_IMAGE_CREATE['data']['osVolumeName']
 
@@ -212,9 +212,9 @@ class GoldenImageSpec(unittest.TestCase,
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=GoldenImageModule.MSG_MISSING_MANDATORY_ATTRIBUTES)
 
     def test_should_fail_when_os_volume_not_found(self):
-        self.i3s.golden_images.get_by.return_value = []
+        self.resource.get_by.return_value = []
 
-        self.i3s.os_volumes.get_by_name.return_value = None
+        self.mock_ov_client.os_volumes.get_by_name.return_value = None
 
         self.mock_ansible_module.params = self.GOLDEN_IMAGE_CREATE
 
@@ -223,8 +223,8 @@ class GoldenImageSpec(unittest.TestCase,
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=GoldenImageModule.MSG_OS_VOLUME_WAS_NOT_FOUND)
 
     def test_should_fail_when_build_plan_not_found(self):
-        self.i3s.golden_images.get_by.return_value = []
-        self.i3s.build_plans.get_by.return_value = None
+        self.resource.get_by.return_value = []
+        self.mock_ov_client.build_plans.get_by.return_value = None
 
         self.mock_ansible_module.params = self.GOLDEN_IMAGE_CREATE
 
@@ -234,4 +234,4 @@ class GoldenImageSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

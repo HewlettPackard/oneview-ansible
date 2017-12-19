@@ -27,8 +27,10 @@ from hpOneView.oneview_client import OneViewClient
 
 
 class OneViewBaseTest(object):
+    EXAMPLES = None
+
     @pytest.fixture(autouse=True)
-    def setUp(self, mock_ansible_module, mock_ov_client, request):
+    def setUp(self, mock_ansible_module, mock_ov_client, request, testing_module):
         class_name = type(self).__name__
         marker = request.node.get_marker('resource')
         self.resource = getattr(mock_ov_client, "%s" % (marker.kwargs[class_name]))
@@ -98,6 +100,21 @@ class OneViewBaseFactsTest(OneViewBaseTest):
         self.testing_class().run()
 
         self.resource.get_all.assert_called_once_with()
+
+
+class ImageStreamerBaseTest(OneViewBaseTest):
+    @pytest.fixture
+    def mock_ov_client(self, mock_ov_client):
+        return mock_ov_client.create_image_streamer_client()
+
+    def underscore(self, word):
+        word = re.findall('[A-Z][^A-Z]*', word)
+        word = 'image_streamer_' + str.join('_', word).lower()
+        return word
+
+
+class ImageStreamerBaseFactsTest(ImageStreamerBaseTest, OneViewBaseFactsTest):
+    pass
 
 
 class OneViewBaseTestCase(object):

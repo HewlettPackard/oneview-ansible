@@ -16,38 +16,37 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
 from oneview_module_loader import BuildPlanModule
-from hpe_test_utils import OneViewBaseTestCase
+from hpe_test_utils import ImageStreamerBaseTest
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
-class BuildPlanSpec(unittest.TestCase,
-                    OneViewBaseTestCase):
+@pytest.mark.resource(TestBuildPlanModule='build_plans')
+class TestBuildPlanModule(ImageStreamerBaseTest):
     """
-    OneViewBaseTestCase has tests for main function,
+    ImageStreamerBaseTest has tests for main function,
     also provides the mocks used in this test case
     """
 
-    def setUp(self):
-        self.configure_mocks(self, BuildPlanModule)
-        self.i3s = self.mock_ov_client.create_image_streamer_client()
-
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self):
         # Load scenarios from module examples
         self.BUILD_PLAN_CREATE = self.EXAMPLES[0]['image_streamer_build_plan']
         self.BUILD_PLAN_UPDATE = self.EXAMPLES[1]['image_streamer_build_plan']
         self.BUILD_PLAN_DELETE = self.EXAMPLES[2]['image_streamer_build_plan']
 
     def test_should_create_new_build_plan(self):
-        self.i3s.build_plans.get_by.return_value = []
-        self.i3s.build_plans.create.return_value = {"name": "name"}
+        self.resource.get_by.return_value = []
+        self.resource.create.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = self.BUILD_PLAN_CREATE
 
         BuildPlanModule().run()
 
-        self.i3s.build_plans.create.assert_called_once_with(
+        self.resource.create.assert_called_once_with(
             {'name': 'Demo OS Build Plan',
              'description': "oebuildplan",
              'oeBuildPlanType': "deploy"})
@@ -59,8 +58,8 @@ class BuildPlanSpec(unittest.TestCase,
         )
 
     def test_should_update_the_build_plan(self):
-        self.i3s.build_plans.get_by.return_value = [self.BUILD_PLAN_CREATE['data']]
-        self.i3s.build_plans.update.return_value = {"name": "name"}
+        self.resource.get_by.return_value = [self.BUILD_PLAN_CREATE['data']]
+        self.resource.update.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = self.BUILD_PLAN_UPDATE
 
@@ -73,7 +72,7 @@ class BuildPlanSpec(unittest.TestCase,
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.i3s.build_plans.get_by.return_value = [self.BUILD_PLAN_UPDATE['data']]
+        self.resource.get_by.return_value = [self.BUILD_PLAN_UPDATE['data']]
 
         del self.BUILD_PLAN_UPDATE['data']['newName']
 
@@ -88,7 +87,7 @@ class BuildPlanSpec(unittest.TestCase,
         )
 
     def test_should_delete_the_build_plan(self):
-        self.i3s.build_plans.get_by.return_value = [self.BUILD_PLAN_CREATE['data']]
+        self.resource.get_by.return_value = [self.BUILD_PLAN_CREATE['data']]
 
         self.mock_ansible_module.params = self.BUILD_PLAN_DELETE
 
@@ -100,7 +99,7 @@ class BuildPlanSpec(unittest.TestCase,
         )
 
     def test_should_do_nothing_when_deleting_a_non_existent_build_plan(self):
-        self.i3s.build_plans.get_by.return_value = []
+        self.resource.get_by.return_value = []
 
         self.mock_ansible_module.params = self.BUILD_PLAN_DELETE
 
@@ -113,4 +112,4 @@ class BuildPlanSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])
