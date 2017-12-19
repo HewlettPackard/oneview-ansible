@@ -94,7 +94,7 @@ PARAMS_FOR_REFRESH = dict(
 @pytest.mark.resource(TestLogicalSwitchModule='logical_switches')
 class TestLogicalSwitchModule(OneViewBaseTest):
     @pytest.fixture(autouse=True)
-    def specificSetUp(self, setUp):
+    def specific_set_up(self, setUp):
         self.logical_switch_group_client = self.mock_ov_client.logical_switch_groups
 
     def test_should_create_new_logical_switch(self):

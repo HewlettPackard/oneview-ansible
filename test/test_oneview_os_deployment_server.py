@@ -33,7 +33,7 @@ class TestOsDeploymentServerModule(OneViewBaseTest):
     """
 
     @pytest.fixture(autouse=True)
-    def specificSetUp(self, setUp, testing_module):
+    def specific_set_up(self, setUp, testing_module):
         # Load scenarios from module examples
         self.DEPLOYMENT_SERVER_CREATE = self.EXAMPLES[0]['oneview_os_deployment_server']
         self.DEPLOYMENT_SERVER_UPDATE = self.EXAMPLES[2]['oneview_os_deployment_server']

@@ -33,7 +33,7 @@ SERVERS = [
 class TestOsDeploymentServerFactsModule(OneViewBaseFactsTest):
     # Load scenarios from module examples
     @pytest.fixture(autouse=True)
-    def specificSetUp(self, setUp, testing_module):
+    def specific_set_up(self, setUp, testing_module):
         self.PARAMS_GET_ALL = self.EXAMPLES[0]['oneview_os_deployment_server_facts']
         self.PARAMS_GET_BY_NAME = self.EXAMPLES[2]['oneview_os_deployment_server_facts']
         self.PARAMS_GET_BY_NAME_WITH_OPTIONS = self.EXAMPLES[4]['oneview_os_deployment_server_facts']

@@ -199,7 +199,7 @@ class TestServerProfileModule(OneViewBaseTest):
     """
 
     @pytest.fixture(autouse=True)
-    def specificSetUp(self):
+    def specific_set_up(self):
         self.sleep_patch = mock.patch('time.sleep')
         self.sleep_patch.start()
         self.sleep_patch.return_value = None
