@@ -135,12 +135,7 @@ from ansible.module_utils.oneview import OneViewModuleBase
 
 class VolumeFactsModule(OneViewModuleBase):
     def __init__(self):
-        argument_spec = dict(
-            name=dict(type='str'),
-            options=dict(type='list'),
-            params=dict(type='dict'),
-        )
-
+        argument_spec = dict(name=dict(type='str'), options=dict(type='list'), params=dict(type='dict'))
         super(VolumeFactsModule, self).__init__(additional_arg_spec=argument_spec)
         self.resource_client = self.oneview_client.volumes
 
