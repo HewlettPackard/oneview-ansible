@@ -28,7 +28,7 @@ short_description: Provides an interface to remove ToR Switch resources.
 description:
     - Provides an interface to remove Top of Rack(ToR) Switch resources.
       The switch resource will be removed if it is in an unmanaged state.
-      If the switch resource is associated with a Logical Switch, it's removal is treated as a hardware removal only.
+      If the switch resource is associated with a Logical Switch, its removal is treated as a hardware removal only.
       A reference to the switch is mantained, and the resource is marked as 'Absent'.
 version_added: "2.3"
 requirements:

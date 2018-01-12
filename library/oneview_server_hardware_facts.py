@@ -23,7 +23,7 @@ ANSIBLE_METADATA = {'status': ['stableinterface'],
 DOCUMENTATION = '''
 ---
 module: oneview_server_hardware_facts
-short_description: Retrieve facts about the OneView Server Hardwares.
+short_description: Retrieve facts about the OneView Server Hardware.
 description:
     - Retrieve facts about the Server Hardware from OneView.
 version_added: "2.3"
