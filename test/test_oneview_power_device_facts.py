@@ -16,46 +16,43 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import PowerDeviceFactsModule
-from hpe_test_utils import FactsParamsTestCase
+
+ERROR_MSG = 'Fake message error'
+
+PARAMS_GET_ALL = dict(
+    config='config.json',
+    name=None
+)
+
+PARAMS_GET_BY_NAME = dict(
+    config='config.json',
+    name="Test Power Device"
+)
+
+PARAMS_WITH_OPTIONS = dict(
+    config='config.json',
+    name="Test Power Device",
+    options=[
+        'powerState', 'uidState',
+        {"utilization": {"fields": 'AveragePower',
+                         "filter": 'startDate=2016-05-30T03:29:42.000Z',
+                         "view": 'day'}}]
+)
 
 
-class PowerDeviceFactsModuleSpec(unittest.TestCase,
-                                 FactsParamsTestCase):
+@pytest.mark.resource(TestPowerDeviceFactsModule='power_devices')
+class TestPowerDeviceFactsModule(OneViewBaseFactsTest):
     """
     FactsParamsTestCase has common tests for the parameters support.
     """
-    ERROR_MSG = 'Fake message error'
-
-    PARAMS_GET_ALL = dict(
-        config='config.json',
-        name=None
-    )
-
-    PARAMS_GET_BY_NAME = dict(
-        config='config.json',
-        name="Test Power Device"
-    )
-
-    PARAMS_WITH_OPTIONS = dict(
-        config='config.json',
-        name="Test Power Device",
-        options=[
-            'powerState', 'uidState',
-            {"utilization": {"fields": 'AveragePower',
-                             "filter": 'startDate=2016-05-30T03:29:42.000Z',
-                             "view": 'day'}}]
-    )
-
-    def setUp(self):
-        self.configure_mocks(self, PowerDeviceFactsModule)
-        self.power_devices = self.mock_ov_client.power_devices
-        FactsParamsTestCase.configure_client_mock(self, self.power_devices)
 
     def test_should_get_all_power_devices(self):
-        self.power_devices.get_all.return_value = {"name": "Power Device Name"}
-        self.mock_ansible_module.params = self.PARAMS_GET_ALL
+        self.resource.get_all.return_value = {"name": "Power Device Name"}
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         PowerDeviceFactsModule().run()
 
@@ -65,8 +62,8 @@ class PowerDeviceFactsModuleSpec(unittest.TestCase,
         )
 
     def test_should_get_power_device_by_name(self):
-        self.power_devices.get_by.return_value = {"name": "Power Device Name"}
-        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
+        self.resource.get_by.return_value = {"name": "Power Device Name"}
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         PowerDeviceFactsModule().run()
 
@@ -76,11 +73,11 @@ class PowerDeviceFactsModuleSpec(unittest.TestCase,
         )
 
     def test_should_get_power_device_by_name_with_options(self):
-        self.power_devices.get_by.return_value = [{"name": "Power Device Name", "uri": "resuri"}]
-        self.power_devices.get_power_state.return_value = {'subresource': 'ps'}
-        self.power_devices.get_uid_state.return_value = {'subresource': 'uid'}
-        self.power_devices.get_utilization.return_value = {'subresource': 'util'}
-        self.mock_ansible_module.params = self.PARAMS_WITH_OPTIONS
+        self.resource.get_by.return_value = [{"name": "Power Device Name", "uri": "resuri"}]
+        self.resource.get_power_state.return_value = {'subresource': 'ps'}
+        self.resource.get_uid_state.return_value = {'subresource': 'uid'}
+        self.resource.get_utilization.return_value = {'subresource': 'util'}
+        self.mock_ansible_module.params = PARAMS_WITH_OPTIONS
 
         PowerDeviceFactsModule().run()
 
@@ -95,4 +92,4 @@ class PowerDeviceFactsModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

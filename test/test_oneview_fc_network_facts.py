@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import FcNetworkFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -38,15 +39,10 @@ PRESENT_NETWORKS = [{
 }]
 
 
-class FcNetworkFactsSpec(unittest.TestCase,
-                         FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, FcNetworkFactsModule)
-        self.fc_networks = self.mock_ov_client.fc_networks
-        FactsParamsTestCase.configure_client_mock(self, self.fc_networks)
-
+@pytest.mark.resource(TestFcNetworkFactsModule='fc_networks')
+class TestFcNetworkFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_fc_networks(self):
-        self.fc_networks.get_all.return_value = PRESENT_NETWORKS
+        self.resource.get_all.return_value = PRESENT_NETWORKS
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         FcNetworkFactsModule().run()
@@ -57,7 +53,7 @@ class FcNetworkFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_fc_network_by_name(self):
-        self.fc_networks.get_by.return_value = PRESENT_NETWORKS
+        self.resource.get_by.return_value = PRESENT_NETWORKS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         FcNetworkFactsModule().run()
@@ -69,4 +65,4 @@ class FcNetworkFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import FcNetworkModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -49,15 +50,11 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class FcNetworkModuleSpec(unittest.TestCase,
-                          OneViewBaseTestCase):
+@pytest.mark.resource(TestFcNetworkModule='fc_networks')
+class TestFcNetworkModule(OneViewBaseTest):
     """
     OneViewBaseTestCase provides the mocks used in this test case
     """
-
-    def setUp(self):
-        self.configure_mocks(self, FcNetworkModule)
-        self.resource = self.mock_ov_client.fc_networks
 
     def test_should_create_new_fc_network(self):
         self.resource.get_by.return_value = []
@@ -176,4 +173,4 @@ class FcNetworkModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

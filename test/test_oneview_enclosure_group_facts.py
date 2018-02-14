@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import EnclosureGroupFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -48,15 +49,10 @@ ENCLOSURE_GROUPS = [{
 }]
 
 
-class EnclosureGroupFactsSpec(unittest.TestCase,
-                              FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, EnclosureGroupFactsModule)
-        self.enclosure_groups = self.mock_ov_client.enclosure_groups
-        FactsParamsTestCase.configure_client_mock(self, self.enclosure_groups)
-
+@pytest.mark.resource(TestEnclosureGroupFactsModule='enclosure_groups')
+class TestEnclosureGroupFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_enclosure_group(self):
-        self.enclosure_groups.get_all.return_value = ENCLOSURE_GROUPS
+        self.resource.get_all.return_value = ENCLOSURE_GROUPS
 
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
@@ -68,13 +64,13 @@ class EnclosureGroupFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_enclosure_group_by_name(self):
-        self.enclosure_groups.get_by.return_value = ENCLOSURE_GROUPS
+        self.resource.get_by.return_value = ENCLOSURE_GROUPS
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         EnclosureGroupFactsModule().run()
 
-        self.enclosure_groups.get_by.assert_called_once_with('name', ENCLOSURE_GROUP_NAME)
+        self.resource.get_by.assert_called_once_with('name', ENCLOSURE_GROUP_NAME)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -83,15 +79,15 @@ class EnclosureGroupFactsSpec(unittest.TestCase,
 
     def test_should_get_enclosure_group_by_name_with_options(self):
         configuration_script = "echo 'test'"
-        self.enclosure_groups.get_by.return_value = ENCLOSURE_GROUPS
-        self.enclosure_groups.get_script.return_value = configuration_script
+        self.resource.get_by.return_value = ENCLOSURE_GROUPS
+        self.resource.get_script.return_value = configuration_script
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         EnclosureGroupFactsModule().run()
 
-        self.enclosure_groups.get_by.assert_called_once_with('name', ENCLOSURE_GROUP_NAME)
-        self.enclosure_groups.get_script.assert_called_once_with(id_or_uri=ENCLOSURE_GROUP_URI)
+        self.resource.get_by.assert_called_once_with('name', ENCLOSURE_GROUP_NAME)
+        self.resource.get_script.assert_called_once_with(id_or_uri=ENCLOSURE_GROUP_URI)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -103,4 +99,4 @@ class EnclosureGroupFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

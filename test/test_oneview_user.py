@@ -16,11 +16,13 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import mock
+import pytest
+
+from copy import deepcopy
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import (UserModule,
                                    OneViewModuleException)
-from hpe_test_utils import OneViewBaseTestCase
-from copy import deepcopy
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -59,14 +61,11 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class UserModuleSpec(unittest.TestCase, OneViewBaseTestCase):
+@pytest.mark.resource(TestUserModule='users')
+class TestUserModule(OneViewBaseTest):
     """
     OneViewBaseTestCase provides the mocks used in this test case
     """
-
-    def setUp(self):
-        self.configure_mocks(self, UserModule)
-        self.resource = self.mock_ov_client.users
 
     def test_should_create_new_user(self):
         self.resource.get_by.side_effect = OneViewModuleException('FAKE_MSG_ERROR')
@@ -173,4 +172,4 @@ class UserModuleSpec(unittest.TestCase, OneViewBaseTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

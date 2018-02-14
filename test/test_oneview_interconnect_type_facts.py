@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import InterconnectTypeFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -38,15 +39,10 @@ PRESENT_TYPES = [{
 }]
 
 
-class InterconnectTypeFactsSpec(unittest.TestCase,
-                                FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, InterconnectTypeFactsModule)
-        self.interconnect_types = self.mock_ov_client.interconnect_types
-        FactsParamsTestCase.configure_client_mock(self, self.interconnect_types)
-
+@pytest.mark.resource(TestInterconnectTypeFactsModule='interconnect_types')
+class TestInterconnectTypeFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_interconnect_types(self):
-        self.interconnect_types.get_all.return_value = PRESENT_TYPES
+        self.resource.get_all.return_value = PRESENT_TYPES
 
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
@@ -58,7 +54,7 @@ class InterconnectTypeFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_interconnect_type_by_name(self):
-        self.interconnect_types.get_by.return_value = PRESENT_TYPES
+        self.resource.get_by.return_value = PRESENT_TYPES
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
@@ -71,4 +67,4 @@ class InterconnectTypeFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

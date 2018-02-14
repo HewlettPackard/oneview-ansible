@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import StorageVolumeTemplateFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -54,15 +55,10 @@ PARAMS_GET_COMPATIBLE = dict(
 DEFAULT_VOLUME_TEMPLATES_RETURN = [{"name": "Storage Volume Template 1"}]
 
 
-class StorageVolumeTemplatesFactsSpec(unittest.TestCase,
-                                      FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, StorageVolumeTemplateFactsModule)
-        self.storage_volume_templates = self.mock_ov_client.storage_volume_templates
-        FactsParamsTestCase.configure_client_mock(self, self.storage_volume_templates)
-
+@pytest.mark.resource(TestStorageVolumeTemplateFactsModule='storage_volume_templates')
+class TestStorageVolumeTemplateFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_storage_volume_templates(self):
-        self.storage_volume_templates.get_all.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
+        self.resource.get_all.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
 
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
@@ -74,7 +70,7 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_storage_volume_template_by_name(self):
-        self.storage_volume_templates.get_by.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
+        self.resource.get_by.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
@@ -86,8 +82,8 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_connectable_storage_volume_templates(self):
-        self.storage_volume_templates.get_all.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
-        self.storage_volume_templates.get_connectable_volume_templates.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
+        self.resource.get_all.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
+        self.resource.get_connectable_volume_templates.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
 
         self.mock_ansible_module.params = PARAMS_GET_CONNECTED
 
@@ -100,8 +96,8 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_reachable_storage_volume_templates(self):
-        self.storage_volume_templates.get_all.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
-        self.storage_volume_templates.get_reachable_volume_templates.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
+        self.resource.get_all.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
+        self.resource.get_reachable_volume_templates.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
 
         self.mock_ansible_module.params = PARAMS_GET_REACHABLE
 
@@ -114,8 +110,8 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_compatible_systems(self):
-        self.storage_volume_templates.get_by.return_value = [{'name': 'SVT1', 'uri': '/rest/fake'}]
-        self.storage_volume_templates.get_compatible_systems.return_value = {
+        self.resource.get_by.return_value = [{'name': 'SVT1', 'uri': '/rest/fake'}]
+        self.resource.get_compatible_systems.return_value = {
             "name": "Storage System Name"}
 
         self.mock_ansible_module.params = PARAMS_GET_COMPATIBLE
@@ -130,4 +126,4 @@ class StorageVolumeTemplatesFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

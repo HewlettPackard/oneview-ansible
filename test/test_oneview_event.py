@@ -14,9 +14,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import EventModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -36,14 +37,11 @@ PARAMS_FOR_PRESENT = dict(
 )
 
 
-class EventModuleSpec(unittest.TestCase, OneViewBaseTestCase):
+@pytest.mark.resource(TestEventModule='events')
+class TestEventModule(OneViewBaseTest):
     """
     OneViewBaseTestCase provides the mocks used in this test case
     """
-
-    def setUp(self):
-        self.configure_mocks(self, EventModule)
-        self.resource = self.mock_ov_client.events
 
     def test_should_create_new_event(self):
         self.resource.get_by.return_value = []
@@ -61,4 +59,4 @@ class EventModuleSpec(unittest.TestCase, OneViewBaseTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

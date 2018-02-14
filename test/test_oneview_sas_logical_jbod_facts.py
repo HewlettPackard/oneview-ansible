@@ -16,77 +16,72 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import SasLogicalJbodFactsModule
-from hpe_test_utils import FactsParamsTestCase
+
+ERROR_MSG = 'Fake message error'
+
+PARAMS_GET_ALL = dict(
+    config='config.json',
+    name=None
+)
+
+PARAMS_GET_BY_NAME = dict(
+    config='config.json',
+    name="SAS Logical JBOD 2"
+)
+
+PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
+    config='config.json',
+    name="SAS Logical JBOD 2",
+    options=['drives']
+)
+
+SAS_LOGICAL_JBOD_1 = dict(name="SAS Logical JBOD 1", uri='/sas-logical-jbods/a0336853-58d7-e021-b740-511cf971e21f0')
+SAS_LOGICAL_JBOD_2 = dict(name="SAS Logical JBOD 2", uri='/sas-logical-jbods/b3213123-44sd-y334-d111-asd34sdf34df3')
+
+ALL_SAS_LOGICAL_JBODS = [SAS_LOGICAL_JBOD_1, SAS_LOGICAL_JBOD_2]
 
 
-class SasLogicalJbodsFactsSpec(unittest.TestCase,
-                               FactsParamsTestCase):
-
-    ERROR_MSG = 'Fake message error'
-
-    PARAMS_GET_ALL = dict(
-        config='config.json',
-        name=None
-    )
-
-    PARAMS_GET_BY_NAME = dict(
-        config='config.json',
-        name="SAS Logical JBOD 2"
-    )
-
-    PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
-        config='config.json',
-        name="SAS Logical JBOD 2",
-        options=['drives']
-    )
-
-    SAS_LOGICAL_JBOD_1 = dict(name="SAS Logical JBOD 1", uri='/sas-logical-jbods/a0336853-58d7-e021-b740-511cf971e21f0')
-    SAS_LOGICAL_JBOD_2 = dict(name="SAS Logical JBOD 2", uri='/sas-logical-jbods/b3213123-44sd-y334-d111-asd34sdf34df3')
-
-    ALL_SAS_LOGICAL_JBODS = [SAS_LOGICAL_JBOD_1, SAS_LOGICAL_JBOD_2]
-
-    def setUp(self):
-        self.configure_mocks(self, SasLogicalJbodFactsModule)
-        self.resource = self.mock_ov_client.sas_logical_jbods
-        FactsParamsTestCase.configure_client_mock(self, self.resource)
-
+@pytest.mark.resource(TestSasLogicalJbodFactsModule='sas_logical_jbods')
+class TestSasLogicalJbodFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_sas_logical_jbods(self):
-        self.resource.get_all.return_value = self.ALL_SAS_LOGICAL_JBODS
-        self.mock_ansible_module.params = self.PARAMS_GET_ALL
+        self.resource.get_all.return_value = ALL_SAS_LOGICAL_JBODS
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         SasLogicalJbodFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(sas_logical_jbods=(self.ALL_SAS_LOGICAL_JBODS))
+            ansible_facts=dict(sas_logical_jbods=(ALL_SAS_LOGICAL_JBODS))
         )
 
     def test_should_get_sas_logical_jbod_attachment_by_name(self):
-        self.resource.get_by.return_value = [self.SAS_LOGICAL_JBOD_2]
-        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
+        self.resource.get_by.return_value = [SAS_LOGICAL_JBOD_2]
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         SasLogicalJbodFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(sas_logical_jbods=([self.SAS_LOGICAL_JBOD_2]))
+            ansible_facts=dict(sas_logical_jbods=([SAS_LOGICAL_JBOD_2]))
         )
 
     def test_should_get_sas_logical_jbod_with_options(self):
-        self.resource.get_by.return_value = [self.SAS_LOGICAL_JBOD_2]
+        self.resource.get_by.return_value = [SAS_LOGICAL_JBOD_2]
         self.resource.get_drives.return_value = [{"name": "Drive 1"}]
-        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME_WITH_OPTIONS
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         SasLogicalJbodFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(sas_logical_jbods=[self.SAS_LOGICAL_JBOD_2],
+            ansible_facts=dict(sas_logical_jbods=[SAS_LOGICAL_JBOD_2],
                                sas_logical_jbod_drives=[{"name": "Drive 1"}])
         )
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

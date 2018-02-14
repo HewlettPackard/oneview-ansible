@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import LogicalSwitchFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -38,15 +39,10 @@ PRESENT_LOGICAL_SWITCHES = [{
 }]
 
 
-class LogicalSwitchFactsSpec(unittest.TestCase,
-                             FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, LogicalSwitchFactsModule)
-        self.logical_switches = self.mock_ov_client.logical_switches
-        FactsParamsTestCase.configure_client_mock(self, self.logical_switches)
-
+@pytest.mark.resource(TestLogicalSwitchFactsModule='logical_switches')
+class TestLogicalSwitchFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_logical_switches(self):
-        self.logical_switches.get_all.return_value = PRESENT_LOGICAL_SWITCHES
+        self.resource.get_all.return_value = PRESENT_LOGICAL_SWITCHES
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         LogicalSwitchFactsModule().run()
@@ -57,7 +53,7 @@ class LogicalSwitchFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_logical_switch_by_name(self):
-        self.logical_switches.get_by.return_value = PRESENT_LOGICAL_SWITCHES
+        self.resource.get_by.return_value = PRESENT_LOGICAL_SWITCHES
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         LogicalSwitchFactsModule().run()
@@ -69,4 +65,4 @@ class LogicalSwitchFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

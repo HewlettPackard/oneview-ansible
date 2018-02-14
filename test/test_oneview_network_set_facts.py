@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import NetworkSetFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -45,13 +46,8 @@ PARAMS_GET_BY_NAME_WITHOUT_ETHERNET = dict(
 )
 
 
-class NetworkSetFactsSpec(unittest.TestCase,
-                          FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, NetworkSetFactsModule)
-        self.network_sets = self.mock_ov_client.network_sets
-        FactsParamsTestCase.configure_client_mock(self, self.network_sets)
-
+@pytest.mark.resource(TestNetworkSetFactsModule='network_sets')
+class TestNetworkSetFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_network_sets(self):
         network_sets = [{
             "name": "Network Set 1",
@@ -61,12 +57,12 @@ class NetworkSetFactsSpec(unittest.TestCase,
             "networkUris": ['/rest/ethernet-networks/ddd-eee-fff', '/rest/ethernet-networks/ggg-hhh-fff']
         }]
 
-        self.network_sets.get_all.return_value = network_sets
+        self.resource.get_all.return_value = network_sets
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         NetworkSetFactsModule().run()
 
-        self.network_sets.get_all.assert_called_once_with()
+        self.resource.get_all.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -81,12 +77,12 @@ class NetworkSetFactsSpec(unittest.TestCase,
             "networkUris": []
         }]
 
-        self.network_sets.get_all.return_value = network_sets
+        self.resource.get_all.return_value = network_sets
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         NetworkSetFactsModule().run()
 
-        self.network_sets.get_all.assert_called_once_with()
+        self.resource.get_all.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -98,12 +94,12 @@ class NetworkSetFactsSpec(unittest.TestCase,
             "networkUris": ['/rest/ethernet-networks/aaa-bbb-ccc']
         }]
 
-        self.network_sets.get_by.return_value = network_sets
+        self.resource.get_by.return_value = network_sets
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         NetworkSetFactsModule().run()
 
-        self.network_sets.get_by.assert_called_once_with('name', 'Network Set 1')
+        self.resource.get_by.assert_called_once_with('name', 'Network Set 1')
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -115,14 +111,18 @@ class NetworkSetFactsSpec(unittest.TestCase,
             "networkUris": []
         }]
 
-        self.network_sets.get_all_without_ethernet.return_value = network_sets
+        self.resource.get_all_without_ethernet.return_value = network_sets
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITHOUT_ETHERNET
 
         NetworkSetFactsModule().run()
 
         expected_filter = "\"'name'='Network Set 1'\""
-        self.network_sets.get_all_without_ethernet.assert_called_once_with(filter=expected_filter)
+        self.resource.get_all_without_ethernet.assert_called_once_with(filter=expected_filter)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(network_sets=network_sets))
+
+
+if __name__ == '__main__':
+    pytest.main([__file__])

@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import SasInterconnectTypeFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -35,13 +36,8 @@ PARAMS_GET_BY_NAME = dict(
 SAS_INTERCONNECT_TYPES = [{"name": "Type 1"}, {"name": "Type 2"}, {"name": "Type 3"}]
 
 
-class SasInterconnectTypeFactsSpec(unittest.TestCase,
-                                   FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, SasInterconnectTypeFactsModule)
-        self.resource = self.mock_ov_client.sas_interconnect_types
-        FactsParamsTestCase.configure_client_mock(self, self.resource)
-
+@pytest.mark.resource(TestSasInterconnectTypeFactsModule='sas_interconnect_types')
+class TestSasInterconnectTypeFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_sas_interconnect_types(self):
         self.resource.get_all.return_value = SAS_INTERCONNECT_TYPES
         self.mock_ansible_module.params = PARAMS_GET_ALL
@@ -66,4 +62,4 @@ class SasInterconnectTypeFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

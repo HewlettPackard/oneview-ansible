@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import OsDeploymentPlanFactsModule, compare
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -83,16 +84,11 @@ OS_DEPLOYMENT_PLAN_WITHOUT_EDITABLE = {
 }
 
 
-class OsDeploymentPlanFactsSpec(unittest.TestCase,
-                                FactsParamsTestCase):
+@pytest.mark.resource(TestOsDeploymentPlanFactsModule='os_deployment_plans')
+class TestOsDeploymentPlanFactsModule(OneViewBaseFactsTest):
     """
     FactsParamsTestCase has common tests for the parameters support.
     """
-
-    def setUp(self):
-        self.configure_mocks(self, OsDeploymentPlanFactsModule)
-        self.resource = self.mock_ov_client.os_deployment_plans
-        FactsParamsTestCase.configure_client_mock(self, self.resource)
 
     def test_should_get_all_os_deployment_plans(self):
         self.resource.get_all.return_value = [{"name": "Os Deployment Plan Name"}]
@@ -174,8 +170,8 @@ class OsDeploymentPlanFactsSpec(unittest.TestCase,
                                             })
 
         # Using OneViewModuleBase.compare due to random list ordering of the Python 3
-        self.assertTrue(compare(exit_json_args, expected_args))
+        assert compare(exit_json_args, expected_args)
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

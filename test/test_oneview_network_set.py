@@ -16,9 +16,11 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import mock
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import NetworkSetModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -51,17 +53,12 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class NetworkSetModuleSpec(unittest.TestCase,
-                           OneViewBaseTestCase):
+@pytest.mark.resource(TestNetworkSetModule='network_sets')
+class TestNetworkSetModule(OneViewBaseTest):
     """
     OneViewBaseTestCase has common tests for class constructor and main function,
     also provides the mocks used in this test case.
     """
-
-    def setUp(self):
-        self.configure_mocks(self, NetworkSetModule)
-        self.resource = self.mock_ov_client.network_sets
-        self.ethernet_network_client = self.mock_ov_client.ethernet_networks
 
     def test_should_create_new_network_set(self):
         self.resource.get_by.return_value = []
@@ -98,7 +95,7 @@ class NetworkSetModuleSpec(unittest.TestCase,
 
         self.resource.get_by.side_effect = [NETWORK_SET], []
         self.resource.update.return_value = data_merged
-        self.ethernet_network_client.get_by.return_value = [{'uri': '/rest/ethernet-networks/ddd-eee-fff'}]
+        self.mock_ov_client.ethernet_networks.get_by.return_value = [{'uri': '/rest/ethernet-networks/ddd-eee-fff'}]
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
@@ -112,9 +109,10 @@ class NetworkSetModuleSpec(unittest.TestCase,
 
     def test_should_raise_exception_when_ethernet_network_not_found(self):
         self.resource.get_by.side_effect = [NETWORK_SET], []
-        self.ethernet_network_client.get_by.return_value = []
+        self.mock_ov_client.ethernet_networks.get_by.return_value = []
 
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES.copy()
+        self.mock_ansible_module.params['data']['networkUris'] = ['Name of a Network']
 
         NetworkSetModule().run()
 
@@ -193,4 +191,4 @@ class NetworkSetModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

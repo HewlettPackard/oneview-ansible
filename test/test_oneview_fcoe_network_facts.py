@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import FcoeNetworkFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -38,16 +39,10 @@ PRESENT_NETWORKS = [{
 }]
 
 
-class FcoeNetworkFactsSpec(unittest.TestCase,
-                           FactsParamsTestCase
-                           ):
-    def setUp(self):
-        self.configure_mocks(self, FcoeNetworkFactsModule)
-        self.fcoe_networks = self.mock_ov_client.fcoe_networks
-        FactsParamsTestCase.configure_client_mock(self, self.fcoe_networks)
-
+@pytest.mark.resource(TestFcoeNetworkFactsModule='fcoe_networks')
+class TestFcoeNetworkFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_fcoe_network(self):
-        self.fcoe_networks.get_all.return_value = PRESENT_NETWORKS
+        self.resource.get_all.return_value = PRESENT_NETWORKS
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         FcoeNetworkFactsModule().run()
@@ -58,7 +53,7 @@ class FcoeNetworkFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_fcoe_network_by_name(self):
-        self.fcoe_networks.get_by.return_value = PRESENT_NETWORKS
+        self.resource.get_by.return_value = PRESENT_NETWORKS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         FcoeNetworkFactsModule().run()
@@ -70,4 +65,4 @@ class FcoeNetworkFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

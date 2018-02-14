@@ -16,9 +16,11 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import mock
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import LogicalInterconnectFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 LOGICAL_INTERCONNECT_NAME = "test"
@@ -100,15 +102,10 @@ def create_params(options=[]):
     return dict(config='config.json', name=LOGICAL_INTERCONNECT_NAME, options=options)
 
 
-class LogicalInterconnectFactsSpec(unittest.TestCase,
-                                   FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectFactsModule)
-        self.logical_interconnects = self.mock_ov_client.logical_interconnects
-        FactsParamsTestCase.configure_client_mock(self, self.logical_interconnects)
-
+@pytest.mark.resource(TestLogicalInterconnectFactsModule='logical_interconnects')
+class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_logical_interconnects(self):
-        self.logical_interconnects.get_all.return_value = ALL_INTERCONNECTS
+        self.resource.get_all.return_value = ALL_INTERCONNECTS
 
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
@@ -120,12 +117,12 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_a_logical_interconnects_by_name(self):
-        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
         self.mock_ansible_module.params = create_params()
 
         LogicalInterconnectFactsModule().run()
 
-        self.logical_interconnects.get_by_name.assert_called_once_with(name=LOGICAL_INTERCONNECT_NAME)
+        self.resource.get_by_name.assert_called_once_with(name=LOGICAL_INTERCONNECT_NAME)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -133,14 +130,14 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_qos_configuration(self):
-        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.logical_interconnects.get_qos_aggregated_configuration.return_value = QOS_CONFIGURATION
+        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.get_qos_aggregated_configuration.return_value = QOS_CONFIGURATION
 
         self.mock_ansible_module.params = create_params(['qos_aggregated_configuration'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.logical_interconnects.get_qos_aggregated_configuration.assert_called_once_with(
+        self.resource.get_qos_aggregated_configuration.assert_called_once_with(
             id_or_uri=LOGICAL_INTERCONNECT_URI
         )
 
@@ -153,13 +150,13 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_snmp_configuration(self):
-        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.logical_interconnects.get_snmp_configuration.return_value = SNMP_CONFIGURATION
+        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.get_snmp_configuration.return_value = SNMP_CONFIGURATION
         self.mock_ansible_module.params = create_params(['snmp_configuration'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.logical_interconnects.get_snmp_configuration.assert_called_once_with(
+        self.resource.get_snmp_configuration.assert_called_once_with(
             id_or_uri=LOGICAL_INTERCONNECT_URI
         )
 
@@ -172,13 +169,13 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_port_monitor(self):
-        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.logical_interconnects.get_port_monitor.return_value = PORT_MONITOR
+        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.get_port_monitor.return_value = PORT_MONITOR
         self.mock_ansible_module.params = create_params(['port_monitor'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.logical_interconnects.get_port_monitor.assert_called_once_with(
+        self.resource.get_port_monitor.assert_called_once_with(
             id_or_uri=LOGICAL_INTERCONNECT_URI
         )
 
@@ -191,13 +188,13 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_internal_vlans(self):
-        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.logical_interconnects.get_internal_vlans.return_value = INTERNAL_VLANS
+        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.get_internal_vlans.return_value = INTERNAL_VLANS
         self.mock_ansible_module.params = create_params(['internal_vlans'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.logical_interconnects.get_internal_vlans.assert_called_once_with(
+        self.resource.get_internal_vlans.assert_called_once_with(
             id_or_uri=LOGICAL_INTERCONNECT_URI
         )
 
@@ -210,13 +207,13 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_forwarding_information_base(self):
-        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.logical_interconnects.get_internal_vlans.return_value = INTERNAL_VLANS
+        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.get_internal_vlans.return_value = INTERNAL_VLANS
         self.mock_ansible_module.params = create_params(['internal_vlans'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.logical_interconnects.get_internal_vlans.assert_called_once_with(
+        self.resource.get_internal_vlans.assert_called_once_with(
             id_or_uri=LOGICAL_INTERCONNECT_URI
         )
 
@@ -229,13 +226,13 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_firmware(self):
-        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.logical_interconnects.get_firmware.return_value = FIRMWARE
+        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.get_firmware.return_value = FIRMWARE
         self.mock_ansible_module.params = create_params(['firmware'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.logical_interconnects.get_firmware.assert_called_once_with(id_or_uri=LOGICAL_INTERCONNECT_URI)
+        self.resource.get_firmware.assert_called_once_with(id_or_uri=LOGICAL_INTERCONNECT_URI)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -246,13 +243,13 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_unassigned_uplink_ports(self):
-        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.logical_interconnects.get_unassigned_uplink_ports.return_value = UNASSIGNED_UPLINK_PORTS
+        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.get_unassigned_uplink_ports.return_value = UNASSIGNED_UPLINK_PORTS
         self.mock_ansible_module.params = create_params(['unassigned_uplink_ports'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.logical_interconnects.get_unassigned_uplink_ports.assert_called_once_with(
+        self.resource.get_unassigned_uplink_ports.assert_called_once_with(
             id_or_uri=LOGICAL_INTERCONNECT_URI
         )
 
@@ -274,13 +271,13 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
             "name": "ES634039453",
             "uri": "/rest/logical-interconnects/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0/ethernetSettings"
         }
-        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.logical_interconnects.get_ethernet_settings.return_value = ethernet_settings
+        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.get_ethernet_settings.return_value = ethernet_settings
         self.mock_ansible_module.params = create_params(['ethernet_settings'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.logical_interconnects.get_ethernet_settings.assert_called_once_with(
+        self.resource.get_ethernet_settings.assert_called_once_with(
             id_or_uri=LOGICAL_INTERCONNECT_URI
         )
 
@@ -293,13 +290,13 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_telemetry_configuration(self):
-        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.logical_interconnects.get_telemetry_configuration.return_value = TELEMETRY_CONFIGURATION
+        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.get_telemetry_configuration.return_value = TELEMETRY_CONFIGURATION
         self.mock_ansible_module.params = create_params(['telemetry_configuration'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.logical_interconnects.get_telemetry_configuration.assert_called_once_with(
+        self.resource.get_telemetry_configuration.assert_called_once_with(
             telemetry_configuration_uri=TELEMETRY_CONF_URI
         )
 
@@ -315,12 +312,12 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
         params = create_params(['qos_aggregated_configuration', 'snmp_configuration', 'port_monitor',
                                 'unassigned_uplink_ports', 'telemetry_configuration'])
 
-        self.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
-        self.logical_interconnects.get_qos_aggregated_configuration.return_value = QOS_CONFIGURATION
-        self.logical_interconnects.get_snmp_configuration.return_value = SNMP_CONFIGURATION
-        self.logical_interconnects.get_port_monitor.return_value = PORT_MONITOR
-        self.logical_interconnects.get_unassigned_uplink_ports.return_value = UNASSIGNED_UPLINK_PORTS
-        self.logical_interconnects.get_telemetry_configuration.return_value = TELEMETRY_CONFIGURATION
+        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.get_qos_aggregated_configuration.return_value = QOS_CONFIGURATION
+        self.resource.get_snmp_configuration.return_value = SNMP_CONFIGURATION
+        self.resource.get_port_monitor.return_value = PORT_MONITOR
+        self.resource.get_unassigned_uplink_ports.return_value = UNASSIGNED_UPLINK_PORTS
+        self.resource.get_telemetry_configuration.return_value = TELEMETRY_CONFIGURATION
         self.mock_ansible_module.params = params
 
         LogicalInterconnectFactsModule().run()
@@ -329,12 +326,12 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
         telemetry_uri = dict(telemetry_configuration_uri=TELEMETRY_CONF_URI)
 
         # validate the calls to the OneView SDK
-        self.logical_interconnects.get_by_name.assert_called_once_with(name=LOGICAL_INTERCONNECT_NAME)
-        self.logical_interconnects.get_qos_aggregated_configuration.assert_called_once_with(**expected_uri)
-        self.logical_interconnects.get_snmp_configuration.assert_called_once_with(**expected_uri)
-        self.logical_interconnects.get_port_monitor.assert_called_once_with(**expected_uri)
-        self.logical_interconnects.get_unassigned_uplink_ports.assert_called_once_with(**expected_uri)
-        self.logical_interconnects.get_telemetry_configuration.assert_called_once_with(**telemetry_uri)
+        self.resource.get_by_name.assert_called_once_with(name=LOGICAL_INTERCONNECT_NAME)
+        self.resource.get_qos_aggregated_configuration.assert_called_once_with(**expected_uri)
+        self.resource.get_snmp_configuration.assert_called_once_with(**expected_uri)
+        self.resource.get_port_monitor.assert_called_once_with(**expected_uri)
+        self.resource.get_unassigned_uplink_ports.assert_called_once_with(**expected_uri)
+        self.resource.get_telemetry_configuration.assert_called_once_with(**telemetry_uri)
 
         # Validate the result data
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -352,7 +349,7 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
     def test_should_fail_when_logical_interconnect_not_exist(self):
         params = create_params(['unassigned_uplink_ports'])
 
-        self.logical_interconnects.get_by_name.return_value = None
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = params
 
@@ -362,4 +359,4 @@ class LogicalInterconnectFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

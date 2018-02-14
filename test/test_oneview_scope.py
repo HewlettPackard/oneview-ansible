@@ -15,11 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-import copy
 
-from ansible.compat.tests import unittest, mock
+import copy
+import mock
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ScopeModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -62,11 +64,8 @@ PARAMS_NO_RESOURCE_ASSIGNMENTS = dict(
 )
 
 
-class ScopeModuleSpec(unittest.TestCase, OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, ScopeModule)
-        self.resource = self.mock_ov_client.scopes
-
+@pytest.mark.resource(TestScopeModule='scopes')
+class TestScopeModule(OneViewBaseTest):
     def test_should_create_new_scope_when_not_found(self):
         self.resource.get_by_name.return_value = None
         self.resource.create.return_value = RESOURCE
@@ -179,4 +178,4 @@ class ScopeModuleSpec(unittest.TestCase, OneViewBaseTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

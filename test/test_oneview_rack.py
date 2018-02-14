@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import RackModule
-from hpe_test_utils import OneViewBaseTestCase
 
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -48,14 +49,11 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class RackModuleSpec(unittest.TestCase, OneViewBaseTestCase):
+@pytest.mark.resource(TestRackModule='racks')
+class TestRackModule(OneViewBaseTest):
     """
     OneViewBaseTestCase provides the mocks used in this test case.
     """
-
-    def setUp(self):
-        self.configure_mocks(self, RackModule)
-        self.resource = self.mock_ov_client.racks
 
     def test_should_create_new_rack(self):
         self.resource.get_by.return_value = []
@@ -128,4 +126,4 @@ class RackModuleSpec(unittest.TestCase, OneViewBaseTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

@@ -15,11 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+
+import mock
+import pytest
 import yaml
 
-from ansible.compat.tests import unittest, mock
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ServerHardwareTypeModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -51,11 +53,8 @@ DICT_DEFAULT_SERVER_HARDWARE_TYPE = yaml.load(YAML_SERVER_HARDWARE_TYPE)["data"]
 DICT_DEFAULT_SERVER_HARDWARE_TYPE_CHANGED = yaml.load(YAML_SERVER_HARDWARE_TYPE_CHANGE)["data"]
 
 
-class ServerHardwareTypeSpec(unittest.TestCase, OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, ServerHardwareTypeModule)
-        self.resource = self.mock_ov_client.server_hardware_types
-
+@pytest.mark.resource(TestServerHardwareTypeModule='server_hardware_types')
+class TestServerHardwareTypeModule(OneViewBaseTest):
     def test_should_update_the_server_hardware_type(self):
         srv_hw_type = DICT_DEFAULT_SERVER_HARDWARE_TYPE.copy()
         srv_hw_type['uri'] = '/rest/id'
@@ -121,4 +120,4 @@ class ServerHardwareTypeSpec(unittest.TestCase, OneViewBaseTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

@@ -15,11 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+
+import mock
+import pytest
 import yaml
 
-from ansible.compat.tests import unittest, mock
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import EthernetNetworkModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 DEFAULT_ETHERNET_NAME = 'Test Ethernet Network'
@@ -96,15 +98,11 @@ DEFAULT_BULK_ENET_TEMPLATE = [
 DICT_PARAMS_WITH_CHANGES = yaml.load(YAML_PARAMS_WITH_CHANGES)["data"]
 
 
-class EthernetNetworkModuleSpec(unittest.TestCase,
-                                OneViewBaseTestCase):
+@pytest.mark.resource(TestEthernetNetworkModule='ethernet_networks')
+class TestEthernetNetworkModule(OneViewBaseTest):
     """
     OneViewBaseTestCase provides the mocks used in this test case
     """
-
-    def setUp(self):
-        self.configure_mocks(self, EthernetNetworkModule)
-        self.resource = self.mock_ov_client.ethernet_networks
 
     def test_should_create_new_ethernet_network(self):
         self.resource.get_by.return_value = []
@@ -396,4 +394,4 @@ class EthernetNetworkModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

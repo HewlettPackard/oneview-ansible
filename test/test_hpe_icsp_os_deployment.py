@@ -16,11 +16,14 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
-from oneview_module_loader import ICspHelper
+import mock
+import pytest
+
 from copy import deepcopy
+from oneview_module_loader import ICspHelper
 
 import hpe_icsp_os_deployment
+
 
 MODULE_NAME = 'hpe_icsp_os_deployment'
 
@@ -55,7 +58,8 @@ DEFAULT_SERVER_UPDATED = {"name": "SP-01",
 DEFAULT_BUILD_PLAN = {"name": "RHEL 7.2 x64", "uri": "/rest/os-deployment-build-plans/222"}
 
 
-class IcspOsDeploymentSpec(unittest.TestCase):
+class TestIcspOsDeployment():
+    @pytest.fixture(autouse=True)
     def setUp(self):
         self.patcher_ansible_module = mock.patch(MODULE_NAME + '.AnsibleModule')
         self.mock_ansible_module = self.patcher_ansible_module.start()
@@ -85,7 +89,7 @@ class IcspOsDeploymentSpec(unittest.TestCase):
         self.mock_build_plans_service = mock.Mock()
         self.mock_icsp.buildPlans.return_value = self.mock_build_plans_service
 
-    def tearDown(self):
+        yield
         self.patcher_ansible_module.stop()
         self.patcher_icsp_service.stop()
         self.patcher_time_sleep.stop()
@@ -126,7 +130,7 @@ class IcspOsDeploymentSpec(unittest.TestCase):
             hpe_icsp_os_deployment.main()
 
         times_sleep_called = self.mock_time_sleep.call_count
-        self.assertEqual(21, times_sleep_called)
+        assert 21 == times_sleep_called
 
         self.mock_ansible_instance.fail_json.assert_called_once_with(msg='Cannot find server in ICSP.')
 
@@ -144,7 +148,7 @@ class IcspOsDeploymentSpec(unittest.TestCase):
             hpe_icsp_os_deployment.main()
 
         times_sleep_called = self.mock_time_sleep.call_count
-        self.assertEqual(21, times_sleep_called)
+        assert 21 == times_sleep_called
 
         self.mock_ansible_instance.fail_json.assert_called_once_with(msg='Cannot find server in ICSP.')
 
@@ -159,7 +163,7 @@ class IcspOsDeploymentSpec(unittest.TestCase):
         hpe_icsp_os_deployment.main()
 
         times_sleep_called = self.mock_time_sleep.call_count
-        self.assertEqual(0, times_sleep_called)
+        assert 0 == times_sleep_called
 
         self.mock_ansible_instance.exit_json.assert_called_once_with(changed=True, msg='OS Deployed Successfully.',
                                                                      ansible_facts={
@@ -178,7 +182,7 @@ class IcspOsDeploymentSpec(unittest.TestCase):
         hpe_icsp_os_deployment.main()
 
         times_sleep_called = self.mock_time_sleep.call_count
-        self.assertEqual(0, times_sleep_called)
+        assert 0 == times_sleep_called
 
         self.mock_ansible_instance.exit_json.assert_called_once_with(changed=True, msg='OS Deployed Successfully.',
                                                                      ansible_facts={
@@ -195,7 +199,7 @@ class IcspOsDeploymentSpec(unittest.TestCase):
         hpe_icsp_os_deployment.main()
 
         times_sleep_called = self.mock_time_sleep.call_count
-        self.assertEqual(0, times_sleep_called)
+        assert 0 == times_sleep_called
 
         self.mock_ansible_instance.exit_json.assert_called_once_with(changed=True, msg='OS Deployed Successfully.',
                                                                      ansible_facts={
@@ -214,7 +218,7 @@ class IcspOsDeploymentSpec(unittest.TestCase):
         hpe_icsp_os_deployment.main()
 
         times_sleep_called = self.mock_time_sleep.call_count
-        self.assertEqual(2, times_sleep_called)
+        assert 2 == times_sleep_called
 
         self.mock_ansible_instance.exit_json.assert_called_once_with(changed=True, msg='OS Deployed Successfully.',
                                                                      ansible_facts={
@@ -287,4 +291,4 @@ class IcspOsDeploymentSpec(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

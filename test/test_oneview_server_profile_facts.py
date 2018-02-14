@@ -16,10 +16,11 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
-from hpe_test_utils import FactsParamsTestCase
-from oneview_module_loader import ServerProfileFactsModule
+import pytest
+
 from copy import deepcopy
+from hpe_test_utils import OneViewBaseFactsTest
+from oneview_module_loader import ServerProfileFactsModule
 
 ERROR_MSG = 'Fake message error'
 ENCLOSURE_GROUP_URI = '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
@@ -99,16 +100,11 @@ PARAMS_WITH_OPTIONS = dict(
 )
 
 
-class ServerProfileFactsSpec(unittest.TestCase,
-                             FactsParamsTestCase):
+@pytest.mark.resource(TestServerProfileFactsModule='server_profiles')
+class TestServerProfileFactsModule(OneViewBaseFactsTest):
     """
     FactsParamsTestCase has common tests for the parameters support.
     """
-
-    def setUp(self):
-        self.configure_mocks(self, ServerProfileFactsModule)
-
-        FactsParamsTestCase.configure_client_mock(self, self.mock_ov_client.server_profiles)
 
     def test_should_get_all_servers(self):
         server_profiles = [
@@ -276,4 +272,4 @@ class ServerProfileFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

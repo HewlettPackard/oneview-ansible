@@ -16,11 +16,12 @@
 # limitations under the License.
 ###
 
+import mock
+import pytest
 
-from ansible.compat.tests import unittest, mock
 from copy import deepcopy
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import VolumeModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -118,12 +119,8 @@ PARAMS_FOR_SNAPSHOT_DELETED = dict(
 )
 
 
-class VolumeModuleSpec(unittest.TestCase,
-                       OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, VolumeModule)
-        self.resource = self.mock_ov_client.volumes
-
+@pytest.mark.resource(TestVolumeModule='volumes')
+class TestVolumeModule(OneViewBaseTest):
     def test_should_create_new_volume_when_not_exist(self):
         self.resource.get_by.return_value = []
         self.resource.create.return_value = EXISTENT_VOLUME
@@ -361,4 +358,4 @@ class VolumeModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

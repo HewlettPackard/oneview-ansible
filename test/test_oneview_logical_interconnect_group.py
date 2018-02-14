@@ -16,10 +16,12 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import mock
+import pytest
+
 from copy import deepcopy
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import LogicalInterconnectGroupModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -90,12 +92,8 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class LogicalInterconnectGroupGeneralSpec(unittest.TestCase,
-                                          OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectGroupModule)
-        self.resource = self.mock_ov_client.logical_interconnect_groups
-
+@pytest.mark.resource(TestLogicalInterconnectGroupModule='logical_interconnect_groups')
+class TestLogicalInterconnectGroupModule(OneViewBaseTest):
     def test_should_create_new_lig(self):
         self.resource.get_by.return_value = []
         self.resource.create.return_value = DEFAULT_LIG_TEMPLATE
@@ -265,4 +263,4 @@ class LogicalInterconnectGroupGeneralSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

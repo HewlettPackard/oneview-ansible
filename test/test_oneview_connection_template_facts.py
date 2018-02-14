@@ -16,42 +16,37 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import ConnectionTemplateFactsModule
-from hpe_test_utils import FactsParamsTestCase
+
+ERROR_MSG = 'Fake message error'
+
+PARAMS_MANDATORY_MISSING = dict(
+    config='config.json',
+)
+
+PARAMS_GET_BY_NAME = dict(
+    config='config.json',
+    name="name1304244267-1467656930023"
+)
+
+PARAMS_GET_ALL = dict(
+    config='config.json',
+)
+
+PARAMS_GET_DEFAULT = dict(
+    config='config.json',
+    options=['defaultConnectionTemplate']
+)
 
 
-class ConnectionTemplatesFactsSpec(unittest.TestCase,
-                                   FactsParamsTestCase):
-
-    ERROR_MSG = 'Fake message error'
-
-    PARAMS_MANDATORY_MISSING = dict(
-        config='config.json',
-    )
-
-    PARAMS_GET_BY_NAME = dict(
-        config='config.json',
-        name="name1304244267-1467656930023"
-    )
-
-    PARAMS_GET_ALL = dict(
-        config='config.json',
-    )
-
-    PARAMS_GET_DEFAULT = dict(
-        config='config.json',
-        options=['defaultConnectionTemplate']
-    )
-
-    def setUp(self):
-        self.configure_mocks(self, ConnectionTemplateFactsModule)
-        self.connection_templates = self.mock_ov_client.connection_templates
-        FactsParamsTestCase.configure_client_mock(self, self.connection_templates)
-
+@pytest.mark.resource(TestConnectionTemplateFactsModule='connection_templates')
+class TestConnectionTemplateFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_connection_templates(self):
-        self.connection_templates.get_all.return_value = {"name": "Storage System Name"}
-        self.mock_ansible_module.params = self.PARAMS_GET_ALL
+        self.resource.get_all.return_value = {"name": "Storage System Name"}
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         ConnectionTemplateFactsModule().run()
 
@@ -61,9 +56,9 @@ class ConnectionTemplatesFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_connection_template_by_name(self):
-        self.connection_templates.get_by.return_value = {"name": "Storage System Name"}
+        self.resource.get_by.return_value = {"name": "Storage System Name"}
 
-        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         ConnectionTemplateFactsModule().run()
 
@@ -73,10 +68,10 @@ class ConnectionTemplatesFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_default_connection_template(self):
-        self.connection_templates.get_default.return_value = {
+        self.resource.get_default.return_value = {
             "name": "default_connection_template"}
 
-        self.mock_ansible_module.params = self.PARAMS_GET_DEFAULT
+        self.mock_ansible_module.params = PARAMS_GET_DEFAULT
 
         ConnectionTemplateFactsModule().run()
 
@@ -87,4 +82,4 @@ class ConnectionTemplatesFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

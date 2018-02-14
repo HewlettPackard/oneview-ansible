@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import LogicalEnclosureFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -43,15 +44,10 @@ PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
 )
 
 
-class LogicalEnclosureFactsSpec(unittest.TestCase,
-                                FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, LogicalEnclosureFactsModule)
-        self.logical_enclosures = self.mock_ov_client.logical_enclosures
-        FactsParamsTestCase.configure_client_mock(self, self.logical_enclosures)
-
+@pytest.mark.resource(TestLogicalEnclosureFactsModule='logical_enclosures')
+class TestLogicalEnclosureFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_logical_enclosure(self):
-        self.logical_enclosures.get_all.return_value = [LOGICAL_ENCLOSURE]
+        self.resource.get_all.return_value = [LOGICAL_ENCLOSURE]
 
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
@@ -63,7 +59,7 @@ class LogicalEnclosureFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_logical_enclosure_by_name(self):
-        self.logical_enclosures.get_by.return_value = [LOGICAL_ENCLOSURE]
+        self.resource.get_by.return_value = [LOGICAL_ENCLOSURE]
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
@@ -75,8 +71,8 @@ class LogicalEnclosureFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_logical_enclosure_by_name_with_options(self):
-        self.logical_enclosures.get_by.return_value = [LOGICAL_ENCLOSURE]
-        self.logical_enclosures.get_script.return_value = "# script code"
+        self.resource.get_by.return_value = [LOGICAL_ENCLOSURE]
+        self.resource.get_script.return_value = "# script code"
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
@@ -90,4 +86,4 @@ class LogicalEnclosureFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

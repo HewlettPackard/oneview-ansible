@@ -16,11 +16,12 @@
 # limitations under the License.
 ###
 
+import mock
+import pytest
 import yaml
 
-from ansible.compat.tests import unittest, mock
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import DatacenterModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -65,15 +66,11 @@ DICT_DEFAULT_DATACENTER = yaml.load(YAML_DATACENTER)["data"]
 DICT_DEFAULT_DATACENTER_CHANGED = yaml.load(YAML_DATACENTER_CHANGE)["data"]
 
 
-class DatacenterModuleSpec(unittest.TestCase,
-                           OneViewBaseTestCase):
+@pytest.mark.resource(TestDatacenterModule='datacenters')
+class TestDatacenterModule(OneViewBaseTest):
     """
     OneViewBaseTestCase has tests for the main function and provides the mocks used in this test case.
     """
-
-    def setUp(self):
-        self.configure_mocks(self, DatacenterModule)
-        self.resource = self.mock_ov_client.datacenters
 
     def test_should_create_new_datacenter(self):
         self.resource.get_by.return_value = []
@@ -157,4 +154,4 @@ class DatacenterModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

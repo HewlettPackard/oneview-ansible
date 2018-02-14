@@ -16,10 +16,11 @@
 # limitations under the License.
 ###
 
-import yaml
+import mock
 import json
+import pytest
+import yaml
 
-from ansible.compat.tests import unittest, mock
 from oneview_module_loader import ICspHelper
 from hpe_icsp_server import (ICspServerModule,
                              main as hpe_icsp_server_main)
@@ -96,7 +97,8 @@ ICSP_JOBS = {}
 JOB_RESOURCE = {"uri": "/rest/os-deployment-jobs/123456"}
 
 
-class IcspServerSpec(unittest.TestCase):
+class TestIcspServer():
+    @pytest.fixture(autouse=True)
     def setUp(self):
         self.patcher_ansible_module = mock.patch(MODULE_NAME + '.AnsibleModule')
         self.mock_ansible_module = self.patcher_ansible_module.start()
@@ -114,7 +116,7 @@ class IcspServerSpec(unittest.TestCase):
         self.mock_server_service = mock.Mock()
         self.mock_icsp.servers.return_value = self.mock_server_service
 
-    def tearDown(self):
+        yield
         self.patcher_ansible_module.stop()
         self.patcher_icsp_service.stop()
 
@@ -164,9 +166,9 @@ class IcspServerSpec(unittest.TestCase):
         try:
             ICspServerModule().run()
         except Exception as e:
-            self.assertEqual("message", e.args[0])
+            assert "message" == e.args[0]
         else:
-            self.fail("Expected Exception was not raised")
+            pytest.fail("Expected Exception was not raised")
 
     def test_should_not_try_delete_server_when_it_is_already_absent(self):
         self.mock_connection.get.return_value = {'members': []}
@@ -210,7 +212,7 @@ class IcspServerSpec(unittest.TestCase):
         # Load called args and convert to dict to prevent str comparison with different reordering (Python 3.5)
         fail_json_args_msg = self.mock_ansible_instance.fail_json.call_args[1]['msg']
         error_raised = json.loads(fail_json_args_msg)
-        self.assertEqual(error_raised, exeption_value)
+        assert error_raised == exeption_value
 
     def test_should_fail_with_args_joined_when_common_exception_raised_on_delete(self):
         self.mock_connection.get.return_value = SERVERS
@@ -283,10 +285,10 @@ class IcspServerSpec(unittest.TestCase):
         try:
             hpe_icsp_server_main()
         except Exception as e:
-            self.assertEqual("message", e.args[0])
+            assert "message" == e.args[0]
         else:
-            self.fail("Expected Exception was not raised")
+            pytest.fail("Expected Exception was not raised")
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

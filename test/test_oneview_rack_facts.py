@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import RackFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -42,12 +43,8 @@ PARAMS_GET_TOPOLOGY = dict(
 )
 
 
-class RackFactsSpec(unittest.TestCase, FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, RackFactsModule)
-        self.resource = self.mock_ov_client.racks
-        FactsParamsTestCase.configure_client_mock(self, self.resource)
-
+@pytest.mark.resource(TestRackFactsModule='racks')
+class TestRackFactsModule(OneViewBaseFactsTest):
     def test_should_get_all(self):
         self.resource.get_all.return_value = {"name": "Rack Name"}
 
@@ -89,4 +86,4 @@ class RackFactsSpec(unittest.TestCase, FactsParamsTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

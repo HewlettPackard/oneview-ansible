@@ -16,79 +16,77 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
-from hpe_test_utils import OneViewBaseTestCase
+import mock
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import FabricModule
 
 FAKE_MSG_ERROR = 'Fake message error'
 NO_CHANGE_MSG = 'No change found'
 
+PRESENT_FABRIC_VLAN_RANGE = dict(
+    name="DefaultFabric",
+    uri="/rest/fabrics/421fe408-589a-4a7e-91c5-a998e1cf3ec1",
+    reservedVlanRange=dict(
+        start=300,
+        length=62
+    ))
 
-class FabricModuleSpec(unittest.TestCase,
-                       OneViewBaseTestCase):
-    PRESENT_FABRIC_VLAN_RANGE = dict(
+FABRIC_PARAMS = dict(
+    config="{{ config }}",
+    state="reserved_vlan_range_updated",
+    data=dict(
         name="DefaultFabric",
-        uri="/rest/fabrics/421fe408-589a-4a7e-91c5-a998e1cf3ec1",
-        reservedVlanRange=dict(
+        reservedVlanRangeParameters=dict(
+            start=300,
+            length=67
+        )
+    )
+)
+
+FABRIC_PARAMS_DATA_IS_EQUALS = dict(
+    config="{{ config }}",
+    state="reserved_vlan_range_updated",
+    data=dict(
+        name="DefaultFabric",
+        reservedVlanRangeParameters=dict(
             start=300,
             length=62
-        ))
-
-    FABRIC_PARAMS = dict(
-        config="{{ config }}",
-        state="reserved_vlan_range_updated",
-        data=dict(
-            name="DefaultFabric",
-            reservedVlanRangeParameters=dict(
-                start=300,
-                length=67
-            )
         )
     )
+)
 
-    FABRIC_PARAMS_DATA_IS_EQUALS = dict(
-        config="{{ config }}",
-        state="reserved_vlan_range_updated",
-        data=dict(
-            name="DefaultFabric",
-            reservedVlanRangeParameters=dict(
-                start=300,
-                length=62
-            )
-        )
-    )
+EXPECTED_FABRIC_VLAN_RANGE = dict(start=300, length=67)
 
-    EXPECTED_FABRIC_VLAN_RANGE = dict(start=300, length=67)
 
-    def setUp(self):
-        self.configure_mocks(self, FabricModule)
-        self.resource = self.mock_ov_client.fabrics
-
+@pytest.mark.resource(TestFabricModule='fabrics')
+class TestFabricModule(OneViewBaseTest):
     def test_should_update_vlan_range(self):
         # Mock OneView resource functions
-        self.resource.get_by.return_value = [self.PRESENT_FABRIC_VLAN_RANGE]
-        self.resource.update_reserved_vlan_range.return_value = self.PRESENT_FABRIC_VLAN_RANGE
+        self.resource.get_by.return_value = [PRESENT_FABRIC_VLAN_RANGE]
+        self.resource.update_reserved_vlan_range.return_value = PRESENT_FABRIC_VLAN_RANGE
 
         # Mock Ansible params
-        self.mock_ansible_module.params = self.FABRIC_PARAMS
+        self.mock_ansible_module.params = FABRIC_PARAMS
 
         FabricModule().run()
 
         self.resource.update_reserved_vlan_range.assert_called_once_with(
-            self.PRESENT_FABRIC_VLAN_RANGE["uri"],
-            self.EXPECTED_FABRIC_VLAN_RANGE
+            PRESENT_FABRIC_VLAN_RANGE["uri"],
+            EXPECTED_FABRIC_VLAN_RANGE
         )
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts=dict(fabric=self.PRESENT_FABRIC_VLAN_RANGE)
+            ansible_facts=dict(fabric=PRESENT_FABRIC_VLAN_RANGE)
         )
 
     def test_should_fail_update_vlan_range_when_fabric_not_found(self):
         self.resource.get_by.return_value = []
-        self.resource.update_reserved_vlan_range.return_value = self.PRESENT_FABRIC_VLAN_RANGE
+        self.resource.update_reserved_vlan_range.return_value = PRESENT_FABRIC_VLAN_RANGE
 
-        self.mock_ansible_module.params = self.FABRIC_PARAMS
+        self.mock_ansible_module.params = FABRIC_PARAMS
 
         FabricModule().run()
 
@@ -96,11 +94,11 @@ class FabricModuleSpec(unittest.TestCase,
 
     def test_should_not_update_when_data_is_equals(self):
         # Mock OneView resource functions
-        self.resource.get_by.return_value = [self.PRESENT_FABRIC_VLAN_RANGE]
-        self.resource.update_reserved_vlan_range.return_value = self.PRESENT_FABRIC_VLAN_RANGE
+        self.resource.get_by.return_value = [PRESENT_FABRIC_VLAN_RANGE]
+        self.resource.update_reserved_vlan_range.return_value = PRESENT_FABRIC_VLAN_RANGE
 
         # Mock Ansible params
-        self.mock_ansible_module.params = self.FABRIC_PARAMS_DATA_IS_EQUALS
+        self.mock_ansible_module.params = FABRIC_PARAMS_DATA_IS_EQUALS
 
         FabricModule().run()
 
@@ -109,5 +107,9 @@ class FabricModuleSpec(unittest.TestCase,
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=NO_CHANGE_MSG,
-            ansible_facts=dict(fabric=self.PRESENT_FABRIC_VLAN_RANGE)
+            ansible_facts=dict(fabric=PRESENT_FABRIC_VLAN_RANGE)
         )
+
+
+if __name__ == '__main__':
+    pytest.main([__file__])

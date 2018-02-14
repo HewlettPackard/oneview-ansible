@@ -13,11 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+
+import mock
+import pytest
 import yaml
 
-from ansible.compat.tests import unittest, mock
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import StorageSystemModule
-from hpe_test_utils import OneViewBaseTestCase
 
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -117,11 +119,10 @@ DICT_DEFAULT_STORAGE_SYSTEM_500 = yaml.load(YAML_STORAGE_SYSTEM_500)["data"]
 del DICT_DEFAULT_STORAGE_SYSTEM_500['credentials']['password']
 
 
-class StorageSystemModuleSpec(unittest.TestCase,
-                              OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, StorageSystemModule)
-        self.resource = self.mock_ov_client.storage_systems
+@pytest.mark.resource(TestStorageSystemModule='storage_systems')
+class TestStorageSystemModule(OneViewBaseTest):
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self, setUp):
         self.mock_ov_client.api_version = 300
 
     def test_should_add_new_storage_system_with_credentials_from_api300(self):
@@ -273,4 +274,4 @@ class StorageSystemModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

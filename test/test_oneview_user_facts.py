@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import UserFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -38,14 +39,10 @@ PRESENT_USERS = [{
 }]
 
 
-class UserFactsSpec(unittest.TestCase, FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, UserFactsModule)
-        self.users = self.mock_ov_client.users
-        FactsParamsTestCase.configure_client_mock(self, self.users)
-
+@pytest.mark.resource(TestUserFactsModule='users')
+class TestUserFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_users(self):
-        self.users.get_all.return_value = PRESENT_USERS
+        self.resource.get_all.return_value = PRESENT_USERS
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         UserFactsModule().run()
@@ -56,7 +53,7 @@ class UserFactsSpec(unittest.TestCase, FactsParamsTestCase):
         )
 
     def test_should_get_user_by_name(self):
-        self.users.get_by.return_value = PRESENT_USERS
+        self.resource.get_by.return_value = PRESENT_USERS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         UserFactsModule().run()
@@ -68,4 +65,4 @@ class UserFactsSpec(unittest.TestCase, FactsParamsTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])
