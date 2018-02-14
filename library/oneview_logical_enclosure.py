@@ -84,6 +84,8 @@ EXAMPLES = '''
             firmwareBaselineUri: "/rest/firmware-drivers/SPPGen9Snap3_2015_0221_71"
             firmwareUpdateOn: "EnclosureOnly"
             forceInstallFirmware: "false"
+        custom_headers:
+            if-Match: '*'
   delegate_to: localhost
 
 # This play is compatible with Synergy Enclosures
@@ -100,6 +102,8 @@ EXAMPLES = '''
             validateIfLIFirmwareUpdateIsNonDisruptive: "true"
             logicalInterconnectUpdateMode: "Orchestrated"
             updateFirmwareOnUnmanagedInterconnect: "true"
+        custom_headers:
+            if-Match: '*'
   delegate_to: localhost
 
 - name: Update the Logical Enclosure configuration script
@@ -276,7 +280,8 @@ class LogicalEnclosureModule(OneViewModuleBase):
         logical_enclosure = self.oneview_client.logical_enclosures.patch(logical_enclosure['uri'],
                                                                          operation="replace",
                                                                          path="/firmware",
-                                                                         value=data['firmware'])
+                                                                         value=data['firmware'],
+                                                                         custom_headers=data.get('custom_headers'))
 
         return True, self.MSG_FIRMWARE_UPDATED, dict(logical_enclosure=logical_enclosure)
 
