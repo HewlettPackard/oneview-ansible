@@ -23,9 +23,9 @@ ANSIBLE_METADATA = {'status': ['stableinterface'],
 DOCUMENTATION = '''
 ---
 module: oneview_os_deployment_plan_facts
-short_description: Retrieve facts about one or more Os Deployment Plans.
+short_description: Retrieve facts about one or more OS Deployment Plans.
 description:
-    - Retrieve facts about one or more of the Os Deployment Plans from OneView.
+    - Retrieve facts about one or more of the OS Deployment Plans from OneView.
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"

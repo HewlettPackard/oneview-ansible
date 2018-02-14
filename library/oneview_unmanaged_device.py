@@ -43,7 +43,7 @@ options:
             - List with Unmanaged Device properties.
         required: true
 notes:
-    - "To rename an Unamnaged Device you must inform a C(newName) in the data argument. The rename is non-idempotent"
+    - "To rename an Unmanaged Device you must inform a C(newName) in the data argument. The rename is non-idempotent"
 
 extends_documentation_fragment:
     - oneview

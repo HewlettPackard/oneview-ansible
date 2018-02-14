@@ -67,7 +67,7 @@
   * [oneview_managed_san_facts - Retrieve facts about the OneView Managed SANs.](#oneview_managed_san_facts)
   * [oneview_network_set - Manage OneView Network Set resources.](#oneview_network_set)
   * [oneview_network_set_facts - Retrieve facts about the OneView Network Sets](#oneview_network_set_facts)
-  * [oneview_os_deployment_plan_facts - Retrieve facts about one or more Os Deployment Plans.](#oneview_os_deployment_plan_facts)
+  * [oneview_os_deployment_plan_facts - Retrieve facts about one or more OS Deployment Plans.](#oneview_os_deployment_plan_facts)
   * [oneview_os_deployment_server - Manage OneView Deployment Server resources.](#oneview_os_deployment_server)
   * [oneview_os_deployment_server_facts - Retrieve facts about one or more OS Deployment Servers.](#oneview_os_deployment_server_facts)
   * [oneview_power_device - Manage OneView Power Device resources.](#oneview_power_device)
@@ -88,7 +88,7 @@
   * [oneview_scope - Manage OneView Scope resources.](#oneview_scope)
   * [oneview_scope_facts - Retrieve facts about one or more of the OneView Scopes.](#oneview_scope_facts)
   * [oneview_server_hardware - Manage OneView Server Hardware resources.](#oneview_server_hardware)
-  * [oneview_server_hardware_facts - Retrieve facts about the OneView Server Hardwares.](#oneview_server_hardware_facts)
+  * [oneview_server_hardware_facts - Retrieve facts about the OneView Server Hardware.](#oneview_server_hardware_facts)
   * [oneview_server_hardware_type - Manage OneView Server Hardware Type resources.](#oneview_server_hardware_type)
   * [oneview_server_hardware_type_facts - Retrieve facts about Server Hardware Types of the OneView.](#oneview_server_hardware_type_facts)
   * [oneview_server_profile - Manage OneView Server Profile resources](#oneview_server_profile)
@@ -144,7 +144,7 @@ Deploy the operating system on a server using HPE ICsp.
 | username  |   Yes  |  | |  ICsp username.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -202,7 +202,7 @@ Adds, removes and configures servers in ICsp.
 | username  |   Yes  |  | |  ICsp username.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -275,7 +275,7 @@ Manage the Artifact Bundle resource.
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>downloaded</li>  <li>archive_downloaded</li>  <li>backup_uploaded</li>  <li>backup_created</li>  <li>extracted</li>  <li>backup_extracted</li> </ul> |  Indicates the desired state for the Artifact Bundle resource. `present` will ensure data properties are compliant with OneView. When the artifact bundle already exists, only the name is updated. Changes in any other attribute value is ignored. `absent` will remove the resource from OneView, if it exists. `downloaded` will download the Artifact Bundle to the file path provided. `archive_downloaded` will download the Artifact Bundle archive to the file path provided. `backup_uploaded` will upload the Backup for the Artifact Bundle from the file path provided. `backup_created` will create a Backup for the Artifact Bundle. `extracted` will extract an Artifact Bundle. `backup_extracted` will extract an Artifact Bundle from the Backup.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -412,7 +412,7 @@ Retrieve facts about the Artifact Bundle.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -505,7 +505,7 @@ Manages Image Stream OS Build Plan resources.
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the OS Build Plan resource. `present` will ensure data properties are compliant with Synergy Image Streamer. `absent` will remove the resource from Synergy Image Streamer, if it exists.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -580,7 +580,7 @@ Retrieve facts about one or more of the Image Streamer Build Plans.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -651,7 +651,7 @@ Retrieve facts about the Image Streamer Deployment Groups.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -725,7 +725,7 @@ Manage Image Streamer Deployment Plan resources.
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Deployment Plan resource. `present` will ensure data properties are compliant with Synergy Image Streamer. `absent` will remove the resource from Synergy Image Streamer, if it exists.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -801,7 +801,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -872,7 +872,7 @@ Manage Image Streamer Golden Image resources.
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>downloaded</li>  <li>archive_downloaded</li> </ul> |  Indicates the desired state for the Golden Image resource. `present` will ensure data properties are compliant with Synergy Image Streamer. `absent` will remove the resource from Synergy Image Streamer, if it exists. `downloaded` will download the Golden Image to the file path provided. `archive_downloaded` will download the Golden Image archive to the file path provided.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -977,7 +977,7 @@ Retrieve facts about one or more of the Image Streamer Golden Image.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -1048,7 +1048,7 @@ Retrieve facts about the Image Streamer OS Volumes.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -1122,7 +1122,7 @@ Manage the Image Streamer Plan Script resources.
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>differences_retrieved</li> </ul> |  Indicates the desired state for the Plan Script resource. `present` will ensure data properties are compliant with Synergy Image Streamer. `absent` will remove the resource from Synergy Image Streamer, if it exists. `differences_retrieved` will retrieve the modified contents of the Plan Script as per the selected attributes.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -1211,7 +1211,7 @@ Retrieve facts about the Image Streamer Plan Scripts.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -1281,7 +1281,7 @@ Retrieve facts about the OneView Alerts.
 | params  |   No  |  | |  List with parameters to help filter the alerts. Params allowed: `count`, `fields`, `filter`, `query`, `sort`, `start`, and `view`.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -1354,7 +1354,7 @@ Manage OneView Appliance Locale and Time Configuration.
 | state  |   |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Appliance Locale and Time Configuration. `present` will ensure data properties are compliant with OneView.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -1406,7 +1406,7 @@ Retrieve the facts about the OneView appliance time and locale configuration.
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -1459,7 +1459,7 @@ Manage the OneView Connection Template resources.
 | state  |   Yes  |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Connection Template resource. `present` will ensure data properties are compliant with OneView.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -1520,7 +1520,7 @@ Retrieve facts about the OneView Connection Templates.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -1601,7 +1601,7 @@ Manage OneView Data Center resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -1701,7 +1701,7 @@ Retrieve facts about the OneView Data Centers.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -1782,7 +1782,7 @@ Manage OneView Drive Enclosure resources.
 | state  |   |  | <ul> <li>power_state_set</li>  <li>uid_state_set</li>  <li>hard_reset_state_set</li>  <li>refresh_state_set</li> </ul> |  Indicates the desired state for the Drive Enclosure resource. `power_state_set` will set the power state for the Drive Enclosure. `uid_state_set` will set the uid state for the Drive Enclosure. `hard_reset_state_set` will request a hard reset of the Drive Enclosure. `refresh_state_set` will refresh a Drive Enclosure.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -1863,7 +1863,7 @@ Retrieve the facts about one or more of the OneView Drive Enclosures.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -1947,7 +1947,7 @@ Manage OneView Enclosure resources.
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li>  <li>appliance_bays_powered_on</li>  <li>uid_on</li>  <li>uid_off</li>  <li>manager_bays_uid_on</li>  <li>manager_bays_uid_off</li>  <li>manager_bays_power_state_e_fuse</li>  <li>manager_bays_power_state_reset</li>  <li>appliance_bays_power_state_e_fuse</li>  <li>device_bays_power_state_e_fuse</li>  <li>device_bays_power_state_reset</li>  <li>interconnect_bays_power_state_e_fuse</li>  <li>manager_bays_role_active</li>  <li>device_bays_ipv4_removed</li>  <li>interconnect_bays_ipv4_removed</li>  <li>support_data_collection_set</li> </ul> |  Indicates the desired state for the Enclosure resource. `present` will ensure data properties are compliant with OneView. You can rename the enclosure providing an attribute `newName`. You can also rename the rack providing an attribute `rackName`. `absent` will remove the resource from OneView, if it exists. `reconfigured` will reapply the appliance's configuration on the enclosure. This includes running the same configuration steps that were performed as part of the enclosure add. `refreshed` will refresh the enclosure along with all of its components, including interconnects and servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is removed. `appliance_bays_powered_on` will set the appliance bay power state on. `uid_on` will set the UID state on. `uid_off` will set the UID state off. `manager_bays_uid_on` will set the UID state on for the Synergy Frame Link Module. `manager_bays_uid_off` will set the UID state off for the Synergy Frame Link Module. `manager_bays_power_state_e_fuse` will E-Fuse the Synergy Frame Link Module bay in the path. `manager_bays_power_state_reset` will Reset the Synergy Frame Link Module bay in the path. `appliance_bays_power_state_e_fuse` will E-Fuse the appliance bay in the path. `device_bays_power_state_e_fuse` will E-Fuse the device bay in the path. `device_bays_power_state_reset` will Reset the device bay in the path. `interconnect_bays_power_state_e_fuse` will E-Fuse the IC bay in the path. `manager_bays_role_active` will set the active Synergy Frame Link Module. `device_bays_ipv4_removed` will release the IPv4 address in the device bay. `interconnect_bays_ipv4_removed` will release the IPv4 address in the interconnect bay. `support_data_collection_set` will set the support data collection state for the enclosure. The supported values for this state are `PendingCollection`, `Completed`, `Error` and `NotSupported`  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -2174,7 +2174,7 @@ Retrieve facts about one or more Enclosures
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -2299,7 +2299,7 @@ Manage OneView Enclosure Group resources.
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Enclosure Group resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -2382,7 +2382,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -2460,7 +2460,7 @@ Manage OneView Ethernet Network resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -2578,7 +2578,7 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -2663,7 +2663,7 @@ Manage OneView Events.
 | state  |   |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Event. `present` will ensure data properties are compliant with OneView. This operation is non-idempotent.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -2723,7 +2723,7 @@ Retrieve the facts about one or more of the OneView Events.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -2787,7 +2787,7 @@ Manage OneView Fabric resources.
 | name  |   No  |  | |  Fabric name.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -2847,7 +2847,7 @@ Retrieve the facts about one or more of the OneView Fabrics.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -2928,7 +2928,7 @@ Manage OneView Fibre Channel Network resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -3006,7 +3006,7 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -3080,7 +3080,7 @@ Manage OneView FCoE Network resources
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -3154,7 +3154,7 @@ Retrieve the facts about one or more of the OneView FCoE Networks
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -3228,7 +3228,7 @@ Upload OneView Firmware Bundle resources.
 | state  |   |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Firmware Driver resource. `present` will ensure that the firmware bundle is at OneView.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -3285,7 +3285,7 @@ Provides an interface to remove Firmware Driver resources.
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Firmware Driver. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -3349,7 +3349,7 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -3420,7 +3420,7 @@ Manage OneView ID pools IPV4 Range resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -3483,7 +3483,7 @@ Retrieve the facts about one or more of the OneView ID Pools IPV4 Ranges.
 | uri  |   No  |  | |  ID Pools IPV4 Range ID or URI.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -3577,7 +3577,7 @@ Manage OneView ID pools IPV4 Subnet resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -3640,7 +3640,7 @@ Retrieve the facts about one or more of the OneView ID Pools IPV4 Subnets.
 | uri  |   No  |  | |  ID Pools IPV4 Subnet ID or URI.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -3711,7 +3711,7 @@ Manage the OneView Interconnect resources.
 | state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>device_reset</li>  <li>update_ports</li>  <li>reset_port_protection</li>  <li>reconfigured</li> </ul> |  Indicates the desired state for the Interconnect resource. `powered_on` turns the power on. `powered_off` turns the power off. `uid_on` turns the UID light on. `uid_off` turns the UID light off. `device_reset` perform a device reset. `update_ports` updates the interconnect ports. `reset_port_protection` triggers a reset of port protection. `reconfigured` will reapply the appliance's configuration on the interconnect. This includes running the same configuration steps that were performed as part of the interconnect add by the enclosure.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -3783,7 +3783,7 @@ Retrieve facts about one or more of the OneView Interconnects.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -3935,7 +3935,7 @@ Retrieve facts about the OneView Interconnect Link Topologies.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -4008,7 +4008,7 @@ Retrieve facts about one or more of the OneView Interconnect Types.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -4079,7 +4079,7 @@ Retrieve facts about the OneView Internal Link Sets.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set. `query`: A general query string to narrow the list of resources returned. `fields`: Specifies which fields should be returned in the result set. `view`: Return a specific subset of the attributes of the resource or collection, by specifying the name of a predefined view.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -4152,7 +4152,7 @@ Retrieve facts about one or more of the OneView Logical Downlinks.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -4234,7 +4234,7 @@ Manage OneView Logical Enclosure resources.
 | state  |   Yes  |  | <ul> <li>present</li>  <li>firmware_updated</li>  <li>script_updated</li>  <li>dumped</li>  <li>reconfigured</li>  <li>updated_from_group</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Enclosure resource. `present` ensures data properties are compliant with OneView. You can rename the enclosure providing an attribute `newName`. `firmware_updated` updates the firmware for the Logical Enclosure. `script_updated` updates the Logical Enclosure configuration script. `dumped` generates a support dump for the Logical Enclosure. `reconfigured` reconfigures all enclosures associated with a logical enclosure. `updated_from_group` makes the logical enclosure consistent with the enclosure group. `absent` will remove the resource from OneView, if it exists.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -4381,7 +4381,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -4467,7 +4467,7 @@ Manage OneView Logical Interconnect resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -4640,7 +4640,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -4749,7 +4749,7 @@ Manage OneView Logical Interconnect Group resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -4840,7 +4840,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -4927,7 +4927,7 @@ Manage OneView Logical Switch resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -5064,7 +5064,7 @@ Retrieve the facts about one or more of the OneView Logical Switches.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -5138,7 +5138,7 @@ Manage OneView Logical Switch Group resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -5231,7 +5231,7 @@ Retrieve facts about OneView Logical Switch Groups.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -5303,7 +5303,7 @@ Retrieve the facts about login details
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -5357,7 +5357,7 @@ Manage OneView Managed SAN resources.
 | state  |   Yes  |  | <ul> <li>present</li>  <li>refresh_state_set</li>  <li>endpoints_csv_file_created</li>  <li>issues_report_created</li> </ul> |  Indicates the desired state for the Managed SAN resource. `present` ensures data properties are compliant with OneView. `refresh_state_set` updates the refresh state of the Managed SAN. `endpoints_csv_file_created` creates a SAN endpoints CSV file. `issues_report_created` creates an unexpected zoning report for a SAN.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -5453,7 +5453,7 @@ Retrieve facts about the OneView Managed SANs.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `query`: A general query string to narrow the list of resources returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -5551,7 +5551,7 @@ Manage OneView Network Set resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -5636,7 +5636,7 @@ Retrieve facts about the OneView Network Sets
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -5752,7 +5752,7 @@ Retrieve facts about one or more Os Deployment Plans.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -5800,8 +5800,8 @@ Retrieve facts about one or more Os Deployment Plans.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| os_deployment_plan_custom_attributes   | Has the editable Custom Attribute facts of the Os Deployment Plans in the Server Profiles format. |  When requested, but can be empty. |  dict |
-| os_deployment_plans   | Has all the OneView facts about the Os Deployment Plans. |  Always, but can be null. |  dict |
+| os_deployment_plan_custom_attributes   | Has the editable Custom Attribute facts of the OS Deployment Plans in the Server Profiles format. |  When requested, but can be empty. |  dict |
+| os_deployment_plans   | Has all the OneView facts about the OS Deployment Plans. |  Always, but can be null. |  dict |
 
 
 #### Notes
@@ -5836,7 +5836,7 @@ Manage OneView Deployment Server resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -5915,7 +5915,7 @@ Retrieve facts about one or more OS Deployment Servers.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set. `query`: A general query string to narrow the list of resources returned. `fields`: Specifies which fields should be returned in the result set. `view`: Return a specific subset of the attributes of the resource or collection, by specifying the name of a predefined view.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -5997,7 +5997,7 @@ Manage OneView Power Device resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -6103,7 +6103,7 @@ Retrieve facts about the OneView Power Devices.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `query`: A general query string to narrow the list of resources returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -6207,7 +6207,7 @@ Manage OneView Racks resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -6291,7 +6291,7 @@ Retrieve facts about Rack resources.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -6372,7 +6372,7 @@ Manage OneView SAN Manager resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -6468,7 +6468,7 @@ Retrieve facts about one or more of the OneView SAN Managers
 | provider_display_name  |   |  | |  Provider Display Name.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -6543,7 +6543,7 @@ Manage the OneView SAS Interconnect resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -6603,7 +6603,7 @@ Retrieve facts about the OneView SAS Interconnects.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -6670,7 +6670,7 @@ Retrieve facts about the OneView SAS Interconnect Types.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -6743,7 +6743,7 @@ Manage OneView SAS Logical Interconnect resources.
 | state  |   Yes  |  | <ul> <li>compliant</li>  <li>drive_enclosure_replaced</li>  <li>configuration_updated</li>  <li>firmware_updated</li> </ul> |  Indicates the desired state for the SAS Logical Interconnect resources. `compliant` brings the list of SAS Logical Interconnect back to a consistent state. `configuration_updated` asynchronously applies or re-applies the SAS Logical Interconnect configuration to all managed interconnects. `firmware_updated` installs firmware to a SAS Logical Interconnect. `drive_enclosure_replaced` replacement operation of a drive enclosure. * All of them are non-idempotent.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -6844,7 +6844,7 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnects.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -6927,7 +6927,7 @@ Manage OneView SAS Logical Interconnect Group resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -7020,7 +7020,7 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnect Groups.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -7090,7 +7090,7 @@ Retrieve facts about one or more of the OneView SAS Logical JBOD Attachments.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -7165,7 +7165,7 @@ Retrieve facts about one or more of the OneView SAS Logical JBODs.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -7250,7 +7250,7 @@ Manage OneView Scope resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -7349,7 +7349,7 @@ Retrieve facts about one or more of the OneView Scopes.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: c(start): The first item to return, using 0-based indexing. c(count): The number of resources to return. c(query): A general query string to narrow the list of resources returned. c(sort): The sort order of the returned data set. c(view): Returns a specific subset of the attributes of the resource or collection, by specifying the name of a predefined view.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -7424,7 +7424,7 @@ Manage OneView Server Hardware resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -7550,7 +7550,7 @@ Retrieve facts about the OneView Server Hardwares.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -7691,7 +7691,7 @@ Manage OneView Server Hardware Type resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -7764,7 +7764,7 @@ Retrieve facts about Server Hardware Types of the OneView.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -7836,7 +7836,7 @@ Manage OneView Server Profile resources
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -7984,7 +7984,7 @@ Retrieve facts about the OneView Server Profiles.
 | uri  |   |  | |  Server Profile uri.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -8135,7 +8135,7 @@ Manage OneView Server Profile Template resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -8183,7 +8183,7 @@ Manage OneView Server Profile Template resources.
 
 - For the following data, you can provide either a name  or a URI: enclosureGroupName or enclosureGroupUri, osDeploymentPlanName or osDeploymentPlanUri (on the osDeploymentSettings), networkName or networkUri (on the connections list), volumeName or volumeUri (on the volumeAttachments list), volumeStoragePoolName or volumeStoragePoolUri (on the volumeAttachments list), volumeStorageSystemName or volumeStorageSystemUri (on the volumeAttachments list), serverHardwareTypeName or  serverHardwareTypeUri, enclosureName or enclosureUri, firmwareBaselineName or firmwareBaselineUri (on the firmware), and sasLogicalJBODName or sasLogicalJBODUri (on the sasLogicalJBODs list)
 
-- If you define the volumeUri as null in the volumeAttachments list, it will be understood that the volume does not exist, so it will be created along with the server profile. Be warned that everytime this option is executed it will always be understood that a new volume needs to be created, so this will not be idempotent. It is strongly recommended to ensure volumes with ansible and then assign them to the desired server profile template.
+- If you define the volumeUri as null in the volumeAttachments list, it will be understood that the volume does not exist, so it will be created along with the server profile. Be warned that every time this option is executed it will always be understood that a new volume needs to be created, so this will not be idempotent. It is strongly recommended to ensure volumes with Ansible and then assign them to the desired server profile template.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
@@ -8216,7 +8216,7 @@ Retrieve facts about the Server Profile Templates from OneView.
 | uri  |   |  | |  Server Profile Template uri.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -8302,7 +8302,7 @@ Manage OneView Storage Pool resources.
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage Pool resource. `present` will ensure data properties are compliant with OneView. From API500 onwards it is only possible to update its state. `absent` will remove the resource from OneView, if it exists. From API500 onwards absent state is immutable.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -8387,7 +8387,7 @@ Retrieve facts about one or more Storage Pools.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -8477,7 +8477,7 @@ Manage OneView Storage System resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -8582,7 +8582,7 @@ Retrieve facts about the OneView Storage Systems
 | storage_hostname  |   |  | |  Storage System IP or hostname.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -8714,7 +8714,7 @@ Provides an interface to remove extra presentations from a specified server prof
 | state  |   Yes  |  | <ul> <li>extra_presentations_removed</li> </ul> |  Indicates the desired state for the Storage Volume Attachment `extra_presentations_removed` will remove extra presentations from a specified server profile.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -8784,7 +8784,7 @@ Retrieve facts about the OneView Storage Volume Attachments.
 | storageVolumeUri  |   No  |  | |  Storage Volume uri.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -8904,7 +8904,7 @@ Manage OneView Storage Volume Template resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -8980,7 +8980,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -9068,7 +9068,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
 Provides an interface to remove ToR Switch resources.
 
 #### Synopsis
- Provides an interface to remove Top of Rack(ToR) Switch resources. The switch resource will be removed if it is in an unmanaged state. If the switch resource is associated with a Logical Switch, it's removal is treated as a hardware removal only. A reference to the switch is mantained, and the resource is marked as 'Absent'.
+ Provides an interface to remove Top of Rack(ToR) Switch resources. The switch resource will be removed if it is in an unmanaged state. If the switch resource is associated with a Logical Switch, its removal is treated as a hardware removal only. A reference to the switch is mantained, and the resource is marked as 'Absent'.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -9083,7 +9083,7 @@ Provides an interface to remove ToR Switch resources.
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>ports_updated</li> </ul> |  Indicates the desired state for the Switch resource. `present` will update the switch scopes, if they differ from what is declared. `absent` will remove the resource from OneView, if it exists. `ports_updated` will update the switch ports.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -9132,7 +9132,7 @@ Retrieve facts about the OneView Switches.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -9207,7 +9207,7 @@ Retrieve facts about the OneView Switch Types.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -9277,7 +9277,7 @@ Retrieve facts about the OneView Tasks.
 | params  |   No  |  | |  List with parameters to help filter the tasks. Params allowed: `count`, `fields`, `filter`, `query`, `sort`, `start`, and `view`.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -9342,7 +9342,7 @@ Manage OneView Unmanaged Device resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -9408,7 +9408,7 @@ Manage OneView Unmanaged Device resources.
 
 #### Notes
 
-- To rename an Unamnaged Device you must inform a `newName` in the data argument. The rename is non-idempotent
+- To rename an Unmanaged Device you must inform a `newName` in the data argument. The rename is non-idempotent
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
@@ -9436,11 +9436,11 @@ Retrieve facts about one or more of the OneView Unmanaged Device.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Unmanaged Device name.  |
-| options  |   |  | |  List with options to gather additional facts about the Unmanaged Device. Options allowed: `environmental_configuration` gets a description of the environmental configuration for the Unmnaged Device.  |
+| options  |   |  | |  List with options to gather additional facts about the Unmanaged Device. Options allowed: `environmental_configuration` gets a description of the environmental configuration for the Unmanaged Device.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -9522,7 +9522,7 @@ Manage OneView Uplink Set resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -9609,7 +9609,7 @@ Retrieve facts about one or more of the OneView Uplink Sets.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -9680,7 +9680,7 @@ Manage OneView Users.
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>set_password</li> </ul> |  Indicates the desired state for the User. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists. `set_password` will set a user password to the value specified. This operation is non-idempotent.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -9765,7 +9765,7 @@ Retrieve the facts about one or more of the OneView Users.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -9834,7 +9834,7 @@ Returns the range of possible API versions supported by the appliance
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -9889,7 +9889,7 @@ Manage OneView Volume resources.
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -10040,7 +10040,7 @@ Retrieve facts about the OneView Volumes.
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
- 
+
 #### Examples
 
 ```yaml
@@ -10120,4 +10120,3 @@ Retrieve facts about the OneView Volumes.
 
 
 ---
-
