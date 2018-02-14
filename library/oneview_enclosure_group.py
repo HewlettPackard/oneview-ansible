@@ -54,7 +54,7 @@ EXAMPLES = '''
     state: present
     data:
         name: "Enclosure Group 1"
-        stackingMode: "Enclosure"
+        stackingMode: "Enclosure" # Not supported in V600
         interconnectBayMappings:
             - interconnectBay: 1
             - interconnectBay: 2

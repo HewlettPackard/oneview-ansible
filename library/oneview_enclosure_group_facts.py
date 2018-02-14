@@ -66,6 +66,7 @@ EXAMPLES = '''
       count: 3
       sort: 'name:descending'
       filter: 'status=OK'
+      scope_uris: '/rest/scopes/cd237b60-09e2-45c4-829e-082e318a6d2a'
 
 - debug: var=enclosure_groups
 

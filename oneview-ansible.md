@@ -2310,7 +2310,7 @@ Manage OneView Enclosure Group resources.
     state: present
     data:
         name: "Enclosure Group 1"
-        stackingMode: "Enclosure"
+        stackingMode: "Enclosure" # Not supported in V600
         interconnectBayMappings:
             - interconnectBay: 1
             - interconnectBay: 2
@@ -2402,6 +2402,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
       count: 3
       sort: 'name:descending'
       filter: 'status=OK'
+      scope_uris: '/rest/scopes/cd237b60-09e2-45c4-829e-082e318a6d2a'
 
 - debug: var=enclosure_groups
 
