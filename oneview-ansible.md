@@ -4261,6 +4261,8 @@ Manage OneView Logical Enclosure resources.
             firmwareBaselineUri: "/rest/firmware-drivers/SPPGen9Snap3_2015_0221_71"
             firmwareUpdateOn: "EnclosureOnly"
             forceInstallFirmware: "false"
+        custom_headers:
+            if-Match: '*'
   delegate_to: localhost
 
 # This play is compatible with Synergy Enclosures
@@ -4277,6 +4279,8 @@ Manage OneView Logical Enclosure resources.
             validateIfLIFirmwareUpdateIsNonDisruptive: "true"
             logicalInterconnectUpdateMode: "Orchestrated"
             updateFirmwareOnUnmanagedInterconnect: "true"
+        custom_headers:
+            if-Match: '*'
   delegate_to: localhost
 
 - name: Update the Logical Enclosure configuration script
@@ -4401,6 +4405,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
       count: 3
       sort: 'name:descending'
       filter: 'status=OK'
+      scope_uris: '/rest/scopes/637fa556-a78d-4796-8fce-2179e249ea7d'
 
 - debug: var=logical_enclosures
 

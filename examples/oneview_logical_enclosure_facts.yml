@@ -35,7 +35,7 @@
           count: 3
           sort: 'name:descending'
           filter: 'status=OK'
-          scopeUris: "{{ scope_uris }}"
+          scope_uris: "{{ scope_uris }}"
 
     - debug: var=logical_enclosures
 
