@@ -52,14 +52,20 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Logical Enclosures
   oneview_logical_enclosure_facts:
-    config: "{{ config_file_path }}"
+      hostname: 172.16.101.48
+      username: administrator
+      password: my_password
+      api_version: 600
   delegate_to: localhost
 
 - debug: var=logical_enclosures
 
 - name: Gather paginated, filtered and sorted facts about Logical Enclosures
   oneview_logical_enclosure_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -71,7 +77,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Logical Enclosure by name
   oneview_logical_enclosure_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "Encl1"
   delegate_to: localhost
 
@@ -79,7 +88,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Logical Enclosure by name with options
   oneview_logical_enclosure_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "Encl1"
     options:
       - script
