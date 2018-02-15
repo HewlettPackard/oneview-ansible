@@ -46,14 +46,20 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Fibre Channel Networks
   oneview_fc_network_facts:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=fc_networks
 
 - name: Gather paginated, filtered and sorted facts about Fibre Channel Networks
   oneview_fc_network_facts:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 1
       count: 3
@@ -64,7 +70,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Fibre Channel Network by name
   oneview_fc_network_facts:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: network name
   delegate_to: localhost
 

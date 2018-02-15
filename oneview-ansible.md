@@ -2935,22 +2935,32 @@ Manage OneView Fibre Channel Network resources.
 
 - name: Ensure that the Fibre Channel Network is present using the default configuration
   oneview_fc_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'New FC Network'
 
 - name: Ensure that the Fibre Channel Network is present with fabricType 'DirectAttach'
   oneview_fc_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'New FC Network'
       fabricType: 'DirectAttach'
 
+# This feature is available only till Fusion 3.1
 - name: Ensure that the Fibre Channel Network is present and is inserted in the desired scopes
   oneview_fc_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'New FC Network'
@@ -2960,7 +2970,10 @@ Manage OneView Fibre Channel Network resources.
 
 - name: Ensure that the Fibre Channel Network is absent
   oneview_fc_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       name: 'New FC Network'
@@ -3013,14 +3026,20 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks
 
 - name: Gather facts about all Fibre Channel Networks
   oneview_fc_network_facts:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=fc_networks
 
 - name: Gather paginated, filtered and sorted facts about Fibre Channel Networks
   oneview_fc_network_facts:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 1
       count: 3
@@ -3031,7 +3050,10 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks
 
 - name: Gather facts about a Fibre Channel Network by name
   oneview_fc_network_facts:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: network name
   delegate_to: localhost
 
