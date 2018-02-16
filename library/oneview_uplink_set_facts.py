@@ -44,13 +44,19 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Uplink Sets
   oneview_uplink_set_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 
 - debug: var=uplink_sets
 
 - name: Gather paginated, filtered and sorted facts about Uplink Sets
   oneview_uplink_set_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 2
@@ -61,7 +67,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Uplink Set by name
   oneview_uplink_set_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: logical lnterconnect group name
 
 - debug: var=uplink_sets
