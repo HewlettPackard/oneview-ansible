@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 4.5.0"
 author:
     - "Gustavo Hennig (@GustavoHennig)"
     - "Bruno Souza (@bsouza)"
@@ -53,25 +53,35 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Enclosure Groups
   oneview_enclosure_group_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=enclosure_groups
 
 - name: Gather paginated, filtered and sorted facts about Enclosure Groups
   oneview_enclosure_group_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
       sort: 'name:descending'
       filter: 'status=OK'
+      scope_uris: '/rest/scopes/cd237b60-09e2-45c4-829e-082e318a6d2a'
 
 - debug: var=enclosure_groups
 
 - name: Gather facts about an Enclosure Group by name with configuration script
   oneview_enclosure_group_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "Test Enclosure Group Facts"
     options:
       - configuration_script
