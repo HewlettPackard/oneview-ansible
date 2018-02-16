@@ -53,15 +53,30 @@
           enclosureType: 'C7000'
       delegate_to: localhost
 
-    - name: Update the Logical Interconnect Group changing the attribute description to 'New Description'
+    - name: Update the Logical Interconnect Group by adding an uplink set "e23 uplink set" with an Ethernet network
       oneview_logical_interconnect_group:
         config: "{{ config }}"
         state: present
         data:
           name: 'Test Logical Interconnect Group'
-          description: 'New Description'
+          uplinkSets:
+            - name: 'e23 uplink set'
+              mode: 'Auto'
+              networkType: 'Ethernet'
+              networkUris:
+                - '/rest/ethernet-networks/b2be27ec-ae31-41cb-9f92-ff6da5905abc'
+              logicalPortConfigInfos:
+                - desiredSpeed: 'Auto'
+                  logicalLocation:
+                      locationEntries:
+                        - relativeValue: 1
+                          type: "Bay"
+                        - relativeValue: 23
+                          type: "Port"
+                        - relativeValue: 1
+                          type: "Enclosure"
       delegate_to: localhost
-
+# Below task is supported only with OneView 3.10
     - name: Update the Logical Interconnect Group with two scopes
       oneview_logical_interconnect_group:
         config: "{{ config }}"

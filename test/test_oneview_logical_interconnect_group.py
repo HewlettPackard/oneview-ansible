@@ -36,7 +36,36 @@ DEFAULT_LIG_TEMPLATE = dict(
         interconnectMapEntryTemplates=[]
     )
 )
-
+DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
+    name=DEFAULT_LIG_NAME,
+    uplinkSets=[dict(
+        logicalPortConfigInfos=[dict(
+            desiredSpeed="Auto",
+            logicalLocation=dict(
+                locationEntries=[dict(
+                    relativeValue=1,
+                    type="Bay"
+                ), dict(
+                    relativeValue=21,
+                    type="Port"
+                ), dict(
+                    relativeValue=1,
+                    type="Enclosure"
+                )
+                ]
+            )
+        )
+        ],
+        name="EnetUplink1",
+        networkType="Ethernet",
+        networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"]
+    )
+    ],
+    enclosureType='C7000',
+    interconnectMapTemplate=dict(
+        interconnectMapEntryTemplates=[]
+    )
+)
 PARAMS_LIG_TEMPLATE_WITH_MAP = dict(
     config='config.json',
     state='present',
@@ -82,7 +111,27 @@ PARAMS_WITH_CHANGES = dict(
     config='config.json',
     state='present',
     data=dict(name=DEFAULT_LIG_NAME,
-              description='It is an example')
+              uplinkSets=[{
+                  "logicalPortConfigInfos": [{
+                      "desiredSpeed": "Auto",
+                      "logicalLocation": {
+                          "locationEntries": [{
+                              "relativeValue": 1,
+                              "type": "Bay"
+                          }, {
+                              "relativeValue": 21,
+                              "type": "Port"
+                          }, {
+                              "relativeValue": 1,
+                              "type": "Enclosure"
+                          }]
+                      }
+                  }],
+                  "name": "EnetUplink1",
+                  "networkType": "Ethernet",
+                  "networkUris": ["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"]
+              }]
+              )
 )
 
 PARAMS_FOR_ABSENT = dict(
@@ -147,8 +196,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_attributes(self):
-        data_merged = DEFAULT_LIG_TEMPLATE.copy()
-        data_merged['description'] = 'New description'
+        data_merged = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS.copy()
 
         self.resource.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
         self.resource.update.return_value = data_merged
