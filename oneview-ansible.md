@@ -6677,7 +6677,10 @@ Retrieve facts about the OneView SAS Interconnect Types.
 
 - name: Gather facts about all SAS Interconnect Types
   oneview_sas_interconnect_type_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 
 - debug: var=sas_interconnect_types
 
@@ -6694,7 +6697,10 @@ Retrieve facts about the OneView SAS Interconnect Types.
 
 - name: Gather facts about a SAS Interconnect Type by name
   oneview_sas_interconnect_type_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "SAS Interconnect Type Name"
 
 - debug: var=sas_interconnect_types
