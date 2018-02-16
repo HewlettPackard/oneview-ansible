@@ -16,37 +16,25 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import ImageStreamerBaseFactsTest
 from oneview_module_loader import ArtifactBundleFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
-class ArtifactBundleFactsSpec(unittest.TestCase,
-                              FactsParamsTestCase):
+@pytest.mark.resource(TestArtifactBundleFactsModule='artifact_bundles')
+class TestArtifactBundleFactsModule(ImageStreamerBaseFactsTest):
     """
-    FactsParamsTestCase has common tests for the parameters support.
+    ImageStreamerBaseFactsTest has common tests for the parameters support.
     """
 
-    def setUp(self):
-        self.configure_mocks(self, ArtifactBundleFactsModule)
-        self.i3s = self.mock_ov_client.create_image_streamer_client()
-
-        FactsParamsTestCase.configure_client_mock(self, self.i3s.artifact_bundles)
-
-        self.TASK_GET_ALL = self.EXAMPLES[0]['image_streamer_artifact_bundle_facts']
-        self.TASK_GET_BY_NAME = self.EXAMPLES[4]['image_streamer_artifact_bundle_facts']
-        self.TASK_GET_ALL_BACKUPS = self.EXAMPLES[6]['image_streamer_artifact_bundle_facts']
-        self.TASK_GET_BACKUP = self.EXAMPLES[9]['image_streamer_artifact_bundle_facts']
-
-        self.ARTIFACT_BUNDLE = dict(
-            name="HPE-ImageStreamer-Developer-2016-09-12",
-            uri="/rest/artifact-bundles/a2f97f20-160c-4c78-8185-1f31f86efaf7")
+    ARTIFACT_BUNDLE = dict(name="HPE-ImageStreamer-Developer-2016-09-12", uri="/rest/artifact-bundles/a2f97f20-160c-4c78-8185-1f31f86efaf7")
 
     def test_get_all_artifact_bundles(self):
-        self.i3s.artifact_bundles.get_all.return_value = [self.ARTIFACT_BUNDLE]
-        self.mock_ansible_module.params = self.TASK_GET_ALL
+        self.resource.get_all.return_value = [self.ARTIFACT_BUNDLE]
+        self.mock_ansible_module.params = self.EXAMPLES[0]['image_streamer_artifact_bundle_facts']
 
         ArtifactBundleFactsModule().run()
 
@@ -56,8 +44,8 @@ class ArtifactBundleFactsSpec(unittest.TestCase,
         )
 
     def test_get_an_artifact_bundle_by_name(self):
-        self.i3s.artifact_bundles.get_by.return_value = [self.ARTIFACT_BUNDLE]
-        self.mock_ansible_module.params = self.TASK_GET_BY_NAME
+        self.resource.get_by.return_value = [self.ARTIFACT_BUNDLE]
+        self.mock_ansible_module.params = self.EXAMPLES[4]['image_streamer_artifact_bundle_facts']
 
         ArtifactBundleFactsModule().run()
 
@@ -67,10 +55,10 @@ class ArtifactBundleFactsSpec(unittest.TestCase,
         )
 
     def test_get_all_backups(self):
-        self.i3s.artifact_bundles.get_by.return_value = [self.ARTIFACT_BUNDLE]
-        self.i3s.artifact_bundles.get_all_backups.return_value = [self.ARTIFACT_BUNDLE]
+        self.resource.get_by.return_value = [self.ARTIFACT_BUNDLE]
+        self.resource.get_all_backups.return_value = [self.ARTIFACT_BUNDLE]
 
-        self.mock_ansible_module.params = self.TASK_GET_ALL_BACKUPS
+        self.mock_ansible_module.params = self.EXAMPLES[6]['image_streamer_artifact_bundle_facts']
 
         ArtifactBundleFactsModule().run()
 
@@ -80,10 +68,10 @@ class ArtifactBundleFactsSpec(unittest.TestCase,
         )
 
     def test_get_backup_for_an_artifact_bundle(self):
-        self.i3s.artifact_bundles.get_by.return_value = [self.ARTIFACT_BUNDLE]
-        self.i3s.artifact_bundles.get_backup.return_value = [self.ARTIFACT_BUNDLE]
+        self.resource.get_by.return_value = [self.ARTIFACT_BUNDLE]
+        self.resource.get_backup.return_value = [self.ARTIFACT_BUNDLE]
 
-        self.mock_ansible_module.params = self.TASK_GET_BACKUP
+        self.mock_ansible_module.params = self.EXAMPLES[9]['image_streamer_artifact_bundle_facts']
 
         ArtifactBundleFactsModule().run()
 
@@ -95,4 +83,4 @@ class ArtifactBundleFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

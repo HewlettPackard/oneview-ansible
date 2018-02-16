@@ -16,57 +16,52 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import InterconnectLinkTopologyFactsModule
-from hpe_test_utils import FactsParamsTestCase
+
+INTERCONNECT_LINK_TOPOLOGIES = [{"name": "Interconnect Link Topology 1"},
+                                {"name": "Interconnect Link Topology 2"},
+                                {"name": "Interconnect Link Topology 3"}]
+
+ERROR_MSG = 'Fake message error'
+
+PARAMS_GET_ALL = dict(
+    config='config.json',
+    name=None
+)
+
+PARAMS_GET_BY_NAME = dict(
+    config='config.json',
+    name="Interconnect Link Topology Name 2"
+)
 
 
-class InterconnectLinkTopologyFactsSpec(unittest.TestCase,
-                                        FactsParamsTestCase):
-
-    INTERCONNECT_LINK_TOPOLOGIES = [{"name": "Interconnect Link Topology 1"},
-                                    {"name": "Interconnect Link Topology 2"},
-                                    {"name": "Interconnect Link Topology 3"}]
-
-    ERROR_MSG = 'Fake message error'
-
-    PARAMS_GET_ALL = dict(
-        config='config.json',
-        name=None
-    )
-
-    PARAMS_GET_BY_NAME = dict(
-        config='config.json',
-        name="Interconnect Link Topology Name 2"
-    )
-
-    def setUp(self):
-        self.configure_mocks(self, InterconnectLinkTopologyFactsModule)
-        self.interconnect_link_topologies = self.mock_ov_client.interconnect_link_topologies
-        FactsParamsTestCase.configure_client_mock(self, self.interconnect_link_topologies)
-
+@pytest.mark.resource(TestInterconnectLinkTopologyFactsModule='interconnect_link_topologies')
+class TestInterconnectLinkTopologyFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_interconnect_link_topologies(self):
-        self.interconnect_link_topologies.get_all.return_value = self.INTERCONNECT_LINK_TOPOLOGIES
-        self.mock_ansible_module.params = self.PARAMS_GET_ALL
+        self.resource.get_all.return_value = INTERCONNECT_LINK_TOPOLOGIES
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         InterconnectLinkTopologyFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(interconnect_link_topologies=(self.INTERCONNECT_LINK_TOPOLOGIES))
+            ansible_facts=dict(interconnect_link_topologies=(INTERCONNECT_LINK_TOPOLOGIES))
         )
 
     def test_should_get_all_interconnect_link_topology_by_name(self):
-        self.interconnect_link_topologies.get_by.return_value = [self.INTERCONNECT_LINK_TOPOLOGIES[1]]
-        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
+        self.resource.get_by.return_value = [INTERCONNECT_LINK_TOPOLOGIES[1]]
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         InterconnectLinkTopologyFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(interconnect_link_topologies=([self.INTERCONNECT_LINK_TOPOLOGIES[1]]))
+            ansible_facts=dict(interconnect_link_topologies=([INTERCONNECT_LINK_TOPOLOGIES[1]]))
         )
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

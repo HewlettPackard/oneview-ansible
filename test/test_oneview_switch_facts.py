@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_switch_facts import SwitchFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 
 ERROR_MSG = 'Fake message error'
@@ -49,16 +50,10 @@ SWITCH = dict(name=SWITCH_NAME, uri=SWITCH_URI)
 ALL_SWITCHES = [SWITCH, dict(name='172.18.20.2')]
 
 
-class SwitchFactsSpec(unittest.TestCase,
-                      FactsParamsTestCase):
-
-    def setUp(self):
-        self.configure_mocks(self, SwitchFactsModule)
-        self.switches = self.mock_ov_client.switches
-        FactsParamsTestCase.configure_client_mock(self, self.switches)
-
+@pytest.mark.resource(TestSwitchFactsModule='switches')
+class TestSwitchFactsModule(OneViewBaseFactsTest):
     def test_should_get_all(self):
-        self.switches.get_all.return_value = ALL_SWITCHES
+        self.resource.get_all.return_value = ALL_SWITCHES
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         SwitchFactsModule().run()
@@ -70,12 +65,12 @@ class SwitchFactsSpec(unittest.TestCase,
 
     def test_should_get_by_name(self):
         switches = [SWITCH]
-        self.switches.get_by.return_value = switches
+        self.resource.get_by.return_value = switches
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         SwitchFactsModule().run()
 
-        self.switches.get_by.assert_called_once_with('name', SWITCH_NAME)
+        self.resource.get_by.assert_called_once_with('name', SWITCH_NAME)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -86,14 +81,14 @@ class SwitchFactsSpec(unittest.TestCase,
         switches = [SWITCH]
         environmental_configuration = dict(calibratedMaxPower=0, capHistorySupported=False)
 
-        self.switches.get_by.return_value = switches
-        self.switches.get_environmental_configuration.return_value = environmental_configuration
+        self.resource.get_by.return_value = switches
+        self.resource.get_environmental_configuration.return_value = environmental_configuration
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         SwitchFactsModule().run()
 
-        self.switches.get_by.assert_called_once_with('name', SWITCH_NAME)
-        self.switches.get_environmental_configuration.assert_called_once_with(id_or_uri=SWITCH_URI)
+        self.resource.get_by.assert_called_once_with('name', SWITCH_NAME)
+        self.resource.get_environmental_configuration.assert_called_once_with(id_or_uri=SWITCH_URI)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -102,4 +97,4 @@ class SwitchFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

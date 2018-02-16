@@ -15,11 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+
+import mock
+import pytest
 import yaml
 
-from ansible.compat.tests import unittest, mock
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import DriveEnclosureModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -82,12 +84,8 @@ YAML_WITHOUT_NAME = """
 """
 
 
-class DriveEnclosureSpec(unittest.TestCase,
-                         OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, DriveEnclosureModule)
-        self.drive_enclosures = self.mock_ov_client.drive_enclosures
-
+@pytest.mark.resource(TestDriveEnclosureModule='drive_enclosures')
+class TestDriveEnclosureModule(OneViewBaseTest):
     def test_should_raise_exception_when_name_not_defined(self):
         self.mock_ansible_module.params = yaml.load(YAML_WITHOUT_NAME)
 
@@ -96,7 +94,7 @@ class DriveEnclosureSpec(unittest.TestCase,
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=DriveEnclosureModule.MSG_NAME_REQUIRED)
 
     def test_should_raise_exception_when_resource_not_found(self):
-        self.drive_enclosures.get_by.return_value = []
+        self.resource.get_by.return_value = []
         self.mock_ansible_module.params = yaml.load(YAML_DRIVE_ENCLOSURE_POWER_STATE)
 
         DriveEnclosureModule().run()
@@ -106,13 +104,13 @@ class DriveEnclosureSpec(unittest.TestCase,
     def test_should_power_off(self):
         mock_return_patch = {'name': 'mock return'}
 
-        self.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
-        self.drive_enclosures.patch.return_value = mock_return_patch
+        self.resource.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
+        self.resource.patch.return_value = mock_return_patch
         self.mock_ansible_module.params = yaml.load(YAML_DRIVE_ENCLOSURE_POWER_STATE)
 
         DriveEnclosureModule().run()
 
-        self.drive_enclosures.patch.assert_called_once_with(
+        self.resource.patch.assert_called_once_with(
             DRIVE_ENCLOSURE_URI, operation='replace', path='/powerState', value='Off')
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -124,7 +122,7 @@ class DriveEnclosureSpec(unittest.TestCase,
         drive_enclosure = DICT_DEFAULT_DRIVE_ENCLOSURE.copy()
         drive_enclosure['powerState'] = 'Off'
 
-        self.drive_enclosures.get_by.return_value = [drive_enclosure]
+        self.resource.get_by.return_value = [drive_enclosure]
         self.mock_ansible_module.params = yaml.load(YAML_DRIVE_ENCLOSURE_POWER_STATE)
 
         DriveEnclosureModule().run()
@@ -137,13 +135,13 @@ class DriveEnclosureSpec(unittest.TestCase,
     def test_should_turn_uid_on(self):
         mock_return_patch = {'name': 'mock return'}
 
-        self.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
-        self.drive_enclosures.patch.return_value = mock_return_patch
+        self.resource.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
+        self.resource.patch.return_value = mock_return_patch
         self.mock_ansible_module.params = yaml.load(YAML_DRIVE_ENCLOSURE_UID_STATE)
 
         DriveEnclosureModule().run()
 
-        self.drive_enclosures.patch.assert_called_once_with(
+        self.resource.patch.assert_called_once_with(
             DRIVE_ENCLOSURE_URI, operation='replace', path='/uidState', value='On')
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -155,7 +153,7 @@ class DriveEnclosureSpec(unittest.TestCase,
         drive_enclosure = DICT_DEFAULT_DRIVE_ENCLOSURE.copy()
         drive_enclosure['uidState'] = 'On'
 
-        self.drive_enclosures.get_by.return_value = [drive_enclosure]
+        self.resource.get_by.return_value = [drive_enclosure]
         self.mock_ansible_module.params = yaml.load(YAML_DRIVE_ENCLOSURE_UID_STATE)
 
         DriveEnclosureModule().run()
@@ -168,13 +166,13 @@ class DriveEnclosureSpec(unittest.TestCase,
     def test_should_request_hard_reset(self):
         mock_return_patch = {'name': 'mock return'}
 
-        self.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
-        self.drive_enclosures.patch.return_value = mock_return_patch
+        self.resource.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
+        self.resource.patch.return_value = mock_return_patch
         self.mock_ansible_module.params = yaml.load(YAML_DRIVE_ENCLOSURE_HARD_RESET_STATE)
 
         DriveEnclosureModule().run()
 
-        self.drive_enclosures.patch.assert_called_once_with(
+        self.resource.patch.assert_called_once_with(
             DRIVE_ENCLOSURE_URI, operation='replace', path='/hardResetState', value='Reset')
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -185,13 +183,13 @@ class DriveEnclosureSpec(unittest.TestCase,
     def test_should_refresh(self):
         mock_return_refresh = {'name': 'mock return'}
 
-        self.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
-        self.drive_enclosures.refresh_state.return_value = mock_return_refresh
+        self.resource.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
+        self.resource.refresh_state.return_value = mock_return_refresh
         self.mock_ansible_module.params = yaml.load(YAML_DRIVE_ENCLOSURE_REFRESH_STATE)
 
         DriveEnclosureModule().run()
 
-        self.drive_enclosures.refresh_state.assert_called_once_with(
+        self.resource.refresh_state.assert_called_once_with(
             DRIVE_ENCLOSURE_URI, {'refreshState': 'RefreshPending'})
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -201,4 +199,4 @@ class DriveEnclosureSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

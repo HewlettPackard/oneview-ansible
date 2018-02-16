@@ -15,25 +15,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-from ansible.compat.tests import unittest, mock
 
+import mock
+import pytest
+
+from hpe_test_utils import ImageStreamerBaseTest
 from oneview_module_loader import DeploymentPlanModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
-class DeploymentPlanSpec(unittest.TestCase,
-                         OneViewBaseTestCase):
+@pytest.mark.resource(TestDeploymentPlanModule='deployment_plans')
+class TestDeploymentPlanModule(ImageStreamerBaseTest):
     """
-    OneViewBaseTestCase has common tests for main function,
+    ImageStreamerBaseTest has common tests for main function,
     also provides the mocks used in this test case
     """
 
-    def setUp(self):
-        self.configure_mocks(self, DeploymentPlanModule)
-        self.i3s = self.mock_ov_client.create_image_streamer_client()
-
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self):
         # Load scenarios from module examples
         self.DEPLOYMENT_PLAN_CREATE = self.EXAMPLES[0]['image_streamer_deployment_plan']
         self.DEPLOYMENT_PLAN_UPDATE = self.EXAMPLES[1]['image_streamer_deployment_plan']
@@ -43,15 +43,15 @@ class DeploymentPlanSpec(unittest.TestCase,
             uri="/rest/deployment-plans/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0")
 
     def test_create_new_deployment_plan(self):
-        self.i3s.deployment_plans.get_by.return_value = []
-        self.i3s.build_plans.get_by.return_value = [{'uri': '/rest/build-plans/1'}]
-        self.i3s.deployment_plans.create.return_value = {"name": "name"}
+        self.resource.get_by.return_value = []
+        self.mock_ov_client.build_plans.get_by.return_value = [{'uri': '/rest/build-plans/1'}]
+        self.resource.create.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = self.DEPLOYMENT_PLAN_CREATE
 
         DeploymentPlanModule().run()
 
-        self.i3s.deployment_plans.create.assert_called_once_with(
+        self.resource.create.assert_called_once_with(
             {'oeBuildPlanURI': '/rest/build-plans/1',
              'hpProvided': 'false',
              'description': 'Description of this Deployment Plan',
@@ -65,8 +65,8 @@ class DeploymentPlanSpec(unittest.TestCase,
         )
 
     def test_update_deployment_plan(self):
-        self.i3s.deployment_plans.get_by.return_value = [self.DEPLOYMENT_PLAN]
-        self.i3s.deployment_plans.update.return_value = {"name": "name"}
+        self.resource.get_by.return_value = [self.DEPLOYMENT_PLAN]
+        self.resource.update.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = self.DEPLOYMENT_PLAN_UPDATE
 
@@ -79,7 +79,7 @@ class DeploymentPlanSpec(unittest.TestCase,
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.i3s.deployment_plans.get_by.return_value = [self.DEPLOYMENT_PLAN_UPDATE['data']]
+        self.resource.get_by.return_value = [self.DEPLOYMENT_PLAN_UPDATE['data']]
         self.mock_ansible_module.params = self.DEPLOYMENT_PLAN_UPDATE
 
         DeploymentPlanModule().run()
@@ -91,7 +91,7 @@ class DeploymentPlanSpec(unittest.TestCase,
         )
 
     def test_delete_deployment_plan(self):
-        self.i3s.deployment_plans.get_by.return_value = [self.DEPLOYMENT_PLAN]
+        self.resource.get_by.return_value = [self.DEPLOYMENT_PLAN]
 
         self.mock_ansible_module.params = self.DEPLOYMENT_PLAN_DELETE
 
@@ -103,7 +103,7 @@ class DeploymentPlanSpec(unittest.TestCase,
         )
 
     def test_should_do_nothing_when_deleting_a_non_existent_deployment_plan(self):
-        self.i3s.deployment_plans.get_by.return_value = []
+        self.resource.get_by.return_value = []
 
         self.mock_ansible_module.params = self.DEPLOYMENT_PLAN_DELETE
 
@@ -115,8 +115,8 @@ class DeploymentPlanSpec(unittest.TestCase,
         )
 
     def test_should_fail_when_build_plan_not_found(self):
-        self.i3s.deployment_plans.get_by.return_value = []
-        self.i3s.build_plans.get_by.return_value = None
+        self.resource.get_by.return_value = []
+        self.mock_ov_client.build_plans.get_by.return_value = None
 
         self.mock_ansible_module.params = self.DEPLOYMENT_PLAN_CREATE
 
@@ -129,4 +129,4 @@ class DeploymentPlanSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

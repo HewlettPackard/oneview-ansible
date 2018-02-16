@@ -16,9 +16,11 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import mock
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import PowerDeviceModule
-from hpe_test_utils import OneViewBaseTestCase
 
 
 FAKE_MSG_ERROR = 'Fake message error'
@@ -95,16 +97,12 @@ PARAMS_FOR_UID_STATE_SET = dict(
 )
 
 
-class PowerDeviceModuleSpec(unittest.TestCase,
-                            OneViewBaseTestCase):
+@pytest.mark.resource(TestPowerDeviceModule='power_devices')
+class TestPowerDeviceModule(OneViewBaseTest):
     """
     OneViewBaseTestCase has common tests for main function,
     also provides the mocks used in this test case.
     """
-
-    def setUp(self):
-        self.configure_mocks(self, PowerDeviceModule)
-        self.resource = self.mock_ov_client.power_devices
 
     def test_should_add_new_power_device(self):
         self.resource.get_by.return_value = []
@@ -265,4 +263,4 @@ class PowerDeviceModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

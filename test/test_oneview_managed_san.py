@@ -16,9 +16,11 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import mock
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ManagedSanModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -66,12 +68,8 @@ PARAMS_TO_CREATE_ISSUES_REPORT = dict(
 )
 
 
-class ManagedSanModuleSpec(unittest.TestCase,
-                           OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, ManagedSanModule)
-        self.resource = self.mock_ov_client.managed_sans
-
+@pytest.mark.resource(TestManagedSanModule='managed_sans')
+class TestManagedSanModule(OneViewBaseTest):
     def test_should_not_update_when_data_is_equals(self):
         self.resource.get_by_name.return_value = MANAGED_SAN
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT_WITHOUT_CHANGES
@@ -172,4 +170,4 @@ class ManagedSanModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

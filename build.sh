@@ -1,4 +1,5 @@
 #!/bin/bash
+# -*- coding: utf-8 -*-
 ###
 # Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
@@ -141,7 +142,7 @@ exit_code_tests=$?
 
 echo -e "\n=== Summary =========================="
 print_summary "Modules validation" ${exit_code_module_validation}
-print_summary "Playboks validation" ${exit_code_playbook_validation}
+print_summary "Playbooks validation" ${exit_code_playbook_validation}
 print_summary "Unit tests" ${exit_code_tests}
 print_summary "Flake8" ${exit_code_flake8}
 print_summary "Doc Generation" ${exit_code_doc_generation}

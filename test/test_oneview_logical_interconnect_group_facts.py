@@ -16,8 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
-from hpe_test_utils import FactsParamsTestCase
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import LogicalInterconnectGroupFactsModule
 
 ERROR_MSG = 'Fake message error'
@@ -38,14 +39,10 @@ PRESENT_LIGS = [{
 }]
 
 
-class LogicalInterconnectGroupFactsSpec(unittest.TestCase, FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, LogicalInterconnectGroupFactsModule)
-        self.logical_interconnect_groups = self.mock_ov_client.logical_interconnect_groups
-        FactsParamsTestCase.configure_client_mock(self, self.logical_interconnect_groups)
-
+@pytest.mark.resource(TestLogicalInterconnectGroupFactsModule='logical_interconnect_groups')
+class TestLogicalInterconnectGroupFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_ligs(self):
-        self.logical_interconnect_groups.get_all.return_value = PRESENT_LIGS
+        self.resource.get_all.return_value = PRESENT_LIGS
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         LogicalInterconnectGroupFactsModule().run()
@@ -56,7 +53,7 @@ class LogicalInterconnectGroupFactsSpec(unittest.TestCase, FactsParamsTestCase):
         )
 
     def test_should_get_lig_by_name(self):
-        self.logical_interconnect_groups.get_by.return_value = PRESENT_LIGS
+        self.resource.get_by.return_value = PRESENT_LIGS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         LogicalInterconnectGroupFactsModule().run()
@@ -68,4 +65,4 @@ class LogicalInterconnectGroupFactsSpec(unittest.TestCase, FactsParamsTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

@@ -16,36 +16,27 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import ImageStreamerBaseFactsTest
 from oneview_module_loader import OsVolumeFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
-class OsVolumeFactsSpec(unittest.TestCase,
-                        FactsParamsTestCase):
+@pytest.mark.resource(TestOsVolumeFactsModule='os_volumes')
+class TestOsVolumeFactsModule(ImageStreamerBaseFactsTest):
     """
-    FactsParamsTestCase has common tests for the parameters support.
+    ImageStreamerBaseFactsTest has common tests for the parameters support.
     """
 
-    def setUp(self):
-        self.configure_mocks(self, OsVolumeFactsModule)
-        self.i3s = self.mock_ov_client.create_image_streamer_client()
-
-        FactsParamsTestCase.configure_client_mock(self, self.i3s.os_volumes)
-
-        # Load scenarios from module examples
-        self.PLAY_GET_ALL = self.EXAMPLES[0]['image_streamer_os_volume_facts']
-        self.PLAY_GET_BY_NAME = self.EXAMPLES[4]['image_streamer_os_volume_facts']
-
-        self.OS_VOLUME = dict(
-            name="OS Volume Name",
-            uri="/rest/os-volumes/a3b3c234-2ei0-b99o-jh778jsdkl2n5")
+    OS_VOLUME = dict(
+        name="OS Volume Name",
+        uri="/rest/os-volumes/a3b3c234-2ei0-b99o-jh778jsdkl2n5")
 
     def test_get_all_os_volumes(self):
-        self.i3s.os_volumes.get_all.return_value = [self.OS_VOLUME]
-        self.mock_ansible_module.params = self.PLAY_GET_ALL
+        self.resource.get_all.return_value = [self.OS_VOLUME]
+        self.mock_ansible_module.params = self.EXAMPLES[0]['image_streamer_os_volume_facts']
 
         OsVolumeFactsModule().run()
 
@@ -55,8 +46,8 @@ class OsVolumeFactsSpec(unittest.TestCase,
         )
 
     def test_get_os_volume_by_name(self):
-        self.i3s.os_volumes.get_by.return_value = [self.OS_VOLUME]
-        self.mock_ansible_module.params = self.PLAY_GET_BY_NAME
+        self.resource.get_by.return_value = [self.OS_VOLUME]
+        self.mock_ansible_module.params = self.EXAMPLES[4]['image_streamer_os_volume_facts']
 
         OsVolumeFactsModule().run()
 
@@ -67,4 +58,4 @@ class OsVolumeFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

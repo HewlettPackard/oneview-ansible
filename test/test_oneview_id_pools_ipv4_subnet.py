@@ -16,9 +16,11 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import mock
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import IdPoolsIpv4SubnetModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -61,15 +63,11 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class IdPoolsIpv4SubnetModuleSpec(unittest.TestCase,
-                                  OneViewBaseTestCase):
+@pytest.mark.resource(TestIdPoolsIpv4SubnetModule='id_pools_ipv4_subnets')
+class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
     """
     OneViewBaseTestCase provides the mocks used in this test case
     """
-
-    def setUp(self):
-        self.configure_mocks(self, IdPoolsIpv4SubnetModule)
-        self.resource = self.mock_ov_client.id_pools_ipv4_subnets
 
     def test_should_create_new_id_pools_ipv4_subnet(self):
         self.resource.get_all.return_value = []
@@ -164,4 +162,4 @@ class IdPoolsIpv4SubnetModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

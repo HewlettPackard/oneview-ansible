@@ -16,10 +16,12 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import mock
+import pytest
+
 from copy import deepcopy
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ServerProfileTemplateModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 TEMPLATE_NAME = 'ProfileTemplate101'
@@ -85,12 +87,8 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class ServerProfileTemplateModuleSpec(unittest.TestCase,
-                                      OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, ServerProfileTemplateModule)
-        self.resource = self.mock_ov_client.server_profile_templates
-
+@pytest.mark.resource(TestServerProfileTemplateModule='server_profile_templates')
+class TestServerProfileTemplateModule(OneViewBaseTest):
     def test_should_create_new_template_when_it_not_exists(self):
         self.resource.get_by_name.return_value = []
         self.resource.create.return_value = CREATED_BASIC_TEMPLATE
@@ -238,4 +236,4 @@ class ServerProfileTemplateModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

@@ -40,7 +40,7 @@ options:
       description:
         - "List with options to gather additional facts about the Unmanaged Device.
           Options allowed:
-          C(environmental_configuration) gets a description of the environmental configuration for the Unmnaged Device."
+          C(environmental_configuration) gets a description of the environmental configuration for the Unmanaged Device."
 
 extends_documentation_fragment:
     - oneview

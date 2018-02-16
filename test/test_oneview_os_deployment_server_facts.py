@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import OsDeploymentServerFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 SERVERS = [
     {
@@ -28,20 +29,17 @@ SERVERS = [
 ]
 
 
-class OsDeploymentServerFactsSpec(unittest.TestCase,
-                                  FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, OsDeploymentServerFactsModule)
-        self.os_deployment_servers = self.mock_ov_client.os_deployment_servers
-        FactsParamsTestCase.configure_client_mock(self, self.os_deployment_servers)
-
-        # Load scenarios from module examples
+@pytest.mark.resource(TestOsDeploymentServerFactsModule='os_deployment_servers')
+class TestOsDeploymentServerFactsModule(OneViewBaseFactsTest):
+    # Load scenarios from module examples
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self, setUp, testing_module):
         self.PARAMS_GET_ALL = self.EXAMPLES[0]['oneview_os_deployment_server_facts']
         self.PARAMS_GET_BY_NAME = self.EXAMPLES[2]['oneview_os_deployment_server_facts']
         self.PARAMS_GET_BY_NAME_WITH_OPTIONS = self.EXAMPLES[4]['oneview_os_deployment_server_facts']
 
     def test_should_get_all_os_deployment_server(self):
-        self.os_deployment_servers.get_all.return_value = SERVERS
+        self.resource.get_all.return_value = SERVERS
 
         self.mock_ansible_module.params = self.PARAMS_GET_ALL
 
@@ -53,13 +51,13 @@ class OsDeploymentServerFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_os_deployment_server_by_name(self):
-        self.os_deployment_servers.get_by.return_value = SERVERS
+        self.resource.get_by.return_value = SERVERS
 
         self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
 
         OsDeploymentServerFactsModule().run()
 
-        self.os_deployment_servers.get_by.assert_called_once_with('name', "OS Deployment Server-Name")
+        self.resource.get_by.assert_called_once_with('name', "OS Deployment Server-Name")
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -70,10 +68,10 @@ class OsDeploymentServerFactsSpec(unittest.TestCase,
         networks = [{"name": "net"}]
         appliances = [{"name": "appl1"}, {"name": "appl2"}]
         appliance = {"name": "appl1"}
-        self.os_deployment_servers.get_by.return_value = SERVERS
-        self.os_deployment_servers.get_networks.return_value = networks
-        self.os_deployment_servers.get_appliances.return_value = appliances
-        self.os_deployment_servers.get_appliance_by_name.return_value = appliance
+        self.resource.get_by.return_value = SERVERS
+        self.resource.get_networks.return_value = networks
+        self.resource.get_appliances.return_value = appliances
+        self.resource.get_appliance_by_name.return_value = appliance
 
         self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME_WITH_OPTIONS
 
@@ -91,4 +89,4 @@ class OsDeploymentServerFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

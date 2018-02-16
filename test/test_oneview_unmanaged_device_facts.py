@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import UnmanagedDeviceFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -64,13 +65,8 @@ ENVIRONMENTAL_CONFIGURATION = dict(
 )
 
 
-class UnmanagedDeviceFactsSpec(unittest.TestCase,
-                               FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, UnmanagedDeviceFactsModule)
-        self.resource = self.mock_ov_client.unmanaged_devices
-        FactsParamsTestCase.configure_client_mock(self, self.resource)
-
+@pytest.mark.resource(TestUnmanagedDeviceFactsModule='unmanaged_devices')
+class TestUnmanagedDeviceFactsModule(OneViewBaseFactsTest):
     def test_get_all(self):
         unmanaged_devices = [UNMANAGED_DEVICE]
         self.resource.get_all.return_value = unmanaged_devices
@@ -121,4 +117,4 @@ class UnmanagedDeviceFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

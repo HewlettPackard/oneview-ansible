@@ -16,23 +16,23 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import mock
+import pytest
+
+from hpe_test_utils import ImageStreamerBaseTest
 from oneview_module_loader import PlanScriptModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
 
-class PlanScriptSpec(unittest.TestCase,
-                     OneViewBaseTestCase):
+@pytest.mark.resource(TestPlanScriptModule='plan_scripts')
+class TestPlanScriptModule(ImageStreamerBaseTest):
     """
-    OneViewBaseTestCase has common test for main function
+    ImageStreamerBaseTest has common test for main function
     """
 
-    def setUp(self):
-        self.configure_mocks(self, PlanScriptModule)
-        self.i3s = self.mock_ov_client.create_image_streamer_client()
-
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self):
         # Load scenarios from module examples
         self.PLAN_SCRIPT_CREATE = self.EXAMPLES[0]['image_streamer_plan_script']
         self.PLAN_SCRIPT_UPDATE = self.EXAMPLES[1]['image_streamer_plan_script']
@@ -43,14 +43,14 @@ class PlanScriptSpec(unittest.TestCase,
             uri="/rest/plan-scripts/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0")
 
     def test_create_new_plan_script(self):
-        self.i3s.plan_scripts.get_by.return_value = []
-        self.i3s.plan_scripts.create.return_value = {"name": "name"}
+        self.resource.get_by.return_value = []
+        self.resource.create.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = self.PLAN_SCRIPT_CREATE
 
         PlanScriptModule().run()
 
-        self.i3s.plan_scripts.create.assert_called_once_with(
+        self.resource.create.assert_called_once_with(
             {'content': 'echo "test script"',
              'planType': 'deploy',
              'hpProvided': False,
@@ -64,8 +64,8 @@ class PlanScriptSpec(unittest.TestCase,
         )
 
     def test_update_plan_script(self):
-        self.i3s.plan_scripts.get_by.return_value = [self.PLAN_SCRIPT]
-        self.i3s.plan_scripts.update.return_value = {"name": "name"}
+        self.resource.get_by.return_value = [self.PLAN_SCRIPT]
+        self.resource.update.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = self.PLAN_SCRIPT_UPDATE
 
@@ -78,8 +78,8 @@ class PlanScriptSpec(unittest.TestCase,
         )
 
     def test_retrieve_plan_script_content_differences(self):
-        self.i3s.plan_scripts.get_by.return_value = [self.PLAN_SCRIPT]
-        self.i3s.plan_scripts.retrieve_differences.return_value = {"differences": []}
+        self.resource.get_by.return_value = [self.PLAN_SCRIPT]
+        self.resource.retrieve_differences.return_value = {"differences": []}
 
         self.mock_ansible_module.params = self.PLAN_SCRIPT_DIFFERENCES
 
@@ -92,7 +92,7 @@ class PlanScriptSpec(unittest.TestCase,
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.i3s.plan_scripts.get_by.return_value = [self.PLAN_SCRIPT_UPDATE['data']]
+        self.resource.get_by.return_value = [self.PLAN_SCRIPT_UPDATE['data']]
         self.mock_ansible_module.params = self.PLAN_SCRIPT_UPDATE
 
         PlanScriptModule().run()
@@ -104,7 +104,7 @@ class PlanScriptSpec(unittest.TestCase,
         )
 
     def test_delete_plan_script(self):
-        self.i3s.plan_scripts.get_by.return_value = [self.PLAN_SCRIPT]
+        self.resource.get_by.return_value = [self.PLAN_SCRIPT]
 
         self.mock_ansible_module.params = self.PLAN_SCRIPT_DELETE
 
@@ -116,7 +116,7 @@ class PlanScriptSpec(unittest.TestCase,
         )
 
     def test_should_do_nothing_when_deleting_a_non_existent_plan_script(self):
-        self.i3s.plan_scripts.get_by.return_value = []
+        self.resource.get_by.return_value = []
 
         self.mock_ansible_module.params = self.PLAN_SCRIPT_DELETE
 
@@ -128,7 +128,7 @@ class PlanScriptSpec(unittest.TestCase,
         )
 
     def test_should_fail_when_mandatory_attributes_are_missing(self):
-        self.i3s.plan_scripts.get_by.return_value = []
+        self.resource.get_by.return_value = []
 
         del self.PLAN_SCRIPT_DIFFERENCES['data']['content']
 
@@ -140,4 +140,4 @@ class PlanScriptSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

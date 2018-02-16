@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import FirmwareBundleModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 DEFAULT_FIRMWARE_FILE_PATH = '/path/to/file.rpm'
@@ -41,14 +42,11 @@ PARAMS_FOR_PRESENT = dict(
 )
 
 
-class FirmwareBundleModuleSpec(unittest.TestCase,
-                               OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, FirmwareBundleModule)
-
+@pytest.mark.resource(TestFirmwareBundleModule='firmware_bundles')
+class TestFirmwareBundleModule(OneViewBaseTest):
     def test_should_upload(self):
         self.mock_ov_client.firmware_drivers.get_by_file_name.return_value = None
-        self.mock_ov_client.firmware_bundles.upload.side_effect = [DEFAULT_FIRMWARE_TEMPLATE]
+        self.resource.upload.side_effect = [DEFAULT_FIRMWARE_TEMPLATE]
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -62,4 +60,4 @@ class FirmwareBundleModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

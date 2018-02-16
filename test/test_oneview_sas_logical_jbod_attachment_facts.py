@@ -16,55 +16,51 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import SasLogicalJbodAttachmentFactsModule
-from hpe_test_utils import FactsParamsTestCase
+
+ERROR_MSG = 'Fake message error'
+
+PARAMS_GET_ALL = dict(
+    config='config.json',
+    name=None
+)
+
+PARAMS_GET_BY_NAME = dict(
+    config='config.json',
+    name="SAS Logical JBOD Attachment 2"
+)
+
+SAS_JBOD_LOGICAL_ATTACHMENTS = [{"name": "SAS Logical JBOD Attachment 1"},
+                                {"name": "SAS Logical JBOD Attachment 2"}]
 
 
-class SasLogicalJbodAttachmentFactsSpec(unittest.TestCase,
-                                        FactsParamsTestCase):
-    ERROR_MSG = 'Fake message error'
-
-    PARAMS_GET_ALL = dict(
-        config='config.json',
-        name=None
-    )
-
-    PARAMS_GET_BY_NAME = dict(
-        config='config.json',
-        name="SAS Logical JBOD Attachment 2"
-    )
-
-    SAS_JBOD_LOGICAL_ATTACHMENTS = [{"name": "SAS Logical JBOD Attachment 1"},
-                                    {"name": "SAS Logical JBOD Attachment 2"}]
-
-    def setUp(self):
-        self.configure_mocks(self, SasLogicalJbodAttachmentFactsModule)
-        self.resource = self.mock_ov_client.sas_logical_jbod_attachments
-        FactsParamsTestCase.configure_client_mock(self, self.resource)
-
+@pytest.mark.resource(TestSasLogicalJbodAttachmentFactsModule='sas_logical_jbod_attachments')
+class TestSasLogicalJbodAttachmentFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_sas_logical_jbod_attachments(self):
-        self.resource.get_all.return_value = self.SAS_JBOD_LOGICAL_ATTACHMENTS
-        self.mock_ansible_module.params = self.PARAMS_GET_ALL
+        self.resource.get_all.return_value = SAS_JBOD_LOGICAL_ATTACHMENTS
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         SasLogicalJbodAttachmentFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(sas_logical_jbod_attachments=(self.SAS_JBOD_LOGICAL_ATTACHMENTS))
+            ansible_facts=dict(sas_logical_jbod_attachments=(SAS_JBOD_LOGICAL_ATTACHMENTS))
         )
 
     def test_should_get_sas_logical_jbod_attachment_by_name(self):
-        self.resource.get_by.return_value = [self.SAS_JBOD_LOGICAL_ATTACHMENTS[1]]
-        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
+        self.resource.get_by.return_value = [SAS_JBOD_LOGICAL_ATTACHMENTS[1]]
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         SasLogicalJbodAttachmentFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(sas_logical_jbod_attachments=([self.SAS_JBOD_LOGICAL_ATTACHMENTS[1]]))
+            ansible_facts=dict(sas_logical_jbod_attachments=([SAS_JBOD_LOGICAL_ATTACHMENTS[1]]))
         )
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

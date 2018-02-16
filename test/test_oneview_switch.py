@@ -16,10 +16,11 @@
 # limitations under the License.
 ###
 
+import mock
+import pytest
 
-from ansible.compat.tests import unittest, mock
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import SwitchModule
-from hpe_test_utils import OneViewBaseTestCase
 
 SWITCH_NAME = "172.18.16.2"
 
@@ -57,12 +58,8 @@ SWITCH = dict(
 )
 
 
-class SwitchModuleSpec(unittest.TestCase,
-                       OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, SwitchModule)
-        self.resource = self.mock_ov_client.switches
-
+@pytest.mark.resource(TestSwitchModule='switches')
+class TestSwitchModule(OneViewBaseTest):
     def test_should_remove_switch(self):
         self.resource.get_by.return_value = [SWITCH]
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
@@ -157,4 +154,4 @@ class SwitchModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

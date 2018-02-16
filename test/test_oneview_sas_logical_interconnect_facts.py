@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import SasLogicalInterconnectFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -46,14 +47,8 @@ SAS_LOGICAL_INTERCONNECT = dict(
 ALL_INTERCONNECTS = [SAS_LOGICAL_INTERCONNECT]
 
 
-class SasLogicalInterconnectFactsSpec(unittest.TestCase,
-                                      FactsParamsTestCase):
-
-    def setUp(self):
-        self.configure_mocks(self, SasLogicalInterconnectFactsModule)
-        self.resource = self.mock_ov_client.sas_logical_interconnects
-        FactsParamsTestCase.configure_client_mock(self, self.resource)
-
+@pytest.mark.resource(TestSasLogicalInterconnectFactsModule='sas_logical_interconnects')
+class TestSasLogicalInterconnectFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_sas_logical_interconnects(self):
         self.resource.get_all.return_value = ALL_INTERCONNECTS
         self.mock_ansible_module.params = PARAMS_GET_ALL
@@ -95,4 +90,4 @@ class SasLogicalInterconnectFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

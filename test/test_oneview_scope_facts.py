@@ -17,10 +17,10 @@
 ###
 
 import copy
+import pytest
 
-from ansible.compat.tests import unittest
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import ScopeFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -40,13 +40,8 @@ SCOPE_2 = dict(name="Scope 2", uri='/rest/scopes/b3213123-44sd-y334-d111-asd34sd
 ALL_SCOPES = [SCOPE_1, SCOPE_2]
 
 
-class ScopeFactsSpec(unittest.TestCase, FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, ScopeFactsModule)
-        self.resource = self.mock_ov_client.scopes
-
-        FactsParamsTestCase.configure_client_mock(self, self.resource)
-
+@pytest.mark.resource(TestScopeFactsModule='scopes')
+class TestScopeFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_scopes(self):
         self.resource.get_all.return_value = ALL_SCOPES
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_GET_ALL)
@@ -71,4 +66,4 @@ class ScopeFactsSpec(unittest.TestCase, FactsParamsTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

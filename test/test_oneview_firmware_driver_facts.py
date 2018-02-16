@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import FirmwareDriverFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 FIRMWARE_DRIVER_NAME = "Service Pack for ProLiant.iso"
 
@@ -39,16 +40,11 @@ FIRMWARE_DRIVER = dict(
 )
 
 
-class FirmwareDriverFactsSpec(unittest.TestCase,
-                              FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, FirmwareDriverFactsModule)
-        self.firmware_drivers = self.mock_ov_client.firmware_drivers
-        FactsParamsTestCase.configure_client_mock(self, self.firmware_drivers)
-
+@pytest.mark.resource(TestFirmwareDriverFactsModule='firmware_drivers')
+class TestFirmwareDriverFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_firmware_drivers(self):
         firmwares = [FIRMWARE_DRIVER]
-        self.firmware_drivers.get_all.return_value = firmwares
+        self.resource.get_all.return_value = firmwares
 
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
@@ -61,7 +57,7 @@ class FirmwareDriverFactsSpec(unittest.TestCase,
 
     def test_should_get_by_name(self):
         firmwares = [FIRMWARE_DRIVER]
-        self.firmware_drivers.get_by.return_value = firmwares
+        self.resource.get_by.return_value = firmwares
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
@@ -74,4 +70,4 @@ class FirmwareDriverFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

@@ -16,8 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
-from hpe_test_utils import FactsParamsTestCase
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import ServerProfileTemplateFactsModule
 
 ERROR_MSG = 'Fake message error'
@@ -82,16 +83,11 @@ PROFILE = dict(
 TEMPLATES = [BASIC_TEMPLATE]
 
 
-class ServerProfileTemplateFactsSpec(unittest.TestCase,
-                                     FactsParamsTestCase):
+@pytest.mark.resource(TestServerProfileTemplateFactsModule='server_profile_templates')
+class TestServerProfileTemplateFactsModule(OneViewBaseFactsTest):
     """
     FactsParamsTestCase has common tests for the parameters support and provides the mocks used in this test class.
     """
-
-    def setUp(self):
-        self.configure_mocks(self, ServerProfileTemplateFactsModule)
-
-        FactsParamsTestCase.configure_client_mock(self, self.mock_ov_client.server_profile_templates)
 
     def test_should_get_all_templates(self):
         self.mock_ov_client.server_profile_templates.get_all.return_value = TEMPLATES
@@ -190,4 +186,4 @@ class ServerProfileTemplateFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

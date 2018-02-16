@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import SasLogicalInterconnectGroupFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -35,13 +36,8 @@ PARAMS_GET_BY_NAME = dict(
 SAS_LIGS = [{"name": "SAS LIG 1"}, {"name": "SAS LIG 2"}]
 
 
-class SasLogicalInterconnectGroupFactsModuleSpec(unittest.TestCase,
-                                                 FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, SasLogicalInterconnectGroupFactsModule)
-        self.resource = self.mock_ov_client.sas_logical_interconnect_groups
-        FactsParamsTestCase.configure_client_mock(self, self.resource)
-
+@pytest.mark.resource(TestSasLogicalInterconnectGroupFactsModule='sas_logical_interconnect_groups')
+class TestSasLogicalInterconnectGroupFactsModule(OneViewBaseFactsTest):
     def test_should_get_all(self):
         self.resource.get_all.return_value = SAS_LIGS
         self.mock_ansible_module.params = PARAMS_GET_ALL
@@ -66,4 +62,4 @@ class SasLogicalInterconnectGroupFactsModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

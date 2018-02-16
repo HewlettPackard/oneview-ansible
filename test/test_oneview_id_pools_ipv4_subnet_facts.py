@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import IdPoolsIpv4SubnetFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -45,15 +46,10 @@ DEFAULT_SUBNET = {
 PRESENT_SUBNETS = [DEFAULT_SUBNET.copy()]
 
 
-class IdPoolsIpv4SubnetFactsSpec(unittest.TestCase,
-                                 FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, IdPoolsIpv4SubnetFactsModule)
-        self.id_pools_ipv4_subnets = self.mock_ov_client.id_pools_ipv4_subnets
-        FactsParamsTestCase.configure_client_mock(self, self.id_pools_ipv4_subnets)
-
+@pytest.mark.resource(TestIdPoolsIpv4SubnetFactsModule='id_pools_ipv4_subnets')
+class TestIdPoolsIpv4SubnetFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_id_pools_ipv4_subnets(self):
-        self.id_pools_ipv4_subnets.get_all.return_value = PRESENT_SUBNETS
+        self.resource.get_all.return_value = PRESENT_SUBNETS
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         IdPoolsIpv4SubnetFactsModule().run()
@@ -64,7 +60,7 @@ class IdPoolsIpv4SubnetFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_id_pools_ipv4_subnet_by_name(self):
-        self.id_pools_ipv4_subnets.get_all.return_value = PRESENT_SUBNETS
+        self.resource.get_all.return_value = PRESENT_SUBNETS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         IdPoolsIpv4SubnetFactsModule().run()
@@ -75,7 +71,7 @@ class IdPoolsIpv4SubnetFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_id_pools_ipv4_subnet_by_uri(self):
-        self.id_pools_ipv4_subnets.get.return_value = DEFAULT_SUBNET
+        self.resource.get.return_value = DEFAULT_SUBNET
         self.mock_ansible_module.params = PARAMS_GET_BY_URI
 
         IdPoolsIpv4SubnetFactsModule().run()
@@ -87,4 +83,4 @@ class IdPoolsIpv4SubnetFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

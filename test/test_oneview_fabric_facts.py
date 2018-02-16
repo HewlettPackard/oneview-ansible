@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import FabricFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -60,15 +61,10 @@ DEFAULT_FABRIC_VLAN_RANGE = dict(
 )
 
 
-class FabricFactsSpec(unittest.TestCase,
-                      FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, FabricFactsModule)
-        self.fabrics = self.mock_ov_client.fabrics
-        FactsParamsTestCase.configure_client_mock(self, self.fabrics)
-
+@pytest.mark.resource(TestFabricFactsModule='fabrics')
+class TestFabricFactsModule(OneViewBaseFactsTest):
     def test_should_get_all(self):
-        self.fabrics.get_all.return_value = PRESENT_FABRICS
+        self.resource.get_all.return_value = PRESENT_FABRICS
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         FabricFactsModule().run()
@@ -79,7 +75,7 @@ class FabricFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_by_name(self):
-        self.fabrics.get_by.return_value = PRESENT_FABRICS
+        self.resource.get_by.return_value = PRESENT_FABRICS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         FabricFactsModule().run()
@@ -90,8 +86,8 @@ class FabricFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_fabric_by_name_with_options(self):
-        self.fabrics.get_by.return_value = PRESENT_FABRICS
-        self.fabrics.get_reserved_vlan_range.return_value = FABRIC_RESERVED_VLAN_RANGE
+        self.resource.get_by.return_value = PRESENT_FABRICS
+        self.resource.get_reserved_vlan_range.return_value = FABRIC_RESERVED_VLAN_RANGE
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         FabricFactsModule().run()
@@ -104,4 +100,4 @@ class FabricFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

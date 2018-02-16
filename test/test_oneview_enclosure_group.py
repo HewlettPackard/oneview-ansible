@@ -16,11 +16,11 @@
 # limitations under the License.
 ###
 
+import pytest
 import yaml
 
-from ansible.compat.tests import unittest
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import EnclosureGroupModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -77,15 +77,11 @@ YAML_ENCLOSURE_GROUP_ABSENT = """
 DICT_DEFAULT_ENCLOSURE_GROUP = yaml.load(YAML_ENCLOSURE_GROUP)["data"]
 
 
-class EnclosureGroupPresentStateSpec(unittest.TestCase,
-                                     OneViewBaseTestCase):
+@pytest.mark.resource(TestEnclosureGroupModule='enclosure_groups')
+class TestEnclosureGroupModule(OneViewBaseTest):
     """
     OneViewBaseTestCase has tests for main function, also provides the mocks used in this test case
     """
-
-    def setUp(self):
-        self.configure_mocks(self, EnclosureGroupModule)
-        self.resource = self.mock_ov_client.enclosure_groups
 
     def test_should_create_new_enclosure_group(self):
         self.resource.get_by.return_value = []
@@ -195,4 +191,4 @@ class EnclosureGroupPresentStateSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

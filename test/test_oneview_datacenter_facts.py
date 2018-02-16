@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import DatacenterFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -42,16 +43,10 @@ PARAMS_GET_CONNECTED = dict(
 )
 
 
-class DatacentersFactsSpec(unittest.TestCase,
-                           FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, DatacenterFactsModule)
-        self.datacenters = self.mock_ov_client.datacenters
-
-        FactsParamsTestCase.configure_client_mock(self, self.datacenters)
-
+@pytest.mark.resource(TestDatacenterFactsModule='datacenters')
+class TestDatacenterFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_datacenters(self):
-        self.datacenters.get_all.return_value = {"name": "Data Center Name"}
+        self.resource.get_all.return_value = {"name": "Data Center Name"}
 
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
@@ -63,7 +58,7 @@ class DatacentersFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_datacenter_by_name(self):
-        self.datacenters.get_by.return_value = [{"name": "Data Center Name"}]
+        self.resource.get_by.return_value = [{"name": "Data Center Name"}]
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
@@ -75,9 +70,9 @@ class DatacentersFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_datacenter_visual_content(self):
-        self.datacenters.get_by.return_value = [{"name": "Data Center Name", "uri": "/rest/datacenter/id"}]
+        self.resource.get_by.return_value = [{"name": "Data Center Name", "uri": "/rest/datacenter/id"}]
 
-        self.datacenters.get_visual_content.return_value = {
+        self.resource.get_visual_content.return_value = {
             "name": "Visual Content"}
 
         self.mock_ansible_module.params = PARAMS_GET_CONNECTED
@@ -91,7 +86,7 @@ class DatacentersFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_none_datacenter_visual_content(self):
-        self.datacenters.get_by.return_value = []
+        self.resource.get_by.return_value = []
 
         self.mock_ansible_module.params = PARAMS_GET_CONNECTED
 
@@ -105,4 +100,4 @@ class DatacentersFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

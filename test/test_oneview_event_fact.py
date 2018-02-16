@@ -14,9 +14,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import EventFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -36,14 +37,10 @@ PRESENT_EVENTS = [{
 }]
 
 
-class EventFactsSpec(unittest.TestCase, FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, EventFactsModule)
-        self.events = self.mock_ov_client.events
-        FactsParamsTestCase.configure_client_mock(self, self.events)
-
+@pytest.mark.resource(TestEventFactsModule='events')
+class TestEventFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_events(self):
-        self.events.get_all.return_value = PRESENT_EVENTS
+        self.resource.get_all.return_value = PRESENT_EVENTS
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         EventFactsModule().run()
@@ -55,4 +52,4 @@ class EventFactsSpec(unittest.TestCase, FactsParamsTestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

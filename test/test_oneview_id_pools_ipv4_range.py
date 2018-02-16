@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import IdPoolsIpv4RangeModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -92,19 +93,14 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class IdPoolsIpv4RangeModuleSpec(unittest.TestCase,
-                                 OneViewBaseTestCase):
+@pytest.mark.resource(TestIdPoolsIpv4RangeModule='id_pools_ipv4_ranges')
+class TestIdPoolsIpv4RangeModule(OneViewBaseTest):
     """
     OneViewBaseTestCase provides the mocks used in this test case
     """
 
-    def setUp(self):
-        self.configure_mocks(self, IdPoolsIpv4RangeModule)
-        self.resource = self.mock_ov_client.id_pools_ipv4_ranges
-        self.subnet = self.mock_ov_client.id_pools_ipv4_subnets
-
     def test_should_create_new_id_pools_ipv4_range(self):
-        self.subnet.get.return_value = DEFAULT_SUBNET_TEMPLATE
+        self.mock_ov_client.id_pools_ipv4_subnets.get.return_value = DEFAULT_SUBNET_TEMPLATE
         self.resource.get.side_effect = [DEFAULT_NOT_RANGE_TEMPLATE, DEFAULT_NOT_RANGE_TEMPLATE]
         self.resource.create.return_value = DEFAULT_RANGE_TEMPLATE
 
@@ -185,7 +181,7 @@ class IdPoolsIpv4RangeModuleSpec(unittest.TestCase,
         )
 
     def test_should_delete_the_ipv4_range_when_it_exists(self):
-        self.subnet.get.return_value = DEFAULT_SUBNET_TEMPLATE
+        self.mock_ov_client.id_pools_ipv4_subnets.get.return_value = DEFAULT_SUBNET_TEMPLATE
         self.resource.get.side_effect = [DEFAULT_NOT_RANGE_TEMPLATE, DEFAULT_RANGE_TEMPLATE]
         self.resource.delete.return_value = None
 
@@ -201,7 +197,7 @@ class IdPoolsIpv4RangeModuleSpec(unittest.TestCase,
         )
 
     def test_should_not_delete_when_id_pools_ipv4_range_do_not_exist(self):
-        self.subnet.get.return_value = DEFAULT_SUBNET_TEMPLATE
+        self.mock_ov_client.id_pools_ipv4_subnets.get.return_value = DEFAULT_SUBNET_TEMPLATE
         self.resource.get.side_effect = [DEFAULT_NOT_RANGE_TEMPLATE, DEFAULT_NOT_RANGE_TEMPLATE]
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
@@ -217,4 +213,4 @@ class IdPoolsIpv4RangeModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

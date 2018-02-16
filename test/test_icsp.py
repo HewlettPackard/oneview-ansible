@@ -16,7 +16,9 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import mock
+import pytest
+
 from oneview_module_loader import ICspHelper
 
 DEFAULT_SERVER = {
@@ -40,11 +42,12 @@ DEFAULT_SERVER_NO_ILO = {
 DEFAULT_BUILD_PLAN = {"name": "RHEL 7.2 x64", "uri": "/rest/os-deployment-build-plans/222"}
 
 
-class ICspHelperSpec(unittest.TestCase):
+class TestICspHelper():
     """
     ICspHelperSpec provides the mocks used in this test case.
     """
 
+    @pytest.fixture(autouse=True)
     def setUp(self):
         self.mock_connection = mock.Mock()
         self.mock_connection.login.return_value = {}
@@ -65,7 +68,7 @@ class ICspHelperSpec(unittest.TestCase):
         self.mock_connection.get.assert_called_once_with(
             '/rest/index/resources?filter="name=\'RHEL%207.2%20x64\'"&category=osdbuildplan')
 
-        self.assertEqual(plan, expected)
+        assert plan == expected
 
     def test_get_build_plan_with_non_matching_result(self):
         self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_BUILD_PLAN])]
@@ -76,7 +79,7 @@ class ICspHelperSpec(unittest.TestCase):
         self.mock_connection.get.assert_called_once_with(
             '/rest/index/resources?filter="name=\'BuildPlan\'"&category=osdbuildplan')
 
-        self.assertIsNone(plan)
+        assert plan is None
 
     def test_should_fail_when_os_build_plan_not_found(self):
         self.mock_connection.get.side_effect = [self.get_as_rest_collection([])]
@@ -87,7 +90,7 @@ class ICspHelperSpec(unittest.TestCase):
         self.mock_connection.get.assert_called_once_with(
             '/rest/index/resources?filter="name=\'RHEL%207.2%20x64\'"&category=osdbuildplan')
 
-        self.assertIsNone(plan)
+        assert plan is None
 
     def test_get_server_by_ilo_address_with_matching_result(self):
         self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_SERVER])]
@@ -98,7 +101,7 @@ class ICspHelperSpec(unittest.TestCase):
         self.mock_connection.get.assert_called_once_with(
             '/rest/os-deployment-servers/?count=-1')
 
-        self.assertEqual(server, DEFAULT_SERVER)
+        assert server == DEFAULT_SERVER
 
     def test_get_server_by_ilo_address_with_non_matching_result(self):
         self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_SERVER])]
@@ -109,7 +112,7 @@ class ICspHelperSpec(unittest.TestCase):
         self.mock_connection.get.assert_called_once_with(
             '/rest/os-deployment-servers/?count=-1')
 
-        self.assertIsNone(server)
+        assert server is None
 
     def test_get_server_by_ilo_address_with_servers_with_no_ilo(self):
         self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_SERVER_NO_ILO])]
@@ -120,7 +123,7 @@ class ICspHelperSpec(unittest.TestCase):
         self.mock_connection.get.assert_called_once_with(
             '/rest/os-deployment-servers/?count=-1')
 
-        self.assertIsNone(server)
+        assert server is None
 
     def test_get_server_by_ilo_address_with_no_registered_servers(self):
         self.mock_connection.get.side_effect = [self.get_as_rest_collection([])]
@@ -131,7 +134,7 @@ class ICspHelperSpec(unittest.TestCase):
         self.mock_connection.get.assert_called_once_with(
             '/rest/os-deployment-servers/?count=-1')
 
-        self.assertIsNone(server)
+        assert server is None
 
     def test_get_server_by_serial_with_matching_result(self):
         self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_SERVER])]
@@ -143,7 +146,7 @@ class ICspHelperSpec(unittest.TestCase):
         self.mock_connection.get.assert_called_once_with(
             '/rest/index/resources?category=osdserver&query=\'osdServerSerialNumber:"VCGYZ33007"\'')
 
-        self.assertEqual(server, expected)
+        assert server == expected
 
     def test_get_server_by_serial_with_non_matching_result(self):
         self.mock_connection.get.side_effect = [self.get_as_rest_collection([DEFAULT_SERVER])]
@@ -154,7 +157,7 @@ class ICspHelperSpec(unittest.TestCase):
         self.mock_connection.get.assert_called_once_with(
             '/rest/index/resources?category=osdserver&query=\'osdServerSerialNumber:"000"\'')
 
-        self.assertIsNone(server)
+        assert server is None
 
     def test_get_server_by_serial_with_no_registered_servers(self):
         self.mock_connection.get.side_effect = [self.get_as_rest_collection([])]
@@ -165,7 +168,8 @@ class ICspHelperSpec(unittest.TestCase):
         self.mock_connection.get.assert_called_once_with(
             '/rest/index/resources?category=osdserver&query=\'osdServerSerialNumber:"000"\'')
 
-        self.assertIsNone(server)
+        assert server is None
 
-    if __name__ == '__main__':
-        unittest.main()
+
+if __name__ == '__main__':
+    pytest.main([__file__])

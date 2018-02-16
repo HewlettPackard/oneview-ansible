@@ -67,7 +67,7 @@
   * [oneview_managed_san_facts - Retrieve facts about the OneView Managed SANs.](#oneview_managed_san_facts)
   * [oneview_network_set - Manage OneView Network Set resources.](#oneview_network_set)
   * [oneview_network_set_facts - Retrieve facts about the OneView Network Sets](#oneview_network_set_facts)
-  * [oneview_os_deployment_plan_facts - Retrieve facts about one or more Os Deployment Plans.](#oneview_os_deployment_plan_facts)
+  * [oneview_os_deployment_plan_facts - Retrieve facts about one or more OS Deployment Plans.](#oneview_os_deployment_plan_facts)
   * [oneview_os_deployment_server - Manage OneView Deployment Server resources.](#oneview_os_deployment_server)
   * [oneview_os_deployment_server_facts - Retrieve facts about one or more OS Deployment Servers.](#oneview_os_deployment_server_facts)
   * [oneview_power_device - Manage OneView Power Device resources.](#oneview_power_device)
@@ -88,7 +88,7 @@
   * [oneview_scope - Manage OneView Scope resources.](#oneview_scope)
   * [oneview_scope_facts - Retrieve facts about one or more of the OneView Scopes.](#oneview_scope_facts)
   * [oneview_server_hardware - Manage OneView Server Hardware resources.](#oneview_server_hardware)
-  * [oneview_server_hardware_facts - Retrieve facts about the OneView Server Hardwares.](#oneview_server_hardware_facts)
+  * [oneview_server_hardware_facts - Retrieve facts about the OneView Server Hardware.](#oneview_server_hardware_facts)
   * [oneview_server_hardware_type - Manage OneView Server Hardware Type resources.](#oneview_server_hardware_type)
   * [oneview_server_hardware_type_facts - Retrieve facts about Server Hardware Types of the OneView.](#oneview_server_hardware_type_facts)
   * [oneview_server_profile - Manage OneView Server Profile resources](#oneview_server_profile)
@@ -5734,10 +5734,10 @@ Retrieve facts about the OneView Network Sets
 
 
 ## oneview_os_deployment_plan_facts
-Retrieve facts about one or more Os Deployment Plans.
+Retrieve facts about one or more OS Deployment Plans.
 
 #### Synopsis
- Retrieve facts about one or more of the Os Deployment Plans from OneView.
+ Retrieve facts about one or more of the OS Deployment Plans from OneView.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -7532,7 +7532,7 @@ Manage OneView Server Hardware resources.
 
 
 ## oneview_server_hardware_facts
-Retrieve facts about the OneView Server Hardwares.
+Retrieve facts about the OneView Server Hardware.
 
 #### Synopsis
  Retrieve facts about the Server Hardware from OneView.
@@ -7952,7 +7952,7 @@ Manage OneView Server Profile resources
 
 - For the following data, you can provide either a name or a URI: enclosureGroupName or enclosureGroupUri, osDeploymentPlanName or osDeploymentPlanUri (on the osDeploymentSettings), networkName or networkUri (on the connections list), volumeName or volumeUri (on the volumeAttachments list), volumeStoragePoolName or volumeStoragePoolUri (on the volumeAttachments list), volumeStorageSystemName or volumeStorageSystemUri (on the volumeAttachments list), serverHardwareTypeName or  serverHardwareTypeUri, enclosureName or enclosureUri, firmwareBaselineName or firmwareBaselineUri (on the firmware), and sasLogicalJBODName or sasLogicalJBODUri (on the sasLogicalJBODs list)
 
-- If you define the volumeUri as null in the volumeAttachments list, it will be understood that the volume does not exist, so it will be created along with the server profile. Be warned that everytime this option is executed it will always be understood that a new volume needs to be created, so this will not be idempotent. It is strongly recommended to ensure volumes with Ansible and then assign them to the desired server profile. does not exists, so it will be created along with the server profile
+- If you define the volumeUri as null in the volumeAttachments list, it will be understood that the volume does not exist, so it will be created along with the server profile. Be warned that every time this option is executed it will always be understood that a new volume needs to be created, so this will not be idempotent. It is strongly recommended to ensure volumes with Ansible and then assign them to the desired server profile. does not exists, so it will be created along with the server profile
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
@@ -8184,7 +8184,7 @@ Manage OneView Server Profile Template resources.
 
 - For the following data, you can provide either a name  or a URI: enclosureGroupName or enclosureGroupUri, osDeploymentPlanName or osDeploymentPlanUri (on the osDeploymentSettings), networkName or networkUri (on the connections list), volumeName or volumeUri (on the volumeAttachments list), volumeStoragePoolName or volumeStoragePoolUri (on the volumeAttachments list), volumeStorageSystemName or volumeStorageSystemUri (on the volumeAttachments list), serverHardwareTypeName or  serverHardwareTypeUri, enclosureName or enclosureUri, firmwareBaselineName or firmwareBaselineUri (on the firmware), and sasLogicalJBODName or sasLogicalJBODUri (on the sasLogicalJBODs list)
 
-- If you define the volumeUri as null in the volumeAttachments list, it will be understood that the volume does not exist, so it will be created along with the server profile. Be warned that everytime this option is executed it will always be understood that a new volume needs to be created, so this will not be idempotent. It is strongly recommended to ensure volumes with ansible and then assign them to the desired server profile template.
+- If you define the volumeUri as null in the volumeAttachments list, it will be understood that the volume does not exist, so it will be created along with the server profile. Be warned that every time this option is executed it will always be understood that a new volume needs to be created, so this will not be idempotent. It is strongly recommended to ensure volumes with Ansible and then assign them to the desired server profile template.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
@@ -9069,7 +9069,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
 Provides an interface to remove ToR Switch resources.
 
 #### Synopsis
- Provides an interface to remove Top of Rack(ToR) Switch resources. The switch resource will be removed if it is in an unmanaged state. If the switch resource is associated with a Logical Switch, it's removal is treated as a hardware removal only. A reference to the switch is mantained, and the resource is marked as 'Absent'.
+ Provides an interface to remove Top of Rack(ToR) Switch resources. The switch resource will be removed if it is in an unmanaged state. If the switch resource is associated with a Logical Switch, its removal is treated as a hardware removal only. A reference to the switch is mantained, and the resource is marked as 'Absent'.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
@@ -9409,7 +9409,7 @@ Manage OneView Unmanaged Device resources.
 
 #### Notes
 
-- To rename an Unamnaged Device you must inform a `newName` in the data argument. The rename is non-idempotent
+- To rename an Unmanaged Device you must inform a `newName` in the data argument. The rename is non-idempotent
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
@@ -9437,7 +9437,7 @@ Retrieve facts about one or more of the OneView Unmanaged Device.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Unmanaged Device name.  |
-| options  |   |  | |  List with options to gather additional facts about the Unmanaged Device. Options allowed: `environmental_configuration` gets a description of the environmental configuration for the Unmnaged Device.  |
+| options  |   |  | |  List with options to gather additional facts about the Unmanaged Device. Options allowed: `environmental_configuration` gets a description of the environmental configuration for the Unmanaged Device.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
@@ -10037,7 +10037,7 @@ Retrieve facts about the OneView Volumes.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Volume name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Volume and related resources. Options allowed: `attachableVolumes`, `extraManagedVolumePaths`, and `snapshots`. For the option `snapshots`, you may provide a name.  |
+| options  |   No  |  | |  List with options to gather additional facts about Volume and related resources. Options allowed: - `attachableVolumes` - `extraManagedVolumePaths` - `snapshots`. For this option, you may provide a name.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
@@ -10048,29 +10048,35 @@ Retrieve facts about the OneView Volumes.
 
 - name: Gather facts about all Volumes
   oneview_volume_facts:
-    config: "{{ config_path }}"
-
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
 - debug: var=storage_volumes
 
 - name: Gather paginated, filtered and sorted facts about Volumes
   oneview_volume_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
     params:
       start: 0
       count: 2
       sort: 'name:descending'
       filter: "provisionType='Thin'"
-
 - debug: var=storage_volumes
 
 - name: "Gather facts about all Volumes, the attachable volumes managed by the appliance and the extra managed
          storage volume paths"
   oneview_volume_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
     options:
         - attachableVolumes        # optional
         - extraManagedVolumePaths  # optional
-
 - debug: var=storage_volumes
 - debug: var=attachable_volumes
 - debug: var=extra_managed_volume_paths
@@ -10078,23 +10084,27 @@ Retrieve facts about the OneView Volumes.
 
 - name: Gather facts about a Volume by name with a list of all snapshots taken
   oneview_volume_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
     name: "{{ volume_name }}"
     options:
         - snapshots  # optional
-
 - debug: var=storage_volumes
 - debug: var=snapshots
 
 
 - name: "Gather facts about a Volume with one specific snapshot taken"
   oneview_volume_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
     name: "{{ volume_name }}"
     options:
        - snapshots:  # optional
            name: "{{ snapshot_name }}"
-
 - debug: var=storage_volumes
 - debug: var=snapshots
 

@@ -16,59 +16,56 @@
 # limitations under the License.
 ###
 
+import mock
+import pytest
 import yaml
 
-from ansible.compat.tests import unittest, mock
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ConnectionTemplateModule
-from hpe_test_utils import OneViewBaseTestCase
 
+FAKE_MSG_ERROR = 'Fake message error'
 
-class ConnectionTemplateModuleSpec(unittest.TestCase,
-                                   OneViewBaseTestCase):
-
-    FAKE_MSG_ERROR = 'Fake message error'
-
-    YAML_CONNECTION_TEMPLATE = """
-            config: "{{ config }}"
-            state: present
-            data:
-                name: 'name1304244267-1467656930023'
-                type : "connection-template"
-                bandwidth :
-                    maximumBandwidth : 10000
-                    typicalBandwidth : 2000
-              """
-
-    YAML_CONNECTION_TEMPLATE_CHANGE = """
-            config: "{{ config }}"
-            state: present
-            data:
-                name: 'name1304244267-1467656930023'
-                type : "connection-template"
-                bandwidth :
-                    maximumBandwidth : 10000
-                    typicalBandwidth : 2000
-                newName : "CT-23"
+YAML_CONNECTION_TEMPLATE = """
+        config: "{{ config }}"
+        state: present
+        data:
+            name: 'name1304244267-1467656930023'
+            type : "connection-template"
+            bandwidth :
+                maximumBandwidth : 10000
+                typicalBandwidth : 2000
           """
 
-    YAML_CONNECTION_TEMPLATE_MISSING_KEY = """
-            config: "{{ config }}"
-            state: present
-            data:
-                state: "Configured"
-        """
+YAML_CONNECTION_TEMPLATE_CHANGE = """
+        config: "{{ config }}"
+        state: present
+        data:
+            name: 'name1304244267-1467656930023'
+            type : "connection-template"
+            bandwidth :
+                maximumBandwidth : 10000
+                typicalBandwidth : 2000
+            newName : "CT-23"
+      """
 
-    DICT_CONNECTION_TEMPLATE = yaml.load(YAML_CONNECTION_TEMPLATE)["data"]
-    DICT_CONNECTION_TEMPLATE_CHANGED = yaml.load(YAML_CONNECTION_TEMPLATE_CHANGE)["data"]
+YAML_CONNECTION_TEMPLATE_MISSING_KEY = """
+        config: "{{ config }}"
+        state: present
+        data:
+            state: "Configured"
+    """
 
-    def setUp(self):
-        self.configure_mocks(self, ConnectionTemplateModule)
+DICT_CONNECTION_TEMPLATE = yaml.load(YAML_CONNECTION_TEMPLATE)["data"]
+DICT_CONNECTION_TEMPLATE_CHANGED = yaml.load(YAML_CONNECTION_TEMPLATE_CHANGE)["data"]
 
+
+@pytest.mark.resource(TestConnectionTemplateModule='connection_templates')
+class TestConnectionTemplateModule(OneViewBaseTest):
     def test_should_update_the_connection_template(self):
-        self.mock_ov_client.connection_templates.get_by.return_value = [self.DICT_CONNECTION_TEMPLATE]
-        self.mock_ov_client.connection_templates.update.return_value = {"name": "name"}
+        self.resource.get_by.return_value = [DICT_CONNECTION_TEMPLATE]
+        self.resource.update.return_value = {"name": "name"}
 
-        self.mock_ansible_module.params = yaml.load(self.YAML_CONNECTION_TEMPLATE_CHANGE)
+        self.mock_ansible_module.params = yaml.load(YAML_CONNECTION_TEMPLATE_CHANGE)
 
         ConnectionTemplateModule().run()
 
@@ -79,31 +76,31 @@ class ConnectionTemplateModuleSpec(unittest.TestCase,
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.mock_ov_client.connection_templates.get_by.return_value = [self.DICT_CONNECTION_TEMPLATE]
+        self.resource.get_by.return_value = [DICT_CONNECTION_TEMPLATE]
 
-        self.mock_ansible_module.params = yaml.load(self.YAML_CONNECTION_TEMPLATE)
+        self.mock_ansible_module.params = yaml.load(YAML_CONNECTION_TEMPLATE)
 
         ConnectionTemplateModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=ConnectionTemplateModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(connection_template=self.DICT_CONNECTION_TEMPLATE)
+            ansible_facts=dict(connection_template=DICT_CONNECTION_TEMPLATE)
         )
 
     def test_should_fail_when_key_is_missing(self):
-        self.mock_ov_client.connection_templates.get_by.return_value = [self.DICT_CONNECTION_TEMPLATE]
+        self.resource.get_by.return_value = [DICT_CONNECTION_TEMPLATE]
 
-        self.mock_ansible_module.params = yaml.load(self.YAML_CONNECTION_TEMPLATE_MISSING_KEY)
+        self.mock_ansible_module.params = yaml.load(YAML_CONNECTION_TEMPLATE_MISSING_KEY)
 
         ConnectionTemplateModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ConnectionTemplateModule.MSG_MANDATORY_FIELD_MISSING)
 
     def test_should_fail_when_connection_template_was_not_found(self):
-        self.mock_ov_client.connection_templates.get_by.return_value = []
+        self.resource.get_by.return_value = []
 
-        self.mock_ansible_module.params = yaml.load(self.YAML_CONNECTION_TEMPLATE)
+        self.mock_ansible_module.params = yaml.load(YAML_CONNECTION_TEMPLATE)
 
         ConnectionTemplateModule().run()
 
@@ -111,4 +108,4 @@ class ConnectionTemplateModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

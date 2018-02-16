@@ -16,10 +16,11 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
-from oneview_module_loader import AlertFactsModule
-from hpe_test_utils import FactsParamsTestCase
 import copy
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
+from oneview_module_loader import AlertFactsModule
 
 ERROR_MSG = 'Fake message error'
 
@@ -39,14 +40,8 @@ ALL_ALERTS = [{
 }]
 
 
-class TaskFactsSpec(unittest.TestCase,
-                    FactsParamsTestCase):
-
-    def setUp(self):
-        self.configure_mocks(self, AlertFactsModule)
-        self.resource = self.mock_ov_client.alerts
-        FactsParamsTestCase.configure_client_mock(self, self.resource)
-
+@pytest.mark.resource(TestAlertFactsModule='alerts')
+class TestAlertFactsModule(OneViewBaseFactsTest):
     def test_get_all(self):
         self.resource.get_all.return_value = ALL_ALERTS
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_GET_ALL)
@@ -82,4 +77,4 @@ class TaskFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

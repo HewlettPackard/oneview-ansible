@@ -16,10 +16,12 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest, mock
+import mock
+import pytest
+
 from copy import deepcopy
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import InterconnectModule
-from hpe_test_utils import OneViewBaseTestCase
 
 
 def create_params_for(power_state):
@@ -31,75 +33,73 @@ def create_params_for(power_state):
     )
 
 
-class InterconnectModuleSpec(unittest.TestCase,
-                             OneViewBaseTestCase):
-    FAKE_URI = "/rest/interconnects/748d4699-62ff-454e-8ec8-773815c4aa2f"
+FAKE_URI = "/rest/interconnects/748d4699-62ff-454e-8ec8-773815c4aa2f"
 
-    INTERCONNECT_IP = '172.18.1.114'
+INTERCONNECT_IP = '172.18.1.114'
 
-    INTERCONNECT_ID = "748d4699-62ff-454e-8ec8-773815c4aa2f"
+INTERCONNECT_ID = "748d4699-62ff-454e-8ec8-773815c4aa2f"
 
-    PORT_D1 = {
-        "type": "port",
-        "portName": "d1",
-        "bayNumber": 1,
-        "enabled": False,
-        "portId": "{0}:d1".format(INTERCONNECT_ID)
-    }
+PORT_D1 = {
+    "type": "port",
+    "portName": "d1",
+    "bayNumber": 1,
+    "enabled": False,
+    "portId": "{0}:d1".format(INTERCONNECT_ID)
+}
 
-    PORT_D2 = {
-        "portName": "d2",
-        "enabled": False,
-        "portId": "{0}:d2".format(INTERCONNECT_ID)
-    }
+PORT_D2 = {
+    "portName": "d2",
+    "enabled": False,
+    "portId": "{0}:d2".format(INTERCONNECT_ID)
+}
 
-    PORTS_FOR_UPDATE = [PORT_D1, PORT_D2]
+PORTS_FOR_UPDATE = [PORT_D1, PORT_D2]
 
-    PARAMS_FOR_RESET_DEVICE_BY_IP = dict(
-        config='config.json',
-        state='device_reset',
-        name=None,
-        ip=INTERCONNECT_IP
-    )
+PARAMS_FOR_RESET_DEVICE_BY_IP = dict(
+    config='config.json',
+    state='device_reset',
+    name=None,
+    ip=INTERCONNECT_IP
+)
 
-    PARAMS_FOR_UPDATE_PORTS = dict(
-        config='config.json',
-        state='update_ports',
-        name=None,
-        ip=INTERCONNECT_IP,
-        ports=PORTS_FOR_UPDATE
-    )
+PARAMS_FOR_UPDATE_PORTS = dict(
+    config='config.json',
+    state='update_ports',
+    name=None,
+    ip=INTERCONNECT_IP,
+    ports=PORTS_FOR_UPDATE
+)
 
-    PARAMS_FOR_RESET_PORT_PROTECTION = dict(
-        config='config.json',
-        state='reset_port_protection',
-        name=None,
-        ip=INTERCONNECT_IP
-    )
+PARAMS_FOR_RESET_PORT_PROTECTION = dict(
+    config='config.json',
+    state='reset_port_protection',
+    name=None,
+    ip=INTERCONNECT_IP
+)
 
-    PARAMS_FOR_UPDATE_CONFIGURATION = dict(
-        config='config.json',
-        state='reconfigured',
-        name=None,
-        ip=INTERCONNECT_IP
-    )
+PARAMS_FOR_UPDATE_CONFIGURATION = dict(
+    config='config.json',
+    state='reconfigured',
+    name=None,
+    ip=INTERCONNECT_IP
+)
 
-    def setUp(self):
-        self.configure_mocks(self, InterconnectModule)
 
+@pytest.mark.resource(TestInterconnectModule='interconnects')
+class TestInterconnectModule(OneViewBaseTest):
     def test_should_ensure_powered_on_state(self):
         ansible_arguments = create_params_for('powered_on')
         self.mock_ansible_module.params = ansible_arguments
 
-        self.mock_ov_client.interconnects.get_by.return_value = [dict(powerState='Off', uri=self.FAKE_URI)]
+        self.resource.get_by.return_value = [dict(powerState='Off', uri=FAKE_URI)]
 
         fake_interconnect_updated = dict(powerState='On')
-        self.mock_ov_client.interconnects.patch.return_value = fake_interconnect_updated
+        self.resource.patch.return_value = fake_interconnect_updated
 
         InterconnectModule().run()
 
-        self.mock_ov_client.interconnects.patch.assert_called_with(
-            id_or_uri=self.FAKE_URI,
+        self.resource.patch.assert_called_with(
+            id_or_uri=FAKE_URI,
             operation='replace',
             path='/powerState',
             value='On'
@@ -115,7 +115,7 @@ class InterconnectModuleSpec(unittest.TestCase,
         self.mock_ansible_module.params = ansible_arguments
 
         fake_interconnect = dict(powerState='On')
-        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
+        self.resource.get_by.return_value = [fake_interconnect]
 
         InterconnectModule().run()
 
@@ -129,15 +129,15 @@ class InterconnectModuleSpec(unittest.TestCase,
         ansible_arguments = create_params_for('powered_off')
         self.mock_ansible_module.params = ansible_arguments
 
-        self.mock_ov_client.interconnects.get_by.return_value = [dict(powerState='On', uri=self.FAKE_URI)]
+        self.resource.get_by.return_value = [dict(powerState='On', uri=FAKE_URI)]
 
         fake_interconnect_updated = dict(powerState='Off')
-        self.mock_ov_client.interconnects.patch.return_value = fake_interconnect_updated
+        self.resource.patch.return_value = fake_interconnect_updated
 
         InterconnectModule().run()
 
-        self.mock_ov_client.interconnects.patch.assert_called_with(
-            id_or_uri=self.FAKE_URI,
+        self.resource.patch.assert_called_with(
+            id_or_uri=FAKE_URI,
             operation='replace',
             path='/powerState',
             value='Off'
@@ -153,7 +153,7 @@ class InterconnectModuleSpec(unittest.TestCase,
         self.mock_ansible_module.params = ansible_arguments
 
         fake_interconnect = dict(powerState='Off')
-        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
+        self.resource.get_by.return_value = [fake_interconnect]
 
         InterconnectModule().run()
 
@@ -167,15 +167,15 @@ class InterconnectModuleSpec(unittest.TestCase,
         ansible_arguments = create_params_for('uid_on')
         self.mock_ansible_module.params = ansible_arguments
 
-        self.mock_ov_client.interconnects.get_by.return_value = [dict(uidState='Off', uri=self.FAKE_URI)]
+        self.resource.get_by.return_value = [dict(uidState='Off', uri=FAKE_URI)]
 
         fake_interconnect_updated = dict(uidState='On')
-        self.mock_ov_client.interconnects.patch.return_value = fake_interconnect_updated
+        self.resource.patch.return_value = fake_interconnect_updated
 
         InterconnectModule().run()
 
-        self.mock_ov_client.interconnects.patch.assert_called_with(
-            id_or_uri=self.FAKE_URI,
+        self.resource.patch.assert_called_with(
+            id_or_uri=FAKE_URI,
             operation='replace',
             path='/uidState',
             value='On'
@@ -191,7 +191,7 @@ class InterconnectModuleSpec(unittest.TestCase,
         self.mock_ansible_module.params = ansible_arguments
 
         fake_interconnect = dict(uidState='On')
-        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
+        self.resource.get_by.return_value = [fake_interconnect]
 
         InterconnectModule().run()
 
@@ -205,15 +205,15 @@ class InterconnectModuleSpec(unittest.TestCase,
         ansible_arguments = create_params_for('uid_off')
         self.mock_ansible_module.params = ansible_arguments
 
-        self.mock_ov_client.interconnects.get_by.return_value = [dict(uidState='On', uri=self.FAKE_URI)]
+        self.resource.get_by.return_value = [dict(uidState='On', uri=FAKE_URI)]
 
         fake_interconnect_updated = dict(uidState='Off')
-        self.mock_ov_client.interconnects.patch.return_value = fake_interconnect_updated
+        self.resource.patch.return_value = fake_interconnect_updated
 
         InterconnectModule().run()
 
-        self.mock_ov_client.interconnects.patch.assert_called_with(
-            id_or_uri=self.FAKE_URI,
+        self.resource.patch.assert_called_with(
+            id_or_uri=FAKE_URI,
             operation='replace',
             path='/uidState',
             value='Off'
@@ -229,7 +229,7 @@ class InterconnectModuleSpec(unittest.TestCase,
         self.mock_ansible_module.params = ansible_arguments
 
         fake_interconnect = dict(uidState='Off')
-        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
+        self.resource.get_by.return_value = [fake_interconnect]
 
         InterconnectModule().run()
 
@@ -243,15 +243,15 @@ class InterconnectModuleSpec(unittest.TestCase,
         ansible_arguments = create_params_for('device_reset')
         self.mock_ansible_module.params = ansible_arguments
 
-        fake_interconnect = dict(uri=self.FAKE_URI)
+        fake_interconnect = dict(uri=FAKE_URI)
 
-        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
-        self.mock_ov_client.interconnects.patch.return_value = fake_interconnect
+        self.resource.get_by.return_value = [fake_interconnect]
+        self.resource.patch.return_value = fake_interconnect
 
         InterconnectModule().run()
 
-        self.mock_ov_client.interconnects.patch.assert_called_with(
-            id_or_uri=self.FAKE_URI,
+        self.resource.patch.assert_called_with(
+            id_or_uri=FAKE_URI,
             operation='replace',
             path='/deviceResetState',
             value='Reset'
@@ -266,22 +266,22 @@ class InterconnectModuleSpec(unittest.TestCase,
         ansible_arguments = create_params_for('device_reset')
         self.mock_ansible_module.params = ansible_arguments
 
-        self.mock_ov_client.interconnects.get_by.return_value = []
+        self.resource.get_by.return_value = []
 
         InterconnectModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=InterconnectModule.MSG_INTERCONNECT_NOT_FOUND)
 
     def test_should_ensure_device_reset_by_ip_address(self):
-        self.mock_ansible_module.params = self.PARAMS_FOR_RESET_DEVICE_BY_IP
+        self.mock_ansible_module.params = PARAMS_FOR_RESET_DEVICE_BY_IP
 
-        fake_interconnect = dict(uri=self.FAKE_URI)
-        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
-        self.mock_ov_client.interconnects.patch.return_value = fake_interconnect
+        fake_interconnect = dict(uri=FAKE_URI)
+        self.resource.get_by.return_value = [fake_interconnect]
+        self.resource.patch.return_value = fake_interconnect
 
         InterconnectModule().run()
 
-        self.mock_ov_client.interconnects.get_by.assert_called_with('interconnectIP', self.INTERCONNECT_IP)
+        self.resource.get_by.assert_called_with('interconnectIP', INTERCONNECT_IP)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -290,7 +290,7 @@ class InterconnectModuleSpec(unittest.TestCase,
         )
 
     def test_should_fail_when_no_key_is_provided(self):
-        params = self.PARAMS_FOR_RESET_DEVICE_BY_IP.copy()
+        params = PARAMS_FOR_RESET_DEVICE_BY_IP.copy()
         params['ip'] = None
 
         self.mock_ansible_module.params = params
@@ -300,17 +300,16 @@ class InterconnectModuleSpec(unittest.TestCase,
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=InterconnectModule.MSG_MISSING_KEY)
 
     def test_should_update_the_interconnect_ports(self):
-        self.mock_ansible_module.params = self.PARAMS_FOR_UPDATE_PORTS
+        self.mock_ansible_module.params = PARAMS_FOR_UPDATE_PORTS
 
-        fake_interconnect = dict(uri=self.FAKE_URI)
-        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
-        self.mock_ov_client.interconnects.update_ports.return_value = fake_interconnect
+        fake_interconnect = dict(uri=FAKE_URI)
+        self.resource.get_by.return_value = [fake_interconnect]
+        self.resource.update_ports.return_value = fake_interconnect
 
         InterconnectModule().run()
 
-        self.mock_ov_client.interconnects.get_by.assert_called_with('interconnectIP', self.INTERCONNECT_IP)
-        self.mock_ov_client.interconnects.update_ports.assert_called_with(ports=self.PORTS_FOR_UPDATE,
-                                                                          id_or_uri=self.FAKE_URI)
+        self.resource.get_by.assert_called_with('interconnectIP', INTERCONNECT_IP)
+        self.resource.update_ports.assert_called_with(ports=PORTS_FOR_UPDATE, id_or_uri=FAKE_URI)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -319,16 +318,16 @@ class InterconnectModuleSpec(unittest.TestCase,
         )
 
     def test_should_not_update_when_ports_not_provided(self):
-        self.mock_ansible_module.params = deepcopy(self.PARAMS_FOR_UPDATE_PORTS)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_UPDATE_PORTS)
         self.mock_ansible_module.params['ports'] = []
 
-        fake_interconnect = dict(uri=self.FAKE_URI)
-        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
-        self.mock_ov_client.interconnects.update_ports.return_value = fake_interconnect
+        fake_interconnect = dict(uri=FAKE_URI)
+        self.resource.get_by.return_value = [fake_interconnect]
+        self.resource.update_ports.return_value = fake_interconnect
 
         InterconnectModule().run()
 
-        self.mock_ov_client.interconnects.get_by.assert_called_with('interconnectIP', self.INTERCONNECT_IP)
+        self.resource.get_by.assert_called_with('interconnectIP', INTERCONNECT_IP)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -337,16 +336,16 @@ class InterconnectModuleSpec(unittest.TestCase,
         )
 
     def test_should_reset_port_protection(self):
-        self.mock_ansible_module.params = self.PARAMS_FOR_RESET_PORT_PROTECTION
+        self.mock_ansible_module.params = PARAMS_FOR_RESET_PORT_PROTECTION
 
-        fake_interconnect = dict(uri=self.FAKE_URI)
-        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
-        self.mock_ov_client.interconnects.reset_port_protection.return_value = fake_interconnect
+        fake_interconnect = dict(uri=FAKE_URI)
+        self.resource.get_by.return_value = [fake_interconnect]
+        self.resource.reset_port_protection.return_value = fake_interconnect
 
         InterconnectModule().run()
 
-        self.mock_ov_client.interconnects.get_by.assert_called_with('interconnectIP', self.INTERCONNECT_IP)
-        self.mock_ov_client.interconnects.reset_port_protection.assert_called_with(id_or_uri=self.FAKE_URI)
+        self.resource.get_by.assert_called_with('interconnectIP', INTERCONNECT_IP)
+        self.resource.reset_port_protection.assert_called_with(id_or_uri=FAKE_URI)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -355,16 +354,16 @@ class InterconnectModuleSpec(unittest.TestCase,
         )
 
     def test_should_update_configuration(self):
-        self.mock_ansible_module.params = self.PARAMS_FOR_UPDATE_CONFIGURATION
+        self.mock_ansible_module.params = PARAMS_FOR_UPDATE_CONFIGURATION
 
-        fake_interconnect = dict(uri=self.FAKE_URI)
-        self.mock_ov_client.interconnects.get_by.return_value = [fake_interconnect]
-        self.mock_ov_client.interconnects.update_configuration.return_value = fake_interconnect
+        fake_interconnect = dict(uri=FAKE_URI)
+        self.resource.get_by.return_value = [fake_interconnect]
+        self.resource.update_configuration.return_value = fake_interconnect
 
         InterconnectModule().run()
 
-        self.mock_ov_client.interconnects.get_by.assert_called_with('interconnectIP', self.INTERCONNECT_IP)
-        self.mock_ov_client.interconnects.update_configuration.assert_called_with(id_or_uri=self.FAKE_URI)
+        self.resource.get_by.assert_called_with('interconnectIP', INTERCONNECT_IP)
+        self.resource.update_configuration.assert_called_with(id_or_uri=FAKE_URI)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -374,4 +373,4 @@ class InterconnectModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

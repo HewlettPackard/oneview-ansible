@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
-from oneview_module_loader import (SasLogicalInterconnectGroupModule)
-from hpe_test_utils import OneViewBaseTestCase
+import pytest
+
+from hpe_test_utils import OneViewBaseTest
+from oneview_module_loader import SasLogicalInterconnectGroupModule
 
 FAKE_MSG_ERROR = 'Fake message error'
 DEFAULT_SAS_LIG_NAME = 'Test SAS Logical Interconnect Group'
@@ -59,16 +60,12 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
-class SasLogicalInterconnectGroupSpec(unittest.TestCase,
-                                      OneViewBaseTestCase):
+@pytest.mark.resource(TestSasLogicalInterconnectGroupModule='sas_logical_interconnect_groups')
+class TestSasLogicalInterconnectGroupModule(OneViewBaseTest):
     """
     OneViewBaseTestCase has common tests for the main function attribute, also provides the mocks used in this test
     case.
     """
-
-    def setUp(self):
-        self.configure_mocks(self, SasLogicalInterconnectGroupModule)
-        self.resource = self.mock_ov_client.sas_logical_interconnect_groups
 
     def test_should_create(self):
         self.resource.get_by.return_value = []
@@ -167,4 +164,4 @@ class SasLogicalInterconnectGroupSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

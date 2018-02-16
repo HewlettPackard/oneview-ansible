@@ -16,8 +16,8 @@
 
 import pytest
 
-from oneview_module_loader import VolumeFactsModule
 from hpe_test_utils import OneViewBaseFactsTest
+from oneview_module_loader import VolumeFactsModule
 
 PARAMS_GET_ALL = dict(
     config='config.json',

@@ -15,11 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+
+import mock
+import pytest
 import yaml
 
-from ansible.compat.tests import unittest, mock
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ServerHardwareModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -103,15 +105,11 @@ SERVER_HARDWARE_HOSTNAME = "172.18.6.15"
 DICT_DEFAULT_SERVER_HARDWARE = yaml.load(YAML_SERVER_HARDWARE_PRESENT)["data"]
 
 
-class ServerHardwareModuleSpec(unittest.TestCase,
-                               OneViewBaseTestCase):
+@pytest.mark.resource(TestServerHardwareModule='server_hardware')
+class TestServerHardwareModule(OneViewBaseTest):
     """
     OneViewBaseTestCase provides the mocks used in this test case
     """
-
-    def setUp(self):
-        self.configure_mocks(self, ServerHardwareModule)
-        self.resource = self.mock_ov_client.server_hardware
 
     def test_should_add_new_server_hardware(self):
         self.resource.get_by.return_value = []
@@ -408,4 +406,4 @@ class ServerHardwareModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

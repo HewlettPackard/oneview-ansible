@@ -16,36 +16,27 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import ImageStreamerBaseFactsTest
 from oneview_module_loader import GoldenImageFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
 
-class GoldenImageFactsSpec(unittest.TestCase,
-                           FactsParamsTestCase):
+@pytest.mark.resource(TestGoldenImageFactsModule='golden_images')
+class TestGoldenImageFactsModule(ImageStreamerBaseFactsTest):
     """
-    FactsParamsTestCase has common tests for the parameters support.
+    ImageStreamerBaseFactsTest has common tests for the parameters support.
     """
 
-    def setUp(self):
-        self.configure_mocks(self, GoldenImageFactsModule)
-        self.i3s = self.mock_ov_client.create_image_streamer_client()
-
-        FactsParamsTestCase.configure_client_mock(self, self.i3s.golden_images)
-
-        # Load scenarios from module examples
-        self.TASK_GET_ALL = self.EXAMPLES[0]['image_streamer_golden_image_facts']
-        self.TASK_GET_BY_NAME = self.EXAMPLES[4]['image_streamer_golden_image_facts']
-
-        self.GOLDEN_IMAGE = dict(
-            name="Golden Image name",
-            uri="/rest/golden-image/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0")
+    GOLDEN_IMAGE = dict(
+        name="Golden Image name",
+        uri="/rest/golden-image/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0")
 
     def test_get_all_golden_images(self):
-        self.i3s.golden_images.get_all.return_value = [self.GOLDEN_IMAGE]
-        self.mock_ansible_module.params = self.TASK_GET_ALL
+        self.resource.get_all.return_value = [self.GOLDEN_IMAGE]
+        self.mock_ansible_module.params = self.EXAMPLES[0]['image_streamer_golden_image_facts']
 
         GoldenImageFactsModule().run()
 
@@ -55,8 +46,8 @@ class GoldenImageFactsSpec(unittest.TestCase,
         )
 
     def test_get_a_golden_image_by_name(self):
-        self.i3s.golden_images.get_by.return_value = [self.GOLDEN_IMAGE]
-        self.mock_ansible_module.params = self.TASK_GET_BY_NAME
+        self.resource.get_by.return_value = [self.GOLDEN_IMAGE]
+        self.mock_ansible_module.params = self.EXAMPLES[4]['image_streamer_golden_image_facts']
 
         GoldenImageFactsModule().run()
 
@@ -67,4 +58,4 @@ class GoldenImageFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

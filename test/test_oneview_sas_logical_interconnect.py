@@ -15,11 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+
+import mock
+import pytest
 import yaml
 
-from ansible.compat.tests import unittest, mock
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import SasLogicalInterconnectModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -98,13 +100,8 @@ response = {
 }
 
 
-class SasLogicalInterconnectModuleSpec(unittest.TestCase,
-                                       OneViewBaseTestCase):
-
-    def setUp(self):
-        self.configure_mocks(self, SasLogicalInterconnectModule)
-        self.resource = self.mock_ov_client.sas_logical_interconnects
-
+@pytest.mark.resource(TestSasLogicalInterconnectModule='sas_logical_interconnects')
+class TestSasLogicalInterconnectModule(OneViewBaseTest):
     def test_should_return_to_a_consistent_state_by_uris(self):
         self.resource.get_by.return_value = [SAS_LOGICAL_INTERCONNECT]
         self.resource.update_compliance_all.return_value = [SAS_LOGICAL_INTERCONNECT]
@@ -223,4 +220,4 @@ class SasLogicalInterconnectModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

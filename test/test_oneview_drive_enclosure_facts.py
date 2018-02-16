@@ -16,9 +16,10 @@
 # limitations under the License.
 ###
 
-from ansible.compat.tests import unittest
+import pytest
+
+from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import DriveEnclosureFactsModule
-from hpe_test_utils import FactsParamsTestCase
 
 ERROR_MSG = 'Fake message error'
 
@@ -58,16 +59,10 @@ PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
 )
 
 
-class DriveEnclosureFactsSpec(unittest.TestCase,
-                              FactsParamsTestCase):
-    def setUp(self):
-        self.configure_mocks(self, DriveEnclosureFactsModule)
-        self.drive_enclosures = self.mock_ov_client.drive_enclosures
-
-        FactsParamsTestCase.configure_client_mock(self, self.drive_enclosures)
-
+@pytest.mark.resource(TestDriveEnclosureFactsModule='drive_enclosures')
+class TestDriveEnclosureFactsModule(OneViewBaseFactsTest):
     def test_should_get_all(self):
-        self.drive_enclosures.get_all.return_value = MOCK_DRIVE_ENCLOSURES
+        self.resource.get_all.return_value = MOCK_DRIVE_ENCLOSURES
 
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
@@ -79,7 +74,7 @@ class DriveEnclosureFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_by_name(self):
-        self.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
+        self.resource.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
@@ -91,8 +86,8 @@ class DriveEnclosureFactsSpec(unittest.TestCase,
         )
 
     def test_should_get_by_name_with_options(self):
-        self.drive_enclosures.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
-        self.drive_enclosures.get_port_map.return_value = MOCK_PORT_MAP
+        self.resource.get_by.return_value = [DICT_DEFAULT_DRIVE_ENCLOSURE]
+        self.resource.get_port_map.return_value = MOCK_PORT_MAP
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
@@ -106,4 +101,4 @@ class DriveEnclosureFactsSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])

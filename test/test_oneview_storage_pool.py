@@ -15,11 +15,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+
+import mock
+import pytest
 import yaml
 
-from ansible.compat.tests import unittest, mock
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import StoragePoolModule
-from hpe_test_utils import OneViewBaseTestCase
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -66,10 +68,10 @@ DICT_DEFAULT_STORAGE_POOL = yaml.load(YAML_STORAGE_POOL)["data"]
 DICT_DEFAULT_STORAGE_POOL_500 = yaml.load(YAML_STORAGE_POOL_500)["data"]
 
 
-class StoragePoolModuleSpec(unittest.TestCase,
-                            OneViewBaseTestCase):
-    def setUp(self):
-        self.configure_mocks(self, StoragePoolModule)
+@pytest.mark.resource(TestStoragePoolModule='storage_pools')
+class TestStoragePoolModule(OneViewBaseTest):
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self, setUp):
         self.mock_ov_client.api_version = 300
 
     def test_should_create_new_storage_pool(self):
@@ -201,4 +203,4 @@ class StoragePoolModuleSpec(unittest.TestCase,
 
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main([__file__])
