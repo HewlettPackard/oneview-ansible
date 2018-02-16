@@ -2288,7 +2288,7 @@ Manage OneView Enclosure Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 4.5.0
 
 #### Options
 
@@ -2306,7 +2306,10 @@ Manage OneView Enclosure Group resources.
 
 - name: Ensure that Enclosure Group is present using the default configuration
   oneview_enclosure_group:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         name: "Enclosure Group 1"
@@ -2324,7 +2327,10 @@ Manage OneView Enclosure Group resources.
 
 - name: Update the Enclosure Group changing the name attribute
   oneview_enclosure_group:
-        config: "{{ config_file_name }}"
+        hostname: 172.16.101.48
+        username: administrator
+        password: my_password
+        api_version: 600
         state: present
         data:
             name: "Enclosure Group 1"
@@ -2333,7 +2339,10 @@ Manage OneView Enclosure Group resources.
 
 - name: Ensure that Enclosure Group is absent
   oneview_enclosure_group:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       name: "Enclosure Group 1 (renamed)"
@@ -2370,7 +2379,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 4.5.0
 
 #### Options
 
@@ -2389,14 +2398,20 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 
 - name: Gather facts about all Enclosure Groups
   oneview_enclosure_group_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=enclosure_groups
 
 - name: Gather paginated, filtered and sorted facts about Enclosure Groups
   oneview_enclosure_group_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -2408,7 +2423,10 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 
 - name: Gather facts about an Enclosure Group by name with configuration script
   oneview_enclosure_group_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "Test Enclosure Group Facts"
     options:
       - configuration_script

@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 4.5.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -50,7 +50,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Ensure that Enclosure Group is present using the default configuration
   oneview_enclosure_group:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         name: "Enclosure Group 1"
@@ -68,7 +71,10 @@ EXAMPLES = '''
 
 - name: Update the Enclosure Group changing the name attribute
   oneview_enclosure_group:
-        config: "{{ config_file_name }}"
+        hostname: 172.16.101.48
+        username: administrator
+        password: my_password
+        api_version: 600
         state: present
         data:
             name: "Enclosure Group 1"
@@ -77,7 +83,10 @@ EXAMPLES = '''
 
 - name: Ensure that Enclosure Group is absent
   oneview_enclosure_group:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       name: "Enclosure Group 1 (renamed)"
