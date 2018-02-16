@@ -2960,7 +2960,7 @@ Manage OneView Fibre Channel Network resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 500
     state: present
     data:
       name: 'New FC Network'
