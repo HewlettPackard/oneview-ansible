@@ -65,7 +65,7 @@ EXAMPLES = '''
       start: 0
       count: 3
       sort: name:descending
-      filter: "\"'name'='LIGName\""
+      filter: name=LIGName
     hostname: 172.16.101.48
     username: administrator
     password: my_password
