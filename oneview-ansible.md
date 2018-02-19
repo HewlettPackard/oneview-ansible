@@ -4956,7 +4956,7 @@ Manage OneView Logical Interconnect Group resources.
                       type: "Enclosure"
             permittedInterconnectTypeName: 'HP VC Flex-10/10D Module'
             # Alternatively you can inform permittedInterconnectTypeUri
-
+# Below Task is available only till OneView 3.10
 - name: Ensure that the Logical Interconnect Group has the specified scopes
   oneview_logical_interconnect_group:
     hostname: 172.16.101.48
