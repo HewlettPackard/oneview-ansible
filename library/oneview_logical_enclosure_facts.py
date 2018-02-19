@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 4.5.0"
 author:
     - "Gustavo Hennig (@GustavoHennig)"
     - "Mariana Kreisig (@marikrg)"
@@ -52,25 +52,35 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Logical Enclosures
   oneview_logical_enclosure_facts:
-    config: "{{ config_file_path }}"
+      hostname: 172.16.101.48
+      username: administrator
+      password: my_password
+      api_version: 600
   delegate_to: localhost
 
 - debug: var=logical_enclosures
 
 - name: Gather paginated, filtered and sorted facts about Logical Enclosures
   oneview_logical_enclosure_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
       sort: 'name:descending'
       filter: 'status=OK'
+      scope_uris: '/rest/scope/637fa556-a78d-4796-8fce-2179e249ea7d'
 
 - debug: var=logical_enclosures
 
 - name: Gather facts about a Logical Enclosure by name
   oneview_logical_enclosure_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "Encl1"
   delegate_to: localhost
 
@@ -78,7 +88,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Logical Enclosure by name with options
   oneview_logical_enclosure_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "Encl1"
     options:
       - script

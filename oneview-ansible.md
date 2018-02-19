@@ -4269,7 +4269,10 @@ Manage OneView Logical Enclosure resources.
 
 - name: Create a Logical Enclosure (available only on HPE Synergy)
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         enclosureUris:
@@ -4281,7 +4284,10 @@ Manage OneView Logical Enclosure resources.
 
 - name: Update the firmware for the Logical Enclosure
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: firmware_updated
     data:
         name: "Encl1"
@@ -4289,12 +4295,17 @@ Manage OneView Logical Enclosure resources.
             firmwareBaselineUri: "/rest/firmware-drivers/SPPGen9Snap3_2015_0221_71"
             firmwareUpdateOn: "EnclosureOnly"
             forceInstallFirmware: "false"
+        custom_headers:
+            if-Match: '*'
   delegate_to: localhost
 
 # This play is compatible with Synergy Enclosures
 - name: Update the firmware for the Logical Enclosure with the logical-interconnect validation set as true
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: firmware_updated
     data:
         name: "Encl1"
@@ -4305,11 +4316,16 @@ Manage OneView Logical Enclosure resources.
             validateIfLIFirmwareUpdateIsNonDisruptive: "true"
             logicalInterconnectUpdateMode: "Orchestrated"
             updateFirmwareOnUnmanagedInterconnect: "true"
+        custom_headers:
+            if-Match: '*'
   delegate_to: localhost
 
 - name: Update the Logical Enclosure configuration script
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: script_updated
     data:
         name: "Encl1"
@@ -4318,7 +4334,10 @@ Manage OneView Logical Enclosure resources.
 
 - name: Generates a support dump for the Logical Enclosure
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: dumped
     data:
         name: "Encl1"
@@ -4331,7 +4350,10 @@ Manage OneView Logical Enclosure resources.
 
 - name: Reconfigure all enclosures associated with logical enclosure
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: reconfigured
     data:
         name: "Encl1"
@@ -4339,7 +4361,10 @@ Manage OneView Logical Enclosure resources.
 
 - name: Makes the logical enclosure consistent with the enclosure group
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: updated_from_group
     data:
         name: "Encl1"
@@ -4347,7 +4372,10 @@ Manage OneView Logical Enclosure resources.
 
 - name: Update the Logical Enclosure changing the name attribute
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         name: "Encl1"
@@ -4356,7 +4384,10 @@ Manage OneView Logical Enclosure resources.
 
 - name: Delete a Logical Enclosure (available only on HPE Synergy)
   oneview_logical_enclosure:
-      config: "{{ config_file_name }}"
+      hostname: 172.16.101.48
+      username: administrator
+      password: my_password
+      api_version: 600
       state: absent
       data:
           name: 'Encl1'
@@ -4416,25 +4447,35 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 
 - name: Gather facts about all Logical Enclosures
   oneview_logical_enclosure_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=logical_enclosures
 
 - name: Gather paginated, filtered and sorted facts about Logical Enclosures
   oneview_logical_enclosure_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
       sort: 'name:descending'
       filter: 'status=OK'
+      scope_uris: '/rest/scopes/637fa556-a78d-4796-8fce-2179e249ea7d'
 
 - debug: var=logical_enclosures
 
 - name: Gather facts about a Logical Enclosure by name
   oneview_logical_enclosure_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "Encl1"
   delegate_to: localhost
 
@@ -4442,7 +4483,10 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 
 - name: Gather facts about a Logical Enclosure by name with options
   oneview_logical_enclosure_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "Encl1"
     options:
       - script

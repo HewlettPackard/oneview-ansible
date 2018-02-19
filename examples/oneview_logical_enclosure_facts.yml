@@ -18,6 +18,7 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     - logical_enclosure_name: "Encl1"  # The name of an existent Logical Enclosure must be set to run this example
+    - scope_uris: "/rest/scopes/637fa556-a78d-4796-8fce-2179e249ea7d"
   tasks:
     - name: Gather facts about all Logical Enclosures
       oneview_logical_enclosure_facts:
@@ -34,6 +35,7 @@
           count: 3
           sort: 'name:descending'
           filter: 'status=OK'
+          scope_uris: "{{ scope_uris }}"
 
     - debug: var=logical_enclosures
 
