@@ -55,16 +55,22 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Ensure that FCoE Network is present using the default configuration
   oneview_fcoe_network:
-    config: '/etc/oneview/oneview_config.json'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: Test FCoE Network
       vlanId: 201
   delegate_to: localhost
-
+# Below task is supported only with OneView 3.10
 - name: Update the FCOE network scopes
   oneview_fcoe_network:
-    config: '/etc/oneview/oneview_config.json'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: New FCoE Network
@@ -75,7 +81,10 @@ EXAMPLES = '''
 
 - name: Ensure that FCoE Network is absent
   oneview_fcoe_network:
-    config: '/etc/oneview/oneview_config.json'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       name: New FCoE Network

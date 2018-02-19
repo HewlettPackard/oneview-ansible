@@ -3197,16 +3197,22 @@ Manage OneView FCoE Network resources
 
 - name: Ensure that FCoE Network is present using the default configuration
   oneview_fcoe_network:
-    config: '/etc/oneview/oneview_config.json'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: Test FCoE Network
       vlanId: 201
   delegate_to: localhost
-
+# Below task is supported only with OneView 3.10
 - name: Update the FCOE network scopes
   oneview_fcoe_network:
-    config: '/etc/oneview/oneview_config.json'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: New FCoE Network
@@ -3217,7 +3223,10 @@ Manage OneView FCoE Network resources
 
 - name: Ensure that FCoE Network is absent
   oneview_fcoe_network:
-    config: '/etc/oneview/oneview_config.json'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       name: New FCoE Network
@@ -3274,14 +3283,20 @@ Retrieve the facts about one or more of the OneView FCoE Networks
 
 - name: Gather facts about all FCoE Networks
   oneview_fcoe_network_facts:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=fcoe_networks
 
 - name: Gather paginated, filtered and sorted facts about FCoE Networks
   oneview_fcoe_network_facts:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -3293,7 +3308,10 @@ Retrieve the facts about one or more of the OneView FCoE Networks
 
 - name: Gather facts about a FCoE Network by name
   oneview_fcoe_network_facts:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: Test FCoE Network Facts
   delegate_to: localhost
 
