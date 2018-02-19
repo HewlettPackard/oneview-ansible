@@ -55,7 +55,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Ensure that the Uplink Set is present
   oneview_uplink_set:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Test Uplink Set'
@@ -76,7 +79,10 @@ EXAMPLES = '''
 
 - name: Rename the Uplink Set from 'Test Uplink Set' to 'Renamed Uplink Set'
   oneview_uplink_set:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Test Uplink Set'
@@ -85,7 +91,10 @@ EXAMPLES = '''
 
 - name: Ensure that the Uplink Set is absent
   oneview_uplink_set:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       name: 'Test Uplink Set'

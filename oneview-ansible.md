@@ -9554,7 +9554,10 @@ Manage OneView Uplink Set resources.
 
 - name: Ensure that the Uplink Set is present
   oneview_uplink_set:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Test Uplink Set'
@@ -9575,7 +9578,10 @@ Manage OneView Uplink Set resources.
 
 - name: Rename the Uplink Set from 'Test Uplink Set' to 'Renamed Uplink Set'
   oneview_uplink_set:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Test Uplink Set'
@@ -9584,7 +9590,10 @@ Manage OneView Uplink Set resources.
 
 - name: Ensure that the Uplink Set is absent
   oneview_uplink_set:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       name: 'Test Uplink Set'
@@ -9641,13 +9650,19 @@ Retrieve facts about one or more of the OneView Uplink Sets.
 
 - name: Gather facts about all Uplink Sets
   oneview_uplink_set_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 
 - debug: var=uplink_sets
 
 - name: Gather paginated, filtered and sorted facts about Uplink Sets
   oneview_uplink_set_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 2
@@ -9658,7 +9673,10 @@ Retrieve facts about one or more of the OneView Uplink Sets.
 
 - name: Gather facts about a Uplink Set by name
   oneview_uplink_set_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: logical lnterconnect group name
 
 - debug: var=uplink_sets
