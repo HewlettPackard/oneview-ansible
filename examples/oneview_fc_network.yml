@@ -57,6 +57,7 @@
           linkStabilityTime: '30'
       delegate_to: localhost
 
+    # This feature is available only till OneView 3.10
     - name: Update the FC Network with two scopes
       oneview_fc_network:
         config: "{{ config }}"
