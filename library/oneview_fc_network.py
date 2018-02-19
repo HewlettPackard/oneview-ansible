@@ -72,7 +72,7 @@ EXAMPLES = '''
       name: 'New FC Network'
       fabricType: 'DirectAttach'
 
-# This feature is available only till Fusion 3.1
+# This feature is available only till OneView 3.10
 - name: Ensure that the Fibre Channel Network is present and is inserted in the desired scopes
   oneview_fc_network:
     hostname: 172.16.101.48
