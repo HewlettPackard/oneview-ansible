@@ -4105,13 +4105,19 @@ Retrieve facts about the OneView Internal Link Sets.
 
 - name: Gather facts about all Internal Link Sets
   oneview_internal_link_set_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 
 - debug: var=internal_link_sets
 
 - name: Gather paginated and sorted facts about Internal Link Sets
   oneview_internal_link_set_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -4121,7 +4127,10 @@ Retrieve facts about the OneView Internal Link Sets.
 
 - name: Gather facts about an Internal Link Set by name
   oneview_internal_link_set_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "Internal Link Set Name"
 
 - debug: var=internal_link_sets
