@@ -32,7 +32,8 @@ description:
     - Retrieve facts about one or more of the Logical Interconnect Groups from OneView
 version_added: "2.5"
 requirements:
-    - hpOneView >= 2.0.1
+    - python >= 2.7.9
+    - hpOneView >= 4.5.0
 author:
     - Felipe Bulsoni (@fgbulsoni)
     - Thiago Miotto (@tmiotto)
@@ -52,7 +53,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
   no_log: true
   delegate_to: localhost
 
@@ -68,7 +69,20 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
+  no_log: true
+  delegate_to: localhost
+
+- debug: var=logical_interconnect_groups
+
+- name: Gather facts about a Logical Interconnect Group by scopeUris
+  oneview_logical_interconnect_group_facts:
+    params:
+      scope_uris: "/rest/scopes/63d1ca81-95b3-41f1-a1ee-f9e1bc2d635f"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   no_log: true
   delegate_to: localhost
 
@@ -80,7 +94,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
   no_log: true
   delegate_to: localhost
 

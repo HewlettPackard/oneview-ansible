@@ -50,7 +50,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Ensure that the Logical Interconnect Group is present
   oneview_logical_interconnect_group:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Test Logical Interconnect Group'
@@ -67,10 +70,13 @@ EXAMPLES = '''
                       type: "Enclosure"
             permittedInterconnectTypeName: 'HP VC Flex-10/10D Module'
             # Alternatively you can inform permittedInterconnectTypeUri
-
+# Below Task is available only till OneView 3.10
 - name: Ensure that the Logical Interconnect Group has the specified scopes
   oneview_logical_interconnect_group:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Test Logical Interconnect Group'
@@ -78,9 +84,38 @@ EXAMPLES = '''
         - '/rest/scopes/00SC123456'
         - '/rest/scopes/01SC123456'
 
+- name: Ensure that the Logical Interconnect Group is present with uplinkSets
+  oneview_logical_interconnect_group:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    state: present
+    data:
+      name: 'Test Logical Interconnect Group'
+      uplinkSets:
+        - name: 'e23 uplink set'
+          mode: 'Auto'
+          networkType: 'Ethernet'
+          networkUris:
+            - '/rest/ethernet-networks/b2be27ec-ae31-41cb-9f92-ff6da5905abc'
+          logicalPortConfigInfos:
+            - desiredSpeed: 'Auto'
+              logicalLocation:
+                  locationEntries:
+                    - relativeValue: 1
+                      type: "Bay"
+                    - relativeValue: 23
+                      type: "Port"
+                    - relativeValue: 1
+                      type: "Enclosure"
+
 - name: Ensure that the Logical Interconnect Group is present with name 'Test'
   oneview_logical_interconnect_group:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'New Logical Interconnect Group'
@@ -88,7 +123,10 @@ EXAMPLES = '''
 
 - name: Ensure that the Logical Interconnect Group is absent
   oneview_logical_interconnect_group:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       name: 'New Logical Interconnect Group'
