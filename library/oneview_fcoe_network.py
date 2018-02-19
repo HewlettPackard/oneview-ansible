@@ -64,7 +64,7 @@ EXAMPLES = '''
       name: Test FCoE Network
       vlanId: 201
   delegate_to: localhost
-
+# Below task is supported only with OneView 3.10
 - name: Update the FCOE network scopes
   oneview_fcoe_network:
     hostname: 172.16.101.48
