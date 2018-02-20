@@ -44,13 +44,19 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Interconnect Types
   oneview_interconnect_type_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 
 - debug: var=interconnect_types
 
 - name: Gather paginated, filtered and sorted facts about Interconnect Types
   oneview_interconnect_type_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -61,7 +67,10 @@ EXAMPLES = '''
 
 - name: Gather facts about an Interconnect Type by name
   oneview_interconnect_type_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: HP VC Flex-10 Enet Module
 
 - debug: var=interconnect_types
