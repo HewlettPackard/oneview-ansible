@@ -76,7 +76,7 @@ EXAMPLES = '''
          configurationState: "Managed"
   delegate_to: localhost
 
-- name: Do nothing when the server hardware is already present.
+- name: Ensure that the Server Hardware is present and is inserted in the desired scopes
   oneview_server_hardware:
     hostname: 172.16.101.48
     username: administrator
@@ -84,12 +84,10 @@ EXAMPLES = '''
     api_version: 600
     state: present
     data:
-         hostname : "172.18.6.15"
-         username : "username"
-         password : "password"
-         force : false
-         licensingIntent: "OneView"
-         configurationState: "Managed"
+         name : "172.18.6.15"
+         scopeUris:
+           - '/rest/scopes/00SC123456'
+           - '/rest/scopes/01SC123456'
   delegate_to: localhost
 
 - name: Add multiple rack-mount servers
@@ -291,7 +289,10 @@ class ServerHardwareModule(OneViewModuleBase):
             raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING.format("data.hostname"))
 
         resource = self.__get_server_hardware(self.data['hostname'])
-        result = {}
+
+        scope_uris = self.data.pop('scopeUris', None)
+
+        result = dict()
 
         if not resource:
             resource = self.oneview_client.server_hardware.add(self.data)
@@ -306,6 +307,9 @@ class ServerHardwareModule(OneViewModuleBase):
                 msg=self.MSG_ALREADY_PRESENT,
                 ansible_facts={'server_hardware': resource}
             )
+
+        if scope_uris is not None:
+            result = self.resource_scopes_set(result, 'server_hardware', scope_uris)
 
         return result
 

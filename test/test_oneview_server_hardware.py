@@ -352,6 +352,26 @@ class TestServerHardwareModule(OneViewBaseTest):
             ansible_facts=dict(server_hardware=server_hardware)
         )
 
+    def test_update_scopes_when_different(self):
+        params_to_scope = yaml.load(YAML_SERVER_HARDWARE_PRESENT).copy()
+        params_to_scope['data']['scopeUris'] = ['/fake/test']
+        get_results = params_to_scope['data'].copy()
+        get_results['password'] = None
+        get_results['scopeUris'] = []
+        get_results['uri'] = '/rest/server-hardware/fake'
+        self.mock_ansible_module.params = params_to_scope
+
+        self.resource.get_by.return_value = [get_results]
+
+        self.resource.patch.return_value = params_to_scope['data']
+
+        ServerHardwareModule().run()
+
+        self.resource.patch.assert_called_once_with('/rest/server-hardware/fake',
+                                                    operation='replace',
+                                                    path='/scopeUris',
+                                                    value=['/fake/test'])
+
     def test_should_set_off_the_uid_state(self):
         server_hardware_uri = "resourceuri"
 
