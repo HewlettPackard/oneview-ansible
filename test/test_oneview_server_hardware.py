@@ -408,6 +408,12 @@ class TestServerHardwareModule(OneViewBaseTest):
                                                     path='/scopeUris',
                                                     value=['/fake/test'])
 
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(server_hardware=params_to_scope['data']),
+            msg=ServerHardwareModule.MSG_UPDATED
+        )
+
     def test_should_do_nothing_when_scopes_are_the_same(self):
         params_to_scope = yaml.load(YAML_SERVER_HARDWARE_PRESENT).copy()
         params_to_scope['data']['scopeUris'] = ['/fake/test']
