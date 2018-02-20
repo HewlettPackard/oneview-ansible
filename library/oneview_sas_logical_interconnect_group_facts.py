@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0"
+    - "hpOneView >= 4.5.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     name:
@@ -47,12 +47,18 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all SAS Logical Interconnect Groups
   oneview_sas_logical_interconnect_group_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 - debug: var=sas_logical_interconnect_groups
 
 - name: Gather paginated, filtered and sorted facts about SAS Logical Interconnect Groups
   oneview_sas_logical_interconnect_group_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 5
@@ -60,9 +66,22 @@ EXAMPLES = '''
       filter: "state='Active'"
 - debug: var=sas_logical_interconnect_groups
 
+- name: Gather facts about a SAS Logical Interconnect Group by scopeUris
+  oneview_sas_logical_interconnect_group_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    params:
+      scope_uris: "/rest/scopes/be263683-b147-4818-8bbe-c5a5629b9bfe"
+- debug: var=sas_logical_interconnect_groups
+
 - name: Gather facts about a SAS Logical Interconnect Group by name
   oneview_sas_logical_interconnect_group_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "LIG-SLJA-1"
 - debug: var=sas_logical_interconnect_groups
 '''

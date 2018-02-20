@@ -53,7 +53,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Ensure that the SAS Logical Interconnect Group is present
   oneview_sas_logical_interconnect_group:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: "Test SAS Logical Interconnect Group"
@@ -82,7 +85,10 @@ EXAMPLES = '''
 
 - name: Ensure that the SAS Logical Interconnect Group is present with name 'Test'
   oneview_sas_logical_interconnect_group:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'New SAS Logical Interconnect Group'
@@ -90,7 +96,10 @@ EXAMPLES = '''
 
 - name: Ensure that the SAS Logical Interconnect Group is absent
   oneview_sas_logical_interconnect_group:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       name: 'New SAS Logical Interconnect Group'
