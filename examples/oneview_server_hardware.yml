@@ -17,13 +17,13 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    server_hardware_hostname: '<server_hardware_host_name>'
-    server_hardware_username: '<server_hardware_user_name>'
-    server_hardware_password: '<server_hardware_user_password>'
-    scope_uris:
-      - '<scope_uri_1>'
-  vars_files:
-    - "{{ playbook_dir }}/vars/config.yml"
+    server_hardware_hostname: '172.18.6.30'
+    server_hardware_username: 'dcs'
+    server_hardware_password: 'dcs'
+    multiple_hosts:
+      - "{{ server_hardware_hostname }}"
+    initial_scope_uris:
+      - '/rest/scopes/4e3a3d5d-1658-400b-9429-72745c0817ca'
   tasks:
     - name: Add a Server Hardware
       oneview_server_hardware:
@@ -36,7 +36,7 @@
              force : false
              licensingIntent: "OneView"
              configurationState: "Managed"
-             scopeUris: "{{ scope_uris }}"
+             initialScopeUris: "{{ initial_scope_uris }}"
       delegate_to: localhost
 
     - name: Do nothing when the server hardware is already present
@@ -48,6 +48,19 @@
              username : '{{ server_hardware_username }}'
              password : '{{ server_hardware_password }}'
              force : false
+             licensingIntent: "OneView"
+             configurationState: "Managed"
+      delegate_to: localhost
+
+    - name: Add multiple rack-mount servers
+      oneview_server_hardware:
+        config: "{{ config }}"
+        state: multiple_servers_added
+        data:
+             mpHostsAndRanges : '{{ multiple_hosts }}'
+             username : '{{ server_hardware_username }}'
+             password : '{{ server_hardware_password }}'
+             initialScopeUris: "{{ initial_scope_uris }}"
              licensingIntent: "OneView"
              configurationState: "Managed"
       delegate_to: localhost
@@ -92,21 +105,21 @@
             name : '{{ server_hardware_hostname }}'
       delegate_to: localhost
 
-    - name: Reset the Server Hardware iLO State
-      oneview_server_hardware:
-        config: "{{ config }}"
-        state: ilo_state_reset
-        data:
-            name: '{{ server_hardware_hostname }}'
-      delegate_to: localhost
+    #- name: Reset the Server Hardware iLO State
+    #  oneview_server_hardware:
+    #    config: "{{ config }}"
+    #    state: ilo_state_reset
+    #    data:
+    #        name: '{{ server_hardware_hostname }}'
+    #  delegate_to: localhost
 
-    - name: Set the server UID state off
-      oneview_server_hardware:
-        config: "{{ config }}"
-        state: uid_state_off
-        data:
-            name: '{{ server_hardware_hostname }}'
-      delegate_to: localhost
+    #- name: Set the server UID state off
+    #  oneview_server_hardware:
+    #    config: "{{ config }}"
+    #    state: uid_state_off
+    #    data:
+    #        name: '{{ server_hardware_hostname }}'
+    #  delegate_to: localhost
 
     - name: Remove the server hardware by its IP
       oneview_server_hardware:

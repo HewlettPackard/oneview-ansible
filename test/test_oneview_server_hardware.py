@@ -44,6 +44,20 @@ YAML_SERVER_HARDWARE_ABSENT = """
             name : "172.18.6.15"
 """
 
+YAML_SERVER_HARDWARE_ADD_MULTIPLE_SERVERS = """
+        config: "{{ config }}"
+        state: multiple_servers_added
+        data:
+            mpHostsAndRanges :
+              - '172.18.6.15'
+            username : 'dcs'
+            password : 'dcs'
+            initialScopeUris:
+              - "/rest/scopes/01SC123456"
+            licensingIntent: "OneView"
+            configurationState: "Managed"
+            """
+
 YAML_SERVER_HARDWARE_POWER_STATE = """
         config: "{{ config }}"
         state: power_state_set
@@ -135,6 +149,21 @@ class TestServerHardwareModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=ServerHardwareModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(server_hardware={"name": "name"})
+        )
+
+    def test_should_add_multiple_servers(self):
+        self.resource.get_by.return_value = []
+
+        self.resource.add_multiple_servers.return_value = {'name': 'name'}
+
+        self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_ADD_MULTIPLE_SERVERS)
+
+        ServerHardwareModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerHardwareModule.MSG_MULTIPLE_RACK_MOUNT_SERVERS_ADDED,
             ansible_facts=dict(server_hardware={"name": "name"})
         )
 
@@ -357,32 +386,6 @@ class TestServerHardwareModule(OneViewBaseTest):
             changed=False,
             msg=ServerHardwareModule.MSG_NOTHING_TO_DO,
             ansible_facts=dict(server_hardware=server_hardware)
-        )
-
-    def test_update_scopes_when_different(self):
-        params_to_scope = yaml.load(YAML_SERVER_HARDWARE_PRESENT).copy()
-        params_to_scope['data']['scopeUris'] = ['/fake/test']
-        get_results = params_to_scope['data'].copy()
-        get_results['password'] = None
-        get_results['scopeUris'] = []
-        get_results['uri'] = '/rest/server-hardware/fake'
-        self.mock_ansible_module.params = params_to_scope
-
-        self.resource.get_by.return_value = [get_results]
-
-        self.resource.patch.return_value = params_to_scope['data']
-
-        ServerHardwareModule().run()
-
-        self.resource.patch.assert_called_once_with('/rest/server-hardware/fake',
-                                                    operation='replace',
-                                                    path='/scopeUris',
-                                                    value=['/fake/test'])
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            ansible_facts=dict(server_hardware=params_to_scope['data']),
-            msg=ServerHardwareModule.MSG_UPDATED
         )
 
     def test_should_do_nothing_when_scopes_are_the_same(self):
