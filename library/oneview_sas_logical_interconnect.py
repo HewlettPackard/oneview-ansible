@@ -59,7 +59,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Update the configuration on the SAS Logical Interconnect
   oneview_sas_logical_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: configuration_updated
     data:
       name: "SAS Logical Interconnect name"
@@ -67,7 +70,10 @@ EXAMPLES = '''
 
 - name: Install a firmware to the SAS Logical Interconnect, running the stage operation to upload the firmware
   oneview_sas_logical_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: firmware_updated
     data:
       name: "SAS Logical Interconnect name"
@@ -80,7 +86,10 @@ EXAMPLES = '''
 
 - name: Replace drive enclosure
   oneview_sas_logical_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: drive_enclosure_replaced
     data:
       name: "SAS Logical Interconnect name"
@@ -91,7 +100,10 @@ EXAMPLES = '''
 
 - name: Return a SAS Logical Interconnect list to a consistent state by its names
   oneview_sas_logical_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: compliant
     data:
       logicalInterconnectNames: ["SAS Logical Interconnect name 1", "SAS Logical Interconnect name 2"]
@@ -99,7 +111,10 @@ EXAMPLES = '''
 
 - name: Return a SAS Logical Interconnect list to a consistent state by its URIs
   oneview_sas_logical_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: compliant
     data:
       logicalInterconnectUris: [
