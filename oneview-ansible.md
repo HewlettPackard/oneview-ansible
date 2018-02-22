@@ -9340,7 +9340,10 @@ Provides an interface to remove ToR Switch resources.
 
 - name: Delete the Switch
   oneview_switch:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     name: "172.18.16.2"
 
@@ -9389,11 +9392,17 @@ Retrieve facts about the OneView Switches.
 
 - name: Gather facts about all switches
   oneview_switch_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 
 - name: Gather paginated facts about switches
   oneview_switch_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -9402,12 +9411,18 @@ Retrieve facts about the OneView Switches.
 
 - name: Gather facts about the switch that matches the specified switch name
   oneview_switch_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "172.18.20.1"
 
 - name: Gather facts about the environmental configuration for the switch that matches the specified switch name
   oneview_switch_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "172.18.20.1"
   options:
     - environmentalConfiguration

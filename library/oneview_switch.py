@@ -58,7 +58,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Delete the Switch
   oneview_switch:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     name: "172.18.16.2"
 '''

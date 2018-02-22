@@ -34,6 +34,7 @@
               enabled: true
       delegate_to: localhost
 
+    # This feature is available only till OneView 3.10
     - name: Update the scopes on the specified switch
       oneview_switch:
         config: "{{ config }}"
