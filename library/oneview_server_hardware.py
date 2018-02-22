@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.0"
+    - "hpOneView >= 4.5.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -44,8 +44,10 @@ options:
               C(uid_state_on) will set on the UID state, if necessary.
               C(uid_state_off) will set off the UID state, if necessary.
               C(environmental_configuration_set) will set the environmental configuration of the Server Hardware.
+              C(multiple_servers_added) will add multiple rack-mount servers.
         choices: ['present', 'absent', 'power_state_set', 'refresh_state_set', 'ilo_firmware_version_updated',
-                  'ilo_state_reset','uid_state_on', 'uid_state_off', 'environmental_configuration_set']
+                  'ilo_state_reset','uid_state_on', 'uid_state_off', 'environmental_configuration_set',
+                  'multiple_servers_added']
         required: true
     data:
         description:
@@ -60,7 +62,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Add a Server Hardware
   oneview_server_hardware:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
          hostname : "172.18.6.15"
@@ -73,17 +78,42 @@ EXAMPLES = '''
 
 - name: Ensure that the Server Hardware is present and is inserted in the desired scopes
   oneview_server_hardware:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
-      name : "172.18.6.15"
-      scopeUris:
-        - '/rest/scopes/00SC123456'
-        - '/rest/scopes/01SC123456'
+         name : "172.18.6.15"
+         scopeUris:
+           - '/rest/scopes/00SC123456'
+           - '/rest/scopes/01SC123456'
+  delegate_to: localhost
+
+- name: Add multiple rack-mount servers
+  oneview_server_hardware:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    state: multiple_servers_added
+    data:
+        mpHostsAndRanges :
+          - '172.18.6.15'
+        username : 'username'
+        password : 'password'
+        initialScopeUris:
+          - "/rest/scopes/01SC123456"
+        licensingIntent: "OneView"
+        configurationState: "Managed"
+  delegate_to: localhost
 
 - name: Power Off the server hardware
   oneview_server_hardware:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: power_state_set
     data:
         name : "172.18.6.15"
@@ -94,7 +124,10 @@ EXAMPLES = '''
 
 - name: Refresh the server hardware
   oneview_server_hardware:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: refresh_state_set
     data:
         name : "172.18.6.15"
@@ -104,7 +137,10 @@ EXAMPLES = '''
 
 - name: Update the Server Hardware iLO firmware version
   oneview_server_hardware:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: ilo_firmware_version_updated
     data:
         name : "172.18.6.15"
@@ -112,7 +148,10 @@ EXAMPLES = '''
 
 - name: Set the calibrated max power of a server hardware
   oneview_server_hardware:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: environmental_configuration_set
     data:
         name : "172.18.6.15"
@@ -122,7 +161,10 @@ EXAMPLES = '''
 
 - name: Remove the server hardware by its IP
   oneview_server_hardware:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name : "172.18.6.15"
@@ -130,7 +172,10 @@ EXAMPLES = '''
 
 - name: Set the server UID state off
   oneview_server_hardware:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: uid_state_off
     data:
         name : '0000A66102, bay 12'
@@ -162,6 +207,7 @@ class ServerHardwareModule(OneViewModuleBase):
     MSG_DELETED = 'Server Hardware deleted successfully.'
     MSG_ALREADY_ABSENT = 'Server Hardware is already absent.'
     MSG_MANDATORY_FIELD_MISSING = "Mandatory field was not informed: {0}"
+    MSG_MULTIPLE_RACK_MOUNT_SERVERS_ADDED = "Servers added successfully."
 
     patch_success_message = dict(
         ilo_state_reset=MSG_ILO_STATE_RESET,
@@ -188,6 +234,7 @@ class ServerHardwareModule(OneViewModuleBase):
                 'uid_state_on',
                 'uid_state_off',
                 'environmental_configuration_set',
+                'multiple_servers_added'
             ]
         ),
         data=dict(required=True, type='dict')
@@ -204,7 +251,8 @@ class ServerHardwareModule(OneViewModuleBase):
 
         if self.state == 'present':
             return self.__present()
-
+        elif self.state == 'multiple_servers_added':
+            changed, msg, ansible_facts = self.__add_multiple_rack_mount_servers()
         else:
             if not self.data.get('name'):
                 raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING.format("data.name"))
@@ -225,7 +273,6 @@ class ServerHardwareModule(OneViewModuleBase):
                     changed, msg, ansible_facts = self.__update_mp_firmware_version(resource)
                 elif self.state == 'environmental_configuration_set':
                     changed, msg, ansible_facts = self.__set_environmental_configuration(resource)
-
                 else:
                     changed, msg, ansible_facts = self.__patch(resource)
 
@@ -260,8 +307,10 @@ class ServerHardwareModule(OneViewModuleBase):
                 msg=self.MSG_ALREADY_PRESENT,
                 ansible_facts={'server_hardware': resource}
             )
+
         if scope_uris is not None:
             result = self.resource_scopes_set(result, 'server_hardware', scope_uris)
+
         return result
 
     def __set_power_state(self, resource):
@@ -297,6 +346,10 @@ class ServerHardwareModule(OneViewModuleBase):
             changed, message = True, self.patch_success_message[state_name]
 
         return changed, message, dict(server_hardware=resource)
+
+    def __add_multiple_rack_mount_servers(self):
+        resource = self.oneview_client.server_hardware.add_multiple_servers(self.data)
+        return True, self.MSG_MULTIPLE_RACK_MOUNT_SERVERS_ADDED, {"server_hardware": resource}
 
 
 def main():
