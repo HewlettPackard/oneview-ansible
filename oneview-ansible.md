@@ -5107,7 +5107,10 @@ Manage OneView Logical Switch resources.
 
 - name: Create a Logical Switch
   oneview_logical_switch:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       logicalSwitch:
@@ -5148,7 +5151,10 @@ Manage OneView Logical Switch resources.
 
 - name: Update the Logical Switch name and credentials
   oneview_logical_switch:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: updated
     data:
       logicalSwitch:
@@ -5173,13 +5179,16 @@ Manage OneView Logical Switch resources.
               value: 'ssh_password_switch_2'
               valueFormat: 'SecuritySensitive'
               valueType: 'String'
-      scopes:
+      scopeUris: # This field is available only till OneView 3.10
         - '/rest/scopes/d1f79dea-6393-4bb0-9723-8adc9b96de94'
 
 
 - name: Reclaim the top-of-rack switches in the logical switch
   oneview_logical_switch:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: refreshed
     data:
       logicalSwitch:
@@ -5187,7 +5196,10 @@ Manage OneView Logical Switch resources.
 
 - name: Delete a Logical Switch
   oneview_logical_switch:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       logicalSwitch:
@@ -5244,13 +5256,18 @@ Retrieve the facts about one or more of the OneView Logical Switches.
 
 - name: Gather facts about all Logical Switches
   oneview_logical_switch_facts:
-    config: "{{ config_file_path }}"
-
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 - debug: var=logical_switches
 
 - name: Gather paginated, filtered and sorted facts about Logical Switches
   oneview_logical_switch_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -5261,7 +5278,10 @@ Retrieve the facts about one or more of the OneView Logical Switches.
 
 - name: Gather facts about a Logical Switch by name
   oneview_logical_switch_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: 'Name of the Logical Switch'
 
 - debug: var=logical_switches

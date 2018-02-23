@@ -47,13 +47,18 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Logical Switches
   oneview_logical_switch_facts:
-    config: "{{ config_file_path }}"
-
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 - debug: var=logical_switches
 
 - name: Gather paginated, filtered and sorted facts about Logical Switches
   oneview_logical_switch_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -64,7 +69,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Logical Switch by name
   oneview_logical_switch_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: 'Name of the Logical Switch'
 
 - debug: var=logical_switches

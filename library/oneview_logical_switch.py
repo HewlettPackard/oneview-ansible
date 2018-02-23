@@ -61,7 +61,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Create a Logical Switch
   oneview_logical_switch:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       logicalSwitch:
@@ -102,7 +105,10 @@ EXAMPLES = '''
 
 - name: Update the Logical Switch name and credentials
   oneview_logical_switch:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: updated
     data:
       logicalSwitch:
@@ -127,13 +133,16 @@ EXAMPLES = '''
               value: 'ssh_password_switch_2'
               valueFormat: 'SecuritySensitive'
               valueType: 'String'
-      scopes:
+      scopeUris: # This field is available only till OneView 3.10
         - '/rest/scopes/d1f79dea-6393-4bb0-9723-8adc9b96de94'
 
 
 - name: Reclaim the top-of-rack switches in the logical switch
   oneview_logical_switch:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: refreshed
     data:
       logicalSwitch:
@@ -141,7 +150,10 @@ EXAMPLES = '''
 
 - name: Delete a Logical Switch
   oneview_logical_switch:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       logicalSwitch:
@@ -194,8 +206,9 @@ class LogicalSwitchModule(OneViewModuleBase):
         elif self.state == 'updated':
             scope_uris = data.pop('scopeUris', None)
             changed, msg, ansible_facts = self.__update(data, resource)
-            result = self.resource_scopes_set(dict(ansible_facts=ansible_facts), 'logical_switch', scope_uris)
-            changed, msg, result['ansible_facts']
+            if scope_uris:
+                result = self.resource_scopes_set(dict(ansible_facts=ansible_facts), 'logical_switch', scope_uris)
+                ansible_facts = result['ansible_facts']
         elif self.state == 'refreshed':
             changed, msg, ansible_facts = self.__refresh(data, resource)
 
