@@ -209,6 +209,8 @@ class LogicalSwitchModule(OneViewModuleBase):
             if scope_uris:
                 result = self.resource_scopes_set(dict(ansible_facts=ansible_facts), 'logical_switch', scope_uris)
                 ansible_facts = result['ansible_facts']
+                changed = result['changed']
+                msg = result['msg']
         elif self.state == 'refreshed':
             changed, msg, ansible_facts = self.__refresh(data, resource)
 
