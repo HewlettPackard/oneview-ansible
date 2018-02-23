@@ -6929,7 +6929,10 @@ Manage OneView SAS Logical Interconnect resources.
 
 - name: Update the configuration on the SAS Logical Interconnect
   oneview_sas_logical_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: configuration_updated
     data:
       name: "SAS Logical Interconnect name"
@@ -6937,7 +6940,10 @@ Manage OneView SAS Logical Interconnect resources.
 
 - name: Install a firmware to the SAS Logical Interconnect, running the stage operation to upload the firmware
   oneview_sas_logical_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: firmware_updated
     data:
       name: "SAS Logical Interconnect name"
@@ -6950,7 +6956,10 @@ Manage OneView SAS Logical Interconnect resources.
 
 - name: Replace drive enclosure
   oneview_sas_logical_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: drive_enclosure_replaced
     data:
       name: "SAS Logical Interconnect name"
@@ -6961,7 +6970,10 @@ Manage OneView SAS Logical Interconnect resources.
 
 - name: Return a SAS Logical Interconnect list to a consistent state by its names
   oneview_sas_logical_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: compliant
     data:
       logicalInterconnectNames: ["SAS Logical Interconnect name 1", "SAS Logical Interconnect name 2"]
@@ -6969,7 +6981,10 @@ Manage OneView SAS Logical Interconnect resources.
 
 - name: Return a SAS Logical Interconnect list to a consistent state by its URIs
   oneview_sas_logical_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: compliant
     data:
       logicalInterconnectUris: [
@@ -7030,13 +7045,19 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnects.
 
 - name: Gather facts about all SAS Logical Interconnects
   oneview_sas_logical_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 - debug: var=sas_logical_interconnects
 
 - name: Gather paginated, filtered and sorted facts about SAS Logical Interconnects
   oneview_sas_logical_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 2
@@ -7046,14 +7067,20 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnects.
 
 - name: Gather facts about a SAS Logical Interconnect by name
   oneview_sas_logical_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "LOG_EN-LIG_SAS-1"
   delegate_to: localhost
 - debug: var=sas_logical_interconnects
 
 - name: Gather facts about an installed firmware for a SAS Logical Interconnect that matches the specified name
   oneview_sas_logical_interconnect_facts:
-    config: "{{ config }}"
+    chostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "LOG_EN-LIG_SAS-1"
     options:
       - firmware
