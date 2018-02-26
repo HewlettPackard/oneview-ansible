@@ -28,8 +28,8 @@ ERROR_MSG = 'Fake message error'
 class TestLogicalSwitchGroupFactsModule(OneViewBaseFactsTest):
     @pytest.fixture(autouse=True)
     def specific_set_up(self, setUp, testing_module):
-        self.PARAMS_GET_ALL = self.EXAMPLES[0]['oneview_logical_switch_group_facts']
-        self.PARAMS_GET_BY_NAME = self.EXAMPLES[4]['oneview_logical_switch_group_facts']
+        self.PARAMS_GET_ALL = {'config': 'config.json', 'state': 'present'}
+        self.PARAMS_GET_BY_NAME = {'config': 'config.json', 'state': 'present', 'name': 'LogicalSwitchGroupDemo'}
 
     def test_should_get_logical_switch_group_by_name(self):
         self.resource.get_by.return_value = {"name": "Logical Switch Group"}
