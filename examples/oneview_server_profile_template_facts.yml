@@ -80,7 +80,7 @@
 
     - debug: var=transformation
 
-    # This option is available for API version 600 or later.
+    # This option is available only for API version >= 600.
     - name: Gather facts about available networks
       oneview_server_profile_template_facts:
         config: "{{ config }}"

@@ -41,7 +41,7 @@ options:
     options:
       description:
         - "List with options to gather additional facts about Server Profile Template resources.
-          Options allowed: C(new_profile), C(transformation) C(available_networks)."
+          Options allowed: C(new_profile), C(transformation) and C(available_networks)."
 notes:
     - The option C(transformation) is only available for API version 300 or later.
     - The option C(available_networks) is only available for API version 600 or later.
