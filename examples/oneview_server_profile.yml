@@ -39,13 +39,13 @@
     - config: "{{ playbook_dir }}/oneview_config.json"
     # Set the name of the server profile template that will be used to provision the server profile
     - ov_template: SY 480 Gen9 1
-    - ov_template: spt1
+    - ov_template: ServerProfileTemplate1
     # Set the name of an existing enclosure group to run this example
-    - enclosure_group_name: eg1
+    - enclosure_group_name: e10_encl_group
     # Set the name of an existing server hardware type to run this example
-    - server_hardware_type_name: SY 480 Gen9 2
+    - server_hardware_type_name:  BL460c G7 1
     # Set the name of an existing ethernet network
-    - network_name: eth1
+    - network_name: Ansible OneViewSDK Test Ethernet Network
   tasks:
     - name: Create a Server Profile from a Server Profile Template
       oneview_server_profile:
@@ -53,6 +53,8 @@
         data:
           serverProfileTemplateName: "{{ ov_template }}"
           name: "{{ inventory_hostname }}"
+      # params: # Supported only in API version >= 600
+      #     force: True
       delegate_to: localhost
       register: result
 

@@ -31,7 +31,7 @@ description:
       automatically based on the server profile configuration if no server hardware was provided.
 version_added: "2.5"
 requirements:
-    - hpOneView >= 4.0.0
+    - hpOneView >= 4.5.0
 author:
     - "Chakravarthy Racharla"
     - "Camila Balestrin (@balestrinc)"
@@ -249,6 +249,8 @@ class ServerProfileModule(OneViewModuleBase):
 
         data = deepcopy(self.data)
         params = self.module.params.get("params")
+        self.params = params if params is not None else {}
+
         server_profile_name = data.get('name')
 
         server_profile = self.oneview_client.server_profiles.get_by_name(server_profile_name)
@@ -407,7 +409,6 @@ class ServerProfileModule(OneViewModuleBase):
     def __create_profile(self, data, server_profile_template):
         tries = 0
         self.__remove_inconsistent_data(data)
-
         while tries < self.CONCURRENCY_FAILOVER_RETRIES:
             try:
                 tries += 1
@@ -422,7 +423,7 @@ class ServerProfileModule(OneViewModuleBase):
                 server_profile = self.__build_new_profile_data(data, server_profile_template, server_hardware_uri)
 
                 self.module.log(msg="Request Server Profile creation")
-                return self.oneview_client.server_profiles.create(server_profile)
+                return self.oneview_client.server_profiles.create(server_profile, **self.params)
 
             except OneViewModuleTaskError as task_error:
                 self.module.log("Error code: {} Message: {}".format(str(task_error.error_code), str(task_error.msg)))
