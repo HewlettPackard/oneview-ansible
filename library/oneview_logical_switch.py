@@ -204,9 +204,9 @@ class LogicalSwitchModule(OneViewModuleBase):
         elif self.state == 'absent':
             return self.resource_absent(resource)
         elif self.state == 'updated':
-            scope_uris = data.get('scopeUris', None)
             changed, msg, ansible_facts = self.__update(data, resource)
             if 'scopeUris' in data:
+                scope_uris = data.pop('scopeUris', None)
                 result = self.resource_scopes_set(dict(ansible_facts=ansible_facts), 'logical_switch', scope_uris)
                 ansible_facts = result['ansible_facts']
                 changed = result['changed']
