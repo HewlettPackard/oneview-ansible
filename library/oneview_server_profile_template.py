@@ -152,7 +152,7 @@ class ServerProfileTemplateModule(OneViewModuleBase):
         self.force = True
         params = self.module.params.get("params")
         if params:
-          self.force = params.get("force")
+            self.force = params.get("force")
 
         if self.state == 'present':
             result = self.__present(self.data, template)
@@ -221,6 +221,7 @@ class ServerProfileTemplateModule(OneViewModuleBase):
 
         changed = template is not None
         return dict(changed=changed, msg=msg)
+
 
 def main():
     ServerProfileTemplateModule().run()

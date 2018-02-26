@@ -62,9 +62,9 @@ PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
 )
 
 PARAMS_AVAILABLE_NETWORKS = dict(
-    config = 'config.json',
-    options = [{'available_networks': {
-        'enclosureGroupUri':'/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89',
+    config='config.json',
+    options=[{'available_networks': {
+        'enclosureGroupUri': '/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89',
         'serverHardwareTypeUri': '/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B'}
     }]
 )
@@ -84,10 +84,10 @@ TRANSFORMATION_TEMPLATE = dict(
 )
 
 AVAILABLE_NETWORKS = dict(
-    server_profile_template_available_networks = dict(
-        ethernetNetworks = [],
-        fcNetworks = [],
-        networkSets = []
+    server_profile_template_available_networks=dict(
+        ethernetNetworks=[],
+        fcNetworks=[],
+        networkSets=[]
     )
 )
 

@@ -8373,7 +8373,7 @@ Manage OneView Server Profile Template resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 4.5.0
 
 #### Options
 
@@ -8381,6 +8381,7 @@ Manage OneView Server Profile Template resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  Dict with Server Profile Template properties.  |
+| params  |   No  |  | |  Dict with query parameters.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Server Profile Template. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
@@ -8392,30 +8393,45 @@ Manage OneView Server Profile Template resources.
 
 - name: Create a basic connection-less server profile template (using URIs)
   oneview_server_profile_template:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: "ProfileTemplate101"
       serverHardwareTypeUri: "/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B"
       enclosureGroupUri: "/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89"
+    params:
+      force: True
     delegate_to: localhost
 
 - name: Create a basic connection-less server profile template (using names)
   oneview_server_profile_template:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: "ProfileTemplate102"
       serverHardwareTypeName: "BL460c Gen8 1"
       enclosureGroupName: "EGSAS_3"
+    params:
+      force: True
   delegate_to: localhost
 
 - name: Delete the Server Profile Template
   oneview_server_profile_template:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       name: "ProfileTemplate101"
+    params:
+      force: True
     delegate_to: localhost
 
 ```
@@ -8453,7 +8469,7 @@ Retrieve facts about the Server Profile Templates from OneView.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 4.5.0
 
 #### Options
 
@@ -8461,7 +8477,7 @@ Retrieve facts about the Server Profile Templates from OneView.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   |  | |  Server Profile Template name.  |
-| options  |   |  | |  List with options to gather additional facts about Server Profile Template resources. Options allowed: `new_profile` and `transformation`.  |
+| options  |   |  | |  List with options to gather additional facts about Server Profile Template resources. Options allowed: `new_profile`, `transformation` `available_networks`.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 | uri  |   |  | |  Server Profile Template uri.  |
 
@@ -8479,33 +8495,59 @@ Retrieve facts about the Server Profile Templates from OneView.
 
 - name: Gather paginated, filtered and sorted facts about Server Profile Templates
   oneview_server_profile_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
       sort: name:ascending
       filter: macType='Virtual'
+      scope_uris: /rest/scopes/af62ae65-06b2-4aaf-94d3-6a92562888cf
   delegate_to: localhost
 
 - debug: var=server_profile_templates
 
 - name: Gather facts about a Server Profile Template by name
   oneview_server_profile_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "ProfileTemplate101"
 
 - name: Gather facts about a Server Profile by uri
   oneview_server_profile_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     uri: /rest/server-profile-templates/c0868397-eff6-49ed-8151-4338702792d3
   delegate_to: localhost
 
 - name: Gather facts about a template and a profile with the configuration based on this template
   oneview_server_profile_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "ProfileTemplate101"
     options:
       - new_profile
+
+- name: Gather facts about available networks.
+  oneview_server_profile_template_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    options:
+      - available_networks:
+          serverHardwareTypeUri: "/rest/server-hardware-types/253F1D49-0FEE-4DCD-B14C-B26234E9D414"
+          enclosureGroupUri: "/rest/enclosure-groups/293e8efe-c6b1-4783-bf88-2d35a8e49071"
+  delegate_to: localhost
+
 
 ```
 
@@ -8516,12 +8558,15 @@ Retrieve facts about the Server Profile Templates from OneView.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | new_profile   | A profile object with the configuration based on this template. |  When requested, but can be null. |  dict |
+| server_profile_template_available_networks   | Has all the facts about the list of Ethernet networks, Fibre Channel networks and network sets that are available to the server profile along with their respective ports. |  When requested, but can be null. |  dict |
 | server_profile_templates   | Has all the OneView facts about the Server Profile Templates. |  Always, but can be null. |  dict |
 
 
 #### Notes
 
 - The option `transformation` is only available for API version 300 or later.
+
+- The option `available_networks` is only available for API version 600 or later.
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
 
