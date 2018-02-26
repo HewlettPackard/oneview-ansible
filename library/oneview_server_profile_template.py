@@ -148,7 +148,8 @@ class ServerProfileTemplateModule(OneViewModuleBase):
     def execute_module(self):
 
         template = self.resource_client.get_by_name(self.data["name"])
-        self.params = self.module.params.get("params", {})
+        params = self.module.params.get("params")
+        self.params = params if params else {}
 
         if self.state == 'present':
             result = self.__present(self.data, template)
