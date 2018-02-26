@@ -8477,7 +8477,7 @@ Retrieve facts about the Server Profile Templates from OneView.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   |  | |  Server Profile Template name.  |
-| options  |   |  | |  List with options to gather additional facts about Server Profile Template resources. Options allowed: `new_profile`, `transformation` `available_networks`.  |
+| options  |   |  | |  List with options to gather additional facts about Server Profile Template resources. Options allowed: `new_profile`, `transformation` and `available_networks`.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 | uri  |   |  | |  Server Profile Template uri.  |
 
