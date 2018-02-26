@@ -5318,7 +5318,10 @@ Manage OneView Logical Switch Group resources.
 
 - name: Create a Logical Switch Group
   oneview_logical_switch_group:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         name: "OneView Test Logical Switch Group"
@@ -5335,7 +5338,10 @@ Manage OneView Logical Switch Group resources.
 
 - name: Update the Logical Switch Group and make sure it is present in the desired scopes
   oneview_logical_switch_group:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         name: "OneView Test Logical Switch Group"
@@ -5354,7 +5360,10 @@ Manage OneView Logical Switch Group resources.
 
 - name: Delete the Logical Switch Group
   oneview_logical_switch_group:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name: 'Test Logical Switch Group'
