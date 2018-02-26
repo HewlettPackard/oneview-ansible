@@ -148,11 +148,7 @@ class ServerProfileTemplateModule(OneViewModuleBase):
     def execute_module(self):
 
         template = self.resource_client.get_by_name(self.data["name"])
-
-        self.force = True
-        params = self.module.params.get("params")
-        if params:
-            self.force = params.get("force")
+        self.params = self.module.params.get("params", {})
 
         if self.state == 'present':
             result = self.__present(self.data, template)
@@ -191,7 +187,7 @@ class ServerProfileTemplateModule(OneViewModuleBase):
                 return spt_from_sp
 
     def __create(self, data):
-        resource = self.resource_client.create(data, force=self.force)
+        resource = self.resource_client.create(data, **self.params)
         return True, self.MSG_CREATED, resource
 
     def __update(self, data, template):
@@ -205,7 +201,7 @@ class ServerProfileTemplateModule(OneViewModuleBase):
             msg = self.MSG_ALREADY_PRESENT
         else:
             resource = self.resource_client.update(resource=merged_data,
-                                                   id_or_uri=merged_data["uri"], force=self.force)
+                                                   id_or_uri=merged_data["uri"], **self.params)
             msg = self.MSG_UPDATED
 
         changed = not equal
@@ -216,7 +212,7 @@ class ServerProfileTemplateModule(OneViewModuleBase):
         msg = self.MSG_ALREADY_ABSENT
 
         if template:
-            self.resource_client.delete(template, force=self.force)
+            self.resource_client.delete(template, **self.params)
             msg = self.MSG_DELETED
 
         changed = template is not None
