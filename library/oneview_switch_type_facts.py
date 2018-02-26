@@ -45,13 +45,19 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Switch Types
   oneview_switch_type_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 
 - debug: var=switch_types
 
 - name: Gather paginated, filtered and sorted facts about Switch Types
   oneview_switch_type_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 2
@@ -62,7 +68,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Switch Type by name
   oneview_switch_type_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "Name of the Switch Type"
 
 - debug: var=switch_types
