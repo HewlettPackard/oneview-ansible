@@ -236,6 +236,7 @@ class ServerProfileModule(OneViewModuleBase):
     argument_spec = dict(
         state=dict(choices=['present', 'absent', 'compliant'], default='present'),
         data=dict(type='dict', required=True),
+        params=dict(type='dict', required=False),
         auto_assign_server_hardware=dict(type='bool', default=True)
     )
 
@@ -247,6 +248,7 @@ class ServerProfileModule(OneViewModuleBase):
         self.auto_assign_server_hardware = self.module.params.get('auto_assign_server_hardware')
 
         data = deepcopy(self.data)
+        params = self.module.params.get("params")
         server_profile_name = data.get('name')
 
         server_profile = self.oneview_client.server_profiles.get_by_name(server_profile_name)
