@@ -64,13 +64,19 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Logical Interconnects
   oneview_logical_interconnect_facts:
-  config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 
 - debug: var=logical_interconnects
 
 - name: Gather paginated and sorted facts about Logical Interconnects
   oneview_logical_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -80,8 +86,11 @@ EXAMPLES = '''
 
 - name: Gather facts about a Logical Interconnect by name with QOS Configuration
   oneview_logical_interconnect_facts:
-    config: "{{ config }}"
-    name: "{{ name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    name: "Name of the Logical Interconnect"
     options:
       - qos_aggregated_configuration
 
@@ -90,8 +99,11 @@ EXAMPLES = '''
 
 - name: Gather facts about a Logical Interconnect by name with all options
   oneview_logical_interconnect_facts:
-    config: "{{ config }}"
-    name: "{{ name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    name: "Name of the Logical Interconnect"
     options:
       - qos_aggregated_configuration
       - snmp_configuration
