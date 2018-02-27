@@ -135,13 +135,6 @@ PARAMS_FOR_CREATE_CSR = dict(
               bay_number=1)
 )
 
-PARAMS_FOR_GET_CSR = dict(
-    config='config.json',
-    state='get_certificate_request',
-    data=dict(name=DEFAULT_ENCLOSURE_NAME,
-              bayNumber=1)
-)
-
 PARAMS_FOR_IMPORT_CSR = dict(
     config='config.json',
     state='import_certificate_request',
@@ -173,6 +166,7 @@ PARAMS_FOR_DEVICE_BAY_IPV4_RELEASE = """
       name: 'Test-Enclosure'
       bayNumber: 1
 """
+
 PARAMS_FOR_UID_ON = """
     config: "{{ config_file_path }}"
     state: uid_on
