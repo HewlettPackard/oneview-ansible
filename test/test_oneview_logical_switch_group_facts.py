@@ -22,18 +22,24 @@ from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import LogicalSwitchGroupFactsModule
 
 ERROR_MSG = 'Fake message error'
+LOGICAL_SWITCH_GROUP_NAME = 'LogicalSwitchGroupDemo'
+
+PARAMS_GET_ALL = dict(
+    config='config.json',
+    state='present'
+)
+PARAMS_GET_BY_NAME = dict(
+    config='config.json',
+    state='present',
+    name=LOGICAL_SWITCH_GROUP_NAME
+)
 
 
 @pytest.mark.resource(TestLogicalSwitchGroupFactsModule='logical_switch_groups')
 class TestLogicalSwitchGroupFactsModule(OneViewBaseFactsTest):
-    @pytest.fixture(autouse=True)
-    def specific_set_up(self, setUp, testing_module):
-        self.PARAMS_GET_ALL = {'config': 'config.json', 'state': 'present'}
-        self.PARAMS_GET_BY_NAME = {'config': 'config.json', 'state': 'present', 'name': 'LogicalSwitchGroupDemo'}
-
     def test_should_get_logical_switch_group_by_name(self):
         self.resource.get_by.return_value = {"name": "Logical Switch Group"}
-        self.mock_ansible_module.params = self.PARAMS_GET_BY_NAME
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         LogicalSwitchGroupFactsModule().run()
 
@@ -44,7 +50,7 @@ class TestLogicalSwitchGroupFactsModule(OneViewBaseFactsTest):
 
     def test_should_get_all_logical_switch_groups(self):
         self.resource.get_all.return_value = {"name": "Logical Switch Group"}
-        self.mock_ansible_module.params = self.PARAMS_GET_ALL
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         LogicalSwitchGroupFactsModule().run()
 
