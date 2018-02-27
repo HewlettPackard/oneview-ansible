@@ -121,6 +121,35 @@ PARAMS_FOR_BAY_POWER_ON = dict(
               bayNumber=2)
 )
 
+PARAMS_FOR_CREATE_CSR = dict(
+    config='config.json',
+    state='create_certificate_request',
+    data=dict(name=DEFAULT_ENCLOSURE_NAME,
+              type='CertificateDtoV2',
+              organization='HPE',
+              organizationalUnit='IT',
+              locality='Fort Collins',
+              state='Colorado',
+              country='US',
+              commonName='e10-oa',
+              bay_number=1)
+)
+
+PARAMS_FOR_GET_CSR = dict(
+    config='config.json',
+    state='get_certificate_request',
+    data=dict(name=DEFAULT_ENCLOSURE_NAME,
+              bayNumber=1)
+)
+
+PARAMS_FOR_IMPORT_CSR = dict(
+    config='config.json',
+    state='import_certificate_request',
+    data=dict(name=DEFAULT_ENCLOSURE_NAME,
+              type='CertificateDataV2',
+              base64Data='certificate')
+)
+
 PARAMS_FOR_DATA_COL_SET = """
     config: "{{ config_file_path }}"
     state: support_data_collection_set
@@ -1115,6 +1144,31 @@ class TestEnclosureModule(OneViewBaseTest):
             msg=EnclosureModule.MSG_ALREADY_PRESENT
         )
 
+    def test_should_create_new_certificate_signing_request(self):
+        self.resource.generate_csr.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        self.mock_ansible_module.params = PARAMS_FOR_CREATE_CSR
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=EnclosureModule.MSG_CREATE_CERTIFICATE_REQUEST
+        )
+
+    def test_should_import_certificate_signing_request(self):
+        self.resource.import_certificate.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        self.mock_ansible_module.params = PARAMS_FOR_IMPORT_CSR
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=EnclosureModule.MSG_IMPORT_CERTIFICATE_REQUEST
+        )
 
 if __name__ == '__main__':
     pytest.main([__file__])

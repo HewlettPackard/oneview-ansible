@@ -39,7 +39,7 @@
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
     # This play is compatible with C7000 Enclosures
-      name: Ensure the Enclosure with hostname '{{ enclosure_hostname }}' is present with name 'Test-Enclosure'
+    - name: Ensure the Enclosure with hostname '{{ enclosure_hostname }}' is present with name 'Test-Enclosure'
       oneview_enclosure:
         config: "{{ config }}"
         state: present
@@ -51,7 +51,7 @@
           name: '{{ enclosure_name }}'
           licensingIntent : 'OneView'
           rackName: 'Rack-Name'
-         scopeUris: '{{ scope_uris }}'
+          scopeUris: '{{ scope_uris }}'
       when: variant == 'C7000'
       delegate_to: localhost
 
