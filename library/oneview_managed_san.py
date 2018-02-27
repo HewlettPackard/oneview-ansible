@@ -56,7 +56,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
   - name: Refresh the Managed SAN
     oneview_managed_san:
-      config: '{{ config_path }}'
+      hostname: 172.16.101.48
+      username: administrator
+      password: my_password
+      api_version: 600
       state: refresh_state_set
       data:
           name: 'SAN1_0'
@@ -66,7 +69,10 @@ EXAMPLES = '''
 
   - name: Update the Managed SAN
     oneview_managed_san:
-      config: '{{ config_path }}'
+      hostname: 172.16.101.48
+      username: administrator
+      password: my_password
+      api_version: 600
       state: present
       data:
           name: 'SAN1_0'
@@ -86,7 +92,10 @@ EXAMPLES = '''
 
   - name: Create an endpoints CSV file for the SAN
     oneview_managed_san:
-      config: '{{ config }}'
+      hostname: 172.16.101.48
+      username: administrator
+      password: my_password
+      api_version: 600
       state: endpoints_csv_file_created
       data:
           name: '{{ name }}'
@@ -94,7 +103,10 @@ EXAMPLES = '''
 
   - name: Create an unexpected zoning report for the SAN
     oneview_managed_san:
-      config: '{{ config }}'
+      hostname: 172.16.101.48
+      username: administrator
+      password: my_password
+      api_version: 600
       state: issues_report_created
       data:
           name: '{{ name }}'
