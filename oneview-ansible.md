@@ -5338,7 +5338,10 @@ Manage OneView Logical Switch Group resources.
 
 - name: Create a Logical Switch Group
   oneview_logical_switch_group:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         name: "OneView Test Logical Switch Group"
@@ -5355,7 +5358,10 @@ Manage OneView Logical Switch Group resources.
 
 - name: Update the Logical Switch Group and make sure it is present in the desired scopes
   oneview_logical_switch_group:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         name: "OneView Test Logical Switch Group"
@@ -5374,7 +5380,10 @@ Manage OneView Logical Switch Group resources.
 
 - name: Delete the Logical Switch Group
   oneview_logical_switch_group:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name: 'Test Logical Switch Group'
@@ -5431,14 +5440,20 @@ Retrieve facts about OneView Logical Switch Groups.
 
 - name: Gather facts about all Logical Switch Groups
   oneview_logical_switch_group_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=logical_switch_groups
 
 - name: Gather paginated, filtered and sorted facts about Logical Switch Groups
   oneview_logical_switch_group_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -5449,7 +5464,10 @@ Retrieve facts about OneView Logical Switch Groups.
 
 - name: Gather facts about a Logical Switch Group by name
   oneview_logical_switch_group_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "LogicalSwitchGroupDemo"
   delegate_to: localhost
 

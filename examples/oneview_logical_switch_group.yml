@@ -47,7 +47,7 @@
         data:
             name: "OneView Test Logical Switch Group"
             newName: "Test Logical Switch Group"
-            scopeUris: "{{ scope_uris }}"
+            scopeUris: "{{ scope_uris }}" # This field is available only till OneView 3.10
             switchMapTemplate:
                 switchMapEntryTemplates:
                     - logicalLocation:
