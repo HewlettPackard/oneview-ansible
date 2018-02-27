@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
+    - scope_uris: "/rest/scopes/63d1ca81-95b3-41f1-a1ee-f9e1bc2d635f"
   tasks:
     - name: Gather facts about all Logical Interconnect Groups
       oneview_logical_interconnect_group_facts:
@@ -32,7 +33,15 @@
           start: 0
           count: 3
           sort: 'name:descending'
-          filter: 'name=LIGName'
+          filter: "\"'name'='e11-encl-group logical interconnect group'\""
+
+    - debug: var=logical_interconnect_groups
+
+    - name: Gather facts about Logical Interconnect Group by scope_uris
+      oneview_logical_interconnect_group_facts:
+        config: "{{ config }}"
+        params:
+          scope_uris: "{{ scope_uris }}"
 
     - debug: var=logical_interconnect_groups
 

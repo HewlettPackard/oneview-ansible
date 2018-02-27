@@ -31,6 +31,8 @@
           serverProfileName: "{{ server_profile_name }}" # Optional - Server Profile to base this SPT on
           serverHardwareTypeName: "{{ server_hardware_type_name }}"
           enclosureGroupName: "{{ enclosure_group_name }}"
+        params:
+          force: "True" # Supprted only for API version >= 600
       delegate_to: localhost
 
     - name: Update bootMode from recently created template
@@ -45,6 +47,8 @@
             manageMode: true
             mode: UEFI
             pxeBootPolicy: Auto
+        params:
+          force: True # Supprted only for API version >= 600
       delegate_to: localhost
 
     - name: Delete the Server Profile Template
@@ -53,6 +57,8 @@
         state: absent
         data:
           name: "{{ server_profile_template_name }}"
+        params:
+          force: True # Supprted only for API version >= 600
       delegate_to: localhost
 
     - name: Do nothing when Server Profile Template is absent

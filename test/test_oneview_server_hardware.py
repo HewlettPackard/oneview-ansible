@@ -44,6 +44,20 @@ YAML_SERVER_HARDWARE_ABSENT = """
             name : "172.18.6.15"
 """
 
+YAML_SERVER_HARDWARE_ADD_MULTIPLE_SERVERS = """
+        config: "{{ config }}"
+        state: multiple_servers_added
+        data:
+            mpHostsAndRanges :
+              - '172.18.6.15'
+            username : 'dcs'
+            password : 'dcs'
+            initialScopeUris:
+              - "/rest/scopes/01SC123456"
+            licensingIntent: "OneView"
+            configurationState: "Managed"
+            """
+
 YAML_SERVER_HARDWARE_POWER_STATE = """
         config: "{{ config }}"
         state: power_state_set
@@ -135,6 +149,21 @@ class TestServerHardwareModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=ServerHardwareModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(server_hardware={"name": "name"})
+        )
+
+    def test_should_add_multiple_servers(self):
+        self.resource.get_by.return_value = []
+
+        self.resource.add_multiple_servers.return_value = {'name': 'name'}
+
+        self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_ADD_MULTIPLE_SERVERS)
+
+        ServerHardwareModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerHardwareModule.MSG_MULTIPLE_RACK_MOUNT_SERVERS_ADDED,
             ansible_facts=dict(server_hardware={"name": "name"})
         )
 

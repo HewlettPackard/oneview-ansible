@@ -20,6 +20,7 @@
     server_profile_template_name: "ProfileTemplate101"
     enclosure_group_uri: "/rest/enclosure-groups/34e4af48-f57d-45d6-a0a3-e9c18d69bc90"
     server_hardware_type_uri: "/rest/server-hardware-types/9DD96E9B-8B24-42C7-867F-5F8AB3246EFC"
+    scope_uris: "/rest/scopes/af62ae65-06b2-4aaf-94d3-6a92562888cf"
   tasks:
     - name: Gather facts about all Server Profile Templates
       oneview_server_profile_template_facts:
@@ -36,6 +37,7 @@
           count: 3
           sort: name:ascending
           filter: macType='Virtual'
+          scope_uris: "{{ scope_uris }}" #Supported only for OneView API version >= 600
       delegate_to: localhost
 
     - debug: var=server_profile_templates
@@ -77,3 +79,16 @@
       delegate_to: localhost
 
     - debug: var=transformation
+
+    # This option is available only for API version >= 600.
+    - name: Gather facts about available networks
+      oneview_server_profile_template_facts:
+        config: "{{ config }}"
+        options:
+          - available_networks:
+              serverHardwareTypeUri: "{{server_hardware_type_uri}}"
+              enclosureGroupUri: "{{enclosure_group_uri}}"
+
+      delegate_to: localhost
+
+    - debug: var=server_profile_template_available_networks

@@ -61,6 +61,14 @@ PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
     ]
 )
 
+PARAMS_AVAILABLE_NETWORKS = dict(
+    config='config.json',
+    options=[{'available_networks': {
+        'enclosureGroupUri': '/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89',
+        'serverHardwareTypeUri': '/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B'}
+    }]
+)
+
 BASIC_TEMPLATE = dict(
     name=TEMPLATE_NAME,
     uri=TEMPLATE_URI,
@@ -73,6 +81,14 @@ TRANSFORMATION_TEMPLATE = dict(
     uri=TEMPLATE_URI,
     enclosureGroupUri=ENCLOSURE_GROUP_FOR_TRANSFORMATION,
     serverHardwareTypeUri=SERVER_HARDWARE_TYPE_FOR_TRANSFORMATION
+)
+
+AVAILABLE_NETWORKS = dict(
+    server_profile_template_available_networks=dict(
+        ethernetNetworks=[],
+        fcNetworks=[],
+        networkSets=[]
+    )
 )
 
 PROFILE = dict(
@@ -182,6 +198,17 @@ class TestServerProfileTemplateFactsModule(OneViewBaseFactsTest):
                 new_profile=PROFILE,
                 transformation=TRANSFORMATION_TEMPLATE
             )
+        )
+
+    def test_should_get_all_available_networks(self):
+        self.mock_ov_client.server_profile_templates.get_available_networks.return_value = AVAILABLE_NETWORKS
+        self.mock_ansible_module.params = PARAMS_AVAILABLE_NETWORKS
+
+        ServerProfileTemplateFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(server_profile_template_available_networks=AVAILABLE_NETWORKS)
         )
 
 

@@ -19,7 +19,8 @@
     config: "{{ playbook_dir }}/oneview_config.json"
     logical_enclosure_name: "Encl1"  # Set the name of a Logical Enclosure
     firmware_baseline_uri: "/rest/firmware-drivers/SPPgen9snap6_2016_0405_87"  # Set the URI of a Firmware Driver
-    enclosure_uri: "/rest/enclosures/0000000000A66101" # Set the URI of an Enclosure
+    enclosure_uri:
+        - "/rest/enclosures/0000000000A66101" # Set the URI of an Enclosure
     enclosure_group_uri: "/rest/enclosure-groups/9fafc382-bbef-4a94-a9d1-05f77042f3ac" # Set the URI of an Enclosure Group
 
   tasks:
@@ -29,8 +30,7 @@
         config: "{{ config }}"
         state: present
         data:
-            enclosureUris:
-              - "{{ enclosure_uri }}"
+            enclosureUris: "{{ enclosure_uri }}"
             enclosureGroupUri: "{{ enclosure_group_uri }}"
             name: "{{ logical_enclosure_name }}"
       ignore_errors: true
@@ -46,6 +46,8 @@
                 firmwareBaselineUri: "{{ firmware_baseline_uri }}"
                 firmwareUpdateOn: "EnclosureOnly"
                 forceInstallFirmware: "false"
+            custom_headers:
+                if-Match: '*'
       ignore_errors: true
       delegate_to: localhost
 
@@ -63,6 +65,8 @@
                 validateIfLIFirmwareUpdateIsNonDisruptive: "true"
                 logicalInterconnectUpdateMode: "Orchestrated"
                 updateFirmwareOnUnmanagedInterconnect: "true"
+            custom_headers:
+                if-Match: '*'
       ignore_errors: true
       delegate_to: localhost
 

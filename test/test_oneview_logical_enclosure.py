@@ -50,6 +50,8 @@ YAML_LOGICAL_ENCLOSURE_FIRMWARE_UPDATE = """
                 firmwareBaselineUri: "/rest/firmware-drivers/SPPGen9Snap3_2015_0221_71"
                 firmwareUpdateOn: "EnclosureOnly"
                 forceInstallFirmware: "false"
+            custom_headers:
+                if-Match: "*"
       """
 
 YAML_LOGICAL_ENCLOSURE_UPDATE_SCRIPT = """

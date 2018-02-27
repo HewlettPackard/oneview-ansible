@@ -48,7 +48,7 @@
           newName: 'Test FCoE Network - Changed'
           vlanId: 201
       delegate_to: localhost
-
+# Below task is supported only with OneView 3.10
     - name: Update the FCoE Network with two scopes
       oneview_fcoe_network:
         config: "{{ config }}"

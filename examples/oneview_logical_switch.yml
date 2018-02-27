@@ -77,7 +77,7 @@
           logicalSwitchCredentials:
             - '{{ credential_configuration }}'
             - '{{ credential_configuration }}'
-          scopeUris: "{{ scopes }}"
+          scopeUris: "{{ scopes }}" # This feature is available only till OneView 3.10
       delegate_to: localhost
 
     - name: Reclaim the top-of-rack switches in the logical switch

@@ -17,11 +17,15 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    server_hardware_hostname: '<server_hardware_host_name>'
-    server_hardware_username: '<server_hardware_user_name>'
-    server_hardware_password: '<server_hardware_user_password>'
+    server_hardware_hostname: '<server-hardware-hostname>'
+    server_hardware_username: '<server-hardware-username>'
+    server_hardware_password: '<server-hardware-password>'
     scope_uris:
       - '<scope_uri_1>'
+    multiple_hosts:
+      - "{{ server_hardware_hostname }}"
+    initial_scope_uris:
+      - '/rest/scopes/4e3a3d5d-1658-400b-9429-72745c0817ca'
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
@@ -36,7 +40,8 @@
              force : false
              licensingIntent: "OneView"
              configurationState: "Managed"
-             scopeUris: "{{ scope_uris }}"
+             scopeUris: "{{ scope_uris }}" #Supported only with OneView API version <= 500.
+             initialScopeUris: "{{ initial_scope_uris }}" #Supported only with OneView API version >= 600.
       delegate_to: localhost
 
     - name: Do nothing when the server hardware is already present
@@ -48,6 +53,20 @@
              username : '{{ server_hardware_username }}'
              password : '{{ server_hardware_password }}'
              force : false
+             licensingIntent: "OneView"
+             configurationState: "Managed"
+      delegate_to: localhost
+
+    #This task available only with OneView API version >= 600.
+    - name: Add multiple rack-mount servers
+      oneview_server_hardware:
+        config: "{{ config }}"
+        state: multiple_servers_added
+        data:
+             mpHostsAndRanges : "{{ multiple_hosts }}"
+             username : "{{ server_hardware_username }}"
+             password : "{{ server_hardware_password }}"
+             initialScopeUris: "{{ initial_scope_uris }}"
              licensingIntent: "OneView"
              configurationState: "Managed"
       delegate_to: localhost

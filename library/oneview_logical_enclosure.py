@@ -64,7 +64,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Create a Logical Enclosure (available only on HPE Synergy)
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         enclosureUris:
@@ -76,7 +79,10 @@ EXAMPLES = '''
 
 - name: Update the firmware for the Logical Enclosure
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: firmware_updated
     data:
         name: "Encl1"
@@ -84,12 +90,17 @@ EXAMPLES = '''
             firmwareBaselineUri: "/rest/firmware-drivers/SPPGen9Snap3_2015_0221_71"
             firmwareUpdateOn: "EnclosureOnly"
             forceInstallFirmware: "false"
+        custom_headers:
+            if-Match: '*'
   delegate_to: localhost
 
 # This play is compatible with Synergy Enclosures
 - name: Update the firmware for the Logical Enclosure with the logical-interconnect validation set as true
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: firmware_updated
     data:
         name: "Encl1"
@@ -100,11 +111,16 @@ EXAMPLES = '''
             validateIfLIFirmwareUpdateIsNonDisruptive: "true"
             logicalInterconnectUpdateMode: "Orchestrated"
             updateFirmwareOnUnmanagedInterconnect: "true"
+        custom_headers:
+            if-Match: '*'
   delegate_to: localhost
 
 - name: Update the Logical Enclosure configuration script
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: script_updated
     data:
         name: "Encl1"
@@ -113,7 +129,10 @@ EXAMPLES = '''
 
 - name: Generates a support dump for the Logical Enclosure
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: dumped
     data:
         name: "Encl1"
@@ -126,7 +145,10 @@ EXAMPLES = '''
 
 - name: Reconfigure all enclosures associated with logical enclosure
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: reconfigured
     data:
         name: "Encl1"
@@ -134,7 +156,10 @@ EXAMPLES = '''
 
 - name: Makes the logical enclosure consistent with the enclosure group
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: updated_from_group
     data:
         name: "Encl1"
@@ -142,7 +167,10 @@ EXAMPLES = '''
 
 - name: Update the Logical Enclosure changing the name attribute
   oneview_logical_enclosure:
-    config: "{{ config_file_name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         name: "Encl1"
@@ -151,7 +179,10 @@ EXAMPLES = '''
 
 - name: Delete a Logical Enclosure (available only on HPE Synergy)
   oneview_logical_enclosure:
-      config: "{{ config_file_name }}"
+      hostname: 172.16.101.48
+      username: administrator
+      password: my_password
+      api_version: 600
       state: absent
       data:
           name: 'Encl1'
@@ -276,7 +307,8 @@ class LogicalEnclosureModule(OneViewModuleBase):
         logical_enclosure = self.oneview_client.logical_enclosures.patch(logical_enclosure['uri'],
                                                                          operation="replace",
                                                                          path="/firmware",
-                                                                         value=data['firmware'])
+                                                                         value=data['firmware'],
+                                                                         custom_headers=data.get('custom_headers'))
 
         return True, self.MSG_FIRMWARE_UPDATED, dict(logical_enclosure=logical_enclosure)
 

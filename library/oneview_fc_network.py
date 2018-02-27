@@ -53,22 +53,32 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Ensure that the Fibre Channel Network is present using the default configuration
   oneview_fc_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'New FC Network'
 
 - name: Ensure that the Fibre Channel Network is present with fabricType 'DirectAttach'
   oneview_fc_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'New FC Network'
       fabricType: 'DirectAttach'
 
+# This feature is available only till OneView 3.10
 - name: Ensure that the Fibre Channel Network is present and is inserted in the desired scopes
   oneview_fc_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
     state: present
     data:
       name: 'New FC Network'
@@ -78,7 +88,10 @@ EXAMPLES = '''
 
 - name: Ensure that the Fibre Channel Network is absent
   oneview_fc_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       name: 'New FC Network'

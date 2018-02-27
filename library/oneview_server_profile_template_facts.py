@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 4.5.0"
 author: "Bruno Souza (@bsouza)"
 options:
     name:
@@ -41,10 +41,10 @@ options:
     options:
       description:
         - "List with options to gather additional facts about Server Profile Template resources.
-          Options allowed: C(new_profile) and C(transformation)."
+          Options allowed: C(new_profile), C(transformation) and C(available_networks)."
 notes:
     - The option C(transformation) is only available for API version 300 or later.
-
+    - The option C(available_networks) is only available for API version 600 or later.
 extends_documentation_fragment:
     - oneview
     - oneview.factsparams
@@ -59,33 +59,59 @@ EXAMPLES = '''
 
 - name: Gather paginated, filtered and sorted facts about Server Profile Templates
   oneview_server_profile_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
       sort: name:ascending
       filter: macType='Virtual'
+      scope_uris: /rest/scopes/af62ae65-06b2-4aaf-94d3-6a92562888cf
   delegate_to: localhost
 
 - debug: var=server_profile_templates
 
 - name: Gather facts about a Server Profile Template by name
   oneview_server_profile_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "ProfileTemplate101"
 
 - name: Gather facts about a Server Profile by uri
   oneview_server_profile_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     uri: /rest/server-profile-templates/c0868397-eff6-49ed-8151-4338702792d3
   delegate_to: localhost
 
 - name: Gather facts about a template and a profile with the configuration based on this template
   oneview_server_profile_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "ProfileTemplate101"
     options:
       - new_profile
+
+- name: Gather facts about available networks.
+  oneview_server_profile_template_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    options:
+      - available_networks:
+          serverHardwareTypeUri: "/rest/server-hardware-types/253F1D49-0FEE-4DCD-B14C-B26234E9D414"
+          enclosureGroupUri: "/rest/enclosure-groups/293e8efe-c6b1-4783-bf88-2d35a8e49071"
+  delegate_to: localhost
+
 '''
 
 RETURN = '''
@@ -98,6 +124,13 @@ new_profile:
     description: A profile object with the configuration based on this template.
     returned: When requested, but can be null.
     type: dict
+
+server_profile_template_available_networks:
+    description: Has all the facts about the list of Ethernet networks, Fibre Channel networks and network sets that
+      are available to the server profile along with their respective ports.
+    returned: When requested, but can be null.
+    type: dict
+
 '''
 from ansible.module_utils.oneview import OneViewModuleBase
 
@@ -123,6 +156,9 @@ class ServerProfileTemplateFactsModule(OneViewModuleBase):
             facts = self.__get_by_attribute(name, 'name')
         elif uri:
             facts = self.__get_by_attribute(uri, 'uri')
+        elif self.options and self.options.get("available_networks"):
+            network_params = self.options["available_networks"]
+            facts = {"server_profile_template_available_networks": self.resource_client.get_available_networks(**network_params)}
         else:
             facts = self.__get_all()
 
