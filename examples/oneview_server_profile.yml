@@ -45,7 +45,7 @@
     # Set the name of an existing server hardware type to run this example
     - server_hardware_type_name:  BL460c G7 1
     # Set the name of an existing ethernet network
-    - network_name: Ansible OneViewSDK Test Ethernet Network
+    - network_name:  EthernetNetwork_1
   tasks:
     - name: Create a Server Profile from a Server Profile Template
       oneview_server_profile:
@@ -53,8 +53,8 @@
         data:
           serverProfileTemplateName: "{{ ov_template }}"
           name: "{{ inventory_hostname }}"
-      # params: # Supported only in API version >= 600
-      #     force: True
+        params: # Supported only in API version >= 600
+          force: True
       delegate_to: localhost
       register: result
 
@@ -71,13 +71,14 @@
         config: "{{ config }}"
         data:
           name: "{{ inventory_hostname }}-with-connections"
-          connections:
-            - id: 1
-              name: connection1
-              functionType: Ethernet
-              portId: Auto
-              requestedMbps: 2500
-              networkName: "{{ network_name }}"
+          connectionSettings:  # Supported only in API vesrion >= 600.
+            connections:
+              - id: 1
+                name: connection1
+                functionType: Ethernet
+                portId: Auto
+                requestedMbps: 2500
+                networkName: "{{ network_name }}"
       delegate_to: localhost
 
     - debug: msg="{{ server_profile }}"

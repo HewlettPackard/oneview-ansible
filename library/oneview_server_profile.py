@@ -61,6 +61,10 @@ options:
         the Server Profile will have its Server Hardware unassigned.
     default: True
     choices: [True, False]
+  params:
+    description:
+      - Dict with query parameters.
+    required: False
 notes:
     - "For the following data, you can provide either a name or a URI: enclosureGroupName or enclosureGroupUri,
        osDeploymentPlanName or osDeploymentPlanUri (on the osDeploymentSettings), networkName or networkUri (on the
@@ -83,7 +87,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Create a Server Profile from a Server Profile Template with automatically selected hardware
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         name: Web-Server-L2
@@ -133,21 +140,28 @@ EXAMPLES = '''
 
 - name: Create a Server Profile with connections
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     data:
       name: server-profile-with-connections
-      connections:
-        - id: 1
-          name: connection1
-          functionType: Ethernet
-          portId: Auto
-          requestedMbps: 2500
-          networkName: eth-demo
+      connectionSettings:
+        connections:
+          - id: 1
+            name: connection1
+            functionType: Ethernet
+            portId: Auto
+            requestedMbps: 2500
+            networkName: eth-demo
   delegate_to: localhost
 
 - name: Unassign Server Hardware from Server Profile
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     # This is required for unassigning a SH, or creating a SP and not auto-assigning a SH
     auto_assign_server_hardware: False
     data:
@@ -158,7 +172,10 @@ EXAMPLES = '''
 
 - name : Remediate compliance issues
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: compliant
     data:
         name: Web-Server-L2
@@ -166,7 +183,10 @@ EXAMPLES = '''
 
 - name : Remove the server profile
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name: Web-Server-L2
@@ -249,7 +269,7 @@ class ServerProfileModule(OneViewModuleBase):
 
         data = deepcopy(self.data)
         params = self.module.params.get("params")
-        self.params = params if params is not None else {}
+        self.params = params if params else {}
 
         server_profile_name = data.get('name')
 

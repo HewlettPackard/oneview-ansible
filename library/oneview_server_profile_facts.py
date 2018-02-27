@@ -285,7 +285,7 @@ class ServerProfileFactsModule(OneViewModuleBase):
         facts = {}
 
         if profile_uri:
-            if options.get('messages'): # Supported only for API version <= 500
+            if options.get('messages'):  # Supported only for API version <= 500
                 facts['server_profile_messages'] = client.get_messages(profile_uri)
 
             if options.get('transformation'):
@@ -313,11 +313,11 @@ class ServerProfileFactsModule(OneViewModuleBase):
             servers_options = self.__get_sub_options(options['availableServers'])
             facts['server_profile_available_servers'] = client.get_available_servers(**servers_options)
 
-        if options.get('availableStorageSystem'): # Supported only for API version <= 500
+        if options.get('availableStorageSystem'):  # Supported only for API version <= 500
             storage_options = self.__get_sub_options(options['availableStorageSystem'])
             facts['server_profile_available_storage_system'] = client.get_available_storage_system(**storage_options)
 
-        if options.get('availableStorageSystems'): # Supported only for API version <= 500
+        if options.get('availableStorageSystems'):  # Supported only for API version <= 500
             storage_options = self.__get_sub_options(options['availableStorageSystems'])
             facts['server_profile_available_storage_systems'] = client.get_available_storage_systems(**storage_options)
 
