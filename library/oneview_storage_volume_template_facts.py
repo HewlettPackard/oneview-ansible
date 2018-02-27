@@ -49,14 +49,20 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Storage Volume Templates
   oneview_storage_volume_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=storage_volume_templates
 
 - name: Gather paginated, filtered and sorted facts about Storage Volume Templates
   oneview_storage_volume_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -67,7 +73,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Storage Volume Template by name
   oneview_storage_volume_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "FusionTemplateExample"
   delegate_to: localhost
 
@@ -76,7 +85,10 @@ EXAMPLES = '''
 
 - name: Gather facts about the connectable Storage Volume Templates
   oneview_storage_volume_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "FusionTemplateExample"
     options:
       - connectableVolumeTemplates
@@ -87,14 +99,20 @@ EXAMPLES = '''
 
 - name: Gather facts about the reachable Storage Volume Templates
   oneview_storage_volume_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     options:
       - reachableVolumeTemplates
   delegate_to: localhost
 
 - name: Gather facts about Storage Systems compatible to the SVT
   oneview_storage_volume_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "{{ volume_template_name }}"
     options:
       - compatibleSystems

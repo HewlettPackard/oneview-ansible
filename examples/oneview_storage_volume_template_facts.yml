@@ -18,6 +18,8 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     - volume_template_name: 'vt2'
+    - network_list:
+      - '/rest/fcoe-networks/7f0f74a0-4957-47ac-81c1-f573aa6d83de'
   tasks:
     - name: Gather facts about all Storage Volume Templates
       oneview_storage_volume_template_facts:
@@ -52,8 +54,7 @@
         options:
           - reachableVolumeTemplates
         params:
-          networks:
-            - '/rest/fcoe-networks/42ba6eca-7e89-4bf9-8ea0-51b2748a4df4'
+          networks: "{{ network_list }}"
       delegate_to: localhost
 
     - name: Gather facts about Storage Systems compatible to the SVT

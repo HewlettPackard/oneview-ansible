@@ -51,7 +51,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Create a Storage Volume Template
   oneview_storage_volume_template:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         name: 'Volume Template Name'
@@ -71,7 +74,10 @@ EXAMPLES = '''
 
 - name: Delete the Storage Volume Template
   oneview_storage_volume_template:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name: 'Volume Template Name'
