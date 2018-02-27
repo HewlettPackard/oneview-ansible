@@ -128,9 +128,8 @@ class TestServerProfileTemplateModule(OneViewBaseTest):
         expected = CREATED_BASIC_TEMPLATE.copy()
         expected.update(BASIC_TEMPLATE_MODIFIED)
 
-        self.resource.update.assert_called_once_with(
-            resource=expected, id_or_uri=expected["uri"]
-        )
+        self.resource.update.assert_called_once_with(resource=expected,
+                                                     id_or_uri=expected["uri"])
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -151,7 +150,8 @@ class TestServerProfileTemplateModule(OneViewBaseTest):
         expected = CREATED_BASIC_TEMPLATE.copy()
         expected.update(BASIC_TEMPLATE_MODIFIED)
 
-        self.resource.update.assert_called_once_with(resource=expected, id_or_uri=expected["uri"])
+        self.resource.update.assert_called_once_with(resource=expected,
+                                                     id_or_uri=expected["uri"])
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,

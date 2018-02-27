@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 4.5.0"
 author: "Bruno Souza (@bsouza)"
 options:
     state:
@@ -42,6 +42,10 @@ options:
         description:
             - Dict with Server Profile Template properties.
         required: true
+    params:
+        description:
+            - Dict with query parameters.
+        required: false
 notes:
     - "For the following data, you can provide either a name  or a URI: enclosureGroupName or enclosureGroupUri,
        osDeploymentPlanName or osDeploymentPlanUri (on the osDeploymentSettings), networkName or networkUri (on the
@@ -64,30 +68,45 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Create a basic connection-less server profile template (using URIs)
   oneview_server_profile_template:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: "ProfileTemplate101"
       serverHardwareTypeUri: "/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B"
       enclosureGroupUri: "/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89"
+    params:
+      force: True
     delegate_to: localhost
 
 - name: Create a basic connection-less server profile template (using names)
   oneview_server_profile_template:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: "ProfileTemplate102"
       serverHardwareTypeName: "BL460c Gen8 1"
       enclosureGroupName: "EGSAS_3"
+    params:
+      force: True
   delegate_to: localhost
 
 - name: Delete the Server Profile Template
   oneview_server_profile_template:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       name: "ProfileTemplate101"
+    params:
+      force: True
     delegate_to: localhost
 '''
 
@@ -115,7 +134,8 @@ class ServerProfileTemplateModule(OneViewModuleBase):
             required=True,
             choices=['present', 'absent']
         ),
-        data=dict(required=True, type='dict')
+        data=dict(required=True, type='dict'),
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
@@ -128,6 +148,8 @@ class ServerProfileTemplateModule(OneViewModuleBase):
     def execute_module(self):
 
         template = self.resource_client.get_by_name(self.data["name"])
+        params = self.module.params.get("params")
+        self.params = params if params else {}
 
         if self.state == 'present':
             result = self.__present(self.data, template)
@@ -166,7 +188,7 @@ class ServerProfileTemplateModule(OneViewModuleBase):
                 return spt_from_sp
 
     def __create(self, data):
-        resource = self.resource_client.create(data)
+        resource = self.resource_client.create(data, **self.params)
         return True, self.MSG_CREATED, resource
 
     def __update(self, data, template):
@@ -179,7 +201,8 @@ class ServerProfileTemplateModule(OneViewModuleBase):
         if equal:
             msg = self.MSG_ALREADY_PRESENT
         else:
-            resource = self.resource_client.update(resource=merged_data, id_or_uri=merged_data["uri"])
+            resource = self.resource_client.update(resource=merged_data,
+                                                   id_or_uri=merged_data["uri"], **self.params)
             msg = self.MSG_UPDATED
 
         changed = not equal
@@ -190,7 +213,7 @@ class ServerProfileTemplateModule(OneViewModuleBase):
         msg = self.MSG_ALREADY_ABSENT
 
         if template:
-            self.resource_client.delete(template)
+            self.resource_client.delete(template, **self.params)
             msg = self.MSG_DELETED
 
         changed = template is not None
