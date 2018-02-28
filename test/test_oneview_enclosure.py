@@ -135,6 +135,13 @@ PARAMS_FOR_CREATE_CSR = dict(
               bay_number=1)
 )
 
+PARAMS_FOR_GET_CSR = dict(
+    config='config.json',
+    state='get_certificate_request',
+    data=dict(name=DEFAULT_ENCLOSURE_NAME,
+              bay_number=1)
+)
+
 PARAMS_FOR_IMPORT_CSR = dict(
     config='config.json',
     state='import_certificate_request',
@@ -1149,6 +1156,19 @@ class TestEnclosureModule(OneViewBaseTest):
             changed=True,
             ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
             msg=EnclosureModule.MSG_CREATE_CERTIFICATE_REQUEST
+        )
+
+    def test_should_get_previous_certificate_signing_request(self):
+        self.resource.get_csr.return_value = ENCLOSURE_FROM_ONEVIEW
+
+        self.mock_ansible_module.params = PARAMS_FOR_GET_CSR
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW),
+            msg=EnclosureModule.MSG_GET_CERTIFICATE_REQUEST
         )
 
     def test_should_import_certificate_signing_request(self):
