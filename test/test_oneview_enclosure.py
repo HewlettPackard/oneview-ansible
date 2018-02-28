@@ -1164,5 +1164,6 @@ class TestEnclosureModule(OneViewBaseTest):
             msg=EnclosureModule.MSG_IMPORT_CERTIFICATE_REQUEST
         )
 
+
 if __name__ == '__main__':
     pytest.main([__file__])
