@@ -4595,23 +4595,32 @@ Manage OneView Logical Interconnect resources.
 
 - name: Return the Logical Interconnect to a consistent state
   oneview_logical_interconnect:
-  config: "{{ config_file_path }}"
-  state: compliant
-  data:
-    name: "Name of the Logical Interconnect"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    state: compliant
+    data:
+      name: "Name of the Logical Interconnect"
 
 - name: Update the Ethernet interconnect settings for the logical interconnect
   oneview_logical_interconnect:
-  config: "{{ config_file_path }}"
-  state: ethernet_settings_updated
-  data:
-    name: "Name of the Logical Interconnect"
-    ethernetSettings:
-      macRefreshInterval: 10
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    state: ethernet_settings_updated
+    data:
+      name: "Name of the Logical Interconnect"
+      ethernetSettings:
+        macRefreshInterval: 10
 
 - name: Update the internal networks on the logical interconnect
   oneview_logical_interconnect:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: internal_networks_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -4622,7 +4631,10 @@ Manage OneView Logical Interconnect resources.
 
 - name: Update the interconnect settings
   oneview_logical_interconnect:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: settings_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -4631,14 +4643,20 @@ Manage OneView Logical Interconnect resources.
 
 - name: Generate the forwarding information base dump file for the logical interconnect
   oneview_logical_interconnect:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: forwarding_information_base_generated
     data:
-      name: "{{ logical_interconnect_name }}"  # could also be 'uri'
+      name: "Name of the Logical Interconnect"  # could also be 'uri'
 
 - name: Update the QoS aggregated configuration for the logical interconnect
   oneview_logical_interconnect:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: qos_aggregated_configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -4653,16 +4671,22 @@ Manage OneView Logical Interconnect resources.
 
 - name: Update the SNMP configuration for the logical interconnect
   oneview_logical_interconnect:
-  config: "{{ config_file_path }}"
-  state: snmp_configuration_updated
-  data:
-    name: "Name of the Logical Interconnect"
-    snmpConfiguration:
-      enabled: True
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    state: snmp_configuration_updated
+    data:
+      name: "Name of the Logical Interconnect"
+      snmpConfiguration:
+        enabled: True
 
 - name: Update the port monitor configuration of the logical interconnect
   oneview_logical_interconnect:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: port_monitor_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -4671,43 +4695,54 @@ Manage OneView Logical Interconnect resources.
 
 - name: Update the configuration on the logical interconnect
   oneview_logical_interconnect:
-  config: "{{ config_file_path }}"
-  state: configuration_updated
-  data:
-    name: "Name of the Logical Interconnect"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    state: configuration_updated
+    data:
+      name: "Name of the Logical Interconnect"
 
 - name: Install a firmware to the logical interconnect, running the stage operation to upload the firmware
   oneview_logical_interconnect:
-  config: "{{ config_file_path }}"
-  state: firmware_installed
-  data:
-    name: "Name of the Logical Interconnect"
-    firmware:
-      command: Stage
-      spp: "filename"  # could also be sppUri: '/rest/firmware-drivers/<filename>'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    state: firmware_installed
+    data:
+      name: "Name of the Logical Interconnect"
+      firmware:
+        command: Stage
+        spp: "filename"  # could also be sppUri: '/rest/firmware-drivers/<filename>'
 
 - name: Updates the telemetry configuration of a logical interconnect.
   oneview_logical_interconnect:
-  config: "{{ config_file_path }}"
-  state: telemetry_configuration_updated
-  data:
-    name: "Name of the Logical Interconnect"
-    telemetryConfiguration:
-      sampleCount: 12
-      enableTelemetry: True
-      sampleInterval: 300
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    state: telemetry_configuration_updated
+    data:
+      name: "Name of the Logical Interconnect"
+      telemetryConfiguration:
+        sampleCount: 12
+        enableTelemetry: True
+        sampleInterval: 300
 
 - debug: var=telemetry_configuration
 
 - name: Updates the scopes of a logical interconnect.
   oneview_logical_interconnect:
-  config: "{{ config_file_path }}"
-  state: scopes_updated
-  data:
-    name: "Name of the Logical Interconnect"
-    scopeUris:
-      - '/rest/scopes/00SC123456'
-      - '/rest/scopes/01SC123456'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    state: scopes_updated
+    data:
+      name: "Name of the Logical Interconnect"
+      scopeUris:
+        - '/rest/scopes/00SC123456'
+        - '/rest/scopes/01SC123456'
 
 - debug: var=scope_uris
 
@@ -4768,13 +4803,19 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 
 - name: Gather facts about all Logical Interconnects
   oneview_logical_interconnect_facts:
-  config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 
 - debug: var=logical_interconnects
 
 - name: Gather paginated and sorted facts about Logical Interconnects
   oneview_logical_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -4784,8 +4825,11 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 
 - name: Gather facts about a Logical Interconnect by name with QOS Configuration
   oneview_logical_interconnect_facts:
-    config: "{{ config }}"
-    name: "{{ name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    name: "Name of the Logical Interconnect"
     options:
       - qos_aggregated_configuration
 
@@ -4794,8 +4838,11 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 
 - name: Gather facts about a Logical Interconnect by name with all options
   oneview_logical_interconnect_facts:
-    config: "{{ config }}"
-    name: "{{ name }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    name: "Name of the Logical Interconnect"
     options:
       - qos_aggregated_configuration
       - snmp_configuration
