@@ -29,8 +29,8 @@
         data:
             name: '{{storage_vol_templ_name}}'
             description: "Example Template"
-            rootTemplateUri: " {{root_template_uri}} "
-            properties:
+            rootTemplateUri: " {{root_template_uri}} " # Supported form API version >= 500
+            properties:                                # Supported from API version >= 500
               name:
                 title: Volume name
                 description: A volume name between 1 and 100 characters

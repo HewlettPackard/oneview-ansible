@@ -82,7 +82,6 @@ EXAMPLES = '''
 
 - debug: var=storage_volume_templates
 
-
 - name: Gather facts about the connectable Storage Volume Templates
   oneview_storage_volume_template_facts:
     hostname: 172.16.101.48
