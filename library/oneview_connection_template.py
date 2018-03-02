@@ -49,7 +49,7 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Update the Connection Template
   oneview_connection_template:
-    hostname: 172.16.101.48
+    hostname: 172.16.101.47
     username: administrator
     password: my_password
     api_version: 600

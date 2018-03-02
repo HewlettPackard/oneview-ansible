@@ -49,7 +49,7 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Connection Templates
   oneview_connection_template_facts:
-    hostname: 172.16.101.48
+    hostname: 172.16.101.47
     username: administrator
     password: my_password
     api_version: 600
@@ -58,7 +58,7 @@ EXAMPLES = '''
 
 - name: Gather paginated, filtered and sorted facts about Connection Templates
   oneview_connection_template_facts:
-    hostname: 172.16.101.48
+    hostname: 172.16.101.47
     username: administrator
     password: my_password
     api_version: 600
@@ -72,7 +72,7 @@ EXAMPLES = '''
 
 - name: Gather facts about a Connection Template by name
   oneview_connection_template_facts:
-    hostname: 172.16.101.48
+    hostname: 172.16.101.47
     username: administrator
     password: my_password
     api_version: 600
@@ -82,7 +82,7 @@ EXAMPLES = '''
 
 - name: Gather facts about the Default Connection Template
   oneview_connection_template_facts:
-    hostname: 172.16.101.48
+    hostname: 172.16.101.47
     username: administrator
     password: my_password
     api_version: 600
