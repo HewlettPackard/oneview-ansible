@@ -43,7 +43,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about the last 2 tasks
   oneview_task_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       count: 2
 
@@ -51,7 +54,10 @@ EXAMPLES = '''
 
 - name: Gather facts about the last 2 tasks associated to Server Profile templates
   oneview_task_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       count: 2
       filter: "associatedResource.resourceCategory='server-profile-templates'"
