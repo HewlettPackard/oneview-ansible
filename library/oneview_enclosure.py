@@ -90,7 +90,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Ensure that an Enclosure is present using the default configuration
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       enclosureGroupUri : '{{ enclosure_group_uri }}'
@@ -102,7 +105,10 @@ EXAMPLES = '''
 
 - name: Updates the enclosure to have a name of "Test-Enclosure-Renamed".
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Test-Enclosure'
@@ -110,21 +116,30 @@ EXAMPLES = '''
 
 - name: Reconfigure the enclosure "Test-Enclosure"
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: reconfigured
     data:
       name: 'Test-Enclosure'
 
 - name: Ensure that enclosure is absent
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       name: 'Test-Enclosure'
 
 - name: Ensure that an enclosure is refreshed
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: refreshed
     data:
       name: 'Test-Enclosure'
@@ -132,7 +147,10 @@ EXAMPLES = '''
 
 - name: Create certificate signing request
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: create_certificate_request
     data:
       name: 'Test-Enclosure'
@@ -147,7 +165,10 @@ EXAMPLES = '''
 
 - name: Get certificate signing request
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: get_certificate_request
     data:
       name: 'Test-Enclosure'
@@ -155,7 +176,10 @@ EXAMPLES = '''
 
 - name: Import certificate signing request
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: import_certificate_request
     data:
       name: 'Test-Enclosure'
@@ -164,7 +188,10 @@ EXAMPLES = '''
 
 - name: Set the calibrated max power of an unmanaged or unsupported enclosure
   oneview_enclosure:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Test-Enclosure'
@@ -172,7 +199,10 @@ EXAMPLES = '''
 
 - name: Set the appliance bay power state on
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: appliance_bays_powered_on
     data:
       name: 'Test-Enclosure'
@@ -180,21 +210,30 @@ EXAMPLES = '''
 
 - name: Set the appliance UID state on
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: uid_on
     data:
       name: 'Test-Enclosure'
 
 - name: Set the appliance UID state off
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: uid_off
     data:
       name: 'Test-Enclosure'
 
 - name: Set the UID for the Synergy Frame Link Module state on
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: manager_bays_uid_on
     data:
       name: 'Test-Enclosure'
@@ -202,7 +241,10 @@ EXAMPLES = '''
 
 - name: Set the UID for the Synergy Frame Link Module state off
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: manager_bays_uid_off
     data:
       name: 'Test-Enclosure'
@@ -210,7 +252,10 @@ EXAMPLES = '''
 
 - name: E-Fuse the Synergy Frame Link Module bay 1
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: manager_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -218,7 +263,10 @@ EXAMPLES = '''
 
 - name: Reset the Synergy Frame Link Module bay 1
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: manager_bays_power_state_reset
     data:
       name: 'Test-Enclosure'
@@ -226,7 +274,10 @@ EXAMPLES = '''
 
 - name: E-Fuse the appliance bay 1
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: appliance_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -234,7 +285,10 @@ EXAMPLES = '''
 
 - name: E-Fuse the device bay 10
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: device_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -242,7 +296,10 @@ EXAMPLES = '''
 
 - name: Reset the device bay 8
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: device_bays_power_state_reset
     data:
       name: 'Test-Enclosure'
@@ -250,7 +307,10 @@ EXAMPLES = '''
 
 - name: E-Fuse the IC bay 3
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: interconnect_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -258,7 +318,10 @@ EXAMPLES = '''
 
 - name: Set the active Synergy Frame Link Module on bay 2
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: manager_bays_role_active
     data:
       name: 'Test-Enclosure'
@@ -266,7 +329,10 @@ EXAMPLES = '''
 
 - name: Release IPv4 address in the bay 2
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: device_bays_ipv4_removed
     data:
       name: 'Test-Enclosure'
@@ -274,7 +340,10 @@ EXAMPLES = '''
 
 - name: Release IPv4 address in the bay 2
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: interconnect_bays_ipv4_removed
     data:
       name: 'Test-Enclosure'
@@ -282,7 +351,10 @@ EXAMPLES = '''
 
 - name: Set the supportDataCollectionState for the enclosure
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: support_data_collection_set
     data:
       name: 'Test-Enclosure'
@@ -290,7 +362,10 @@ EXAMPLES = '''
 
 - name: Ensure that the Enclosure is present and is inserted in the desired scopes
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Test-Enclosure'
