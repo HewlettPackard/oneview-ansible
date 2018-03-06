@@ -13,7 +13,7 @@ This release adds the [TESTING.md](TESTING.md) document.
 
 #### Breaking changes
 1. On the modules setup instructions, the requirement of setting up a PYTHONPATH environment variable is being dropped and replaced by the setup of the ANSIBLE_MODULE_UTILS environment variable.
-2. Updating unittestwith pytest in all the test cases as per Ansible core library.
+2. Updating unittest with pytest in all the test cases as per Ansible core library.
 
 #### Bug fixes & Enhancements
 - [#172](https://github.com/HewlettPackard/oneview-ansible/issues/172) Allow credentials to be defined inside the playbooks
