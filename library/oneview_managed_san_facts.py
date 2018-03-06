@@ -61,14 +61,20 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Managed SANs
   oneview_managed_san_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=managed_sans
 
 - name: Gather paginated, filtered and sorted facts about Managed SANs
   oneview_managed_san_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -80,7 +86,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Managed SAN by name
   oneview_managed_san_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "SAN1_0"
   delegate_to: localhost
 
@@ -88,7 +97,10 @@ EXAMPLES = '''
 
 - name: Gather facts about the endpoints in the SAN identified by name
   oneview_managed_san_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "SAN1_0"
     options:
       - endpoints
@@ -99,7 +111,10 @@ EXAMPLES = '''
 
 - name: Gather facts about Managed SANs for an associated WWN
   oneview_managed_san_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     options:
       - wwn:
          locate: "20:00:4A:2B:21:E0:00:01"

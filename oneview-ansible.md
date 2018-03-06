@@ -5590,7 +5590,10 @@ Manage OneView Managed SAN resources.
 
   - name: Refresh the Managed SAN
     oneview_managed_san:
-      config: '{{ config_path }}'
+      hostname: 172.16.101.48
+      username: administrator
+      password: my_password
+      api_version: 600
       state: refresh_state_set
       data:
           name: 'SAN1_0'
@@ -5600,7 +5603,10 @@ Manage OneView Managed SAN resources.
 
   - name: Update the Managed SAN
     oneview_managed_san:
-      config: '{{ config_path }}'
+      hostname: 172.16.101.48
+      username: administrator
+      password: my_password
+      api_version: 600
       state: present
       data:
           name: 'SAN1_0'
@@ -5620,7 +5626,10 @@ Manage OneView Managed SAN resources.
 
   - name: Create an endpoints CSV file for the SAN
     oneview_managed_san:
-      config: '{{ config }}'
+      hostname: 172.16.101.48
+      username: administrator
+      password: my_password
+      api_version: 600
       state: endpoints_csv_file_created
       data:
           name: '{{ name }}'
@@ -5628,7 +5637,10 @@ Manage OneView Managed SAN resources.
 
   - name: Create an unexpected zoning report for the SAN
     oneview_managed_san:
-      config: '{{ config }}'
+      hostname: 172.16.101.48
+      username: administrator
+      password: my_password
+      api_version: 600
       state: issues_report_created
       data:
           name: '{{ name }}'
@@ -5686,14 +5698,20 @@ Retrieve facts about the OneView Managed SANs.
 
 - name: Gather facts about all Managed SANs
   oneview_managed_san_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=managed_sans
 
 - name: Gather paginated, filtered and sorted facts about Managed SANs
   oneview_managed_san_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -5705,7 +5723,10 @@ Retrieve facts about the OneView Managed SANs.
 
 - name: Gather facts about a Managed SAN by name
   oneview_managed_san_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "SAN1_0"
   delegate_to: localhost
 
@@ -5713,7 +5734,10 @@ Retrieve facts about the OneView Managed SANs.
 
 - name: Gather facts about the endpoints in the SAN identified by name
   oneview_managed_san_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "SAN1_0"
     options:
       - endpoints
@@ -5724,7 +5748,10 @@ Retrieve facts about the OneView Managed SANs.
 
 - name: Gather facts about Managed SANs for an associated WWN
   oneview_managed_san_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     options:
       - wwn:
          locate: "20:00:4A:2B:21:E0:00:01"
