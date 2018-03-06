@@ -161,7 +161,7 @@ This option allows the parameters `hostname`, `username`, `password`, `api_versi
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
     state: present
     data:
       name: "{{ network_name }}"
@@ -183,12 +183,12 @@ The current `default` HPE OneView version used by the modules is `3.00`, API `30
 To use a different API, you must set the API version together with your credentials, either using the JSON configuration:
 
 ```json
-"api_version": 500
+"api_version": 600
 ```
 OR using the Environment variable:
 
 ```bash
-export ONEVIEWSDK_API_VERSION='500'
+export ONEVIEWSDK_API_VERSION='600'
 ```
 
 If this property is not specified, it will fall back to the ```300``` default value.
@@ -198,6 +198,7 @@ The API list is as follows:
 - HPE OneView 2.0 API version: `200`
 - HPE OneView 3.0 API version: `300`
 - HPE OneView 3.10 API version: `500`
+- HPE OneView 4.0 API version: `600`
 
 ### 5. HPE Synergy Image Streamer
 

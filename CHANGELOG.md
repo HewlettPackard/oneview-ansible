@@ -1,15 +1,19 @@
 # Ansible Modules for HPE OneView Change Log
 
-## v5.0.0 (unreleased)
+## v5.0.0
 
 This release adds the [TESTING.md](TESTING.md) document.
 
+#### Major changes
+ 1. Extended support of most modules to API600.
+
 #### Modules added
-- oneview_version_facts
 - oneview_login_detail_facts
+- oneview_version_facts
 
 #### Breaking changes
 1. On the modules setup instructions, the requirement of setting up a PYTHONPATH environment variable is being dropped and replaced by the setup of the ANSIBLE_MODULE_UTILS environment variable.
+2. Updating unittest with pytest in all the test cases as per Ansible core library.
 
 #### Bug fixes & Enhancements
 - [#172](https://github.com/HewlettPackard/oneview-ansible/issues/172) Allow credentials to be defined inside the playbooks
