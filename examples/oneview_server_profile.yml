@@ -38,7 +38,6 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     # Set the name of the server profile template that will be used to provision the server profile
-    - ov_template: SY 480 Gen9 1
     - ov_template: spt1
     # Set the name of an existing enclosure group to run this example
     - enclosure_group_name: eg1
@@ -53,6 +52,8 @@
         data:
           serverProfileTemplateName: "{{ ov_template }}"
           name: "{{ inventory_hostname }}"
+        params: # Supported only in API version >= 600
+          force: True
       delegate_to: localhost
       register: result
 
@@ -69,13 +70,14 @@
         config: "{{ config }}"
         data:
           name: "{{ inventory_hostname }}-with-connections"
-          connections:
-            - id: 1
-              name: connection1
-              functionType: Ethernet
-              portId: Auto
-              requestedMbps: 2500
-              networkName: "{{ network_name }}"
+          connectionSettings:  # Supported only in API vesrion >= 600.
+            connections:
+              - id: 1
+                name: connection1
+                functionType: Ethernet
+                portId: Auto
+                requestedMbps: 2500
+                networkName: "{{ network_name }}"
       delegate_to: localhost
 
     - debug: msg="{{ server_profile }}"

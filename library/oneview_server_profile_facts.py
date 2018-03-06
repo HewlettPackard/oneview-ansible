@@ -55,14 +55,20 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Server Profiles
   oneview_server_profile_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=server_profiles
 
 - name: Gather paginated, filtered and sorted facts about Server Profiles
   oneview_server_profile_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -75,7 +81,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Server Profile by name
   oneview_server_profile_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: WebServer-1
   delegate_to: localhost
 
@@ -84,7 +93,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Server Profile by uri
   oneview_server_profile_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     uri: /rest/server-profiles/e23d9fa4-f926-4447-b971-90116ca3e61e
   delegate_to: localhost
 
@@ -92,7 +104,10 @@ EXAMPLES = '''
 
 - name: Gather facts about available servers and bays for a given enclosure group and server hardware type
   oneview_server_profile_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     options:
       - availableTargets:
           enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
@@ -104,9 +119,12 @@ EXAMPLES = '''
 
 - name: Gather all facts about a Server Profile
   oneview_server_profile_facts:
-   config: "{{ config }}"
-   name : "Encl1, bay 1"
-   options:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+    name : "Encl1, bay 1"
+    options:
         - schema
         - compliancePreview
         - newProfileTemplate
@@ -267,7 +285,7 @@ class ServerProfileFactsModule(OneViewModuleBase):
         facts = {}
 
         if profile_uri:
-            if options.get('messages'):
+            if options.get('messages'):  # Supported only for API version <= 500
                 facts['server_profile_messages'] = client.get_messages(profile_uri)
 
             if options.get('transformation'):
@@ -295,11 +313,11 @@ class ServerProfileFactsModule(OneViewModuleBase):
             servers_options = self.__get_sub_options(options['availableServers'])
             facts['server_profile_available_servers'] = client.get_available_servers(**servers_options)
 
-        if options.get('availableStorageSystem'):
+        if options.get('availableStorageSystem'):  # Supported only for API version <= 500
             storage_options = self.__get_sub_options(options['availableStorageSystem'])
             facts['server_profile_available_storage_system'] = client.get_available_storage_system(**storage_options)
 
-        if options.get('availableStorageSystems'):
+        if options.get('availableStorageSystems'):  # Supported only for API version <= 500
             storage_options = self.__get_sub_options(options['availableStorageSystems'])
             facts['server_profile_available_storage_systems'] = client.get_available_storage_systems(**storage_options)
 

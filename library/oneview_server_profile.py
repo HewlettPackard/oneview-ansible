@@ -31,7 +31,7 @@ description:
       automatically based on the server profile configuration if no server hardware was provided.
 version_added: "2.5"
 requirements:
-    - hpOneView >= 4.0.0
+    - hpOneView >= 4.5.0
 author:
     - "Chakravarthy Racharla"
     - "Camila Balestrin (@balestrinc)"
@@ -61,6 +61,10 @@ options:
         the Server Profile will have its Server Hardware unassigned.
     default: True
     choices: [True, False]
+  params:
+    description:
+      - Dict with query parameters.
+    required: False
 notes:
     - "For the following data, you can provide either a name or a URI: enclosureGroupName or enclosureGroupUri,
        osDeploymentPlanName or osDeploymentPlanUri (on the osDeploymentSettings), networkName or networkUri (on the
@@ -83,7 +87,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Create a Server Profile from a Server Profile Template with automatically selected hardware
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         name: Web-Server-L2
@@ -133,21 +140,28 @@ EXAMPLES = '''
 
 - name: Create a Server Profile with connections
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     data:
       name: server-profile-with-connections
-      connections:
-        - id: 1
-          name: connection1
-          functionType: Ethernet
-          portId: Auto
-          requestedMbps: 2500
-          networkName: eth-demo
+      connectionSettings:
+        connections:
+          - id: 1
+            name: connection1
+            functionType: Ethernet
+            portId: Auto
+            requestedMbps: 2500
+            networkName: eth-demo
   delegate_to: localhost
 
 - name: Unassign Server Hardware from Server Profile
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     # This is required for unassigning a SH, or creating a SP and not auto-assigning a SH
     auto_assign_server_hardware: False
     data:
@@ -158,7 +172,10 @@ EXAMPLES = '''
 
 - name : Remediate compliance issues
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: compliant
     data:
         name: Web-Server-L2
@@ -166,7 +183,10 @@ EXAMPLES = '''
 
 - name : Remove the server profile
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name: Web-Server-L2
@@ -236,6 +256,7 @@ class ServerProfileModule(OneViewModuleBase):
     argument_spec = dict(
         state=dict(choices=['present', 'absent', 'compliant'], default='present'),
         data=dict(type='dict', required=True),
+        params=dict(type='dict', required=False),
         auto_assign_server_hardware=dict(type='bool', default=True)
     )
 
@@ -247,6 +268,9 @@ class ServerProfileModule(OneViewModuleBase):
         self.auto_assign_server_hardware = self.module.params.get('auto_assign_server_hardware')
 
         data = deepcopy(self.data)
+        params = self.module.params.get("params")
+        self.params = params if params else {}
+
         server_profile_name = data.get('name')
 
         server_profile = self.oneview_client.server_profiles.get_by_name(server_profile_name)
@@ -405,7 +429,6 @@ class ServerProfileModule(OneViewModuleBase):
     def __create_profile(self, data, server_profile_template):
         tries = 0
         self.__remove_inconsistent_data(data)
-
         while tries < self.CONCURRENCY_FAILOVER_RETRIES:
             try:
                 tries += 1
@@ -420,7 +443,7 @@ class ServerProfileModule(OneViewModuleBase):
                 server_profile = self.__build_new_profile_data(data, server_profile_template, server_hardware_uri)
 
                 self.module.log(msg="Request Server Profile creation")
-                return self.oneview_client.server_profiles.create(server_profile)
+                return self.oneview_client.server_profiles.create(server_profile, **self.params)
 
             except OneViewModuleTaskError as task_error:
                 self.module.log("Error code: {} Message: {}".format(str(task_error.error_code), str(task_error.msg)))

@@ -8287,7 +8287,7 @@ Manage OneView Server Profile resources
  Manage the servers lifecycle with OneView Server Profiles. On `present` state, it selects a server hardware automatically based on the server profile configuration if no server hardware was provided.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 4.0.0
+  * hpOneView >= 4.5.0
 
 #### Options
 
@@ -8296,6 +8296,7 @@ Manage OneView Server Profile resources
 | auto_assign_server_hardware  |   |  True  | <ul> <li>True</li>  <li>False</li> </ul> |  Bool indicating whether or not a Server Hardware should be automatically retrieved and assigned to the Server Profile. When set to true, creates and updates try to ensure that an available Server Hardware is assigned to the Server Profile. When set to false, if no Server Hardware is specified during creation, the profile is created as 'unassigned'. If the profile already has a Server Hardware assigned to it and a serverHardwareName or serverHardwareUri is specified as None, the Server Profile will have its Server Hardware unassigned.  |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Server Profile properties.  |
+| params  |   No  |  | |  Dict with query parameters.  |
 | state  |   |  present  | <ul> <li>present</li>  <li>absent</li>  <li>compliant</li> </ul> |  Indicates the desired state for the Server Profile resource by the end of the playbook execution. `present` will ensure data properties are compliant with OneView. This operation will power off the Server Hardware before configuring the Server Profile. After it completes, the Server Hardware is powered on. `absent` will remove the resource from OneView, if it exists. `compliant` will make the server profile compliant with its server profile template, when this option was specified. If there are Offline updates, the Server Hardware is turned off before remediate compliance issues and turned on after that.  |
 | validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
@@ -8307,7 +8308,10 @@ Manage OneView Server Profile resources
 
 - name: Create a Server Profile from a Server Profile Template with automatically selected hardware
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         name: Web-Server-L2
@@ -8357,21 +8361,28 @@ Manage OneView Server Profile resources
 
 - name: Create a Server Profile with connections
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     data:
       name: server-profile-with-connections
-      connections:
-        - id: 1
-          name: connection1
-          functionType: Ethernet
-          portId: Auto
-          requestedMbps: 2500
-          networkName: eth-demo
+      connectionSettings:
+        connections:
+          - id: 1
+            name: connection1
+            functionType: Ethernet
+            portId: Auto
+            requestedMbps: 2500
+            networkName: eth-demo
   delegate_to: localhost
 
 - name: Unassign Server Hardware from Server Profile
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     # This is required for unassigning a SH, or creating a SP and not auto-assigning a SH
     auto_assign_server_hardware: False
     data:
@@ -8382,7 +8393,10 @@ Manage OneView Server Profile resources
 
 - name : Remediate compliance issues
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: compliant
     data:
         name: Web-Server-L2
@@ -8390,7 +8404,10 @@ Manage OneView Server Profile resources
 
 - name : Remove the server profile
   oneview_server_profile:
-    config: /etc/oneview/oneview_config.json
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name: Web-Server-L2
@@ -8455,14 +8472,20 @@ Retrieve facts about the OneView Server Profiles.
 
 - name: Gather facts about all Server Profiles
   oneview_server_profile_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=server_profiles
 
 - name: Gather paginated, filtered and sorted facts about Server Profiles
   oneview_server_profile_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -8475,7 +8498,10 @@ Retrieve facts about the OneView Server Profiles.
 
 - name: Gather facts about a Server Profile by name
   oneview_server_profile_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: WebServer-1
   delegate_to: localhost
 
@@ -8484,7 +8510,10 @@ Retrieve facts about the OneView Server Profiles.
 
 - name: Gather facts about a Server Profile by uri
   oneview_server_profile_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     uri: /rest/server-profiles/e23d9fa4-f926-4447-b971-90116ca3e61e
   delegate_to: localhost
 
@@ -8492,7 +8521,10 @@ Retrieve facts about the OneView Server Profiles.
 
 - name: Gather facts about available servers and bays for a given enclosure group and server hardware type
   oneview_server_profile_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     options:
       - availableTargets:
           enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
@@ -8504,9 +8536,12 @@ Retrieve facts about the OneView Server Profiles.
 
 - name: Gather all facts about a Server Profile
   oneview_server_profile_facts:
-   config: "{{ config }}"
-   name : "Encl1, bay 1"
-   options:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
+    name : "Encl1, bay 1"
+    options:
         - schema
         - compliancePreview
         - newProfileTemplate

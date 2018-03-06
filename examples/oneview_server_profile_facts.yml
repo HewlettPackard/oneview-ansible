@@ -86,7 +86,7 @@
            - profilePorts:
               serverHardwareTypeUri: "{{server_hardware_type_uri}}"
               enclosureGroupUri: "{{enclosure_group_uri}}"
-           - messages
+           - messages # Supported only for API version <= 500
            - transformation:
                serverHardwareTypeUri: "{{server_hardware_type_uri}}"
                enclosureGroupUri: "{{enclosure_group_uri}}"
@@ -94,11 +94,11 @@
                serverHardwareTypeUri: "{{server_hardware_type_uri}}"
                enclosureGroupUri: "{{enclosure_group_uri}}"
            - availableServers
-           - availableStorageSystem:
+           - availableStorageSystem: # Supported only for API version <=500
                storageSystemId: "{{storage_system_id}}"
                serverHardwareTypeUri: "{{server_hardware_type_uri}}"
                enclosureGroupUri: "{{enclosure_group_uri}}"
-           - availableStorageSystems:
+           - availableStorageSystems: # Supported only for API version <=500
                serverHardwareTypeUri: "{{server_hardware_type_uri}}"
                enclosureGroupUri: "{{enclosure_group_uri}}"
            - availableTargets
