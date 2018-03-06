@@ -21,6 +21,20 @@
     variant: C7000
     scope_uris:
       - '/rest/scopes/9dd1856d-2490-4013-92a5-c7bf89bd9f0f'
+   #Required to create a certificate signing request 
+    csr_data:  
+      type: CertificateDtoV2
+      organization: HPE
+      organizationalUnit: IT
+      locality: 'Fort Collins'
+      state: Colorado
+      country: US
+      commonName: 'e10-oa'
+    bay_number: 1 #Required for C7000
+    #Required to import a certificate signing request
+    certificate_data:
+      type: CertificateDataV2
+      base64Data: certificate
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
@@ -37,7 +51,7 @@
           name: '{{ enclosure_name }}'
           licensingIntent : 'OneView'
           rackName: 'Rack-Name'
-          scopeUris: "{{ scope_uris }}"
+          scopeUris: '{{ scope_uris }}'
       when: variant == 'C7000'
       delegate_to: localhost
 
@@ -112,6 +126,49 @@
         data:
           name: '{{ enclosure_name }}'
           refreshState: 'RefreshPending'
+      delegate_to: localhost
+
+    # Waiting for 10 seconds before attempting operations on enclosure
+    - wait_for: port=22 host="{{ ansible_host }}" delay=10
+      connection: local
+
+    - name: Create certificate signing request
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: create_certificate_request
+        data:
+          name: '{{ enclosure_name }}'
+          type: '{{ csr_data.type }}'
+          organization: '{{ csr_data.organization }}'
+          organizationalUnit: '{{ csr_data.organizationalUnit }}'
+          locality: '{{ csr_data.locality }}'
+          state: '{{ csr_data.state }}'
+          country: '{{ csr_data.country }}'
+          commonName: '{{ csr_data.commonName }}'
+          bay_number: '{{ bay_number }}'
+      delegate_to: localhost
+
+    - name: Get certificate signing request
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: get_certificate_request
+        data:
+          name: '{{ enclosure_name }}'
+          bay_number: '{{ bay_number }}'
+      delegate_to: localhost
+
+    # Waiting for 10 seconds before attempting operations on enclosure
+    - wait_for: port=22 host="{{ ansible_host }}" delay=10
+      connection: local
+    
+    - name: Import certificate signing request
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: import_certificate_request
+        data:
+          name: '{{ enclosure_name }}'
+          type: '{{ certificate_data.type }}'
+          base64Data: '{{ certificate_data.base64Data }}'
       delegate_to: localhost
 
     # This state is only available for C7000 enclosures

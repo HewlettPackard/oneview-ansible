@@ -1951,7 +1951,7 @@ Manage OneView Enclosure resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 4.5.0
 
 #### Options
 
@@ -1959,7 +1959,7 @@ Manage OneView Enclosure resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the Enclosure properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li>  <li>appliance_bays_powered_on</li>  <li>uid_on</li>  <li>uid_off</li>  <li>manager_bays_uid_on</li>  <li>manager_bays_uid_off</li>  <li>manager_bays_power_state_e_fuse</li>  <li>manager_bays_power_state_reset</li>  <li>appliance_bays_power_state_e_fuse</li>  <li>device_bays_power_state_e_fuse</li>  <li>device_bays_power_state_reset</li>  <li>interconnect_bays_power_state_e_fuse</li>  <li>manager_bays_role_active</li>  <li>device_bays_ipv4_removed</li>  <li>interconnect_bays_ipv4_removed</li>  <li>support_data_collection_set</li> </ul> |  Indicates the desired state for the Enclosure resource. `present` will ensure data properties are compliant with OneView. You can rename the enclosure providing an attribute `newName`. You can also rename the rack providing an attribute `rackName`. `absent` will remove the resource from OneView, if it exists. `reconfigured` will reapply the appliance's configuration on the enclosure. This includes running the same configuration steps that were performed as part of the enclosure add. `refreshed` will refresh the enclosure along with all of its components, including interconnects and servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is removed. `appliance_bays_powered_on` will set the appliance bay power state on. `uid_on` will set the UID state on. `uid_off` will set the UID state off. `manager_bays_uid_on` will set the UID state on for the Synergy Frame Link Module. `manager_bays_uid_off` will set the UID state off for the Synergy Frame Link Module. `manager_bays_power_state_e_fuse` will E-Fuse the Synergy Frame Link Module bay in the path. `manager_bays_power_state_reset` will Reset the Synergy Frame Link Module bay in the path. `appliance_bays_power_state_e_fuse` will E-Fuse the appliance bay in the path. `device_bays_power_state_e_fuse` will E-Fuse the device bay in the path. `device_bays_power_state_reset` will Reset the device bay in the path. `interconnect_bays_power_state_e_fuse` will E-Fuse the IC bay in the path. `manager_bays_role_active` will set the active Synergy Frame Link Module. `device_bays_ipv4_removed` will release the IPv4 address in the device bay. `interconnect_bays_ipv4_removed` will release the IPv4 address in the interconnect bay. `support_data_collection_set` will set the support data collection state for the enclosure. The supported values for this state are `PendingCollection`, `Completed`, `Error` and `NotSupported`  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li>  <li>appliance_bays_powered_on</li>  <li>uid_on</li>  <li>uid_off</li>  <li>manager_bays_uid_on</li>  <li>manager_bays_uid_off</li>  <li>manager_bays_power_state_e_fuse</li>  <li>manager_bays_power_state_reset</li>  <li>appliance_bays_power_state_e_fuse</li>  <li>device_bays_power_state_e_fuse</li>  <li>device_bays_power_state_reset</li>  <li>interconnect_bays_power_state_e_fuse</li>  <li>manager_bays_role_active</li>  <li>device_bays_ipv4_removed</li>  <li>interconnect_bays_ipv4_removed</li>  <li>support_data_collection_set</li>  <li>create_certificate_request</li>  <li>get_certificate_request</li>  <li>import_certificate_request</li> </ul> |  Indicates the desired state for the Enclosure resource. `present` will ensure data properties are compliant with OneView. You can rename the enclosure providing an attribute `newName`. You can also rename the rack providing an attribute `rackName`. `absent` will remove the resource from OneView, if it exists. `reconfigured` will reapply the appliance's configuration on the enclosure. This includes running the same configuration steps that were performed as part of the enclosure add. `refreshed` will refresh the enclosure along with all of its components, including interconnects and servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is removed. `appliance_bays_powered_on` will set the appliance bay power state on. `uid_on` will set the UID state on. `uid_off` will set the UID state off. `manager_bays_uid_on` will set the UID state on for the Synergy Frame Link Module. `manager_bays_uid_off` will set the UID state off for the Synergy Frame Link Module. `manager_bays_power_state_e_fuse` will E-Fuse the Synergy Frame Link Module bay in the path. `manager_bays_power_state_reset` will Reset the Synergy Frame Link Module bay in the path. `appliance_bays_power_state_e_fuse` will E-Fuse the appliance bay in the path. `device_bays_power_state_e_fuse` will E-Fuse the device bay in the path. `device_bays_power_state_reset` will Reset the device bay in the path. `interconnect_bays_power_state_e_fuse` will E-Fuse the IC bay in the path. `manager_bays_role_active` will set the active Synergy Frame Link Module. `device_bays_ipv4_removed` will release the IPv4 address in the device bay. `interconnect_bays_ipv4_removed` will release the IPv4 address in the interconnect bay. `support_data_collection_set` will set the support data collection state for the enclosure. The supported values for this state are `PendingCollection`, `Completed`, `Error` and `NotSupported` `create_certificate_request` will create a Certificate Signing Request (CSR) for an enclosure `get_certificate_request` will return an enclosure's Certificate Signing Request (CSR) that was generated by previous POST to same URI. `import_certificate_request` will import a signed server certificate into the enclosure to be used for secure communication with the appliance.  |
 
 
  
@@ -1969,7 +1969,10 @@ Manage OneView Enclosure resources.
 
 - name: Ensure that an Enclosure is present using the default configuration
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       enclosureGroupUri : '{{ enclosure_group_uri }}'
@@ -1981,7 +1984,10 @@ Manage OneView Enclosure resources.
 
 - name: Updates the enclosure to have a name of "Test-Enclosure-Renamed".
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Test-Enclosure'
@@ -1989,29 +1995,82 @@ Manage OneView Enclosure resources.
 
 - name: Reconfigure the enclosure "Test-Enclosure"
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: reconfigured
     data:
       name: 'Test-Enclosure'
 
 - name: Ensure that enclosure is absent
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
       name: 'Test-Enclosure'
 
 - name: Ensure that an enclosure is refreshed
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: refreshed
     data:
       name: 'Test-Enclosure'
       refreshState: Refreshing
 
+- name: Create certificate signing request
+  oneview_enclosure:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    state: create_certificate_request
+    data:
+      name: 'Test-Enclosure'
+      type: CertificateDtoV2
+      organization: HPE
+      organizationalUnit: IT
+      locality: 'Fort Collins'
+      state: Colorado
+      country: US
+      commonName: 'e10-oa'
+    bay_number: 1
+
+- name: Get certificate signing request
+  oneview_enclosure:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    state: get_certificate_request
+    data:
+      name: 'Test-Enclosure'
+      bay_number: 1
+
+- name: Import certificate signing request
+  oneview_enclosure:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    state: import_certificate_request
+    data:
+      name: 'Test-Enclosure'
+      type: CertificateDtoV2
+      base64Data: certificate
+
 - name: Set the calibrated max power of an unmanaged or unsupported enclosure
   oneview_enclosure:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Test-Enclosure'
@@ -2019,7 +2078,10 @@ Manage OneView Enclosure resources.
 
 - name: Set the appliance bay power state on
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: appliance_bays_powered_on
     data:
       name: 'Test-Enclosure'
@@ -2027,21 +2089,30 @@ Manage OneView Enclosure resources.
 
 - name: Set the appliance UID state on
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: uid_on
     data:
       name: 'Test-Enclosure'
 
 - name: Set the appliance UID state off
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: uid_off
     data:
       name: 'Test-Enclosure'
 
 - name: Set the UID for the Synergy Frame Link Module state on
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: manager_bays_uid_on
     data:
       name: 'Test-Enclosure'
@@ -2049,7 +2120,10 @@ Manage OneView Enclosure resources.
 
 - name: Set the UID for the Synergy Frame Link Module state off
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: manager_bays_uid_off
     data:
       name: 'Test-Enclosure'
@@ -2057,7 +2131,10 @@ Manage OneView Enclosure resources.
 
 - name: E-Fuse the Synergy Frame Link Module bay 1
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: manager_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -2065,7 +2142,10 @@ Manage OneView Enclosure resources.
 
 - name: Reset the Synergy Frame Link Module bay 1
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: manager_bays_power_state_reset
     data:
       name: 'Test-Enclosure'
@@ -2073,7 +2153,10 @@ Manage OneView Enclosure resources.
 
 - name: E-Fuse the appliance bay 1
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: appliance_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -2081,7 +2164,10 @@ Manage OneView Enclosure resources.
 
 - name: E-Fuse the device bay 10
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: device_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -2089,7 +2175,10 @@ Manage OneView Enclosure resources.
 
 - name: Reset the device bay 8
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: device_bays_power_state_reset
     data:
       name: 'Test-Enclosure'
@@ -2097,7 +2186,10 @@ Manage OneView Enclosure resources.
 
 - name: E-Fuse the IC bay 3
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: interconnect_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -2105,7 +2197,10 @@ Manage OneView Enclosure resources.
 
 - name: Set the active Synergy Frame Link Module on bay 2
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: manager_bays_role_active
     data:
       name: 'Test-Enclosure'
@@ -2113,7 +2208,10 @@ Manage OneView Enclosure resources.
 
 - name: Release IPv4 address in the bay 2
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: device_bays_ipv4_removed
     data:
       name: 'Test-Enclosure'
@@ -2121,7 +2219,10 @@ Manage OneView Enclosure resources.
 
 - name: Release IPv4 address in the bay 2
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: interconnect_bays_ipv4_removed
     data:
       name: 'Test-Enclosure'
@@ -2129,7 +2230,10 @@ Manage OneView Enclosure resources.
 
 - name: Set the supportDataCollectionState for the enclosure
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: support_data_collection_set
     data:
       name: 'Test-Enclosure'
@@ -2137,7 +2241,10 @@ Manage OneView Enclosure resources.
 
 - name: Ensure that the Enclosure is present and is inserted in the desired scopes
   oneview_enclosure:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Test-Enclosure'
