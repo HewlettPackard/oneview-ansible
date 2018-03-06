@@ -51,27 +51,25 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Create a Storage Volume Template
   oneview_storage_volume_template:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
-        name: 'Volume Template Name'
-        state: "Configured"
+        name: "Volume Template Name"
         description: "Example Template"
-        provisioning:
-             shareable: true
-             provisionType: "Thin"
-             capacity: "235834383322"
-             storagePoolUri: "/rest/storage-pools/2D69A182-862E-4ECE-8BEE-73E0F5BEC855"
-        stateReason: "None"
-        storageSystemUri: "/rest/storage-systems/TXQ1010307"
-        snapshotPoolUri: "/rest/storage-pools/2D69A182-862E-4ECE-8BEE-73E0F5BEC855"
-        type: StorageVolumeTemplateV3
-  delegate_to: localhost
+        rootTemplateUri: "/rest/storage-volume-templates/5dbaf127-053b-4988-82fe-a80800eef1f3"
+        properties: {}
 
+  delegate_to: localhost
 
 - name: Delete the Storage Volume Template
   oneview_storage_volume_template:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name: 'Volume Template Name'

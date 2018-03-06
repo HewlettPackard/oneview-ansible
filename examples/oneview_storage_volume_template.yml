@@ -20,6 +20,7 @@
     storage_system_uri: "/rest/storage-systems/TXQ1010307"
     storage_pool_uri: "/rest/storage-pools/2D69A182-862E-4ECE-8BEE-73E0F5BEC855"
     storage_vol_templ_name: "FusionTemplateExample"
+    root_template_uri: "/rest/storage-volume-templates/5dbaf127-053b-4988-82fe-a80800eef1f3"
   tasks:
     - name: Create a Storage Volume Template
       oneview_storage_volume_template:
@@ -27,17 +28,78 @@
         state: present
         data:
             name: '{{storage_vol_templ_name}}'
-            state: "Configured"
             description: "Example Template"
-            provisioning:
-                 shareable: true
-                 provisionType: "Thin"
-                 capacity: "235834383322"
-                 storagePoolUri: '{{storage_pool_uri}}'
-            stateReason: "None"
-            storageSystemUri: '{{ storage_system_uri }}'
-            snapshotPoolUri: '{{storage_pool_uri}}'
-            type: StorageVolumeTemplateV3
+            rootTemplateUri: " {{root_template_uri}} " # Supported form API version >= 500
+            properties:                                # Supported from API version >= 500
+              name:
+                title: Volume name
+                description: A volume name between 1 and 100 characters
+                meta:
+                  locked: 'false'
+                type: string
+                required: 'true'
+                maxLength: 100
+                minLength: 1
+              size:
+                meta:
+                  locked: 'false'
+                  semanticType: capacity
+                type: integer
+                title: Capacity
+                default: 1073741824
+                maximum: 17592186044416
+                minimum: 268435456
+                required: 'true'
+                description: The capacity of the volume in bytes
+              description:
+                meta:
+                  locked: 'false'
+                type: string
+                title: Description
+                default: ''
+                maxLength: 2000
+                minLength: 0
+                description: A description for the volume
+              isShareable:
+                meta:
+                  locked: 'false'
+                type: boolean
+                title: Is Shareable
+                default: 'false'
+                description: The shareability of the volume
+              storagePool:
+                meta:
+                  locked: 'false'
+                  createOnly: 'true'
+                  semanticType: device-storage-pool
+                type: string
+                title: Storage Pool
+                format: x-uri-reference
+                required: 'true'
+                description: A common provisioning group URI reference
+                default: "/rest/storage-pools/0DB2A6C7-04D3-4830-9229-A80800EEF1F1"
+              snapshotPool:
+                meta:
+                  locked: 'true'
+                  semanticType: device-snapshot-storage-pool
+                type: string
+                title: Snapshot Pool
+                format: x-uri-reference
+                default: "/rest/storage-pools/0DB2A6C7-04D3-4830-9229-A80800EEF1F1"
+                description: A URI reference to the common provisioning group used to create snapshots
+              provisioningType:
+                enum:
+                - Thin
+                - Full
+                - Thin Deduplication
+                meta:
+                  locked: 'true'
+                  createOnly: 'true'
+                type: string
+                title: Provisioning Type
+                default: Thin
+                description: The provisioning type for the volume
+
       delegate_to: localhost
 
     - name: Update the Storage Volume Template
@@ -48,15 +110,6 @@
             name: '{{storage_vol_templ_name}}'
             state: "Configured"
             description: "Example Template with a new description"
-            provisioning:
-                 shareable: true
-                 provisionType: "Thin"
-                 capacity: "235834383322"
-                 storagePoolUri: '{{storage_pool_uri}}'
-            stateReason: "None"
-            storageSystemUri: '{{ storage_system_uri }}'
-            snapshotPoolUri: '{{storage_pool_uri}}'
-            type: StorageVolumeTemplateV3
       delegate_to: localhost
 
     - name: Delete the Storage Volume Template

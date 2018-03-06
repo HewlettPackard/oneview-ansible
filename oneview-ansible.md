@@ -9455,27 +9455,25 @@ Manage OneView Storage Volume Template resources.
 
 - name: Create a Storage Volume Template
   oneview_storage_volume_template:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
-        name: 'Volume Template Name'
-        state: "Configured"
+        name: "Volume Template Name"
         description: "Example Template"
-        provisioning:
-             shareable: true
-             provisionType: "Thin"
-             capacity: "235834383322"
-             storagePoolUri: "/rest/storage-pools/2D69A182-862E-4ECE-8BEE-73E0F5BEC855"
-        stateReason: "None"
-        storageSystemUri: "/rest/storage-systems/TXQ1010307"
-        snapshotPoolUri: "/rest/storage-pools/2D69A182-862E-4ECE-8BEE-73E0F5BEC855"
-        type: StorageVolumeTemplateV3
-  delegate_to: localhost
+        rootTemplateUri: "/rest/storage-volume-templates/5dbaf127-053b-4988-82fe-a80800eef1f3"
+        properties: {}
 
+  delegate_to: localhost
 
 - name: Delete the Storage Volume Template
   oneview_storage_volume_template:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name: 'Volume Template Name'
@@ -9531,14 +9529,20 @@ Retrieve facts about Storage Volume Templates of the OneView.
 
 - name: Gather facts about all Storage Volume Templates
   oneview_storage_volume_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=storage_volume_templates
 
 - name: Gather paginated, filtered and sorted facts about Storage Volume Templates
   oneview_storage_volume_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -9549,16 +9553,21 @@ Retrieve facts about Storage Volume Templates of the OneView.
 
 - name: Gather facts about a Storage Volume Template by name
   oneview_storage_volume_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "FusionTemplateExample"
   delegate_to: localhost
 
 - debug: var=storage_volume_templates
 
-
 - name: Gather facts about the connectable Storage Volume Templates
   oneview_storage_volume_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "FusionTemplateExample"
     options:
       - connectableVolumeTemplates
@@ -9569,14 +9578,20 @@ Retrieve facts about Storage Volume Templates of the OneView.
 
 - name: Gather facts about the reachable Storage Volume Templates
   oneview_storage_volume_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     options:
       - reachableVolumeTemplates
   delegate_to: localhost
 
 - name: Gather facts about Storage Systems compatible to the SVT
   oneview_storage_volume_template_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "{{ volume_template_name }}"
     options:
       - compatibleSystems
