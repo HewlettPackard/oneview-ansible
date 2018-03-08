@@ -48,7 +48,7 @@
     - name: Gather facts about Server Profiles and Server Profile Templates that are using Deployment Plan
       image_streamer_deployment_plan_facts:
         config: "{{ config }}"
-        id: "{{ deployment_plan_id }}"
+        name: "{{ deployment_plan_name }}"
         options: "usedby"
       delegate_to: localhost
     - debug: var=deployment_plans
