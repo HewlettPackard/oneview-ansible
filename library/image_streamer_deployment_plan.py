@@ -51,7 +51,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Create a Deployment Plan
   image_streamer_deployment_plan:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       description: "Description of this Deployment Plan"
@@ -62,7 +65,10 @@ EXAMPLES = '''
 
 - name: Update the Deployment Plan
   image_streamer_deployment_plan:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Demo Deployment Plan'
@@ -72,7 +78,10 @@ EXAMPLES = '''
 
 - name: Remove the Deployment Plan
   image_streamer_deployment_plan:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name: 'Demo Deployment Plan'
