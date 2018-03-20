@@ -84,7 +84,7 @@ EXAMPLES = '''
     password: my_password
     api_version: 600
     name: "Demo Deployment Plan"
-    options: "usedby"
+    state: "usedby"
   delegate_to: localhost
 - debug: var=deployment_plans
 
@@ -95,7 +95,7 @@ EXAMPLES = '''
     password: my_password
     api_version: 600
     name: "Demo Deployment Plan"
-    options: "osdp"
+    state: "osdp"
   delegate_to: localhost
 - debug: var=deployment_plans
 '''
@@ -126,12 +126,12 @@ class DeploymentPlanFactsModule(OneViewModuleBase):
         ansible_facts = {}
         if name:
             ansible_facts['deployment_plans'] = self.i3s_client.deployment_plans.get_by("name", name)
-            if ansible_facts['deployment_plans'] and self.options == 'usedby':
+            if self.state == 'usedby':
                 deployment_plan = ansible_facts['deployment_plans'][0]
                 if deployment_plan:
                     environmental_configuration = self.i3s_client.deployment_plans.get_usedby(deployment_plan['uri'])
                     ansible_facts['deployment_plans']['deployment_plan_usedby'] = environmental_configuration
-            elif ansible_facts['deployment_plans'] and self.options == 'osdp':
+            elif self.state == 'osdp':
                 deployment_plan = ansible_facts['deployment_plans'][0]
                 if deployment_plan:
                     environmental_configuration = self.i3s_client.deployment_plans.get_osdp(deployment_plan['uri'])

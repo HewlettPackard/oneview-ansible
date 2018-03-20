@@ -855,7 +855,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
     password: my_password
     api_version: 600
     name: "Demo Deployment Plan"
-    options: "usedby"
+    state: "usedby"
   delegate_to: localhost
 - debug: var=deployment_plans
 
@@ -866,7 +866,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
     password: my_password
     api_version: 600
     name: "Demo Deployment Plan"
-    options: "osdp"
+    state: "osdp"
   delegate_to: localhost
 - debug: var=deployment_plans
 
