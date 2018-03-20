@@ -88,7 +88,7 @@ EXAMPLES = '''
   delegate_to: localhost
 - debug: var=deployment_plans
 
-- name: Gather facts about a Deployment Plan OSDP
+- name: Get the OS deployment plan details from OneView for a deployment plan
   image_streamer_deployment_plan_facts:
     hostname: 172.16.101.48
     username: administrator

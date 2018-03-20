@@ -54,7 +54,7 @@
     - debug: var=deployment_plans
 
     # This endpoint is available only after Oneview V600
-    - name: Gather facts about a Deployment Plan OSDP
+    - name: Get the OS deployment plan details from OneView for a deployment plan
       image_streamer_deployment_plan_facts:
         config: "{{ config }}"
         name: "{{ deployment_plan_name }}"
