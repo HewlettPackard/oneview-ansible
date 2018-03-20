@@ -49,7 +49,7 @@
       image_streamer_deployment_plan_facts:
         config: "{{ config }}"
         name: "{{ deployment_plan_name }}"
-        state: "usedby"
+        options: "usedby"
       delegate_to: localhost
     - debug: var=deployment_plans
 
@@ -58,6 +58,6 @@
       image_streamer_deployment_plan_facts:
         config: "{{ config }}"
         name: "{{ deployment_plan_name }}"
-        state: "osdp"
+        options: "osdp"
       delegate_to: localhost
     - debug: var=deployment_plans

@@ -38,13 +38,13 @@ PARAMS_GET_BY_NAME = dict(
 
 PARAMS_GET_USEDBY = dict(
     config='config.json',
-    state='usedby',
+    options='usedby',
     name=DEPLOYMENT_PLAN_NAME
 )
 
 PARAMS_GET_OSDP = dict(
     config='config.json',
-    state='osdp',
+    options='osdp',
     name=DEPLOYMENT_PLAN_NAME
 )
 

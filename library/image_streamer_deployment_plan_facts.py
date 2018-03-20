@@ -84,7 +84,7 @@ EXAMPLES = '''
     password: my_password
     api_version: 600
     name: "Demo Deployment Plan"
-    state: "usedby"
+    options: "usedby"
   delegate_to: localhost
 - debug: var=deployment_plans
 
@@ -95,7 +95,7 @@ EXAMPLES = '''
     password: my_password
     api_version: 600
     name: "Demo Deployment Plan"
-    state: "osdp"
+    options: "osdp"
   delegate_to: localhost
 - debug: var=deployment_plans
 '''
@@ -113,7 +113,7 @@ from ansible.module_utils.oneview import OneViewModuleBase
 class DeploymentPlanFactsModule(OneViewModuleBase):
     argument_spec = dict(
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list'),
+        options=dict(required=False, type='str'),
         params=dict(required=False, type='dict')
     )
 
@@ -126,12 +126,12 @@ class DeploymentPlanFactsModule(OneViewModuleBase):
         ansible_facts = {}
         if name:
             ansible_facts['deployment_plans'] = self.i3s_client.deployment_plans.get_by("name", name)
-            if self.state == 'usedby':
+            if ansible_facts['deployment_plans'] and self.options == 'usedby':
                 deployment_plan = ansible_facts['deployment_plans'][0]
                 if deployment_plan:
                     environmental_configuration = self.i3s_client.deployment_plans.get_usedby(deployment_plan['uri'])
                     ansible_facts['deployment_plans']['deployment_plan_usedby'] = environmental_configuration
-            elif self.state == 'osdp':
+            elif ansible_facts['deployment_plans'] and self.options == 'osdp':
                 deployment_plan = ansible_facts['deployment_plans'][0]
                 if deployment_plan:
                     environmental_configuration = self.i3s_client.deployment_plans.get_osdp(deployment_plan['uri'])
