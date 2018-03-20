@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.1"
+    - "hpOneView >= 4.5.0"
 author:
     - "Gustavo Hennig (@GustavoHennig)"
 options:
@@ -46,13 +46,19 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Deployment Plans
   image_streamer_deployment_plan_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 - debug: var=deployment_plans
 
 - name: Gather paginated, filtered and sorted facts about Deployment Plans
   image_streamer_deployment_plan_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -63,8 +69,33 @@ EXAMPLES = '''
 
 - name: Gather facts about a Deployment Plan by name
   image_streamer_deployment_plan_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "Demo Deployment Plan"
+  delegate_to: localhost
+- debug: var=deployment_plans
+
+- name: Gather facts about Server Profiles and Server Profile Templates that are using Deployment Plan
+  image_streamer_deployment_plan_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    name: "Demo Deployment Plan"
+    options: "usedby"
+  delegate_to: localhost
+- debug: var=deployment_plans
+
+- name: Get the OS deployment plan details from OneView for a deployment plan
+  image_streamer_deployment_plan_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    name: "Demo Deployment Plan"
+    options: "osdp"
   delegate_to: localhost
 - debug: var=deployment_plans
 '''
@@ -82,7 +113,7 @@ from ansible.module_utils.oneview import OneViewModuleBase
 class DeploymentPlanFactsModule(OneViewModuleBase):
     argument_spec = dict(
         name=dict(required=False, type='str'),
-        options=dict(required=False, type='list'),
+        options=dict(required=False, type='str'),
         params=dict(required=False, type='dict')
     )
 
@@ -92,15 +123,20 @@ class DeploymentPlanFactsModule(OneViewModuleBase):
 
     def execute_module(self):
         name = self.module.params.get("name")
-
+        options = self.module.params.get("options")
         ansible_facts = {}
-
         if name:
-            deployment_plans = self.i3s_client.deployment_plans.get_by("name", name)
+            ansible_facts['deployment_plans'] = self.i3s_client.deployment_plans.get_by("name", name)
+            if ansible_facts['deployment_plans'] and options == 'usedby':
+                deployment_plan = ansible_facts['deployment_plans'][0]
+                environmental_configuration = self.i3s_client.deployment_plans.get_usedby(deployment_plan['uri'])
+                ansible_facts['deployment_plans'][0]['deployment_plan_usedby'] = environmental_configuration
+            elif ansible_facts['deployment_plans'] and options == 'osdp':
+                deployment_plan = ansible_facts['deployment_plans'][0]
+                environmental_configuration = self.i3s_client.deployment_plans.get_osdp(deployment_plan['uri'])
+                ansible_facts['deployment_plans'][0]['deployment_plan_osdp'] = environmental_configuration
         else:
-            deployment_plans = self.i3s_client.deployment_plans.get_all(**self.facts_params)
-
-        ansible_facts['deployment_plans'] = deployment_plans
+            ansible_facts['deployment_plans'] = self.i3s_client.deployment_plans.get_all(**self.facts_params)
 
         return dict(changed=False, ansible_facts=ansible_facts)
 

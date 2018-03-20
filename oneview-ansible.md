@@ -732,7 +732,10 @@ Manage Image Streamer Deployment Plan resources.
 
 - name: Create a Deployment Plan
   image_streamer_deployment_plan:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       description: "Description of this Deployment Plan"
@@ -743,7 +746,10 @@ Manage Image Streamer Deployment Plan resources.
 
 - name: Update the Deployment Plan
   image_streamer_deployment_plan:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Demo Deployment Plan'
@@ -753,7 +759,10 @@ Manage Image Streamer Deployment Plan resources.
 
 - name: Remove the Deployment Plan
   image_streamer_deployment_plan:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name: 'Demo Deployment Plan'
@@ -790,7 +799,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.1
+  * hpOneView >= 4.5.0
 
 #### Options
 
@@ -808,13 +817,19 @@ Retrieve facts about the Image Streamer Deployment Plans.
 
 - name: Gather facts about all Deployment Plans
   image_streamer_deployment_plan_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 - debug: var=deployment_plans
 
 - name: Gather paginated, filtered and sorted facts about Deployment Plans
   image_streamer_deployment_plan_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -825,8 +840,33 @@ Retrieve facts about the Image Streamer Deployment Plans.
 
 - name: Gather facts about a Deployment Plan by name
   image_streamer_deployment_plan_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "Demo Deployment Plan"
+  delegate_to: localhost
+- debug: var=deployment_plans
+
+- name: Gather facts about Server Profiles and Server Profile Templates that are using Deployment Plan
+  image_streamer_deployment_plan_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    name: "Demo Deployment Plan"
+    options: "usedby"
+  delegate_to: localhost
+- debug: var=deployment_plans
+
+- name: Get the OS deployment plan details from OneView for a deployment plan
+  image_streamer_deployment_plan_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    name: "Demo Deployment Plan"
+    options: "osdp"
   delegate_to: localhost
 - debug: var=deployment_plans
 

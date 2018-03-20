@@ -23,6 +23,31 @@ from oneview_module_loader import DeploymentPlanFactsModule
 
 ERROR_MSG = 'Fake message error'
 
+DEPLOYMENT_PLAN_NAME = 'Deployment Plan name'
+DEPLOYMENT_PLAN_URI = '/rest/plan-scripts/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0'
+
+PARAMS_GET_ALL = dict(
+    config='config.json',
+    state='present'
+)
+PARAMS_GET_BY_NAME = dict(
+    config='config.json',
+    state='present',
+    name=DEPLOYMENT_PLAN_NAME
+)
+
+PARAMS_GET_USEDBY = dict(
+    config='config.json',
+    options='usedby',
+    name=DEPLOYMENT_PLAN_NAME
+)
+
+PARAMS_GET_OSDP = dict(
+    config='config.json',
+    options='osdp',
+    name=DEPLOYMENT_PLAN_NAME
+)
+
 
 @pytest.mark.resource(TestDeploymentPlanFactsModule='deployment_plans')
 class TestDeploymentPlanFactsModule(ImageStreamerBaseFactsTest):
@@ -31,12 +56,12 @@ class TestDeploymentPlanFactsModule(ImageStreamerBaseFactsTest):
     """
 
     DEPLOYMENT_PLAN = dict(
-        name="Deployment Plan name",
-        uri="/rest/plan-scripts/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0")
+        name=DEPLOYMENT_PLAN_NAME,
+        uri=DEPLOYMENT_PLAN_URI)
 
     def test_get_all_deployment_plans(self):
         self.resource.get_all.return_value = [self.DEPLOYMENT_PLAN]
-        self.mock_ansible_module.params = self.EXAMPLES[0]['image_streamer_deployment_plan_facts']
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         DeploymentPlanFactsModule().run()
 
@@ -47,7 +72,29 @@ class TestDeploymentPlanFactsModule(ImageStreamerBaseFactsTest):
 
     def test_get_a_deployment_plan_by_name(self):
         self.resource.get_by.return_value = [self.DEPLOYMENT_PLAN]
-        self.mock_ansible_module.params = self.EXAMPLES[4]['image_streamer_deployment_plan_facts']
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
+
+        DeploymentPlanFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(deployment_plans=[self.DEPLOYMENT_PLAN])
+        )
+
+    def test_get_a_deployment_plan_usedby_by_name(self):
+        self.resource.get_by.return_value = [self.DEPLOYMENT_PLAN]
+        self.mock_ansible_module.params = PARAMS_GET_USEDBY
+
+        DeploymentPlanFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(deployment_plans=[self.DEPLOYMENT_PLAN])
+        )
+
+    def test_get_a_deployment_plan_osdp_by_name(self):
+        self.resource.get_by.return_value = [self.DEPLOYMENT_PLAN]
+        self.mock_ansible_module.params = PARAMS_GET_OSDP
 
         DeploymentPlanFactsModule().run()
 
