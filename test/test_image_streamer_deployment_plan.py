@@ -59,7 +59,8 @@ class TestDeploymentPlanModule(ImageStreamerBaseTest):
     also provides the mocks used in this test case
     """
 
-    def __init__(self):
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self):
         self.DEPLOYMENT_PLAN = dict(
             name="Deployment Plan name",
             uri="/rest/deployment-plans/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0")
