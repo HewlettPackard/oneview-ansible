@@ -129,14 +129,12 @@ class DeploymentPlanFactsModule(OneViewModuleBase):
             ansible_facts['deployment_plans'] = self.i3s_client.deployment_plans.get_by("name", name)
             if ansible_facts['deployment_plans'] and options == 'usedby':
                 deployment_plan = ansible_facts['deployment_plans'][0]
-                if deployment_plan:
-                    environmental_configuration = self.i3s_client.deployment_plans.get_usedby(deployment_plan['uri'])
-                    ansible_facts['deployment_plans'][0]['deployment_plan_usedby'] = environmental_configuration
+                environmental_configuration = self.i3s_client.deployment_plans.get_usedby(deployment_plan['uri'])
+                ansible_facts['deployment_plans'][0]['deployment_plan_usedby'] = environmental_configuration
             elif ansible_facts['deployment_plans'] and options == 'osdp':
                 deployment_plan = ansible_facts['deployment_plans'][0]
-                if deployment_plan:
-                    environmental_configuration = self.i3s_client.deployment_plans.get_osdp(deployment_plan['uri'])
-                    ansible_facts['deployment_plans'][0]['deployment_plan_osdp'] = environmental_configuration
+                environmental_configuration = self.i3s_client.deployment_plans.get_osdp(deployment_plan['uri'])
+                ansible_facts['deployment_plans'][0]['deployment_plan_osdp'] = environmental_configuration
         else:
             ansible_facts['deployment_plans'] = self.i3s_client.deployment_plans.get_all(**self.facts_params)
 
