@@ -18,8 +18,10 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     - networks_query:
-      - /rest/network/01
-      - /rest/network/02
+      - /rest/fc-networks/f61d2299-c6dd-4f81-bcd2-1f99dbae118a
+    - scope_uris: '/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7'
+    - scope_exclusions:
+      - /rest/storage-pools/5F9CA89B-C632-4F09-BC55-A8AA00DA5C4A
   tasks:
     - name: Gather facts about all Storage Pools
       oneview_storage_pool_facts:
@@ -49,10 +51,12 @@
       oneview_storage_pool_facts:
         config: "{{ config }}"
         options:
-          - reachableStoragePools
+          - reachableStoragePools:
+              networks: '{{ networks_query }}'
+              scope_uris: '{{ scope_uris }}'
+              scope_exclusions: '{{ scope_exclusions }}'
         params:
           filter: status='OK'
-          networks: '{{ networks_query }}'
       delegate_to: localhost
 
     - debug: var=storage_pools_reachable_storage_pools

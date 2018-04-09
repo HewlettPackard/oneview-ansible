@@ -52,14 +52,20 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Storage Pools
   oneview_storage_pool_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=storage_pools
 
 - name: Gather paginated, filtered and sorted facts about Storage Pools
   oneview_storage_pool_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -70,7 +76,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Storage Pool by name
   oneview_storage_pool_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "CPG_FC-AO"
   delegate_to: localhost
 
@@ -78,7 +87,10 @@ EXAMPLES = '''
 
 - name: Gather facts about the reachable Storage Pools
   oneview_storage_pool_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     options:
         - reachableStoragePools
     params:
@@ -122,14 +134,10 @@ class StoragePoolFactsModule(OneViewModuleBase):
 
     def execute_module(self):
         facts = {}
-        networks = self.facts_params.pop('networks', None)
         if self.module.params.get('name'):
             storage_pool = self.oneview_client.storage_pools.get_by('name', self.module.params['name'])
         else:
             storage_pool = self.oneview_client.storage_pools.get_all(**self.facts_params)
-
-        if networks:
-            self.facts_params['networks'] = networks
 
         facts['storage_pools'] = storage_pool
         self.__get_options(facts)
@@ -138,7 +146,7 @@ class StoragePoolFactsModule(OneViewModuleBase):
     def __get_options(self, facts):
         if self.options:
             if self.options.get('reachableStoragePools'):
-                query_params = self.module.params.get('params', {})
+                query_params = self.options['reachableStoragePools']
                 facts['storage_pools_reachable_storage_pools'] = \
                     self.resource_client.get_reachable_storage_pools(**query_params)
 

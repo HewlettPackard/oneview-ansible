@@ -52,7 +52,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Create a Storage Pool (prior to API500)
   oneview_storage_pool:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 300
     state: present
     data:
        storageSystemUri: "/rest/storage-systems/TXQ1010307"
@@ -61,7 +64,10 @@ EXAMPLES = '''
 
 - name: Delete the Storage Pool (prior to API500)
   oneview_storage_pool:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 300
     state: absent
     data:
        poolName: "FST_CPG2"
@@ -69,7 +75,10 @@ EXAMPLES = '''
 
 - name: Ensure the storage pool 'FST_CPG2' is managed by the appliance (API500 onwards)
   oneview_storage_pool:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
        storageSystemUri: "/rest/storage-systems/TXQ1010307"
@@ -79,7 +88,10 @@ EXAMPLES = '''
 
 - name: Ensure the storage pool 'FST_CPG2' is unmanaged (API500 onwards)
   oneview_storage_pool:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
        storageSystemUri: "/rest/storage-systems/TXQ1010307"

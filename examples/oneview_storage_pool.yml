@@ -17,8 +17,9 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    storage_system_uri: "/rest/storage-systems/TXQ1010307"
-    storage_pool_name: "FST_CPG2"
+    storage_system_uri: "/rest/storage-systems/TXQ1000307"
+    storage_pool_name: "cpg-growth-limit-1TiB"
+    scopes_uri: "/rest/scopes/resources/rest/storage-pools/5F9CA89B-C632-4F09-BC55-A8AA00DA5C4A"
   tasks:
     - name: Create a Storage Pool
       oneview_storage_pool:
@@ -36,6 +37,16 @@
         data:
            storageSystemUri: '{{ storage_system_uri }}'
            poolName: '{{ storage_pool_name }}'
+      delegate_to: localhost
+    
+    - name: Update storage pool
+      oneview_storage_pool:
+        config: "{{ config }}"
+        state: present
+        data:
+           storageSystemUri: '{{ storage_system_uri }}'
+           poolName: '{{ storage_pool_name }}'
+           scopesUri: '{{ scopes_uri }}'
       delegate_to: localhost
 
     - name: Delete the Storage Pool
