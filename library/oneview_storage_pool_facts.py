@@ -87,6 +87,9 @@ EXAMPLES = '''
         networks:
             - /rest/network/123456A
             - /rest/network/123456B
+        scope_exclusions:
+            - /rest/storage-pools/5F9CA89B-C632-4F09-BC55-A8AA00DA5C4A
+        scope_uris: '/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7'
   delegate_to: localhost
 
 - debug: var=storage_pools_reachable_storage_pools
