@@ -35,7 +35,6 @@
           count: 2
           sort: 'name:descending'
           filter: "provisioningType='Thin'"
-
     - debug: var=storage_volumes
 
 
