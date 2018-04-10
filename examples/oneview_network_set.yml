@@ -34,6 +34,7 @@
             - '{{ ethernet_network_2_uri }}'   # or a URI
       delegate_to: localhost
 
+    # Scope update is only supported V300 and V500
     - name: Update the Network set with two scopes
       oneview_network_set:
         config: "{{ config }}"
