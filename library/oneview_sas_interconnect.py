@@ -58,19 +58,28 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Ensure that a SAS Interconnect is powered on
   oneview_sas_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: powered_on
     name: "0000A66101, interconnect 1"
 
 - name: Refresh a SAS Interconnect
   oneview_sas_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: refreshed
     name: "0000A66101, interconnect 1"
 
 - name: Perform a hard reset
   oneview_sas_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: hard_reset
     name: "0000A66101, interconnect 1"
 '''

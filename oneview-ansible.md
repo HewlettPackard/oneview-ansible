@@ -6997,19 +6997,28 @@ Manage the OneView SAS Interconnect resources.
 
 - name: Ensure that a SAS Interconnect is powered on
   oneview_sas_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: powered_on
     name: "0000A66101, interconnect 1"
 
 - name: Refresh a SAS Interconnect
   oneview_sas_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: refreshed
     name: "0000A66101, interconnect 1"
 
 - name: Perform a hard reset
   oneview_sas_interconnect:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: hard_reset
     name: "0000A66101, interconnect 1"
 
@@ -7057,11 +7066,17 @@ Retrieve facts about the OneView SAS Interconnects.
 
 - name: Gather facts about all SAS Interconnects
   oneview_sas_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 
 - name: Gather paginated, filtered and sorted facts about SAS Interconnects
   oneview_sas_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -7070,7 +7085,10 @@ Retrieve facts about the OneView SAS Interconnects.
 
 - name: Gather facts about a SAS Interconnect by name
   oneview_sas_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "0000A66103, interconnect 1"
 
 ```
