@@ -28,7 +28,7 @@ PARAMS_GET_ALL_WITH_OPTIONS = dict(
     config='config.json',
     name=None,
     options=[
-        'attachableVolumes', 'extraManagedVolumePaths'
+        {'attachableVolumes': {'connections': 'fake'}}, 'extraManagedVolumePaths'
     ],
     params={
         'networks': ['rest/fake/network']
@@ -44,7 +44,7 @@ PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
     config='config.json',
     name="Test Volume",
     options=[
-        'attachableVolumes', 'extraManagedVolumePaths', 'snapshots']
+        {'attachableVolumes': {'connections': 'fake'}}, 'extraManagedVolumePaths', 'snapshots']
 )
 
 PARAMS_GET_SNAPSHOT_BY_NAME = dict(
