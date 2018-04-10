@@ -36,10 +36,12 @@ PARAMS_GET_BY_NAME = dict(
 PARAMS_GET_REACHABLE_STORAGE_POOLS = dict(
     config='config.json',
     name="Test Storage Pools",
-    options=["reachableStoragePools"],
-    params={
-        'networks': ['rest/fake/network']
-    }
+    params={},
+    options=[{"reachableStoragePools": {
+        'networks': ['rest/fake/network'],
+        'scope_uris': '/rest/fake/uri',
+        'scope_exclusions': ['/rest/storage-pool/fake']}
+    }]
 )
 
 
@@ -68,7 +70,7 @@ class TestStoragePoolFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_reachable_storage_pools(self):
-        self.mock_ov_client.api_version = 500
+        self.mock_ov_client.api_version = 600
         self.resource.get_by.return_value = {"name": "Storage Pool Name"}
         self.resource.get_reachable_storage_pools.return_value = [{'reachable': 'test'}]
         self.mock_ansible_module.params = PARAMS_GET_REACHABLE_STORAGE_POOLS

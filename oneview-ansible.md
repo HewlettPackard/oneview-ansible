@@ -8940,7 +8940,10 @@ Manage OneView Storage Pool resources.
 
 - name: Create a Storage Pool (prior to API500)
   oneview_storage_pool:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 300
     state: present
     data:
        storageSystemUri: "/rest/storage-systems/TXQ1010307"
@@ -8949,7 +8952,10 @@ Manage OneView Storage Pool resources.
 
 - name: Delete the Storage Pool (prior to API500)
   oneview_storage_pool:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 300
     state: absent
     data:
        poolName: "FST_CPG2"
@@ -8957,7 +8963,10 @@ Manage OneView Storage Pool resources.
 
 - name: Ensure the storage pool 'FST_CPG2' is managed by the appliance (API500 onwards)
   oneview_storage_pool:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
        storageSystemUri: "/rest/storage-systems/TXQ1010307"
@@ -8967,7 +8976,10 @@ Manage OneView Storage Pool resources.
 
 - name: Ensure the storage pool 'FST_CPG2' is unmanaged (API500 onwards)
   oneview_storage_pool:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
        storageSystemUri: "/rest/storage-systems/TXQ1010307"
@@ -9025,14 +9037,20 @@ Retrieve facts about one or more Storage Pools.
 
 - name: Gather facts about all Storage Pools
   oneview_storage_pool_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=storage_pools
 
 - name: Gather paginated, filtered and sorted facts about Storage Pools
   oneview_storage_pool_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -9043,7 +9061,10 @@ Retrieve facts about one or more Storage Pools.
 
 - name: Gather facts about a Storage Pool by name
   oneview_storage_pool_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "CPG_FC-AO"
   delegate_to: localhost
 
@@ -9051,7 +9072,10 @@ Retrieve facts about one or more Storage Pools.
 
 - name: Gather facts about the reachable Storage Pools
   oneview_storage_pool_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     options:
         - reachableStoragePools
     params:
@@ -9060,6 +9084,9 @@ Retrieve facts about one or more Storage Pools.
         networks:
             - /rest/network/123456A
             - /rest/network/123456B
+        scope_exclusions:
+            - /rest/storage-pools/5F9CA89B-C632-4F09-BC55-A8AA00DA5C4A
+        scope_uris: '/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7'
   delegate_to: localhost
 
 - debug: var=storage_pools_reachable_storage_pools
