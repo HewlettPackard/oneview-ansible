@@ -6005,7 +6005,10 @@ Manage OneView Network Set resources.
 
 - name: Create a Network Set
   oneview_network_set:
-    config: '{{ config_path }}'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'OneViewSDK Test Network Set'
@@ -6015,7 +6018,10 @@ Manage OneView Network Set resources.
 
 - name: Update the Network Set name to 'OneViewSDK Test Network Set - Renamed' and change the associated networks
   oneview_network_set:
-    config: '{{ config_path }}'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'OneViewSDK Test Network Set'
@@ -6025,14 +6031,21 @@ Manage OneView Network Set resources.
 
 - name: Delete the Network Set
   oneview_network_set:
-    config: '{{ config_path }}'
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name: 'OneViewSDK Test Network Set - Renamed'
 
+# This feature is only available for V300 and V500
 - name: Update the Network set with two scopes
   oneview_network_set:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 500
     state: present
     data:
       name: OneViewSDK Test Network Set
