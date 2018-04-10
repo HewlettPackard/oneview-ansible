@@ -33,14 +33,14 @@
             storagePool: '{{ storage_pool_uri }}'
           templateUri: '/rest/storage-volume-templates/e2f95f1d-de9d-406e-803f-a8aa00da92b0'
           isPermanent: false
-          initialScopeUris: ['/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7'] # This option available only with API version 600 and above 
+          initialScopeUris: ['/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7'] # This option available only with API version 600 and above
       delegate_to: localhost
 
     - name: Extend the Volume size
       oneview_volume:
         config: '{{ config }}'
         state: present
-        data: 
+        data:
           name: 'Volume with Storage Pool'
           provisionedCapacity: 2684354560  # 2.5GB - The volume actual size
       delegate_to: localhost
@@ -58,7 +58,7 @@
             snapshotPool: '{{ storage_pool_uri }}'
           templateUri: '/rest/storage-volume-templates/e2f95f1d-de9d-406e-803f-a8aa00da92b0'
           isPermanent: false
-          initialScopeUris: ['/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7'] # This option available only with API version 600 and above 
+          initialScopeUris: ['/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7'] # This option available only with API version 600 and above
       delegate_to: localhost
 
     - name: Add a volume for management by the appliance using the WWN of the volume

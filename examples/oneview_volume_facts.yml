@@ -34,7 +34,7 @@
           start: 0
           count: 2
           sort: 'name:descending'
-#          filter: "provisionType='Thin'"
+          filter: "provisioningType='Thin'"
 
     - debug: var=storage_volumes
 
@@ -48,7 +48,7 @@
                 connections:
                   - networkUri: '/rest/fc-networks/f61d2299-c6dd-4f81-bcd2-1f99dbae118a'
                     proxyName: ''
-                    initiatorName: ''         
+                    initiatorName: ''
             - extraManagedVolumePaths  # optional
       delegate_to: localhost
 
