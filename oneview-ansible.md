@@ -7066,11 +7066,17 @@ Retrieve facts about the OneView SAS Interconnects.
 
 - name: Gather facts about all SAS Interconnects
   oneview_sas_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 
 - name: Gather paginated, filtered and sorted facts about SAS Interconnects
   oneview_sas_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -7079,7 +7085,10 @@ Retrieve facts about the OneView SAS Interconnects.
 
 - name: Gather facts about a SAS Interconnect by name
   oneview_sas_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "0000A66103, interconnect 1"
 
 ```
