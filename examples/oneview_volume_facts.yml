@@ -17,8 +17,8 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - volume_name: "Testing facts"     # set a volume name to run this example
-    - snapshot_name: "Testing facts_20160823201021"  # set a snapshot name to run this example
+    - volume_name: "test"     # set a volume name to run this example
+    - snapshot_name: "test_20180410100831"  # set a snapshot name to run this example
   tasks:
     - name: Gather facts about all Volumes
       oneview_volume_facts:
@@ -34,7 +34,7 @@
           start: 0
           count: 2
           sort: 'name:descending'
-          filter: "provisionType='Thin'"
+#          filter: "provisionType='Thin'"
 
     - debug: var=storage_volumes
 
@@ -44,7 +44,11 @@
       oneview_volume_facts:
         config: "{{ config }}"
         options:
-            - attachableVolumes        # optional
+            - attachableVolumes:        # optional
+                connections:
+                  - networkUri: '/rest/fc-networks/f61d2299-c6dd-4f81-bcd2-1f99dbae118a'
+                    proxyName: ''
+                    initiatorName: ''         
             - extraManagedVolumePaths  # optional
       delegate_to: localhost
 
