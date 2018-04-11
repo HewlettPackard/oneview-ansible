@@ -46,8 +46,8 @@
             - attachableVolumes:        # optional
                 connections:
                   - networkUri: '/rest/fc-networks/f61d2299-c6dd-4f81-bcd2-1f99dbae118a'
-                    proxyName: ''
-                    initiatorName: ''
+                    proxyName: '20:19:50:EB:1A:0F:0E:B6'
+                    initiatorName: '10:00:62:01:F8:70:00:0E'
             - extraManagedVolumePaths  # optional
       delegate_to: localhost
 
