@@ -17,8 +17,8 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - volume_name: "test"     # set a volume name to run this example
-    - snapshot_name: "test_20180410100831"  # set a snapshot name to run this example
+    - volume_name: "Testing facts"     # set a volume name to run this example
+    - snapshot_name: "Testing facts_20160823201021"  # set a snapshot name to run this example
   tasks:
     - name: Gather facts about all Volumes
       oneview_volume_facts:
