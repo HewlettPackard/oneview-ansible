@@ -3939,25 +3939,37 @@ Manage the OneView Interconnect resources.
 
 - name: Turn the power off for Interconnect named '0000A66102, interconnect 2'
   oneview_interconnect:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: 'powered_off'
     name: '0000A66102, interconnect 2'
 
 - name: Turn the UID light to 'On' for interconnect named '0000A66102, interconnect 2'
   oneview_interconnect:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: 'uid_on'
     name: '0000A66102, interconnect 2'
 
 - name: Turn the UID light to 'Off' for interconnect that matches the ip 172.18.1.114
   oneview_interconnect:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: 'uid_on'
     ip: '172.18.1.114'
 
 - name: Reconfigures the interconnect that matches the ip 172.18.1.114
   oneview_interconnect:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: 'reconfigured'
     ip: '172.18.1.114'
 
@@ -4011,13 +4023,19 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 - name: Gather facts about all interconnects
   oneview_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
 
 - debug: var=interconnects
 
 - name: Gather paginated, filtered and sorted facts about Interconnects
   oneview_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 5
@@ -4028,7 +4046,10 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 - name: Gather facts about the interconnect that matches the specified name
   oneview_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: '0000A66102, interconnect 2'
 
 - debug: var=interconnects
@@ -4036,7 +4057,10 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 - name: Gather facts about the interconnect that matches the specified name and its name servers
   oneview_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: '0000A66102, interconnect 2'
     options:
         - nameServers
@@ -4046,7 +4070,10 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 - name: Gather facts about statistics for the Interconnect named '0000A66102, interconnect 2'
   oneview_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: '0000A66102, interconnect 2'
     options:
         - statistics
@@ -4056,7 +4083,10 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 - name: Gather facts about statistics for the Port named 'd3' of the Interconnect named '0000A66102, interconnect 2'
   oneview_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: '0000A66102, interconnect 2'
     options:
         - portStatistics: 'd3'
@@ -4066,7 +4096,10 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 - name: Gather facts about statistics for the sub Port number '1' of the Interconnect named 'Enc2, interconnect 2'
   oneview_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: 'Enc2, interconnect 2'
     options:
         - subPortStatistics:
@@ -4078,7 +4111,10 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 - name: Gather facts about all the Interconnect ports
   oneview_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: '0000A66102, interconnect 2'
     options:
         - ports
@@ -4088,7 +4124,10 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 - name: Gather facts about an Interconnect port
   oneview_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: '0000A66102, interconnect 2'
     options:
         - port: d1
@@ -4098,7 +4137,10 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 - name: Gather facts about all the SFPs plugged
   oneview_interconnect_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: '0000A66102, interconnect 2'
     options:
         - pluggableModuleInformation

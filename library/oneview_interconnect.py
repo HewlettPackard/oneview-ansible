@@ -74,25 +74,37 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Turn the power off for Interconnect named '0000A66102, interconnect 2'
   oneview_interconnect:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: 'powered_off'
     name: '0000A66102, interconnect 2'
 
 - name: Turn the UID light to 'On' for interconnect named '0000A66102, interconnect 2'
   oneview_interconnect:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: 'uid_on'
     name: '0000A66102, interconnect 2'
 
 - name: Turn the UID light to 'Off' for interconnect that matches the ip 172.18.1.114
   oneview_interconnect:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: 'uid_on'
     ip: '172.18.1.114'
 
 - name: Reconfigures the interconnect that matches the ip 172.18.1.114
   oneview_interconnect:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: 'reconfigured'
     ip: '172.18.1.114'
 '''
