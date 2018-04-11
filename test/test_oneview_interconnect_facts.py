@@ -70,6 +70,19 @@ PARAMS_FOR_SUBPORT_STATISTICS = dict(
     options=[{'subPortStatistics': {'portName': PORT_NAME, 'subportNumber': SUBPORT_NUMBER}}]
 )
 
+PARAMS_FOR_GET_PORT = dict(
+    config='config.json',
+    name=INTERCONNECT_NAME,
+    options=[{'port': 'd1'}]
+)
+
+PARAMS_FOR_GET_PORTS = dict(
+    config='config.json',
+    name=INTERCONNECT_NAME,
+    options=['ports']
+)
+
+
 MOCK_INTERCONNECTS = [
     dict(uidState='On', uri=INTERCONNECT_URI)
 ]
@@ -195,7 +208,7 @@ class TestInterconnectFactsModule(OneViewBaseFactsTest):
         self.resource.get_by.return_value = MOCK_INTERCONNECTS
         self.resource.get_ports.return_value = fake_ports
 
-        self.mock_ansible_module.params = self.EXAMPLES[18]['oneview_interconnect_facts']
+        self.mock_ansible_module.params = PARAMS_FOR_GET_PORTS
 
         InterconnectFactsModule().run()
 
@@ -214,7 +227,7 @@ class TestInterconnectFactsModule(OneViewBaseFactsTest):
         self.resource.get_by.return_value = MOCK_INTERCONNECTS
         self.resource.get_port.return_value = fake_port
 
-        self.mock_ansible_module.params = self.EXAMPLES[21]['oneview_interconnect_facts']
+        self.mock_ansible_module.params = PARAMS_FOR_GET_PORT
 
         InterconnectFactsModule().run()
 
