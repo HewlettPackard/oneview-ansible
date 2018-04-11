@@ -61,6 +61,7 @@
           initialScopeUris: ['/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7'] # This option available only with API version 600 and above
       delegate_to: localhost
 
+    # Supported only with API version 300 and below.
     - name: Add a volume for management by the appliance using the WWN of the volume
       oneview_volume:
         config: '{{ config }}'

@@ -67,16 +67,17 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
     state: present
     data:
-      name: 'Volume with Storage Pool'
-      description: 'Test volume with common creation: Storage Pool'
-      provisioningParameters:
-          provisionType: 'Full'
-          shareable: True
-          requestedCapacity: 1073741824  # 1GB
-          storagePoolUri: '/rest/storage-pools/3B1CF17F-7657-4C89-B580-D236507A9182'
+      properties:
+        name: 'Volume with Storage Pool'
+        description: 'Test volume with common creation: Storage Pool'
+        size: 2147483648  # 2GB
+        storagePool: '{{ storage_pool_uri }}'
+      templateUri: '/rest/storage-volume-templates/e2f95f1d-de9d-406e-803f-a8aa00da92b0'
+      isPermanent: false
+      initialScopeUris: ['/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7']
   delegate_to: localhost
 
 - name: Create a volume with a specified Snapshot Pool
@@ -84,18 +85,18 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
     state: present
     data:
-      name: 'Volume with Snapshot Pool'
-      description: 'Test volume with common creation: Storage System + Storage Pool + Snapshot Pool'
-      provisioningParameters:
-          provisionType: 'Full'
-          shareable: True
-          requestedCapacity: 1073741824
-          storagePoolUri: '/rest/storage-pools/3B1CF17F-7657-4C89-B580-D236507A9182'
-      storageSystemUri: '/rest/storage-systems/TXQ1000307'
-      snapshotPoolUri: '/rest/storage-pools/3B1CF17F-7657-4C89-B580-D236507A9182'
+      properties:
+        name: 'Volume with Snapshot Pool'
+        description: 'Test volume with common creation: Storage System + Storage Pool + Snapshot Pool'
+        size: 1073741824  # 1GB
+        storagePool: '{{ storage_pool_uri }}'
+        snapshotPool: '{{ storage_pool_uri }}'
+      templateUri: '/rest/storage-volume-templates/e2f95f1d-de9d-406e-803f-a8aa00da92b0'
+      isPermanent: false
+      initialScopeUris: ['/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7']
   delegate_to: localhost
 
 - name: Add a volume for management by the appliance using the WWN of the volume
@@ -103,7 +104,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 300
     state: present
     data:
       type: AddStorageVolumeV2
@@ -120,12 +121,12 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
     state: present
     data:
       name: 'Volume with Storage Pool'
       newName: 'Volume with Storage Pool - Renamed'
-      shareable: False
+      isShareable: False
     delegate_to: localhost
 
 - name: Remove extra presentations from the specified volume on the storage system
@@ -133,7 +134,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
     state: repaired
     data:
       name: 'Volume with Storage Pool - Renamed'
@@ -143,13 +144,12 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
     state: snapshot_created
     data:
       name: 'Volume with Snapshot Pool'
       snapshotParameters:
         name: 'test_snapshot'
-        type: 'Snapshot'
         description: 'New snapshot'
 
 - name: Delete the snapshot
@@ -157,7 +157,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
     state: snapshot_deleted
     data:
       name: 'Volume with Snapshot Pool'
@@ -169,7 +169,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
     state: absent
     data:
       name: 'Volume with Storage Pool - Renamed'
@@ -179,7 +179,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
     state: absent
     data:
       name: 'Volume with Snapshot Pool - Renamed'
@@ -189,7 +189,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
     state: absent
     data:
       name: 'Volume added with a specific WWN'
