@@ -53,7 +53,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Add a Golden Image from OS Volume
   image_streamer_golden_image:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Demo Golden Image creation'
@@ -65,7 +68,10 @@ EXAMPLES = '''
 
 - name: Create a Golden Image uploading from a local file
   image_streamer_golden_image:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Demo Golden Image upload'
@@ -75,7 +81,10 @@ EXAMPLES = '''
 
 - name: Update the Golden Image description and name
   image_streamer_golden_image:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Demo Golden Image upload'
@@ -85,7 +94,10 @@ EXAMPLES = '''
 
 - name: Download the Golden Image to the file path provided
   image_streamer_golden_image:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: downloaded
     data:
       name: 'Demo Golden Image'
@@ -94,7 +106,10 @@ EXAMPLES = '''
 
 - name: Download the Golden Image archive log to the file path provided
   image_streamer_golden_image:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: archive_downloaded
     data:
       name: 'Demo Golden Image'
@@ -103,7 +118,10 @@ EXAMPLES = '''
 
 - name: Remove a Golden Image
   image_streamer_golden_image:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name: 'Golden Image name'

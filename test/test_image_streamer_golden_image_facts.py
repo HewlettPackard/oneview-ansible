@@ -34,9 +34,18 @@ class TestGoldenImageFactsModule(ImageStreamerBaseFactsTest):
         name="Golden Image name",
         uri="/rest/golden-image/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0")
 
+    GOLDEN_IMAGE_GET_ALL = dict(
+        config='config.json'
+    )
+
+    GOLDEN_IMAGE_GET_BY_NAME = dict(
+        config='config.json',
+        name='Golden Image Name'
+    )
+
     def test_get_all_golden_images(self):
         self.resource.get_all.return_value = [self.GOLDEN_IMAGE]
-        self.mock_ansible_module.params = self.EXAMPLES[0]['image_streamer_golden_image_facts']
+        self.mock_ansible_module.params = self.GOLDEN_IMAGE_GET_ALL
 
         GoldenImageFactsModule().run()
 
@@ -47,7 +56,7 @@ class TestGoldenImageFactsModule(ImageStreamerBaseFactsTest):
 
     def test_get_a_golden_image_by_name(self):
         self.resource.get_by.return_value = [self.GOLDEN_IMAGE]
-        self.mock_ansible_module.params = self.EXAMPLES[4]['image_streamer_golden_image_facts']
+        self.mock_ansible_module.params = self.GOLDEN_IMAGE_GET_BY_NAME
 
         GoldenImageFactsModule().run()
 
