@@ -35,12 +35,62 @@ class TestGoldenImageModule(ImageStreamerBaseTest):
     @pytest.fixture(autouse=True)
     def specific_set_up(self):
         # Load scenarios from module examples
-        self.GOLDEN_IMAGE_CREATE = self.EXAMPLES[0]['image_streamer_golden_image']
-        self.GOLDEN_IMAGE_UPLOAD = self.EXAMPLES[1]['image_streamer_golden_image']
-        self.GOLDEN_IMAGE_UPDATE = self.EXAMPLES[2]['image_streamer_golden_image']
-        self.GOLDEN_IMAGE_DOWNLOAD = self.EXAMPLES[3]['image_streamer_golden_image']
-        self.GOLDEN_IMAGE_ARCHIVE_DOWNLOAD = self.EXAMPLES[4]['image_streamer_golden_image']
-        self.GOLDEN_IMAGE_DELETE = self.EXAMPLES[5]['image_streamer_golden_image']
+        self.GOLDEN_IMAGE_UPLOAD = dict(
+            config='config.json',
+            state='present',
+            data=dict(
+                name='Demo Golden Image upload',
+                description='Test',
+                localImageFilePath='~/image_file.zip'
+            )
+        )
+
+        self.GOLDEN_IMAGE_CREATE = dict(
+            config='config.json',
+            state='present',
+            data=dict(
+                name='Demo Golden Image creation',
+                description="Test Description",
+                imageCapture="true",
+                osVolumeName='OSVolume-20',
+                buildPlanName='Buld Plan name'
+            )
+        )
+
+        self.GOLDEN_IMAGE_UPDATE = dict(
+            config='config.json',
+            state='present',
+            data=dict(
+                name='Demo Golden Image update',
+                description='Test',
+                newName='Golden Image Renamed')
+        )
+
+        self.GOLDEN_IMAGE_DOWNLOAD = dict(
+            config='config.json',
+            state='downloaded',
+            data=dict(
+                name='Demo Golden Image',
+                destination_file_path='~/downloaded_image.zip'
+            )
+        )
+
+        self.GOLDEN_IMAGE_ARCHIVE_DOWNLOAD = dict(
+            config='config.json',
+            state='archive_downloaded',
+            data=dict(
+                name='Demo Golden Image',
+                destination_file_path='~/archive.log'
+            )
+        )
+
+        self.GOLDEN_IMAGE_DELETE = dict(
+            config='config.json',
+            state='absent',
+            data=dict(
+                name='Golden Image name'
+            )
+        )
 
     def test_create_new_golden_image(self):
         self.resource.get_by.return_value = []

@@ -46,13 +46,19 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Golden Images
   image_streamer_golden_image_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 - debug: var=golden_images
 
 - name: Gather paginated, filtered and sorted facts about Golden Images
   image_streamer_golden_image_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -63,7 +69,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Golden Image by name
   image_streamer_golden_image_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "{{ name }}"
   delegate_to: localhost
 - debug: var=golden_images

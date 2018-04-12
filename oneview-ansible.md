@@ -919,7 +919,10 @@ Manage Image Streamer Golden Image resources.
 
 - name: Add a Golden Image from OS Volume
   image_streamer_golden_image:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Demo Golden Image creation'
@@ -931,7 +934,10 @@ Manage Image Streamer Golden Image resources.
 
 - name: Create a Golden Image uploading from a local file
   image_streamer_golden_image:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Demo Golden Image upload'
@@ -941,7 +947,10 @@ Manage Image Streamer Golden Image resources.
 
 - name: Update the Golden Image description and name
   image_streamer_golden_image:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Demo Golden Image upload'
@@ -951,7 +960,10 @@ Manage Image Streamer Golden Image resources.
 
 - name: Download the Golden Image to the file path provided
   image_streamer_golden_image:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: downloaded
     data:
       name: 'Demo Golden Image'
@@ -960,7 +972,10 @@ Manage Image Streamer Golden Image resources.
 
 - name: Download the Golden Image archive log to the file path provided
   image_streamer_golden_image:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: archive_downloaded
     data:
       name: 'Demo Golden Image'
@@ -969,7 +984,10 @@ Manage Image Streamer Golden Image resources.
 
 - name: Remove a Golden Image
   image_streamer_golden_image:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name: 'Golden Image name'
@@ -1024,13 +1042,19 @@ Retrieve facts about one or more of the Image Streamer Golden Image.
 
 - name: Gather facts about all Golden Images
   image_streamer_golden_image_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 - debug: var=golden_images
 
 - name: Gather paginated, filtered and sorted facts about Golden Images
   image_streamer_golden_image_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -1041,7 +1065,10 @@ Retrieve facts about one or more of the Image Streamer Golden Image.
 
 - name: Gather facts about a Golden Image by name
   image_streamer_golden_image_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "{{ name }}"
   delegate_to: localhost
 - debug: var=golden_images
