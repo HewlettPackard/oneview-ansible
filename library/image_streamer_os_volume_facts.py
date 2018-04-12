@@ -69,6 +69,17 @@ EXAMPLES = '''
   delegate_to: localhost
 
 - debug: var=os_volumes
+
+- name: Gather facts about storage of an OS Volume
+  image_streamer_os_volume_facts:
+    config: "{{ config_path }}"
+    name: "Test Volume"
+    options:
+      - getStorage 
+  delegate_to: localhost
+
+- debug: var=storage
+
 '''
 
 RETURN = '''
@@ -83,7 +94,8 @@ from ansible.module_utils.oneview import OneViewModuleBase
 class OsVolumeFactsModule(OneViewModuleBase):
     argument_spec = dict(
         name=dict(required=False, type='str'),
-        params=dict(required=False, type='dict')
+        params=dict(required=False, type='dict'),
+        options=dict(required=False, type='list')
     )
 
     def __init__(self):
@@ -91,14 +103,28 @@ class OsVolumeFactsModule(OneViewModuleBase):
         self.i3s_client = self.oneview_client.create_image_streamer_client()
 
     def execute_module(self):
+        ansible_facts = {}     
         name = self.module.params.get("name")
-
+        
         if name:
             os_volumes = self.i3s_client.os_volumes.get_by('name', name)
         else:
             os_volumes = self.i3s_client.os_volumes.get_all(**self.facts_params)
 
-        return dict(changed=False, ansible_facts=dict(os_volumes=os_volumes))
+        ansible_facts["os_volumes"] = os_volumes
+
+        if self.options:
+            ansible_facts.update(self._get_options_facts(os_volumes))
+
+        return dict(changed=False, ansible_facts=ansible_facts)
+
+    def _get_options_facts (self, os_volume):
+        options_facts = {}
+
+        if self.options.get("getStorage"):
+            options_facts["storage"] = self.i3s_client.os_volumes.get_storage(os_volume[0]["uri"])
+
+        return options_facts      
 
 
 def main():

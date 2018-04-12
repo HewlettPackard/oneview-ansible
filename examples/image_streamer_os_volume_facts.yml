@@ -17,7 +17,8 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - name: "OSVolume-5"
+    - name: "OSVolume-31"
+    - volume_id: ""
   tasks:
     - name: Gather facts about all OS Volumes
       image_streamer_os_volume_facts:
@@ -45,3 +46,13 @@
       delegate_to: localhost
 
     - debug: var=os_volumes
+
+    - name: Gather facts about storage of an OS volume
+      image_streamer_os_volume_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - getStorage
+      delegate_to: localhost
+
+    - debug: var=storage
