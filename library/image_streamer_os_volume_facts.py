@@ -36,6 +36,12 @@ options:
       description:
         - Name of the OS Volume.
       required: false
+    options:
+      description:
+        - "List with options to gather additional facts about OS volumes.
+        Options allowed:
+          C(getStorage) gets the storage details of an OS volume.
+      required: false
 
 extends_documentation_fragment:
     - oneview
@@ -75,7 +81,7 @@ EXAMPLES = '''
     config: "{{ config_path }}"
     name: "Test Volume"
     options:
-      - getStorage 
+      - getStorage
   delegate_to: localhost
 
 - debug: var=storage
@@ -87,6 +93,9 @@ os_volumes:
     description: The list of OS Volumes
     returned: Always, but can be empty.
     type: list
+storage:
+    description: Storage details of an OS volume.
+    type: dict
 '''
 from ansible.module_utils.oneview import OneViewModuleBase
 
@@ -103,9 +112,9 @@ class OsVolumeFactsModule(OneViewModuleBase):
         self.i3s_client = self.oneview_client.create_image_streamer_client()
 
     def execute_module(self):
-        ansible_facts = {}     
+        ansible_facts = {}
         name = self.module.params.get("name")
-        
+
         if name:
             os_volumes = self.i3s_client.os_volumes.get_by('name', name)
         else:
@@ -118,13 +127,13 @@ class OsVolumeFactsModule(OneViewModuleBase):
 
         return dict(changed=False, ansible_facts=ansible_facts)
 
-    def _get_options_facts (self, os_volume):
+    def _get_options_facts(self, os_volume):
         options_facts = {}
 
         if self.options.get("getStorage"):
             options_facts["storage"] = self.i3s_client.os_volumes.get_storage(os_volume[0]["uri"])
 
-        return options_facts      
+        return options_facts
 
 
 def main():

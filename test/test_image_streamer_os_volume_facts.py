@@ -30,10 +30,10 @@ class TestOsVolumeFactsModule(ImageStreamerBaseFactsTest):
     ImageStreamerBaseFactsTest has common tests for the parameters support.
     """
 
-    OS_VOLUME = { name: "OS Volume Name",
-                  uri: "/rest/os-volumes/a3b3c234-2ei0-b99o-jh778jsdkl2n5"}
+    OS_VOLUME = {"name": "OS Volume Name",
+                 "uri": "/rest/os-volumes/a3b3c234-2ei0-b99o-jh778jsdkl2n5"}
 
-    OS_VOLUME_STORAGE = {}
+    OS_VOLUME_STORAGE = {"name": "OS Volume Name", "snapshots": []}
 
     def test_get_all_os_volumes(self):
         self.resource.get_all.return_value = [self.OS_VOLUME]
@@ -48,6 +48,7 @@ class TestOsVolumeFactsModule(ImageStreamerBaseFactsTest):
 
     def test_get_os_volume_by_name(self):
         self.resource.get_by.return_value = [self.OS_VOLUME]
+
         self.mock_ansible_module.params = self.EXAMPLES[4]['image_streamer_os_volume_facts']
 
         OsVolumeFactsModule().run()
@@ -57,15 +58,17 @@ class TestOsVolumeFactsModule(ImageStreamerBaseFactsTest):
             ansible_facts=dict(os_volumes=[self.OS_VOLUME])
         )
 
-    def test_get_os_volume_get_storage(self):
+    def test_get_storage(self):
         self.resource.get_storage.return_value = [self.OS_VOLUME_STORAGE]
-        self.mock_ansible_module.params = self.EXAMPLES[4]['image_streamer_os_volume_facts']
+        self.resource.get_by.return_value = [self.OS_VOLUME]
+
+        self.mock_ansible_module.params = self.EXAMPLES[6]['image_streamer_os_volume_facts']
 
         OsVolumeFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(os_volumes=[self.OS_VOLUME_STORAGE])
+            ansible_facts=dict(os_volumes=[self.OS_VOLUME], storage=[self.OS_VOLUME_STORAGE])
         )
 
 
