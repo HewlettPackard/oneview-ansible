@@ -65,17 +65,27 @@ class TestOsVolumeFactsModule(ImageStreamerBaseFactsTest):
             ansible_facts=dict(os_volumes=[self.OS_VOLUME])
         )
 
+<<<<<<< 471aa3cbff01d3d78ad937f082ccfba9165d8e92
     def test_get_storage(self):
         self.resource.get_storage.return_value = [self.OS_VOLUME_STORAGE]
         self.resource.get_by.return_value = [self.OS_VOLUME]
 
         self.mock_ansible_module.params = PARAMS_GET_STORAGE
+=======
+    def test_get_os_volume_get_storage(self):
+        self.resource.get_storage.return_value = [self.OS_VOLUME_STORAGE]
+        self.mock_ansible_module.params = self.EXAMPLES[4]['image_streamer_os_volume_facts']
+>>>>>>> Done with testing
 
         OsVolumeFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
+<<<<<<< 471aa3cbff01d3d78ad937f082ccfba9165d8e92
             ansible_facts=dict(os_volumes=[self.OS_VOLUME], storage=[self.OS_VOLUME_STORAGE])
+=======
+            ansible_facts=dict(os_volumes=[self.OS_VOLUME_STORAGE])
+>>>>>>> Done with testing
         )
 
 
