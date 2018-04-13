@@ -51,7 +51,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Add a Storage System with one managed pool (before API500)
   oneview_storage_system:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         credentials:
@@ -69,7 +72,10 @@ EXAMPLES = '''
 
 - name: Add a StoreServ Storage System with one managed pool (API500 onwards)
   oneview_storage_system:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       credentials:
@@ -89,7 +95,10 @@ EXAMPLES = '''
 
 - name: Remove the storage system by its IP (before API500)
   oneview_storage_system:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         credentials:
@@ -98,7 +107,10 @@ EXAMPLES = '''
 
 - name: Remove the storage system by its IP (API500 onwards)
   oneview_storage_system:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         credentials:
