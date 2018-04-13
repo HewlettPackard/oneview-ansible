@@ -9242,7 +9242,10 @@ Manage OneView Storage System resources.
 
 - name: Add a Storage System with one managed pool (before API500)
   oneview_storage_system:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
         credentials:
@@ -9260,7 +9263,10 @@ Manage OneView Storage System resources.
 
 - name: Add a StoreServ Storage System with one managed pool (API500 onwards)
   oneview_storage_system:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       credentials:
@@ -9280,7 +9286,10 @@ Manage OneView Storage System resources.
 
 - name: Remove the storage system by its IP (before API500)
   oneview_storage_system:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         credentials:
@@ -9289,7 +9298,10 @@ Manage OneView Storage System resources.
 
 - name: Remove the storage system by its IP (API500 onwards)
   oneview_storage_system:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         credentials:
@@ -9347,14 +9359,20 @@ Retrieve facts about the OneView Storage Systems
 
 - name: Gather facts about all Storage Systems
   oneview_storage_system_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 
 - debug: var=storage_systems
 
 - name: Gather paginated, filtered and sorted facts about Storage Systems
   oneview_storage_system_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -9365,7 +9383,10 @@ Retrieve facts about the OneView Storage Systems
 
 - name: Gather facts about a Storage System by IP (ip_hostname)
   oneview_storage_system_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     ip_hostname: "172.18.11.12"
   delegate_to: localhost
 
@@ -9373,7 +9394,10 @@ Retrieve facts about the OneView Storage Systems
 
 - name: Gather facts about a Storage System by IP (hostname)
   oneview_storage_system_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     hostname: "172.18.11.12"
   delegate_to: localhost
 
@@ -9382,7 +9406,10 @@ Retrieve facts about the OneView Storage Systems
 
 - name: Gather facts about a Storage System by name
   oneview_storage_system_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "ThreePAR7200-4555"
   delegate_to: localhost
 
@@ -9390,7 +9417,10 @@ Retrieve facts about the OneView Storage Systems
 
 - name: Gather facts about a Storage System and all options
   oneview_storage_system_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "ThreePAR7200-4555"
     options:
         - hostTypes
@@ -9401,9 +9431,12 @@ Retrieve facts about the OneView Storage Systems
 - debug: var=storage_system_host_types
 - debug: var=storage_system_pools
 
-- name: Gather queried facts about Storage System reachable ports
+- name: Gather queried facts about Storage System reachable ports (API500 onwards)
   oneview_storage_system_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     hostname: "172.18.11.12"
     options:
         - reachablePorts
@@ -9415,9 +9448,12 @@ Retrieve facts about the OneView Storage Systems
 
 - debug: var=storage_system_reachable_ports
 
-- name: Gather facts about Storage System storage templates
+- name: Gather facts about Storage System storage templates (API500 onwards)
   oneview_storage_system_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     hostname: "172.18.11.12"
     options:
       - templates
