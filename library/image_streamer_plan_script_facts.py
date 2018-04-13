@@ -102,8 +102,18 @@ class PlanScriptFactsModule(OneViewModuleBase):
 
         ansible_facts['plan_scripts'] = plan_scripts
 
+        if self.options:
+            ansible_facts.update(self._get_options_facts(plan_scripts))
+
         return dict(changed=False, ansible_facts=ansible_facts)
 
+    def _get_options_facts(self, plan_script):
+        options_facts = {}
+
+        if self.options.get("getUseby"):
+            options_facts["use_by"] = self.i3s_client.plan_scirpts.get_useby_and_readonly(plan_script[0]["uri"])
+
+        return options_facts
 
 def main():
     PlanScriptFactsModule().run()

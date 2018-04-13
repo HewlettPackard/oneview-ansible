@@ -43,3 +43,12 @@
         name: "{{ plan_script_name }}"
       delegate_to: localhost
     - debug: var=plan_scripts
+
+    - name: Gather facts about use by
+      image_streamer_plan_script_facts:
+        config: "{{ config }}"
+        name: "{{ plan_script_name }}"
+        options:
+          - getUseby
+      delegate_to: localhost
+    - debug: var=plan_scripts
