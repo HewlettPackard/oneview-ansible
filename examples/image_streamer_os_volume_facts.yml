@@ -17,8 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - name: "OSVolume-31"
-    - volume_id: ""
+    - name: "OSVolume-5"
   tasks:
     - name: Gather facts about all OS Volumes
       image_streamer_os_volume_facts:
