@@ -87,7 +87,6 @@ EXAMPLES = '''
 
 - name: Gather facts about storage of an OS Volume
   image_streamer_os_volume_facts:
-<<<<<<< 471aa3cbff01d3d78ad937f082ccfba9165d8e92
     hostname: 172.16.101.48
     username: administrator
     password: my_password
@@ -97,14 +96,6 @@ EXAMPLES = '''
     options:
       - getStorage
   delegate_to: localhost
-=======
-    config: "{{ config_path }}"
-    name: "Test Volume"
-    options:
-      - getStorage
-  delegate_to: localhost
-
->>>>>>> Done with testing
 - debug: var=storage
 
 '''
