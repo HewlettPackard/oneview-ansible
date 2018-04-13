@@ -66,6 +66,10 @@
         config: "{{ config }}"
         state: present
         data:
+            credentials:
+                ip_hostname: '{{ storage_system_ip_hostname }}'
+                username: '{{ storage_system_username }}'
+                password: '{{ storage_system_password }}'
             name: '{{ storage_system_name }}'
             managedDomain: '{{ storage_domain }}'
             managedPools:

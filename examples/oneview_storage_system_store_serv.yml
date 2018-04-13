@@ -38,7 +38,7 @@
                 - name: CPG-SSD
                   deviceType: SSD
                   domain: TestDomain
-                  uuid: 7d3e53e4-05a6-4974-9212-5f8c7cba5ad9
+                  uuid: 2eda1910-15c7-4cda-a464-c9a46036473d
 
       delegate_to: localhost
 
@@ -47,7 +47,12 @@
         config: "{{ config }}"
         state: present
         data:
+            credentials:
+                username: '{{ storage_system_username }}'
+                password: '{{ storage_system_password }}'
             name: '{{ storage_system_name }}'
+            family: StoreServ
+            hostname: '{{ storage_system_ip }}'
             deviceSpecificAttributes:
                 managedDomain: '{{ storage_domain }}'
                 managedPools: []
