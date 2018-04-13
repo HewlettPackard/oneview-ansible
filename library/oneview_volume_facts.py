@@ -55,7 +55,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
 - debug: var=storage_volumes
 
 - name: Gather paginated, filtered and sorted facts about Volumes
@@ -63,7 +63,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
     params:
       start: 0
       count: 2
@@ -77,7 +77,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
     options:
         - attachableVolumes        # optional
         - extraManagedVolumePaths  # optional
@@ -91,7 +91,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
     name: "{{ volume_name }}"
     options:
         - snapshots  # optional
@@ -104,7 +104,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 600
     name: "{{ volume_name }}"
     options:
        - snapshots:  # optional
@@ -157,13 +157,16 @@ class VolumeFactsModule(OneViewModuleBase):
 
     def _gather_facts_from_appliance(self):
         facts = {}
-
         if self.options:
             if self.options.get('extraManagedVolumePaths'):
                 extra_managed_volume_paths = self.resource_client.get_extra_managed_storage_volume_paths()
                 facts['extra_managed_volume_paths'] = extra_managed_volume_paths
             if self.options.get('attachableVolumes'):
-                attachable_volumes = self.resource_client.get_attachable_volumes()
+                query_params = self.options['attachableVolumes']
+                query_params = {} if type(query_params) is not dict else query_params
+                if 'connections' in query_params:
+                    query_params['connections'] = str(query_params['connections'])
+                attachable_volumes = self.resource_client.get_attachable_volumes(**query_params)
                 facts['attachable_volumes'] = attachable_volumes
 
         return facts
