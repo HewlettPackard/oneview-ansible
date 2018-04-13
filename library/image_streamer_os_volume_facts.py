@@ -51,39 +51,51 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all OS Volumes
   image_streamer_os_volume_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
   delegate_to: localhost
-
 - debug: var=os_volumes
 
 - name: Gather paginated, filtered and sorted facts about OS Volumes
   image_streamer_os_volume_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
     params:
       start: 0
       count: 3
       sort: name:ascending
       filter: status=OK
   delegate_to: localhost
-
 - debug: var=os_volumes
 
 - name: Gather facts about an OS Volume by name
   image_streamer_os_volume_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
     name: "Test Volume"
   delegate_to: localhost
-
 - debug: var=os_volumes
 
 - name: Gather facts about storage of an OS Volume
   image_streamer_os_volume_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
     name: "Test Volume"
     options:
       - getStorage
   delegate_to: localhost
-
 - debug: var=storage
 
 '''

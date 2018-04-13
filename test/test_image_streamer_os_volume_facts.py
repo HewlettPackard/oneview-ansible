@@ -23,6 +23,13 @@ from oneview_module_loader import OsVolumeFactsModule
 
 ERROR_MSG = 'Fake message error'
 
+PARAMS_GET_ALL = {"config": "config.json"}
+
+PARAMS_GET_BY_NAME = {"config": "config.json", "name": "Test OS Volume"}
+
+PARAMS_GET_STORAGE = {"config": "config.json", "name": "Test OS Volume",
+                      "options": ["getStorage"]}
+
 
 @pytest.mark.resource(TestOsVolumeFactsModule='os_volumes')
 class TestOsVolumeFactsModule(ImageStreamerBaseFactsTest):
@@ -37,7 +44,7 @@ class TestOsVolumeFactsModule(ImageStreamerBaseFactsTest):
 
     def test_get_all_os_volumes(self):
         self.resource.get_all.return_value = [self.OS_VOLUME]
-        self.mock_ansible_module.params = self.EXAMPLES[0]['image_streamer_os_volume_facts']
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
         OsVolumeFactsModule().run()
 
@@ -49,7 +56,7 @@ class TestOsVolumeFactsModule(ImageStreamerBaseFactsTest):
     def test_get_os_volume_by_name(self):
         self.resource.get_by.return_value = [self.OS_VOLUME]
 
-        self.mock_ansible_module.params = self.EXAMPLES[4]['image_streamer_os_volume_facts']
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         OsVolumeFactsModule().run()
 
@@ -62,7 +69,7 @@ class TestOsVolumeFactsModule(ImageStreamerBaseFactsTest):
         self.resource.get_storage.return_value = [self.OS_VOLUME_STORAGE]
         self.resource.get_by.return_value = [self.OS_VOLUME]
 
-        self.mock_ansible_module.params = self.EXAMPLES[6]['image_streamer_os_volume_facts']
+        self.mock_ansible_module.params = PARAMS_GET_STORAGE
 
         OsVolumeFactsModule().run()
 
