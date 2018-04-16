@@ -1196,7 +1196,11 @@ Manage the Image Streamer Plan Script resources.
 
 - name: Create a Plan Script
   image_streamer_plan_script:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
     state: present
     data:
       description: "Description of this plan script"
@@ -1208,7 +1212,11 @@ Manage the Image Streamer Plan Script resources.
 
 - name: Update the Plan Script
   image_streamer_plan_script:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
     state: present
     data:
       name: 'Demo Plan Script'
@@ -1219,7 +1227,11 @@ Manage the Image Streamer Plan Script resources.
 
 - name: Retrieve the Plan Script content differences
   image_streamer_plan_script:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
     state: differences_retrieved
     data:
       name: 'Demo Plan Script'
@@ -1229,7 +1241,11 @@ Manage the Image Streamer Plan Script resources.
 
 - name: Remove the Plan Script
   image_streamer_plan_script:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
     state: absent
     data:
         name: 'Demo Plan Script'
@@ -1285,13 +1301,21 @@ Retrieve facts about the Image Streamer Plan Scripts.
 
 - name: Gather facts about all Plan Scripts
   image_streamer_plan_script_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
   delegate_to: localhost
 - debug: var=plan_scripts
 
 - name: Gather paginated, filtered and sorted facts about Plan Scripts
   image_streamer_plan_script_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
     params:
       start: 0
       count: 3
@@ -1302,7 +1326,11 @@ Retrieve facts about the Image Streamer Plan Scripts.
 
 - name: Gather facts about a Plan Script by name
   image_streamer_plan_script_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
     name: "Demo Plan Script"
   delegate_to: localhost
 - debug: var=plan_scripts
