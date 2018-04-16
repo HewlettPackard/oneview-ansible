@@ -23,6 +23,15 @@ from oneview_module_loader import BuildPlanFactsModule
 
 ERROR_MSG = 'Fake message error'
 
+BUILD_PLAN_FACTS = dict(
+    config='config.json'
+)
+
+BUILD_PLAN_BY_NAME = dict(
+    config='config.json',
+    name='name'
+)
+
 
 @pytest.mark.resource(TestBuildPlanFactsModule='build_plans')
 class TestBuildPlanFactsModule(ImageStreamerBaseFactsTest):
@@ -33,7 +42,7 @@ class TestBuildPlanFactsModule(ImageStreamerBaseFactsTest):
 
     def test_get_all_build_plans(self):
         self.resource.get_all.return_value = [self.BUILD_PLAN]
-        self.mock_ansible_module.params = self.EXAMPLES[0]['image_streamer_build_plan_facts']
+        self.mock_ansible_module.params = BUILD_PLAN_FACTS
 
         BuildPlanFactsModule().run()
 
@@ -44,7 +53,7 @@ class TestBuildPlanFactsModule(ImageStreamerBaseFactsTest):
 
     def test_get_a_build_plan_by_name(self):
         self.resource.get_by.return_value = [self.BUILD_PLAN]
-        self.mock_ansible_module.params = self.EXAMPLES[4]['image_streamer_build_plan_facts']
+        self.mock_ansible_module.params = BUILD_PLAN_BY_NAME
 
         BuildPlanFactsModule().run()
 

@@ -46,13 +46,19 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Build Plans
   image_streamer_build_plan_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 - debug: var=build_plans
 
 - name: Gather paginated, filtered and sorted facts about Build Plans
   image_streamer_build_plan_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -63,7 +69,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Build Plan by name
   image_streamer_build_plan_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "{{ name }}"
   delegate_to: localhost
 - debug: var=build_plans
