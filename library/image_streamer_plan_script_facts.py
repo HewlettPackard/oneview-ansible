@@ -110,8 +110,8 @@ class PlanScriptFactsModule(OneViewModuleBase):
     def _get_options_facts(self, plan_script):
         options_facts = {}
 
-        if self.options.get("getUseby"):
-            options_facts["use_by"] = self.i3s_client.plan_scirpts.get_useby_and_readonly(plan_script[0]["uri"])
+        if self.options.get("getUseby") and plan_script:
+            options_facts["use_by"] = self.i3s_client.plan_scripts.get_usedby_and_readonly(plan_script[0]["id"])
 
         return options_facts
 
