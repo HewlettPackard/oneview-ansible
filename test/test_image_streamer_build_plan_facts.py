@@ -24,13 +24,11 @@ from oneview_module_loader import BuildPlanFactsModule
 ERROR_MSG = 'Fake message error'
 
 BUILD_PLAN_FACTS = dict(
-    config='config.json',
-    api_version=600
+    config='config.json'
 )
 
 BUILD_PLAN_BY_NAME = dict(
     config='config.json',
-    api_version=600,
     name='name'
 )
 

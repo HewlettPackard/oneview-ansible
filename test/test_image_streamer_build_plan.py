@@ -25,7 +25,6 @@ FAKE_MSG_ERROR = 'Fake message error'
 
 BUILD_PLAN_CREATE = dict(
     config='config.json',
-    api_version=600,
     state='present',
     data=dict(
         name='Demo OS Build Plan',
@@ -35,7 +34,6 @@ BUILD_PLAN_CREATE = dict(
 
 BUILD_PLAN_UPDATE = dict(
     config='config.json',
-    api_version=600,
     state='present',
     data=dict(
         name='Demo OS Build Plan',
@@ -45,7 +43,6 @@ BUILD_PLAN_UPDATE = dict(
 
 BUILD_PLAN_DELETE = dict(
     config='config.json',
-    api_version=600,
     state='absent',
     data=dict(
         name='Demo OS Build Plan',
@@ -59,18 +56,11 @@ class TestBuildPlanModule(ImageStreamerBaseTest):
     also provides the mocks used in this test case
     """
 
-    @pytest.fixture(autouse=True)
-    def specific_set_up(self):
-        # Load scenarios from module examples
-        self.BUILD_PLAN_CREATE = BUILD_PLAN_CREATE
-        self.BUILD_PLAN_UPDATE = BUILD_PLAN_UPDATE
-        self.BUILD_PLAN_DELETE = BUILD_PLAN_DELETE
-
     def test_should_create_new_build_plan(self):
         self.resource.get_by.return_value = []
         self.resource.create.return_value = {"name": "name"}
 
-        self.mock_ansible_module.params = self.BUILD_PLAN_CREATE
+        self.mock_ansible_module.params = BUILD_PLAN_CREATE
 
         BuildPlanModule().run()
 
@@ -86,10 +76,10 @@ class TestBuildPlanModule(ImageStreamerBaseTest):
         )
 
     def test_should_update_the_build_plan(self):
-        self.resource.get_by.return_value = [self.BUILD_PLAN_CREATE['data']]
+        self.resource.get_by.return_value = [BUILD_PLAN_CREATE['data']]
         self.resource.update.return_value = {"name": "name"}
 
-        self.mock_ansible_module.params = self.BUILD_PLAN_UPDATE
+        self.mock_ansible_module.params = BUILD_PLAN_UPDATE
 
         BuildPlanModule().run()
 
@@ -100,21 +90,21 @@ class TestBuildPlanModule(ImageStreamerBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by.return_value = [self.BUILD_PLAN_UPDATE['data']]
-        self.mock_ansible_module.params = self.BUILD_PLAN_UPDATE
+        self.resource.get_by.return_value = [BUILD_PLAN_UPDATE['data']]
+        self.mock_ansible_module.params = BUILD_PLAN_UPDATE
 
         BuildPlanModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=BuildPlanModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(build_plan=self.BUILD_PLAN_UPDATE['data'])
+            ansible_facts=dict(build_plan=BUILD_PLAN_UPDATE['data'])
         )
 
     def test_should_delete_the_build_plan(self):
-        self.resource.get_by.return_value = [self.BUILD_PLAN_CREATE['data']]
+        self.resource.get_by.return_value = [BUILD_PLAN_CREATE['data']]
 
-        self.mock_ansible_module.params = self.BUILD_PLAN_DELETE
+        self.mock_ansible_module.params = BUILD_PLAN_DELETE
 
         BuildPlanModule().run()
 
@@ -126,7 +116,7 @@ class TestBuildPlanModule(ImageStreamerBaseTest):
     def test_should_do_nothing_when_deleting_a_non_existent_build_plan(self):
         self.resource.get_by.return_value = []
 
-        self.mock_ansible_module.params = self.BUILD_PLAN_DELETE
+        self.mock_ansible_module.params = BUILD_PLAN_DELETE
 
         BuildPlanModule().run()
 
