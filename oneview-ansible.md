@@ -6288,13 +6288,19 @@ Retrieve facts about one or more OS Deployment Plans.
 
 - name: Gather facts about all OS Deployment Plans
   oneview_os_deployment_plan_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
   delegate_to: localhost
 - debug: var=os_deployment_plans
 
 - name: Gather paginated, filtered and sorted facts about OS Deployment Plans
   oneview_os_deployment_plan_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       start: 0
       count: 3
@@ -6305,14 +6311,20 @@ Retrieve facts about one or more OS Deployment Plans.
 
 - name: Gather facts about an OS Deployment Plan by name
   oneview_os_deployment_plan_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "Deployment Plan"
   delegate_to: localhost
 - debug: var=os_deployment_plans
 
 - name: Gather facts about an OS Deployment Plan by name with OS Custom Attributes option
   oneview_os_deployment_plan_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     name: "Deployment Plan"
     options:
       # This option will generate an os_deployment_plan_custom_attributes facts in the Server Profile format.

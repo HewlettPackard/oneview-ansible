@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
+    - os_deployment_plan_name: "RHEL_7.3"
   tasks:
     - name: Gather facts about all Os Deployment Plans
       oneview_os_deployment_plan_facts:
@@ -38,14 +39,14 @@
     - name: Gather facts about an Os Deployment Plan by name
       oneview_os_deployment_plan_facts:
         config: "{{ config }}"
-        name: "Deployment Plan"
+        name: "{{os_deployment_plan_name}}"
       delegate_to: localhost
     - debug: var=os_deployment_plans
 
     - name: Gather facts about an Os Deployment Plan by name with OS Custom Attributes option
       oneview_os_deployment_plan_facts:
         config: "{{ config }}"
-        name: "Deployment Plan"
+        name: "{{os_deployment_plan_name}}"
         options:
           # This option will generate an os_deployment_plan_custom_attributes facts in a Server Profile format.
           - osCustomAttributesForServerProfile
