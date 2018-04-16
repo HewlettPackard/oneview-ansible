@@ -18,7 +18,7 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    plan_script_name: "Demo Plan Script"
+    plan_script_name: "HPE - ESXi - generalize host configuration - 2017-07-12"
   tasks:
     - name: Gather facts about all Plan Scripts
       image_streamer_plan_script_facts:
