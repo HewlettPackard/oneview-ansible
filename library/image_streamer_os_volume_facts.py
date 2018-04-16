@@ -40,7 +40,7 @@ options:
       description:
         - "List with options to gather additional facts about OS volumes.
         Options allowed:
-          C(getStorage) gets the storage details of an OS volume.
+          C(getStorage) gets the storage details of an OS volume."
       required: false
 
 extends_documentation_fragment:

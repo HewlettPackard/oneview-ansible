@@ -13,6 +13,7 @@
   * [image_streamer_deployment_plan_facts - Retrieve facts about the Image Streamer Deployment Plans.](#image_streamer_deployment_plan_facts)
   * [image_streamer_golden_image - Manage Image Streamer Golden Image resources.](#image_streamer_golden_image)
   * [image_streamer_golden_image_facts - Retrieve facts about one or more of the Image Streamer Golden Image.](#image_streamer_golden_image_facts)
+  * [image_streamer_os_volume_facts - Retrieve facts about the Image Streamer OS Volumes.](#image_streamer_os_volume_facts)
   * [image_streamer_plan_script - Manage the Image Streamer Plan Script resources.](#image_streamer_plan_script)
   * [image_streamer_plan_script_facts - Retrieve facts about the Image Streamer Plan Scripts.](#image_streamer_plan_script_facts)
   * [oneview_alert_facts - Retrieve facts about the OneView Alerts.](#oneview_alert_facts)
@@ -1099,6 +1100,105 @@ Retrieve facts about one or more of the Image Streamer Golden Image.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | golden_images   | The list of Golden Images. |  Always, but can be null. |  list |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## image_streamer_os_volume_facts
+Retrieve facts about the Image Streamer OS Volumes.
+
+#### Synopsis
+ Retrieve facts about the Image Streamer OS Volumes.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 3.0.1
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| name  |   No  |  | |  Name of the OS Volume.  |
+| options  |   No  |  | |  List with options to gather additional facts about OS volumes. Options allowed: `getStorage` gets the storage details of an OS volume.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Gather facts about all OS Volumes
+  image_streamer_os_volume_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
+  delegate_to: localhost
+- debug: var=os_volumes
+
+- name: Gather paginated, filtered and sorted facts about OS Volumes
+  image_streamer_os_volume_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
+    params:
+      start: 0
+      count: 3
+      sort: name:ascending
+      filter: status=OK
+  delegate_to: localhost
+- debug: var=os_volumes
+
+- name: Gather facts about an OS Volume by name
+  image_streamer_os_volume_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
+    name: "Test Volume"
+  delegate_to: localhost
+- debug: var=os_volumes
+
+- name: Gather facts about storage of an OS Volume
+  image_streamer_os_volume_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
+    name: "Test Volume"
+    options:
+      - getStorage
+  delegate_to: localhost
+- debug: var=storage
+
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| os_volumes   | The list of OS Volumes |  Always, but can be empty. |  list |
+| storage   | Storage details of an OS volume. |   |  dict |
 
 
 #### Notes
