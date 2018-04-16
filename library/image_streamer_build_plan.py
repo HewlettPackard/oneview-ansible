@@ -51,7 +51,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Create an OS Build Plan
   image_streamer_build_plan:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Demo OS Build Plan'
@@ -61,7 +64,10 @@ EXAMPLES = '''
 
 - name: Update the OS Build Plan description and name
   image_streamer_build_plan:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: present
     data:
       name: 'Demo OS Build Plan'
@@ -71,7 +77,10 @@ EXAMPLES = '''
 
 - name: Remove an OS Build Plan
   image_streamer_build_plan:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     state: absent
     data:
         name: 'Demo OS Build Plan'

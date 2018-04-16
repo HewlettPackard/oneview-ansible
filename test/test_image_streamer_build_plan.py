@@ -23,6 +23,34 @@ from oneview_module_loader import BuildPlanModule
 
 FAKE_MSG_ERROR = 'Fake message error'
 
+BUILD_PLAN_CREATE = dict(
+    config='config.json',
+    api_version=600,
+    state='present',
+    data=dict(
+        name='Demo OS Build Plan',
+        description="oebuildplan",
+        oeBuildPlanType="deploy"
+    ))
+
+BUILD_PLAN_UPDATE = dict(
+    config='config.json',
+    api_version=600,
+    state='present',
+    data=dict(
+        name='Demo OS Build Plan',
+        newName='OS Build Plan Renamed',
+        description="oebuildplan"
+    ))
+
+BUILD_PLAN_DELETE = dict(
+    config='config.json',
+    api_version=600,
+    state='absent',
+    data=dict(
+        name='Demo OS Build Plan',
+    ))
+
 
 @pytest.mark.resource(TestBuildPlanModule='build_plans')
 class TestBuildPlanModule(ImageStreamerBaseTest):
@@ -34,9 +62,9 @@ class TestBuildPlanModule(ImageStreamerBaseTest):
     @pytest.fixture(autouse=True)
     def specific_set_up(self):
         # Load scenarios from module examples
-        self.BUILD_PLAN_CREATE = self.EXAMPLES[0]['image_streamer_build_plan']
-        self.BUILD_PLAN_UPDATE = self.EXAMPLES[1]['image_streamer_build_plan']
-        self.BUILD_PLAN_DELETE = self.EXAMPLES[2]['image_streamer_build_plan']
+        self.BUILD_PLAN_CREATE = BUILD_PLAN_CREATE
+        self.BUILD_PLAN_UPDATE = BUILD_PLAN_UPDATE
+        self.BUILD_PLAN_DELETE = BUILD_PLAN_DELETE
 
     def test_should_create_new_build_plan(self):
         self.resource.get_by.return_value = []
@@ -73,9 +101,6 @@ class TestBuildPlanModule(ImageStreamerBaseTest):
 
     def test_should_not_update_when_data_is_equals(self):
         self.resource.get_by.return_value = [self.BUILD_PLAN_UPDATE['data']]
-
-        del self.BUILD_PLAN_UPDATE['data']['newName']
-
         self.mock_ansible_module.params = self.BUILD_PLAN_UPDATE
 
         BuildPlanModule().run()
