@@ -18,47 +18,28 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     storage_domain: 'TestDomain'
-    storage_system_name : 'ThreePAR7200-4555'
+    storage_system_name : 'ThreePAR-2'
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
-    - name: Create a Storage System with one managed pool
+    - name: Add a StoreServ Storage System with one managed pool
       oneview_storage_system:
         config: "{{ config }}"
         state: present
         data:
-            credentials:
-                ip_hostname: '{{ storage_system_ip_hostname }}'
-                username: '{{ storage_system_username }}'
-                password: '{{ storage_system_password }}'
-            managedDomain: '{{ storage_domain }}'
-            managedPools:
-              - domain: '{{ storage_domain }}'
-                type: StoragePoolV2
-                name: CPG_FC-AO
-                deviceType: FC
+          credentials:
+              username: '{{ storage_system_username }}'
+              password: '{{ storage_system_password }}'
+          hostname: '{{ storage_system_ip }}'
+          family: StoreServ
+          deviceSpecificAttributes:
+              managedDomain: '{{ storage_domain }}'
+              managedPools:
+                - name: CPG-SSD
+                  deviceType: SSD
+                  domain: TestDomain
+                  uuid: 2eda1910-15c7-4cda-a464-c9a46036473d
 
-      delegate_to: localhost
-
-    - name: Update the Storage System adding another managed pool
-      oneview_storage_system:
-        config: "{{ config }}"
-        state: present
-        data:
-            credentials:
-                ip_hostname: '{{ storage_system_ip_hostname }}'
-                username: '{{ storage_system_username }}'
-                password: '{{ storage_system_password }}'
-            managedDomain: '{{ storage_domain }}'
-            managedPools:
-              - domain: '{{ storage_domain }}'
-                type: StoragePoolV2
-                name: CPG_FC-AO
-                deviceType: FC
-              - domain: TestDomain
-                type: StoragePoolV2
-                name: CPG-SSD-AO
-                deviceType: FC
       delegate_to: localhost
 
     - name: Update the Storage System removing one managed pool using name as key
@@ -67,16 +48,14 @@
         state: present
         data:
             credentials:
-                ip_hostname: '{{ storage_system_ip_hostname }}'
                 username: '{{ storage_system_username }}'
                 password: '{{ storage_system_password }}'
             name: '{{ storage_system_name }}'
-            managedDomain: '{{ storage_domain }}'
-            managedPools:
-              - domain: '{{ storage_domain }}'
-                type: StoragePoolV2
-                name: CPG-SSD-AO
-                deviceType: FC
+            family: StoreServ
+            hostname: '{{ storage_system_ip }}'
+            deviceSpecificAttributes:
+                managedDomain: '{{ storage_domain }}'
+                managedPools: []
 
       delegate_to: localhost
 
@@ -84,9 +63,10 @@
       oneview_storage_system:
         config: "{{ config }}"
         state: absent
+        validate_etag: False
         data:
-            credentials:
-                ip_hostname: '{{ storage_system_ip_hostname }}'
+          credentials:
+              hostname: '{{ storage_system_ip }}'
       delegate_to: localhost
 
     - name: Do nothing when the storage system is already removed (by name)
