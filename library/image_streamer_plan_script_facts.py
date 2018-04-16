@@ -46,13 +46,21 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Plan Scripts
   image_streamer_plan_script_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
   delegate_to: localhost
 - debug: var=plan_scripts
 
 - name: Gather paginated, filtered and sorted facts about Plan Scripts
   image_streamer_plan_script_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
     params:
       start: 0
       count: 3
@@ -63,7 +71,11 @@ EXAMPLES = '''
 
 - name: Gather facts about a Plan Script by name
   image_streamer_plan_script_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
     name: "Demo Plan Script"
   delegate_to: localhost
 - debug: var=plan_scripts
@@ -102,7 +114,18 @@ class PlanScriptFactsModule(OneViewModuleBase):
 
         ansible_facts['plan_scripts'] = plan_scripts
 
+        if self.options:
+            ansible_facts.update(self._get_options_facts(plan_scripts))
+
         return dict(changed=False, ansible_facts=ansible_facts)
+
+    def _get_options_facts(self, plan_script):
+        options_facts = {}
+
+        if self.options.get("getUseby") and plan_script:
+            options_facts["use_by"] = self.i3s_client.plan_scripts.get_usedby_and_readonly(plan_script[0]["id"])
+
+        return options_facts
 
 
 def main():

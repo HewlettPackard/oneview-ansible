@@ -24,6 +24,23 @@ from oneview_module_loader import PlanScriptModule
 
 FAKE_MSG_ERROR = 'Fake message error'
 
+PARAMS_CREATE = {"config": "config.json",
+                 "state": "present",
+                 "data": {"name": "Demo Plan Script"}}
+
+PARAMS_UPDATE = {"config": "config.json",
+                 "state": "present",
+                 "data": {"name": "Demo Plan Script"}}
+
+PARAMS_DIFFERENCE = {"config": "config.json",
+                     "state": "differences_retrieved",
+                     "data": {"name": "Demo Plan Script",
+                              "content": "test script"}}
+
+PARAMS_DELETE = {"config": "config.json",
+                 "state": "absent",
+                 "data": {"name": "Demo Plan Script"}}
+
 
 @pytest.mark.resource(TestPlanScriptModule='plan_scripts')
 class TestPlanScriptModule(ImageStreamerBaseTest):
@@ -33,41 +50,31 @@ class TestPlanScriptModule(ImageStreamerBaseTest):
 
     @pytest.fixture(autouse=True)
     def specific_set_up(self):
-        # Load scenarios from module examples
-        self.PLAN_SCRIPT_CREATE = self.EXAMPLES[0]['image_streamer_plan_script']
-        self.PLAN_SCRIPT_UPDATE = self.EXAMPLES[1]['image_streamer_plan_script']
-        self.PLAN_SCRIPT_DIFFERENCES = self.EXAMPLES[2]['image_streamer_plan_script']
-        self.PLAN_SCRIPT_DELETE = self.EXAMPLES[4]['image_streamer_plan_script']
         self.PLAN_SCRIPT = dict(
             name="Plan Script name",
             uri="/rest/plan-scripts/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0")
 
     def test_create_new_plan_script(self):
         self.resource.get_by.return_value = []
-        self.resource.create.return_value = {"name": "name"}
+        self.resource.create.return_value = {"name": "Demo Plan Script"}
 
-        self.mock_ansible_module.params = self.PLAN_SCRIPT_CREATE
+        self.mock_ansible_module.params = PARAMS_CREATE
 
         PlanScriptModule().run()
 
-        self.resource.create.assert_called_once_with(
-            {'content': 'echo "test script"',
-             'planType': 'deploy',
-             'hpProvided': False,
-             'description': 'Description of this plan script',
-             'name': 'Demo Plan Script'})
+        self.resource.create.assert_called_once_with({'name': 'Demo Plan Script'})
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=PlanScriptModule.MSG_CREATED,
-            ansible_facts=dict(plan_script={"name": "name"})
+            ansible_facts=dict(plan_script={"name": "Demo Plan Script"})
         )
 
     def test_update_plan_script(self):
         self.resource.get_by.return_value = [self.PLAN_SCRIPT]
         self.resource.update.return_value = {"name": "name"}
 
-        self.mock_ansible_module.params = self.PLAN_SCRIPT_UPDATE
+        self.mock_ansible_module.params = PARAMS_UPDATE
 
         PlanScriptModule().run()
 
@@ -81,7 +88,7 @@ class TestPlanScriptModule(ImageStreamerBaseTest):
         self.resource.get_by.return_value = [self.PLAN_SCRIPT]
         self.resource.retrieve_differences.return_value = {"differences": []}
 
-        self.mock_ansible_module.params = self.PLAN_SCRIPT_DIFFERENCES
+        self.mock_ansible_module.params = PARAMS_DIFFERENCE
 
         PlanScriptModule().run()
 
@@ -92,21 +99,21 @@ class TestPlanScriptModule(ImageStreamerBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by.return_value = [self.PLAN_SCRIPT_UPDATE['data']]
-        self.mock_ansible_module.params = self.PLAN_SCRIPT_UPDATE
+        self.resource.get_by.return_value = [PARAMS_UPDATE['data']]
+        self.mock_ansible_module.params = PARAMS_UPDATE
 
         PlanScriptModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=PlanScriptModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(plan_script=self.PLAN_SCRIPT_UPDATE['data'])
+            ansible_facts=dict(plan_script=PARAMS_UPDATE['data'])
         )
 
     def test_delete_plan_script(self):
         self.resource.get_by.return_value = [self.PLAN_SCRIPT]
 
-        self.mock_ansible_module.params = self.PLAN_SCRIPT_DELETE
+        self.mock_ansible_module.params = PARAMS_DELETE
 
         PlanScriptModule().run()
 
@@ -118,7 +125,7 @@ class TestPlanScriptModule(ImageStreamerBaseTest):
     def test_should_do_nothing_when_deleting_a_non_existent_plan_script(self):
         self.resource.get_by.return_value = []
 
-        self.mock_ansible_module.params = self.PLAN_SCRIPT_DELETE
+        self.mock_ansible_module.params = PARAMS_DELETE
 
         PlanScriptModule().run()
 
@@ -130,9 +137,9 @@ class TestPlanScriptModule(ImageStreamerBaseTest):
     def test_should_fail_when_mandatory_attributes_are_missing(self):
         self.resource.get_by.return_value = []
 
-        del self.PLAN_SCRIPT_DIFFERENCES['data']['content']
+        del PARAMS_DIFFERENCE['data']['content']
 
-        self.mock_ansible_module.params = self.PLAN_SCRIPT_DIFFERENCES
+        self.mock_ansible_module.params = PARAMS_DIFFERENCE
 
         PlanScriptModule().run()
 
