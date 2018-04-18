@@ -46,6 +46,17 @@
 
     - debug: var=os_volumes
 
+    - name: Get archived logs of an OS volume
+      image_streamer_os_volume_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - getArchivedLogs:
+            file_path: './archived.logs'
+      delegate_to: localhost
+
+    - debug: var=log_file_path
+
     - name: Gather facts about storage of an OS volume
       image_streamer_os_volume_facts:
         config: "{{ config }}"
