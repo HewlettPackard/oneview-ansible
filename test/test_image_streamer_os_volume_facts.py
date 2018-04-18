@@ -27,8 +27,13 @@ PARAMS_GET_ALL = {"config": "config.json"}
 
 PARAMS_GET_BY_NAME = {"config": "config.json", "name": "Test OS Volume"}
 
-PARAMS_GET_STORAGE = {"config": "config.json", "name": "Test OS Volume",
-                      "options": ["getStorage"]}
+PARAMS_GET_STORAGE = {"config": "config.json",
+                      "name": "Test OS Volume",
+                      "options": [{"getStorage": True}]}
+
+PARAMS_GET_LOGS = {"config": "config.json",
+                   "name": "Test OS Volume",
+                   "options": [{"getArchivedLogs": {"file_path": "fake"}}]}
 
 
 @pytest.mark.resource(TestOsVolumeFactsModule='os_volumes')
@@ -63,6 +68,19 @@ class TestOsVolumeFactsModule(ImageStreamerBaseFactsTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(os_volumes=[self.OS_VOLUME])
+        )
+
+    def test_get_archived_log(self):
+        self.resource.get_by.return_value = [self.OS_VOLUME]
+        self.resource.download_archived.return_value = 'fake'
+
+        self.mock_ansible_module.params = PARAMS_GET_LOGS
+
+        OsVolumeFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(os_volumes=[self.OS_VOLUME], log_file_path="fake")
         )
 
     def test_get_storage(self):

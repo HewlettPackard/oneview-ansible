@@ -1188,6 +1188,20 @@ Retrieve facts about the Image Streamer OS Volumes.
   delegate_to: localhost
 - debug: var=storage
 
+- name: Get archived logs of the OS volume
+  image_streamer_os_volume_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
+    name: "Test Volume"
+    options:
+        - getArchivedLogs:
+          file_path: './archived.logs'
+  delegate_to: localhost
+- debug: var=log_file_path
+
 
 ```
 

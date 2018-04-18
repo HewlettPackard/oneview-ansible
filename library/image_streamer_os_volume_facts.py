@@ -98,6 +98,20 @@ EXAMPLES = '''
   delegate_to: localhost
 - debug: var=storage
 
+- name: Get archived logs of the OS volume
+  image_streamer_os_volume_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
+    name: "Test Volume"
+    options:
+        - getArchivedLogs:
+          file_path: './archived.logs'
+  delegate_to: localhost
+- debug: var=log_file_path
+
 '''
 
 RETURN = '''
@@ -144,7 +158,9 @@ class OsVolumeFactsModule(OneViewModuleBase):
 
         if self.options.get("getStorage"):
             options_facts["storage"] = self.i3s_client.os_volumes.get_storage(os_volume[0]["uri"])
-
+        if self.options.get("getArchivedLogs"):
+            self.i3s_client.os_volumes.download_archive(os_volume[0]["name"])
+            options_facts["log_file_path"] = self.options["getArchivedLogs"]["file_path"]
         return options_facts
 
 
