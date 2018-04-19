@@ -1130,7 +1130,7 @@ Retrieve facts about the Image Streamer OS Volumes.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the OS Volume.  |
-| options  |   No  |  | |  List with options to gather additional facts about OS volumes. Options allowed: `getStorage` gets the storage details of an OS volume.  |
+| options  |   No  |  | |  List with options to gather additional facts about OS volumes. Options allowed: `getStorage` gets the storage details of an OS volume `getArchivedLogs` gets the archived logs of an OS volume  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
@@ -1197,7 +1197,7 @@ Retrieve facts about the Image Streamer OS Volumes.
     image_streamer_hostname: 172.16.101.48
     name: "Test Volume"
     options:
-        - getArchivedLogs:
+      - getArchivedLogs:
           file_path: './archived.logs'
   delegate_to: localhost
 - debug: var=log_file_path
@@ -1211,6 +1211,7 @@ Retrieve facts about the Image Streamer OS Volumes.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
+| log_file_path   | OS volume archived log file path |   |  str |
 | os_volumes   | The list of OS Volumes |  Always, but can be empty. |  list |
 | storage   | Storage details of an OS volume. |   |  dict |
 

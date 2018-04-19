@@ -40,7 +40,8 @@ options:
       description:
         - "List with options to gather additional facts about OS volumes.
         Options allowed:
-          C(getStorage) gets the storage details of an OS volume."
+          C(getStorage) gets the storage details of an OS volume
+          C(getArchivedLogs) gets the archived logs of an OS volume"
       required: false
 
 extends_documentation_fragment:
@@ -122,6 +123,9 @@ os_volumes:
 storage:
     description: Storage details of an OS volume.
     type: dict
+log_file_path:
+    description: OS volume archived log file path
+    type: str
 '''
 from ansible.module_utils.oneview import OneViewModuleBase
 
