@@ -52,7 +52,7 @@
         name: "{{ name }}"
         options:
           - getArchivedLogs:
-            file_path: './archived.logs'
+              file_path: './archived.logs'
       delegate_to: localhost
 
     - debug: var=log_file_path
