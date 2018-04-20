@@ -1130,6 +1130,7 @@ Retrieve facts about the Image Streamer OS Volumes.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Name of the OS Volume.  |
+| options  |   No  |  | |  List with options to gather additional facts about OS volumes. Options allowed: `getStorage` gets the storage details of an OS volume `getArchivedLogs` gets the archived logs of an OS volume  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
@@ -1140,30 +1141,67 @@ Retrieve facts about the Image Streamer OS Volumes.
 
 - name: Gather facts about all OS Volumes
   image_streamer_os_volume_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
   delegate_to: localhost
-
 - debug: var=os_volumes
 
 - name: Gather paginated, filtered and sorted facts about OS Volumes
   image_streamer_os_volume_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
     params:
       start: 0
       count: 3
       sort: name:ascending
       filter: status=OK
   delegate_to: localhost
-
 - debug: var=os_volumes
 
 - name: Gather facts about an OS Volume by name
   image_streamer_os_volume_facts:
-    config: "{{ config_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
     name: "Test Volume"
   delegate_to: localhost
-
 - debug: var=os_volumes
+
+- name: Gather facts about storage of an OS Volume
+  image_streamer_os_volume_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
+    name: "Test Volume"
+    options:
+      - getStorage
+  delegate_to: localhost
+- debug: var=storage
+
+- name: Get archived logs of the OS volume
+  image_streamer_os_volume_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
+    image_streamer_hostname: 172.16.101.48
+    name: "Test Volume"
+    options:
+      - getArchivedLogs:
+          file_path: './archived.logs'
+  delegate_to: localhost
+- debug: var=log_file_path
+
 
 ```
 
@@ -1173,7 +1211,9 @@ Retrieve facts about the Image Streamer OS Volumes.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
+| log_file_path   | OS volume archived log file path |   |  str |
 | os_volumes   | The list of OS Volumes |  Always, but can be empty. |  list |
+| storage   | Storage details of an OS volume. |   |  dict |
 
 
 #### Notes
