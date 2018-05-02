@@ -176,7 +176,7 @@ Setting `no_log: true` is highly recommended in this case, as the credentials ar
 
 ### 4. Setting your OneView version
 
-The Ansible modules for HPE OneView support the API endpoints for HPE OneView 2.0, 3.0 and 3.10.
+The Ansible modules for HPE OneView support the API endpoints for HPE OneView 2.0, 3.0, 3.10 and 4.0.
 
 The current `default` HPE OneView version used by the modules is `3.00`, API `300`.
 
