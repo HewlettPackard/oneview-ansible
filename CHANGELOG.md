@@ -1,4 +1,12 @@
 # Ansible Modules for HPE OneView Change Log
+
+## v5.1.1(unreleased)
+
+This release achieves the planned support for the OneView REST API v600
+
+#### Modules supported
+- oneview_alert_facts
+
 ## v5.1.0
 
 This release achieves the planned support for the OneView REST API v600 and HPE Image Streamer.
