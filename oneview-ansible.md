@@ -1441,7 +1441,10 @@ Retrieve facts about the OneView Alerts.
 
 - name: Gather facts about the last 2 alerts
   oneview_alert_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       count: 2
 
@@ -1449,7 +1452,10 @@ Retrieve facts about the OneView Alerts.
 
 - name: Gather facts about the alerts with state 'Cleared'
   oneview_alert_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       count: 2
       filter: "alertState='Cleared'"
@@ -1458,7 +1464,10 @@ Retrieve facts about the OneView Alerts.
 
 - name: Gather facts about the alerts with urgency 'High'
   oneview_alert_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 600
     params:
       count: 5
       filter: "urgency='High'"
