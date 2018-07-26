@@ -1387,7 +1387,7 @@ class TestServerProfileReplaceNamesByUris():
         expected_dict['sanStorage']['volumeAttachments'][0] = {"id": 1, "volumeName": "volume1", "volumeUri": None}
         expected_dict['sanStorage']['volumeAttachments'][1] = {"id": 2, "volumeUri": "/rest/storage-volumes/2"}
 
-        self.mock_ov_client.volumes.get_by.return_value = [volume2]
+        self.mock_ov_client.volumes.get_by.side_effect = [{}, [volume2]]
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
@@ -1429,23 +1429,6 @@ class TestServerProfileReplaceNamesByUris():
 
         assert sp_data == expected_dict
         self.mock_ov_client.volumes.get_by.assert_not_called()
-
-    def test_should_fail_when_volume_name_not_found(self):
-        sp_data = deepcopy(self.BASIC_PROFILE)
-        sp_data['sanStorage'] = {
-            "volumeAttachments": [
-                {"id": 1, "volumeName": "volume1"}
-            ]}
-
-        expected_error = ServerProfileReplaceNamesByUris.VOLUME_NOT_FOUND + "volume1"
-        self.mock_ov_client.volumes.get_by.return_value = []
-
-        try:
-            ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
-        except OneViewModuleResourceNotFound as e:
-            assert e.msg == expected_error
-        else:
-            pytest.fail(msg="Expected Exception was not raised")
 
     def test_should_replace_storage_pool_names_by_uri(self):
         pool1 = {"name": "pool1", "uri": "/rest/storage-pools/1"}

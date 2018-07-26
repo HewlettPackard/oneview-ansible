@@ -765,22 +765,6 @@ class TestServerProfileModule(OneViewBaseTest):
         assert(args[0] == expected_dict)
         self.mock_ov_client.volumes.get_by.assert_not_called()
 
-    def test_should_fail_when_volume_name_not_found(self):
-        params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data']['sanStorage'] = {
-            "volumeAttachments": [
-                {"id": 1, "volumeName": "volume1"}
-            ]}
-
-        self.resource.get_by_name.return_value = None
-        self.mock_ov_client.volumes.get_by.return_value = []
-        self.mock_ansible_module.params = params
-
-        ServerProfileModule().run()
-
-        expected_error = ServerProfileReplaceNamesByUris.VOLUME_NOT_FOUND + "volume1"
-        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=expected_error)
-
     def test_should_replace_storage_pool_names_by_uri(self):
         pool1 = {"name": "pool1", "uri": "/rest/storage-pools/1"}
         pool2 = {"name": "pool2", "uri": "/rest/storage-pools/2"}
