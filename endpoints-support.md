@@ -28,8 +28,7 @@
 |     **Appliance Time and Locale Configuration**                                                                                                                                   |
 |<sub>/rest/appliance/configuration/time-locale</sub>                                     |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/appliance/configuration/time-locale</sub>                                     |POST      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
-| 
-|     **Connection Templates**                                                                                                                      |
+|    **Connection Templates**                                                                                                                      |
 |<sub>/rest/connection-templates</sub>                                                    |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/connection-templates/defaultConnectionTemplate</sub>                          |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/connection-templates/{id}</sub>                                               |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
