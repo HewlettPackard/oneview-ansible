@@ -338,7 +338,8 @@ class OneViewModuleBase(object):
         hostname=dict(type='str'),
         image_streamer_hostname=dict(type='str'),
         password=dict(type='str', no_log=True),
-        username=dict(type='str')
+        username=dict(type='str'),
+        auth_login_domain=dict(type='str')
     )
 
     ONEVIEW_VALIDATE_ETAG_ARGS = dict(validate_etag=dict(type='bool', default=True))
@@ -390,7 +391,8 @@ class OneViewModuleBase(object):
     def _create_oneview_client(self):
         if self.module.params.get('hostname'):
             config = dict(ip=self.module.params['hostname'],
-                          credentials=dict(userName=self.module.params['username'], password=self.module.params['password']),
+                          credentials=dict(userName=self.module.params['username'], password=self.module.params['password'],
+                                           authLoginDomain=self.module.params.get('auth_login_domain', '')),
                           api_version=self.module.params['api_version'],
                           image_streamer_ip=self.module.params['image_streamer_hostname'])
             self.oneview_client = OneViewClient(config)
