@@ -139,7 +139,7 @@ logical_interconnect_group:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, OneViewModuleValueError
 
 
 class LogicalInterconnectGroupModule(OneViewModuleBase):
@@ -149,6 +149,9 @@ class LogicalInterconnectGroupModule(OneViewModuleBase):
     MSG_ALREADY_PRESENT = 'Logical Interconnect Group is already present.'
     MSG_ALREADY_ABSENT = 'Logical Interconnect Group is already absent.'
     MSG_INTERCONNECT_TYPE_NOT_FOUND = 'Interconnect Type was not found.'
+    MSG_ETHERNET_NETWORK_NOT_FOUND = 'Ethernet Network not found: '
+    MSG_FC_NETWORK_NOT_FOUND = 'Fibre Channel Network not found: '
+    MSG_INVALID_NETWORK_TYPE = 'Invalid Network Type: '
 
     RESOURCE_FACT_NAME = 'logical_interconnect_group'
 
@@ -174,6 +177,7 @@ class LogicalInterconnectGroupModule(OneViewModuleBase):
         scope_uris = self.data.pop('scopeUris', None)
 
         self.__replace_name_by_uris(self.data)
+        self.__replace_network_name_by_uri(self.data)
         result = self.resource_present(resource, self.RESOURCE_FACT_NAME)
 
         if scope_uris is not None:
@@ -199,6 +203,42 @@ class LogicalInterconnectGroupModule(OneViewModuleBase):
             return i_type[0]
         else:
             raise OneViewModuleResourceNotFound(self.MSG_INTERCONNECT_TYPE_NOT_FOUND)
+
+    def __get_ethernet_network_by_name(self, name):
+        result = self.oneview_client.ethernet_networks.get_by('name', name)
+        return result[0] if result else None
+
+    def __get_fc_network_by_name(self, name):
+        result = self.oneview_client.fc_networks.get_by('name', name)
+        return result[0] if result else None
+
+    def __get_network_uri(self, network_name_or_uri, network_type):
+        if network_type == 'Ethernet':
+            if network_name_or_uri.startswith('/rest/ethernet-networks'):
+                return network_name_or_uri
+            else:
+                enet_network = self.__get_ethernet_network_by_name(network_name_or_uri)
+                if enet_network:
+                    return enet_network['uri']
+                else:
+                    raise OneViewModuleResourceNotFound(self.MSG_ETHERNET_NETWORK_NOT_FOUND + network_name_or_uri)
+        elif network_type == 'FibreChannel':
+            if network_name_or_uri.startswith('/rest/fc-networks'):
+                return network_name_or_uri
+            else:
+                fc_network = self.__get_fc_network_by_name(network_name_or_uri)
+                if fc_network:
+                    return fc_network['uri']
+                else:
+                    raise OneViewModuleResourceNotFound(self.MSG_FC_NETWORK_NOT_FOUND + network_name_or_uri)
+        else:
+            raise OneViewModuleValueError(self.MSG_INVALID_NETWORK_TYPE + network_type)
+
+    def __replace_network_name_by_uri(self, data):
+        if 'uplinkSets' in data:
+            for uplinkSet in data['uplinkSets']:
+                if 'networkUris' in uplinkSet:
+                    uplinkSet['networkUris'] = [self.__get_network_uri(x, uplinkSet['networkType']) for x in uplinkSet['networkUris']]
 
 
 def main():
