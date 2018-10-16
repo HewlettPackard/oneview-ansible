@@ -78,6 +78,7 @@ class TestOneViewModuleBase():
                          'image_streamer_hostname': {'type': 'str'},
                          'password': {'type': 'str', 'no_log': True},
                          'username': {'type': 'str'},
+                         'auth_login_domain': {'type': 'str'},
                          'validate_etag': {'type': 'bool', 'default': True}}
 
     @pytest.fixture(autouse=True)
@@ -170,7 +171,22 @@ class TestOneViewModuleBase():
         params = {'hostname': '172.16.1.1', 'username': 'admin', 'password': 'mypass', 'api_version': 500,
                   'image_streamer_hostname': '172.16.1.2'}
         params_for_expect = {'image_streamer_ip': '172.16.1.2', 'api_version': 500, 'ip': '172.16.1.1',
-                             'credentials': {'userName': 'admin', 'password': 'mypass'}}
+                             'credentials': {'userName': 'admin', 'password': 'mypass', 'authLoginDomain': ''}}
+        self.mock_ansible_module.params = params
+
+        with mock.patch('module_utils.oneview.OneViewClient', first='one', second='two') as mock_ov_client_from_credentials:
+            OneViewModuleBase()
+
+        self.mock_ov_client_from_env_vars.not_been_called()
+        self.mock_ov_client_from_json_file.not_been_called()
+        mock_ov_client_from_credentials.assert_called_once_with(params_for_expect)
+
+    def test_should_load_config_from_parameters_with_domain(self):
+
+        params = {'hostname': '172.16.1.1', 'username': 'admin', 'password': 'mypass', 'api_version': 500,
+                  'image_streamer_hostname': '172.16.1.2', 'auth_login_domain': 'ADDomain'}
+        params_for_expect = {'image_streamer_ip': '172.16.1.2', 'api_version': 500, 'ip': '172.16.1.1',
+                             'credentials': {'userName': 'admin', 'password': 'mypass', 'authLoginDomain': 'ADDomain'}}
         self.mock_ansible_module.params = params
 
         with mock.patch('module_utils.oneview.OneViewClient', first='one', second='two') as mock_ov_client_from_credentials:
