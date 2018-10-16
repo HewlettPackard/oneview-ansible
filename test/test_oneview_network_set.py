@@ -119,6 +119,18 @@ class TestNetworkSetModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(
             exception=mock.ANY, msg=NetworkSetModule.MSG_ETHERNET_NETWORK_NOT_FOUND + "Name of a Network")
 
+    def test_should_raise_exception_when_native_ethernet_network_not_found(self):
+        self.resource.get_by.side_effect = [NETWORK_SET], []
+        self.mock_ov_client.ethernet_networks.get_by.return_value = []
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES.copy()
+        self.mock_ansible_module.params['data']['networkUris'] = ['/rest/ethernet-networks/aaa-bbb-ccc']
+        self.mock_ansible_module.params['data']['nativeNetworkUri'] = 'Name of a Native Network'
+
+        NetworkSetModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY, msg=NetworkSetModule.MSG_ETHERNET_NETWORK_NOT_FOUND + "Name of a Native Network")
+
     def test_should_remove_network(self):
         self.resource.get_by.return_value = [NETWORK_SET]
 
