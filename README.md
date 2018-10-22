@@ -62,7 +62,9 @@ Sample playbooks and instructions on how to run the modules can be found in the 
 
 ## Setup
 
-To run the Ansible modules provided in this project, you should execute the following steps:
+To run the Ansible modules provided in this project, you may run a containerized version or perform a full installation. The containerized version of the `oneview-ansible` modules is available in the [Docker Store](https://store.docker.com/community/images/hewlettpackardenterprise/oneview-ansible-debian). There is also a [how-to guide](https://github.com/HewlettPackard/oneview-ansible-samples/blob/master/oneview-ansible-in-container/oneview-ansible-in-container.md) with instructions on how to use the container.
+
+To perform a full installation, you should execute the following steps:
 
 ### 1. Clone the repository
 
