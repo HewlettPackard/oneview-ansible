@@ -1,5 +1,16 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v5.1.3
+
+#### Notes
+Added the capability to handle OneView Appliance SNMP Settings
+
+#### Modules added
+- oneview_appliance_device_read_community
+- oneview_appliance_device_snmp_v1_trap_destinations
+- oneview_appliance_device_snmp_v3_trap_destinations
+- oneview_appliance_device_snmp_v3_users
+
 ## v5.1.2 (Unreleased)
 
 This release adds the [endpoints-support.md](endpoints-support.md) file.
