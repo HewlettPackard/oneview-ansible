@@ -22,6 +22,7 @@ import re
 import yaml
 
 from mock import mock
+from distutils.version import StrictVersion
 
 
 class OneViewBaseTest(object):
@@ -30,7 +31,10 @@ class OneViewBaseTest(object):
     @pytest.fixture(autouse=True)
     def setUp(self, mock_ansible_module, mock_ov_client, request, testing_module):
         class_name = type(self).__name__
-        marker = request.node.get_marker('resource')
+        if StrictVersion(pytest.__version__) < StrictVersion("3.6"):
+            marker = request.node.get_marker('resource')
+        else:
+            marker = request.node.get_closest_marker('resource')
         self.resource = getattr(mock_ov_client, "%s" % (marker.kwargs[class_name]))
         self.mock_ov_client = mock_ov_client
         self.mock_ansible_module = mock_ansible_module
