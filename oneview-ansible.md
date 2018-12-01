@@ -17,6 +17,14 @@
   * [image_streamer_plan_script - Manage the Image Streamer Plan Script resources.](#image_streamer_plan_script)
   * [image_streamer_plan_script_facts - Retrieve facts about the Image Streamer Plan Scripts.](#image_streamer_plan_script_facts)
   * [oneview_alert_facts - Retrieve facts about the OneView Alerts.](#oneview_alert_facts)
+  * [oneview_appliance_device_read_community - Manage the Appliance Device Read Community string.](#oneview_appliance_device_read_community)
+  * [oneview_appliance_device_read_community_facts - Retrieve the facts about the OneView appliance device read community.](#oneview_appliance_device_read_community_facts)
+  * [oneview_appliance_device_snmp_v1_trap_destinations - Manage the Appliance Device SNMPv1 Trap Destinations.](#oneview_appliance_device_snmp_v1_trap_destinations)
+  * [oneview_appliance_device_snmp_v1_trap_destinations_facts - Retrieve the facts about the OneView appliance SNMPv1 trap forwarding destinations.](#oneview_appliance_device_snmp_v1_trap_destinations_facts)
+  * [oneview_appliance_device_snmp_v3_trap_destinations - Manage the Appliance Device SNMPv3 Trap Destinations.](#oneview_appliance_device_snmp_v3_trap_destinations)
+  * [oneview_appliance_device_snmp_v3_trap_destinations_facts - Retrieve the facts about the OneView appliance SNMPv3 trap forwarding destinations.](#oneview_appliance_device_snmp_v3_trap_destinations_facts)
+  * [oneview_appliance_device_snmp_v3_users - Manage the Appliance Device SNMPv3 Users.](#oneview_appliance_device_snmp_v3_users)
+  * [oneview_appliance_device_snmp_v3_users_facts - Retrieve the facts about the OneView appliance SNMPv3 users.](#oneview_appliance_device_snmp_v3_users_facts)
   * [oneview_appliance_time_and_locale_configuration - Manage OneView Appliance Locale and Time Configuration.](#oneview_appliance_time_and_locale_configuration)
   * [oneview_appliance_time_and_locale_configuration_facts - Retrieve the facts about the OneView appliance time and locale configuration.](#oneview_appliance_time_and_locale_configuration_facts)
   * [oneview_connection_template - Manage the OneView Connection Template resources.](#oneview_connection_template)
@@ -263,14 +271,14 @@ Manage the Artifact Bundle resource.
  Provides an interface to manage the Artifact Bundle. Can create, update, remove, and download, upload, extract
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Artifact Bundle properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>downloaded</li>  <li>archive_downloaded</li>  <li>backup_uploaded</li>  <li>backup_created</li>  <li>extracted</li>  <li>backup_extracted</li> </ul> |  Indicates the desired state for the Artifact Bundle resource. `present` will ensure data properties are compliant with OneView. When the artifact bundle already exists, only the name is updated. Changes in any other attribute value is ignored. `absent` will remove the resource from OneView, if it exists. `downloaded` will download the Artifact Bundle to the file path provided. `archive_downloaded` will download the Artifact Bundle archive to the file path provided. `backup_uploaded` will upload the Backup for the Artifact Bundle from the file path provided. `backup_created` will create a Backup for the Artifact Bundle. `extracted` will extract an Artifact Bundle. `backup_extracted` will extract an Artifact Bundle from the Backup.  |
 
@@ -388,6 +396,8 @@ Manage the Artifact Bundle resource.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -399,17 +409,17 @@ Retrieve facts about the Artifact Bundle.
  Retrieve facts about the Artifact Bundle.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Name of the Artifact Bundle.  |
 | options  |   No  |  | |  List with options to gather additional facts about the Artifact Bundle. Options allowed: `allBackups` gets the list of backups for the Artifact Bundles. `backupForAnArtifactBundle` gets the list of backups for the Artifact Bundle.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -482,6 +492,8 @@ Retrieve facts about the Artifact Bundle.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -493,14 +505,14 @@ Manages Image Stream OS Build Plan resources.
  Provides an interface to manage Image Stream OS Build Plans. Can create, update, and remove.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with OS Build Plan properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the OS Build Plan resource. `present` will ensure data properties are compliant with Synergy Image Streamer. `absent` will remove the resource from Synergy Image Streamer, if it exists.  |
 
@@ -566,6 +578,8 @@ Manages Image Stream OS Build Plan resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -577,16 +591,16 @@ Retrieve facts about one or more of the Image Streamer Build Plans.
  Retrieve facts about one or more of the Image Streamer Build Plans.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Build Plan name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -646,6 +660,8 @@ Retrieve facts about one or more of the Image Streamer Build Plans.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -657,16 +673,16 @@ Retrieve facts about the Image Streamer Deployment Groups.
  Retrieve facts about the Image Streamer Deployment Groups.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Name of the Deployment Group.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -720,6 +736,8 @@ Retrieve facts about the Image Streamer Deployment Groups.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -731,14 +749,14 @@ Manage Image Streamer Deployment Plan resources.
  Provides an interface to manage Image Streamer Deployment Plans. Can create, update, and remove.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Deployment Plan properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Deployment Plan resource. `present` will ensure data properties are compliant with Synergy Image Streamer. `absent` will remove the resource from Synergy Image Streamer, if it exists.  |
 
@@ -805,6 +823,8 @@ Manage Image Streamer Deployment Plan resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -816,16 +836,16 @@ Retrieve facts about the Image Streamer Deployment Plans.
  Retrieve facts about one or more of the Image Streamer Deployment Plans.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.5.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Deployment Plan name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -907,6 +927,8 @@ Retrieve facts about the Image Streamer Deployment Plans.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -918,14 +940,14 @@ Manage Image Streamer Golden Image resources.
  Provides an interface to manage Image Streamer Golden Image. Can create, add, update, and remove.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Golden Image properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>downloaded</li>  <li>archive_downloaded</li> </ul> |  Indicates the desired state for the Golden Image resource. `present` will ensure data properties are compliant with Synergy Image Streamer. `absent` will remove the resource from Synergy Image Streamer, if it exists. `downloaded` will download the Golden Image to the file path provided. `archive_downloaded` will download the Golden Image archive to the file path provided.  |
 
@@ -1030,6 +1052,8 @@ Manage Image Streamer Golden Image resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -1041,16 +1065,16 @@ Retrieve facts about one or more of the Image Streamer Golden Image.
  Retrieve facts about one or more of the Image Streamer Golden Image.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Golden Image name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -1110,6 +1134,8 @@ Retrieve facts about one or more of the Image Streamer Golden Image.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -1121,17 +1147,17 @@ Retrieve facts about the Image Streamer OS Volumes.
  Retrieve facts about the Image Streamer OS Volumes.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Name of the OS Volume.  |
 | options  |   No  |  | |  List with options to gather additional facts about OS volumes. Options allowed: `getStorage` gets the storage details of an OS volume `getArchivedLogs` gets the archived logs of an OS volume  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -1224,6 +1250,8 @@ Retrieve facts about the Image Streamer OS Volumes.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -1235,14 +1263,14 @@ Manage the Image Streamer Plan Script resources.
  Provides an interface to manage the Image Streamer Plan Script. Can create, update, and remove.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Plan Script properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>differences_retrieved</li> </ul> |  Indicates the desired state for the Plan Script resource. `present` will ensure data properties are compliant with Synergy Image Streamer. `absent` will remove the resource from Synergy Image Streamer, if it exists. `differences_retrieved` will retrieve the modified contents of the Plan Script as per the selected attributes.  |
 
@@ -1329,6 +1357,8 @@ Manage the Image Streamer Plan Script resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -1340,16 +1370,16 @@ Retrieve facts about the Image Streamer Plan Scripts.
  Retrieve facts about one or more of the Image Streamer Plan Script.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Plan Script name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -1412,6 +1442,8 @@ Retrieve facts about the Image Streamer Plan Scripts.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -1423,14 +1455,14 @@ Retrieve facts about the OneView Alerts.
  Retrieve facts about the OneView Alerts.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | params  |   No  |  | |  List with parameters to help filter the alerts. Params allowed: `count`, `fields`, `filter`, `query`, `sort`, `start`, and `view`.  |
 
 
@@ -1493,6 +1525,617 @@ Retrieve facts about the OneView Alerts.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
+
+---
+
+
+## oneview_appliance_device_read_community
+Manage the Appliance Device Read Community string.
+
+#### Synopsis
+ Provides an interface to manage the Appliance Device Read Community string. It can only update it. This results in an update of the community string on all servers being managed/monitored by this OneView instance. The supported characters for community string are aA-zA, 0-9, !, ",
+
+#### Requirements (on the host that executes the module)
+  * hpOneView >= 4.7.2
+  * python >= 2.7.9
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+| data  |   Yes  |  | |  List with the Appliance Device Read Community.  |
+| state  |   |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Appliance Device Read Community. `present` ensures data properties are compliant with OneView.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Ensure that the Appliance Device Read Community is present with Community String 'public'
+  oneview_appliance_device_read_community:
+    config: "{{ config }}"
+    state: present
+    data:
+      communityString: 'public'
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_read_community
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_device_read_community   | Has all the OneView facts about the OneView Appliance Device Read Community. |  Always. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
+
+---
+
+
+## oneview_appliance_device_read_community_facts
+Retrieve the facts about the OneView appliance device read community.
+
+#### Synopsis
+ Retrieve the facts about the OneView appliance device read community.
+
+#### Requirements (on the host that executes the module)
+  * hpOneView >= 4.7.2
+  * python >= 2.7.9
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Gather facts about the Appliance snmp configuration
+  oneview_appliance_device_read_community_facts:
+    config: "{{ config_file_path }}"
+
+- debug:
+    var: appliance_device_read_community
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_device_read_community   | Has all the OneView facts about the OneView appliance device read community. |  Always. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
+
+---
+
+
+## oneview_appliance_device_snmp_v1_trap_destinations
+Manage the Appliance Device SNMPv1 Trap Destinations.
+
+#### Synopsis
+ Provides an interface to manage the Appliance Device SNMPv1 Trap Destinations.
+
+#### Requirements (on the host that executes the module)
+  * hpOneView >= 4.7.2
+  * python >= 2.7.9
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+| data  |   Yes  |  | |  List with the SNMPv1 Trap Destination properties  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Appliance Device SNMPv1 Trap Destinations. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Create or Update an Appliance Device SNMPv1 Trap Destination by Destination Address
+  oneview_appliance_device_snmp_v1_trap_destinations:
+    config: "{{ config }}"
+    state: present
+    data:
+      communityString: "public"
+      destination: "10.0.0.1"
+      port: 162
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v1_trap_destinations
+
+- name: Create or Update an Appliance Device SNMPv1 Trap Destination by URI
+  oneview_appliance_device_snmp_v1_trap_destinations:
+    config: "{{ config }}"
+    state: present
+    data:
+      communityString: "private"
+      uri: "/rest/appliance/trap-destinations/1"
+      port: 162
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v1_trap_destinations
+
+- name: Delete an Appliance Device SNMPv1 Trap Destination by Destination Address
+  oneview_appliance_device_snmp_v1_trap_destinations:
+    config: "{{ config }}"
+    state: absent
+    data:
+      destination: "10.0.0.1"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v1_trap_destinations
+
+- name: Delete an Appliance Device SNMPv1 Trap Destination by URI
+  oneview_appliance_device_snmp_v1_trap_destinations:
+    config: "{{ config }}"
+    state: absent
+    data:
+        uri: "/rest/appliance/trap-destinations/1"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v1_trap_destinations
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_device_snmp_v1_trap_destinations   | Has all the OneView facts about the OneView appliance SNMPv1 trap forwarding destinations. |  On state 'present'. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
+
+---
+
+
+## oneview_appliance_device_snmp_v1_trap_destinations_facts
+Retrieve the facts about the OneView appliance SNMPv1 trap forwarding destinations.
+
+#### Synopsis
+ The appliance has the ability to forward events received from monitored or managed server hardware to the specified destinations as SNMPv1 traps. This module retrives the facts about the appliance SNMPv1 trap forwarding destinations.
+
+#### Requirements (on the host that executes the module)
+  * hpOneView >= 4.7.2
+  * python >= 2.7.9
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+| id  |   No  |  | |  ID or URI of trap destination.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Gather facts about all appliance SNMPv1 trap forwarding destinations.
+  oneview_appliance_device_snmp_v1_trap_destinations_facts:
+    config: "{{ config_file_path }}"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v1_trap_destinations
+
+- name: Gather paginated, filtered and sorted facts about SNMPv1 trap forwarding destinations
+  oneview_appliance_device_snmp_v1_trap_destinations_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'destination:descending'
+      filter: "port='162'"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v1_trap_destinations
+
+- name: Gather facts about a Trap Destination by Destination
+  oneview_appliance_device_snmp_v1_trap_destinations_facts:
+    config: "{{ config }}"
+    destination: '1.1.1.1'
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v1_trap_destinations
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_device_snmp_v1_trap_destinations   | Has all the OneView facts about the OneView appliance SNMPv1 trap forwarding destinations. |  Always. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
+
+---
+
+
+## oneview_appliance_device_snmp_v3_trap_destinations
+Manage the Appliance Device SNMPv3 Trap Destinations.
+
+#### Synopsis
+ Provides an interface to manage the Appliance Device SNMPv3 Trap Destinations.
+
+#### Requirements (on the host that executes the module)
+  * hpOneView >= 4.7.2
+  * python >= 2.7.9
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+| data  |   Yes  |  | |  List with the SNMPv3 Trap Destinations properties  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Appliance Device SNMPv3 Trap Destinations. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Ensure that the SNMPv3 Trap Destination is present
+  oneview_appliance_device_snmp_v3_trap_destinations:
+    config: "{{ config }}"
+    state: present
+    data:
+        type: "Destination"
+        destinationAddress: "10.0.0.1"
+        port: 162
+        userId: "8e57d829-2f17-4167-ae23-8fb46607c76c"
+  delegate_to: localhost
+
+- debug:
+    var: oneview_appliance_device_snmp_v3_trap_destinations
+
+- name: Update the userId of specified SNMPv3 Trap Destination
+  oneview_appliance_device_snmp_v3_trap_destinations:
+    config: "{{ config }}"
+    state: present
+    data:
+      destinationAddress: "10.0.0.1"
+      userId: "3953867c-5283-4059-a9ae-33487f901e85"
+  delegate_to: localhost
+
+- debug:
+    var: oneview_appliance_device_snmp_v3_trap_destinations
+
+- name: Ensure that the SNMPv3 Trap Destination is absent
+  oneview_appliance_device_snmp_v3_trap_destinations:
+    config: "{{ config }}"
+    state: absent
+    data:
+        destinationAddress: "10.0.0.1"
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| oneview_appliance_device_snmp_v3_trap_destinations   | Has all the OneView facts about the OneView appliance SNMPv3 Trap Destination. |  On state 'present'. Can be null. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
+
+---
+
+
+## oneview_appliance_device_snmp_v3_trap_destinations_facts
+Retrieve the facts about the OneView appliance SNMPv3 trap forwarding destinations.
+
+#### Synopsis
+ The appliance has the ability to forward events received from monitored or managed server hardware to the specified destinations as SNMPv3 traps. This module retrives the facts about the appliance SNMPv3 trap forwarding destinations.
+
+#### Requirements (on the host that executes the module)
+  * hpOneView >= 4.7.2
+  * python >= 2.7.9
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Gather facts about the appliance SNMPv3 trap forwarding destinations.
+  oneview_appliance_device_snmp_v3_trap_destinations_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v3_trap_destinations
+
+- name: Gather paginated, filtered and sorted facts about SNMPv3 trap forwarding destinations
+  oneview_appliance_device_snmp_v3_trap_destinations_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'destinationAddress:descending'
+      filter: "port='162'"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v3_trap_destinations
+
+- name: Gather facts about a Trap Destination by ID
+  oneview_appliance_device_snmp_v3_trap_destinations_facts:
+    config: "{{ config }}"
+    id: "19dc6a96-bd04-4724-819b-32bc660fcefc"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v3_trap_destinations
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_device_snmp_v3_trap_destinations   | Has all the OneView facts about the OneView appliance SNMPv3 trap forwarding destinations. |  Always. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
+
+---
+
+
+## oneview_appliance_device_snmp_v3_users
+Manage the Appliance Device SNMPv3 Users.
+
+#### Synopsis
+ Provides an interface to manage the Appliance Device SNMPv3 Users.
+
+#### Requirements (on the host that executes the module)
+  * hpOneView >= 4.7.2
+  * python >= 2.7.9
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+| data  |   Yes  |  | |  List with the SNMPv3 Users properties  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>set_password</li> </ul> |  Indicates the desired state for the Appliance Device SNMPv3 User. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists. `set_password` will set a user password to the value specified. This operation is non-idempotent.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Ensure that the SNMPv3 user is present using the default configuration
+  oneview_appliance_device_snmp_v3_users:
+    config: "{{ config }}"
+    state: present
+    data:
+        type: "Users"
+        userName: "testUser"
+        securityLevel: "Authentication"
+        authenticationProtocol: "SHA512"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v3_users
+
+- name: Set the password of specified SNMPv3 user
+  oneview_appliance_device_snmp_v3_users:
+    config: "{{ config }}"
+    state: set_password
+    data:
+      userName: "testUser"
+      authenticationPassphrase: "NewPass1234"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v3_users
+
+- name: Ensure that the SNMPv3 user is absent
+  oneview_appliance_device_snmp_v3_users:
+    config: "{{ config }}"
+    state: absent
+    data:
+        userName: "testUser"
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_device_snmp_v3_users   | Has all the OneView facts about the OneView appliance SNMPv3 users. |  On state 'present' and 'set_password'. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
+
+---
+
+
+## oneview_appliance_device_snmp_v3_users_facts
+Retrieve the facts about the OneView appliance SNMPv3 users.
+
+#### Synopsis
+ SNMPv3 user will be used for sending the SNMPv3 trap to the associated destinations. One user can be assigned to multiple destinations. This module retrives the facts about the appliance SNMPv3 users.
+
+#### Requirements (on the host that executes the module)
+  * hpOneView >= 4.7.2
+  * python >= 2.7.9
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Gather facts about the appliance SNMPv3 users.
+  oneview_appliance_device_snmp_v3_users_facts:
+    config: "{{ config }}"
+
+- debug:
+    var: appliance_device_snmp_v3_users
+
+- name: Gather paginated, filtered and sorted facts about SNMPv3 users
+  oneview_appliance_device_snmp_v3_users_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: "securityLevel='Authentication and privacy'"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v3_users
+
+- name: Gather facts about a SNMPv3 user by ID
+  oneview_appliance_device_snmp_v3_users_facts:
+    config: "{{ config }}"
+    id: "2af33d0c-dc1f-4b5f-ba3e-e4a0b1acb899"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v3_users
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_device_snmp_v3_users   | Has all the OneView facts about the OneView appliance SNMPv3 users. |  Always. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -1504,14 +2147,14 @@ Manage OneView Appliance Locale and Time Configuration.
  Provides an interface to manage Appliance Locale and Time Configuration. It can only update it.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.2.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with the Appliance Locale and Time Configuration properties.  |
 | state  |   |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Appliance Locale and Time Configuration. `present` will ensure data properties are compliant with OneView.  |
 
@@ -1547,6 +2190,8 @@ Manage OneView Appliance Locale and Time Configuration.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -1558,14 +2203,14 @@ Retrieve the facts about the OneView appliance time and locale configuration.
  Retrieve the facts about the OneView appliance time and locale configuration.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.2.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 
 
  
@@ -1598,6 +2243,8 @@ Retrieve the facts about the OneView appliance time and locale configuration.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -1609,14 +2256,14 @@ Manage the OneView Connection Template resources.
  Provides an interface to manage the Connection Template resources. Can update.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Connection Template properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Connection Template resource. `present` will ensure data properties are compliant with OneView.  |
 
@@ -1661,6 +2308,8 @@ Manage the OneView Connection Template resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -1672,17 +2321,17 @@ Retrieve facts about the OneView Connection Templates.
  Retrieve facts about the OneView Connection Templates.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Connection Template name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Connection Template related resources. Options allowed: `defaultConnectionTemplate`.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -1754,6 +2403,8 @@ Retrieve facts about the OneView Connection Templates.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -1765,17 +2416,17 @@ Manage OneView Data Center resources.
  Provides an interface to manage Data Center resources. Can add, update, and remove.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Data Center properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Data Center resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -1854,6 +2505,8 @@ Manage OneView Data Center resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -1865,17 +2518,17 @@ Retrieve facts about the OneView Data Centers.
  Retrieve facts about the OneView Data Centers.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Data Center name.  |
 | options  |   No  |  | |  Retrieve additional facts. Options available: 'visualContent'.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -1936,6 +2589,8 @@ Retrieve facts about the OneView Data Centers.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -1947,14 +2602,14 @@ Manage OneView Drive Enclosure resources.
  Provides an interface to manage Drive Enclosure resources.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with the Drive Enclosure properties.  |
 | state  |   |  | <ul> <li>power_state_set</li>  <li>uid_state_set</li>  <li>hard_reset_state_set</li>  <li>refresh_state_set</li> </ul> |  Indicates the desired state for the Drive Enclosure resource. `power_state_set` will set the power state for the Drive Enclosure. `uid_state_set` will set the uid state for the Drive Enclosure. `hard_reset_state_set` will request a hard reset of the Drive Enclosure. `refresh_state_set` will refresh a Drive Enclosure.  |
 
@@ -2016,6 +2671,8 @@ Manage OneView Drive Enclosure resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -2027,17 +2684,17 @@ Retrieve the facts about one or more of the OneView Drive Enclosures.
  Retrieve the facts about one or more of the Drive Enclosures from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Drive Enclosure name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Drive Enclosure related resources. Options allowed: `portMap`. To gather additional facts it is required to inform the Drive Enclosure name. Otherwise, these options will be ignored.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -2101,6 +2758,8 @@ Retrieve the facts about one or more of the OneView Drive Enclosures.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -2112,14 +2771,14 @@ Manage OneView Enclosure resources.
  Provides an interface to manage Enclosure resources.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.5.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with the Enclosure properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>reconfigured</li>  <li>refreshed</li>  <li>appliance_bays_powered_on</li>  <li>uid_on</li>  <li>uid_off</li>  <li>manager_bays_uid_on</li>  <li>manager_bays_uid_off</li>  <li>manager_bays_power_state_e_fuse</li>  <li>manager_bays_power_state_reset</li>  <li>appliance_bays_power_state_e_fuse</li>  <li>device_bays_power_state_e_fuse</li>  <li>device_bays_power_state_reset</li>  <li>interconnect_bays_power_state_e_fuse</li>  <li>manager_bays_role_active</li>  <li>device_bays_ipv4_removed</li>  <li>interconnect_bays_ipv4_removed</li>  <li>support_data_collection_set</li>  <li>create_certificate_request</li>  <li>get_certificate_request</li>  <li>import_certificate_request</li> </ul> |  Indicates the desired state for the Enclosure resource. `present` will ensure data properties are compliant with OneView. You can rename the enclosure providing an attribute `newName`. You can also rename the rack providing an attribute `rackName`. `absent` will remove the resource from OneView, if it exists. `reconfigured` will reapply the appliance's configuration on the enclosure. This includes running the same configuration steps that were performed as part of the enclosure add. `refreshed` will refresh the enclosure along with all of its components, including interconnects and servers. Any new hardware is added, and any hardware that is no longer present within the enclosure is removed. `appliance_bays_powered_on` will set the appliance bay power state on. `uid_on` will set the UID state on. `uid_off` will set the UID state off. `manager_bays_uid_on` will set the UID state on for the Synergy Frame Link Module. `manager_bays_uid_off` will set the UID state off for the Synergy Frame Link Module. `manager_bays_power_state_e_fuse` will E-Fuse the Synergy Frame Link Module bay in the path. `manager_bays_power_state_reset` will Reset the Synergy Frame Link Module bay in the path. `appliance_bays_power_state_e_fuse` will E-Fuse the appliance bay in the path. `device_bays_power_state_e_fuse` will E-Fuse the device bay in the path. `device_bays_power_state_reset` will Reset the device bay in the path. `interconnect_bays_power_state_e_fuse` will E-Fuse the IC bay in the path. `manager_bays_role_active` will set the active Synergy Frame Link Module. `device_bays_ipv4_removed` will release the IPv4 address in the device bay. `interconnect_bays_ipv4_removed` will release the IPv4 address in the interconnect bay. `support_data_collection_set` will set the support data collection state for the enclosure. The supported values for this state are `PendingCollection`, `Completed`, `Error` and `NotSupported` `create_certificate_request` will create a Certificate Signing Request (CSR) for an enclosure `get_certificate_request` will return an enclosure's Certificate Signing Request (CSR) that was generated by previous POST to same URI. `import_certificate_request` will import a signed server certificate into the enclosure to be used for secure communication with the appliance.  |
 
@@ -2435,6 +3094,8 @@ Manage OneView Enclosure resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -2447,15 +3108,16 @@ Retrieve facts about one or more Enclosures
 
 #### Requirements (on the host that executes the module)
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   |  | |  Enclosure name.  |
 | options  |   |  | |  List with options to gather additional facts about an Enclosure and related resources. Options allowed: `script`, `environmentalConfiguration`, and `utilization`. For the option `utilization`, you can provide specific parameters.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -2560,6 +3222,8 @@ Retrieve facts about one or more Enclosures
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -2571,14 +3235,14 @@ Manage OneView Enclosure Group resources.
  Provides an interface to manage Enclosure Group resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.5.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Enclosure Group properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Enclosure Group resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
 
@@ -2651,6 +3315,8 @@ Manage OneView Enclosure Group resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -2662,17 +3328,17 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
  Retrieve facts about one or more of the Enclosure Groups from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.5.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Enclosure Group name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Enclosure Group. Options allowed: `configuration_script` Gets the configuration script for an Enclosure Group.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -2739,6 +3405,8 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -2750,17 +3418,17 @@ Manage OneView Ethernet Network resources.
  Provides an interface to manage Ethernet Network resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Ethernet Network properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>default_bandwidth_reset</li> </ul> |  Indicates the desired state for the Ethernet Network resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists. `default_bandwidth_reset` will reset the network connection template to the default.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -2857,6 +3525,8 @@ Manage OneView Ethernet Network resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -2868,17 +3538,17 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
  Retrieve the facts about one or more of the Ethernet Networks from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Ethernet Network name.  |
 | options  |   No  |  | |  List with options to gather additional facts about an Ethernet Network and related resources. Options allowed: `associatedProfiles` and `associatedUplinkGroups`.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -2943,6 +3613,8 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -2954,14 +3626,14 @@ Manage OneView Events.
  Provides an interface to manage Events. Can only create.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.2.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with the Event properties.  |
 | state  |   |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Event. `present` will ensure data properties are compliant with OneView. This operation is non-idempotent.  |
 
@@ -3003,6 +3675,8 @@ Manage OneView Events.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -3014,16 +3688,16 @@ Retrieve the facts about one or more of the OneView Events.
  Retrieve the facts about one or more of the Events from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.2.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Event name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -3067,6 +3741,8 @@ Retrieve the facts about one or more of the OneView Events.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -3078,14 +3754,14 @@ Manage OneView Fabric resources.
  Provides an interface for managing fabrics in OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Fabrics properties.  |
 | name  |   No  |  | |  Fabric name.  |
 
@@ -3126,6 +3802,8 @@ Manage OneView Fabric resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -3137,17 +3815,17 @@ Retrieve the facts about one or more of the OneView Fabrics.
  Retrieve the facts about one or more of the Fabrics from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Fabric name.  |
 | options  |   No  |  | |  List with options to gather additional facts about an Fabrics and related resources. Options allowed: `reservedVlanRange`.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -3208,6 +3886,8 @@ Retrieve the facts about one or more of the OneView Fabrics.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -3220,15 +3900,16 @@ Manage OneView Fibre Channel Network resources.
 
 #### Requirements (on the host that executes the module)
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with the Fibre Channel Network properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Fibre Channel Network resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -3300,6 +3981,8 @@ Manage OneView Fibre Channel Network resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -3312,14 +3995,15 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks
 
 #### Requirements (on the host that executes the module)
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   |  | |  Fibre Channel Network name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -3381,6 +4065,8 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -3392,17 +4078,17 @@ Manage OneView FCoE Network resources
  Provides an interface to manage FCoE Network resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with FCoE Network properties.  |
 | state  |   |  present  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the FCoE Network resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -3466,6 +4152,8 @@ Manage OneView FCoE Network resources
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -3478,14 +4166,15 @@ Retrieve the facts about one or more of the OneView FCoE Networks
 
 #### Requirements (on the host that executes the module)
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   |  | |  FCoE Network name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -3548,6 +4237,8 @@ Retrieve the facts about one or more of the OneView FCoE Networks
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -3559,14 +4250,14 @@ Upload OneView Firmware Bundle resources.
  Upload an SPP ISO image file or a hotfix file to the appliance.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | file_path  |   Yes  |  | |  The full path of a local file to be loaded.  |
 | state  |   |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Firmware Driver resource. `present` will ensure that the firmware bundle is at OneView.  |
 
@@ -3604,6 +4295,8 @@ Upload OneView Firmware Bundle resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -3615,14 +4308,14 @@ Provides an interface to remove Firmware Driver resources.
  Provides an interface to remove Firmware Driver resources.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   No  |  | |  List with the Firmware Driver properties.  |
 | name  |   No  |  | |  Firmware driver name.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Firmware Driver. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
@@ -3669,6 +4362,8 @@ Provides an interface to remove Firmware Driver resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -3680,14 +4375,14 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
  Retrieve the facts about one or more of the Firmware Drivers from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Firmware driver name.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `sort`: The sort order of the returned data set.  |
 
@@ -3739,6 +4434,8 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -3750,17 +4447,17 @@ Manage OneView ID pools IPV4 Range resources.
  Provides an interface to manage ID pools IPV4 Range resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with ID pools IPV4 Range properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the ID pools IPV4 Range resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -3801,6 +4498,8 @@ Manage OneView ID pools IPV4 Range resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -3812,17 +4511,17 @@ Retrieve the facts about one or more of the OneView ID Pools IPV4 Ranges.
  Retrieve the facts about one or more of the ID Pools IPV4 Ranges from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  ID Pools IPV4 Range name.  |
 | options  |   No  |  | |  List with options to gather additional facts about an IPv4 Range and related resources. Options allowed: `allocatedFragments` gets all fragments that have been allocated in range. `freeFragments` gets all free fragments in an IPv4 range.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 | uri  |   No  |  | |  ID Pools IPV4 Range ID or URI.  |
 
 
@@ -3896,6 +4595,8 @@ Retrieve the facts about one or more of the OneView ID Pools IPV4 Ranges.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -3907,17 +4608,17 @@ Manage OneView ID pools IPV4 Subnet resources.
  Provides an interface to manage ID pools IPV4 Subnet resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with ID pools IPV4 Subnet properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the ID pools IPV4 Subnet resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -3959,6 +4660,8 @@ Manage OneView ID pools IPV4 Subnet resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -3970,16 +4673,16 @@ Retrieve the facts about one or more of the OneView ID Pools IPV4 Subnets.
  Retrieve the facts about one or more of the ID Pools IPV4 Subnets from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  ID Pools IPV4 Subnet name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 | uri  |   No  |  | |  ID Pools IPV4 Subnet ID or URI.  |
 
 
@@ -4029,6 +4732,8 @@ Retrieve the facts about one or more of the OneView ID Pools IPV4 Subnets.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -4040,14 +4745,14 @@ Manage the OneView Interconnect resources.
  Provides an interface to manage Interconnect resources. Can change the power state, UID light state, perform device reset, reset port protection, and update the interconnect ports.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.3.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | ip  |   No  |  | |  Interconnect IP address.  |
 | name  |   No  |  | |  Interconnect name.  |
 | ports  |   No  |  | |  List with ports to update. This option should be used together with `update_ports` state.  |
@@ -4114,6 +4819,8 @@ Manage the OneView Interconnect resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -4125,17 +4832,17 @@ Retrieve facts about one or more of the OneView Interconnects.
  Retrieve facts about one or more of the Interconnects from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.3.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Interconnect name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Interconnect. Options allowed: `nameServers` gets the named servers for an interconnect. `statistics` gets the statistics from an interconnect. `portStatistics` gets the statistics for the specified port name on an interconnect. `subPortStatistics` gets the subport statistics on an interconnect. `ports` gets all interconnect ports. `port` gets a specific interconnect port. `pluggableModuleInformation` gets all the SFP information.  To gather additional facts it is required inform the Interconnect name. Otherwise, these options will be ignored.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -4297,6 +5004,8 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -4308,16 +5017,16 @@ Retrieve facts about the OneView Interconnect Link Topologies.
  Retrieve facts about the Interconnect Link Topologies from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Name of the Interconnect Link Topology.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -4370,6 +5079,8 @@ Retrieve facts about the OneView Interconnect Link Topologies.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -4381,16 +5092,16 @@ Retrieve facts about one or more of the OneView Interconnect Types.
  Retrieve facts about one or more of the Interconnect Types from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Interconnect Type name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -4450,6 +5161,8 @@ Retrieve facts about one or more of the OneView Interconnect Types.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -4461,14 +5174,14 @@ Retrieve facts about the OneView Internal Link Sets.
  Retrieve facts about the Internal Link Sets from OneView. It is possible get all Internal Link Sets or filter by name.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Name of the Internal Link Set.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set. `query`: A general query string to narrow the list of resources returned. `fields`: Specifies which fields should be returned in the result set. `view`: Return a specific subset of the attributes of the resource or collection, by specifying the name of a predefined view.  |
 
@@ -4531,6 +5244,8 @@ Retrieve facts about the OneView Internal Link Sets.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -4542,17 +5257,17 @@ Retrieve facts about one or more of the OneView Logical Downlinks.
  Retrieve facts about one or more of the Logical Downlinks from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | excludeEthernet  |   No  |  | |  Excludes any facts about Ethernet networks from the Logical Downlinks.  |
 | name  |   No  |  | |  Logical Downlink name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -4614,6 +5329,8 @@ Retrieve facts about one or more of the OneView Logical Downlinks.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -4625,14 +5342,14 @@ Manage OneView Logical Enclosure resources.
  Provides an interface to manage Logical Enclosure resources. Can create, update, update firmware, perform dump, update configuration script, reapply configuration, update from group, or delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Logical Enclosure properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>firmware_updated</li>  <li>script_updated</li>  <li>dumped</li>  <li>reconfigured</li>  <li>updated_from_group</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Enclosure resource. `present` ensures data properties are compliant with OneView. You can rename the enclosure providing an attribute `newName`. `firmware_updated` updates the firmware for the Logical Enclosure. `script_updated` updates the Logical Enclosure configuration script. `dumped` generates a support dump for the Logical Enclosure. `reconfigured` reconfigures all enclosures associated with a logical enclosure. `updated_from_group` makes the logical enclosure consistent with the enclosure group. `absent` will remove the resource from OneView, if it exists.  |
 
@@ -4791,6 +5508,8 @@ Manage OneView Logical Enclosure resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -4802,17 +5521,17 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
  Retrieve facts about one or more of the Logical Enclosures from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.5.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Logical Enclosure name.  |
 | options  |   No  |  | |  List with options to gather additional facts about a Logical Enclosure and related resources. Options allowed: script.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -4890,6 +5609,8 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -4901,17 +5622,17 @@ Manage OneView Logical Interconnect resources.
  Provides an interface to manage Logical Interconnect resources.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with the options.  |
 | state  |   |  | <ul> <li>compliant</li>  <li>ethernet_settings_updated</li>  <li>internal_networks_updated</li>  <li>settings_updated</li>  <li>forwarding_information_base_generated</li>  <li>qos_aggregated_configuration_updated</li>  <li>snmp_configuration_updated</li>  <li>port_monitor_updated</li>  <li>configuration_updated</li>  <li>firmware_installed</li>  <li>telemetry_configuration_updated</li> </ul> |  Indicates the desired state for the Logical Interconnect resource. `compliant` brings the logical interconnect back to a consistent state. `ethernet_settings_updated` updates the Ethernet interconnect settings for the logical interconnect. `internal_networks_updated` updates the internal networks on the logical interconnect. This operation is non-idempotent. `settings_updated` updates the Logical Interconnect settings. `forwarding_information_base_generated` generates the forwarding information base dump file for the logical interconnect. This operation is non-idempotent and asynchronous. `qos_aggregated_configuration_updated` updates the QoS aggregated configuration for the logical interconnect. `snmp_configuration_updated` updates the SNMP configuration for the logical interconnect. `port_monitor_updated` updates the port monitor configuration of a logical interconnect. `configuration_updated` asynchronously applies or re-applies the logical interconnect configuration to all managed interconnects. This operation is non-idempotent. `firmware_installed` installs firmware to a logical interconnect. The three operations that are supported for the firmware update are Stage (uploads firmware to the interconnect), Activate (installs firmware on the interconnect) and Update (which does a Stage and Activate in a sequential manner). All of them are non-idempotent. `telemetry_configuration_updated` updates the telemetry configuration of a logical interconnect. `scopes_updated` updates the scopes associated with the logical interconnect.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -5098,6 +5819,8 @@ Manage OneView Logical Interconnect resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -5109,17 +5832,17 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
  Retrieve facts about one or more of the OneView Logical Interconnects.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Logical Interconnect name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Logical Interconnect. Options allowed: `qos_aggregated_configuration` gets the QoS aggregated configuration for the logical interconnect. `snmp_configuration` gets the SNMP configuration for a logical interconnect. `port_monitor` gets the port monitor configuration of a logical interconnect. `internal_vlans` gets the internal VLAN IDs for the provisioned networks on a logical interconnect. `forwarding_information_base` gets the forwarding information base data for a logical interconnect. `firmware` get the installed firmware for a logical interconnect. `unassigned_uplink_ports` gets a collection of uplink ports from the member interconnects which are eligible for assignment to an analyzer port. `telemetry_configuration` gets the telemetry configuration of the logical interconnect. `ethernet_settings` gets the Ethernet interconnect settings for the Logical Interconnect. - These options are valid just when a `name` is provided. Otherwise it will be ignored.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -5219,6 +5942,8 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -5230,17 +5955,17 @@ Manage OneView Logical Interconnect Group resources.
  Provides an interface to manage Logical Interconnect Group resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with the Logical Interconnect Group properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Interconnect Group resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -5350,6 +6075,8 @@ Manage OneView Logical Interconnect Group resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -5361,16 +6088,16 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
  Retrieve facts about one or more of the Logical Interconnect Groups from OneView
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.5.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   |  | |  Logical Interconnect Group name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -5449,6 +6176,8 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -5460,17 +6189,17 @@ Manage OneView Logical Switch resources.
  Provides an interface to manage Logical Switch resources. Can create, update, delete, or refresh.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with the Logical Switches properties. You can choose set the Logical Switch Group by `logicalSwitchGroupName` or `logicalSwitchGroupUri`.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>updated</li>  <li>absent</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Logical Switch resource. `present` creates a Logical Switch, if it doesn't exist. To update the Logical Switch, use the `updated` state instead. `updated` ensures the Logical Switch is updated. Currently OneView only supports updating the credentials , scopes and name of the Logical Switch. To change the name of the Logical Switch, a `newName` in the data must be provided. The update operation is non-idempotent. `absent` removes the resource from OneView, if it exists. `refreshed` reclaims the top-of-rack switches in the logical switch. This operation is non-idempotent.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -5599,6 +6328,8 @@ Manage OneView Logical Switch resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -5610,16 +6341,16 @@ Retrieve the facts about one or more of the OneView Logical Switches.
  Retrieve the facts about one or more of the Logical Switches from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Logical Switch name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -5680,6 +6411,8 @@ Retrieve the facts about one or more of the OneView Logical Switches.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -5691,17 +6424,17 @@ Manage OneView Logical Switch Group resources.
  Provides an interface to manage Logical Switch Group resources. Can add, update, remove.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Logical Switch Group properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Switch Group resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -5783,6 +6516,8 @@ Manage OneView Logical Switch Group resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -5794,16 +6529,16 @@ Retrieve facts about OneView Logical Switch Groups.
  Retrieve facts about the Logical Switch Groups of the OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Logical Switch Group name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -5867,6 +6602,8 @@ Retrieve facts about OneView Logical Switch Groups.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -5879,12 +6616,13 @@ Retrieve the facts about login details
 
 #### Requirements (on the host that executes the module)
   * hpOneView >= 4.3.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 
 
  
@@ -5918,6 +6656,8 @@ Retrieve the facts about login details
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -5929,14 +6669,14 @@ Manage OneView Managed SAN resources.
  Provides an interface to manage Managed SAN resources. Can update the Managed SAN, set the refresh state, create a SAN endpoints CSV file, and create an unexpected zoning issue report.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Managed SAN properties and its associated states. Warning: For the 'present' state, the contents of the publicAttributes will replace the existing list, so leaving out a public attribute from the given list will effectively delete it.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>refresh_state_set</li>  <li>endpoints_csv_file_created</li>  <li>issues_report_created</li> </ul> |  Indicates the desired state for the Managed SAN resource. `present` ensures data properties are compliant with OneView. `refresh_state_set` updates the refresh state of the Managed SAN. `endpoints_csv_file_created` creates a SAN endpoints CSV file. `issues_report_created` creates an unexpected zoning report for a SAN.  |
 
@@ -6025,6 +6765,8 @@ Manage OneView Managed SAN resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -6036,14 +6778,14 @@ Retrieve facts about the OneView Managed SANs.
  Retrieve facts about the OneView Managed SANs.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Name of the Managed SAN.  |
 | options  |   No  |  | |  List with options to gather additional facts about Managed SAN. Options allowed: `endpoints` gets the list of endpoints in the SAN identified by name. `wwn` gets the list of Managed SANs associated with an informed WWN `locate`.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `query`: A general query string to narrow the list of resources returned. `sort`: The sort order of the returned data set.  |
@@ -6138,6 +6880,8 @@ Retrieve facts about the OneView Managed SANs.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -6149,17 +6893,17 @@ Manage OneView Network Set resources.
  Provides an interface to manage Network Set resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with the Network Set properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Network Set resource. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -6237,6 +6981,8 @@ Manage OneView Network Set resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -6249,15 +6995,16 @@ Retrieve facts about the OneView Network Sets
 
 #### Requirements (on the host that executes the module)
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   |  | |  Network Set name.  |
 | options  |   |  | |  List with options to gather facts about Network Set. Option allowed: `withoutEthernet`. The option `withoutEthernet` retrieves the list of network_sets excluding Ethernet networks.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -6352,6 +7099,8 @@ Retrieve facts about the OneView Network Sets
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -6363,17 +7112,17 @@ Retrieve facts about one or more OS Deployment Plans.
  Retrieve facts about one or more of the OS Deployment Plans from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Os Deployment Plan name.  |
 | options  |   No  |  | |  List with options to gather facts about OS Deployment Plan. Option allowed: `osCustomAttributesForServerProfile` The option `osCustomAttributesForServerProfile` retrieves the list of editable OS Custom Atributes, prepared for Server Profile use.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -6448,6 +7197,8 @@ Retrieve facts about one or more OS Deployment Plans.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -6459,17 +7210,17 @@ Manage OneView Deployment Server resources.
  Provides an interface to manage Deployment Server resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Deployment Server properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Deployment Server resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -6527,6 +7278,8 @@ Manage OneView Deployment Server resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -6538,14 +7291,14 @@ Retrieve facts about one or more OS Deployment Servers.
  Retrieve facts about one or more of the OS Deployment Servers from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  OS Deployment Server name.  |
 | options  |   No  |  | |  List with options to gather additional facts about an OS Deployment Server and related resources. Options allowed: `networks`, `appliances`, and `appliance`.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set. `query`: A general query string to narrow the list of resources returned. `fields`: Specifies which fields should be returned in the result set. `view`: Return a specific subset of the attributes of the resource or collection, by specifying the name of a predefined view.  |
@@ -6609,6 +7362,8 @@ Retrieve facts about one or more OS Deployment Servers.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -6620,17 +7375,17 @@ Manage OneView Power Device resources.
  Provides an interface to manage Power delivery devices resources. Can add, update, remove, change power state, change UID state and refresh state.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Power Device properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>discovered</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>uid_state_set</li> </ul> |  Indicates the desired state for the Power Device resource. `present` will ensure data properties are compliant with OneView. `discovered` will add an iPDU to the OneView. `absent` will remove the resource from OneView, if it exists. `power_state_set` will set the power state of the Power Device. `refresh_state_set` will set the refresh state of the Power Device. `uid_state_set` will set the UID state of the Power Device.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -6715,6 +7470,8 @@ Manage OneView Power Device resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -6726,14 +7483,14 @@ Retrieve facts about the OneView Power Devices.
  Retrieve facts about the Power Delivery Devices from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Power Device name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Power Device. Options allowed: `powerState`, `uidState`, `utilization`  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `query`: A general query string to narrow the list of resources returned. `sort`: The sort order of the returned data set.  |
@@ -6819,6 +7576,8 @@ Retrieve facts about the OneView Power Devices.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -6830,17 +7589,17 @@ Manage OneView Racks resources.
  Provides an interface to manage Rack resources. Can create, update, and delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with the Rack properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Rack resource. `present` will ensure data properties are compliant with OneView. To change the name of the Rack, a _newName_ in the data must be provided. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -6903,6 +7662,8 @@ Manage OneView Racks resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -6914,17 +7675,17 @@ Retrieve facts about Rack resources.
  Gets a list of rack resources. Filter by name can be used to get a specific Rack. If a name is specified, it is  allowed to retrieve information about the device topology.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Rack name.  |
 | options  |   No  |  | |  Retrieve additional facts. Options available: 'deviceTopology'.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -6984,6 +7745,8 @@ Retrieve facts about Rack resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -6995,17 +7758,17 @@ Manage OneView SAN Manager resources.
  Provides an interface to manage SAN Manager resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with SAN Manager properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>connection_information_set</li> </ul> |  Indicates the desired state for the Uplink Set resource. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists. `connection_information_set` updates the connection information for the SAN Manager. This operation is non-idempotent.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -7082,6 +7845,8 @@ Manage OneView SAN Manager resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -7094,12 +7859,13 @@ Retrieve facts about one or more of the OneView SAN Managers
 
 #### Requirements (on the host that executes the module)
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `query`: A general query string to narrow the list of resources returned. - `sort`: The sort order of the returned data set.  |
 | provider_display_name  |   |  | |  Provider Display Name.  |
 
@@ -7155,6 +7921,8 @@ Retrieve facts about one or more of the OneView SAN Managers
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -7166,17 +7934,17 @@ Manage the OneView SAS Interconnect resources.
  Provides an interface to manage the SAS Interconnect. Can change the power state, UID light state, perform soft and hard reset, and refresh the SAS Interconnect state.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   Yes  |  | |  The SAS Interconnect name.  |
 | state  |   |  | <ul> <li>powered_on</li>  <li>powered_off</li>  <li>uid_on</li>  <li>uid_off</li>  <li>soft_reset</li>  <li>hard_reset</li>  <li>refreshed</li> </ul> |  Indicates the desired state for the Switch. `powered_on` turns the power on. `powered_off` turns the power off. `uid_on` turns the UID light on. `uid_off` turns the UID light off. `soft_reset` performs a soft reset. `hard_reset` performs a hard reset. `refreshed` performs a refresh.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -7225,6 +7993,8 @@ Manage the OneView SAS Interconnect resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -7236,16 +8006,16 @@ Retrieve facts about the OneView SAS Interconnects.
  Retrieve facts about the OneView SAS Interconnects.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  SAS Interconnect name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -7301,6 +8071,8 @@ Retrieve facts about the OneView SAS Interconnects.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -7312,16 +8084,16 @@ Retrieve facts about the OneView SAS Interconnect Types.
  Retrieve facts about the SAS Interconnect Types from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Name of the SAS Interconnect Type.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -7380,6 +8152,8 @@ Retrieve facts about the OneView SAS Interconnect Types.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -7391,14 +8165,14 @@ Manage OneView SAS Logical Interconnect resources.
  Provides an interface to manage SAS Logical Interconnect resources.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with SAS Logical Interconnect properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>compliant</li>  <li>drive_enclosure_replaced</li>  <li>configuration_updated</li>  <li>firmware_updated</li> </ul> |  Indicates the desired state for the SAS Logical Interconnect resources. `compliant` brings the list of SAS Logical Interconnect back to a consistent state. `configuration_updated` asynchronously applies or re-applies the SAS Logical Interconnect configuration to all managed interconnects. `firmware_updated` installs firmware to a SAS Logical Interconnect. `drive_enclosure_replaced` replacement operation of a drive enclosure. * All of them are non-idempotent.  |
 
@@ -7495,6 +8269,8 @@ Manage OneView SAS Logical Interconnect resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -7506,17 +8282,17 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnects.
  Retrieve facts about one or more of the OneView SAS Logical Interconnects.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  SAS Logical Interconnect name.  |
 | options  |   No  |  | |  List with options to gather additional facts about SAS Logical Interconnect. `firmware` gets the installed firmware for a SAS Logical Interconnect.  These options are valid just when a `name` is provided. Otherwise it will be ignored.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -7590,6 +8366,8 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnects.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -7601,17 +8379,17 @@ Manage OneView SAS Logical Interconnect Group resources.
  Provides an interface to manage SAS Logical Interconnect Group resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with the SAS Logical Interconnect Group properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the SAS Logical Interconnect Group resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -7693,6 +8471,8 @@ Manage OneView SAS Logical Interconnect Group resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -7704,16 +8484,16 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnect Groups.
  Retrieve facts about one or more of the SAS Logical Interconnect Groups from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.5.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Name of the SAS Logical Interconnect Group.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -7782,6 +8562,8 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnect Groups.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -7793,16 +8575,16 @@ Retrieve facts about one or more of the OneView SAS Logical JBOD Attachments.
  Retrieve facts about one or more of the SAS Logical JBOD Attachments from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Name of SAS Logical JBOD Attachment.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -7856,6 +8638,8 @@ Retrieve facts about one or more of the OneView SAS Logical JBOD Attachments.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -7867,17 +8651,17 @@ Retrieve facts about one or more of the OneView SAS Logical JBODs.
  Retrieve facts about one or more of the SAS Logical JBODs from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Name of SAS Logical JBODs.  |
 | options  |   No  |  | |  List with options to gather additional facts about SAS Logical JBODs and related resources. Options allowed: `drives`.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -7941,6 +8725,8 @@ Retrieve facts about one or more of the OneView SAS Logical JBODs.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -7952,17 +8738,17 @@ Manage OneView Scope resources.
  Provides an interface to manage scopes. Can create, update, or delete scopes, and modify the scope membership by adding or removing resource assignments.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with the Scopes properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>resource_assignments_updated</li> </ul> |  Indicates the desired state for the Scope resource. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists. `resource_assignments_updated` modifies scope membership by adding or removing resource assignments. This operation is non-idempotent.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -8041,6 +8827,8 @@ Manage OneView Scope resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -8052,8 +8840,8 @@ Retrieve facts about one or more of the OneView Scopes.
  Retrieve facts about one or more of the Scopes from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.0.0
+  * python >= 2.7.9
 
 #### Options
 
@@ -8115,6 +8903,8 @@ Retrieve facts about one or more of the OneView Scopes.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -8126,17 +8916,17 @@ Manage OneView Server Hardware resources.
  Provides an interface to manage Server Hardware resources.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.5.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Server Hardware properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li>  <li>power_state_set</li>  <li>refresh_state_set</li>  <li>ilo_firmware_version_updated</li>  <li>ilo_state_reset</li>  <li>uid_state_on</li>  <li>uid_state_off</li>  <li>environmental_configuration_set</li>  <li>multiple_servers_added</li> </ul> |  Indicates the desired state for the Server Hardware resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists. `power_state_set` will set the power state of the Server Hardware. `refresh_state_set` will set the refresh state of the Server Hardware. `ilo_firmware_version_updated` will update the iLO firmware version of the Server Hardware. `ilo_state_reset` will reset the iLO state. `uid_state_on` will set on the UID state, if necessary. `uid_state_off` will set off the UID state, if necessary. `environmental_configuration_set` will set the environmental configuration of the Server Hardware. `multiple_servers_added` will add multiple rack-mount servers.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -8284,6 +9074,8 @@ Manage OneView Server Hardware resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -8295,17 +9087,17 @@ Retrieve facts about the OneView Server Hardware.
  Retrieve facts about the Server Hardware from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Server Hardware name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Server Hardware related resources. Options allowed: `bios`, `javaRemoteConsoleUrl`, `environmentalConfig`, `iloSsoUrl`, `remoteConsoleUrl`, `utilization`, `firmware`, `firmwares` and `physicalServerHardware`.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -8425,6 +9217,8 @@ Retrieve facts about the OneView Server Hardware.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -8436,17 +9230,17 @@ Manage OneView Server Hardware Type resources.
  Provides an interface to manage Server Hardware Type resources. Can update, and remove.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Server Hardware Type properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Server Hardware Type resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -8499,6 +9293,8 @@ Manage OneView Server Hardware Type resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -8510,16 +9306,16 @@ Retrieve facts about Server Hardware Types of the OneView.
  Retrieve facts about Server Hardware Types of the OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Server Hardware Type name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -8570,6 +9366,8 @@ Retrieve facts about Server Hardware Types of the OneView.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -8582,17 +9380,18 @@ Manage OneView Server Profile resources
 
 #### Requirements (on the host that executes the module)
   * hpOneView >= 4.5.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | auto_assign_server_hardware  |   |  True  | <ul> <li>True</li>  <li>False</li> </ul> |  Bool indicating whether or not a Server Hardware should be automatically retrieved and assigned to the Server Profile. When set to true, creates and updates try to ensure that an available Server Hardware is assigned to the Server Profile. When set to false, if no Server Hardware is specified during creation, the profile is created as 'unassigned'. If the profile already has a Server Hardware assigned to it and a serverHardwareName or serverHardwareUri is specified as None, the Server Profile will have its Server Hardware unassigned.  |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Server Profile properties.  |
 | params  |   No  |  | |  Dict with query parameters.  |
 | state  |   |  present  | <ul> <li>present</li>  <li>absent</li>  <li>compliant</li> </ul> |  Indicates the desired state for the Server Profile resource by the end of the playbook execution. `present` will ensure data properties are compliant with OneView. This operation will power off the Server Hardware before configuring the Server Profile. After it completes, the Server Hardware is powered on. `absent` will remove the resource from OneView, if it exists. `compliant` will make the server profile compliant with its server profile template, when this option was specified. If there are Offline updates, the Server Hardware is turned off before remediate compliance issues and turned on after that.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -8734,6 +9533,8 @@ Manage OneView Server Profile resources
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -8745,17 +9546,17 @@ Retrieve facts about the OneView Server Profiles.
  Retrieve facts about the Server Profile from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   |  | |  Server Profile name.  |
 | options  |   |  | |  List with options to gather additional facts about Server Profile related resources. Options allowed: `schema`, `compliancePreview`, `profilePorts`, `messages`, `transformation`, `available_networks`, `available_servers`, `available_storage_system`, `available_storage_systems`, `available_targets`, `newProfileTemplate`,  To gather facts about `compliancePreview`, `messages`, `newProfileTemplate` and `transformation` a Server Profile name is required. Otherwise, these options will be ignored.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 | uri  |   |  | |  Server Profile uri.  |
 
 
@@ -8904,6 +9705,8 @@ Retrieve facts about the OneView Server Profiles.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -8915,18 +9718,18 @@ Manage OneView Server Profile Template resources.
  Provides an interface to create, modify, and delete server profile templates.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.5.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  Dict with Server Profile Template properties.  |
 | params  |   No  |  | |  Dict with query parameters.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Server Profile Template. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -9000,6 +9803,8 @@ Manage OneView Server Profile Template resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -9011,17 +9816,17 @@ Retrieve facts about the Server Profile Templates from OneView.
  Retrieve facts about the Server Profile Templates from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.5.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   |  | |  Server Profile Template name.  |
 | options  |   |  | |  List with options to gather additional facts about Server Profile Template resources. Options allowed: `new_profile`, `transformation` and `available_networks`.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 | uri  |   |  | |  Server Profile Template uri.  |
 
 
@@ -9117,6 +9922,8 @@ Retrieve facts about the Server Profile Templates from OneView.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -9128,14 +9935,14 @@ Manage OneView Storage Pool resources.
  Provides an interface to manage Storage Pool resources. Can add and remove.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Storage Pool properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage Pool resource. `present` will ensure data properties are compliant with OneView. From API500 onwards it is only possible to update its state. `absent` will remove the resource from OneView, if it exists. From API500 onwards absent state is immutable.  |
 
@@ -9213,6 +10020,8 @@ Manage OneView Storage Pool resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -9224,17 +10033,17 @@ Retrieve facts about one or more Storage Pools.
  Retrieve facts about one or more of the Storage Pools from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Storage Pool name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Storage Pools. Options allowed: `reachableStoragePools` gets the list of reachable Storage pools based on the network param. If the network param is not specified it gets all of them.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -9318,6 +10127,8 @@ Retrieve facts about one or more Storage Pools.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -9329,17 +10140,17 @@ Manage OneView Storage System resources.
  Provides an interface to manage Storage System resources. Can add, update and remove.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Storage System properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage System resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -9434,6 +10245,8 @@ Manage OneView Storage System resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -9445,17 +10258,17 @@ Retrieve facts about the OneView Storage Systems
  Retrieve facts about the Storage Systems from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   |  | |  Storage System name.  |
 | options  |   |  | |  List with options to gather additional facts about a Storage System and related resources. Options allowed: `hostTypes` gets the list of supported host types. `storagePools` gets a list of storage pools belonging to the specified storage system. `reachablePorts` gets a list of storage system reachable ports. Accepts `params`. An additional `networks` list param can be used to restrict the search for only these ones. `templates` gets a list of storage templates belonging to the storage system.  To gather facts about `storagePools`, `reachablePorts`, and `templates` it is required to inform either the argument `name`, `ip_hostname`, or `hostname`. Otherwise, this option will be ignored.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 | storage_hostname  |   |  | |  Storage System IP or hostname.  |
 
 
@@ -9592,6 +10405,8 @@ Retrieve facts about the OneView Storage Systems
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -9603,14 +10418,14 @@ Provides an interface to remove extra presentations from a specified server prof
  Provides an interface to remove extra presentations from a specified server profile.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | server_profile  |   Yes  |  | |  Server Profile name or Server Profile URI  |
 | state  |   Yes  |  | <ul> <li>extra_presentations_removed</li> </ul> |  Indicates the desired state for the Storage Volume Attachment `extra_presentations_removed` will remove extra presentations from a specified server profile.  |
 
@@ -9658,6 +10473,8 @@ Provides an interface to remove extra presentations from a specified server prof
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -9669,16 +10486,16 @@ Retrieve facts about the OneView Storage Volume Attachments.
  Retrieve facts about the OneView Storage Volume Attachments. To gather facts about a specific Storage Volume Attachment it is required to inform the option _storageVolumeAttachmentUri_. It is also possible to retrieve a specific Storage Volume Attachment by the Server Profile and the Volume. For this option, it is required to inform the option _serverProfileName_ and the param _storageVolumeName_ or _storageVolumeUri_.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | options  |   No  |  | |  Retrieve additional facts. Options available: `extraUnmanagedStorageVolumes` retrieve the list of extra unmanaged storage volumes. `paths` retrieve all paths or a specific attachment path for the specified volume attachment. To retrieve a specific path a `pathUri` or a `pathId` must be informed  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 | serverProfileName  |   No  |  | |  Server Profile name.  |
 | storageVolumeAttachmentUri  |   No  |  | |  Storage Volume Attachment uri.  |
 | storageVolumeName  |   No  |  | |  Storage Volume name.  |
@@ -9781,6 +10598,8 @@ Retrieve facts about the OneView Storage Volume Attachments.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -9792,17 +10611,17 @@ Manage OneView Storage Volume Template resources.
  Provides an interface to manage Storage Volume Template resources. Can create, update and delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Storage Volume Template properties and its associated states.  |
 | state  |   Yes  |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Storage Volume Template resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -9855,6 +10674,8 @@ Manage OneView Storage Volume Template resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -9866,17 +10687,17 @@ Retrieve facts about Storage Volume Templates of the OneView.
  Retrieve facts about Storage Volume Templates of the OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Storage Volume Template name.  |
 | options  |   No  |  | |  Retrieve additional facts. Options available: `connectableVolumeTemplates`, `reachableVolumeTemplates`, `compatibleSystems`  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -9976,6 +10797,8 @@ Retrieve facts about Storage Volume Templates of the OneView.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -9987,14 +10810,14 @@ Provides an interface to remove ToR Switch resources.
  Provides an interface to remove Top of Rack(ToR) Switch resources. The switch resource will be removed if it is in an unmanaged state. If the switch resource is associated with a Logical Switch, its removal is treated as a hardware removal only. A reference to the switch is mantained, and the resource is marked as 'Absent'.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   Yes  |  | |  Switch name.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>ports_updated</li> </ul> |  Indicates the desired state for the Switch resource. `present` will update the switch scopes, if they differ from what is declared. `absent` will remove the resource from OneView, if it exists. `ports_updated` will update the switch ports.  |
 
@@ -10027,6 +10850,8 @@ Provides an interface to remove ToR Switch resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -10038,17 +10863,17 @@ Retrieve facts about the OneView Switches.
  Retrieve facts about the OneView Switches.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Switch name.  |
 | options  |   No  |  | |  List with options to gather additional facts about the Switch. Options allowed: `environmentalConfiguration` gets the environmental configuration for a switch.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -10115,6 +10940,8 @@ Retrieve facts about the OneView Switches.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -10126,16 +10953,16 @@ Retrieve facts about the OneView Switch Types.
  Retrieve facts about the Switch Types from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Name of the Switch Type.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -10195,6 +11022,8 @@ Retrieve facts about the OneView Switch Types.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -10206,14 +11035,14 @@ Retrieve facts about the OneView Tasks.
  Retrieve facts about the OneView Tasks.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | params  |   No  |  | |  List with parameters to help filter the tasks. Params allowed: `count`, `fields`, `filter`, `query`, `sort`, `start`, and `view`.  |
 
 
@@ -10264,6 +11093,8 @@ Retrieve facts about the OneView Tasks.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -10275,17 +11106,17 @@ Manage OneView Unmanaged Device resources.
  Provides an interface to manage Unmanaged Device resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Unmanaged Device properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Unmanaged Device resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -10362,6 +11193,8 @@ Manage OneView Unmanaged Device resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -10373,17 +11206,17 @@ Retrieve facts about one or more of the OneView Unmanaged Device.
  Retrieve facts about one or more of the Unmanaged Device from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Unmanaged Device name.  |
 | options  |   |  | |  List with options to gather additional facts about the Unmanaged Device. Options allowed: `environmental_configuration` gets a description of the environmental configuration for the Unmanaged Device.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -10444,6 +11277,8 @@ Retrieve facts about one or more of the OneView Unmanaged Device.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -10455,17 +11290,17 @@ Manage OneView Uplink Set resources.
  Provides an interface to manage Uplink Set resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.1.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with Uplink Set properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Uplink Set resource. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists. The key used to find the resource to perform the operation is a compound key, that consists of the name of the uplink set and the URI (or name) of the Logical Interconnect combined. You can choose to set the Logical Interconnect by logicalInterconnectUri or logicalInterconnectName.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -10541,6 +11376,8 @@ Manage OneView Uplink Set resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -10552,16 +11389,16 @@ Retrieve facts about one or more of the OneView Uplink Sets.
  Retrieve facts about one or more of the Uplink Sets from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Uplink Set name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -10621,6 +11458,8 @@ Retrieve facts about one or more of the OneView Uplink Sets.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -10632,14 +11471,14 @@ Manage OneView Users.
  Provides an interface to manage Users. Can create, update, and delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.2.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  List with the User properties.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>set_password</li> </ul> |  Indicates the desired state for the User. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists. `set_password` will set a user password to the value specified. This operation is non-idempotent.  |
 
@@ -10706,6 +11545,8 @@ Manage OneView Users.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -10717,16 +11558,16 @@ Retrieve the facts about one or more of the OneView Users.
  Retrieve the facts about one or more of the Users from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 3.2.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  User name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -10777,6 +11618,8 @@ Retrieve the facts about one or more of the OneView Users.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -10789,13 +11632,14 @@ Returns the range of possible API versions supported by the appliance
 
 #### Requirements (on the host that executes the module)
   * hpOneView >= 4.3.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -10828,6 +11672,8 @@ Returns the range of possible API versions supported by the appliance
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -10839,18 +11685,18 @@ Manage OneView Volume resources.
  Provides an interface to manage Volume resources. It allows create, update, delete or repair the volume, and create or delete a snapshot.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 4.0.0
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | data  |   Yes  |  | |  Volume or snapshot data.  |
 | export_only  |   |  False  | |  If set to True, when the status is `absent` and the resource exists, it will be removed only from OneView.  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>repaired</li>  <li>snapshot_created</li>  <li>snapshot_deleted</li> </ul> |  Indicates the desired state for the Volume resource. `present` creates/adds the resource when it does not exist, otherwise it updates the resource. When the resource already exists, the update operation is non-convergent, since it is always called even though the given options are compliant with the existent data. To change the name of the volume, a `newName` in the _data_ must be provided. `absent` by default deletes a volume from OneView and the storage system. When export_only is True, the volume is removed only from OneView. `repaired` removes extra presentations from a specified volume on the storage system. This operation is non-idempotent. `snapshot_created` creates a snapshot for the volume specified. This operation is non-idempotent. `snapshot_deleted` deletes a snapshot from OneView and the storage system.  |
-| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+| validate_etag  |   |  True  | |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
 
 
  
@@ -11010,6 +11856,8 @@ Manage OneView Volume resources.
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
 
 ---
 
@@ -11021,17 +11869,17 @@ Retrieve facts about the OneView Volumes.
  Retrieve facts about the Volumes from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 2.0.1
+  * python >= 2.7.9
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
-| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
 | name  |   No  |  | |  Volume name.  |
 | options  |   No  |  | |  List with options to gather additional facts about Volume and related resources. Options allowed: - `attachableVolumes` - `extraManagedVolumePaths` - `snapshots`. For this option, you may provide a name.  |
-| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| params  |   |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: - `start`: The first item to return, using 0-based indexing. - `count`: The number of resources to return. - `filter`: A general filter/query string to narrow the list of items returned. - `sort`: The sort order of the returned data set.  |
 
 
  
@@ -11121,6 +11969,8 @@ Retrieve facts about the OneView Volumes.
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
 
 
 ---
