@@ -7,10 +7,14 @@ Added the capability to handle OneView Appliance SNMP Settings
 
 #### Modules added
 - oneview_appliance_device_read_community
+- oneview_appliance_device_read_community_facts
 - oneview_appliance_device_snmp_v1_trap_destinations
+- oneview_appliance_device_snmp_v1_trap_destinations_facts
 - oneview_appliance_device_snmp_v3_trap_destinations
+- oneview_appliance_device_snmp_v3_trap_destinations_facts
 - oneview_appliance_device_snmp_v3_users
-
+- oneview_appliance_device_snmp_v3_users_facts
+ 
 ## v5.1.2 (Unreleased)
 
 This release adds the [endpoints-support.md](endpoints-support.md) file.
