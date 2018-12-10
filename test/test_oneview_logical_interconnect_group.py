@@ -309,6 +309,90 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
             msg=LogicalInterconnectGroupModule.MSG_ALREADY_PRESENT
         )
 
+    def test_should_raise_exception_when_ethernet_network_not_found(self):
+        self.resource.get_by.return_value = []
+        self.mock_ov_client.ethernet_networks.get_by.return_value = []
+        self.mock_ansible_module.params = deepcopy(PARAMS_WITH_CHANGES)
+        self.mock_ansible_module.params['data']['uplinkSets'][0]['networkUris'] = ['Name of an Ethernet Network']
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY, msg=LogicalInterconnectGroupModule.MSG_ETHERNET_NETWORK_NOT_FOUND + "Name of an Ethernet Network")
+
+    def test_should_create_when_ethernet_network_found(self):
+        self.resource.get_by.return_value = []
+        self.resource.create.return_value = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
+        self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd')]
+        self.mock_ansible_module.params = deepcopy(PARAMS_WITH_CHANGES)
+        self.mock_ansible_module.params['data']['uplinkSets'][0]['networkUris'] = ['Name of an Ethernet Network']
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_CREATED,
+            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS)
+        )
+
+    def test_should_raise_exception_when_fc_network_not_found(self):
+        self.resource.get_by.return_value = []
+        self.mock_ov_client.fc_networks.get_by.return_value = []
+        self.mock_ansible_module.params = deepcopy(PARAMS_WITH_CHANGES)
+        self.mock_ansible_module.params['data']['uplinkSets'][0]['networkUris'] = ['Name of a FC Network']
+        self.mock_ansible_module.params['data']['uplinkSets'][0]['networkType'] = 'FibreChannel'
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY, msg=LogicalInterconnectGroupModule.MSG_FC_NETWORK_NOT_FOUND + "Name of a FC Network")
+
+    def test_should_create_when_fc_network_found(self):
+        self.resource.get_by.return_value = []
+        self.resource.create.return_value = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
+        self.resource.create.return_value['networkType'] = 'FibreChannel'
+        self.resource.create.return_value['networkUris'] = ['/rest/fc-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd']
+        self.mock_ov_client.fc_networks.get_by.return_value = [dict(uri='/rest/fc-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd')]
+        self.mock_ansible_module.params = deepcopy(PARAMS_WITH_CHANGES)
+        self.mock_ansible_module.params['data']['uplinkSets'][0]['networkUris'] = ['Name of a FC Network']
+        self.mock_ansible_module.params['data']['uplinkSets'][0]['networkType'] = 'FibreChannel'
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_CREATED,
+            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS)
+        )
+
+    def test_should_create_when_fc_network_by_uri(self):
+        self.resource.get_by.return_value = []
+        self.resource.create.return_value = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
+        self.resource.create.return_value['networkType'] = 'FibreChannel'
+        self.resource.create.return_value['networkUris'] = ['/rest/fc-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd']
+        self.mock_ansible_module.params = deepcopy(PARAMS_WITH_CHANGES)
+        self.mock_ansible_module.params['data']['uplinkSets'][0]['networkUris'] = ['/rest/fc-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd']
+        self.mock_ansible_module.params['data']['uplinkSets'][0]['networkType'] = 'FibreChannel'
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_CREATED,
+            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS)
+        )
+
+    def test_should_raise_exception_when_network_type_invalid(self):
+        self.resource.get_by.return_value = []
+        self.mock_ansible_module.params = deepcopy(PARAMS_WITH_CHANGES)
+        self.mock_ansible_module.params['data']['uplinkSets'][0]['networkUris'] = ['Name of an Ethernet Network']
+        self.mock_ansible_module.params['data']['uplinkSets'][0]['networkType'] = 'foo'
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY, msg=LogicalInterconnectGroupModule.MSG_INVALID_NETWORK_TYPE + "foo")
+
 
 if __name__ == '__main__':
     pytest.main([__file__])
