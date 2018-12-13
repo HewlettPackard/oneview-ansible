@@ -96,6 +96,7 @@ user:
 '''
 
 from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleException, compare
+from hpOneView.exceptions import HPOneViewException
 
 
 class UserModule(OneViewModuleBase):
@@ -126,7 +127,7 @@ class UserModule(OneViewModuleBase):
             self.data["userName"] = self.data.pop("name")
         try:
             resource = self.resource_client.get_by('name', self.data['userName'])
-        except OneViewModuleException:
+        except HPOneViewException:
             resource = None
 
         if self.state == 'present':
