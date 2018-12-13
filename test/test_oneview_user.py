@@ -23,6 +23,8 @@ from copy import deepcopy
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import (UserModule,
                                    OneViewModuleException)
+from hpOneView.exceptions import HPOneViewException
+
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -68,7 +70,7 @@ class TestUserModule(OneViewBaseTest):
     """
 
     def test_should_create_new_user(self):
-        self.resource.get_by.side_effect = OneViewModuleException('FAKE_MSG_ERROR')
+        self.resource.get_by.side_effect = HPOneViewException('FAKE_MSG_ERROR')
         self.resource.create.return_value = DEFAULT_PARAMS
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
