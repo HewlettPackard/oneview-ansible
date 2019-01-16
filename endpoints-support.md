@@ -18,37 +18,37 @@
 
 ## HPE OneView
 
-| Endpoints                                                                       | Verb     | V200 | V300 | V500 |V600
-| --------------------------------------------------------------------------------------- | -------- | :------------------: | :------------------: | :------------------: | :------------------: |
+| Endpoints                                                                       | Verb     | V200 | V300 | V500 | V600 | V800
+| --------------------------------------------------------------------------------------- | -------- | :------------------: | :------------------: | :------------------: | :------------------: | :------------------: |
 |     **Alerts**                                                                                                                                   |
 |<sub>/rest/alerts	</sub>                                                                |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/alerts/{id}	</sub>                                                            |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/alerts/{id}	</sub>                                                            |PUT       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/alerts/{id}	</sub>                                                            |DELETE    | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |     **Appliance Device Read Community String**                                                                                                                                    |
-|<sub>/rest/appliance/device-read-community-string</sub>                                  |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/appliance/device-read-community-string</sub>                                  |PUT       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/device-read-community-string</sub>                                  |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/device-read-community-string</sub>                                  |PUT       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |     **Appliance SNMPv1 Trap Destinations**                                                                                                                                        |
-|<sub>/rest/appliance/trap-destinations</sub>                                             |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/appliance/trap-destinations/validation</sub>                                  |POST      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/appliance/trap-destinations/{id}</sub>                                        |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/appliance/trap-destinations/{id}</sub>                                        |POST      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/appliance/trap-destinations/{id}</sub>                                        |PUT       | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/appliance/trap-destinations/{id}</sub>                                        |DELETE    | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/trap-destinations</sub>                                             |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/trap-destinations/validation</sub>                                  |POST      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/trap-destinations/{id}</sub>                                        |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/trap-destinations/{id}</sub>                                        |POST      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/trap-destinations/{id}</sub>                                        |PUT       | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/trap-destinations/{id}</sub>                                        |DELETE    | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |     **Appliance SNMPv3 Trap Destinations**                                                                                                                                        |
-|<sub>/rest/appliance/snmpv3-trap-forwarding/destinations</sub>                           |GET       | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   |
-|<sub>/rest/appliance/snmpv3-trap-forwarding/destinations</sub>                           |POST      | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   |
-|<sub>/rest/appliance/snmpv3-trap-forwarding/destinations/validation</sub>                |POST      | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   |
-|<sub>/rest/appliance/snmpv3-trap-forwarding/destinations/{id}}</sub>                     |GET       | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   |
-|<sub>/rest/appliance/snmpv3-trap-forwarding/destinations/{id}</sub>                      |PUT       | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   |
-|<sub>/rest/appliance/snmpv3-trap-forwarding/destinations/{id}</sub>                      |DELETE    | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   |
+|<sub>/rest/appliance/snmpv3-trap-forwarding/destinations</sub>                           |GET       | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/snmpv3-trap-forwarding/destinations</sub>                           |POST      | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/snmpv3-trap-forwarding/destinations/validation</sub>                |POST      | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/snmpv3-trap-forwarding/destinations/{id}}</sub>                     |GET       | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/snmpv3-trap-forwarding/destinations/{id}</sub>                      |PUT       | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/snmpv3-trap-forwarding/destinations/{id}</sub>                      |DELETE    | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   |
 |     **Appliance SNMPv3 Users**                                                                                                                                                    |
-|<sub>/rest/appliance/snmpv3-trap-forwarding/users</sub>                                  |GET       | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   |
-|<sub>/rest/appliance/snmpv3-trap-forwarding/users</sub>                                  |POST      | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   |
-|<sub>/rest/appliance/snmpv3-trap-forwarding/users</sub>                                  |DELETE    | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   |
-|<sub>/rest/appliance/snmpv3-trap-forwarding/users/{id}}</sub>                            |GET       | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   |
-|<sub>/rest/appliance/snmpv3-trap-forwarding/users/{id}</sub>                             |PUT       | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   |
-|<sub>/rest/appliance/snmpv3-trap-forwarding/users/{id}</sub>                             |DELETE    | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   |
+|<sub>/rest/appliance/snmpv3-trap-forwarding/users</sub>                                  |GET       | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/snmpv3-trap-forwarding/users</sub>                                  |POST      | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/snmpv3-trap-forwarding/users</sub>                                  |DELETE    | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/snmpv3-trap-forwarding/users/{id}}</sub>                            |GET       | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/snmpv3-trap-forwarding/users/{id}</sub>                             |PUT       | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/appliance/snmpv3-trap-forwarding/users/{id}</sub>                             |DELETE    | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   |
 |     **Appliance Time and Locale Configuration**                                                                                                                                   |
 |<sub>/rest/appliance/configuration/time-locale</sub>                                     |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/appliance/configuration/time-locale</sub>                                     |POST      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
