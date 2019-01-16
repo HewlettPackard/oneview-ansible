@@ -1513,7 +1513,7 @@ Manage the Appliance Device Read Community string.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.7.2
+  * hpOneView >= 4.8.0
 
 #### Options
 
@@ -1571,7 +1571,7 @@ Retrieve the facts about the OneView appliance device read community.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.7.2
+  * hpOneView >= 4.8.0
 
 #### Options
 
@@ -1623,7 +1623,7 @@ Manage the Appliance Device SNMPv1 Trap Destinations.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.7.2
+  * hpOneView >= 4.8.0
 
 #### Options
 
@@ -1718,7 +1718,7 @@ Retrieve the facts about the OneView appliance SNMPv1 trap forwarding destinatio
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.7.2
+  * hpOneView >= 4.8.0
 
 #### Options
 
@@ -1795,7 +1795,7 @@ Manage the Appliance Device SNMPv3 Trap Destinations.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.7.2
+  * hpOneView >= 4.8.0
 
 #### Options
 
@@ -1876,7 +1876,7 @@ Retrieve the facts about the OneView appliance SNMPv3 trap forwarding destinatio
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.7.2
+  * hpOneView >= 4.8.0
 
 #### Options
 
@@ -1951,7 +1951,7 @@ Manage the Appliance Device SNMPv3 Users.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.7.2
+  * hpOneView >= 4.8.0
 
 #### Options
 
@@ -2032,7 +2032,7 @@ Retrieve the facts about the OneView appliance SNMPv3 users.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.7.2
+  * hpOneView >= 4.8.0
 
 #### Options
 
