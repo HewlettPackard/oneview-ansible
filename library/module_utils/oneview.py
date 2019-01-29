@@ -790,11 +790,17 @@ class ServerProfileReplaceNamesByUris(object):
                                   self.oneview_client.enclosure_groups)
 
     def _replace_networks_name_by_uri(self, data):
-        if SPKeys.CONNECTIONS in data and data[SPKeys.CONNECTIONS]:
-            for connection in data[SPKeys.CONNECTIONS]:
-                if 'networkName' in connection:
-                    name = connection.pop('networkName', None)
-                    connection['networkUri'] = self._get_network_by_name(name)['uri']
+        if data.get("connections"):
+            connections = data["connections"]
+        elif data.get("connectionSettings") and data["connectionSettings"].get("connections"):
+            connections = data["connectionSettings"]["connections"]
+        else:
+            return
+
+        for connection in connections:
+            if 'networkName' in connection:
+                name = connection.pop('networkName', None)
+                connection['networkUri'] = self._get_network_by_name(name)['uri']
 
     def _replace_server_hardware_type_name_by_uri(self, data):
         self._replace_name_by_uri(data, 'serverHardwareTypeName', self.SERVER_HARDWARE_TYPE_NOT_FOUND,
