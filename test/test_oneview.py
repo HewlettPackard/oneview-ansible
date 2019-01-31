@@ -1238,6 +1238,16 @@ class TestServerProfileReplaceNamesByUris():
         uri=SERVER_PROFILE_URI
     )
 
+    PROFILE_CONNECTIONS = [{"name": "connection-1", "networkUri": "/rest/fc-networks/98"},
+                           {"name": "connection-2", "networkName": "FC Network"},
+                           {"name": "connection-3", "networkName": "FCoE Network"},
+                           {"name": "connection-4", "networkName": 'Ethernet Network'}]
+
+    PROFILE_CONNECTIONS_WITH_NETWORK_URIS = [{"name": "connection-1", "networkUri": "/rest/fc-networks/98"},
+                                             {"name": "connection-2", "networkUri": "/rest/fc-networks/14"},
+                                             {"name": "connection-3", "networkUri": "/rest/fcoe-networks/16"},
+                                             {"name": "connection-4", "networkUri": "/rest/ethernet-networks/18"}]
+
     @pytest.fixture(autouse=True)
     def setUp(self):
         patcher_json_file = mock.patch.object(OneViewClient, 'from_json_file')
@@ -1301,14 +1311,9 @@ class TestServerProfileReplaceNamesByUris():
         else:
             pytest.fail(msg="Expected Exception was not raised")
 
-    def test_should_replace_connections_name_by_uri(self):
-        conn_1 = dict(name="connection-1", networkUri='/rest/fc-networks/98')
-        conn_2 = dict(name="connection-2", networkName='FC Network')
-        conn_3 = dict(name="connection-3", networkName='FCoE Network')
-        conn_4 = dict(name="connection-4", networkName='Ethernet Network')
-
+    def test_replace_network_name_by_uri_with_connections(self):
         sp_data = deepcopy(self.BASIC_PROFILE)
-        sp_data[SPKeys.CONNECTIONS] = [conn_1, conn_2, conn_3, conn_4]
+        sp_data[SPKeys.CONNECTIONS] = self.PROFILE_CONNECTIONS
 
         self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], [], []]
         self.mock_ov_client.fcoe_networks.get_by.side_effect = [[dict(uri='/rest/fcoe-networks/16')], []]
@@ -1316,12 +1321,21 @@ class TestServerProfileReplaceNamesByUris():
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
-        expected_connections = [dict(name="connection-1", networkUri='/rest/fc-networks/98'),
-                                dict(name="connection-2", networkUri='/rest/fc-networks/14'),
-                                dict(name="connection-3", networkUri='/rest/fcoe-networks/16'),
-                                dict(name="connection-4", networkUri='/rest/ethernet-networks/18')]
-
+        expected_connections = self.PROFILE_CONNECTIONS_WITH_NETWORK_URIS
         assert sp_data.get(SPKeys.CONNECTIONS) == expected_connections
+
+    def test_replace_network_name_by_uri_with_connection_settings(self):
+        sp_data = deepcopy(self.BASIC_PROFILE)
+        sp_data["connectionSettings"] = {SPKeys.CONNECTIONS: self.PROFILE_CONNECTIONS}
+
+        self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], [], []]
+        self.mock_ov_client.fcoe_networks.get_by.side_effect = [[dict(uri='/rest/fcoe-networks/16')], []]
+        self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
+
+        ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
+
+        expected_connections = self.PROFILE_CONNECTIONS_WITH_NETWORK_URIS
+        assert sp_data["connectionSettings"][SPKeys.CONNECTIONS] == expected_connections
 
     def test_should_fail_when_network_not_found(self):
         conn = dict(name="connection-1", networkName='FC Network')
