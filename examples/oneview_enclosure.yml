@@ -18,11 +18,12 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     enclosure_name: 0000A66101
-    variant: C7000
+    enclosure_hostname: 0000A66102
+    variant: Synergy
     scope_uris:
       - '/rest/scopes/9dd1856d-2490-4013-92a5-c7bf89bd9f0f'
-   #Required to create a certificate signing request 
-    csr_data:  
+   #Required to create a certificate signing request
+    csr_data:
       type: CertificateDtoV2
       organization: HPE
       organizationalUnit: IT
@@ -38,7 +39,7 @@
   vars_files:
     - "{{ playbook_dir }}/vars/config.yml"
   tasks:
-    # This play is compatible with C7000 Enclosures
+   # This play is compatible with C7000 Enclosures
     - name: Ensure the Enclosure with hostname '{{ enclosure_hostname }}' is present with name 'Test-Enclosure'
       oneview_enclosure:
         config: "{{ config }}"
@@ -53,7 +54,8 @@
           rackName: 'Rack-Name'
           scopeUris: '{{ scope_uris }}'
       when: variant == 'C7000'
-      delegate_to: localhost
+      delegate_to: localhos
+
 
     - name: Ensure the Enclosure framelink with ipv6 '{{ enclosure_hostname }}' is present
       oneview_enclosure:
@@ -160,7 +162,7 @@
     # Waiting for 10 seconds before attempting operations on enclosure
     - wait_for: port=22 host="{{ ansible_host }}" delay=10
       connection: local
-    
+
     - name: Import certificate signing request
       oneview_enclosure:
         config: "{{ config }}"

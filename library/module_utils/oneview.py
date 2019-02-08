@@ -321,6 +321,224 @@ class OneViewModuleResourceNotFound(OneViewModuleException):
     """
     pass
 
+# @six.add_metaclass(abc.ABCMeta)
+class OneViewModule(object):
+    MSG_CREATED = 'Resource created successfully.'
+    MSG_UPDATED = 'Resource updated successfully.'
+    MSG_DELETED = 'Resource deleted successfully.'
+    MSG_ALREADY_PRESENT = 'Resource is already present.'
+    MSG_ALREADY_ABSENT = 'Resource is already absent.'
+    MSG_DIFF_AT_KEY = 'Difference found at key \'{0}\'. '
+    HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
+
+    ONEVIEW_COMMON_ARGS = dict(
+        api_version=dict(type='int'),
+        config=dict(type='path'),
+        hostname=dict(type='str'),
+        image_streamer_hostname=dict(type='str'),
+        password=dict(type='str', no_log=True),
+        username=dict(type='str'),
+        auth_login_domain=dict(type='str')
+    )
+
+    ONEVIEW_VALIDATE_ETAG_ARGS = dict(validate_etag=dict(type='bool', default=True))
+
+    def __init__(self, additional_arg_spec=None, validate_etag_support=False):
+        """
+        OneViewModuleBase constructor.
+
+        :arg dict additional_arg_spec: Additional argument spec definition.
+        :arg bool validate_etag_support: Enables support to eTag validation.
+        """
+        argument_spec = self._build_argument_spec(additional_arg_spec, validate_etag_support)
+
+        self.module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+
+        self.resource_client = None
+        self.resource = None
+
+        self.state = self.module.params.get('state')
+        self.data = self.module.params.get('data')
+
+        self._check_hpe_oneview_sdk()
+        self._create_oneview_client()
+
+        # Preload params for get_all - used by facts
+        self.facts_params = self.module.params.get('params') or {}
+
+        # Preload options as dict - used by facts
+        self.options = transform_list_to_dict(self.module.params.get('options'))
+
+        self.validate_etag_support = validate_etag_support
+
+    def _build_argument_spec(self, additional_arg_spec, validate_etag_support):
+
+        merged_arg_spec = dict()
+        merged_arg_spec.update(self.ONEVIEW_COMMON_ARGS)
+
+        if validate_etag_support:
+            merged_arg_spec.update(self.ONEVIEW_VALIDATE_ETAG_ARGS)
+
+        if additional_arg_spec:
+            merged_arg_spec.update(additional_arg_spec)
+
+        return merged_arg_spec
+
+    def _check_hpe_oneview_sdk(self):
+        if not HAS_HPE_ONEVIEW:
+            self.module.fail_json(msg=self.HPE_ONEVIEW_SDK_REQUIRED)
+
+    def _create_oneview_client(self):
+        if self.module.params.get('hostname'):
+            config = dict(ip=self.module.params['hostname'],
+                          credentials=dict(userName=self.module.params['username'], password=self.module.params['password'],
+                                           authLoginDomain=self.module.params.get('auth_login_domain', '')),
+                          api_version=self.module.params['api_version'],
+                          image_streamer_ip=self.module.params['image_streamer_hostname'])
+            self.oneview_client = OneViewClient(config)
+        elif not self.module.params['config']:
+            self.oneview_client = OneViewClient.from_environment_variables()
+        else:
+            self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
+
+    def set_resource_object(self, resource_client):
+        # Defines resource_client used by other methods
+        self.resource_client = resource_client
+
+        if self.data.get("name"):
+            self.resource = self.resource_client.get_by_name(self.data["name"])
+
+    @abc.abstractmethod
+    def execute_module(self):
+        """
+        Abstract method, must be implemented by the inheritor.
+
+        This method is called from the run method. It should contain the module logic
+
+        :return: dict: It must return a dictionary with the attributes for the module result,
+            such as ansible_facts, msg and changed.
+        """
+        pass
+
+    def run(self):
+        """
+        Common implementation of the OneView run modules.
+
+        It calls the inheritor 'execute_module' function and sends the return to the Ansible.
+
+        It handles any OneViewModuleException in order to signal a failure to Ansible, with a descriptive error message.
+
+        """
+        try:
+            if self.validate_etag_support:
+                if not self.module.params.get('validate_etag'):
+                    self.oneview_client.connection.disable_etag_validation()
+
+            result = self.execute_module()
+
+            if not result:
+                result = {}
+
+            if "changed" not in result:
+                result['changed'] = False
+
+            self.module.exit_json(**result)
+
+        except OneViewModuleException as exception:
+            error_msg = '; '.join(to_native(e) for e in exception.args)
+            self.module.fail_json(msg=error_msg, exception=traceback.format_exc())
+
+    def resource_absent(self, method='delete'):
+        """
+        Generic implementation of the absent state for the OneView resources.
+
+        It checks if the resource needs to be removed.
+
+        :arg str method: Function of the OneView client that will be called for resource deletion.
+            Usually delete or remove.
+        :return: A dictionary with the expected arguments for the AnsibleModule.exit_json
+        """
+        if self.resource:
+            getattr(self.resource, method)()
+
+            return {"changed": True, "msg": self.MSG_DELETED}
+        else:
+            return {"changed": False, "msg": self.MSG_ALREADY_ABSENT}
+
+    def get_by_name(self, name):
+        """
+        Generic get by name implementation.
+
+        :arg str name: Resource name to search for.
+
+        :return: The resource found or None.
+        """
+        result = self.resource_client.get_by('name', name)
+        return result[0] if result else None
+
+    def resource_present(self, fact_name, create_method='create'):
+        """
+        Generic implementation of the present state for the OneView resources.
+
+        It checks if the resource needs to be created or updated.
+
+        :arg str fact_name: Name of the fact returned to the Ansible.
+        :arg str create_method: Function of the OneView client that will be called for resource creation.
+            Usually create or add.
+        :return: A dictionary with the expected arguments for the AnsibleModule.exit_json
+        """
+
+        changed = False
+        if "newName" in self.data:
+            self.data["name"] = self.data.pop("newName")
+
+        open("/home/administrator/Documents/oneview-ansible/resource_data.txt", "w").write(str(self.resource))
+
+        if not self.resource:
+            self.resource = getattr(self.resource_client, create_method)(self.data)
+            msg = self.MSG_CREATED
+            changed = True
+        else:
+            merged_data = self.resource.data.copy()
+            merged_data.update(self.data)
+
+            if compare(self.resource.data, merged_data):
+                msg = self.MSG_ALREADY_PRESENT
+            else:
+                self.resource.update(merged_data)
+                changed = True
+                msg = self.MSG_UPDATED
+
+        return dict(
+            msg=msg,
+            changed=changed,
+            ansible_facts={fact_name: self.resource.data}
+        )
+
+    def resource_scopes_set(self, state, fact_name, scope_uris):
+        """
+        Generic implementation of the scopes update PATCH for the OneView resources.
+        It checks if the resource needs to be updated with the current scopes.
+        This method is meant to be run after ensuring the present state.
+        :arg dict state: Dict containing the data from the last state results in the resource.
+            It needs to have the 'msg', 'changed', and 'ansible_facts' entries.
+        :arg str fact_name: Name of the fact returned to the Ansible.
+        :arg list scope_uris: List with all the scope URIs to be added to the resource.
+        :return: A dictionary with the expected arguments for the AnsibleModule.exit_json
+        """
+        if scope_uris is None:
+            scope_uris = []
+
+        resource = state['ansible_facts'][fact_name]
+
+        if not resource.get('scopeUris') or set(resource['scopeUris']) != set(scope_uris):
+            operation_data = dict(operation='replace', path='/scopeUris', value=scope_uris)
+            state['ansible_facts'][fact_name] = self.resource.patch(**operation_data)
+            state['changed'] = True
+            state['msg'] = self.MSG_UPDATED
+
+        return state
+
 
 # @six.add_metaclass(abc.ABCMeta)
 class OneViewModuleBase(object):
@@ -342,9 +560,9 @@ class OneViewModuleBase(object):
         auth_login_domain=dict(type='str')
     )
 
-    ONEVIEW_VALIDATE_ETAG_ARGS = dict(validate_etag=dict(type='bool', default=True))
-
     resource_client = None
+
+    ONEVIEW_VALIDATE_ETAG_ARGS = dict(validate_etag=dict(type='bool', default=True))
 
     def __init__(self, additional_arg_spec=None, validate_etag_support=False):
         """

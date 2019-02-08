@@ -17,7 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - name: "Encl1"  # Set the name of an existent Enclosure to run this example
+    - name: "0000A66102"  # Set the name of an existent Enclosure to run this example
   tasks:
     - name: Gather facts about all Enclosures
       oneview_enclosure_facts:

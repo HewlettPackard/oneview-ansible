@@ -381,10 +381,10 @@ enclosure:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
 
 
-class EnclosureModule(OneViewModuleBase):
+class EnclosureModule(OneViewModule):
     MSG_DELETED = 'Enclosure removed successfully.'
     MSG_ALREADY_ABSENT = 'Enclosure is already absent.'
     MSG_CREATED = 'Enclosure added successfully.'
@@ -494,77 +494,74 @@ class EnclosureModule(OneViewModuleBase):
 
     def __init__(self):
         super(EnclosureModule, self).__init__(additional_arg_spec=self.argument_spec)
-        self.resource_client = self.oneview_client.enclosures
+        self.set_resource_object(self.oneview_client.enclosures)
 
     def execute_module(self):
-
-        resource = self.__get_by_name(self.data)
-
         if self.state == 'present':
-            changed, msg, resource = self.__present(resource, self.data)
+            changed, msg, resource = self.__present()
         elif self.state == 'absent':
-            return self.resource_absent(resource, 'remove')
+            return self.resource_absent('remove')
         else:
-
-            if not resource:
+            if not self.resource:
                 raise OneViewModuleResourceNotFound(self.MSG_ENCLOSURE_NOT_FOUND)
 
             if self.state == 'reconfigured':
-                changed, msg, resource = self.__reconfigure(resource)
+                changed, msg, resource = self.__reconfigure()
             elif self.state == 'refreshed':
-                changed, msg, resource = self.__refresh(resource, self.data)
+                changed, msg, resource = self.__refresh()
             elif self.state == 'support_data_collection_set':
-                changed, msg, resource = self.__support_data_collection_set(resource, self.data)
+                changed, msg, resource = self.__support_data_collection_set()
             elif self.state == 'create_certificate_request':
-                changed, msg, resource = self.__create_certificate_request(resource, self.data)
+                changed, msg, resource = self.__create_certificate_request()
             elif self.state == 'get_certificate_request':
-                changed, msg, resource = self.__get_certificate_request(resource, self.data)
+                changed, msg, resource = self.__get_certificate_request()
             elif self.state == 'import_certificate_request':
-                changed, msg, resource = self.__import_certificate_request(resource, self.data)
+                changed, msg, resource = self.__import_certificate_request()
             else:
-                changed, msg, resource = self.__patch(resource, self.data)
+                changed, msg, resource = self.__patch()
 
         return dict(changed=changed,
                     msg=msg,
                     ansible_facts=dict(enclosure=resource))
 
-    def __present(self, resource_by_name, data):
+    def __present(self):
         changed = False
         message = self.MSG_ALREADY_PRESENT
 
-        configuration_data = data.copy()
+        configuration_data = self.data.copy()
 
         name = configuration_data.pop('newName', configuration_data.pop('name', None))
         rack_name = configuration_data.pop('rackName', None)
         calibrated_max_power = configuration_data.pop('calibratedMaxPower', None)
         scope_uris = configuration_data.pop('scopeUris', None)
 
-        if 'hostname' in data:
-            resource = self.__get_by_hostname(data['hostname'])
-            if not resource:
-                resource = self.oneview_client.enclosures.add(configuration_data)
+        if 'hostname' in self.data:
+            resource_by_host = self.__get_by_hostname(self.data['hostname'])
+            if not resource_by_host:
+                self.resource = self.resource_client.add(configuration_data)
                 message = self.MSG_CREATED
                 changed = True
-        else:
-            resource = resource_by_name
 
-        if self.__name_has_changes(resource, name):
-            resource = self.__replace_enclosure_name(resource, name)
+        if self.__name_has_changes(name):
+            self.__replace_enclosure_name(name)
             changed = True
             message = self.MSG_UPDATED
 
-        if self.__rack_name_has_changes(resource, rack_name):
-            resource = self.__replace_enclosure_rack_name(resource, rack_name)
+        if self.__rack_name_has_changes(rack_name):
+            self.__replace_enclosure_rack_name(rack_name)
             changed = True
             message = self.MSG_UPDATED
 
         if calibrated_max_power:
-            self.__set_calibrated_max_power(resource, calibrated_max_power)
+            self.__set_calibrated_max_power(calibrated_max_power)
             changed = True
             message = self.MSG_UPDATED
 
+        self.resource.refresh()
+        resource = self.resource.data
+
         if scope_uris is not None:
-            state = {'ansible_facts': {'enclosure': resource}, 'changed': changed, 'msg': message}
+            state = {'ansible_facts': {'enclosure': self.resource.data}, 'changed': changed, 'msg': message}
             result = self.resource_scopes_set(state, 'enclosure', scope_uris)
             resource = result['ansible_facts']['enclosure']
             changed = result['changed']
@@ -572,40 +569,40 @@ class EnclosureModule(OneViewModuleBase):
 
         return changed, message, resource
 
-    def __reconfigure(self, resource):
-        reconfigured_enclosure = self.oneview_client.enclosures.update_configuration(resource['uri'])
+    def __reconfigure(self):
+        reconfigured_enclosure = self.resource.update_configuration()
         return True, self.MSG_RECONFIGURED, reconfigured_enclosure
 
-    def __refresh(self, resource, data):
-        refresh_config = data.copy()
+    def __refresh(self):
+        refresh_config = self.data.copy()
         refresh_config.pop('name', None)
 
-        self.oneview_client.enclosures.refresh_state(resource['uri'], refresh_config)
-        enclosure = self.oneview_client.enclosures.get(resource['uri'])
+        self.resource.refresh_state(refresh_config)
+        self.resource.refresh() # Get updated data
 
-        return True, self.MSG_REFRESHED, enclosure
+        return True, self.MSG_REFRESHED, self.resource.data
 
-    def __support_data_collection_set(self, resource, data):
-        current_value = resource.get('supportDataCollectionState')
-        desired_value = data.get('supportDataCollectionState')
+    def __support_data_collection_set(self):
+        current_value = self.resource.data.get('supportDataCollectionState')
+        desired_value = self.data.get('supportDataCollectionState')
 
         if current_value != desired_value:
-            updated_resource = self.oneview_client.enclosures.patch(resource['uri'], operation='replace',
-                                                                    path='/supportDataCollectionState',
-                                                                    value=desired_value)
+            updated_resource = self.resource.patch(operation='replace',
+                                                   path='/supportDataCollectionState',
+                                                   value=desired_value)
             return True, self.MSG_SUPPORT_DATA_COLLECTION_STATE_SET, updated_resource
 
         return False, self.MSG_SUPPORT_DATA_COLLECTION_STATE_ALREADY_SET, resource
 
-    def __patch(self, resource, data):
+    def __patch(self):
         changed = False
         state_name = self.module.params['state']
         state = self.patch_params[state_name].copy()
-
-        property_current_value = self.__get_current_property_value(state_name, state, resource, data)
+        resource = []
+        property_current_value = self.__get_current_property_value(state_name, state)
 
         if self.__is_update_needed(state_name, state, property_current_value):
-            resource = self.oneview_client.enclosures.patch(resource['uri'], **state)
+            resource = self.resource.patch(**state)
             changed = True
 
         msg = self.patch_messages[state_name]['changed'] if changed else self.patch_messages[state_name]['not_changed']
@@ -626,7 +623,7 @@ class EnclosureModule(OneViewModuleBase):
 
         return need_request_update
 
-    def __get_current_property_value(self, state_name, state, resource, data):
+    def __get_current_property_value(self, state_name, state):
         property_name = state['path'].split('/')[1]
         sub_property_name = state['path'].split('/')[-1]
 
@@ -636,7 +633,7 @@ class EnclosureModule(OneViewModuleBase):
         if state_name == 'appliance_bays_powered_on':
             sub_property_name = 'poweredOn'
 
-        filter_ = set(data.keys()) - set(["name"])
+        filter_ = set(self.data.keys()) - set(["name"])
         if filter_:
             filter_ = filter_.pop()
 
@@ -644,44 +641,44 @@ class EnclosureModule(OneViewModuleBase):
 
         if filter_:
             sub_resource = None
-            if resource.get(property_name):
+            if self.resource.data.get(property_name):
                 sub_resource = next(
-                    (item for item in resource[property_name] if str(item[filter_]) == str(data[filter_])), None)
+                    (item for item in self.resource.data[property_name] if str(item[filter_]) == str(self.data[filter_])), None)
 
             if not sub_resource:
                 # Resource doesn't have that property or subproperty
                 raise OneViewModuleResourceNotFound(self.MSG_BAY_NOT_FOUND)
 
             property_current_value = sub_resource.get(sub_property_name)
-            state['path'] = state['path'].format(**data)
+            state['path'] = state['path'].format(**self.data)
 
         else:
-            property_current_value = resource[property_name]
+            property_current_value = self.resource.data[property_name]
 
         return property_current_value
 
-    def __name_has_changes(self, resource, name):
-        return name and resource['name'] != name
+    def __name_has_changes(self, name):
+        return name and self.resource.data['name'] != name
 
-    def __rack_name_has_changes(self, resource, rack_name):
-        return rack_name and resource.get('rackName', None) != rack_name
+    def __rack_name_has_changes(self, rack_name):
+        return rack_name and self.resource.data.get('rackName', None) != rack_name
 
-    def __replace_enclosure_name(self, resource, name):
-        updated_resource = self.oneview_client.enclosures.patch(resource['uri'], 'replace', '/name', name)
+    def __replace_enclosure_name(self, name):
+        updated_resource = self.resource.patch('replace', '/name', name)
         return updated_resource
 
-    def __replace_enclosure_rack_name(self, resource, rack_name):
-        updated_resource = self.oneview_client.enclosures.patch(resource['uri'], 'replace', '/rackName', rack_name)
+    def __replace_enclosure_rack_name(self, rack_name):
+        updated_resource = self.resource.patch('replace', '/rackName', rack_name)
         return updated_resource
 
-    def __set_calibrated_max_power(self, resource, calibrated_max_power):
+    def __set_calibrated_max_power(self, calibrated_max_power):
         body = {"calibratedMaxPower": calibrated_max_power}
-        self.oneview_client.enclosures.update_environmental_configuration(resource['uri'], body)
+        self.resource.update_environmental_configuration(body)
 
-    def __get_by_name(self, data):
-        if 'name' not in data:
+    def __get_by_name(self):
+        if 'name' not in self.data:
             return None
-        result = self.oneview_client.enclosures.get_by('name', data['name'])
+        result = self.resource.get_by('name', data['name'])
         return result[0] if result else None
 
     def __get_by_hostname(self, hostname):
@@ -690,25 +687,25 @@ class EnclosureModule(OneViewModuleBase):
             is_standby_ip = ('standbyOaPreferredIP' in enclosure and enclosure['standbyOaPreferredIP'] == hostname)
             return is_primary_ip or is_standby_ip
 
-        enclosures = self.oneview_client.enclosures.get_all()
+        enclosures = self.resource_client.get_all()
         result = [x for x in enclosures if filter_by_hostname(hostname, x)]
         return result[0] if result else None
 
-    def __create_certificate_request(self, resource, data):
-        csr_data = data.copy()
+    def __create_certificate_request(self):
+        csr_data = self.data.copy()
         bay_number = csr_data.pop('bay_number', 1)
-        create_csr = self.oneview_client.enclosures.generate_csr(csr_data, resource['uri'], bay_number)
+        create_csr = self.resource.generate_csr(csr_data, bay_number)
         return True, self.MSG_CREATE_CERTIFICATE_REQUEST, create_csr
 
-    def __get_certificate_request(self, resource, data):
-        bay_number = data.pop('bay_number', 1)
-        get_csr = self.oneview_client.enclosures.get_csr(resource['uri'], bay_number)
+    def __get_certificate_request(self):
+        bay_number = self.data.pop('bay_number', 1)
+        get_csr = self.resource.get_csr(bay_number)
         return True, self.MSG_GET_CERTIFICATE_REQUEST, get_csr
 
-    def __import_certificate_request(self, resource, data):
-        csr_data = data.copy()
+    def __import_certificate_request(self):
+        csr_data = self.data.copy()
         bay_number = csr_data.pop('bay_number', 1)
-        import_csr = self.oneview_client.enclosures.import_certificate(csr_data, resource['uri'], bay_number)
+        import_csr = self.resource.import_certificate(csr_data, bay_number)
         return True, self.MSG_IMPORT_CERTIFICATE_REQUEST, import_csr
 
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2018-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -150,14 +150,15 @@ enclosure_utilization:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class EnclosureFactsModule(OneViewModuleBase):
+class EnclosureFactsModule(OneViewModule):
     argument_spec = dict(name=dict(type='str'), options=dict(type='list'), params=dict(type='dict'))
 
     def __init__(self):
         super(EnclosureFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.resource_client = self.oneview_client.enclosures
 
     def execute_module(self):
 
@@ -169,7 +170,7 @@ class EnclosureFactsModule(OneViewModuleBase):
             if self.options and enclosures:
                 ansible_facts = self._gather_optional_facts(self.options, enclosures[0])
         else:
-            enclosures = self.oneview_client.enclosures.get_all(**self.facts_params)
+            enclosures = self.resource_client.get_all(**self.facts_params)
 
         ansible_facts['enclosures'] = enclosures
 
@@ -178,16 +179,16 @@ class EnclosureFactsModule(OneViewModuleBase):
 
     def _gather_optional_facts(self, options, enclosure):
 
-        enclosure_client = self.oneview_client.enclosures
         ansible_facts = {}
+        resource = self.resource_client.get_by_uri(enclosure['uri'])
 
         if options.get('script'):
-            ansible_facts['enclosure_script'] = enclosure_client.get_script(enclosure['uri'])
+            ansible_facts['enclosure_script'] = resource.get_script()
         if options.get('environmentalConfiguration'):
-            env_config = enclosure_client.get_environmental_configuration(enclosure['uri'])
+            env_config = resource.get_environmental_configuration()
             ansible_facts['enclosure_environmental_configuration'] = env_config
         if options.get('utilization'):
-            ansible_facts['enclosure_utilization'] = self._get_utilization(enclosure, options['utilization'])
+            ansible_facts['enclosure_utilization'] = self._get_utilization(resource, options['utilization'])
 
         return ansible_facts
 
@@ -200,14 +201,13 @@ class EnclosureFactsModule(OneViewModuleBase):
             refresh = params.get('refresh')
             filter = params.get('filter')
 
-        return self.oneview_client.enclosures.get_utilization(enclosure['uri'],
-                                                              fields=fields,
-                                                              filter=filter,
-                                                              refresh=refresh,
-                                                              view=view)
+        return enclosure.get_utilization(fields=fields,
+                                         filter=filter,
+                                         refresh=refresh,
+                                         view=view)
 
     def _get_by_name(self, name):
-        return self.oneview_client.enclosures.get_by('name', name)
+        return self.resource_client.get_by('name', name)
 
 
 def main():
