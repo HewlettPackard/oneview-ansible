@@ -53,6 +53,10 @@ PARAMS_FOR_ABSENT = dict(
 
 @pytest.mark.resource(TestApplianceDeviceSnmpV3TrapDestinationsModule='appliance_device_snmp_v3_trap_destinations')
 class TestApplianceDeviceSnmpV3TrapDestinationsModule(OneViewBaseTest):
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self, setUp):
+        self.mock_ov_client.api_version = 600
+
     def test_should_create_new_snmp_v3_trap_destination(self):
         self.resource.get_by.side_effect = OneViewModuleException('FAKE_MSG_ERROR')
         self.resource.create.return_value = DEFAULT_PARAMS
