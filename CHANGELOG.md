@@ -4,6 +4,9 @@
 
 This release adds the [endpoints-support.md](endpoints-support.md) file.
 
+#### Big fixes
+- [#392](https://github.com/HewlettPackard/oneview-ansible/issues/392) Use networkName field for SP with API600
+
 ## v5.1.1
 
 This release extends the planned support for the OneView REST API v600
