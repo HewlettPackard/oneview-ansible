@@ -91,7 +91,7 @@ oneview_appliance_device_snmp_v3_trap_destinations:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleException, OneViewModuleValueError
+from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleException, OneViewModuleValueError, OneViewModuleResourceNotFound
 
 
 class ApplianceDeviceSnmpV3TrapDestinationsModule(OneViewModuleBase):
@@ -120,6 +120,8 @@ class ApplianceDeviceSnmpV3TrapDestinationsModule(OneViewModuleBase):
         if self.oneview_client.api_version < 600:
             raise OneViewModuleValueError(self.MSG_API_VERSION_ERROR)
 
+        self.__replace_snmpv3_username_by_uri(self.data)
+
         if self.data.get('id'):
             query = self.resource_client.get_by_id(self.data.get('id'))
             resource = query[0] if query and query[0].get('id') == self.data['id'] else None
@@ -133,6 +135,24 @@ class ApplianceDeviceSnmpV3TrapDestinationsModule(OneViewModuleBase):
             return self.resource_present(resource, self.RESOURCE_FACT_NAME)
         elif self.state == 'absent':
             return self.resource_absent(resource)
+
+    def __get_snmpv3_user_by_username(self, username):
+        result = self.oneview_client.appliance_device_snmp_v3_users.get_by('userName', username)
+        return result[0] if result else None
+
+    def __get_snmpv3_user_by_uri(self, snmpv3_user_name_or_uri):
+        if snmpv3_user_name_or_uri.startswith('/rest/appliance/snmpv3-trap-forwarding/users'):
+            return snmpv3_user_name_or_uri
+        else:
+            snmpv3_user = self.__get_snmpv3_user_by_username(snmpv3_user_name_or_uri)
+            if snmpv3_user:
+                return snmpv3_user['uri']
+            else:
+                raise OneViewModuleResourceNotFound(self.MSG_USER_NOT_FOUND)
+
+    def __replace_snmpv3_username_by_uri(self, data):
+        if 'userUri' in data:
+            data['userUri'] = self.__get_snmpv3_user_by_uri(data['userUri'])
 
 
 def main():

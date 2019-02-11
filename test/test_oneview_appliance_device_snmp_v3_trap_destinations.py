@@ -20,7 +20,7 @@ import mock
 import pytest
 
 from hpe_test_utils import OneViewBaseTest
-from oneview_module_loader import ApplianceDeviceSnmpV3TrapDestinationsModule
+from oneview_module_loader import ApplianceDeviceSnmpV3TrapDestinationsModule, OneViewModuleException
 
 ERROR_MSG = 'Fake message error'
 
@@ -98,6 +98,19 @@ class TestApplianceDeviceSnmpV3TrapDestinationsModule(OneViewBaseTest):
             msg=ApplianceDeviceSnmpV3TrapDestinationsModule.MSG_UPDATED,
             ansible_facts=dict(appliance_device_snmp_v3_trap_destinations=data_merged)
         )
+
+    def test_should_raise_exception_when_snmpv3_user_not_found(self):
+        self.resource.get_by.side_effect = OneViewModuleException(ERROR_MSG)
+        self.mock_ov_client.appliance_device_snmp_v3_users.get_by.return_value = []
+
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES.copy()
+        self.mock_ansible_module.params['data']['userUri'] = 'Name of a SNMPv3 User'
+
+        ApplianceDeviceSnmpV3TrapDestinationsModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY, msg=ApplianceDeviceSnmpV3TrapDestinationsModule.MSG_USER_NOT_FOUND)
+
 
     def test_should_remove_snmp_v3_trap_destination(self):
         self.resource.get_by.return_value = [DEFAULT_PARAMS]
