@@ -130,17 +130,11 @@ class ApplianceDeviceSnmpV1TrapDestinationsModule(OneViewModuleBase):
 
     def execute_module(self):
         if self.data.get('uri'):
-            try:
-                query = self.resource_client.get_by('uri', self.data.get('uri'))
-                resource = query[0] if query and query[0].get('uri') == self.data['uri'] else None
-            except OneViewModuleException:
-                resource = None
+            query = self.resource_client.get_by('uri', self.data.get('uri'))
+            resource = query[0] if query and query[0].get('uri') == self.data['uri'] else None
         elif self.data.get('destination'):
-            try:
-                query = self.resource_client.get_by('destination', self.data.get('destination'))
-                resource = query[0] if query and query[0].get('destination') == self.data['destination'] else None
-            except OneViewModuleException:
-                resource = None
+            query = self.resource_client.get_by('destination', self.data.get('destination'))
+            resource = query[0] if query and query[0].get('destination') == self.data['destination'] else None
         else:
             raise OneViewModuleValueError(self.MSG_VALUE_ERROR)
 
