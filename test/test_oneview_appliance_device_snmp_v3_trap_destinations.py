@@ -111,7 +111,6 @@ class TestApplianceDeviceSnmpV3TrapDestinationsModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(
             exception=mock.ANY, msg=ApplianceDeviceSnmpV3TrapDestinationsModule.MSG_USER_NOT_FOUND)
 
-
     def test_should_remove_snmp_v3_trap_destination(self):
         self.resource.get_by.return_value = [DEFAULT_PARAMS]
 
