@@ -16,7 +16,10 @@ This release extends the planned support for the OneView REST API v800
 - oneview_appliance_device_snmp_v3_trap_destinations_facts
 - oneview_appliance_device_snmp_v3_users
 - oneview_appliance_device_snmp_v3_users_facts
- 
+
+#### Big fixes
+- [#392](https://github.com/HewlettPackard/oneview-ansible/issues/392) Use networkName field for SP with API600
+
 ## v5.1.1
 
 This release extends the planned support for the OneView REST API v600
