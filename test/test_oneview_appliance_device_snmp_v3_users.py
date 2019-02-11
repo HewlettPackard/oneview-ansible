@@ -20,7 +20,7 @@ import mock
 import pytest
 
 from hpe_test_utils import OneViewBaseTest
-from oneview_module_loader import ApplianceDeviceSnmpV3UsersModule, OneViewModuleException
+from oneview_module_loader import ApplianceDeviceSnmpV3UsersModule
 
 ERROR_MSG = 'Fake message error'
 
@@ -65,7 +65,6 @@ class TestApplianceDeviceSnmpV3UsersModule(OneViewBaseTest):
         self.mock_ov_client.api_version = 600
 
     def test_should_create_new_snmp_v3_user(self):
-        self.resource.get_by.side_effect = OneViewModuleException('FAKE_MSG_ERROR')
         self.resource.create.return_value = DEFAULT_PARAMS
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
