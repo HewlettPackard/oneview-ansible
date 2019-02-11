@@ -98,6 +98,7 @@ class ApplianceDeviceSnmpV3TrapDestinationsModule(OneViewModuleBase):
     MSG_CREATED = 'Appliance Device SNMPv3 Trap Destination created successfully.'
     MSG_UPDATED = 'Appliance Device SNMPv3 Trap Destination updated successfully.'
     MSG_DELETED = 'Appliance Device SNMPv3 Trap Destination deleted successfully.'
+    MSG_USER_NOT_FOUND = 'Appliance Device SNMPv3 User not found.'
     MSG_ALREADY_PRESENT = 'Appliance Device SNMPv3 Trap Destination is already present.'
     MSG_ALREADY_ABSENT = 'Appliance Device SNMPv3 Trap Destination is already absent.'
     MSG_VALUE_ERROR = 'The destinationAddress or the id attrbiutes must be specfied'
@@ -120,17 +121,11 @@ class ApplianceDeviceSnmpV3TrapDestinationsModule(OneViewModuleBase):
             raise OneViewModuleValueError(self.MSG_API_VERSION_ERROR)
 
         if self.data.get('id'):
-            try:
-                query = self.resource_client.get_by_id(self.data.get('id'))
-                resource = query[0] if query and query[0].get('id') == self.data['id'] else None
-            except OneViewModuleException:
-                resource = None
+            query = self.resource_client.get_by_id(self.data.get('id'))
+            resource = query[0] if query and query[0].get('id') == self.data['id'] else None
         elif self.data.get('destinationAddress'):
-            try:
-                query = self.resource_client.get_by('destinationAddress', self.data.get('destinationAddress'))
-                resource = query[0] if query and query[0].get('destinationAddress') == self.data['destinationAddress'] else None
-            except OneViewModuleException:
-                resource = None
+            query = self.resource_client.get_by('destinationAddress', self.data.get('destinationAddress'))
+            resource = query[0] if query and query[0].get('destinationAddress') == self.data['destinationAddress'] else None
         else:
             raise OneViewModuleValueError(self.MSG_VALUE_ERROR)
 
