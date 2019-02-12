@@ -1531,7 +1531,10 @@ Manage the Appliance Device Read Community string.
 
 - name: Ensure that the Appliance Device Read Community is present with Community String 'public'
   oneview_appliance_device_read_community:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       communityString: 'public'
@@ -1587,7 +1590,10 @@ Retrieve the facts about the OneView appliance device read community.
 
 - name: Gather facts about the Appliance snmp configuration
   oneview_appliance_device_read_community_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
 
 - debug:
     var: appliance_device_read_community
@@ -1641,7 +1647,10 @@ Manage the Appliance Device SNMPv1 Trap Destinations.
 
 - name: Create or Update an Appliance Device SNMPv1 Trap Destination by Destination Address
   oneview_appliance_device_snmp_v1_trap_destinations:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       communityString: "public"
@@ -1654,7 +1663,10 @@ Manage the Appliance Device SNMPv1 Trap Destinations.
 
 - name: Create or Update an Appliance Device SNMPv1 Trap Destination by URI
   oneview_appliance_device_snmp_v1_trap_destinations:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       communityString: "private"
@@ -1667,7 +1679,10 @@ Manage the Appliance Device SNMPv1 Trap Destinations.
 
 - name: Delete an Appliance Device SNMPv1 Trap Destination by Destination Address
   oneview_appliance_device_snmp_v1_trap_destinations:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: absent
     data:
       destination: "10.0.0.1"
@@ -1678,7 +1693,10 @@ Manage the Appliance Device SNMPv1 Trap Destinations.
 
 - name: Delete an Appliance Device SNMPv1 Trap Destination by URI
   oneview_appliance_device_snmp_v1_trap_destinations:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: absent
     data:
         uri: "/rest/appliance/trap-destinations/1"
@@ -1736,7 +1754,10 @@ Retrieve the facts about the OneView appliance SNMPv1 trap forwarding destinatio
 
 - name: Gather facts about all appliance SNMPv1 trap forwarding destinations.
   oneview_appliance_device_snmp_v1_trap_destinations_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
   delegate_to: localhost
 
 - debug:
@@ -1744,7 +1765,10 @@ Retrieve the facts about the OneView appliance SNMPv1 trap forwarding destinatio
 
 - name: Gather paginated, filtered and sorted facts about SNMPv1 trap forwarding destinations
   oneview_appliance_device_snmp_v1_trap_destinations_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -1757,7 +1781,10 @@ Retrieve the facts about the OneView appliance SNMPv1 trap forwarding destinatio
 
 - name: Gather facts about a Trap Destination by Destination
   oneview_appliance_device_snmp_v1_trap_destinations_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     destination: '1.1.1.1'
   delegate_to: localhost
 
@@ -1813,7 +1840,10 @@ Manage the Appliance Device SNMPv3 Trap Destinations.
 
 - name: Ensure that the SNMPv3 Trap Destination is present
   oneview_appliance_device_snmp_v3_trap_destinations:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
         type: "Destination"
@@ -1827,7 +1857,10 @@ Manage the Appliance Device SNMPv3 Trap Destinations.
 
 - name: Update the userId of specified SNMPv3 Trap Destination
   oneview_appliance_device_snmp_v3_trap_destinations:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       destinationAddress: "10.0.0.1"
@@ -1839,7 +1872,10 @@ Manage the Appliance Device SNMPv3 Trap Destinations.
 
 - name: Ensure that the SNMPv3 Trap Destination is absent
   oneview_appliance_device_snmp_v3_trap_destinations:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: absent
     data:
         destinationAddress: "10.0.0.1"
@@ -1892,7 +1928,10 @@ Retrieve the facts about the OneView appliance SNMPv3 trap forwarding destinatio
 
 - name: Gather facts about the appliance SNMPv3 trap forwarding destinations.
   oneview_appliance_device_snmp_v3_trap_destinations_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
   delegate_to: localhost
 
 - debug:
@@ -1900,7 +1939,10 @@ Retrieve the facts about the OneView appliance SNMPv3 trap forwarding destinatio
 
 - name: Gather paginated, filtered and sorted facts about SNMPv3 trap forwarding destinations
   oneview_appliance_device_snmp_v3_trap_destinations_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -1913,7 +1955,10 @@ Retrieve the facts about the OneView appliance SNMPv3 trap forwarding destinatio
 
 - name: Gather facts about a Trap Destination by ID
   oneview_appliance_device_snmp_v3_trap_destinations_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     id: "19dc6a96-bd04-4724-819b-32bc660fcefc"
   delegate_to: localhost
 
@@ -1969,7 +2014,10 @@ Manage the Appliance Device SNMPv3 Users.
 
 - name: Ensure that the SNMPv3 user is present using the default configuration
   oneview_appliance_device_snmp_v3_users:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
         type: "Users"
@@ -1983,7 +2031,10 @@ Manage the Appliance Device SNMPv3 Users.
 
 - name: Set the password of specified SNMPv3 user
   oneview_appliance_device_snmp_v3_users:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: set_password
     data:
       userName: "testUser"
@@ -1995,7 +2046,10 @@ Manage the Appliance Device SNMPv3 Users.
 
 - name: Ensure that the SNMPv3 user is absent
   oneview_appliance_device_snmp_v3_users:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: absent
     data:
         userName: "testUser"
@@ -2048,14 +2102,20 @@ Retrieve the facts about the OneView appliance SNMPv3 users.
 
 - name: Gather facts about the appliance SNMPv3 users.
   oneview_appliance_device_snmp_v3_users_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
 
 - debug:
     var: appliance_device_snmp_v3_users
 
 - name: Gather paginated, filtered and sorted facts about SNMPv3 users
   oneview_appliance_device_snmp_v3_users_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -2068,7 +2128,10 @@ Retrieve the facts about the OneView appliance SNMPv3 users.
 
 - name: Gather facts about a SNMPv3 user by ID
   oneview_appliance_device_snmp_v3_users_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     id: "2af33d0c-dc1f-4b5f-ba3e-e4a0b1acb899"
   delegate_to: localhost
 
