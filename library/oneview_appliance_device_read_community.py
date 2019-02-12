@@ -28,7 +28,7 @@ description:
     - Provides an interface to manage the Appliance Device Read Community string. It can only update it.
       This results in an update of the community string on all servers being managed/monitored by this OneView instance.
       The supported characters for community string are aA-zA, 0-9, !, ", #, $, %, ', &, (, ), *, +, -, ., /, @, `, {, |, }.
-version_added: "2.7"
+version_added: "2.5"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 4.8.0"

@@ -26,7 +26,7 @@ module: oneview_appliance_device_snmp_v3_users
 short_description: Manage the Appliance Device SNMPv3 Users.
 description:
     - Provides an interface to manage the Appliance Device SNMPv3 Users.
-version_added: "2.7"
+version_added: "2.5"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 4.8.0"

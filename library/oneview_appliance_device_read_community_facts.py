@@ -26,7 +26,7 @@ module: oneview_appliance_device_read_community_facts
 short_description: Retrieve the facts about the OneView appliance device read community.
 description:
     - Retrieve the facts about the OneView appliance device read community.
-version_added: "2.7"
+version_added: "2.5"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 4.8.0"

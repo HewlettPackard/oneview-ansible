@@ -28,7 +28,7 @@ description:
     - SNMPv3 user will be used for sending the SNMPv3 trap to the associated destinations.
       One user can be assigned to multiple destinations.
       This module retrives the facts about the appliance SNMPv3 users.
-version_added: "2.7"
+version_added: "2.5"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 4.8.0"
