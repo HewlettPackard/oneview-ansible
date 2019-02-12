@@ -51,7 +51,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Create or Update an Appliance Device SNMPv1 Trap Destination by Destination Address
   oneview_appliance_device_snmp_v1_trap_destinations:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       communityString: "public"
@@ -64,7 +67,10 @@ EXAMPLES = '''
 
 - name: Create or Update an Appliance Device SNMPv1 Trap Destination by URI
   oneview_appliance_device_snmp_v1_trap_destinations:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       communityString: "private"
@@ -77,7 +83,10 @@ EXAMPLES = '''
 
 - name: Delete an Appliance Device SNMPv1 Trap Destination by Destination Address
   oneview_appliance_device_snmp_v1_trap_destinations:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: absent
     data:
       destination: "10.0.0.1"
@@ -88,7 +97,10 @@ EXAMPLES = '''
 
 - name: Delete an Appliance Device SNMPv1 Trap Destination by URI
   oneview_appliance_device_snmp_v1_trap_destinations:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: absent
     data:
         uri: "/rest/appliance/trap-destinations/1"

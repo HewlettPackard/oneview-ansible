@@ -52,7 +52,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Ensure that the Appliance Device Read Community is present with Community String 'public'
   oneview_appliance_device_read_community:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       communityString: 'public'

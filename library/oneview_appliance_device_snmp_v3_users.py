@@ -52,7 +52,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Ensure that the SNMPv3 user is present using the default configuration
   oneview_appliance_device_snmp_v3_users:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
         type: "Users"
@@ -66,7 +69,10 @@ EXAMPLES = '''
 
 - name: Set the password of specified SNMPv3 user
   oneview_appliance_device_snmp_v3_users:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: set_password
     data:
       userName: "testUser"
@@ -78,7 +84,10 @@ EXAMPLES = '''
 
 - name: Ensure that the SNMPv3 user is absent
   oneview_appliance_device_snmp_v3_users:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: absent
     data:
         userName: "testUser"

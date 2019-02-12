@@ -51,7 +51,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Ensure that the SNMPv3 Trap Destination is present
   oneview_appliance_device_snmp_v3_trap_destinations:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
         type: "Destination"
@@ -65,7 +68,10 @@ EXAMPLES = '''
 
 - name: Update the userId of specified SNMPv3 Trap Destination
   oneview_appliance_device_snmp_v3_trap_destinations:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       destinationAddress: "10.0.0.1"
@@ -77,7 +83,10 @@ EXAMPLES = '''
 
 - name: Ensure that the SNMPv3 Trap Destination is absent
   oneview_appliance_device_snmp_v3_trap_destinations:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: absent
     data:
         destinationAddress: "10.0.0.1"

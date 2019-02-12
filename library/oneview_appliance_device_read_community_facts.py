@@ -39,7 +39,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about the Appliance snmp configuration
   oneview_appliance_device_read_community_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
 
 - debug:
     var: appliance_device_read_community

@@ -48,7 +48,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all appliance SNMPv1 trap forwarding destinations.
   oneview_appliance_device_snmp_v1_trap_destinations_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
   delegate_to: localhost
 
 - debug:
@@ -56,7 +59,10 @@ EXAMPLES = '''
 
 - name: Gather paginated, filtered and sorted facts about SNMPv1 trap forwarding destinations
   oneview_appliance_device_snmp_v1_trap_destinations_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -69,7 +75,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Trap Destination by Destination
   oneview_appliance_device_snmp_v1_trap_destinations_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     destination: '1.1.1.1'
   delegate_to: localhost
 

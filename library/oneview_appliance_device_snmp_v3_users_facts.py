@@ -41,14 +41,20 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about the appliance SNMPv3 users.
   oneview_appliance_device_snmp_v3_users_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
 
 - debug:
     var: appliance_device_snmp_v3_users
 
 - name: Gather paginated, filtered and sorted facts about SNMPv3 users
   oneview_appliance_device_snmp_v3_users_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -61,7 +67,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a SNMPv3 user by ID
   oneview_appliance_device_snmp_v3_users_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     id: "2af33d0c-dc1f-4b5f-ba3e-e4a0b1acb899"
   delegate_to: localhost
 
