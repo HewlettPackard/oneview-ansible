@@ -71,6 +71,9 @@ PARAMS_FOR_ABSENT_WITH_URI = dict(
 
 @pytest.mark.resource(TestApplianceDeviceSnmpV1TrapDestinationsModule='appliance_device_snmp_v1_trap_destinations')
 class TestApplianceDeviceSnmpV1TrapDestinationsModule(OneViewBaseTest):
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self, setUp):
+        self.mock_ov_client.api_version = 600
 
     def test_should_create_new_snmp_v1_trap_destination(self):
         self.resource.get_all.return_value = []

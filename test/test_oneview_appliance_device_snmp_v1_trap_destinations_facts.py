@@ -46,6 +46,10 @@ PRESENT_CONFIGURATION = [{
 
 @pytest.mark.resource(TestApplianceDeviceSnmpV1TrapDestinationsFactsModule='appliance_device_snmp_v1_trap_destinations')
 class TestApplianceDeviceSnmpV1TrapDestinationsFactsModule(OneViewBaseFactsTest):
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self, setUp):
+        self.mock_ov_client.api_version = 600
+
     def test_should_get_all_snmp_v1_trap_destinations(self):
         self.resource.get_all.return_value = PRESENT_CONFIGURATION
         self.mock_ansible_module.params = PARAMS_GET_ALL
