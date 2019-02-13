@@ -111,7 +111,7 @@ class ApplianceDeviceSnmpV3UsersModule(OneViewModuleBase):
     MSG_USER_NOT_FOUND = 'Appliance Device SNMPv3 User not found.'
     MSG_ALREADY_PRESENT = 'Appliance Device SNMPv3 User is already present.'
     MSG_ALREADY_ABSENT = 'Appliance Device SNMPv3 User is already absent.'
-    MSG_VALUE_ERROR = 'The userName or the id attrbiutes must be specfied'
+    MSG_VALUE_ERROR = 'The userName or the id attributes must be specfied'
     MSG_API_VERSION_ERROR = 'This module requires at least OneView 4.0 (API >= 600)'
     MSG_PASSWORD_UPDATED = 'User authenticationPassphrase set successfully.'
     RESOURCE_FACT_NAME = 'appliance_device_snmp_v3_users'
