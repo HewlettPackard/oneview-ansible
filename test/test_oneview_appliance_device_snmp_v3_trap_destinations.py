@@ -224,5 +224,6 @@ class TestApplianceDeviceSnmpV3TrapDestinationsModule(OneViewBaseTest):
             msg=ApplianceDeviceSnmpV3TrapDestinationsModule.MSG_VALUE_ERROR
         )
 
+
 if __name__ == '__main__':
     pytest.main([__file__])
