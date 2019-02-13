@@ -31,6 +31,14 @@ DEFAULT_PARAMS = dict(
     userId='8e57d829-2f17-4167-ae23-8fb46607c76c'
 )
 
+DEFAULT_PARAMS_WITH_ID = dict(
+    type='Destination',
+    id='86731e55-6837-44cf-a5c5-f0392920da7e',
+    userName='testUser',
+    port=162,
+    userId='8e57d829-2f17-4167-ae23-8fb46607c76c'
+)
+
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
@@ -44,6 +52,13 @@ PARAMS_WITH_CHANGES = dict(
               userId='3953867c-5283-4059-a9ae-33487f901e85')
 )
 
+PARAMS_WITH_CHANGES_USING_ID = dict(
+    config='config.json',
+    state='present',
+    data=dict(id=DEFAULT_PARAMS_WITH_ID['id'],
+              userId='3953867c-5283-4059-a9ae-33487f901e85')
+)
+
 PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
@@ -53,6 +68,17 @@ PARAMS_FOR_ABSENT = dict(
 
 @pytest.mark.resource(TestApplianceDeviceSnmpV3TrapDestinationsModule='appliance_device_snmp_v3_trap_destinations')
 class TestApplianceDeviceSnmpV3TrapDestinationsModule(OneViewBaseTest):
+    def test_should_raise_exception_when_api_is_lower_than_600(self):
+        self.mock_ov_client.api_version = 400
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        ApplianceDeviceSnmpV3TrapDestinationsModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY,
+            msg=ApplianceDeviceSnmpV3TrapDestinationsModule.MSG_API_VERSION_ERROR
+        )
+
     @pytest.fixture(autouse=True)
     def specific_set_up(self, setUp):
         self.mock_ov_client.api_version = 600
@@ -83,13 +109,63 @@ class TestApplianceDeviceSnmpV3TrapDestinationsModule(OneViewBaseTest):
             ansible_facts=dict(appliance_device_snmp_v3_trap_destinations=DEFAULT_PARAMS)
         )
 
-    def test_update_when_data_has_modified_attributes(self):
+    def test_update_when_data_has_modified_attributes_using_trap_id(self):
+        data_merged = DEFAULT_PARAMS_WITH_ID.copy()
+
+        self.resource.get_by_id.return_value = [DEFAULT_PARAMS_WITH_ID]
+        self.resource.update.return_value = data_merged
+
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES_USING_ID
+
+        ApplianceDeviceSnmpV3TrapDestinationsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ApplianceDeviceSnmpV3TrapDestinationsModule.MSG_UPDATED,
+            ansible_facts=dict(appliance_device_snmp_v3_trap_destinations=data_merged)
+        )
+
+    def test_update_when_data_has_modified_attributes_using_destination_address(self):
         data_merged = DEFAULT_PARAMS.copy()
 
         self.resource.get_by.return_value = [DEFAULT_PARAMS]
         self.resource.update.return_value = data_merged
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+
+        ApplianceDeviceSnmpV3TrapDestinationsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ApplianceDeviceSnmpV3TrapDestinationsModule.MSG_UPDATED,
+            ansible_facts=dict(appliance_device_snmp_v3_trap_destinations=data_merged)
+        )
+
+    def test_update_when_data_has_modified_attributes_using_user_uri(self):
+        data_merged = DEFAULT_PARAMS.copy()
+
+        self.resource.get_by.return_value = [DEFAULT_PARAMS]
+        self.resource.update.return_value = data_merged
+
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES.copy()
+        self.mock_ansible_module.params['data']['userUri'] = '/rest/appliance/snmpv3-trap-forwarding/users/8e57d829-2f17-4167-ae23-8fb46607c76c'
+
+        ApplianceDeviceSnmpV3TrapDestinationsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ApplianceDeviceSnmpV3TrapDestinationsModule.MSG_UPDATED,
+            ansible_facts=dict(appliance_device_snmp_v3_trap_destinations=data_merged)
+        )
+
+    def test_update_when_data_has_modified_attributes_using_username(self):
+        data_merged = DEFAULT_PARAMS.copy()
+
+        self.resource.get_by.return_value = [DEFAULT_PARAMS]
+        self.resource.update.return_value = data_merged
+
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES.copy()
+        self.mock_ansible_module.params['data']['userUri'] = 'testUser'
 
         ApplianceDeviceSnmpV3TrapDestinationsModule().run()
 
@@ -135,6 +211,18 @@ class TestApplianceDeviceSnmpV3TrapDestinationsModule(OneViewBaseTest):
             msg=ApplianceDeviceSnmpV3TrapDestinationsModule.MSG_ALREADY_ABSENT
         )
 
+    def test_should_raise_exception_when_trap_id_or_destination_address_not_provided(self):
+        data_missing = PARAMS_FOR_PRESENT.copy()
+        data_missing['data'].pop('destinationAddress')
+
+        self.mock_ansible_module.params = data_missing
+
+        ApplianceDeviceSnmpV3TrapDestinationsModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY,
+            msg=ApplianceDeviceSnmpV3TrapDestinationsModule.MSG_VALUE_ERROR
+        )
 
 if __name__ == '__main__':
     pytest.main([__file__])

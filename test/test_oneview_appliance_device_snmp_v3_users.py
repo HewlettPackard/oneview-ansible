@@ -31,6 +31,14 @@ DEFAULT_PARAMS = dict(
     authenticationProtocol='SHA256'
 )
 
+DEFAULT_PARAMS_WITH_ID = dict(
+    type='Users',
+    id='6b9c6f7b-7a24-4514-b9c9-0c31e086c170',
+    userName='testUser',
+    securityLevel='Authentication',
+    authenticationProtocol='SHA256'
+)
+
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
@@ -41,6 +49,13 @@ PARAMS_WITH_CHANGES = dict(
     config='config.json',
     state='present',
     data=dict(userName=DEFAULT_PARAMS['userName'],
+              authenticationProtocol='SHA512')
+)
+
+PARAMS_WITH_CHANGES_USING_ID = dict(
+    config='config.json',
+    state='present',
+    data=dict(id=DEFAULT_PARAMS_WITH_ID['id'],
               authenticationProtocol='SHA512')
 )
 
@@ -60,6 +75,17 @@ PARAMS_FOR_ABSENT = dict(
 
 @pytest.mark.resource(TestApplianceDeviceSnmpV3UsersModule='appliance_device_snmp_v3_users')
 class TestApplianceDeviceSnmpV3UsersModule(OneViewBaseTest):
+    def test_should_raise_exception_when_api_is_lower_than_600(self):
+        self.mock_ov_client.api_version = 400
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        ApplianceDeviceSnmpV3UsersModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY,
+            msg=ApplianceDeviceSnmpV3UsersModule.MSG_API_VERSION_ERROR
+        )
+
     @pytest.fixture(autouse=True)
     def specific_set_up(self, setUp):
         self.mock_ov_client.api_version = 600
@@ -90,7 +116,23 @@ class TestApplianceDeviceSnmpV3UsersModule(OneViewBaseTest):
             ansible_facts=dict(appliance_device_snmp_v3_users=DEFAULT_PARAMS)
         )
 
-    def test_update_when_data_has_modified_attributes(self):
+    def test_update_when_data_has_modified_attributes_using_id(self):
+        data_merged = DEFAULT_PARAMS_WITH_ID.copy()
+
+        self.resource.get_by_id.return_value = [DEFAULT_PARAMS_WITH_ID]
+        self.resource.update.return_value = data_merged
+
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES_USING_ID
+
+        ApplianceDeviceSnmpV3UsersModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ApplianceDeviceSnmpV3UsersModule.MSG_UPDATED,
+            ansible_facts=dict(appliance_device_snmp_v3_users=data_merged)
+        )
+
+    def test_update_when_data_has_modified_attributes_using_username(self):
         data_merged = DEFAULT_PARAMS.copy()
 
         self.resource.get_by.return_value = [DEFAULT_PARAMS]
@@ -130,7 +172,7 @@ class TestApplianceDeviceSnmpV3UsersModule(OneViewBaseTest):
             msg=ApplianceDeviceSnmpV3UsersModule.MSG_ALREADY_ABSENT
         )
 
-    def test_set_password_to_a_user(self):
+    def test_should_set_password_for_a_user(self):
         self.resource.get_by.return_value = [DEFAULT_PARAMS]
         self.resource.update.return_value = DEFAULT_PARAMS
 
@@ -144,7 +186,7 @@ class TestApplianceDeviceSnmpV3UsersModule(OneViewBaseTest):
             ansible_facts=dict(appliance_device_snmp_v3_users=DEFAULT_PARAMS)
         )
 
-    def test_requires_password_for_set_password(self):
+    def test_should_raise_exception_when_password_not_provided_for_set_password(self):
         self.resource.get_by.return_value = [DEFAULT_PARAMS]
         data_for_comparison = PARAMS_FOR_SET_PASSWORD.copy()
         data_for_comparison['data'].pop('authenticationPassphrase')
@@ -158,6 +200,30 @@ class TestApplianceDeviceSnmpV3UsersModule(OneViewBaseTest):
             msg='This state requires an authenticationPassphrase to be declared.'
         )
 
+    def test_should_raise_exception_when_user_does_not_exists_for_set_password(self):
+        self.resource.get_by.return_value = []
+
+        self.mock_ansible_module.params = PARAMS_FOR_SET_PASSWORD
+
+        ApplianceDeviceSnmpV3UsersModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY,
+            msg='The specified user does not exist.'
+        )
+
+    def test_should_raise_exception_when_user_id_or_username_not_provided(self):
+        data_missing = PARAMS_FOR_PRESENT.copy()
+        data_missing['data'].pop('userName')
+
+        self.mock_ansible_module.params = data_missing
+
+        ApplianceDeviceSnmpV3UsersModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY,
+            msg=ApplianceDeviceSnmpV3UsersModule.MSG_VALUE_ERROR
+        )
 
 if __name__ == '__main__':
     pytest.main([__file__])
