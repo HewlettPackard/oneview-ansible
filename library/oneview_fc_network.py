@@ -136,6 +136,7 @@ class FcNetworkModule(OneViewModule):
     def _present(self):
         scope_uris = self.data.pop('scopeUris', None)
         result = self.resource_present(self.RESOURCE_FACT_NAME)
+        open("/home/administrator/Documents/oneview-ansible/error.txt", "a").write(str(result))
         if scope_uris is not None:
             result = self.resource_scopes_set(result, 'fc_network', scope_uris)
         return result

@@ -487,12 +487,10 @@ class OneViewModule(object):
             Usually create or add.
         :return: A dictionary with the expected arguments for the AnsibleModule.exit_json
         """
-
         changed = False
+
         if "newName" in self.data:
             self.data["name"] = self.data.pop("newName")
-
-        open("/home/administrator/Documents/oneview-ansible/resource_data.txt", "w").write(str(self.resource))
 
         if not self.resource:
             self.resource = getattr(self.resource_client, create_method)(self.data)
@@ -509,10 +507,11 @@ class OneViewModule(object):
                 changed = True
                 msg = self.MSG_UPDATED
 
+        data = self.resource.data
         return dict(
             msg=msg,
             changed=changed,
-            ansible_facts={fact_name: self.resource.data}
+            ansible_facts={fact_name: data}
         )
 
     def resource_scopes_set(self, state, fact_name, scope_uris):

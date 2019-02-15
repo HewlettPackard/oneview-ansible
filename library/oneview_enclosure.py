@@ -381,7 +381,7 @@ enclosure:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, OneViewModuleValueError
 
 
 class EnclosureModule(OneViewModule):
@@ -493,7 +493,8 @@ class EnclosureModule(OneViewModule):
     )
 
     def __init__(self):
-        super(EnclosureModule, self).__init__(additional_arg_spec=self.argument_spec)
+        super(EnclosureModule, self).__init__(additional_arg_spec=self.argument_spec,
+                                              validate_etag_support=True)
         self.set_resource_object(self.oneview_client.enclosures)
 
     def execute_module(self):
@@ -536,11 +537,15 @@ class EnclosureModule(OneViewModule):
         scope_uris = configuration_data.pop('scopeUris', None)
 
         if 'hostname' in self.data:
-            resource_by_host = self.__get_by_hostname(self.data['hostname'])
-            if not resource_by_host:
+            resource_by_hostname = self.resource_client.get_by_hostname(self.data['hostname'])
+            if not resource_by_hostname:
                 self.resource = self.resource_client.add(configuration_data)
                 message = self.MSG_CREATED
                 changed = True
+
+        if not self.resource:
+           message = "Required hostname to add an enclosure and hostname/name of existing enclosure for other operations"
+           raise OneViewModuleValueError(message)
 
         if self.__name_has_changes(name):
             self.__replace_enclosure_name(name)
@@ -602,7 +607,8 @@ class EnclosureModule(OneViewModule):
         property_current_value = self.__get_current_property_value(state_name, state)
 
         if self.__is_update_needed(state_name, state, property_current_value):
-            resource = self.resource.patch(**state)
+            resource_obj = self.resource.patch(**state)
+            resource = resource_obj.data
             changed = True
 
         msg = self.patch_messages[state_name]['changed'] if changed else self.patch_messages[state_name]['not_changed']
@@ -626,7 +632,7 @@ class EnclosureModule(OneViewModule):
     def __get_current_property_value(self, state_name, state):
         property_name = state['path'].split('/')[1]
         sub_property_name = state['path'].split('/')[-1]
-
+        open("/home/administrator/Documents/oneview-ansible/error.txt", "a").write("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT\t" + str(property_name) +"\t"+ str(sub_property_name))
         if sub_property_name == property_name:
             sub_property_name = None
 
@@ -642,6 +648,7 @@ class EnclosureModule(OneViewModule):
         if filter_:
             sub_resource = None
             if self.resource.data.get(property_name):
+                open("/home/administrator/Documents/oneview-ansible/error.txt", "a").write("\n"+ str(self.resource.data.get(property_name)) +"\n"+ str(filter_))
                 sub_resource = next(
                     (item for item in self.resource.data[property_name] if str(item[filter_]) == str(self.data[filter_])), None)
 
@@ -675,36 +682,26 @@ class EnclosureModule(OneViewModule):
         body = {"calibratedMaxPower": calibrated_max_power}
         self.resource.update_environmental_configuration(body)
 
-    def __get_by_name(self):
-        if 'name' not in self.data:
-            return None
-        result = self.resource.get_by('name', data['name'])
-        return result[0] if result else None
-
-    def __get_by_hostname(self, hostname):
-        def filter_by_hostname(hostname, enclosure):
-            is_primary_ip = ('activeOaPreferredIP' in enclosure and enclosure['activeOaPreferredIP'] == hostname)
-            is_standby_ip = ('standbyOaPreferredIP' in enclosure and enclosure['standbyOaPreferredIP'] == hostname)
-            return is_primary_ip or is_standby_ip
-
-        enclosures = self.resource_client.get_all()
-        result = [x for x in enclosures if filter_by_hostname(hostname, x)]
-        return result[0] if result else None
+#    def __get_by_name(self):
+#        if 'name' not in self.data:
+#            return None
+#        result = self.resource.get_by('name', self.data['name'])
+#        return result[0] if result else None
 
     def __create_certificate_request(self):
         csr_data = self.data.copy()
-        bay_number = csr_data.pop('bay_number', 1)
+        bay_number = csr_data.pop('bay_number', None)
         create_csr = self.resource.generate_csr(csr_data, bay_number)
         return True, self.MSG_CREATE_CERTIFICATE_REQUEST, create_csr
 
     def __get_certificate_request(self):
-        bay_number = self.data.pop('bay_number', 1)
+        bay_number = self.data.pop('bay_number', None)
         get_csr = self.resource.get_csr(bay_number)
         return True, self.MSG_GET_CERTIFICATE_REQUEST, get_csr
 
     def __import_certificate_request(self):
         csr_data = self.data.copy()
-        bay_number = csr_data.pop('bay_number', 1)
+        bay_number = csr_data.pop('bay_number', None)
         import_csr = self.resource.import_certificate(csr_data, bay_number)
         return True, self.MSG_IMPORT_CERTIFICATE_REQUEST, import_csr
 

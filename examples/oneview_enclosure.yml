@@ -17,8 +17,9 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    enclosure_name: 0000A66101
-    enclosure_hostname: 0000A66102
+    enclosure_name: En1
+    enclosure_hostname: 172.18.6.4
+    enclosure_framelink_ipv6: fe80::2:ff:fe03:4
     variant: Synergy
     scope_uris:
       - '/rest/scopes/9dd1856d-2490-4013-92a5-c7bf89bd9f0f'
@@ -56,13 +57,12 @@
       when: variant == 'C7000'
       delegate_to: localhos
 
-
-    - name: Ensure the Enclosure framelink with ipv6 '{{ enclosure_hostname }}' is present
+    - name: Ensure the Enclosure framelink with ipv6 '{{ enclosure_framelink_ipv6 }}' is present
       oneview_enclosure:
         config: "{{ config }}"
         state: present
         data:
-          hostname: '{{ enclosure_hostname }}'
+          hostname: '{{ enclosure_framelink_ipv6 }}'
       when: variant == 'Synergy'
       delegate_to: localhost
 
@@ -94,6 +94,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: present
+        validate_etag: False
         data:
           name: '{{ enclosure_name }}'
           newName: 'Test-Enclosure-Renamed'
@@ -107,6 +108,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: present
+        validate_etag: False
         data:
           name: 'Test-Enclosure-Renamed'
           newName: '{{ enclosure_name }}'
@@ -193,9 +195,10 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: appliance_bays_powered_on
+        validate_etag: False
         data:
           name: '{{ enclosure_name }}'
-          bayNumber: 3
+          bayNumber: 1
       when: variant == 'Synergy'
       delegate_to: localhost
       register: result
@@ -207,6 +210,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: uid_off
+        validate_etag: False
         data:
           name: '{{ enclosure_name }}'
       when: variant == 'Synergy'
@@ -220,6 +224,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: uid_on
+        validate_etag: False
         data:
           name: '{{ enclosure_name }}'
       when: variant == 'Synergy'
@@ -233,6 +238,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: manager_bays_uid_on
+        validate_etag: False
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 1
@@ -247,6 +253,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: manager_bays_uid_off
+        validate_etag: False
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 1
@@ -261,6 +268,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: manager_bays_power_state_e_fuse
+        validate_etag: False
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 1
@@ -275,6 +283,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: manager_bays_power_state_reset
+        validate_etag: False
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 2
@@ -289,6 +298,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: appliance_bays_power_state_e_fuse
+        validate_etag: False
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 1
@@ -303,6 +313,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: device_bays_power_state_e_fuse
+        validate_etag: False
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 10
@@ -317,6 +328,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: device_bays_power_state_reset
+        validate_etag: False
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 11
@@ -331,6 +343,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: interconnect_bays_power_state_e_fuse
+        validate_etag: False
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 3
@@ -345,6 +358,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: manager_bays_role_active
+        validate_etag : False
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 2
@@ -359,6 +373,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: device_bays_ipv4_removed
+        validate_etag: False
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 3
@@ -373,6 +388,7 @@
       oneview_enclosure:
         config: "{{ config }}"
         state: interconnect_bays_ipv4_removed
+        validate_etag: False
         data:
           name: '{{ enclosure_name }}'
           bayNumber: 6
