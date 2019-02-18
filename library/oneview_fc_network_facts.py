@@ -87,10 +87,10 @@ fc_networks:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class FcNetworkFactsModule(OneViewModuleBase):
+class FcNetworkFactsModule(OneViewModule):
     def __init__(self):
 
         argument_spec = dict(
