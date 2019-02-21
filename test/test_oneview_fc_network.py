@@ -59,7 +59,7 @@ class TestFcNetworkModule(OneViewBaseTest):
     def test_should_create_new_fc_network(self):
         self.resource.get_by_name.return_value = []
 
-        self.resource.data =  DEFAULT_FC_NETWORK_TEMPLATE
+        self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE
         self.resource.create.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -146,7 +146,7 @@ class TestFcNetworkModule(OneViewBaseTest):
 
         patch_return_obj = self.resource.copy()
         patch_return_obj.data = patch_return
-        self.resource.patch.return_value =  patch_return_obj
+        self.resource.patch.return_value = patch_return_obj
 
         FcNetworkModule().run()
 

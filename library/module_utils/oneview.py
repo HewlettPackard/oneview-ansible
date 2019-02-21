@@ -530,8 +530,6 @@ class OneViewModule(object):
             scope_uris = []
 
         resource = state['ansible_facts'][fact_name]
-        if fact_name == "enclosures":
-          open("/home/administrator/Documents/oneview-ansible/log_error.txt", "a").write(str(resource) + "\t" + str(scope_uris))
 
         if not resource.get('scopeUris') or set(resource['scopeUris']) != set(scope_uris):
             operation_data = dict(operation='replace', path='/scopeUris', value=scope_uris)
