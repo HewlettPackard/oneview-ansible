@@ -158,7 +158,7 @@ class EnclosureFactsModule(OneViewModule):
 
     def __init__(self):
         super(EnclosureFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
-        self.resource_client = self.oneview_client.enclosures
+        self.set_resource_object(self.oneview_client.enclosures)
 
     def execute_module(self):
 
@@ -194,7 +194,7 @@ class EnclosureFactsModule(OneViewModule):
 
     def _get_utilization(self, enclosure, params):
         fields = view = refresh = filter = ''
-
+        open("/home/administrator/Documents/oneview-ansible/log_error.txt", "a") .write(str(enclosure))
         if isinstance(params, dict):
             fields = params.get('fields')
             view = params.get('view')

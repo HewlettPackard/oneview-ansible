@@ -321,6 +321,7 @@ class OneViewModuleResourceNotFound(OneViewModuleException):
     """
     pass
 
+
 # @six.add_metaclass(abc.ABCMeta)
 class OneViewModule(object):
     MSG_CREATED = 'Resource created successfully.'
@@ -355,7 +356,7 @@ class OneViewModule(object):
         self.module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
 
         self.resource_client = None
-        self.resource = None
+        self.current_resource = None
 
         self.state = self.module.params.get('state')
         self.data = self.module.params.get('data')
@@ -405,8 +406,8 @@ class OneViewModule(object):
         # Defines resource_client used by other methods
         self.resource_client = resource_client
 
-        if self.data.get("name"):
-            self.resource = self.resource_client.get_by_name(self.data["name"])
+        if self.data and self.data.get("name"):
+            self.current_resource = self.resource_client.get_by_name(self.data["name"])
 
     @abc.abstractmethod
     def execute_module(self):
@@ -458,8 +459,8 @@ class OneViewModule(object):
             Usually delete or remove.
         :return: A dictionary with the expected arguments for the AnsibleModule.exit_json
         """
-        if self.resource:
-            getattr(self.resource, method)()
+        if self.current_resource:
+            getattr(self.current_resource, method)()
 
             return {"changed": True, "msg": self.MSG_DELETED}
         else:
@@ -492,22 +493,22 @@ class OneViewModule(object):
         if "newName" in self.data:
             self.data["name"] = self.data.pop("newName")
 
-        if not self.resource:
-            self.resource = getattr(self.resource_client, create_method)(self.data)
+        if not self.current_resource:
+            self.current_resource = getattr(self.resource_client, create_method)(self.data)
             msg = self.MSG_CREATED
             changed = True
         else:
-            merged_data = self.resource.data.copy()
+            merged_data = self.current_resource.data.copy()
             merged_data.update(self.data)
 
-            if compare(self.resource.data, merged_data):
+            if compare(self.current_resource.data, merged_data):
                 msg = self.MSG_ALREADY_PRESENT
             else:
-                self.resource.update(merged_data)
+                self.current_resource.update(merged_data)
                 changed = True
                 msg = self.MSG_UPDATED
 
-        data = self.resource.data
+        data = self.current_resource.data
         return dict(
             msg=msg,
             changed=changed,
@@ -529,10 +530,13 @@ class OneViewModule(object):
             scope_uris = []
 
         resource = state['ansible_facts'][fact_name]
+        if fact_name == "enclosures":
+          open("/home/administrator/Documents/oneview-ansible/log_error.txt", "a").write(str(resource) + "\t" + str(scope_uris))
 
         if not resource.get('scopeUris') or set(resource['scopeUris']) != set(scope_uris):
             operation_data = dict(operation='replace', path='/scopeUris', value=scope_uris)
-            state['ansible_facts'][fact_name] = self.resource.patch(**operation_data)
+            updated_resource = self.current_resource.patch(**operation_data)
+            state['ansible_facts'][fact_name] = updated_resource.data
             state['changed'] = True
             state['msg'] = self.MSG_UPDATED
 

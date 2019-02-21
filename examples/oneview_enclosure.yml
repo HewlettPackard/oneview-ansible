@@ -263,21 +263,21 @@
     - debug: var=result.msg
       when: variant == 'Synergy'
 
-    # This state is only available on HPE Synergy.
-    - name: E-Fuse the Synergy Frame Link Module bay 1
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: manager_bays_power_state_e_fuse
-        validate_etag: False
-        data:
-          name: '{{ enclosure_name }}'
-          bayNumber: 1
-      when: variant == 'Synergy'
-      delegate_to: localhost
-      register: result
-    - debug: var=result.msg
-      when: variant == 'Synergy'
-
+#    # This state is only available on HPE Synergy.
+#    - name: E-Fuse the Synergy Frame Link Module bay 1
+#      oneview_enclosure:
+#        config: "{{ config }}"
+#        state: manager_bays_power_state_e_fuse
+#        validate_etag: False
+#        data:
+#          name: '{{ enclosure_name }}'
+#          bayNumber: 1
+#      when: variant == 'Synergy'
+#      delegate_to: localhost
+#      register: result
+#    - debug: var=result.msg
+#      when: variant == 'Synergy'
+#
     # This state is only available on HPE Synergy.
     - name: Reset the Synergy Frame Link Module bay 2
       oneview_enclosure:
@@ -294,35 +294,35 @@
       when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy.
-    - name: E-Fuse the appliance bay 1
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: appliance_bays_power_state_e_fuse
-        validate_etag: False
-        data:
-          name: '{{ enclosure_name }}'
-          bayNumber: 1
-      when: variant == 'Synergy'
-      delegate_to: localhost
-      register: result
-    - debug: var=result.msg
-      when: variant == 'Synergy'
-
-    # This state is only available on HPE Synergy.
-    - name: E-Fuse the device bay 10
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: device_bays_power_state_e_fuse
-        validate_etag: False
-        data:
-          name: '{{ enclosure_name }}'
-          bayNumber: 10
-      when: variant == 'Synergy'
-      delegate_to: localhost
-      register: result
-    - debug: var=result.msg
-      when: variant == 'Synergy'
-
+#    - name: E-Fuse the appliance bay 1
+#      oneview_enclosure:
+#        config: "{{ config }}"
+#        state: appliance_bays_power_state_e_fuse
+#        validate_etag: False
+#        data:
+#          name: '{{ enclosure_name }}'
+#          bayNumber: 1
+#      when: variant == 'Synergy'
+#      delegate_to: localhost
+#      register: result
+#    - debug: var=result.msg
+#      when: variant == 'Synergy'
+#
+#    # This state is only available on HPE Synergy.
+#    - name: E-Fuse the device bay 10
+#      oneview_enclosure:
+#        config: "{{ config }}"
+#        state: device_bays_power_state_e_fuse
+#        validate_etag: False
+#        data:
+#          name: '{{ enclosure_name }}'
+#          bayNumber: 10
+#      when: variant == 'Synergy'
+#      delegate_to: localhost
+#      register: result
+#    - debug: var=result.msg
+#      when: variant == 'Synergy'
+#
     # This state is only available on HPE Synergy.
     - name: Reset the device bay 11
       oneview_enclosure:
@@ -339,20 +339,20 @@
       when: variant == 'Synergy'
 
     # This state is only available on HPE Synergy.
-    - name: E-Fuse the IC bay 3
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: interconnect_bays_power_state_e_fuse
-        validate_etag: False
-        data:
-          name: '{{ enclosure_name }}'
-          bayNumber: 3
-      when: variant == 'Synergy'
-      delegate_to: localhost
-      register: result
-    - debug: var=result.msg
-      when: variant == 'Synergy'
-
+#    - name: E-Fuse the IC bay 3
+#      oneview_enclosure:
+#        config: "{{ config }}"
+#        state: interconnect_bays_power_state_e_fuse
+#        validate_etag: False
+#        data:
+#          name: '{{ enclosure_name }}'
+#          bayNumber: 3
+#      when: variant == 'Synergy'
+#      delegate_to: localhost
+#      register: result
+#    - debug: var=result.msg
+#      when: variant == 'Synergy'
+#
     # This state is only available on HPE Synergy.
     - name: Set the active Synergy Frame Link Module on bay 2
       oneview_enclosure:
