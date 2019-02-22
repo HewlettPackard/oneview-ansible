@@ -57,7 +57,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -72,7 +72,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -83,7 +83,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -98,7 +98,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -121,7 +121,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -164,11 +164,9 @@ class EnclosureFactsModule(OneViewModule):
 
         ansible_facts = {}
 
-        if self.module.params['name']:
-            enclosures = self._get_by_name(self.module.params['name'])
-
-            if self.options and enclosures:
-                ansible_facts = self._gather_optional_facts(self.options, enclosures[0])
+        if self.options and self.current_resource:
+            enclosures = self.current_resource.data
+            ansible_facts = self._gather_optional_facts(self.options)
         else:
             enclosures = self.resource_client.get_all(**self.facts_params)
 
@@ -177,37 +175,32 @@ class EnclosureFactsModule(OneViewModule):
         return dict(changed=False,
                     ansible_facts=ansible_facts)
 
-    def _gather_optional_facts(self, options, enclosure):
+    def _gather_optional_facts(self, options):
 
         ansible_facts = {}
-        resource = self.resource_client.get_by_uri(enclosure['uri'])
 
         if options.get('script'):
-            ansible_facts['enclosure_script'] = resource.get_script()
+            ansible_facts['enclosure_script'] = self.current_resource.get_script()
         if options.get('environmentalConfiguration'):
-            env_config = resource.get_environmental_configuration()
+            env_config = self.current_resource.get_environmental_configuration()
             ansible_facts['enclosure_environmental_configuration'] = env_config
         if options.get('utilization'):
-            ansible_facts['enclosure_utilization'] = self._get_utilization(resource, options['utilization'])
+            ansible_facts['enclosure_utilization'] = self._get_utilization(options['utilization'])
 
         return ansible_facts
 
-    def _get_utilization(self, enclosure, params):
+    def _get_utilization(self, params):
         fields = view = refresh = filter = ''
-        open("/home/administrator/Documents/oneview-ansible/log_error.txt", "a") .write(str(enclosure))
         if isinstance(params, dict):
             fields = params.get('fields')
             view = params.get('view')
             refresh = params.get('refresh')
             filter = params.get('filter')
 
-        return enclosure.get_utilization(fields=fields,
-                                         filter=filter,
-                                         refresh=refresh,
-                                         view=view)
-
-    def _get_by_name(self, name):
-        return self.resource_client.get_by('name', name)
+        return self.current_resource.get_utilization(fields=fields,
+                                                     filter=filter,
+                                                     refresh=refresh,
+                                                     view=view)
 
 
 def main():

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2018-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       enclosureGroupUri : '{{ enclosure_group_uri }}'
@@ -108,7 +108,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'Test-Enclosure'
@@ -119,7 +119,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: reconfigured
     data:
       name: 'Test-Enclosure'
@@ -129,7 +129,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
       name: 'Test-Enclosure'
@@ -139,7 +139,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: refreshed
     data:
       name: 'Test-Enclosure'
@@ -150,7 +150,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: create_certificate_request
     data:
       name: 'Test-Enclosure'
@@ -168,7 +168,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: get_certificate_request
     data:
       name: 'Test-Enclosure'
@@ -179,7 +179,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: import_certificate_request
     data:
       name: 'Test-Enclosure'
@@ -191,7 +191,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'Test-Enclosure'
@@ -202,7 +202,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: appliance_bays_powered_on
     data:
       name: 'Test-Enclosure'
@@ -213,7 +213,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: uid_on
     data:
       name: 'Test-Enclosure'
@@ -223,7 +223,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: uid_off
     data:
       name: 'Test-Enclosure'
@@ -233,7 +233,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: manager_bays_uid_on
     data:
       name: 'Test-Enclosure'
@@ -244,7 +244,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: manager_bays_uid_off
     data:
       name: 'Test-Enclosure'
@@ -255,7 +255,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: manager_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -266,7 +266,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: manager_bays_power_state_reset
     data:
       name: 'Test-Enclosure'
@@ -277,7 +277,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: appliance_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -288,7 +288,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: device_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -299,7 +299,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: device_bays_power_state_reset
     data:
       name: 'Test-Enclosure'
@@ -310,7 +310,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: interconnect_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -321,7 +321,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: manager_bays_role_active
     data:
       name: 'Test-Enclosure'
@@ -332,7 +332,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: device_bays_ipv4_removed
     data:
       name: 'Test-Enclosure'
@@ -343,7 +343,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: interconnect_bays_ipv4_removed
     data:
       name: 'Test-Enclosure'
@@ -354,7 +354,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: support_data_collection_set
     data:
       name: 'Test-Enclosure'
@@ -365,7 +365,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'Test-Enclosure'
@@ -381,7 +381,9 @@ enclosure:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, OneViewModuleValueError
+from ansible.module_utils.oneview import (OneViewModule,
+                                          OneViewModuleResourceNotFound,
+                                          OneViewModuleValueError)
 
 
 class EnclosureModule(OneViewModule):
@@ -545,7 +547,8 @@ class EnclosureModule(OneViewModule):
                 self.current_resource = resource_by_hostname
 
         if not self.current_resource:
-            message = "Required hostname to add an enclosure or hostname/name of existing enclosure for other operations"
+            message = "Required hostname to add an enclosure or hostname/name of \
+                       existing enclosure for other operations"
             raise OneViewModuleValueError(message)
 
         if self.__name_has_changes(name):
@@ -566,7 +569,8 @@ class EnclosureModule(OneViewModule):
         resource = self.current_resource.data
 
         if scope_uris is not None:
-            state = {'ansible_facts': {'enclosure': self.current_resource.data}, 'changed': changed, 'msg': message}
+            state = {'ansible_facts': {'enclosure': self.current_resource.data},
+                     'changed': changed, 'msg': message}
             result = self.resource_scopes_set(state, 'enclosure', scope_uris)
             resource = result['ansible_facts']['enclosure']
             changed = result['changed']

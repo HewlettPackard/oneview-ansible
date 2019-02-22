@@ -403,11 +403,17 @@ class OneViewModule(object):
             self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
     def set_resource_object(self, resource_client):
-        # Defines resource_client used by other methods
         self.resource_client = resource_client
+        name = None
 
         if self.data and self.data.get("name"):
-            self.current_resource = self.resource_client.get_by_name(self.data["name"])
+            name = self.data["name"]
+
+        if not name and self.module.params.get("name"):
+            name = self.module.params["name"]
+
+        if name:
+            self.current_resource = self.resource_client.get_by_name(name)
 
     @abc.abstractmethod
     def execute_module(self):
