@@ -55,7 +55,7 @@
           rackName: 'Rack-Name'
           scopeUris: '{{ scope_uris }}'
       when: variant == 'C7000'
-      delegate_to: localhos
+      delegate_to: localhost
 
     - name: Ensure the Enclosure framelink with ipv6 '{{ enclosure_framelink_ipv6 }}' is present
       oneview_enclosure:
@@ -132,7 +132,7 @@
           refreshState: 'RefreshPending'
       delegate_to: localhost
 
-   # Waiting for 10 seconds before attempting operations on enclosure
+    # Waiting for 10 seconds before attempting operations on enclosure
     - wait_for: port=22 host="{{ ansible_host }}" delay=10
       connection: local
 
