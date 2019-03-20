@@ -17,6 +17,14 @@
   * [image_streamer_plan_script - Manage the Image Streamer Plan Script resources.](#image_streamer_plan_script)
   * [image_streamer_plan_script_facts - Retrieve facts about the Image Streamer Plan Scripts.](#image_streamer_plan_script_facts)
   * [oneview_alert_facts - Retrieve facts about the OneView Alerts.](#oneview_alert_facts)
+  * [oneview_appliance_device_read_community - Manage the Appliance Device Read Community string.](#oneview_appliance_device_read_community)
+  * [oneview_appliance_device_read_community_facts - Retrieve the facts about the OneView appliance device read community.](#oneview_appliance_device_read_community_facts)
+  * [oneview_appliance_device_snmp_v1_trap_destinations - Manage the Appliance Device SNMPv1 Trap Destinations.](#oneview_appliance_device_snmp_v1_trap_destinations)
+  * [oneview_appliance_device_snmp_v1_trap_destinations_facts - Retrieve the facts about the OneView appliance SNMPv1 trap forwarding destinations.](#oneview_appliance_device_snmp_v1_trap_destinations_facts)
+  * [oneview_appliance_device_snmp_v3_trap_destinations - Manage the Appliance Device SNMPv3 Trap Destinations.](#oneview_appliance_device_snmp_v3_trap_destinations)
+  * [oneview_appliance_device_snmp_v3_trap_destinations_facts - Retrieve the facts about the OneView appliance SNMPv3 trap forwarding destinations.](#oneview_appliance_device_snmp_v3_trap_destinations_facts)
+  * [oneview_appliance_device_snmp_v3_users - Manage the Appliance Device SNMPv3 Users.](#oneview_appliance_device_snmp_v3_users)
+  * [oneview_appliance_device_snmp_v3_users_facts - Retrieve the facts about the OneView appliance SNMPv3 users.](#oneview_appliance_device_snmp_v3_users_facts)
   * [oneview_appliance_time_and_locale_configuration - Manage OneView Appliance Locale and Time Configuration.](#oneview_appliance_time_and_locale_configuration)
   * [oneview_appliance_time_and_locale_configuration_facts - Retrieve the facts about the OneView appliance time and locale configuration.](#oneview_appliance_time_and_locale_configuration_facts)
   * [oneview_connection_template - Manage the OneView Connection Template resources.](#oneview_connection_template)
@@ -1483,6 +1491,662 @@ Retrieve facts about the OneView Alerts.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | alerts   | The list of alerts. |  Always, but can be null. |  list |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_appliance_device_read_community
+Manage the Appliance Device Read Community string.
+
+#### Synopsis
+ Provides an interface to manage the Appliance Device Read Community string. It can only update it. This results in an update of the community string on all servers being managed/monitored by this OneView instance. The supported characters for community string are aA-zA, 0-9, !, ",
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 4.8.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with the Appliance Device Read Community.  |
+| state  |   |  | <ul> <li>present</li> </ul> |  Indicates the desired state for the Appliance Device Read Community. `present` ensures data properties are compliant with OneView.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Ensure that the Appliance Device Read Community is present with Community String 'public'
+  oneview_appliance_device_read_community:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    state: present
+    data:
+      communityString: 'public'
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_read_community
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_device_read_community   | Has all the OneView facts about the OneView Appliance Device Read Community. |  Always. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_appliance_device_read_community_facts
+Retrieve the facts about the OneView appliance device read community.
+
+#### Synopsis
+ Retrieve the facts about the OneView appliance device read community.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 4.8.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Gather facts about the Appliance snmp configuration
+  oneview_appliance_device_read_community_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+
+- debug:
+    var: appliance_device_read_community
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_device_read_community   | Has all the OneView facts about the OneView appliance device read community. |  Always. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_appliance_device_snmp_v1_trap_destinations
+Manage the Appliance Device SNMPv1 Trap Destinations.
+
+#### Synopsis
+ Provides an interface to manage the Appliance Device SNMPv1 Trap Destinations.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 4.8.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with the SNMPv1 Trap Destination properties  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Appliance Device SNMPv1 Trap Destinations. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Create or Update an Appliance Device SNMPv1 Trap Destination by Destination Address
+  oneview_appliance_device_snmp_v1_trap_destinations:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    state: present
+    data:
+      communityString: "public"
+      destination: "10.0.0.1"
+      port: 162
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v1_trap_destinations
+
+- name: Create or Update an Appliance Device SNMPv1 Trap Destination by URI
+  oneview_appliance_device_snmp_v1_trap_destinations:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    state: present
+    data:
+      communityString: "private"
+      uri: "/rest/appliance/trap-destinations/1"
+      port: 162
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v1_trap_destinations
+
+- name: Delete an Appliance Device SNMPv1 Trap Destination by Destination Address
+  oneview_appliance_device_snmp_v1_trap_destinations:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    state: absent
+    data:
+      destination: "10.0.0.1"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v1_trap_destinations
+
+- name: Delete an Appliance Device SNMPv1 Trap Destination by URI
+  oneview_appliance_device_snmp_v1_trap_destinations:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    state: absent
+    data:
+        uri: "/rest/appliance/trap-destinations/1"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v1_trap_destinations
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_device_snmp_v1_trap_destinations   | Has all the OneView facts about the OneView appliance SNMPv1 trap forwarding destinations. |  On state 'present'. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_appliance_device_snmp_v1_trap_destinations_facts
+Retrieve the facts about the OneView appliance SNMPv1 trap forwarding destinations.
+
+#### Synopsis
+ The appliance has the ability to forward events received from monitored or managed server hardware to the specified destinations as SNMPv1 traps. This module retrives the facts about the appliance SNMPv1 trap forwarding destinations.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 4.8.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| id  |   No  |  | |  ID or URI of trap destination.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Gather facts about all appliance SNMPv1 trap forwarding destinations.
+  oneview_appliance_device_snmp_v1_trap_destinations_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v1_trap_destinations
+
+- name: Gather paginated, filtered and sorted facts about SNMPv1 trap forwarding destinations
+  oneview_appliance_device_snmp_v1_trap_destinations_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    params:
+      start: 0
+      count: 3
+      sort: 'destination:descending'
+      filter: "port='162'"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v1_trap_destinations
+
+- name: Gather facts about a Trap Destination by Destination
+  oneview_appliance_device_snmp_v1_trap_destinations_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    destination: '1.1.1.1'
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v1_trap_destinations
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_device_snmp_v1_trap_destinations   | Has all the OneView facts about the OneView appliance SNMPv1 trap forwarding destinations. |  Always. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_appliance_device_snmp_v3_trap_destinations
+Manage the Appliance Device SNMPv3 Trap Destinations.
+
+#### Synopsis
+ Provides an interface to manage the Appliance Device SNMPv3 Trap Destinations.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 4.8.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with the SNMPv3 Trap Destinations properties  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Appliance Device SNMPv3 Trap Destinations. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Ensure that the SNMPv3 Trap Destination is present
+  oneview_appliance_device_snmp_v3_trap_destinations:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    state: present
+    data:
+        type: "Destination"
+        destinationAddress: "10.0.0.1"
+        port: 162
+        userId: "8e57d829-2f17-4167-ae23-8fb46607c76c"
+  delegate_to: localhost
+
+- debug:
+    var: oneview_appliance_device_snmp_v3_trap_destinations
+
+- name: Update the userId of specified SNMPv3 Trap Destination
+  oneview_appliance_device_snmp_v3_trap_destinations:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    state: present
+    data:
+      destinationAddress: "10.0.0.1"
+      userId: "3953867c-5283-4059-a9ae-33487f901e85"
+  delegate_to: localhost
+
+- debug:
+    var: oneview_appliance_device_snmp_v3_trap_destinations
+
+- name: Ensure that the SNMPv3 Trap Destination is absent
+  oneview_appliance_device_snmp_v3_trap_destinations:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    state: absent
+    data:
+        destinationAddress: "10.0.0.1"
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| oneview_appliance_device_snmp_v3_trap_destinations   | Has all the OneView facts about the OneView appliance SNMPv3 Trap Destination. |  On state 'present'. Can be null. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_appliance_device_snmp_v3_trap_destinations_facts
+Retrieve the facts about the OneView appliance SNMPv3 trap forwarding destinations.
+
+#### Synopsis
+ The appliance has the ability to forward events received from monitored or managed server hardware to the specified destinations as SNMPv3 traps. This module retrives the facts about the appliance SNMPv3 trap forwarding destinations.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 4.8.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Gather facts about the appliance SNMPv3 trap forwarding destinations.
+  oneview_appliance_device_snmp_v3_trap_destinations_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v3_trap_destinations
+
+- name: Gather paginated, filtered and sorted facts about SNMPv3 trap forwarding destinations
+  oneview_appliance_device_snmp_v3_trap_destinations_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    params:
+      start: 0
+      count: 3
+      sort: 'destinationAddress:descending'
+      filter: "port='162'"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v3_trap_destinations
+
+- name: Gather facts about a Trap Destination by ID
+  oneview_appliance_device_snmp_v3_trap_destinations_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    id: "19dc6a96-bd04-4724-819b-32bc660fcefc"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v3_trap_destinations
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_device_snmp_v3_trap_destinations   | Has all the OneView facts about the OneView appliance SNMPv3 trap forwarding destinations. |  Always. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_appliance_device_snmp_v3_users
+Manage the Appliance Device SNMPv3 Users.
+
+#### Synopsis
+ Provides an interface to manage the Appliance Device SNMPv3 Users.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 4.8.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with the SNMPv3 Users properties  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>set_password</li> </ul> |  Indicates the desired state for the Appliance Device SNMPv3 User. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists. `set_password` will set a user password to the value specified. This operation is non-idempotent.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Ensure that the SNMPv3 user is present using the default configuration
+  oneview_appliance_device_snmp_v3_users:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    state: present
+    data:
+        type: "Users"
+        userName: "testUser"
+        securityLevel: "Authentication"
+        authenticationProtocol: "SHA512"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v3_users
+
+- name: Set the password of specified SNMPv3 user
+  oneview_appliance_device_snmp_v3_users:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    state: set_password
+    data:
+      userName: "testUser"
+      authenticationPassphrase: "NewPass1234"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v3_users
+
+- name: Ensure that the SNMPv3 user is absent
+  oneview_appliance_device_snmp_v3_users:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    state: absent
+    data:
+        userName: "testUser"
+  delegate_to: localhost
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_device_snmp_v3_users   | Has all the OneView facts about the OneView appliance SNMPv3 users. |  On state 'present' and 'set_password'. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_appliance_device_snmp_v3_users_facts
+Retrieve the facts about the OneView appliance SNMPv3 users.
+
+#### Synopsis
+ SNMPv3 user will be used for sending the SNMPv3 trap to the associated destinations. One user can be assigned to multiple destinations. This module retrives the facts about the appliance SNMPv3 users.
+
+#### Requirements (on the host that executes the module)
+  * python >= 2.7.9
+  * hpOneView >= 4.8.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Gather facts about the appliance SNMPv3 users.
+  oneview_appliance_device_snmp_v3_users_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+
+- debug:
+    var: appliance_device_snmp_v3_users
+
+- name: Gather paginated, filtered and sorted facts about SNMPv3 users
+  oneview_appliance_device_snmp_v3_users_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: "securityLevel='Authentication and privacy'"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v3_users
+
+- name: Gather facts about a SNMPv3 user by ID
+  oneview_appliance_device_snmp_v3_users_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
+    id: "2af33d0c-dc1f-4b5f-ba3e-e4a0b1acb899"
+  delegate_to: localhost
+
+- debug:
+    var: appliance_device_snmp_v3_users
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| appliance_device_snmp_v3_users   | Has all the OneView facts about the OneView appliance SNMPv3 users. |  Always. |  dict |
 
 
 #### Notes

@@ -178,7 +178,7 @@ Setting `no_log: true` is highly recommended in this case, as the credentials ar
 
 ### 4. Setting your OneView version
 
-The Ansible modules for HPE OneView support the API endpoints for HPE OneView 2.0, 3.0, 3.10 and 4.0.
+The Ansible modules for HPE OneView support the API endpoints for HPE OneView 2.0, 3.0, 3.10, 4.0 and 4.10.
 
 The current `default` HPE OneView version used by the modules is `3.00`, API `300`.
 
@@ -201,6 +201,7 @@ The API list is as follows:
 - HPE OneView 3.0 API version: `300`
 - HPE OneView 3.10 API version: `500`
 - HPE OneView 4.0 API version: `600`
+- HPE OneView 4.10 API version: `800`
 
 ### 5. HPE Synergy Image Streamer
 

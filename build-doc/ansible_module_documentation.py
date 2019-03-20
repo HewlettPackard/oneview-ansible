@@ -18,6 +18,7 @@ from ansible.module_utils.basic import AnsibleModule
 
 try:
     from ansible.utils import plugin_docs
+    from ansible.plugins.loader import fragment_loader
 except ImportError:
     # Ignored for the unit tests
     pass
@@ -120,7 +121,7 @@ def main():
                 module_file_name = os.path.normpath(os.path.join(root, file_name))
 
                 # Tuple size may vary according to the Ansible version
-                docstring = plugin_docs.get_docstring(module_file_name)
+                docstring = plugin_docs.get_docstring(module_file_name, fragment_loader)
                 doc = docstring[0]
                 plainexamples = docstring[1]
                 returndocs = docstring[2]
