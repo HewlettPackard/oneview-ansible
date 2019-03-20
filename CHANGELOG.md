@@ -1,11 +1,35 @@
 # Ansible Modules for HPE OneView Change Log
 
-## v5.1.3 (Unreleased)
-This release extends the planned support of the module to OneView REST API version 800 (OneView v4.1).
+## v5.3.0 (Unreleased)
 
-## v5.1.2 (Unreleased)
+This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1).
 
+#### Major changes
+1. Extended support of planned modules to API800
+2. Updated library files to support Python SDK changes
+
+## v5.2.0 (Unreleased)
+
+#### Notes
+Added the capability to handle OneView Appliance SNMP Settings
 This release adds the [endpoints-support.md](endpoints-support.md) file.
+This release extends the planned support for the OneView REST API v800
+
+#### Modules added
+- oneview_appliance_device_read_community
+- oneview_appliance_device_read_community_facts
+- oneview_appliance_device_snmp_v1_trap_destinations
+- oneview_appliance_device_snmp_v1_trap_destinations_facts
+- oneview_appliance_device_snmp_v3_trap_destinations
+- oneview_appliance_device_snmp_v3_trap_destinations_facts
+- oneview_appliance_device_snmp_v3_users
+- oneview_appliance_device_snmp_v3_users_facts
+
+#### Big fixes
+- [#392](https://github.com/HewlettPackard/oneview-ansible/issues/392) Use networkName field for SP with API600
+
+#### Big fixes
+- [#392](https://github.com/HewlettPackard/oneview-ansible/issues/392) Use networkName field for SP with API600
 
 ## v5.1.1
 

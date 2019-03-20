@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
 # limitations under the License.
 ###
 ---
-enclosure_hostname: ''
-enclosure_username: ''
-enclosure_password: ''
-enclosure_group_uri: ''
-storage_system_ip_hostname: ''
-storage_system_username: ''
-storage_system_password: ''
-server_hardware_hostname: ''
-server_hardware_username: ''
-server_hardware_password: ''
-power_device_hostname: ''
-power_device_username: ''
-power_device_password: ''
+- hosts: all
+  vars:
+    - config: "{{ playbook_dir }}/oneview_config.json"
+  tasks:
+    - name: Gather facts about the Appliance snmp configuration
+      oneview_appliance_device_read_community_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: 
+        var: appliance_device_read_community
