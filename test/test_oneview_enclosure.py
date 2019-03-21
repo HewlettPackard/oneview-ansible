@@ -273,6 +273,17 @@ class TestEnclosureModule(OneViewBaseTest):
             ansible_facts=dict(enclosure=ENCLOSURE_FROM_ONEVIEW)
         )
 
+    def test_should_fail_create_new_enclosure(self):
+        self.resource.get_by_name.return_value = []
+        self.resource.get_by_hostname.return_value = []
+        self.resource.add.return_value = []
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        EnclosureModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY,
+                                                                   msg=EnclosureModule.MSG_ENCLOSURE_REQUIRED_FIELDS)
+
     def test_should_not_update_when_no_changes_by_primary_ip_key(self):
         self.resource.data = ENCLOSURE_FROM_ONEVIEW
         self.resource.get_by_name.return_value = self.resource
