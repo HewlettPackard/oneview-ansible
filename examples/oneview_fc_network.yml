@@ -57,15 +57,15 @@
           linkStabilityTime: '30'
       delegate_to: localhost
 
-          #    # This feature is available only till OneView 3.10
-          #    - name: Update the FC Network with two scopes
-          #      oneview_fc_network:
-          #        config: "{{ config }}"
-          #        state: present
-          #        data:
-          #          name: "{{ network_name }}"
-          #          scopeUris: "{{ network_scope_uris }}"
-          #      delegate_to: localhost
+    # This feature is available only till OneView 3.10
+    - name: Update the FC Network with two scopes
+      oneview_fc_network:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: "{{ network_name }}"
+          scopeUris: "{{ network_scope_uris }}"
+      delegate_to: localhost
 
     - name: Delete the Fibre Channel Network
       oneview_fc_network:
