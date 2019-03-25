@@ -536,8 +536,9 @@ class OneViewModule(object):
             scope_uris = []
 
         resource = state['ansible_facts'][fact_name]
-
-        if not resource.get('scopeUris') or set(resource['scopeUris']) != set(scope_uris):
+        print(resource, state, scope_uris)
+        print(not resource.get('scopeUris') or set(resource['scopeUris']) != set(scope_uris))
+        if resource.get('scopeUris') is None or set(resource['scopeUris']) != set(scope_uris):
             operation_data = dict(operation='replace', path='/scopeUris', value=scope_uris)
             updated_resource = self.current_resource.patch(**operation_data)
             state['ansible_facts'][fact_name] = updated_resource.data
