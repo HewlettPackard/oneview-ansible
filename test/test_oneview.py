@@ -53,7 +53,7 @@ class StubResource(OneViewModule):
 
 class TestOneViewModule():
     """
-    OneViewModuleBaseSpec provides the mocks used in this test case.
+    OneViewModuleSpec provides the mocks used in this test case.
     """
     mock_ov_client_from_json_file = None
     mock_ov_client_from_env_vars = None
@@ -123,7 +123,7 @@ class TestOneViewModule():
         mock_run = mock.Mock()
         mock_run.return_value = self.MODULE_EXECUTE_RETURN_VALUE.copy()
 
-        base_mod = OneViewModuleBase()
+        base_mod = OneViewModule()
         base_mod.execute_module = mock_run
         base_mod.run()
 
@@ -204,7 +204,7 @@ class TestOneViewModule():
     def test_should_call_fail_json_when_oneview_sdk_not_installed(self):
         self.mock_ansible_module.params = {'config': 'config.json'}
 
-        with mock.patch(OneViewModuleBase.__module__ + ".HAS_HPE_ONEVIEW", False):
+        with mock.patch(OneViewModule.__module__ + ".HAS_HPE_ONEVIEW", False):
             OneViewModule()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(msg='HPE OneView Python SDK is required for this module.')
@@ -213,7 +213,7 @@ class TestOneViewModule():
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
         self.mock_ansible_module.params['validate_etag'] = True
 
-        OneViewModuleBase(validate_etag_support=True).run()
+        OneViewModule(validate_etag_support=True).run()
         self.mock_ansible_module_init.assert_called_once_with(argument_spec=self.EXPECTED_ARG_SPEC,
                                                               supports_check_mode=False)
         self.mock_ov_client.connection.enable_etag_validation.not_been_called()
@@ -223,7 +223,7 @@ class TestOneViewModule():
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
         self.mock_ansible_module.params['validate_etag'] = False
 
-        OneViewModuleBase(validate_etag_support=True).run()
+        OneViewModule(validate_etag_support=True).run()
         self.mock_ansible_module_init.assert_called_once_with(argument_spec=self.EXPECTED_ARG_SPEC,
                                                               supports_check_mode=False)
         self.mock_ov_client.connection.enable_etag_validation.not_been_called()
@@ -233,7 +233,7 @@ class TestOneViewModule():
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
         self.mock_ansible_module.params['validate_etag'] = False
 
-        OneViewModuleBase(validate_etag_support=False).run()
+        OneViewModule(validate_etag_support=False).run()
 
         expected_arg_spec = deepcopy(self.EXPECTED_ARG_SPEC)
         expected_arg_spec.pop('validate_etag')
@@ -246,7 +246,7 @@ class TestOneViewModule():
     def test_additional_argument_spec_construction(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
 
-        OneViewModuleBase(validate_etag_support=False, additional_arg_spec={'options': 'list'})
+        OneViewModule(validate_etag_support=False, additional_arg_spec={'options': 'list'})
 
         expected_arg_spec = deepcopy(self.EXPECTED_ARG_SPEC)
         expected_arg_spec.pop('validate_etag')
