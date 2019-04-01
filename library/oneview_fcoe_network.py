@@ -126,7 +126,7 @@ class FcoeNetworkModule(OneViewModule):
         elif self.state == 'absent':
             return self.resource_absent()
 
-    def __present(self, resource):
+    def __present(self):
         scope_uris = self.data.pop('scopeUris', None)
         result = self.resource_present(self.RESOURCE_FACT_NAME)
         if scope_uris is not None:
