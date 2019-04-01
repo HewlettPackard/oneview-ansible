@@ -462,8 +462,6 @@ class TestOneViewModule():
                                                  msg=OneViewModule.MSG_ALREADY_PRESENT),
                                             'resource',
                                             None)
-        print(facts)
-
         ov_base.resource_client.patch.assert_not_called()
 
         assert facts == dict(changed=False,
