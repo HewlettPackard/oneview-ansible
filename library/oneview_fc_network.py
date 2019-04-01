@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'New FC Network'
@@ -66,7 +66,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'New FC Network'
@@ -91,7 +91,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
       name: 'New FC Network'
@@ -104,10 +104,10 @@ fc_network:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class FcNetworkModule(OneViewModuleBase):
+class FcNetworkModule(OneViewModule):
     MSG_CREATED = 'FC Network created successfully.'
     MSG_UPDATED = 'FC Network updated successfully.'
     MSG_DELETED = 'FC Network deleted successfully.'
@@ -125,19 +125,18 @@ class FcNetworkModule(OneViewModuleBase):
         super(FcNetworkModule, self).__init__(additional_arg_spec=additional_arg_spec,
                                               validate_etag_support=True)
 
-        self.resource_client = self.oneview_client.fc_networks
+        self.set_resource_object(self.oneview_client.fc_networks)
 
     def execute_module(self):
-        resource = self.get_by_name(self.data['name'])
-
         if self.state == 'present':
-            return self._present(resource)
+            return self._present()
         else:
-            return self.resource_absent(resource)
+            return self.resource_absent()
 
-    def _present(self, resource):
+    def _present(self):
         scope_uris = self.data.pop('scopeUris', None)
-        result = self.resource_present(resource, self.RESOURCE_FACT_NAME)
+        result = self.resource_present(self.RESOURCE_FACT_NAME)
+
         if scope_uris is not None:
             result = self.resource_scopes_set(result, 'fc_network', scope_uris)
         return result

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -72,7 +72,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -83,7 +83,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -98,7 +98,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -121,7 +121,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -150,64 +150,57 @@ enclosure_utilization:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class EnclosureFactsModule(OneViewModuleBase):
+class EnclosureFactsModule(OneViewModule):
     argument_spec = dict(name=dict(type='str'), options=dict(type='list'), params=dict(type='dict'))
 
     def __init__(self):
         super(EnclosureFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.set_resource_object(self.oneview_client.enclosures)
 
     def execute_module(self):
 
         ansible_facts = {}
 
-        if self.module.params['name']:
-            enclosures = self._get_by_name(self.module.params['name'])
-
-            if self.options and enclosures:
-                ansible_facts = self._gather_optional_facts(self.options, enclosures[0])
+        if self.options and self.current_resource:
+            enclosures = self.current_resource.data
+            ansible_facts = self._gather_optional_facts(self.options)
         else:
-            enclosures = self.oneview_client.enclosures.get_all(**self.facts_params)
+            enclosures = self.resource_client.get_all(**self.facts_params)
 
         ansible_facts['enclosures'] = enclosures
 
         return dict(changed=False,
                     ansible_facts=ansible_facts)
 
-    def _gather_optional_facts(self, options, enclosure):
+    def _gather_optional_facts(self, options):
 
-        enclosure_client = self.oneview_client.enclosures
         ansible_facts = {}
 
         if options.get('script'):
-            ansible_facts['enclosure_script'] = enclosure_client.get_script(enclosure['uri'])
+            ansible_facts['enclosure_script'] = self.current_resource.get_script()
         if options.get('environmentalConfiguration'):
-            env_config = enclosure_client.get_environmental_configuration(enclosure['uri'])
+            env_config = self.current_resource.get_environmental_configuration()
             ansible_facts['enclosure_environmental_configuration'] = env_config
         if options.get('utilization'):
-            ansible_facts['enclosure_utilization'] = self._get_utilization(enclosure, options['utilization'])
+            ansible_facts['enclosure_utilization'] = self._get_utilization(options['utilization'])
 
         return ansible_facts
 
-    def _get_utilization(self, enclosure, params):
+    def _get_utilization(self, params):
         fields = view = refresh = filter = ''
-
         if isinstance(params, dict):
             fields = params.get('fields')
             view = params.get('view')
             refresh = params.get('refresh')
             filter = params.get('filter')
 
-        return self.oneview_client.enclosures.get_utilization(enclosure['uri'],
-                                                              fields=fields,
-                                                              filter=filter,
-                                                              refresh=refresh,
-                                                              view=view)
-
-    def _get_by_name(self, name):
-        return self.oneview_client.enclosures.get_by('name', name)
+        return self.current_resource.get_utilization(fields=fields,
+                                                     filter=filter,
+                                                     refresh=refresh,
+                                                     view=view)
 
 
 def main():

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   delegate_to: localhost
 
 - debug: var=fc_networks
@@ -59,7 +59,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 1
       count: 3
@@ -73,7 +73,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: network name
   delegate_to: localhost
 
@@ -87,10 +87,10 @@ fc_networks:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class FcNetworkFactsModule(OneViewModuleBase):
+class FcNetworkFactsModule(OneViewModule):
     def __init__(self):
 
         argument_spec = dict(
@@ -100,12 +100,14 @@ class FcNetworkFactsModule(OneViewModuleBase):
 
         super(FcNetworkFactsModule, self).__init__(additional_arg_spec=argument_spec)
 
+        self.resource_client = self.oneview_client.fc_networks
+
     def execute_module(self):
 
         if self.module.params['name']:
-            fc_networks = self.oneview_client.fc_networks.get_by('name', self.module.params['name'])
+            fc_networks = self.resource_client.get_by('name', self.module.params['name'])
         else:
-            fc_networks = self.oneview_client.fc_networks.get_all(**self.facts_params)
+            fc_networks = self.resource_client.get_all(**self.facts_params)
 
         return dict(changed=False, ansible_facts=dict(fc_networks=fc_networks))
 
