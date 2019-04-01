@@ -18,8 +18,6 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     enclosure_name: 0000A66101
-    enclosure_hostname: host_name
-    enclosure_framelink_ipv6: ipv6
     variant: Synergy
     scope_uris:
       - '/rest/scopes/9dd1856d-2490-4013-92a5-c7bf89bd9f0f'

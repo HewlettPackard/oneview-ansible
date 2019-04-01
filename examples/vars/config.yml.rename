@@ -17,6 +17,7 @@
 enclosure_hostname: ''
 enclosure_username: ''
 enclosure_password: ''
+enclosure_framelink_ipv6: ''
 enclosure_group_uri: ''
 storage_system_ip_hostname: ''
 storage_system_username: ''
