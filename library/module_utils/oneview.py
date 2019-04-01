@@ -330,6 +330,7 @@ class OneViewModule(object):
     MSG_ALREADY_PRESENT = 'Resource is already present.'
     MSG_ALREADY_ABSENT = 'Resource is already absent.'
     MSG_DIFF_AT_KEY = 'Difference found at key \'{0}\'. '
+    MSG_MANDATORY_FIELD_MISSING = 'Mandatory field was not informed: name'
     HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
     ONEVIEW_COMMON_ARGS = dict(
@@ -504,15 +505,7 @@ class OneViewModule(object):
             msg = self.MSG_CREATED
             changed = True
         else:
-            merged_data = self.current_resource.data.copy()
-            merged_data.update(self.data)
-
-            if compare(self.current_resource.data, merged_data):
-                msg = self.MSG_ALREADY_PRESENT
-            else:
-                self.current_resource.update(merged_data)
-                changed = True
-                msg = self.MSG_UPDATED
+            changed, msg = self._update_resource()
 
         data = self.current_resource.data
         return dict(
@@ -520,6 +513,20 @@ class OneViewModule(object):
             changed=changed,
             ansible_facts={fact_name: data}
         )
+
+    def _update_resource(self):
+        updated_data = self.current_resource.data.copy()
+        updated_data.update(self.data)
+        changed = False
+
+        if compare(self.current_resource.data, updated_data):
+            msg = self.MSG_ALREADY_PRESENT
+        else:
+            self.current_resource.update(updated_data)
+            changed = True
+            msg = self.MSG_UPDATED
+
+        return (changed, msg)
 
     def resource_scopes_set(self, state, fact_name, scope_uris):
         """
