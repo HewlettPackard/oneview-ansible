@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ description:
 version_added: "2.4"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.0.0"
+    - "hpOneView >= 5.0.0"
 author: "Felipe Bulsoni (@fgbulsoni)"
 options:
     state:
@@ -58,7 +58,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: Test FCoE Network
@@ -70,7 +70,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: New FCoE Network
@@ -84,7 +84,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
       name: New FCoE Network
@@ -98,10 +98,10 @@ fcoe_network:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class FcoeNetworkModule(OneViewModuleBase):
+class FcoeNetworkModule(OneViewModule):
     MSG_CREATED = 'FCoE Network created successfully.'
     MSG_UPDATED = 'FCoE Network updated successfully.'
     MSG_DELETED = 'FCoE Network deleted successfully.'
@@ -118,19 +118,17 @@ class FcoeNetworkModule(OneViewModuleBase):
         super(FcoeNetworkModule, self).__init__(additional_arg_spec=additional_arg_spec,
                                                 validate_etag_support=True)
 
-        self.resource_client = self.oneview_client.fcoe_networks
+        self.set_resource_object(self.oneview_client.fcoe_networks)
 
     def execute_module(self):
-        resource = self.get_by_name(self.data.get('name'))
-
         if self.state == 'present':
-            return self.__present(resource)
+            return self.__present()
         elif self.state == 'absent':
-            return self.resource_absent(resource)
+            return self.resource_absent()
 
     def __present(self, resource):
         scope_uris = self.data.pop('scopeUris', None)
-        result = self.resource_present(resource, self.RESOURCE_FACT_NAME)
+        result = self.resource_present(self.RESOURCE_FACT_NAME)
         if scope_uris is not None:
             result = self.resource_scopes_set(result, 'fcoe_network', scope_uris)
         return result
