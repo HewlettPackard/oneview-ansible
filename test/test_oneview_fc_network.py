@@ -74,7 +74,6 @@ class TestFcNetworkModule(OneViewBaseTest):
     def test_should_not_update_when_data_is_equals(self):
         self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE
 
-        self.resource.get_by_name.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         FcNetworkModule().run()
@@ -88,9 +87,6 @@ class TestFcNetworkModule(OneViewBaseTest):
     def test_update_when_data_has_modified_attributes(self):
         data_merged = DEFAULT_FC_NETWORK_TEMPLATE.copy()
         data_merged['fabricType'] = 'DirectAttach'
-
-        self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE
-        self.resource.get_by_name.return_value = self.resource
 
         self.resource.data = data_merged
         self.resource.update.return_value = self.resource
@@ -107,7 +103,6 @@ class TestFcNetworkModule(OneViewBaseTest):
 
     def test_should_remove_fc_network(self):
         self.resource.data = [DEFAULT_FC_NETWORK_TEMPLATE]
-        self.resource.get_by_name.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         FcNetworkModule().run()
@@ -139,7 +134,6 @@ class TestFcNetworkModule(OneViewBaseTest):
         resource_data['uri'] = 'rest/fc/fake'
 
         self.resource.data = resource_data
-        self.resource.get_by_name.return_value = self.resource
 
         patch_return = resource_data.copy()
         patch_return['scopeUris'] = ['test']
@@ -169,8 +163,6 @@ class TestFcNetworkModule(OneViewBaseTest):
         resource_data['scopeUris'] = ['test']
 
         self.resource.data = resource_data
-
-        self.resource.get_by_name.return_value = self.resource
 
         FcNetworkModule().run()
 
