@@ -52,7 +52,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Update the Server Hardware Type description
   oneview_server_hardware_type:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       name: 'DL380p Gen8 1'
@@ -61,19 +64,25 @@ EXAMPLES = '''
 
 - name: Rename the Server Hardware Type
   oneview_server_hardware_type:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
-        name: 'DL380p Gen8 1'
-        newName: 'DL380p Gen8 1 (new name)'
+      name: 'DL380p Gen8 1'
+      newName: 'DL380p Gen8 1 (new name)'
   delegate_to: localhost
 
 - name: Delete the Server Hardware Type
   oneview_server_hardware_type:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: absent
     data:
-        name: 'DL380p Gen8 1 (new name)'
+      name: 'DL380p Gen8 1 (new name)'
   delegate_to: localhost
 '''
 
@@ -123,7 +132,7 @@ class ServerHardwareTypeModule(OneViewModule):
         different |= self.current_resource.data.get('description') != self.data.get('description')
 
         if different:
-            resource = self.current_resource.update(self.data)
+            self.current_resource.update(self.data)
             changed = True
             msg = self.MSG_UPDATED
 

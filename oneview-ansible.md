@@ -9101,7 +9101,7 @@ Manage OneView Server Hardware Type resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -9120,7 +9120,10 @@ Manage OneView Server Hardware Type resources.
 
 - name: Update the Server Hardware Type description
   oneview_server_hardware_type:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       name: 'DL380p Gen8 1'
@@ -9129,19 +9132,25 @@ Manage OneView Server Hardware Type resources.
 
 - name: Rename the Server Hardware Type
   oneview_server_hardware_type:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
-        name: 'DL380p Gen8 1'
-        newName: 'DL380p Gen8 1 (new name)'
+      name: 'DL380p Gen8 1'
+      newName: 'DL380p Gen8 1 (new name)'
   delegate_to: localhost
 
 - name: Delete the Server Hardware Type
   oneview_server_hardware_type:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: absent
     data:
-        name: 'DL380p Gen8 1 (new name)'
+      name: 'DL380p Gen8 1 (new name)'
   delegate_to: localhost
 
 ```
@@ -9175,7 +9184,7 @@ Retrieve facts about Server Hardware Types of the OneView.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -9193,13 +9202,19 @@ Retrieve facts about Server Hardware Types of the OneView.
 
 - name: Gather facts about all Server Hardware Types
   oneview_server_hardware_type_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
   delegate_to: localhost
 - debug: var=server_hardware_types
 
 - name: Gather paginated, filtered and sorted facts about Server Hardware Types
   oneview_server_hardware_type_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     params:
       start: 0
       count: 5
@@ -9210,7 +9225,10 @@ Retrieve facts about Server Hardware Types of the OneView.
 
 - name: Gather facts about a Server Hardware Type by name
   oneview_server_hardware_type_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     name: "BL460c Gen8 1"
   delegate_to: localhost
 - debug: var=server_hardware_types

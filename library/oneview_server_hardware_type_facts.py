@@ -45,13 +45,19 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Server Hardware Types
   oneview_server_hardware_type_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
   delegate_to: localhost
 - debug: var=server_hardware_types
 
 - name: Gather paginated, filtered and sorted facts about Server Hardware Types
   oneview_server_hardware_type_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     params:
       start: 0
       count: 5
@@ -62,7 +68,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Server Hardware Type by name
   oneview_server_hardware_type_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     name: "BL460c Gen8 1"
   delegate_to: localhost
 - debug: var=server_hardware_types
@@ -75,10 +84,10 @@ server_hardware_types:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class ServerHardwareTypeFactsModule(OneViewModuleBase):
+class ServerHardwareTypeFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(
             name=dict(required=False, type='str'),
