@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -105,8 +105,9 @@ class TestEthernetNetworkModule(OneViewBaseTest):
     """
 
     def test_should_create_new_ethernet_network(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = DEFAULT_ENET_TEMPLATE
+        self.resource.get_by_name.return_value = None
+        self.resource.create.return_value = self.resource
+        self.resource.data = DEFAULT_ENET_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -119,7 +120,7 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
+        self.resource.data = DEFAULT_ENET_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -132,12 +133,10 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_attributes(self):
-        data_merged = DEFAULT_ENET_TEMPLATE.copy()
-        data_merged['purpose'] = 'Management'
-
-        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
-        self.resource.update.return_value = data_merged
-        self.mock_ov_client.connection_templates.get.return_value = {"uri": "uri"}
+        self.resource.data = DEFAULT_ENET_TEMPLATE
+        obj = mock.Mock()
+        obj.data = {"uri": "uri"}
+        self.mock_ov_client.connection_templates.get.return_value = obj
 
         self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
 
@@ -146,12 +145,14 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=EthernetNetworkModule.MSG_UPDATED,
-            ansible_facts=dict(ethernet_network=data_merged)
+            ansible_facts=dict(ethernet_network=DEFAULT_ENET_TEMPLATE)
         )
 
     def test_update_when_only_bandwidth_has_modified_attributes(self):
-        self.resource.get_by.return_value = [DICT_PARAMS_WITH_CHANGES]
-        self.mock_ov_client.connection_templates.get.return_value = {"uri": "uri"}
+        self.resource.data = DICT_PARAMS_WITH_CHANGES
+        obj = mock.Mock()
+        obj.data = {"uri": "uri"}
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
 
         self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
 
@@ -164,13 +165,10 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_attributes_but_bandwidth_is_equal(self):
-        data_merged = DEFAULT_ENET_TEMPLATE.copy()
-        data_merged['purpose'] = 'Management'
-
-        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
-        self.resource.update.return_value = data_merged
-        self.mock_ov_client.connection_templates.get.return_value = {
-            "bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
+        self.resource.data = DEFAULT_ENET_TEMPLATE
+        obj = mock.Mock()
+        obj.data = {"bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
 
         self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
 
@@ -179,15 +177,11 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=EthernetNetworkModule.MSG_UPDATED,
-            ansible_facts=dict(ethernet_network=data_merged)
+            ansible_facts=dict(ethernet_network=DEFAULT_ENET_TEMPLATE)
         )
 
     def test_update_successfully_even_when_connection_template_uri_not_exists(self):
-        data_merged = DEFAULT_ENET_TEMPLATE.copy()
-        del data_merged['connectionTemplateUri']
-
-        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
-        self.resource.update.return_value = data_merged
+        self.resource.data = DEFAULT_ENET_TEMPLATE
 
         self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
 
@@ -196,7 +190,7 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=EthernetNetworkModule.MSG_UPDATED,
-            ansible_facts=dict(ethernet_network=data_merged)
+            ansible_facts=dict(ethernet_network=DEFAULT_ENET_TEMPLATE)
         )
 
     def test_rename_when_resource_exists(self):
@@ -204,8 +198,7 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         data_merged['name'] = RENAMED_ETHERNET
         params_to_rename = PARAMS_TO_RENAME.copy()
 
-        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
-        self.resource.update.return_value = data_merged
+        self.resource.data = DEFAULT_ENET_TEMPLATE
 
         self.mock_ansible_module.params = params_to_rename
 
@@ -218,8 +211,9 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         data_merged['name'] = RENAMED_ETHERNET
         params_to_rename = PARAMS_TO_RENAME.copy()
 
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = DEFAULT_ENET_TEMPLATE
+        self.resource.get_by_name.return_value = None
+        self.resource.create.return_value = self.resource
+        self.resource.data = DEFAULT_ENET_TEMPLATE
 
         self.mock_ansible_module.params = params_to_rename
 
@@ -228,7 +222,7 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         self.resource.create.assert_called_once_with(PARAMS_TO_RENAME['data'])
 
     def test_should_remove_ethernet_network(self):
-        self.resource.get_by.return_value = [DEFAULT_ENET_TEMPLATE]
+        self.resource.data = DEFAULT_ENET_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
@@ -240,7 +234,7 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_ethernet_network_not_exist(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
@@ -318,11 +312,11 @@ class TestEthernetNetworkModule(OneViewBaseTest):
             ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
 
     def test_reset_successfully(self):
-        self.resource.get_by.return_value = [DICT_PARAMS_WITH_CHANGES]
-        self.mock_ov_client.connection_templates.update.return_value = {'result': 'success'}
-        self.mock_ov_client.connection_templates.get.return_value = {
-            "bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
+        self.resource.data = DICT_PARAMS_WITH_CHANGES
 
+        obj = mock.Mock()
+        obj.data = {"bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
         self.mock_ov_client.connection_templates.get_default.return_value = {"bandwidth": {
             "max": 1
         }}
@@ -333,10 +327,10 @@ class TestEthernetNetworkModule(OneViewBaseTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True, msg=EthernetNetworkModule.MSG_CONNECTION_TEMPLATE_RESET,
-            ansible_facts=dict(ethernet_network_connection_template={'result': 'success'}))
+            ansible_facts=dict(ethernet_network_connection_template=obj.data))
 
     def test_should_fail_when_reset_not_existing_ethernet_network(self):
-        self.resource.get_by.return_value = [None]
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = yaml.load(YAML_RESET_CONNECTION_TEMPLATE)
 
@@ -354,16 +348,18 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         resource_data = DEFAULT_ENET_TEMPLATE.copy()
         resource_data['scopeUris'] = ['fake']
         resource_data['uri'] = 'rest/ethernet/fake'
-        self.resource.get_by.return_value = [resource_data]
+        self.resource.data = resource_data
+        self.resource.get_by_name.return_value = self.resource
 
         patch_return = resource_data.copy()
         patch_return['scopeUris'] = ['test']
-        self.resource.patch.return_value = patch_return
+        obj = mock.Mock()
+        obj.data = patch_return
+        self.resource.patch.return_value = obj
 
         EthernetNetworkModule().run()
 
-        self.resource.patch.assert_called_once_with('rest/ethernet/fake',
-                                                    operation='replace',
+        self.resource.patch.assert_called_once_with(operation='replace',
                                                     path='/scopeUris',
                                                     value=['test'])
 
@@ -380,7 +376,7 @@ class TestEthernetNetworkModule(OneViewBaseTest):
 
         resource_data = DEFAULT_ENET_TEMPLATE.copy()
         resource_data['scopeUris'] = ['test']
-        self.resource.get_by.return_value = [resource_data]
+        self.resource.data = resource_data
 
         EthernetNetworkModule().run()
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 5.0.0"
 author:
     - "Camila Balestrin (@balestrinc)"
     - "Mariana Kreisig (@marikrg)"
@@ -103,10 +103,10 @@ enet_associated_uplink_groups:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class EthernetNetworkFactsModule(OneViewModuleBase):
+class EthernetNetworkFactsModule(OneViewModule):
     argument_spec = dict(
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
@@ -115,16 +115,17 @@ class EthernetNetworkFactsModule(OneViewModuleBase):
 
     def __init__(self):
         super(EthernetNetworkFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
-
-        self.resource_client = self.oneview_client.ethernet_networks
+        self.set_resource_object(self.oneview_client.ethernet_networks)
 
     def execute_module(self):
         ansible_facts = {}
-        if self.module.params['name']:
-            ethernet_networks = self.resource_client.get_by('name', self.module.params['name'])
+        ethernet_networks = []
 
-            if self.module.params.get('options') and ethernet_networks:
-                ansible_facts = self.__gather_optional_facts(ethernet_networks[0])
+        if self.module.params['name']:
+            if self.current_resource:
+                ethernet_networks = self.current_resource.data
+                if self.module.params.get('options'):
+                    ansible_facts = self.__gather_optional_facts()
         else:
             ethernet_networks = self.resource_client.get_all(**self.facts_params)
 
@@ -132,24 +133,24 @@ class EthernetNetworkFactsModule(OneViewModuleBase):
 
         return dict(changed=False, ansible_facts=ansible_facts)
 
-    def __gather_optional_facts(self, ethernet_network):
+    def __gather_optional_facts(self):
 
         ansible_facts = {}
 
         if self.options.get('associatedProfiles'):
-            ansible_facts['enet_associated_profiles'] = self.__get_associated_profiles(ethernet_network)
+            ansible_facts['enet_associated_profiles'] = self.__get_associated_profiles()
         if self.options.get('associatedUplinkGroups'):
-            ansible_facts['enet_associated_uplink_groups'] = self.__get_associated_uplink_groups(ethernet_network)
+            ansible_facts['enet_associated_uplink_groups'] = self.__get_associated_uplink_groups()
 
         return ansible_facts
 
-    def __get_associated_profiles(self, ethernet_network):
-        associated_profiles = self.resource_client.get_associated_profiles(ethernet_network['uri'])
-        return [self.oneview_client.server_profiles.get(x) for x in associated_profiles]
+    def __get_associated_profiles(self):
+        associated_profiles = self.current_resource.get_associated_profiles()
+        return [self.oneview_client.server_profiles.get_by_uri(x).data for x in associated_profiles]
 
-    def __get_associated_uplink_groups(self, ethernet_network):
-        uplink_groups = self.resource_client.get_associated_uplink_groups(ethernet_network['uri'])
-        return [self.oneview_client.uplink_sets.get(x) for x in uplink_groups]
+    def __get_associated_uplink_groups(self):
+        uplink_groups = self.current_resource.get_associated_uplink_groups()
+        return [self.oneview_client.uplink_sets.get_by_uri(x).data for x in uplink_groups]
 
 
 def main():

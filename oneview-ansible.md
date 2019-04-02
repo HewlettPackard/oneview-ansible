@@ -3415,7 +3415,7 @@ Manage OneView Ethernet Network resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -3434,7 +3434,10 @@ Manage OneView Ethernet Network resources.
 
 - name: Ensure that the Ethernet Network is present using the default configuration
   oneview_ethernet_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -3442,7 +3445,10 @@ Manage OneView Ethernet Network resources.
 
 - name: Update the Ethernet Network changing bandwidth and purpose
   oneview_ethernet_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -3454,7 +3460,10 @@ Manage OneView Ethernet Network resources.
 
 - name: Ensure that the Ethernet Network is present with name 'Renamed Ethernet Network'
   oneview_ethernet_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -3462,14 +3471,20 @@ Manage OneView Ethernet Network resources.
 
 - name: Ensure that the Ethernet Network is absent
   oneview_ethernet_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: absent
     data:
       name: 'New Ethernet Network'
 
 - name: Create Ethernet networks in bulk
   oneview_ethernet_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       vlanIdRange: '1-10,15,17'
@@ -3483,7 +3498,10 @@ Manage OneView Ethernet Network resources.
 
 - name: Reset to the default network connection template
   oneview_ethernet_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: default_bandwidth_reset
     data:
       name: 'Test Ethernet Network'
@@ -3491,7 +3509,10 @@ Manage OneView Ethernet Network resources.
 
 - name: Update the ethernet network scopes
   oneview_ethernet_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -3533,7 +3554,7 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
