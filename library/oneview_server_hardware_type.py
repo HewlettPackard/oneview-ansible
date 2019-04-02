@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -84,10 +84,10 @@ server_hardware_type:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
 
 
-class ServerHardwareTypeModule(OneViewModuleBase):
+class ServerHardwareTypeModule(OneViewModule):
     MSG_UPDATED = 'Server Hardware Type updated successfully.'
     MSG_ALREADY_PRESENT = 'Server Hardware Type is already present.'
     MSG_DELETED = 'Server Hardware Type deleted successfully.'
@@ -102,38 +102,38 @@ class ServerHardwareTypeModule(OneViewModuleBase):
 
         super(ServerHardwareTypeModule, self).__init__(additional_arg_spec=self.argument_spec,
                                                        validate_etag_support=True)
-        self.resource_client = self.oneview_client.server_hardware_types
+        self.set_resource_object(self.oneview_client.server_hardware_types)
 
     def execute_module(self):
-        resource = self.get_by_name(self.data.get('name'))
-
         if self.state == 'present':
-            return self.__present(resource)
+            return self.__present()
         elif self.state == 'absent':
-            return self.__absent(resource)
+            return self.__absent()
 
-    def __present(self, resource):
+    def __present(self):
         changed, msg = False, self.MSG_ALREADY_PRESENT
 
-        if not resource:
+        if not self.current_resource:
             raise OneViewModuleResourceNotFound(self.MSG_RESOURCE_NOT_FOUND)
 
         if "newName" in self.data:
             self.data["name"] = self.data.pop("newName")
 
-        different = resource.get('name') != self.data.get('name')
-        different |= resource.get('description') != self.data.get('description')
+        different = self.current_resource.data.get('name') != self.data.get('name')
+        different |= self.current_resource.data.get('description') != self.data.get('description')
 
         if different:
-            resource = self.resource_client.update(self.data, resource['uri'])
+            resource = self.current_resource.update(self.data)
             changed = True
             msg = self.MSG_UPDATED
 
-        return dict(changed=changed, msg=msg, ansible_facts=dict(server_hardware_type=resource))
+        return dict(changed=changed,
+                    msg=msg,
+                    ansible_facts=dict(server_hardware_type=self.current_resource.data))
 
-    def __absent(self, resource):
-        if resource:
-            self.resource_client.delete(resource)
+    def __absent(self):
+        if self.current_resource:
+            self.current_resource.delete()
             return dict(changed=True, msg=self.MSG_DELETED)
 
         return dict(changed=False, msg=self.MSG_ALREADY_ABSENT)

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     name:
@@ -86,14 +86,16 @@ class ServerHardwareTypeFactsModule(OneViewModuleBase):
         )
         super(ServerHardwareTypeFactsModule, self).__init__(additional_arg_spec=argument_spec)
 
+        self.resource_client = self.oneview_client.server_hardware_types
+
     def execute_module(self):
 
         name = self.module.params.get('name')
 
         if name:
-            server_hardware_types = self.oneview_client.server_hardware_types.get_by('name', name)
+            server_hardware_types = self.resource_client.get_by('name', name)
         else:
-            server_hardware_types = self.oneview_client.server_hardware_types.get_all(**self.facts_params)
+            server_hardware_types = self.resource_client.get_all(**self.facts_params)
 
         return dict(changed=False, ansible_facts=dict(server_hardware_types=server_hardware_types))
 
