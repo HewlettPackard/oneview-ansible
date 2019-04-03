@@ -1,6 +1,6 @@
 # Ansible Modules for HPE OneView Change Log
 
-## v5.2.0 (Unreleased)
+## v5.2.0
 
 #### Notes
 Added the capability to handle OneView Appliance SNMP Settings
