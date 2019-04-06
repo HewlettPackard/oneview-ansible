@@ -5126,7 +5126,7 @@ Retrieve facts about the OneView Internal Link Sets.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -5147,7 +5147,7 @@ Retrieve facts about the OneView Internal Link Sets.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
 
 - debug: var=internal_link_sets
 
@@ -5156,7 +5156,7 @@ Retrieve facts about the OneView Internal Link Sets.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -5169,7 +5169,7 @@ Retrieve facts about the OneView Internal Link Sets.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Internal Link Set Name"
 
 - debug: var=internal_link_sets
