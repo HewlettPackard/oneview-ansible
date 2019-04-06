@@ -302,10 +302,10 @@ class LogicalEnclosureModule(OneViewModule):
         return True, self.MSG_CONFIGURATION_SCRIPT_UPDATED, dict(configuration_script=script)
 
     def __update_firmware(self):
-        logical_enclosure = self.current_resource.patch(operation="replace",
-                                                        path="/firmware",
-                                                        value=self.data['firmware'],
-                                                        custom_headers=self.data.get('custom_headers'))
+        self.current_resource.patch(operation="replace",
+                                    path="/firmware",
+                                    value=self.data['firmware'],
+                                    custom_headers=self.data.get('custom_headers'))
 
         return True, self.MSG_FIRMWARE_UPDATED, dict(logical_enclosure=self.current_resource.data)
 

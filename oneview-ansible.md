@@ -5290,7 +5290,7 @@ Manage OneView Logical Enclosure resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -5311,7 +5311,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         enclosureUris:
@@ -5326,7 +5326,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: firmware_updated
     data:
         name: "Encl1"
@@ -5344,7 +5344,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: firmware_updated
     data:
         name: "Encl1"
@@ -5364,7 +5364,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: script_updated
     data:
         name: "Encl1"
@@ -5376,7 +5376,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: dumped
     data:
         name: "Encl1"
@@ -5392,7 +5392,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: reconfigured
     data:
         name: "Encl1"
@@ -5403,7 +5403,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: updated_from_group
     data:
         name: "Encl1"
@@ -5414,7 +5414,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         name: "Encl1"
@@ -5426,7 +5426,7 @@ Manage OneView Logical Enclosure resources.
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 600
+      api_version: 800
       state: absent
       data:
           name: 'Encl1'
@@ -5467,7 +5467,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.5.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -5489,7 +5489,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 600
+      api_version: 800
   delegate_to: localhost
 
 - debug: var=logical_enclosures
@@ -5499,7 +5499,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -5514,7 +5514,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Encl1"
   delegate_to: localhost
 
@@ -5525,7 +5525,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Encl1"
     options:
       - script
