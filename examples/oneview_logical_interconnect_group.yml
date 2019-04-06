@@ -23,30 +23,30 @@
       - '/rest/scopes/d0324c4b-56c9-485b-b7dd-8f6218a4b5bb'
       - '/rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412'
   tasks:
-   - name: Create a Logical Interconnect Group
-     oneview_logical_interconnect_group:
-       config: "{{ config }}"
-       state: present
-       data:
-         name: 'Test Logical Interconnect Group'
-         uplinkSets: []
-         enclosureType: 'SY12000'
-         interconnectBaySet: 3    
-         enclosureIndexes: [1, 2]
-         redundancyType: "HighlyAvailable"
-         interconnectMapTemplate:
-           interconnectMapEntryTemplates:
-             - logicalDownlinkUri: ~
-               logicalLocation:
-                   locationEntries:
-                       - relativeValue: 3
-                         type: "Bay"
-                       - relativeValue: 6
-                         type: "Bay"
-               permittedInterconnectTypeName: '{{ permitted_interconnect_type_name }}'
-               # Alternatively you can inform permittedInterconnectTypeUri
-     delegate_to: localhost
-
+    - name: Create a Logical Interconnect Group
+      oneview_logical_interconnect_group:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test Logical Interconnect Group'
+          uplinkSets: []
+          enclosureType: 'SY12000'
+          interconnectBaySet: 3    
+          enclosureIndexes: [1, 2]
+          redundancyType: "HighlyAvailable"
+          interconnectMapTemplate:
+            interconnectMapEntryTemplates:
+              - logicalDownlinkUri: ~
+                logicalLocation:
+                    locationEntries:
+                        - relativeValue: 3
+                          type: "Bay"
+                        - relativeValue: 6
+                          type: "Bay"
+                permittedInterconnectTypeName: '{{ permitted_interconnect_type_name }}'
+                # Alternatively you can inform permittedInterconnectTypeUri
+      delegate_to: localhost
+ 
     - name: Do nothing with the Logical Interconnect Group when no changes are provided
       oneview_logical_interconnect_group:
         config: "{{ config }}"
@@ -85,7 +85,7 @@
         config: "{{ config }}"
         state: present
         data:
-          name: Test Logical Interconnect Group
+          name: 'Test Logical Interconnect Group'
           scopeUris: "{{ scope_uris }}"
       delegate_to: localhost
 

@@ -5895,7 +5895,7 @@ Manage OneView Logical Interconnect Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -5917,7 +5917,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'Test Logical Interconnect Group'
@@ -5940,7 +5940,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'Test Logical Interconnect Group'
@@ -5953,7 +5953,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'Test Logical Interconnect Group'
@@ -5979,7 +5979,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'New Logical Interconnect Group'
@@ -5990,7 +5990,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
       name: 'New Logical Interconnect Group'
@@ -6026,7 +6026,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.5.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -6047,7 +6047,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   no_log: true
   delegate_to: localhost
 
@@ -6063,7 +6063,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   no_log: true
   delegate_to: localhost
 
@@ -6076,7 +6076,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   no_log: true
   delegate_to: localhost
 
@@ -6088,7 +6088,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   no_log: true
   delegate_to: localhost
 

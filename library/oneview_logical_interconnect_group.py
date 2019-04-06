@@ -175,7 +175,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
         result = self.resource_present(self.RESOURCE_FACT_NAME)
 
         if scope_uris is not None:
-            result = self.resource_scopes_set('logical_interconnect_group', scope_uris)
+            result = self.resource_scopes_set(result, 'logical_interconnect_group', scope_uris)
 
         return result
 
