@@ -28,7 +28,7 @@ description:
     - Retrieve the facts about one or more of the Fibre Channel Networks from OneView.
 version_added: "2.4"
 requirements:
-    - hpOneView >= 2.0.1
+    - hpOneView >= 5.0.0
 author:
     - Felipe Bulsoni (@fgbulsoni)
     - Thiago Miotto (@tmiotto)
