@@ -2798,7 +2798,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       enclosureGroupUri : '{{ enclosure_group_uri }}'
@@ -2813,7 +2813,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'Test-Enclosure'
@@ -2824,7 +2824,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: reconfigured
     data:
       name: 'Test-Enclosure'
@@ -2834,7 +2834,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
       name: 'Test-Enclosure'
@@ -2844,7 +2844,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: refreshed
     data:
       name: 'Test-Enclosure'
@@ -2855,7 +2855,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: create_certificate_request
     data:
       name: 'Test-Enclosure'
@@ -2873,7 +2873,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: get_certificate_request
     data:
       name: 'Test-Enclosure'
@@ -2884,7 +2884,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: import_certificate_request
     data:
       name: 'Test-Enclosure'
@@ -2896,7 +2896,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'Test-Enclosure'
@@ -2907,7 +2907,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: appliance_bays_powered_on
     data:
       name: 'Test-Enclosure'
@@ -2918,7 +2918,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: uid_on
     data:
       name: 'Test-Enclosure'
@@ -2928,7 +2928,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: uid_off
     data:
       name: 'Test-Enclosure'
@@ -2938,7 +2938,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: manager_bays_uid_on
     data:
       name: 'Test-Enclosure'
@@ -2949,7 +2949,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: manager_bays_uid_off
     data:
       name: 'Test-Enclosure'
@@ -2960,7 +2960,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: manager_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -2971,7 +2971,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: manager_bays_power_state_reset
     data:
       name: 'Test-Enclosure'
@@ -2982,7 +2982,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: appliance_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -2993,7 +2993,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: device_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -3004,7 +3004,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: device_bays_power_state_reset
     data:
       name: 'Test-Enclosure'
@@ -3015,7 +3015,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: interconnect_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -3026,7 +3026,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: manager_bays_role_active
     data:
       name: 'Test-Enclosure'
@@ -3037,7 +3037,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: device_bays_ipv4_removed
     data:
       name: 'Test-Enclosure'
@@ -3048,7 +3048,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: interconnect_bays_ipv4_removed
     data:
       name: 'Test-Enclosure'
@@ -3059,7 +3059,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: support_data_collection_set
     data:
       name: 'Test-Enclosure'
@@ -3070,7 +3070,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'Test-Enclosure'
@@ -3132,7 +3132,7 @@ Retrieve facts about one or more Enclosures
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -3147,7 +3147,7 @@ Retrieve facts about one or more Enclosures
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -3158,7 +3158,7 @@ Retrieve facts about one or more Enclosures
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -3173,7 +3173,7 @@ Retrieve facts about one or more Enclosures
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -3196,7 +3196,7 @@ Retrieve facts about one or more Enclosures
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -3905,7 +3905,7 @@ Manage OneView Fibre Channel Network resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'New FC Network'
@@ -3915,7 +3915,7 @@ Manage OneView Fibre Channel Network resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'New FC Network'
@@ -3940,7 +3940,7 @@ Manage OneView Fibre Channel Network resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
       name: 'New FC Network'
@@ -3996,7 +3996,7 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   delegate_to: localhost
 
 - debug: var=fc_networks
@@ -4006,7 +4006,7 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 1
       count: 3
@@ -4020,7 +4020,7 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: network name
   delegate_to: localhost
 

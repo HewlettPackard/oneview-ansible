@@ -36,6 +36,7 @@ class OneViewBaseTest(object):
         else:
             marker = request.node.get_closest_marker('resource')
         self.resource = getattr(mock_ov_client, "%s" % (marker.kwargs[class_name]))
+        self.resource.get_by_name.return_value = self.resource
         self.mock_ov_client = mock_ov_client
         self.mock_ansible_module = mock_ansible_module
 
