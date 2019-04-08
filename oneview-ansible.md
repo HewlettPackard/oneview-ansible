@@ -2777,7 +2777,7 @@ Manage OneView Enclosure resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.5.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -3110,7 +3110,7 @@ Retrieve facts about one or more Enclosures
  Retrieve facts about one or more of the Enclosures from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -3883,7 +3883,7 @@ Manage OneView Fibre Channel Network resources.
  Provides an interface to manage Fibre Channel Network resources. Can create, update, and delete.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 4.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -3975,7 +3975,7 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks
  Retrieve the facts about one or more of the Fibre Channel Networks from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
