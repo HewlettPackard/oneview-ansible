@@ -299,8 +299,8 @@
 |<sub>/rest/fc-sans/device-managers/{id}</sub>                                            | DELETE   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/fc-sans/providers/{id}/device-managers</sub>                                  | POST     | :white_check_mark:   | :heavy_minus_sign:   | :heavy_minus_sign:   |
 |     **SAS Interconnect Types**                                                                                                                   |
-|<sub>/rest/sas-interconnect-types</sub>                                                  | GET      | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/sas-interconnect-types/{id}</sub>                                             | GET      | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/sas-interconnect-types</sub>                                                  | GET      | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/sas-interconnect-types/{id}</sub>                                             | GET      | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |     **SAS Interconnects**                                                                                                                        |
 |<sub>/rest/sas-interconnects</sub>                                                       | GET      | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/sas-interconnects/{id}</sub>                                                  | GET      | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
