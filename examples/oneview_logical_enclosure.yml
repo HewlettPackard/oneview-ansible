@@ -24,32 +24,32 @@
     enclosure_group_uri: "/rest/enclosure-groups/0f2a3f46-36ad-4c8f-9e88-763c062855d3" # Set the URI of an Enclosure Group
 
   tasks:
-      #    # This operation is only available on HPE Synergy
-      #    - name: Create a Logical Enclosure (available only on HPE Synergy)
-      #      oneview_logical_enclosure:
-      #        config: "{{ config }}"
-      #        state: present
-      #        data:
-      #            enclosureUris: "{{ enclosure_uri }}"
-      #            enclosureGroupUri: "{{ enclosure_group_uri }}"
-      #            name: "{{ logical_enclosure_name }}"
-      #      ignore_errors: true
-      #      delegate_to: localhost
-      #
-      #    - name: Update the firmware for the Logical Enclosure
-      #      oneview_logical_enclosure:
-      #        config: "{{ config }}"
-      #        state: firmware_updated
-      #        data:
-      #            name: "{{ logical_enclosure_name }}"
-      #            firmware:
-      #                firmwareBaselineUri: "{{ firmware_baseline_uri }}"
-      #                firmwareUpdateOn: "EnclosureOnly"
-      #                forceInstallFirmware: "false"
-      #            custom_headers:
-      #                if-Match: '*'
-      #      ignore_errors: true
-      #      delegate_to: localhost
+    # This operation is only available on HPE Synergy
+    - name: Create a Logical Enclosure (available only on HPE Synergy)
+      oneview_logical_enclosure:
+        config: "{{ config }}"
+        state: present
+        data:
+            enclosureUris: "{{ enclosure_uri }}"
+            enclosureGroupUri: "{{ enclosure_group_uri }}"
+            name: "{{ logical_enclosure_name }}"
+      ignore_errors: true
+      delegate_to: localhost
+
+    - name: Update the firmware for the Logical Enclosure
+      oneview_logical_enclosure:
+        config: "{{ config }}"
+        state: firmware_updated
+        data:
+            name: "{{ logical_enclosure_name }}"
+            firmware:
+                firmwareBaselineUri: "{{ firmware_baseline_uri }}"
+                firmwareUpdateOn: "EnclosureOnly"
+                forceInstallFirmware: "false"
+            custom_headers:
+                if-Match: '*'
+      ignore_errors: true
+      delegate_to: localhost
 
     # This play is compatible with Synergy Enclosures
     - name: Update the firmware for the Logical Enclosure with the logical-interconnect validation set as true
@@ -70,36 +70,36 @@
       ignore_errors: true
       delegate_to: localhost
 
-      #    - name: Update the Logical Enclosure configuration script
-      #      oneview_logical_enclosure:
-      #        config: "{{ config }}"
-      #        state: script_updated
-      #        data:
-      #            name: "{{ logical_enclosure_name }}"
-      #            configurationScript: "# script (updated)"
-      #      ignore_errors: true
-      #      delegate_to: localhost
-      #
-      #    - name: Generates a support dump for the Logical Enclosure
-      #      oneview_logical_enclosure:
-      #        config: "{{ config }}"
-      #        state: dumped
-      #        data:
-      #            name: "{{ logical_enclosure_name }}"
-      #            dump:
-      #              errorCode: "MyDump16"
-      #              encrypt: "true"
-      #              excludeApplianceDump: "false"
-      #      delegate_to: localhost
-      #    - debug: var=generated_dump_uri
+    - name: Update the Logical Enclosure configuration script
+      oneview_logical_enclosure:
+        config: "{{ config }}"
+        state: script_updated
+        data:
+            name: "{{ logical_enclosure_name }}"
+            configurationScript: "# script (updated)"
+      ignore_errors: true
+      delegate_to: localhost
 
-      #    - name: Reconfigure all enclosures associated with logical enclosure
-      #      oneview_logical_enclosure:
-      #        config: "{{ config }}"
-      #        state: reconfigured
-      #        data:
-      #            name: "{{ logical_enclosure_name }}"
-      #      delegate_to: localhost
+    - name: Generates a support dump for the Logical Enclosure
+      oneview_logical_enclosure:
+        config: "{{ config }}"
+        state: dumped
+        data:
+            name: "{{ logical_enclosure_name }}"
+            dump:
+              errorCode: "MyDump16"
+              encrypt: "true"
+              excludeApplianceDump: "false"
+      delegate_to: localhost
+    - debug: var=generated_dump_uri
+
+    - name: Reconfigure all enclosures associated with logical enclosure
+      oneview_logical_enclosure:
+        config: "{{ config }}"
+        state: reconfigured
+        data:
+            name: "{{ logical_enclosure_name }}"
+      delegate_to: localhost
 
     - name: Makes the logical enclosure consistent with the enclosure group
       oneview_logical_enclosure:
@@ -128,10 +128,10 @@
       delegate_to: localhost
 
     # This state is only available on HPE Synergy
-    #    - name: Delete a Logical Enclosure (available only on HPE Synergy)
-    #      oneview_logical_enclosure:
-    #        config: "{{ config }}"
-    #        state: absent
-    #        data: '{{ logical_enclosure }}'
-    #      ignore_errors: true
-    #      delegate_to: localhost
+    - name: Delete a Logical Enclosure (available only on HPE Synergy)
+      oneview_logical_enclosure:
+        config: "{{ config }}"
+        state: absent
+        data: '{{ logical_enclosure }}'
+      ignore_errors: true
+      delegate_to: localhost
