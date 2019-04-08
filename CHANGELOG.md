@@ -8,7 +8,7 @@ This release extends the planned support of the modules to OneView REST API vers
 1. Extended support of planned modules to API800
 2. Updated library files to support Python SDK changes
 
-## v5.2.0 (Unreleased)
+## v5.2.0
 
 #### Notes
 Added the capability to handle OneView Appliance SNMP Settings
