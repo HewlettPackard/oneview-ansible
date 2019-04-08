@@ -12,6 +12,8 @@ This release extends the planned support of the modules to OneView REST API vers
 #### Modules supported in this release
 - oneview_enclosure
 - oneview_fc_network
+- oneview_logical_interconnect_group
+- oneview_logical_interconnect_group_facts
 
 ## v5.2.0
 
