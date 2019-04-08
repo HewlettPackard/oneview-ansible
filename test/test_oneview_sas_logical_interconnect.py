@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -103,7 +103,7 @@ response = {
 @pytest.mark.resource(TestSasLogicalInterconnectModule='sas_logical_interconnects')
 class TestSasLogicalInterconnectModule(OneViewBaseTest):
     def test_should_return_to_a_consistent_state_by_uris(self):
-        self.resource.get_by.return_value = [SAS_LOGICAL_INTERCONNECT]
+        self.resource.data = SAS_LOGICAL_INTERCONNECT
         self.resource.update_compliance_all.return_value = [SAS_LOGICAL_INTERCONNECT]
         self.mock_ansible_module.params = yaml.load(YAML_PARAMS_COMPLIANCE_URIS)
 
@@ -131,7 +131,7 @@ class TestSasLogicalInterconnectModule(OneViewBaseTest):
         )
 
     def test_should_fail_when_no_uris_provided(self):
-        self.resource.get_by.return_value = None
+        self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = yaml.load(YAML_PARAMS_COMPLIANCE_INVALID)
 
         SasLogicalInterconnectModule().run()
@@ -139,7 +139,7 @@ class TestSasLogicalInterconnectModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=SasLogicalInterconnectModule.MSG_NO_OPTIONS_PROVIDED)
 
     def test_should_fail_when_compliance_cannot_resolve_names(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by.return_value = None
         self.mock_ansible_module.params = yaml.load(YAML_PARAMS_COMPLIANCE_NAMES)
 
         SasLogicalInterconnectModule().run()
@@ -147,7 +147,7 @@ class TestSasLogicalInterconnectModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=SasLogicalInterconnectModule.MSG_NOT_FOUND)
 
     def test_should_update_configuration(self):
-        self.resource.get_by.return_value = [SAS_LOGICAL_INTERCONNECT]
+        self.resource.data = SAS_LOGICAL_INTERCONNECT
         self.resource.update_configuration.return_value = SAS_LOGICAL_INTERCONNECT
         self.mock_ansible_module.params = yaml.load(YAML_CONFIGURATION)
 
@@ -160,7 +160,7 @@ class TestSasLogicalInterconnectModule(OneViewBaseTest):
         )
 
     def test_should_fail_when_sas_logical_interconnect_not_found(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = yaml.load(YAML_CONFIGURATION)
 
         SasLogicalInterconnectModule().run()
@@ -168,33 +168,33 @@ class TestSasLogicalInterconnectModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=SasLogicalInterconnectModule.MSG_NOT_FOUND)
 
     def test_should_install_firmware_when_spp_name_set(self):
-        self.resource.get_by.return_value = [SAS_LOGICAL_INTERCONNECT]
+        self.resource.data = SAS_LOGICAL_INTERCONNECT
         self.resource.update_firmware.return_value = response
         self.mock_ansible_module.params = yaml.load(YAML_FIRMWARE_WITH_SPP_NAME)
 
         SasLogicalInterconnectModule().run()
 
-        self.resource.update_firmware.assert_called_once_with(expected_data, SAS_LOGICAL_INTERCONNECT['uri'])
+        self.resource.update_firmware.assert_called_once_with(expected_data)
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SasLogicalInterconnectModule.MSG_FIRMWARE_UPDATED,
             ansible_facts=dict(li_firmware=response))
 
     def test_should_update_firmware_when_spp_uri_set(self):
-        self.resource.get_by.return_value = [SAS_LOGICAL_INTERCONNECT]
+        self.resource.data = SAS_LOGICAL_INTERCONNECT
         self.resource.update_firmware.return_value = response
         self.mock_ansible_module.params = yaml.load(YAML_FIRMWARE_WITH_SPP_URI)
 
         SasLogicalInterconnectModule().run()
 
-        self.resource.update_firmware.assert_called_once_with(expected_data, SAS_LOGICAL_INTERCONNECT['uri'])
+        self.resource.update_firmware.assert_called_once_with(expected_data)
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SasLogicalInterconnectModule.MSG_FIRMWARE_UPDATED,
             ansible_facts=dict(li_firmware=response))
 
     def test_should_fail_when_firmware_sas_logical_interconnect_not_found(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
         self.resource.update_firmware.return_value = response
         self.mock_ansible_module.params = yaml.load(YAML_FIRMWARE_WITH_SPP_URI)
 
@@ -203,15 +203,14 @@ class TestSasLogicalInterconnectModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=SasLogicalInterconnectModule.MSG_NOT_FOUND)
 
     def test_should_replace_drive_enclosure(self):
-        self.resource.get_by.return_value = [SAS_LOGICAL_INTERCONNECT]
+        self.resource.data = SAS_LOGICAL_INTERCONNECT
         self.resource.replace_drive_enclosure.return_value = {"name": "replaced"}
         self.mock_ansible_module.params = yaml.load(YAML_REPLACE_DRIVE_ENCLOSURE)
 
         SasLogicalInterconnectModule().run()
 
         self.resource.replace_drive_enclosure.assert_called_once_with(
-            self.mock_ansible_module.params['data']['replace_drive_enclosure'],
-            SAS_LOGICAL_INTERCONNECT['uri'])
+            self.mock_ansible_module.params['data']['replace_drive_enclosure'])
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
