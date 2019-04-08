@@ -163,7 +163,7 @@ This option allows the parameters `hostname`, `username`, `password`, `api_versi
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: "{{ network_name }}"
@@ -185,12 +185,12 @@ The current `default` HPE OneView version used by the modules is `3.00`, API `30
 To use a different API, you must set the API version together with your credentials, either using the JSON configuration:
 
 ```json
-"api_version": 600
+"api_version": 800
 ```
 OR using the Environment variable:
 
 ```bash
-export ONEVIEWSDK_API_VERSION='600'
+export ONEVIEWSDK_API_VERSION='800'
 ```
 
 If this property is not specified, it will fall back to the ```300``` default value.

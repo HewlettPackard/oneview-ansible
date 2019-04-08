@@ -5,10 +5,15 @@
 This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1).
 
 #### Major changes
-1. Extended support of planned modules to API800
-2. Updated library files to support Python SDK changes
+1. Extended support of planned modules to API800.
+2. Updated library files to support Python SDK changes.
+3. Modules upgraded in this release required hpOneView version 5.0.0 or above.
 
-## v5.2.0 (Unreleased)
+#### Modules supported in this release
+- oneview_enclosure
+- oneview_fc_network
+
+## v5.2.0
 
 #### Notes
 Added the capability to handle OneView Appliance SNMP Settings
