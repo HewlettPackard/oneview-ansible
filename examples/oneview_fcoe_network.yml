@@ -49,15 +49,15 @@
           vlanId: 201
       delegate_to: localhost
 # Below task is supported only with OneView 3.10
-#    - name: Update the FCoE Network with two scopes
-#      oneview_fcoe_network:
-#        config: "{{ config }}"
-#        state: present
-#        data:
-#          name: 'Test FCoE Network - Changed'
-#          scopeUris: "{{ network_scope_uris }}"
-#      delegate_to: localhost
-#
+    - name: Update the FCoE Network with two scopes
+      oneview_fcoe_network:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test FCoE Network - Changed'
+          scopeUris: "{{ network_scope_uris }}"
+      delegate_to: localhost
+
     - name: Delete the FCoE Network
       oneview_fcoe_network:
         config: "{{ config }}"
