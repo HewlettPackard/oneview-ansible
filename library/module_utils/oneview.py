@@ -330,7 +330,7 @@ class OneViewModule(object):
     MSG_ALREADY_PRESENT = 'Resource is already present.'
     MSG_ALREADY_ABSENT = 'Resource is already absent.'
     MSG_DIFF_AT_KEY = 'Difference found at key \'{0}\'. '
-    MSG_MANDATORY_FIELD_MISSING = 'Mandatory field was not informed: name'
+    MSG_MANDATORY_FIELD_MISSING = 'Missing mandatory field: name'
     HPE_ONEVIEW_SDK_REQUIRED = 'HPE OneView Python SDK is required for this module.'
 
     ONEVIEW_COMMON_ARGS = dict(
