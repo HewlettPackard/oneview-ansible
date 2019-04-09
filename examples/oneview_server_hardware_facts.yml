@@ -71,7 +71,7 @@
            - javaRemoteConsoleUrl   # optional
            - environmentalConfig    # optional
            - iloSsoUrl              # optional
-             #- physicalServerHardware # optional
+           - physicalServerHardware # optional
            - remoteConsoleUrl       # optional
            - utilization:           # optional
                     fields : 'AveragePower'

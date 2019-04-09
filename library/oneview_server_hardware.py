@@ -244,7 +244,6 @@ class ServerHardwareModule(OneViewModule):
 
         super(ServerHardwareModule, self).__init__(additional_arg_spec=self.argument_spec,
                                                    validate_etag_support=True)
-
         self.set_resource_object(self.oneview_client.server_hardware)
 
     def execute_module(self):
@@ -283,7 +282,7 @@ class ServerHardwareModule(OneViewModule):
         if not self.data.get('hostname'):
             raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING.format("data.hostname"))
 
-        sef.current_resource= self.resource_client.get_by_name(self.data['hostname'])
+        self.current_resource = self.resource_client.get_by_name(self.data['hostname'])
 
         scope_uris = self.data.pop('scopeUris', None)
 
@@ -300,7 +299,7 @@ class ServerHardwareModule(OneViewModule):
             result = dict(
                 changed=False,
                 msg=self.MSG_ALREADY_PRESENT,
-                ansible_facts={'server_hardware': self.current_resoruce.data}
+                ansible_facts={'server_hardware': self.current_resource.data}
             )
 
         if scope_uris is not None:
@@ -322,7 +321,7 @@ class ServerHardwareModule(OneViewModule):
         return True, self.MSG_REFRESH_STATE_UPDATED, dict(server_hardware=resource)
 
     def __update_mp_firmware_version(self):
-        resource = self.current_resource..update_mp_firware_version()
+        resource = self.current_resource.update_mp_firware_version()
         return True, self.MSG_ILO_FIRMWARE_VERSION_UPDATED, dict(server_hardware=resource)
 
     def __patch(self):
@@ -335,10 +334,10 @@ class ServerHardwareModule(OneViewModule):
         property_value_changed = self.current_resource.data.get(property_name) != state['value']
 
         if state_name == 'ilo_state_reset' or property_value_changed:
-            resource = self.current_resource.patch( **state)
+            self.current_resource.patch(**state)
             changed, message = True, self.patch_success_message[state_name]
 
-        return changed, message, dict(server_hardware=resource)
+        return changed, message, dict(server_hardware=self.current_resource.data)
 
     def __add_multiple_rack_mount_servers(self):
         resource = self.resource_client.add_multiple_servers(self.data)
