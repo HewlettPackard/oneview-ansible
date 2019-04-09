@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.5.0"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -65,7 +65,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
          hostname : "172.18.6.15"
@@ -81,7 +81,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
          name : "172.18.6.15"
@@ -95,7 +95,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: multiple_servers_added
     data:
         mpHostsAndRanges :
@@ -113,7 +113,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: power_state_set
     data:
         name : "172.18.6.15"
@@ -127,7 +127,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: refresh_state_set
     data:
         name : "172.18.6.15"
@@ -140,7 +140,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: ilo_firmware_version_updated
     data:
         name : "172.18.6.15"
@@ -151,7 +151,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: environmental_configuration_set
     data:
         name : "172.18.6.15"
@@ -164,7 +164,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
         name : "172.18.6.15"
@@ -175,7 +175,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: uid_state_off
     data:
         name : '0000A66102, bay 12'
@@ -190,10 +190,10 @@ server_hardware:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, OneViewModuleValueError
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, OneViewModuleValueError
 
 
-class ServerHardwareModule(OneViewModuleBase):
+class ServerHardwareModule(OneViewModule):
     MSG_ADDED = 'Server Hardware added successfully.'
     MSG_ALREADY_PRESENT = 'Server Hardware is already present.'
     MSG_POWER_STATE_UPDATED = 'Server Hardware power state changed successfully.'
@@ -245,7 +245,7 @@ class ServerHardwareModule(OneViewModuleBase):
         super(ServerHardwareModule, self).__init__(additional_arg_spec=self.argument_spec,
                                                    validate_etag_support=True)
 
-        self.resource_client = self.oneview_client.server_hardware
+        self.set_resource_object(self.oneview_client.server_hardware)
 
     def execute_module(self):
 
@@ -257,55 +257,50 @@ class ServerHardwareModule(OneViewModuleBase):
             if not self.data.get('name'):
                 raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING.format("data.name"))
 
-            resource = self.__get_server_hardware(self.data['name'])
-
             if self.state == 'absent':
-                return self.resource_absent(resource, method='remove')
+                return self.resource_absent(method='remove')
             else:
-                if not resource:
+                if not self.current_resource:
                     raise OneViewModuleResourceNotFound(self.MSG_SERVER_HARDWARE_NOT_FOUND)
 
                 if self.state == 'power_state_set':
-                    changed, msg, ansible_facts = self.__set_power_state(resource)
+                    changed, msg, ansible_facts = self.__set_power_state()
                 elif self.state == 'refresh_state_set':
-                    changed, msg, ansible_facts = self.__set_refresh_state(resource)
+                    changed, msg, ansible_facts = self.__set_refresh_state()
                 elif self.state == 'ilo_firmware_version_updated':
-                    changed, msg, ansible_facts = self.__update_mp_firmware_version(resource)
+                    changed, msg, ansible_facts = self.__update_mp_firmware_version()
                 elif self.state == 'environmental_configuration_set':
-                    changed, msg, ansible_facts = self.__set_environmental_configuration(resource)
+                    changed, msg, ansible_facts = self.__set_environmental_configuration()
                 else:
-                    changed, msg, ansible_facts = self.__patch(resource)
+                    changed, msg, ansible_facts = self.__patch()
 
         return dict(changed=changed,
                     msg=msg,
                     ansible_facts=ansible_facts)
-
-    def __get_server_hardware(self, name):
-        return (self.oneview_client.server_hardware.get_by("name", name) or [None])[0]
 
     def __present(self):
 
         if not self.data.get('hostname'):
             raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING.format("data.hostname"))
 
-        resource = self.__get_server_hardware(self.data['hostname'])
+        sef.current_resource= self.resource_client.get_by_name(self.data['hostname'])
 
         scope_uris = self.data.pop('scopeUris', None)
 
         result = dict()
 
-        if not resource:
-            resource = self.oneview_client.server_hardware.add(self.data)
+        if not self.current_resource:
+            self.current_resource = self.resource_client.add(self.data)
             result = dict(
                 changed=True,
                 msg=self.MSG_ADDED,
-                ansible_facts={'server_hardware': resource}
+                ansible_facts={'server_hardware': self.current_resource.data}
             )
         else:
             result = dict(
                 changed=False,
                 msg=self.MSG_ALREADY_PRESENT,
-                ansible_facts={'server_hardware': resource}
+                ansible_facts={'server_hardware': self.current_resoruce.data}
             )
 
         if scope_uris is not None:
@@ -313,42 +308,40 @@ class ServerHardwareModule(OneViewModuleBase):
 
         return result
 
-    def __set_power_state(self, resource):
-        resource = self.oneview_client.server_hardware.update_power_state(self.data['powerStateData'], resource['uri'])
+    def __set_power_state(self):
+        resource = self.current_resource.update_power_state(self.data['powerStateData'])
         return True, self.MSG_POWER_STATE_UPDATED, dict(server_hardware=resource)
 
-    def __set_environmental_configuration(self, resource):
-        resource = self.oneview_client.server_hardware.update_environmental_configuration(
-            self.data['environmentalConfigurationData'],
-            resource['uri'])
-
+    def __set_environmental_configuration(self):
+        resource = self.current_resource.update_environmental_configuration(
+            self.data['environmentalConfigurationData'])
         return True, self.MSG_ENV_CONFIG_UPDATED, dict(server_hardware=resource)
 
-    def __set_refresh_state(self, resource):
-        resource = self.oneview_client.server_hardware.refresh_state(self.data['refreshStateData'], resource['uri'])
+    def __set_refresh_state(self):
+        resource = self.current_resource.refresh_state(self.data['refreshStateData'])
         return True, self.MSG_REFRESH_STATE_UPDATED, dict(server_hardware=resource)
 
-    def __update_mp_firmware_version(self, resource):
-        resource = self.oneview_client.server_hardware.update_mp_firware_version(resource['uri'])
+    def __update_mp_firmware_version(self):
+        resource = self.current_resource..update_mp_firware_version()
         return True, self.MSG_ILO_FIRMWARE_VERSION_UPDATED, dict(server_hardware=resource)
 
-    def __patch(self, resource):
+    def __patch(self):
         state_name = self.state
         message = self.MSG_NOTHING_TO_DO
         changed = False
 
         state = self.patch_params[state_name].copy()
         property_name = state['path'][1:]
-        property_value_changed = resource.get(property_name) != state['value']
+        property_value_changed = self.current_resource.data.get(property_name) != state['value']
 
         if state_name == 'ilo_state_reset' or property_value_changed:
-            resource = self.oneview_client.server_hardware.patch(id_or_uri=resource['uri'], **state)
+            resource = self.current_resource.patch( **state)
             changed, message = True, self.patch_success_message[state_name]
 
         return changed, message, dict(server_hardware=resource)
 
     def __add_multiple_rack_mount_servers(self):
-        resource = self.oneview_client.server_hardware.add_multiple_servers(self.data)
+        resource = self.resource_client.add_multiple_servers(self.data)
         return True, self.MSG_MULTIPLE_RACK_MOUNT_SERVERS_ADDED, {"server_hardware": resource}
 
 
