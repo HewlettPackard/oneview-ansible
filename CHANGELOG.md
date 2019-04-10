@@ -14,6 +14,8 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_enclosure_facts
 - oneview_fc_network
 - oneview_fc_network_facts
+- oneview_server_profile_template
+- oneview_server_profile_template_facts
 
 ## v5.2.0
 

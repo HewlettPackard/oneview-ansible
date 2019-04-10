@@ -144,6 +144,7 @@ class ServerProfileTemplateModule(OneViewModule):
                                                           validate_etag_support=True)
 
         self.set_resource_object(self.oneview_client.server_profile_templates)
+        self.server_profiles = self.oneview_client.server_profiles
 
     def execute_module(self):
 
@@ -161,7 +162,7 @@ class ServerProfileTemplateModule(OneViewModule):
 
         ServerProfileReplaceNamesByUris().replace(self.oneview_client, self.data)
 
-        data = self.__spt_from_sp(self.data) or self.data
+        data = self.__spt_from_sp() or self.data
 
         if not self.current_resource:
             changed, msg, resource = self.__create(data)
@@ -174,48 +175,46 @@ class ServerProfileTemplateModule(OneViewModule):
             ansible_facts=dict(server_profile_template=resource)
         )
 
-    def __spt_from_sp(self, data):
-        if data.get('serverProfileName'):
-            server_profiles = self.oneview_client.server_profiles.get_by('name', data.pop('serverProfileName'))
-            if server_profiles:
-                spt_from_sp = self.oneview_client.server_profiles.get_new_profile_template(server_profiles[0]['uri'])
+    def __spt_from_sp(self):
+        if self.data.get('serverProfileName'):
+            server_profile = self.server_profiles.get_by_name(self.data.pop('serverProfileName'))
+            if server_profile:
+                spt_from_sp = server_profile.get_new_profile_template()
                 copy_of_spt_from_sp = spt_from_sp.copy()
                 for key, value in copy_of_spt_from_sp.items():
                     if value is None:
                         del spt_from_sp[key]
-                spt_from_sp.update(data)
+                spt_from_sp.update(self.data)
                 return spt_from_sp
 
     def __create(self, data):
         resource = self.resource_client.create(data, **self.params)
-        return True, self.MSG_CREATED, resource
+        return True, self.MSG_CREATED, resource.data
 
-    def __update(self, data, template):
-        resource = template.copy()
+    def __update(self, data):
+        merged_data = ServerProfileMerger().merge_data(self.current_resource.data, data)
 
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        equal = compare(merged_data, resource)
+        equal = compare(merged_data, self.current_resource.data)
 
         if equal:
             msg = self.MSG_ALREADY_PRESENT
         else:
-            resource = self.resource_client.update(resource=merged_data,
-                                                   id_or_uri=merged_data["uri"], **self.params)
+            self.current_resource.update(merged_data, **self.params)
             msg = self.MSG_UPDATED
 
         changed = not equal
 
-        return changed, msg, resource
+        return changed, msg, self.current_resource.data
 
-    def __absent(self, template):
-        msg = self.MSG_ALREADY_ABSENT
-
-        if template:
-            self.resource_client.delete(template, **self.params)
+    def __absent(self):
+        if self.current_resource:
+            self.current_resource.delete(**self.params)
             msg = self.MSG_DELETED
+            changed = True
+        else:
+            msg = self.MSG_ALREADY_ABSENT
+            changed = False
 
-        changed = template is not None
         return dict(changed=changed, msg=msg)
 
 
