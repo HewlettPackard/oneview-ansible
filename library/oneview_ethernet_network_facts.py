@@ -51,13 +51,19 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Ethernet Networks
   oneview_ethernet_network_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
 
 - debug: var=ethernet_networks
 
 - name: Gather paginated and filtered facts about Ethernet Networks
   oneview_ethernet_network_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     params:
       start: 1
       count: 3
@@ -68,14 +74,20 @@ EXAMPLES = '''
 
 - name: Gather facts about an Ethernet Network by name
   oneview_ethernet_network_facts:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     name: Ethernet network name
 
 - debug: var=ethernet_networks
 
 - name: Gather facts about an Ethernet Network by name with options
   oneview_ethernet_network_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     name: "{{ name }}"
     options:
       - associatedProfiles
@@ -134,7 +146,6 @@ class EthernetNetworkFactsModule(OneViewModule):
         return dict(changed=False, ansible_facts=ansible_facts)
 
     def __gather_optional_facts(self):
-
         ansible_facts = {}
 
         if self.options.get('associatedProfiles'):
