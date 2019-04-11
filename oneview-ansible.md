@@ -2274,7 +2274,7 @@ Manage the OneView Connection Template resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -2295,7 +2295,7 @@ Manage the OneView Connection Template resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         name: 'name1304244267-1467656930023'
@@ -2337,7 +2337,7 @@ Retrieve facts about the OneView Connection Templates.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -3236,7 +3236,7 @@ Manage OneView Enclosure Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.5.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -3257,7 +3257,7 @@ Manage OneView Enclosure Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         name: "Enclosure Group 1"
@@ -3278,7 +3278,7 @@ Manage OneView Enclosure Group resources.
         hostname: 172.16.101.48
         username: administrator
         password: my_password
-        api_version: 600
+        api_version: 800
         state: present
         data:
             name: "Enclosure Group 1"
@@ -3290,7 +3290,7 @@ Manage OneView Enclosure Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
       name: "Enclosure Group 1 (renamed)"
@@ -3327,7 +3327,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.5.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -3349,7 +3349,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   delegate_to: localhost
 
 - debug: var=enclosure_groups
@@ -3359,7 +3359,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -3374,7 +3374,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Test Enclosure Group Facts"
     options:
       - configuration_script
@@ -5079,7 +5079,7 @@ Retrieve facts about one or more of the OneView Interconnect Types.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -5100,7 +5100,7 @@ Retrieve facts about one or more of the OneView Interconnect Types.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
 
 - debug: var=interconnect_types
 
@@ -5109,7 +5109,7 @@ Retrieve facts about one or more of the OneView Interconnect Types.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -5123,7 +5123,7 @@ Retrieve facts about one or more of the OneView Interconnect Types.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: HP VC Flex-10 Enet Module
 
 - debug: var=interconnect_types
@@ -5159,7 +5159,7 @@ Retrieve facts about the OneView Internal Link Sets.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -5180,7 +5180,7 @@ Retrieve facts about the OneView Internal Link Sets.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
 
 - debug: var=internal_link_sets
 
@@ -5189,7 +5189,7 @@ Retrieve facts about the OneView Internal Link Sets.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -5202,7 +5202,7 @@ Retrieve facts about the OneView Internal Link Sets.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Internal Link Set Name"
 
 - debug: var=internal_link_sets
@@ -5323,7 +5323,7 @@ Manage OneView Logical Enclosure resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -5344,7 +5344,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         enclosureUris:
@@ -5359,7 +5359,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: firmware_updated
     data:
         name: "Encl1"
@@ -5377,7 +5377,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: firmware_updated
     data:
         name: "Encl1"
@@ -5397,7 +5397,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: script_updated
     data:
         name: "Encl1"
@@ -5409,7 +5409,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: dumped
     data:
         name: "Encl1"
@@ -5425,7 +5425,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: reconfigured
     data:
         name: "Encl1"
@@ -5436,7 +5436,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: updated_from_group
     data:
         name: "Encl1"
@@ -5447,7 +5447,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         name: "Encl1"
@@ -5459,7 +5459,7 @@ Manage OneView Logical Enclosure resources.
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 600
+      api_version: 800
       state: absent
       data:
           name: 'Encl1'
@@ -5500,7 +5500,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.5.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -5522,7 +5522,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 600
+      api_version: 800
   delegate_to: localhost
 
 - debug: var=logical_enclosures
@@ -5532,7 +5532,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -5547,7 +5547,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Encl1"
   delegate_to: localhost
 
@@ -5558,7 +5558,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Encl1"
     options:
       - script
@@ -5928,7 +5928,7 @@ Manage OneView Logical Interconnect Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -5950,7 +5950,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'Test Logical Interconnect Group'
@@ -5973,7 +5973,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'Test Logical Interconnect Group'
@@ -5986,7 +5986,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'Test Logical Interconnect Group'
@@ -6012,7 +6012,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'New Logical Interconnect Group'
@@ -6023,7 +6023,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
       name: 'New Logical Interconnect Group'
@@ -6059,7 +6059,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.5.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -6080,7 +6080,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   no_log: true
   delegate_to: localhost
 
@@ -6096,7 +6096,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   no_log: true
   delegate_to: localhost
 
@@ -6109,7 +6109,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   no_log: true
   delegate_to: localhost
 
@@ -6121,7 +6121,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   no_log: true
   delegate_to: localhost
 
@@ -7864,7 +7864,7 @@ Manage the OneView SAS Interconnect resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -7886,7 +7886,7 @@ Manage the OneView SAS Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: powered_on
     name: "0000A66101, interconnect 1"
 
@@ -7895,7 +7895,7 @@ Manage the OneView SAS Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: refreshed
     name: "0000A66101, interconnect 1"
 
@@ -7904,7 +7904,7 @@ Manage the OneView SAS Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: hard_reset
     name: "0000A66101, interconnect 1"
 
@@ -7934,7 +7934,7 @@ Retrieve facts about the OneView SAS Interconnects.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -7955,14 +7955,14 @@ Retrieve facts about the OneView SAS Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
 
 - name: Gather paginated, filtered and sorted facts about SAS Interconnects
   oneview_sas_interconnect_facts:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -7974,7 +7974,7 @@ Retrieve facts about the OneView SAS Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "0000A66103, interconnect 1"
 
 ```
@@ -8010,7 +8010,7 @@ Retrieve facts about the OneView SAS Interconnect Types.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -8031,7 +8031,7 @@ Retrieve facts about the OneView SAS Interconnect Types.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
 
 - debug: var=sas_interconnect_types
 
@@ -8051,7 +8051,7 @@ Retrieve facts about the OneView SAS Interconnect Types.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "SAS Interconnect Type Name"
 
 - debug: var=sas_interconnect_types
@@ -10824,7 +10824,7 @@ Retrieve facts about the OneView Switch Types.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -10845,7 +10845,7 @@ Retrieve facts about the OneView Switch Types.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
 
 - debug: var=switch_types
 
@@ -10854,7 +10854,7 @@ Retrieve facts about the OneView Switch Types.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 2
@@ -10868,7 +10868,7 @@ Retrieve facts about the OneView Switch Types.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Name of the Switch Type"
 
 - debug: var=switch_types
