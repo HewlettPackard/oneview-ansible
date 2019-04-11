@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ class TestLogicalEnclosureFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_logical_enclosure_by_name(self):
-        self.resource.get_by.return_value = [LOGICAL_ENCLOSURE]
+        self.resource.data = LOGICAL_ENCLOSURE
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
@@ -67,11 +67,11 @@ class TestLogicalEnclosureFactsModule(OneViewBaseFactsTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(logical_enclosures=[LOGICAL_ENCLOSURE])
+            ansible_facts=dict(logical_enclosures=LOGICAL_ENCLOSURE)
         )
 
     def test_should_get_logical_enclosure_by_name_with_options(self):
-        self.resource.get_by.return_value = [LOGICAL_ENCLOSURE]
+        self.resource.data = LOGICAL_ENCLOSURE
         self.resource.get_script.return_value = "# script code"
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
@@ -80,7 +80,7 @@ class TestLogicalEnclosureFactsModule(OneViewBaseFactsTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(logical_enclosures=[LOGICAL_ENCLOSURE],
+            ansible_facts=dict(logical_enclosures=LOGICAL_ENCLOSURE,
                                logical_enclosure_script="# script code")
         )
 

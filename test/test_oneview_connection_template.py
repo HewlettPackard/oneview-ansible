@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -62,8 +62,9 @@ DICT_CONNECTION_TEMPLATE_CHANGED = yaml.load(YAML_CONNECTION_TEMPLATE_CHANGE)["d
 @pytest.mark.resource(TestConnectionTemplateModule='connection_templates')
 class TestConnectionTemplateModule(OneViewBaseTest):
     def test_should_update_the_connection_template(self):
-        self.resource.get_by.return_value = [DICT_CONNECTION_TEMPLATE]
-        self.resource.update.return_value = {"name": "name"}
+        self.resource.get_by_name.return_value = self.resource
+        self.resource.data = DICT_CONNECTION_TEMPLATE
+#        self.resource.update.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = yaml.load(YAML_CONNECTION_TEMPLATE_CHANGE)
 
@@ -72,11 +73,12 @@ class TestConnectionTemplateModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ConnectionTemplateModule.MSG_UPDATED,
-            ansible_facts=dict(connection_template={"name": "name"})
+            ansible_facts=dict(connection_template=DICT_CONNECTION_TEMPLATE)
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by.return_value = [DICT_CONNECTION_TEMPLATE]
+        self.resource.get_by_name.return_value = self.resource
+        self.resource.data = DICT_CONNECTION_TEMPLATE
 
         self.mock_ansible_module.params = yaml.load(YAML_CONNECTION_TEMPLATE)
 
@@ -88,17 +90,8 @@ class TestConnectionTemplateModule(OneViewBaseTest):
             ansible_facts=dict(connection_template=DICT_CONNECTION_TEMPLATE)
         )
 
-    def test_should_fail_when_key_is_missing(self):
-        self.resource.get_by.return_value = [DICT_CONNECTION_TEMPLATE]
-
-        self.mock_ansible_module.params = yaml.load(YAML_CONNECTION_TEMPLATE_MISSING_KEY)
-
-        ConnectionTemplateModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ConnectionTemplateModule.MSG_MANDATORY_FIELD_MISSING)
-
     def test_should_fail_when_connection_template_was_not_found(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = []
 
         self.mock_ansible_module.params = yaml.load(YAML_CONNECTION_TEMPLATE)
 
