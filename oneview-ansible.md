@@ -7977,7 +7977,7 @@ Retrieve facts about the OneView SAS Interconnect Types.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -7998,7 +7998,7 @@ Retrieve facts about the OneView SAS Interconnect Types.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
 
 - debug: var=sas_interconnect_types
 
@@ -8018,7 +8018,7 @@ Retrieve facts about the OneView SAS Interconnect Types.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "SAS Interconnect Type Name"
 
 - debug: var=sas_interconnect_types
