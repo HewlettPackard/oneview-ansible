@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 5.0.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     name:
@@ -58,7 +58,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   delegate_to: localhost
 
 - debug: var=server_profiles
@@ -68,7 +68,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -84,7 +84,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: WebServer-1
   delegate_to: localhost
 
@@ -96,7 +96,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     uri: /rest/server-profiles/e23d9fa4-f926-4447-b971-90116ca3e61e
   delegate_to: localhost
 
@@ -107,7 +107,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     options:
       - availableTargets:
           enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
@@ -122,7 +122,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
     name : "Encl1, bay 1"
     options:
         - schema
@@ -239,10 +239,10 @@ server_profile_available_targets:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class ServerProfileFactsModule(OneViewModuleBase):
+class ServerProfileFactsModule(OneViewModule):
     argument_spec = dict(
         name=dict(type='str'),
         uri=dict(type='str'),
@@ -252,78 +252,71 @@ class ServerProfileFactsModule(OneViewModuleBase):
 
     def __init__(self):
         super(ServerProfileFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.set_resource_object(self.oneview_client.server_profiles)
 
     def execute_module(self):
-
         ansible_facts = {}
         server_profile_uri = None
 
-        if self.module.params.get('name'):
-            server_profiles = self.oneview_client.server_profiles.get_by("name", self.module.params['name'])
-            if len(server_profiles) > 0:
-                server_profile_uri = server_profiles[0]['uri']
-        elif self.module.params.get('uri'):
-            server_profiles = []
-            server_profile = self.oneview_client.server_profiles.get(self.module.params['uri'])
-            if server_profile:
-                server_profile_uri = server_profile['uri']
-                server_profiles.append(server_profile)
+        if not self.current_resource and self.module.params.get('uri'):
+            self.current_resource = self.resource_client.get_by_uri(self.module.params['uri'])
         else:
-            server_profiles = self.oneview_client.server_profiles.get_all(**self.facts_params)
+            server_profiles = self.resource_client.get_all(**self.facts_params)
+
+        if self.current_resource:
+            server_profiles = [self.current_resource.data]
 
         if self.options:
-            ansible_facts = self.__gather_option_facts(self.options, server_profile_uri)
+            ansible_facts = self.__gather_option_facts()
 
         ansible_facts["server_profiles"] = server_profiles
 
         return dict(changed=False,
                     ansible_facts=ansible_facts)
 
-    def __gather_option_facts(self, options, profile_uri):
-
-        client = self.oneview_client.server_profiles
+    def __gather_option_facts(self):
         facts = {}
 
-        if profile_uri:
-            if options.get('messages'):  # Supported only for API version <= 500
-                facts['server_profile_messages'] = client.get_messages(profile_uri)
+        if self.current_resource:
+            if self.options.get('messages'):  # Supported only for API version <= 500
+                facts['server_profile_messages'] = self.current_resource.get_messages()
 
-            if options.get('transformation'):
-                transform_options = self.__get_sub_options(options['transformation'])
-                facts['server_profile_transformation'] = client.get_transformation(profile_uri, **transform_options)
+            if self.options.get('transformation'):
+                transform_options = self.__get_sub_options(self.options['transformation'])
+                facts['server_profile_transformation'] = self.current_resource.get_transformation(**transform_options)
 
-            if options.get('compliancePreview'):
-                facts['server_profile_compliance_preview'] = client.get_compliance_preview(profile_uri)
+            if self.options.get('compliancePreview'):
+                facts['server_profile_compliance_preview'] = self.current_resource.get_compliance_preview()
 
-            if options.get('newProfileTemplate'):
-                facts['server_profile_new_profile_template'] = client.get_new_profile_template(profile_uri)
+            if self.options.get('newProfileTemplate'):
+                facts['server_profile_new_profile_template'] = self.current_resource.get_new_profile_template()
 
-        if options.get('schema'):
-            facts['server_profile_schema'] = client.get_schema()
+        if self.options.get('schema'):
+            facts['server_profile_schema'] = self.resource_client.get_schema()
 
-        if options.get('profilePorts'):
-            ports_options = self.__get_sub_options(options['profilePorts'])
-            facts['server_profile_profile_ports'] = client.get_profile_ports(**ports_options)
+        if self.options.get('profilePorts'):
+            ports_options = self.__get_sub_options(self.options['profilePorts'])
+            facts['server_profile_profile_ports'] = self.resource_client.get_profile_ports(**ports_options)
 
-        if options.get('availableNetworks'):
-            enets_options = self.__get_sub_options(options['availableNetworks'])
-            facts['server_profile_available_networks'] = client.get_available_networks(**enets_options)
+        if self.options.get('availableNetworks'):
+            enets_options = self.__get_sub_options(self.options['availableNetworks'])
+            facts['server_profile_available_networks'] = self.resource_client.get_available_networks(**enets_options)
 
-        if options.get('availableServers'):
-            servers_options = self.__get_sub_options(options['availableServers'])
-            facts['server_profile_available_servers'] = client.get_available_servers(**servers_options)
+        if self.options.get('availableServers'):
+            servers_options = self.__get_sub_options(self.options['availableServers'])
+            facts['server_profile_available_servers'] = self.resource_client.get_available_servers(**servers_options)
 
-        if options.get('availableStorageSystem'):  # Supported only for API version <= 500
-            storage_options = self.__get_sub_options(options['availableStorageSystem'])
-            facts['server_profile_available_storage_system'] = client.get_available_storage_system(**storage_options)
+        if self.options.get('availableStorageSystem'):  # Supported only for API version <= 500
+            storage_options = self.__get_sub_options(self.options['availableStorageSystem'])
+            facts['server_profile_available_storage_system'] = self.resource_client.get_available_storage_system(**storage_options)
 
-        if options.get('availableStorageSystems'):  # Supported only for API version <= 500
-            storage_options = self.__get_sub_options(options['availableStorageSystems'])
-            facts['server_profile_available_storage_systems'] = client.get_available_storage_systems(**storage_options)
+        if self.options.get('availableStorageSystems'):  # Supported only for API version <= 500
+            storage_options = self.__get_sub_options(self.options['availableStorageSystems'])
+            facts['server_profile_available_storage_systems'] = self.resource_client.get_available_storage_systems(**storage_options)
 
-        if options.get('availableTargets'):
-            target_options = self.__get_sub_options(options['availableTargets'])
-            facts['server_profile_available_targets'] = client.get_available_targets(**target_options)
+        if self.options.get('availableTargets'):
+            target_options = self.__get_sub_options(self.options['availableTargets'])
+            facts['server_profile_available_targets'] = self.resource_client.get_available_targets(**target_options)
 
         return facts
 
