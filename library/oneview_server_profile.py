@@ -1,6 +1,6 @@
 #!/usr/bin/python
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ description:
       automatically based on the server profile configuration if no server hardware was provided.
 version_added: "2.5"
 requirements:
-    - hpOneView >= 4.5.0
+    - hpOneView >= 5.0.0
 author:
     - "Chakravarthy Racharla"
     - "Camila Balestrin (@balestrinc)"
@@ -90,7 +90,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         name: Web-Server-L2
@@ -143,7 +143,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     data:
       name: server-profile-with-connections
       connectionSettings:
@@ -161,7 +161,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     # This is required for unassigning a SH, or creating a SP and not auto-assigning a SH
     auto_assign_server_hardware: False
     data:
@@ -175,7 +175,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: compliant
     data:
         name: Web-Server-L2
@@ -186,7 +186,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
         name: Web-Server-L2
@@ -222,7 +222,7 @@ import time
 
 from copy import deepcopy
 
-from ansible.module_utils.oneview import (OneViewModuleBase,
+from ansible.module_utils.oneview import (OneViewModule,
                                           ServerProfileReplaceNamesByUris,
                                           OneViewModuleValueError,
                                           ServerProfileMerger,
@@ -232,7 +232,7 @@ from ansible.module_utils.oneview import (OneViewModuleBase,
                                           compare)
 
 
-class ServerProfileModule(OneViewModuleBase):
+class ServerProfileModule(OneViewModule):
     ASSIGN_HARDWARE_ERROR_CODES = ['AssignProfileToDeviceBayError',
                                    'EnclosureBayUnavailableForProfile',
                                    'ProfileAlreadyExistsInServer']
@@ -263,6 +263,8 @@ class ServerProfileModule(OneViewModuleBase):
     def __init__(self):
         super(ServerProfileModule, self).__init__(additional_arg_spec=self.argument_spec,
                                                   validate_etag_support=True)
+        self.set_resource_object(self.oneview_client.server_profiles)
+        self.server_profile_templates = self.oneview_client.server_profile_templates
 
     def execute_module(self):
         self.auto_assign_server_hardware = self.module.params.get('auto_assign_server_hardware')
@@ -271,54 +273,50 @@ class ServerProfileModule(OneViewModuleBase):
         params = self.module.params.get("params")
         self.params = params if params else {}
 
-        server_profile_name = data.get('name')
-
-        server_profile = self.oneview_client.server_profiles.get_by_name(server_profile_name)
-
         if self.state == 'present':
-            created, changed, msg, server_profile = self.__present(data, server_profile)
-            facts = self.__gather_facts(server_profile)
+            created, changed, msg, server_profile = self.__present()
+            facts = self.__gather_facts()
             facts['created'] = created
             return dict(
                 changed=changed, msg=msg, ansible_facts=facts
             )
         elif self.state == 'absent':
-            changed, msg = self.__delete_profile(server_profile)
+            changed, msg = self.__delete_profile()
             return dict(
                 changed=changed, msg=msg
             )
         elif self.state == "compliant":
-            changed, msg, server_profile = self.__make_compliant(server_profile)
+            changed, msg, server_profile = self.__make_compliant()
             return dict(
-                changed=changed, msg=msg, ansible_facts=self.__gather_facts(server_profile)
+                changed=changed, msg=msg, ansible_facts=self.__gather_facts()
             )
 
-    def __present(self, data, resource):
+    def __present(self):
 
-        server_template_name = data.pop('serverProfileTemplateName', '')
-        server_hardware_name = data.pop('serverHardwareName', '')
+        server_template_name = self.data.pop('serverProfileTemplateName', '')
+        server_hardware_name = self.data.pop('serverHardwareName', '')
         server_template = None
         changed = False
         created = False
 
-        ServerProfileReplaceNamesByUris().replace(self.oneview_client, data)
+        ServerProfileReplaceNamesByUris().replace(self.oneview_client, self.data)
 
         if server_hardware_name:
             selected_server_hardware = self.__get_server_hardware_by_name(server_hardware_name)
             if not selected_server_hardware:
                 raise OneViewModuleValueError(self.MSG_HARDWARE_NOT_FOUND.format(server_hardware_name))
-            data['serverHardwareUri'] = selected_server_hardware['uri']
+            self.data['serverHardwareUri'] = selected_server_hardware['uri']
 
         if server_template_name:
-            server_template = self.oneview_client.server_profile_templates.get_by_name(server_template_name)
+            server_template = self.server_profile_templates.get_by_name(server_template_name)
             if not server_template:
                 raise OneViewModuleValueError(self.MSG_TEMPLATE_NOT_FOUND.format(server_template_name))
             data['serverProfileTemplateUri'] = server_template['uri']
         elif data.get('serverProfileTemplateUri'):
-            server_template = self.oneview_client.server_profile_templates.get(data['serverProfileTemplateUri'])
+            server_template = self.server_profile_templates.get_by_uri(data['serverProfileTemplateUri'])
 
-        if not resource:
-            resource = self.__create_profile(data, server_template)
+        if not self.current_resource:
+            resource = self.__create_profile(server_template)
             changed = True
             created = True
             msg = self.MSG_CREATED
@@ -426,14 +424,14 @@ class ServerProfileModule(OneViewModuleBase):
                 raise OneViewModuleException(error_msg)
         return resource
 
-    def __create_profile(self, data, server_profile_template):
+    def __create_profile(self, server_profile_template):
         tries = 0
-        self.__remove_inconsistent_data(data)
+        self.__remove_inconsistent_data()
         while tries < self.CONCURRENCY_FAILOVER_RETRIES:
             try:
                 tries += 1
 
-                server_hardware_uri = self._auto_assign_server_profile(data, server_profile_template)
+                server_hardware_uri = self._auto_assign_server_profile(server_profile_template)
 
                 if server_hardware_uri:
                     self.module.log(msg="Power off the Server Hardware before create the Server Profile")
@@ -475,47 +473,47 @@ class ServerProfileModule(OneViewModuleBase):
 
         return server_profile_data
 
-    def __remove_inconsistent_data(self, data):
+    def __remove_inconsistent_data(self):
         def is_virtual_or_physical(defined_type):
             return defined_type == 'Virtual' or defined_type == 'Physical'
 
         # Remove the MAC from connections when MAC type is Virtual or Physical
-        mac_type = data.get(SPKeys.MAC_TYPE, None)
+        mac_type = self.data.get(SPKeys.MAC_TYPE, None)
         if mac_type and is_virtual_or_physical(mac_type):
-            for conn in data.get(SPKeys.CONNECTIONS) or []:
+            for conn in self.data.get(SPKeys.CONNECTIONS) or []:
                 conn.pop(SPKeys.MAC, None)
 
         # Remove the UUID when Serial Number Type is Virtual or Physical
-        serial_number_type = data.get(SPKeys.SERIAL_NUMBER_TYPE, None)
+        serial_number_type = self.data.get(SPKeys.SERIAL_NUMBER_TYPE, None)
         if serial_number_type and is_virtual_or_physical(serial_number_type):
-            data.pop(SPKeys.UUID, None)
-            data.pop(SPKeys.SERIAL_NUMBER, None)
+            self.data.pop(SPKeys.UUID, None)
+            self.data.pop(SPKeys.SERIAL_NUMBER, None)
 
         # Remove the WWPN and WWNN when WWPN Type is Virtual or Physical
-        for conn in data.get(SPKeys.CONNECTIONS) or []:
+        for conn in self.data.get(SPKeys.CONNECTIONS) or []:
             wwpn_type = conn.get(SPKeys.WWPN_TYPE, None)
             if is_virtual_or_physical(wwpn_type):
                 conn.pop(SPKeys.WWNN, None)
                 conn.pop(SPKeys.WWPN, None)
 
         # Remove the driveNumber from the Controllers Drives
-        if SPKeys.LOCAL_STORAGE in data and data[SPKeys.LOCAL_STORAGE]:
-            for controller in data[SPKeys.LOCAL_STORAGE].get(SPKeys.CONTROLLERS) or []:
+        if SPKeys.LOCAL_STORAGE in self.data and self.data[SPKeys.LOCAL_STORAGE]:
+            for controller in self.data[SPKeys.LOCAL_STORAGE].get(SPKeys.CONTROLLERS) or []:
                 for drive in controller.get(SPKeys.LOGICAL_DRIVES) or []:
                     drive.pop(SPKeys.DRIVE_NUMBER, None)
 
         # Remove the Lun when Lun Type from SAN Storage Volume is Auto
-        if SPKeys.SAN in data and data[SPKeys.SAN]:
-            if SPKeys.VOLUMES in data[SPKeys.SAN]:
-                for volume in data[SPKeys.SAN].get(SPKeys.VOLUMES) or []:
+        if SPKeys.SAN in self.data and self.data[SPKeys.SAN]:
+            if SPKeys.VOLUMES in self.data[SPKeys.SAN]:
+                for volume in self.data[SPKeys.SAN].get(SPKeys.VOLUMES) or []:
                     if volume.get(SPKeys.LUN_TYPE) == 'Auto':
                         volume.pop(SPKeys.LUN, None)
 
-    def __get_available_server_hardware_uri(self, server_profile, server_template):
+    def __get_available_server_hardware_uri(self, server_template):
 
         if server_template:
-            enclosure_group = server_template.get('enclosureGroupUri', '')
-            server_hardware_type = server_template.get('serverHardwareTypeUri', '')
+            enclosure_group = server_template.data.get('enclosureGroupUri', '')
+            server_hardware_type = server_template.data.get('serverHardwareTypeUri', '')
         else:
             enclosure_group = server_profile.get('enclosureGroupUri', '')
             server_hardware_type = server_profile.get('serverHardwareTypeUri', '')
@@ -615,13 +613,13 @@ class ServerProfileModule(OneViewModuleBase):
                 self.oneview_client.server_hardware.update_power_state(
                     dict(powerState='Off', powerControl='PressAndHold'), hardware_uri)
 
-    def _auto_assign_server_profile(self, data, server_profile_template):
-        server_hardware_uri = data.get('serverHardwareUri')
+    def _auto_assign_server_profile(self, server_profile_template):
+        server_hardware_uri = self.data.get('serverHardwareUri')
 
         if not server_hardware_uri and self.auto_assign_server_hardware:
             # find servers that have no profile, matching Server hardware type and enclosure group
             self.module.log(msg="Get an available Server Hardware for the Profile")
-            server_hardware_uri = self.__get_available_server_hardware_uri(data, server_profile_template)
+            server_hardware_uri = self.__get_available_server_hardware_uri(server_profile_template)
 
         return server_hardware_uri
 

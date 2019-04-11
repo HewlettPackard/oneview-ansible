@@ -94,13 +94,13 @@
                serverHardwareTypeUri: "{{server_hardware_type_uri}}"
                enclosureGroupUri: "{{enclosure_group_uri}}"
            - availableServers
-           - availableStorageSystem: # Supported only for API version <=500
-               storageSystemId: "{{storage_system_id}}"
-               serverHardwareTypeUri: "{{server_hardware_type_uri}}"
-               enclosureGroupUri: "{{enclosure_group_uri}}"
-           - availableStorageSystems: # Supported only for API version <=500
-               serverHardwareTypeUri: "{{server_hardware_type_uri}}"
-               enclosureGroupUri: "{{enclosure_group_uri}}"
+              #           - availableStorageSystem: # Supported only for API version <=500
+              #               storageSystemId: "{{storage_system_id}}"
+              #               serverHardwareTypeUri: "{{server_hardware_type_uri}}"
+              #               enclosureGroupUri: "{{enclosure_group_uri}}"
+              #           - availableStorageSystems: # Supported only for API version <=500
+              #               serverHardwareTypeUri: "{{server_hardware_type_uri}}"
+              #               enclosureGroupUri: "{{enclosure_group_uri}}"
            - availableTargets
 
       delegate_to: localhost
