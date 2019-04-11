@@ -3236,7 +3236,7 @@ Manage OneView Enclosure Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.5.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -3257,7 +3257,7 @@ Manage OneView Enclosure Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         name: "Enclosure Group 1"
@@ -3278,7 +3278,7 @@ Manage OneView Enclosure Group resources.
         hostname: 172.16.101.48
         username: administrator
         password: my_password
-        api_version: 600
+        api_version: 800
         state: present
         data:
             name: "Enclosure Group 1"
@@ -3290,7 +3290,7 @@ Manage OneView Enclosure Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
       name: "Enclosure Group 1 (renamed)"
@@ -3327,7 +3327,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.5.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -3349,7 +3349,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   delegate_to: localhost
 
 - debug: var=enclosure_groups
@@ -3359,7 +3359,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -3374,7 +3374,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Test Enclosure Group Facts"
     options:
       - configuration_script

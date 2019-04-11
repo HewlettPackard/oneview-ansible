@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.5.0"
+    - "hpOneView >= 5.0.0"
 author:
     - "Gustavo Hennig (@GustavoHennig)"
     - "Bruno Souza (@bsouza)"
@@ -56,7 +56,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   delegate_to: localhost
 
 - debug: var=enclosure_groups
@@ -66,7 +66,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -81,7 +81,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Test Enclosure Group Facts"
     options:
       - configuration_script
@@ -103,10 +103,10 @@ enclosure_group_script:
     type: string
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class EnclosureGroupFactsModule(OneViewModuleBase):
+class EnclosureGroupFactsModule(OneViewModule):
     argument_spec = dict(
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
@@ -115,30 +115,23 @@ class EnclosureGroupFactsModule(OneViewModuleBase):
 
     def __init__(self):
         super(EnclosureGroupFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.set_resource_object(self.oneview_client.enclosure_groups)
 
     def execute_module(self):
         facts = {}
-        name = self.module.params.get('name')
+        enclosure_groups = []
+        name = self.module.params.get("name")
 
         if name:
-            enclosure_groups = self.oneview_client.enclosure_groups.get_by('name', name)
-
-            if enclosure_groups and "configuration_script" in self.options:
-                facts["enclosure_group_script"] = self.__get_script(enclosure_groups)
+            if self.current_resource:
+                enclosure_groups = self.current_resource.data
+                if "configuration_script" in self.options:
+                    facts["enclosure_group_script"] = self.current_resource.get_script()
         else:
-            enclosure_groups = self.oneview_client.enclosure_groups.get_all(**self.facts_params)
+            enclosure_groups = self.resource_client.get_all(**self.facts_params)
 
         facts["enclosure_groups"] = enclosure_groups
         return dict(changed=False, ansible_facts=facts)
-
-    def __get_script(self, enclosure_groups):
-        script = None
-
-        if enclosure_groups:
-            enclosure_group_uri = enclosure_groups[0]['uri']
-            script = self.oneview_client.enclosure_groups.get_script(id_or_uri=enclosure_group_uri)
-
-        return script
 
 
 def main():
