@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019 Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -216,12 +216,11 @@ class TestServerProfileTemplateModule(OneViewBaseTest):
         modified_data['name'] = None
         params_with_sp = deepcopy(PARAMS_FOR_PRESENT)
         params_with_sp['data'] = dict(name='ProfileTemplate101', serverProfileName='sp1')
-        self.mock_ov_client.server_profiles.data = dict(name='ProfileTemplate101',
-                                                        serverProfileName='sp1',
-                                                        uri='fake')
-        self.mock_ov_client.server_profiles.get_new_profile_template.return_value = modified_data
-
+        profile_obj = self.mock_ov_client.server_profiles
+        profile_obj.get_new_profile_template.return_value = modified_data
+        self.mock_ov_client.server_profiles.get_by_name.return_value = profile_obj
         self.resource.get_by_name.return_value = None
+
         obj = mock.Mock()
         obj.data = CREATED_BASIC_TEMPLATE
         self.resource.create.return_value = obj

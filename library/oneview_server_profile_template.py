@@ -178,13 +178,16 @@ class ServerProfileTemplateModule(OneViewModule):
     def __spt_from_sp(self):
         if self.data.get('serverProfileName'):
             server_profile = self.server_profiles.get_by_name(self.data.pop('serverProfileName'))
+
             if server_profile:
                 spt_from_sp = server_profile.get_new_profile_template()
                 copy_of_spt_from_sp = spt_from_sp.copy()
+
                 for key, value in copy_of_spt_from_sp.items():
                     if value is None:
                         del spt_from_sp[key]
                 spt_from_sp.update(self.data)
+
                 return spt_from_sp
 
     def __create(self, data):
