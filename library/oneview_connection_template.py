@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -52,7 +52,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         name: 'name1304244267-1467656930023'
@@ -71,14 +71,14 @@ connection_template:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError, OneViewModuleResourceNotFound, compare
+from ansible.module_utils.oneview import (OneViewModule, OneViewModuleValueError,
+                                          OneViewModuleResourceNotFound, compare)
 
 
-class ConnectionTemplateModule(OneViewModuleBase):
+class ConnectionTemplateModule(OneViewModule):
     MSG_UPDATED = 'Connection Template updated successfully.'
     MSG_NOT_FOUND = 'Connection Template was not found.'
     MSG_ALREADY_PRESENT = 'Connection Template is already updated.'
-    MSG_MANDATORY_FIELD_MISSING = 'Mandatory field was not informed: data.name'
 
     def __init__(self):
         argument_spec = dict(
@@ -90,44 +90,32 @@ class ConnectionTemplateModule(OneViewModuleBase):
         )
         super(ConnectionTemplateModule, self).__init__(additional_arg_spec=argument_spec)
 
-        self.resource_client = self.oneview_client.connection_templates
+        self.set_resource_object(self.oneview_client.connection_templates)
 
     def execute_module(self):
         changed, msg, ansible_facts = False, '', {}
 
-        if not self.data.get('name'):
-            raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING)
-
-        resource = self.get_by_name(self.data['name'])
-
         if self.state == 'present':
-            changed, msg, ansible_facts = self.__present(self.data, resource)
+            changed, msg = self.__present()
+            ansible_facts = dict(connection_template=self.current_resource.data)
 
         return dict(changed=changed,
                     msg=msg,
                     ansible_facts=ansible_facts)
 
-    def __present(self, data, resource):
+    def __present(self):
         changed = False
         msg = ''
 
-        if not resource:
+        if not self.current_resource:
             raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
         else:
-            if 'newName' in data:
-                data['name'] = data.pop('newName')
+            if 'newName' in self.data:
+                self.data['name'] = self.data.pop('newName')
 
-            merged_data = resource.copy()
-            merged_data.update(data)
+            changed, msg = self._update_resource()
 
-            if not compare(resource, merged_data):
-                resource = self.resource_client.update(merged_data)
-                changed = True
-                msg = self.MSG_UPDATED
-            else:
-                msg = self.MSG_ALREADY_PRESENT
-
-        return changed, msg, dict(connection_template=resource)
+        return changed, msg
 
 
 def main():
