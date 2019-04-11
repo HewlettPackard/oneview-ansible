@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ description:
     - Retrieve the facts about one or more of the FCoE Networks from OneView.
 version_added: "2.4"
 requirements:
-    - hpOneView >= 2.0.1
+    - hpOneView >= 5.0.0
 author:
     - Felipe Bulsoni (@fgbulsoni)
     - Thiago Miotto (@tmiotto)
@@ -51,7 +51,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   delegate_to: localhost
 
 - debug: var=fcoe_networks
@@ -61,7 +61,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -76,7 +76,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: Test FCoE Network Facts
   delegate_to: localhost
 
@@ -90,10 +90,10 @@ fcoe_networks:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class FcoeNetworkFactsModule(OneViewModuleBase):
+class FcoeNetworkFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(
             name=dict(type='str'),
@@ -101,13 +101,14 @@ class FcoeNetworkFactsModule(OneViewModuleBase):
         )
 
         super(FcoeNetworkFactsModule, self).__init__(additional_arg_spec=argument_spec)
+        self.set_resource_object(self.oneview_client.fcoe_networks)
 
     def execute_module(self):
 
         if self.module.params['name']:
-            fcoe_networks = self.oneview_client.fcoe_networks.get_by('name', self.module.params['name'])
+            fcoe_networks = self.resource_client.get_by('name', self.module.params['name'])
         else:
-            fcoe_networks = self.oneview_client.fcoe_networks.get_all(**self.facts_params)
+            fcoe_networks = self.resource_client.get_all(**self.facts_params)
 
         return dict(changed=False,
                     ansible_facts=dict(fcoe_networks=fcoe_networks))

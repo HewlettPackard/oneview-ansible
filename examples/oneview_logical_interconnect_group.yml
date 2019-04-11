@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     # Inform the permitted Interconnect Type URI to configure Interconnect Map
-    permitted_interconnect_type_name: 'HP VC Flex-10/10D Module'
+    permitted_interconnect_type_name: 'Virtual Connect SE 32Gb FC Module for Synergy'
     scope_uris:
       - '/rest/scopes/d0324c4b-56c9-485b-b7dd-8f6218a4b5bb'
       - '/rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412'
@@ -30,27 +30,30 @@
         data:
           name: 'Test Logical Interconnect Group'
           uplinkSets: []
-          enclosureType: 'C7000'
+          enclosureType: 'SY12000'
+          interconnectBaySet: 3    
+          enclosureIndexes: [1, 2]
+          redundancyType: "HighlyAvailable"
           interconnectMapTemplate:
             interconnectMapEntryTemplates:
               - logicalDownlinkUri: ~
                 logicalLocation:
                     locationEntries:
-                        - relativeValue: "1"
+                        - relativeValue: 3
                           type: "Bay"
-                        - relativeValue: 1
-                          type: "Enclosure"
+                        - relativeValue: 6
+                          type: "Bay"
                 permittedInterconnectTypeName: '{{ permitted_interconnect_type_name }}'
                 # Alternatively you can inform permittedInterconnectTypeUri
       delegate_to: localhost
-
+ 
     - name: Do nothing with the Logical Interconnect Group when no changes are provided
       oneview_logical_interconnect_group:
         config: "{{ config }}"
         state: present
         data:
           name: 'Test Logical Interconnect Group'
-          enclosureType: 'C7000'
+          enclosureType: 'SY12000'
       delegate_to: localhost
 
     - name: Update the Logical Interconnect Group by adding an uplink set "e23 uplink set" with an Ethernet network
@@ -82,7 +85,7 @@
         config: "{{ config }}"
         state: present
         data:
-          name: Test Logical Interconnect Group
+          name: 'Test Logical Interconnect Group'
           scopeUris: "{{ scope_uris }}"
       delegate_to: localhost
 
