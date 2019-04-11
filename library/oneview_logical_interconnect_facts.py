@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.1"
+    - "hpOneView >= 5.0.0"
 author:
     - "Bruno Souza (@bsouza)"
     - "Mariana Kreisig (@marikrg)"
@@ -67,7 +67,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
 
 - debug: var=logical_interconnects
 
@@ -76,7 +76,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -89,7 +89,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Name of the Logical Interconnect"
     options:
       - qos_aggregated_configuration
@@ -102,7 +102,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Name of the Logical Interconnect"
     options:
       - qos_aggregated_configuration
@@ -180,10 +180,10 @@ ethernet_settings:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
 
 
-class LogicalInterconnectFactsModule(OneViewModuleBase):
+class LogicalInterconnectFactsModule(OneViewModule):
     MSG_NOT_FOUND = 'Logical Interconnect not found.'
 
     argument_spec = dict(
@@ -195,7 +195,8 @@ class LogicalInterconnectFactsModule(OneViewModuleBase):
     def __init__(self):
         super(LogicalInterconnectFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        self.resource_client = self.oneview_client.logical_interconnects
+        self.set_resource_object(self.oneview_client.logical_interconnects)
+
         self.options = dict(
             qos_aggregated_configuration=self.resource_client.get_qos_aggregated_configuration,
             snmp_configuration=self.resource_client.get_snmp_configuration,
