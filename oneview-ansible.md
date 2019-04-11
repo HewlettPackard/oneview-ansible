@@ -4057,7 +4057,7 @@ Manage OneView FCoE Network resources
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -4079,7 +4079,7 @@ Manage OneView FCoE Network resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: Test FCoE Network
@@ -4091,7 +4091,7 @@ Manage OneView FCoE Network resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: New FCoE Network
@@ -4105,7 +4105,7 @@ Manage OneView FCoE Network resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
       name: New FCoE Network
@@ -4141,7 +4141,7 @@ Retrieve the facts about one or more of the OneView FCoE Networks
  Retrieve the facts about one or more of the FCoE Networks from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -4162,7 +4162,7 @@ Retrieve the facts about one or more of the OneView FCoE Networks
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   delegate_to: localhost
 
 - debug: var=fcoe_networks
@@ -4172,7 +4172,7 @@ Retrieve the facts about one or more of the OneView FCoE Networks
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -4187,7 +4187,7 @@ Retrieve the facts about one or more of the OneView FCoE Networks
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: Test FCoE Network Facts
   delegate_to: localhost
 
