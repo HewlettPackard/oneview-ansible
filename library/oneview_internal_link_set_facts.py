@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.0"
+    - "hpOneView >= 5.0.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     params:
@@ -62,7 +62,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
 
 - debug: var=internal_link_sets
 
@@ -71,7 +71,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -84,7 +84,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Internal Link Set Name"
 
 - debug: var=internal_link_sets
@@ -97,10 +97,10 @@ internal_link_sets:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class InternalLinkSetFactsModule(OneViewModuleBase):
+class InternalLinkSetFactsModule(OneViewModule):
     argument_spec = dict(
         name=dict(required=False, type='str'),
         params=dict(required=False, type='dict')
@@ -109,13 +109,14 @@ class InternalLinkSetFactsModule(OneViewModuleBase):
 
     def __init__(self):
         super(InternalLinkSetFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.resource_client = self.oneview_client.internal_link_sets
 
     def execute_module(self):
         name = self.module.params.get('name')
         if name:
-            internal_links = self.oneview_client.internal_link_sets.get_by('name', name)
+            internal_links = self.resource_client.get_by('name', name)
         else:
-            internal_links = self.oneview_client.internal_link_sets.get_all(**self.facts_params)
+            internal_links = self.resource_client.get_all(**self.facts_params)
 
         return dict(changed=False, ansible_facts=dict(internal_link_sets=internal_links))
 

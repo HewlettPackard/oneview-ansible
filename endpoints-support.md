@@ -170,8 +170,8 @@
 |<sub>/rest/interconnects/{id}/update-ports</sub>                                         | PUT      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/interconnects/{id}/nameServers</sub>                                          | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |     **Internal Link Sets**                                                                                                                       |
-|<sub>/rest/internal-link-sets</sub>                                                      | GET      | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:  |
-|<sub>/rest/internal-link-sets/{id}</sub>                                                 | GET      | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:  |
+|<sub>/rest/internal-link-sets</sub>                                                      | GET      | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:  |
+|<sub>/rest/internal-link-sets/{id}</sub>                                                 | GET      | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:  |
 |     **Logical Downlinks**                                                                                                                         |
 |<sub>/rest/logical-downlinks</sub>                                                       |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/logical-downlinks/{id}</sub>                                                  |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
