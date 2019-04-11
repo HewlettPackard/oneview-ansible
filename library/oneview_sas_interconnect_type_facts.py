@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.0"
+    - "hpOneView >= 5.0.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     name:
@@ -50,7 +50,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
 
 - debug: var=sas_interconnect_types
 
@@ -70,7 +70,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "SAS Interconnect Type Name"
 
 - debug: var=sas_interconnect_types
@@ -94,12 +94,13 @@ class SasInterconnectTypeFactsModule(OneViewModuleBase):
 
     def __init__(self):
         super(SasInterconnectTypeFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.resource_client = self.oneview_client.sas_interconnect_types
 
     def execute_module(self):
         if self.module.params.get('name'):
-            types = self.oneview_client.sas_interconnect_types.get_by('name', self.module.params.get('name'))
+            types = self.resource_client.get_by('name', self.module.params.get('name'))
         else:
-            types = self.oneview_client.sas_interconnect_types.get_all(**self.facts_params)
+            types = self.resource_client.get_all(**self.facts_params)
 
         return dict(changed=False,
                     ansible_facts=dict(sas_interconnect_types=types))
