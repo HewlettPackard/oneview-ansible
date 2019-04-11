@@ -38,11 +38,11 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     # Set the name of the server profile template that will be used to provision the server profile
-    - ov_template: Demo-Review
+    - ov_template:  ProfileTemplate101
     # Set the name of an existing enclosure group to run this example
     - enclosure_group_name: SYN03_EC
     # Set the name of an existing server hardware type to run this example
-    - server_hardware_type_name: SY 480 Gen9 2
+    - server_hardware_type_name: SY 480 Gen9 3
     # Set the name of an existing ethernet network
     - network_name: eth77
   tasks:
@@ -65,22 +65,22 @@
     - debug: var=compliance_preview
     - debug: var=created
 
-    - name: Create a Server Profile with connections
-      oneview_server_profile:
-        config: "{{ config }}"
-        data:
-          name: "{{ inventory_hostname }}-with-connections"
-          connectionSettings:  # Supported only in API vesrion >= 600.
-            connections:
-              - id: 1
-                name: connection1
-                functionType: Ethernet
-                portId: Auto
-                requestedMbps: 2500
-                networkName: "{{ network_name }}"
-      delegate_to: localhost
+  #    - name: Create a Server Profile with connections
+  #      oneview_server_profile:
+  #        config: "{{ config }}"
+  #        data:
+  #          name: "{{ inventory_hostname }}-with-connections"
+  #          connectionSettings:  # Supported only in API vesrion >= 600.
+  #            connections:
+  #              - id: 1
+  #                name: connection1
+  #                functionType: Ethernet
+  #                portId: Auto
+  #                requestedMbps: 2500
+  #                networkName: "{{ network_name }}"
+  #      delegate_to: localhost
 
-    - debug: msg="{{ server_profile }}"
+      #    - debug: msg="{{ server_profile }}"
 
     - name: Update Server Profile
       oneview_server_profile:
