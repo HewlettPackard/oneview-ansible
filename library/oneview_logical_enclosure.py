@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 5.0.0"
 author:
     - "Gustavo Hennig (@GustavoHennig)"
     - "Mariana Kreisig (@marikrg)"
@@ -67,7 +67,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         enclosureUris:
@@ -82,7 +82,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: firmware_updated
     data:
         name: "Encl1"
@@ -100,7 +100,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: firmware_updated
     data:
         name: "Encl1"
@@ -120,7 +120,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: script_updated
     data:
         name: "Encl1"
@@ -132,7 +132,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: dumped
     data:
         name: "Encl1"
@@ -148,7 +148,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: reconfigured
     data:
         name: "Encl1"
@@ -159,7 +159,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: updated_from_group
     data:
         name: "Encl1"
@@ -170,7 +170,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         name: "Encl1"
@@ -182,7 +182,7 @@ EXAMPLES = '''
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 600
+      api_version: 800
       state: absent
       data:
           name: 'Encl1'
@@ -206,10 +206,10 @@ generated_dump_uri:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, compare
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare
 
 
-class LogicalEnclosureModule(OneViewModuleBase):
+class LogicalEnclosureModule(OneViewModule):
     MSG_UPDATED = 'Logical Enclosure updated successfully.'
     MSG_ALREADY_PRESENT = 'Logical Enclosure is already present.'
     MSG_REQUIRED = "An existing Logical Enclosure is required."
@@ -233,99 +233,94 @@ class LogicalEnclosureModule(OneViewModuleBase):
 
     def __init__(self):
         super(LogicalEnclosureModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.set_resource_object(self.oneview_client.logical_enclosures)
 
     def execute_module(self):
         changed, msg, ansible_facts = False, '', {}
 
-        logical_enclosure = self.oneview_client.logical_enclosures.get_by_name(self.data['name'])
-
         if self.state == 'present':
-            changed, msg, ansible_facts = self.__present(self.data, logical_enclosure)
+            changed, msg, ansible_facts = self.__present()
         elif self.state == 'absent':
-            changed, msg, ansible_facts = self.__absent(logical_enclosure)
+            changed, msg, ansible_facts = self.__absent()
         else:
-            if not logical_enclosure:
+            if not self.current_resource:
                 raise OneViewModuleResourceNotFound(self.MSG_REQUIRED)
 
             if self.state == 'firmware_updated':
-                changed, msg, ansible_facts = self.__update_firmware(self.data, logical_enclosure)
+                changed, msg, ansible_facts = self.__update_firmware()
             elif self.state == 'script_updated':
-                changed, msg, ansible_facts = self.__update_script(self.data, logical_enclosure)
+                changed, msg, ansible_facts = self.__update_script()
             elif self.state == 'dumped':
-                changed, msg, ansible_facts = self.__support_dump(self.data, logical_enclosure)
+                changed, msg, ansible_facts = self.__support_dump()
             elif self.state == 'reconfigured':
-                changed, msg, ansible_facts = self.__reconfigure(logical_enclosure)
+                changed, msg, ansible_facts = self.__reconfigure()
             elif self.state == 'updated_from_group':
-                changed, msg, ansible_facts = self.__update_from_group(logical_enclosure)
+                changed, msg, ansible_facts = self.__update_from_group()
 
         return dict(changed=changed,
                     msg=msg,
                     ansible_facts=ansible_facts)
 
-    def __present(self, data, logical_enclosure):
-        if logical_enclosure:
-            response = self.__update(data, logical_enclosure)
+    def __present(self):
+        if self.current_resource:
+            response = self.__update()
         else:
-            response = self.__create(data)
+            response = self.__create(self.data)
         return response
 
     def __create(self, data):
-        new_logical_enclosure = self.oneview_client.logical_enclosures.create(data)
-        return True, self.MSG_CREATED, dict(logical_enclosure=new_logical_enclosure)
+        self.current_resource = self.resource_client.create(data)
+        return True, self.MSG_CREATED, dict(logical_enclosure=self.current_resource.data)
 
-    def __absent(self, logical_enclosure):
-        if logical_enclosure:
+    def __absent(self):
+        if self.current_resource:
             changed = True
             msg = self.MSG_DELETED
-            self.oneview_client.logical_enclosures.delete(logical_enclosure)
+            self.current_resource.delete()
         else:
             changed = False
             msg = self.MSG_ALREADY_ABSENT
         return changed, msg, dict(logical_enclosure=None)
 
-    def __update(self, new_data, existent_resource):
-        if "newName" in new_data:
-            new_data["name"] = new_data["newName"]
-            del new_data["newName"]
+    def __update(self):
+        if "newName" in self.data:
+            self.data["name"] = self.data.pop("newName")
 
-        merged_data = existent_resource.copy()
-        merged_data.update(new_data)
+        merged_data = self.current_resource.data.copy()
+        merged_data.update(self.data)
 
-        if not compare(existent_resource, merged_data):
-            existent_resource = self.oneview_client.logical_enclosures.update(merged_data)
-            return True, self.MSG_UPDATED, dict(logical_enclosure=existent_resource)
+        if not compare(self.current_resource.data, merged_data):
+            self.current_resource.update(merged_data)
+            return True, self.MSG_UPDATED, dict(logical_enclosure=self.current_resource.data)
         else:
-            return False, self.MSG_ALREADY_PRESENT, dict(logical_enclosure=existent_resource)
+            return False, self.MSG_ALREADY_PRESENT, dict(logical_enclosure=self.current_resource.data)
 
-    def __update_script(self, data, logical_enclosure):
-        script = data.pop("configurationScript")
+    def __update_script(self):
+        script = self.data.pop("configurationScript")
 
-        self.oneview_client.logical_enclosures.update_script(logical_enclosure['uri'], script)
+        self.current_resource.update_script(script)
         return True, self.MSG_CONFIGURATION_SCRIPT_UPDATED, dict(configuration_script=script)
 
-    def __update_firmware(self, data, logical_enclosure):
-        logical_enclosure = self.oneview_client.logical_enclosures.patch(logical_enclosure['uri'],
-                                                                         operation="replace",
-                                                                         path="/firmware",
-                                                                         value=data['firmware'],
-                                                                         custom_headers=data.get('custom_headers'))
+    def __update_firmware(self):
+        self.current_resource.patch(operation="replace",
+                                    path="/firmware",
+                                    value=self.data['firmware'],
+                                    custom_headers=self.data.get('custom_headers'))
 
-        return True, self.MSG_FIRMWARE_UPDATED, dict(logical_enclosure=logical_enclosure)
+        return True, self.MSG_FIRMWARE_UPDATED, dict(logical_enclosure=self.current_resource.data)
 
-    def __support_dump(self, data, logical_enclosure):
-        generated_dump_uri = self.oneview_client.logical_enclosures.generate_support_dump(
-            data['dump'],
-            logical_enclosure['uri'])
+    def __support_dump(self):
+        generated_dump_uri = self.current_resource.generate_support_dump(self.data['dump'])
 
         return True, self.MSG_DUMP_GENERATED, dict(generated_dump_uri=generated_dump_uri)
 
-    def __reconfigure(self, logical_enclosure):
-        logical_enclosure = self.oneview_client.logical_enclosures.update_configuration(logical_enclosure['uri'])
+    def __reconfigure(self):
+        logical_enclosure = self.current_resource.update_configuration()
 
         return True, self.MSG_RECONFIGURED, dict(logical_enclosure=logical_enclosure)
 
-    def __update_from_group(self, logical_enclosure):
-        logical_enclosure = self.oneview_client.logical_enclosures.update_from_group(logical_enclosure['uri'])
+    def __update_from_group(self):
+        logical_enclosure = self.current_resource.update_from_group()
 
         return True, self.MSG_UPDATED_FROM_GROUP, dict(logical_enclosure=logical_enclosure)
 

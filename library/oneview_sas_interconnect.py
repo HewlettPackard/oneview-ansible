@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019 Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.0"
+    - "hpOneView >= 5.0.0"
 author: "Bruno Souza (@bsouza)"
 options:
     state:
@@ -61,7 +61,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: powered_on
     name: "0000A66101, interconnect 1"
 
@@ -70,7 +70,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: refreshed
     name: "0000A66101, interconnect 1"
 
@@ -79,17 +79,17 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: hard_reset
     name: "0000A66101, interconnect 1"
 '''
 
 RETURN = ''' # '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
 
 
-class SasInterconnectModule(OneViewModuleBase):
+class SasInterconnectModule(OneViewModule):
     MSG_NOT_FOUND = 'SAS Interconnect not found.'
     MSG_NOTHING_TO_DO = 'Nothing to do.'
 
@@ -122,47 +122,37 @@ class SasInterconnectModule(OneViewModuleBase):
 
     def __init__(self):
         super(SasInterconnectModule, self).__init__(additional_arg_spec=self.argument_spec, validate_etag_support=True)
-        self.resource_client = self.oneview_client.sas_interconnects
+        self.set_resource_object(self.oneview_client.sas_interconnects)
 
     def execute_module(self):
-        name = self.module.params.get('name')
-
         changed, msg, facts = False, '', dict()
-        sas_interconnect = self.__get_by_name(name)
+        if not self.current_resource:
+            raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
 
         if self.state == 'refreshed':
-            facts['sas_interconnect'] = self.resource_client.refresh_state(
-                id_or_uri=sas_interconnect['uri'],
+            facts['sas_interconnect'] = self.current_resource.refresh_state(
                 configuration=dict(refreshState="RefreshPending")
             )
             changed = True
             msg = self.states_success_message[self.state]
         elif self.states.get(self.state):
-            changed, msg, facts['sas_interconnect'] = self.change_state(self.state, sas_interconnect)
+            changed, msg, facts['sas_interconnect'] = self.change_state(self.state)
 
         return dict(changed=changed, msg=msg, ansible_facts=facts)
 
-    def __get_by_name(self, name):
-        sas_interconnects = self.resource_client.get_by('name', name)
-
-        if not sas_interconnects:
-            raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
-
-        return sas_interconnects[0]
-
-    def change_state(self, state_name, resource):
+    def change_state(self, state_name):
         changed = False
         state = self.states[state_name]
         property_name = state['path'][1:]
 
-        if state_name in self.actions or resource[property_name] != state['value']:
-            resource = self.resource_client.patch(id_or_uri=resource["uri"], **state)
+        if state_name in self.actions or self.current_resource.data[property_name] != state['value']:
+            self.current_resource.patch(**state)
             msg = self.states_success_message[state_name]
             changed = True
         else:
             msg = self.MSG_NOTHING_TO_DO
 
-        return changed, msg, resource
+        return changed, msg, self.current_resource.data
 
 
 def main():

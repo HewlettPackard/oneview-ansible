@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ class TestConnectionTemplateFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_connection_template_by_name(self):
-        self.resource.get_by.return_value = {"name": "Storage System Name"}
+        self.resource.get_by.return_value = [{"name": "Storage System Name"}]
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
