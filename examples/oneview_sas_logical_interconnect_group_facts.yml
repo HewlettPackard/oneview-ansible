@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     # Set the name of a SAS Logical Interconnect Group to run the playbook
-    sas_logical_interconnect_group_name: "sas-LIG"
+    sas_logical_interconnect_group_name: "SYN_SAS_1"
     scope_uris: "/rest/scopes/be263683-b147-4818-8bbe-c5a5629b9bfe"
 
   tasks:
