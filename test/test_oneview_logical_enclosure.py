@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -117,7 +117,8 @@ DICT_DEFAULT_LOGICAL_ENCLOSURE = yaml.load(YAML_LOGICAL_ENCLOSURE)["data"]
 class TestLogicalEnclosureModule(OneViewBaseTest):
     def test_should_create_when_resource_not_exist(self):
         self.resource.get_by_name.return_value = None
-        self.resource.create.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.create.return_value = self.resource
+        self.resource.data = DICT_DEFAULT_LOGICAL_ENCLOSURE
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_PRESENT)
 
         LogicalEnclosureModule().run()
@@ -129,7 +130,7 @@ class TestLogicalEnclosureModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_existing_data_is_equals(self):
-        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.data = DICT_DEFAULT_LOGICAL_ENCLOSURE
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_NO_RENAME)
 
         LogicalEnclosureModule().run()
@@ -144,8 +145,7 @@ class TestLogicalEnclosureModule(OneViewBaseTest):
         data_merged = DICT_DEFAULT_LOGICAL_ENCLOSURE.copy()
         data_merged['newName'] = 'New Name'
 
-        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
-        self.resource.update.return_value = data_merged
+        self.resource.data = DICT_DEFAULT_LOGICAL_ENCLOSURE
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_RENAME)
 
         LogicalEnclosureModule().run()
@@ -153,12 +153,15 @@ class TestLogicalEnclosureModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=LogicalEnclosureModule.MSG_UPDATED,
-            ansible_facts=dict(logical_enclosure=data_merged)
+            ansible_facts=dict(logical_enclosure=DICT_DEFAULT_LOGICAL_ENCLOSURE)
         )
 
     def test_should_update_firmware_when_resource_exists(self):
-        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
-        self.resource.patch.return_value = {'PATCH', 'EXECUTED'}
+        self.resource.data = DICT_DEFAULT_LOGICAL_ENCLOSURE
+
+        obj = mock.Mock()
+        obj.data = {'PATCH', 'EXECUTED'}
+        self.resource.patch.return_value = obj
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_FIRMWARE_UPDATE)
 
         LogicalEnclosureModule().run()
@@ -166,7 +169,7 @@ class TestLogicalEnclosureModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=LogicalEnclosureModule.MSG_FIRMWARE_UPDATED,
-            ansible_facts=dict(logical_enclosure={'PATCH', 'EXECUTED'})
+            ansible_facts=dict(logical_enclosure=DICT_DEFAULT_LOGICAL_ENCLOSURE)
         )
 
     def test_should_not_update_firmware_when_resource_not_found(self):
@@ -178,7 +181,7 @@ class TestLogicalEnclosureModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_update_script_when_resource_exists(self):
-        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.data = DICT_DEFAULT_LOGICAL_ENCLOSURE
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_UPDATE_SCRIPT)
 
         LogicalEnclosureModule().run()
@@ -198,7 +201,7 @@ class TestLogicalEnclosureModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_generate_support_dump_when_resource_exist(self):
-        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.data = DICT_DEFAULT_LOGICAL_ENCLOSURE
         self.resource.generate_support_dump.return_value = '/rest/appliance/dumpedfile'
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_DUMP)
 
@@ -219,7 +222,7 @@ class TestLogicalEnclosureModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_reconfigure_when_resource_exist(self):
-        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.data = DICT_DEFAULT_LOGICAL_ENCLOSURE
         self.resource.update_configuration.return_value = {'Configuration', 'Updated'}
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_CONFIGURE)
 
@@ -240,7 +243,7 @@ class TestLogicalEnclosureModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_update_from_group_when_resource_exist(self):
-        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.data = DICT_DEFAULT_LOGICAL_ENCLOSURE
         self.resource.update_from_group.return_value = {'Updated from group'}
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_UPDATE_FROM_GROUP)
 
@@ -261,7 +264,7 @@ class TestLogicalEnclosureModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
 
     def test_should_delete_logical_enclosure_when_resource_exist(self):
-        self.resource.get_by_name.return_value = DICT_DEFAULT_LOGICAL_ENCLOSURE
+        self.resource.data = DICT_DEFAULT_LOGICAL_ENCLOSURE
         self.resource.delete.return_value = True
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_ABSENT)
 

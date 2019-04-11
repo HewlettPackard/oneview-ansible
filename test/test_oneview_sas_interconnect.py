@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -54,16 +54,15 @@ class TestSasInterconnectModule(OneViewBaseTest):
     def test_should_refresh_the_sas_interconnect(self):
         state_check = StateCheck('refreshed')
 
-        self.resource.get_by.return_value = [SAS_INTERCONNECT]
+        self.resource.data = SAS_INTERCONNECT
         self.resource.refresh_state.return_value = SAS_INTERCONNECT
         self.mock_ansible_module.params = state_check.params
 
         SasInterconnectModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_NAME)
+        self.resource.get_by_name.assert_called_once_with(SAS_INTERCONNECT_NAME)
 
         self.resource.refresh_state.assert_called_once_with(
-            id_or_uri=SAS_INTERCONNECT_URI,
             configuration=REFRESH_CONFIGURATION
         )
 
@@ -78,31 +77,30 @@ class TestSasInterconnectModule(OneViewBaseTest):
 
         state_check = StateCheck('uid_on')
 
-        self.resource.get_by.return_value = [sas_interconnect]
-        self.resource.patch.return_value = SAS_INTERCONNECT
+        self.resource.data = sas_interconnect
         self.mock_ansible_module.params = state_check.params
 
         SasInterconnectModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_NAME)
-        self.resource.patch.assert_called_once_with(id_or_uri=SAS_INTERCONNECT_URI, **state_check.state)
+        self.resource.get_by_name.assert_called_once_with(SAS_INTERCONNECT_NAME)
+        self.resource.patch.assert_called_once_with(**state_check.state)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=state_check.msg,
-            ansible_facts=dict(sas_interconnect=SAS_INTERCONNECT)
+            ansible_facts=dict(sas_interconnect=sas_interconnect)
         )
 
     def test_should_do_nothing_when_uid_is_already_on(self):
         sas_interconnect = dict(uidState='On', **SAS_INTERCONNECT)
         state_check = StateCheck('uid_on')
 
-        self.resource.get_by.return_value = [sas_interconnect]
+        self.resource.data = sas_interconnect
         self.mock_ansible_module.params = state_check.params
 
         SasInterconnectModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_NAME)
+        self.resource.get_by_name.assert_called_once_with(SAS_INTERCONNECT_NAME)
         self.resource.patch.assert_not_called()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -114,12 +112,12 @@ class TestSasInterconnectModule(OneViewBaseTest):
     def test_should_fail_when_interconnect_not_found(self):
         state_check = StateCheck('uid_on')
 
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = state_check.params
 
         SasInterconnectModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_NAME)
+        self.resource.get_by_name.assert_called_once_with(SAS_INTERCONNECT_NAME)
         self.resource.patch.assert_not_called()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=SasInterconnectModule.MSG_NOT_FOUND)
@@ -128,31 +126,30 @@ class TestSasInterconnectModule(OneViewBaseTest):
         sas_interconnect = dict(uidState='On', **SAS_INTERCONNECT)
         state_check = StateCheck('uid_off')
 
-        self.resource.get_by.return_value = [sas_interconnect]
-        self.resource.patch.return_value = SAS_INTERCONNECT
+        self.resource.data = sas_interconnect
         self.mock_ansible_module.params = state_check.params
 
         SasInterconnectModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_NAME)
-        self.resource.patch.assert_called_once_with(id_or_uri=SAS_INTERCONNECT_URI, **state_check.state)
+        self.resource.get_by_name.assert_called_once_with(SAS_INTERCONNECT_NAME)
+        self.resource.patch.assert_called_once_with(**state_check.state)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=state_check.msg,
-            ansible_facts=dict(sas_interconnect=SAS_INTERCONNECT)
+            ansible_facts=dict(sas_interconnect=sas_interconnect)
         )
 
     def test_should_do_nothing_when_uid_is_already_off(self):
         sas_interconnect = dict(uidState='Off', **SAS_INTERCONNECT)
         state_check = StateCheck('uid_off')
 
-        self.resource.get_by.return_value = [sas_interconnect]
+        self.resource.data = sas_interconnect
         self.mock_ansible_module.params = state_check.params
 
         SasInterconnectModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_NAME)
+        self.resource.get_by_name.assert_called_once_with(SAS_INTERCONNECT_NAME)
         self.resource.patch.assert_not_called()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -165,31 +162,30 @@ class TestSasInterconnectModule(OneViewBaseTest):
         sas_interconnect = dict(powerState='On', **SAS_INTERCONNECT)
         state_check = StateCheck('powered_off')
 
-        self.resource.get_by.return_value = [sas_interconnect]
-        self.resource.patch.return_value = SAS_INTERCONNECT
+        self.resource.data = sas_interconnect
         self.mock_ansible_module.params = state_check.params
 
         SasInterconnectModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_NAME)
-        self.resource.patch.assert_called_once_with(id_or_uri=SAS_INTERCONNECT_URI, **state_check.state)
+        self.resource.get_by_name.assert_called_once_with(SAS_INTERCONNECT_NAME)
+        self.resource.patch.assert_called_once_with(**state_check.state)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=state_check.msg,
-            ansible_facts=dict(sas_interconnect=SAS_INTERCONNECT)
+            ansible_facts=dict(sas_interconnect=sas_interconnect)
         )
 
     def test_should_do_nothing_when_the_sas_interconnect_is_already_powered_off(self):
         sas_interconnect = dict(powerState='Off', **SAS_INTERCONNECT)
         state_check = StateCheck('powered_off')
 
-        self.resource.get_by.return_value = [sas_interconnect]
+        self.resource.data = sas_interconnect
         self.mock_ansible_module.params = state_check.params
 
         SasInterconnectModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_NAME)
+        self.resource.get_by_name.assert_called_once_with(SAS_INTERCONNECT_NAME)
         self.resource.patch.assert_not_called()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -203,31 +199,33 @@ class TestSasInterconnectModule(OneViewBaseTest):
 
         sas_interconnect = dict(powerState='Off', **SAS_INTERCONNECT)
 
-        self.resource.get_by.return_value = [sas_interconnect]
-        self.resource.patch.return_value = SAS_INTERCONNECT
+        self.resource.data = sas_interconnect
+        obj = mock.Mock()
+        obj.data = SAS_INTERCONNECT
+        self.resource.patch.return_value = obj
         self.mock_ansible_module.params = state_check.params
 
         SasInterconnectModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_NAME)
-        self.resource.patch.assert_called_once_with(id_or_uri=SAS_INTERCONNECT_URI, **state_check.state)
+        self.resource.get_by_name.assert_called_once_with(SAS_INTERCONNECT_NAME)
+        self.resource.patch.assert_called_once_with(**state_check.state)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=state_check.msg,
-            ansible_facts=dict(sas_interconnect=SAS_INTERCONNECT)
+            ansible_facts=dict(sas_interconnect=sas_interconnect)
         )
 
     def test_should_do_nothing_when_the_sas_interconnect_is_already_powered_on(self):
         sas_interconnect = dict(powerState='On', **SAS_INTERCONNECT)
         state_check = StateCheck('powered_on')
 
-        self.resource.get_by.return_value = [sas_interconnect]
+        self.resource.data = sas_interconnect
         self.mock_ansible_module.params = state_check.params
 
         SasInterconnectModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_NAME)
+        self.resource.get_by_name.assert_called_once_with(SAS_INTERCONNECT_NAME)
         self.resource.patch.assert_not_called()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -239,14 +237,16 @@ class TestSasInterconnectModule(OneViewBaseTest):
     def test_should_perform_soft_reset(self):
         state_check = StateCheck('soft_reset')
 
-        self.resource.get_by.return_value = [SAS_INTERCONNECT]
-        self.resource.patch.return_value = SAS_INTERCONNECT
+        self.resource.data = SAS_INTERCONNECT
+        obj = mock.Mock()
+        obj.data = SAS_INTERCONNECT
+        self.resource.patch.return_value = obj
         self.mock_ansible_module.params = state_check.params
 
         SasInterconnectModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_NAME)
-        self.resource.patch.assert_called_once_with(id_or_uri=SAS_INTERCONNECT_URI, **state_check.state)
+        self.resource.get_by_name.assert_called_once_with(SAS_INTERCONNECT_NAME)
+        self.resource.patch.assert_called_once_with(**state_check.state)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -257,14 +257,16 @@ class TestSasInterconnectModule(OneViewBaseTest):
     def test_should_perform_hard_reset(self):
         state_check = StateCheck('hard_reset')
 
-        self.resource.get_by.return_value = [SAS_INTERCONNECT]
-        self.resource.patch.return_value = SAS_INTERCONNECT
+        self.resource.data = SAS_INTERCONNECT
+        obj = mock.Mock()
+        obj.data = SAS_INTERCONNECT
+        self.resource.patch.return_value = obj
         self.mock_ansible_module.params = state_check.params
 
         SasInterconnectModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', SAS_INTERCONNECT_NAME)
-        self.resource.patch.assert_called_once_with(id_or_uri=SAS_INTERCONNECT_URI, **state_check.state)
+        self.resource.get_by_name.assert_called_once_with(SAS_INTERCONNECT_NAME)
+        self.resource.patch.assert_called_once_with(**state_check.state)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,

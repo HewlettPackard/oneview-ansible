@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ description:
 version_added: "2.5"
 requirements:
     - python >= 2.7.9
-    - hpOneView >= 4.5.0
+    - hpOneView >= 5.0.0
 author:
     - Felipe Bulsoni (@fgbulsoni)
     - Thiago Miotto (@tmiotto)
@@ -53,7 +53,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   no_log: true
   delegate_to: localhost
 
@@ -69,7 +69,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   no_log: true
   delegate_to: localhost
 
@@ -82,7 +82,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   no_log: true
   delegate_to: localhost
 
@@ -94,7 +94,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   no_log: true
   delegate_to: localhost
 
@@ -108,10 +108,10 @@ logical_interconnect_groups:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class LogicalInterconnectGroupFactsModule(OneViewModuleBase):
+class LogicalInterconnectGroupFactsModule(OneViewModule):
     def __init__(self):
 
         argument_spec = dict(
@@ -120,12 +120,13 @@ class LogicalInterconnectGroupFactsModule(OneViewModuleBase):
         )
 
         super(LogicalInterconnectGroupFactsModule, self).__init__(additional_arg_spec=argument_spec)
+        self.resource_client = self.oneview_client.logical_interconnect_groups
 
     def execute_module(self):
         if self.module.params.get('name'):
-            ligs = self.oneview_client.logical_interconnect_groups.get_by('name', self.module.params['name'])
+            ligs = self.resource_client.get_by('name', self.module.params['name'])
         else:
-            ligs = self.oneview_client.logical_interconnect_groups.get_all(**self.facts_params)
+            ligs = self.resource_client.get_all(**self.facts_params)
 
         return dict(changed=False, ansible_facts=dict(logical_interconnect_groups=ligs))
 
