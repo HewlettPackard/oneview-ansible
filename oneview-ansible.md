@@ -8266,7 +8266,7 @@ Manage OneView SAS Logical Interconnect Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -8288,7 +8288,7 @@ Manage OneView SAS Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: "Test SAS Logical Interconnect Group"
@@ -8320,7 +8320,7 @@ Manage OneView SAS Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'New SAS Logical Interconnect Group'
@@ -8331,7 +8331,7 @@ Manage OneView SAS Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
       name: 'New SAS Logical Interconnect Group'
@@ -8369,7 +8369,7 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnect Groups.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.5.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -8390,7 +8390,7 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnect Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
 - debug: var=sas_logical_interconnect_groups
 
 - name: Gather paginated, filtered and sorted facts about SAS Logical Interconnect Groups
@@ -8398,7 +8398,7 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnect Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 5
@@ -8411,7 +8411,7 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnect Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       scope_uris: "/rest/scopes/be263683-b147-4818-8bbe-c5a5629b9bfe"
 - debug: var=sas_logical_interconnect_groups
@@ -8421,7 +8421,7 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnect Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "LIG-SLJA-1"
 - debug: var=sas_logical_interconnect_groups
 
