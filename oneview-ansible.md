@@ -6356,7 +6356,7 @@ Manage OneView Logical Switch Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -6378,7 +6378,7 @@ Manage OneView Logical Switch Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         name: "OneView Test Logical Switch Group"
@@ -6398,7 +6398,7 @@ Manage OneView Logical Switch Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         name: "OneView Test Logical Switch Group"
@@ -6420,7 +6420,7 @@ Manage OneView Logical Switch Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
         name: 'Test Logical Switch Group'
@@ -6459,7 +6459,7 @@ Retrieve facts about OneView Logical Switch Groups.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -6480,7 +6480,7 @@ Retrieve facts about OneView Logical Switch Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   delegate_to: localhost
 
 - debug: var=logical_switch_groups
@@ -6490,7 +6490,7 @@ Retrieve facts about OneView Logical Switch Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -6504,7 +6504,7 @@ Retrieve facts about OneView Logical Switch Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "LogicalSwitchGroupDemo"
   delegate_to: localhost
 
