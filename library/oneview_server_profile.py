@@ -301,8 +301,6 @@ class ServerProfileModule(OneViewModule):
         changed = False
         created = False
 
-        open("/home/sijeesh/Documents/ansible-demo/oneview-ansible/log_sp_data.txt","a").write(str(self.data)+"\n\n")
-
         ServerProfileReplaceNamesByUris().replace(self.oneview_client, self.data)
 
         if server_hardware_name:
@@ -317,7 +315,7 @@ class ServerProfileModule(OneViewModule):
                 raise OneViewModuleValueError(self.MSG_TEMPLATE_NOT_FOUND.format(server_template_name))
             self.data['serverProfileTemplateUri'] = self.server_template.data['uri']
         elif self.data.get('serverProfileTemplateUri'):
-            self.server_template = self.server_profile_templates.get_by_uri(data['serverProfileTemplateUri'])
+            self.server_template = self.server_profile_templates.get_by_uri(self.data['serverProfileTemplateUri'])
 
         if not self.current_resource:
             self.current_resource = self.__create_profile()
@@ -325,7 +323,6 @@ class ServerProfileModule(OneViewModule):
             created = True
             msg = self.MSG_CREATED
         else:
-            open("/home/sijeesh/Documents/ansible-demo/oneview-ansible/log_sp_data.txt","a").write(str(self.data)+"\n\n"+ str(self.auto_assign_server_hardware))
             # This allows unassigning a profile if a SH key is specifically passed in as None
             if not self.auto_assign_server_hardware:
                 server_hardware_uri_exists = False
@@ -333,12 +330,11 @@ class ServerProfileModule(OneViewModule):
                     server_hardware_uri_exists = True
                 if self.data.get('serverHardwareUri') is None and server_hardware_uri_exists:
                     self.data['serverHardwareUri'] = None
-
+                    open("/home/sijeesh/Documents/ansible-demo/oneview-ansible/log_sp_data.txt","a").write("eeeeee"+str(self.data)+"\n"+ str(self.auto_assign_server_hardware) + "\n\n"+str(self.current_resource.dta))
             # Auto assigns a Server Hardware to Server Profile if auto_assign_server_hardware is True and no SH uris exist
             if not self.current_resource.data.get('serverHardwareUri') and not self.data.get('serverHardwareUri') and self.auto_assign_server_hardware:
                 self.data['serverHardwareUri'] = self._auto_assign_server_profile()
-
-            open("/home/sijeesh/Documents/ansible-demo/oneview-ansible/log_sp_data.txt","a").write(str(self.data)+"\n\n")
+                open("/home/sijeesh/Documents/ansible-demo/oneview-ansible/log_sp_data.txt","a").write("eeeeeinininini")
             merged_data = ServerProfileMerger().merge_data(self.current_resource.data, self.data)
 
             self.__validations_for_os_custom_attributes(merged_data, self.current_resource.data)
@@ -366,7 +362,7 @@ class ServerProfileModule(OneViewModule):
         attributes_resource = resource.get('osDeploymentSettings', {}).get('osCustomAttributes', None)
 
         dp_uri = resource.get('osDeploymentSettings', {}).get('osDeploymentPlanUri', None)
-        dp = os_deployment_plans.get_by_uri(dp_uri)
+        dp = self.os_deployment_plans.get_by_uri(dp_uri)
         nics = []
         if dp:
             for parameter in dp.data['additionalParameters']:
@@ -400,8 +396,6 @@ class ServerProfileModule(OneViewModule):
         return matches
 
     def __update_server_profile(self, profile_with_updates):
-        open("/home/sijeesh/Documents/ansible-demo/oneview-ansible/log_sp_data.txt","a").write(str(self.data))
-        open("/home/sijeesh/Documents/ansible-demo/oneview-ansible/log_sp.txt","a").write(str(profile_with_updates))
         self.module.log(msg="Updating Server Profile")
 
         # These removes are necessary in case SH associated to the SP is being changed
@@ -414,7 +408,7 @@ class ServerProfileModule(OneViewModule):
         # the update, and in case of failure mentioning powering off the SH, a Power off on
         # the SH is attempted, followed by the update operation again and a Power On.
         try:
-            resource = self.current_resource.update(profile_with_updates)
+            self.current_resource.update(profile_with_updates)
         except OneViewModuleException as exception:
             error_msg = '; '.join(str(e) for e in exception.args)
             power_on_msg = 'Some server profile attributes cannot be changed while the server hardware is powered on.'
@@ -466,7 +460,7 @@ class ServerProfileModule(OneViewModule):
         raise OneViewModuleException(self.MSG_ERROR_ALLOCATE_SERVER_HARDWARE)
 
     def __build_new_profile_data(self, server_hardware_uri):
-
+        open("/home/sijeesh/Documents/ansible-demo/oneview-ansible/log_error.txt", "a").write(str(self.data))
         server_profile_data = deepcopy(self.data)
 
         if self.server_template:
@@ -525,7 +519,9 @@ class ServerProfileModule(OneViewModule):
         else:
             enclosure_group = self.data.get('enclosureGroupUri', '')
             server_hardware_type = self.data.get('serverHardwareTypeUri', '')
-        open("/home/sijeesh/Documents/ansible-demo/oneview-ansible/log_sp_data.txt","a").write("hhhhhhhhhhhhhhh"+enclosure_group+ "\t"+server_hardware_type+"\n\n")
+
+        if not enclosure_group and not server_hardware_type:
+            return
         self.module.log(msg="Finding an available server hardware")
         available_server_hardware = self.resource_client.get_available_servers(
             enclosureGroupUri=enclosure_group,
@@ -557,9 +553,10 @@ class ServerProfileModule(OneViewModule):
         changed = False
         msg = self.MSG_ALREADY_COMPLIANT
 
-        if not current_resource.data.get('serverProfileTemplateUri'):
+        if not self.current_resource.data.get('serverProfileTemplateUri'):
             self.module.log("Make the Server Profile compliant is not supported for this profile")
-            self.module.fail_json(msg=self.MSG_MAKE_COMPLIANT_NOT_SUPPORTED.format(server_profile['name']))
+            self.module.fail_json(msg=self.MSG_MAKE_COMPLIANT_NOT_SUPPORTED.format(
+                self.current_resource.data['name']))
 
         elif self.current_resource.data['templateCompliance'] != 'Compliant':
             self.module.log(
@@ -578,8 +575,7 @@ class ServerProfileModule(OneViewModule):
 
             self.module.log(msg="Updating from template")
 
-            server_profile = self.current_resource.patch(
-                'replace', '/templateCompliance', 'Compliant')
+            self.current_resource.patch('replace', '/templateCompliance', 'Compliant')
 
             if is_offline_update:
                 self.module.log(msg="Power on the server hardware after update from template")
@@ -589,13 +585,16 @@ class ServerProfileModule(OneViewModule):
             changed = True
             msg = self.MSG_REMEDIATED_COMPLIANCE
 
-        return changed, msg, server_profile
+        return changed, msg, self.current_resource.data
 
     def __gather_facts(self):
 
         server_hardware = None
         if self.current_resource.data.get('serverHardwareUri'):
-            server_hardware = self.server_hardware.get_by_uri(self.current_resource.data['serverHardwareUri'])
+            server_hardware_by_uri = self.server_hardware.get_by_uri(
+                self.current_resource.data['serverHardwareUri'])
+            if server_hardware_by_uri:
+                server_hardware = server_hardware_by_uri.data
 
         compliance_preview = None
         if self.current_resource.data.get('serverProfileTemplateUri'):

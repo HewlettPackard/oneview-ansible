@@ -2777,7 +2777,7 @@ Manage OneView Enclosure resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.5.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -3110,7 +3110,7 @@ Retrieve facts about one or more Enclosures
  Retrieve facts about one or more of the Enclosures from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -3883,7 +3883,7 @@ Manage OneView Fibre Channel Network resources.
  Provides an interface to manage Fibre Channel Network resources. Can create, update, and delete.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 4.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -3975,7 +3975,7 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks
  Retrieve the facts about one or more of the Fibre Channel Networks from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -9245,7 +9245,7 @@ Manage OneView Server Profile resources
  Manage the servers lifecycle with OneView Server Profiles. On `present` state, it selects a server hardware automatically based on the server profile configuration if no server hardware was provided.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 4.5.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -9269,7 +9269,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         name: Web-Server-L2
@@ -9322,7 +9322,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     data:
       name: server-profile-with-connections
       connectionSettings:
@@ -9340,7 +9340,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     # This is required for unassigning a SH, or creating a SP and not auto-assigning a SH
     auto_assign_server_hardware: False
     data:
@@ -9354,7 +9354,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: compliant
     data:
         name: Web-Server-L2
@@ -9365,7 +9365,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
         name: Web-Server-L2
@@ -9410,7 +9410,7 @@ Retrieve facts about the OneView Server Profiles.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -9433,7 +9433,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   delegate_to: localhost
 
 - debug: var=server_profiles
@@ -9443,7 +9443,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -9459,7 +9459,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: WebServer-1
   delegate_to: localhost
 
@@ -9471,7 +9471,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     uri: /rest/server-profiles/e23d9fa4-f926-4447-b971-90116ca3e61e
   delegate_to: localhost
 
@@ -9482,7 +9482,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     options:
       - availableTargets:
           enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
@@ -9497,7 +9497,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
     name : "Encl1, bay 1"
     options:
         - schema
