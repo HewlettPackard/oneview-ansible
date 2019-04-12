@@ -26,6 +26,8 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_logical_enclosure_facts
 - oneview_logical_interconnect_group
 - oneview_logical_interconnect_group_facts
+- oneview_logical_switch_group
+- oneview_logical_switch_group_facts
 - oneview_sas_interconnect
 - oneview_sas_interconnect_facts
 - oneview_sas_interconnect_type_facts
