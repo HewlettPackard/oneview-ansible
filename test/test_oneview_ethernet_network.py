@@ -181,8 +181,8 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         )
 
     def test_update_successfully_even_when_connection_template_uri_not_exists(self):
-        self.resource.data = DEFAULT_ENET_TEMPLATE
-
+        self.resource.data = DEFAULT_ENET_TEMPLATE.copy()
+        del self.resource.data["connectionTemplateUri"]
         self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
 
         EthernetNetworkModule().run()
@@ -190,7 +190,7 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=EthernetNetworkModule.MSG_UPDATED,
-            ansible_facts=dict(ethernet_network=DEFAULT_ENET_TEMPLATE)
+            ansible_facts=dict(ethernet_network=self.resource.data)
         )
 
     def test_rename_when_resource_exists(self):
