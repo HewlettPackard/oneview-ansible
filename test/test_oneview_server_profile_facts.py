@@ -155,7 +155,7 @@ class TestServerProfileFactsModule(OneViewBaseFactsTest):
 
     def test_should_get_server_profile_by_name_with_all_options(self):
         mock_option_return = {'subresource': 'value'}
-        self.mock_ov_client.server_profiles.data =  {"name": "Server Profile Name", "uri": PROFILE_URI}
+        self.mock_ov_client.server_profiles.data = {"name": "Server Profile Name", "uri": PROFILE_URI}
         self.mock_ov_client.server_profiles.get_by_name.return_value = self.mock_ov_client.server_profiles
         self.mock_ov_client.server_profiles.get_messages.return_value = mock_option_return
         self.mock_ov_client.server_profiles.get_transformation.return_value = mock_option_return

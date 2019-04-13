@@ -256,7 +256,6 @@ class ServerProfileFactsModule(OneViewModule):
 
     def execute_module(self):
         ansible_facts = {}
-        server_profile_uri = None
 
         if not self.current_resource and self.module.params.get('uri'):
             self.current_resource = self.resource_client.get_by_uri(self.module.params['uri'])

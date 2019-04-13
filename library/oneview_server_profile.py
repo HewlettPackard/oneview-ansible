@@ -273,7 +273,6 @@ class ServerProfileModule(OneViewModule):
 
     def execute_module(self):
         self.auto_assign_server_hardware = self.module.params.get('auto_assign_server_hardware')
-        data = deepcopy(self.data)
         params = self.module.params.get("params")
         self.params = params if params else {}
 
@@ -330,11 +329,11 @@ class ServerProfileModule(OneViewModule):
                     server_hardware_uri_exists = True
                 if self.data.get('serverHardwareUri') is None and server_hardware_uri_exists:
                     self.data['serverHardwareUri'] = None
-                    open("/home/sijeesh/Documents/ansible-demo/oneview-ansible/log_sp_data.txt","a").write("eeeeee"+str(self.data)+"\n"+ str(self.auto_assign_server_hardware) + "\n\n"+str(self.current_resource.dta))
+
             # Auto assigns a Server Hardware to Server Profile if auto_assign_server_hardware is True and no SH uris exist
             if not self.current_resource.data.get('serverHardwareUri') and not self.data.get('serverHardwareUri') and self.auto_assign_server_hardware:
                 self.data['serverHardwareUri'] = self._auto_assign_server_profile()
-                open("/home/sijeesh/Documents/ansible-demo/oneview-ansible/log_sp_data.txt","a").write("eeeeeinininini")
+
             merged_data = ServerProfileMerger().merge_data(self.current_resource.data, self.data)
 
             self.__validations_for_os_custom_attributes(merged_data, self.current_resource.data)
@@ -421,7 +420,7 @@ class ServerProfileModule(OneViewModule):
                 self.__set_server_hardware_power_state(profile_with_updates['serverHardwareUri'], 'Off')
 
                 self.module.log("Retrying update operation after server power off")
-                resource = self.current_resource.update(profile_with_updates)
+                self.current_resource.update(profile_with_updates)
 
                 self.module.log("Powering on the server hardware after update")
                 self.__set_server_hardware_power_state(self.current_resource.data['serverHardwareUri'], 'On')
@@ -460,7 +459,6 @@ class ServerProfileModule(OneViewModule):
         raise OneViewModuleException(self.MSG_ERROR_ALLOCATE_SERVER_HARDWARE)
 
     def __build_new_profile_data(self, server_hardware_uri):
-        open("/home/sijeesh/Documents/ansible-demo/oneview-ansible/log_error.txt", "a").write(str(self.data))
         server_profile_data = deepcopy(self.data)
 
         if self.server_template:
