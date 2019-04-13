@@ -197,54 +197,48 @@ class LogicalInterconnectFactsModule(OneViewModule):
 
         self.set_resource_object(self.oneview_client.logical_interconnects)
 
-        self.options = dict(
-            qos_aggregated_configuration=self.resource_client.get_qos_aggregated_configuration,
-            snmp_configuration=self.resource_client.get_snmp_configuration,
-            port_monitor=self.resource_client.get_port_monitor,
-            internal_vlans=self.resource_client.get_internal_vlans,
-            forwarding_information_base=self.resource_client.get_forwarding_information_base,
-            firmware=self.resource_client.get_firmware,
-            unassigned_uplink_ports=self.resource_client.get_unassigned_uplink_ports,
-            telemetry_configuration=self.resource_client.get_telemetry_configuration,
-            ethernet_settings=self.resource_client.get_ethernet_settings,
-        )
-
     def execute_module(self):
         name = self.module.params["name"]
 
         if name:
-            facts = self.__get_by_name(name)
+            facts = self.__get_by_options(name)
         else:
             logical_interconnects = self.resource_client.get_all(**self.facts_params)
             facts = dict(logical_interconnects=logical_interconnects)
 
         return dict(changed=False, ansible_facts=facts)
 
-    def __get_by_name(self, name):
-        logical_interconnect = self.resource_client.get_by_name(name=name)
-        if not logical_interconnect:
+    def __get_by_options(self, name):
+        if not self.current_resource:
             raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
 
-        facts = dict(logical_interconnects=logical_interconnect)
+        facts = dict(logical_interconnects=self.current_resource.data)
 
         options = self.module.params["options"]
 
         if options:
-            options_facts = self.__get_options(logical_interconnect, options)
+            self.options = dict(
+                qos_aggregated_configuration=self.current_resource.get_qos_aggregated_configuration,
+                snmp_configuration=self.current_resource.get_snmp_configuration,
+                port_monitor=self.current_resource.get_port_monitor,
+                internal_vlans=self.current_resource.get_internal_vlans,
+                forwarding_information_base=self.current_resource.get_forwarding_information_base,
+                firmware=self.current_resource.get_firmware,
+                unassigned_uplink_ports=self.current_resource.get_unassigned_uplink_ports,
+                telemetry_configuration=self.current_resource.get_telemetry_configuration,
+                ethernet_settings=self.current_resource.get_ethernet_settings,
+            )
+
+            options_facts = self.__get_options(options)
             facts.update(options_facts)
 
         return facts
 
-    def __get_options(self, logical_interconnect, options):
+    def __get_options(self, options):
         facts = dict()
-        uri = logical_interconnect["uri"]
 
         for option in options:
-            if option == 'telemetry_configuration':
-                telemetry_configuration_uri = logical_interconnect["telemetryConfiguration"]["uri"]
-                facts[option] = self.options[option](telemetry_configuration_uri=telemetry_configuration_uri)
-            else:
-                facts[option] = self.options[option](id_or_uri=uri)
+                facts[option] = self.options[option]()
 
         return facts
 
