@@ -413,7 +413,7 @@ class LogicalInterconnectModule(OneViewModule):
             return False, self.MSG_NO_CHANGES_PROVIDED, dict()
         else:
             qos_config_updated = self.current_resource.update_qos_aggregated_configuration(
-                uri, qos_config_merged)
+                qos_config_merged)
 
             return True, self.MSG_QOS_UPDATED, dict(qos_configuration=qos_config_updated)
 
@@ -421,10 +421,9 @@ class LogicalInterconnectModule(OneViewModule):
         self.__validate_options('snmpConfiguration', self.data)
 
         snmp_config = self.__get_snmp_configuration()
-        snmp_config_merged = self.__merge_options(data['snmpConfiguration'], snmp_config)
+        snmp_config_merged = self.__merge_options(self.data['snmpConfiguration'], snmp_config)
 
         if compare(snmp_config_merged, snmp_config):
-
             return False, self.MSG_NO_CHANGES_PROVIDED, None
         else:
             snmp_config_updated = self.current_resource.update_snmp_configuration(
@@ -436,7 +435,7 @@ class LogicalInterconnectModule(OneViewModule):
         self.__validate_options('portMonitor', self.data)
 
         monitor_config = self.__get_port_monitor_configuration()
-        monitor_config_merged = self.__merge_options(data['portMonitor'], monitor_config)
+        monitor_config_merged = self.__merge_options(self.data['portMonitor'], monitor_config)
 
         if compare(monitor_config_merged, monitor_config):
             return False, self.MSG_NO_CHANGES_PROVIDED, None
@@ -464,9 +463,7 @@ class LogicalInterconnectModule(OneViewModule):
 
     def __update_telemetry_configuration(self):
         config = self.data.get('telemetryConfiguration')
-        telemetry_config_uri = self.current_resource.data['telemetryConfiguration']['uri']
-
-        result = self.current_resource.update_telemetry_configurations(telemetry_config_uri, config)
+        result = self.current_resource.update_telemetry_configurations(config)
 
         return True, self.MSG_TELEMETRY_CONFIGURATION_UPDATED, dict(
             telemetry_configuration=result.get('telemetryConfiguration'))

@@ -33,27 +33,27 @@
             macRefreshInterval: 11
       delegate_to: localhost
 
-  #    - name: Update the Internal Networks on the logical interconnect
-  #      oneview_logical_interconnect:
-  #        config: "{{ config }}"
-  #        state: internal_networks_updated
-  #        data:
-  #          name: "{{ logical_interconnect_name }}"
-  #          internalNetworks:
-  #            - name: "{{ network_name }}"  # could also be a URI. e.g.: - uri: '/rest/ethernet-network/<id>'
-  #      when: network_name is defined
-  #      delegate_to: localhost
-  ## Below task is supported only with OneView 3.10
-  #    - name: Update the Interconnect Settings
-  #      oneview_logical_interconnect:
-  #        config: "{{ config }}"
-  #        state: settings_updated
-  #        data:
-  #          name: "{{ logical_interconnect_name }}"
-  #          ethernetSettings:
-  #            macRefreshInterval: 12
-  #      delegate_to: localhost
-  #
+    - name: Update the Internal Networks on the logical interconnect
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: internal_networks_updated
+        data:
+          name: "{{ logical_interconnect_name }}"
+          internalNetworks:
+            - name: "{{ network_name }}"  # could also be a URI. e.g.: - uri: '/rest/ethernet-network/<id>'
+      when: network_name is defined
+      delegate_to: localhost
+# Below task is supported only with OneView 3.10
+    - name: Update the Interconnect Settings
+      oneview_logical_interconnect:
+        config: "{{ config }}"
+        state: settings_updated
+        data:
+          name: "{{ logical_interconnect_name }}"
+          ethernetSettings:
+            macRefreshInterval: 12
+      delegate_to: localhost
+
     - name: Generate the forwarding information base dump file for the logical interconnect
       oneview_logical_interconnect:
         config: "{{ config }}"
@@ -90,6 +90,7 @@
           name: "{{ logical_interconnect_name }}"
           snmpConfiguration:
             enabled: True
+            readCommunity: "public"    
       delegate_to: localhost
 
     - name: Update the port monitor configuration of the logical interconnect

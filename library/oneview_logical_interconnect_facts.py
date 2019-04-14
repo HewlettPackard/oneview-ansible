@@ -49,6 +49,8 @@ options:
           C(internal_vlans) gets the internal VLAN IDs for the provisioned networks on a logical interconnect.
           C(forwarding_information_base) gets the forwarding information base data for a logical interconnect.
           C(firmware) get the installed firmware for a logical interconnect.
+          C(unassigned_ports) gets a collection of ports from the member interconnects which are eligible
+          for assignment to an analyzer port.
           C(unassigned_uplink_ports) gets a collection of uplink ports from the member interconnects which are eligible
           for assignment to an analyzer port.
           C(telemetry_configuration) gets the telemetry configuration of the logical interconnect.
@@ -112,6 +114,7 @@ EXAMPLES = '''
       - forwarding_information_base
       - firmware
       - unassigned_uplink_ports
+      - unassigned_ports
       - telemetry_configuration
       - ethernet_settings
 
@@ -123,6 +126,7 @@ EXAMPLES = '''
 - debug: var=forwarding_information_base
 - debug: var=firmware
 - debug: var=unassigned_uplink_ports
+- debug: var=unassigned_ports
 - debug: var=telemetry_configuration
 - debug: var=ethernet_settings
 '''
@@ -165,6 +169,12 @@ firmware:
 
 unassigned_uplink_ports:
     description: "A collection of uplink ports from the member interconnects which are eligible for assignment to an
+                  analyzer port on a logical interconnect."
+    returned: When requested, but can be null.
+    type: dict
+
+unassigned_ports:
+    description: "A collection of ports from the member interconnects which are eligible for assignment to an
                   analyzer port on a logical interconnect."
     returned: When requested, but can be null.
     type: dict
@@ -225,6 +235,7 @@ class LogicalInterconnectFactsModule(OneViewModule):
                 forwarding_information_base=self.current_resource.get_forwarding_information_base,
                 firmware=self.current_resource.get_firmware,
                 unassigned_uplink_ports=self.current_resource.get_unassigned_uplink_ports,
+                unassigned_ports=self.current_resource.get_unassigned_ports,
                 telemetry_configuration=self.current_resource.get_telemetry_configuration,
                 ethernet_settings=self.current_resource.get_ethernet_settings,
             )

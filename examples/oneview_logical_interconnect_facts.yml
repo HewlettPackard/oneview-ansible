@@ -118,6 +118,17 @@
 
     - debug: var=unassigned_uplink_ports
 
+    - name: "Gather facts about the collection of ports from the member interconnects which are eligible for
+             assignment to an analyzer port on the logical interconnect"
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+        name: "{{ name }}"
+        options:
+          - unassigned_ports
+      delegate_to: localhost
+
+    - debug: var=unassigned_ports
+
     - name: "Gather facts about the telemetry configuration of the logical interconnect"
       oneview_logical_interconnect_facts:
         config: "{{ config }}"
