@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.0"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -62,7 +62,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: configuration_updated
     data:
       name: "SAS Logical Interconnect name"
@@ -73,7 +73,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: firmware_updated
     data:
       name: "SAS Logical Interconnect name"
@@ -89,7 +89,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: drive_enclosure_replaced
     data:
       name: "SAS Logical Interconnect name"
@@ -103,7 +103,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: compliant
     data:
       logicalInterconnectNames: ["SAS Logical Interconnect name 1", "SAS Logical Interconnect name 2"]
@@ -114,7 +114,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: compliant
     data:
       logicalInterconnectUris: [
@@ -135,10 +135,10 @@ li_firmware:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, OneViewModuleValueError
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, OneViewModuleValueError
 
 
-class SasLogicalInterconnectModule(OneViewModuleBase):
+class SasLogicalInterconnectModule(OneViewModule):
     MSG_CONSISTENT = 'SAS Logical Interconnect returned to a consistent state.'
     MSG_CONFIGURATION_UPDATED = 'Configuration on the SAS Logical Interconnect updated successfully.'
     MSG_FIRMWARE_UPDATED = 'Firmware updated successfully.'
@@ -157,24 +157,22 @@ class SasLogicalInterconnectModule(OneViewModuleBase):
 
         super(SasLogicalInterconnectModule, self).__init__(additional_arg_spec=additional_arg_spec)
 
-        self.resource_client = self.oneview_client.sas_logical_interconnects
+        self.set_resource_object(self.oneview_client.sas_logical_interconnects)
 
     def execute_module(self):
         if self.state == 'compliant':
             changed, msg, ansible_facts = self.__compliance()
 
         else:
-            resource = self.get_by_name(self.data['name'])
-
-            if not resource:
+            if not self.current_resource:
                 raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
 
             if self.state == 'configuration_updated':
-                changed, msg, ansible_facts = self.__update_configuration(resource['uri'])
+                changed, msg, ansible_facts = self.__update_configuration()
             elif self.state == 'firmware_updated':
-                changed, msg, ansible_facts = self.__update_firmware(resource['uri'])
+                changed, msg, ansible_facts = self.__update_firmware()
             elif self.state == 'drive_enclosure_replaced':
-                changed, msg, ansible_facts = self.__replace_drive_enclosure(resource['uri'])
+                changed, msg, ansible_facts = self.__replace_drive_enclosure()
 
         return dict(changed=changed,
                     msg=msg,
@@ -201,24 +199,23 @@ class SasLogicalInterconnectModule(OneViewModuleBase):
 
         return uris
 
-    def __update_firmware(self, uri):
+    def __update_firmware(self):
         options = self.data['firmware'].copy()
         if 'sppName' in options:
             options['sppUri'] = '/rest/firmware-drivers/' + options.pop('sppName')
 
-        firmware = self.resource_client.update_firmware(options, uri)
+        firmware = self.current_resource.update_firmware(options)
 
         return True, self.MSG_FIRMWARE_UPDATED, dict(li_firmware=firmware)
 
-    def __update_configuration(self, uri):
-        result = self.resource_client.update_configuration(uri)
+    def __update_configuration(self):
+        result = self.current_resource.update_configuration()
 
         return True, self.MSG_CONFIGURATION_UPDATED, dict(sas_logical_interconnect=result)
 
-    def __replace_drive_enclosure(self, uri):
-        result = self.resource_client.replace_drive_enclosure(
-            self.data['replace_drive_enclosure'],
-            uri)
+    def __replace_drive_enclosure(self):
+        result = self.current_resource.replace_drive_enclosure(
+            self.data['replace_drive_enclosure'])
 
         return True, self.MSG_DRIVE_ENCLOSURE_REPLACED, dict(sas_logical_interconnect=result)
 

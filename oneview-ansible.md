@@ -8092,7 +8092,7 @@ Manage OneView SAS Logical Interconnect resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -8113,7 +8113,7 @@ Manage OneView SAS Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: configuration_updated
     data:
       name: "SAS Logical Interconnect name"
@@ -8124,7 +8124,7 @@ Manage OneView SAS Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: firmware_updated
     data:
       name: "SAS Logical Interconnect name"
@@ -8140,7 +8140,7 @@ Manage OneView SAS Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: drive_enclosure_replaced
     data:
       name: "SAS Logical Interconnect name"
@@ -8154,7 +8154,7 @@ Manage OneView SAS Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: compliant
     data:
       logicalInterconnectNames: ["SAS Logical Interconnect name 1", "SAS Logical Interconnect name 2"]
@@ -8165,7 +8165,7 @@ Manage OneView SAS Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: compliant
     data:
       logicalInterconnectUris: [
@@ -8207,7 +8207,7 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnects.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -8229,7 +8229,7 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   delegate_to: localhost
 - debug: var=sas_logical_interconnects
 
@@ -8238,7 +8238,7 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 2
@@ -8251,7 +8251,7 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "LOG_EN-LIG_SAS-1"
   delegate_to: localhost
 - debug: var=sas_logical_interconnects
@@ -8261,7 +8261,7 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnects.
     chostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "LOG_EN-LIG_SAS-1"
     options:
       - firmware

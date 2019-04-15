@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.0"
+    - "hpOneView >= 5.0.0"
 author:
     - "Gustavo Hennig (@GustavoHennig)"
 options:
@@ -59,7 +59,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   delegate_to: localhost
 - debug: var=sas_logical_interconnects
 
@@ -68,7 +68,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 2
@@ -81,7 +81,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "LOG_EN-LIG_SAS-1"
   delegate_to: localhost
 - debug: var=sas_logical_interconnects
@@ -91,7 +91,7 @@ EXAMPLES = '''
     chostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "LOG_EN-LIG_SAS-1"
     options:
       - firmware
@@ -111,10 +111,10 @@ sas_logical_interconnect_firmware:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class SasLogicalInterconnectFactsModule(OneViewModuleBase):
+class SasLogicalInterconnectFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(
             name=dict(required=False, type='str'),
@@ -124,17 +124,18 @@ class SasLogicalInterconnectFactsModule(OneViewModuleBase):
 
         super(SasLogicalInterconnectFactsModule, self).__init__(additional_arg_spec=argument_spec)
 
-        self.resource_client = self.oneview_client.sas_logical_interconnects
+        self.set_resource_object(self.oneview_client.sas_logical_interconnects)
 
     def execute_module(self):
         ansible_facts = {}
+        sas_logical_interconnects = []
 
         if self.module.params['name']:
-            sas_logical_interconnects = self.resource_client.get_by('name', self.module.params['name'])
-
-            if sas_logical_interconnects and self.options:
-                options_facts = self.__gather_option_facts(sas_logical_interconnects[0])
-                ansible_facts.update(options_facts)
+            if self.current_resource:
+                sas_logical_interconnects = self.current_resource.data
+                if self.options:
+                    options_facts = self.__gather_option_facts()
+                    ansible_facts.update(options_facts)
         else:
             sas_logical_interconnects = self.resource_client.get_all(**self.facts_params)
 
@@ -142,11 +143,11 @@ class SasLogicalInterconnectFactsModule(OneViewModuleBase):
 
         return dict(changed=False, ansible_facts=ansible_facts)
 
-    def __gather_option_facts(self, resource):
+    def __gather_option_facts(self):
         ansible_facts = {}
 
         if self.options.get('firmware'):
-            ansible_facts['sas_logical_interconnect_firmware'] = self.resource_client.get_firmware(resource['uri'])
+            ansible_facts['sas_logical_interconnect_firmware'] = self.current_resource.get_firmware()
 
         return ansible_facts
 

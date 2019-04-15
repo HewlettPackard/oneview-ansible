@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ class TestSasLogicalInterconnectFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_a_sas_logical_interconnects_by_name(self):
-        self.resource.get_by.return_value = ALL_INTERCONNECTS
+        self.resource.data = ALL_INTERCONNECTS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         SasLogicalInterconnectFactsModule().run()
@@ -72,13 +72,13 @@ class TestSasLogicalInterconnectFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_a_sas_logical_interconnects_by_name_with_firmware(self):
-        self.resource.get_by.return_value = ALL_INTERCONNECTS
+        self.resource.data = ALL_INTERCONNECTS
         self.resource.get_firmware.return_value = {"firmware": "data"}
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_FIRMWARE
 
         SasLogicalInterconnectFactsModule().run()
 
-        self.resource.get_firmware.assert_called_once_with(SAS_LOGICAL_INTERCONNECT['uri'])
+        self.resource.get_firmware.assert_called_once()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
