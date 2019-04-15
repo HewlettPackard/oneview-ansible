@@ -483,9 +483,6 @@ class LogicalInterconnectModule(OneViewModule):
 
         return result['changed'], result['msg'], result['ansible_facts']
 
-    def __get_by_name(self):
-        return self.resource_client.get_by_name(self.data['name'])
-
     def __get_ethernet_network_by_name(self, name):
         result = self.oneview_client.ethernet_networks.get_by('name', name)
         return result[0] if result else None
