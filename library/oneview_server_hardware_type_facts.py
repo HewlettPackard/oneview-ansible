@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     name:
@@ -45,13 +45,19 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Server Hardware Types
   oneview_server_hardware_type_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
   delegate_to: localhost
 - debug: var=server_hardware_types
 
 - name: Gather paginated, filtered and sorted facts about Server Hardware Types
   oneview_server_hardware_type_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     params:
       start: 0
       count: 5
@@ -62,7 +68,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Server Hardware Type by name
   oneview_server_hardware_type_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     name: "BL460c Gen8 1"
   delegate_to: localhost
 - debug: var=server_hardware_types
@@ -75,10 +84,10 @@ server_hardware_types:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class ServerHardwareTypeFactsModule(OneViewModuleBase):
+class ServerHardwareTypeFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(
             name=dict(required=False, type='str'),
@@ -86,14 +95,16 @@ class ServerHardwareTypeFactsModule(OneViewModuleBase):
         )
         super(ServerHardwareTypeFactsModule, self).__init__(additional_arg_spec=argument_spec)
 
+        self.resource_client = self.oneview_client.server_hardware_types
+
     def execute_module(self):
 
         name = self.module.params.get('name')
 
         if name:
-            server_hardware_types = self.oneview_client.server_hardware_types.get_by('name', name)
+            server_hardware_types = self.resource_client.get_by('name', name)
         else:
-            server_hardware_types = self.oneview_client.server_hardware_types.get_all(**self.facts_params)
+            server_hardware_types = self.resource_client.get_all(**self.facts_params)
 
         return dict(changed=False, ansible_facts=dict(server_hardware_types=server_hardware_types))
 
