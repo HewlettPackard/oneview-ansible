@@ -249,7 +249,7 @@ class LogicalInterconnectFactsModule(OneViewModule):
         facts = dict()
 
         for option in options:
-                facts[option] = self.options[option]()
+            facts[option] = self.options[option]()
 
         return facts
 
