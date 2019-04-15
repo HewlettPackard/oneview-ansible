@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -78,9 +78,14 @@ class TestLogicalSwitchGroupModule(OneViewBaseTest):
     """
 
     def test_should_create_new_logical_switch_group(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = {"name": "name"}
-        self.mock_ov_client.switch_types.get_by.return_value = [{'uri': SWITCH_TYPE_URI}]
+        self.resource.get_by_name.return_value = None
+        obj = mock.Mock()
+        obj.data = {"name": "name"}
+        self.resource.create.return_value = obj
+
+        obj1 = obj.copy()
+        obj1.data = {'uri': SWITCH_TYPE_URI}
+        self.mock_ov_client.switch_types.get_by_name.return_value = obj1
 
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_SWITCH_GROUP)
 
@@ -93,8 +98,7 @@ class TestLogicalSwitchGroupModule(OneViewBaseTest):
         )
 
     def test_should_update_the_logical_switch_group(self):
-        self.resource.get_by.return_value = [DICT_DEFAULT_LOGICAL_SWITCH_GROUP]
-        self.resource.update.return_value = {"name": "name"}
+        self.resource.data = DICT_DEFAULT_LOGICAL_SWITCH_GROUP
 
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_SWITCH_GROUP_CHANGE)
 
@@ -103,16 +107,17 @@ class TestLogicalSwitchGroupModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=LogicalSwitchGroupModule.MSG_UPDATED,
-            ansible_facts=dict(logical_switch_group={"name": "name"})
+            ansible_facts=dict(logical_switch_group=self.resource.data)
         )
 
     def test_should_not_update_when_data_is_equals(self):
         switch_type_replaced = DICT_DEFAULT_LOGICAL_SWITCH_GROUP.copy()
         del switch_type_replaced['switchMapTemplate']['switchMapEntryTemplates'][0]['permittedSwitchTypeName']
 
-        self.resource.get_by.return_value = [DICT_DEFAULT_LOGICAL_SWITCH_GROUP]
-        self.mock_ov_client.switch_types.get_by.return_value = [{'uri': SWITCH_TYPE_URI}]
-
+        self.resource.data = DICT_DEFAULT_LOGICAL_SWITCH_GROUP
+        obj = mock.Mock()
+        obj.data = {'uri': SWITCH_TYPE_URI}
+        self.mock_ov_client.switch_types.get_by_name.return_value = obj
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_SWITCH_GROUP)
 
         LogicalSwitchGroupModule().run()
@@ -124,7 +129,7 @@ class TestLogicalSwitchGroupModule(OneViewBaseTest):
         )
 
     def test_should_remove_logical_switch_group(self):
-        self.resource.get_by.return_value = [DICT_DEFAULT_LOGICAL_SWITCH_GROUP]
+        self.resource.data = DICT_DEFAULT_LOGICAL_SWITCH_GROUP
 
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_SWITCH_GROUP_ABSENT)
 
@@ -136,7 +141,7 @@ class TestLogicalSwitchGroupModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_logical_switch_group_not_exist(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_SWITCH_GROUP_ABSENT)
 
@@ -148,8 +153,8 @@ class TestLogicalSwitchGroupModule(OneViewBaseTest):
         )
 
     def test_should_fail_when_switch_type_was_not_found(self):
-        self.resource.get_by.return_value = []
-        self.mock_ov_client.switch_types.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
+        self.mock_ov_client.switch_types.get_by_name.return_value = None
 
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_SWITCH_GROUP)
 
@@ -165,15 +170,18 @@ class TestLogicalSwitchGroupModule(OneViewBaseTest):
 
         different_resource = params_to_scope['data'].copy()
         different_resource['scopeUris'] = ['fake']
-        self.resource.get_by.return_value = [different_resource]
-        self.mock_ov_client.switch_types.get_by.return_value = [{'uri': SWITCH_TYPE_URI}]
+        self.resource.data = different_resource
+        obj = mock.Mock()
+        obj.data = {'uri': SWITCH_TYPE_URI}
+        self.mock_ov_client.switch_types.get_by_name.return_value = obj
 
-        self.resource.patch.return_value = params_to_scope['data']
+        obj1 = mock.Mock()
+        obj1.data = params_to_scope['data']
+        self.resource.patch.return_value = obj1
 
         LogicalSwitchGroupModule().run()
 
-        self.resource.patch.assert_called_once_with('rest/fw/fake',
-                                                    operation='replace',
+        self.resource.patch.assert_called_once_with(operation='replace',
                                                     path='/scopeUris',
                                                     value=['test'])
 
@@ -190,9 +198,10 @@ class TestLogicalSwitchGroupModule(OneViewBaseTest):
 
         resource_data = params_to_scope['data'].copy()
         resource_data['scopeUris'] = ['test']
-        self.resource.get_by.return_value = [resource_data]
-        self.mock_ov_client.switch_types.get_by.return_value = [{'uri': SWITCH_TYPE_URI}]
-
+        self.resource.data = resource_data
+        obj = mock.Mock()
+        obj.data = {'uri': SWITCH_TYPE_URI}
+        self.mock_ov_client.switch_types.get_by_name.return_value = obj
         LogicalSwitchGroupModule().run()
 
         self.resource.patch.not_been_called()

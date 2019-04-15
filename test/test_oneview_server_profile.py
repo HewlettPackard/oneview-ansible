@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -109,15 +109,11 @@ CREATED_BASIC_PROFILE = dict(
     wwnType="Virtual"
 )
 
-AVAILABLE_TARGETS = dict(
-    category='available-targets',
-    targets=[
-        dict(enclosureBay=2, serverHardwareUri=''),
-        dict(enclosureBay=3, serverHardwareUri='/rest/server-hardware/31393736-3831-4753-567h-30335837524E'),
-        dict(enclosureBay=4, serverHardwareUri='/rest/server-hardware/37333036-3831-6776-gdfd-3037583rewr0'),
-        dict(enclosureBay=8, serverHardwareUri='/rest/server-hardware/37333036-3831-4753-4831-303158sdf458'),
-    ]
-)
+AVAILABLE_SERVERS = [
+    dict(enclosureBay=2, serverHardwareUri=''),
+    dict(enclosureBay=3, serverHardwareUri='/rest/server-hardware/31393736-3831-4753-567h-30335837524E'),
+    dict(enclosureBay=4, serverHardwareUri='/rest/server-hardware/37333036-3831-6776-gdfd-3037583rewr0'),
+    dict(enclosureBay=8, serverHardwareUri='/rest/server-hardware/37333036-3831-4753-4831-303158sdf458')]
 
 BOOT_CONN = dict(priority="NotBootable", chapLevel="none")
 
@@ -179,7 +175,6 @@ def gather_facts(mock_ov_client, created=False, online_update=True):
     }
 
     mock_ov_client.server_profiles.get_compliance_preview.return_value = compliance_preview
-    mock_ov_client.server_hardware.get.return_value = {}
     facts = {
         'serial_number': CREATED_BASIC_PROFILE.get('serialNumber'),
         'server_profile': CREATED_BASIC_PROFILE,
@@ -211,7 +206,7 @@ class TestServerProfileModule(OneViewBaseTest):
         fake_server['templateCompliance'] = 'Unknown'
         fake_server['serverProfileTemplateUri'] = ''
 
-        self.resource.get_by_name.return_value = fake_server
+        self.resource.data = fake_server
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_COMPLIANT)
 
         ServerProfileModule().run()
@@ -222,8 +217,11 @@ class TestServerProfileModule(OneViewBaseTest):
         fake_server = deepcopy(CREATED_BASIC_PROFILE)
         mock_facts = gather_facts(self.mock_ov_client)
 
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
+
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_COMPLIANT)
-        self.resource.get_by_name.return_value = fake_server
+        self.resource.data = fake_server
 
         ServerProfileModule().run()
 
@@ -234,15 +232,18 @@ class TestServerProfileModule(OneViewBaseTest):
         fake_server = deepcopy(CREATED_BASIC_PROFILE)
         fake_server['templateCompliance'] = 'NonCompliant'
         mock_facts = gather_facts(self.mock_ov_client)
+        mock_facts['server_profile']['templateCompliance'] = 'NonCompliant'
 
-        self.resource.get_by_name.return_value = fake_server
+        self.resource.data = fake_server
         self.resource.patch.return_value = CREATED_BASIC_PROFILE
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_COMPLIANT)
 
         ServerProfileModule().run()
 
         self.resource.patch.assert_called_once_with(
-            CREATED_BASIC_PROFILE['uri'], 'replace', '/templateCompliance', 'Compliant')
+            'replace', '/templateCompliance', 'Compliant')
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True, msg=ServerProfileModule.MSG_REMEDIATED_COMPLIANCE, ansible_facts=mock_facts)
@@ -251,23 +252,25 @@ class TestServerProfileModule(OneViewBaseTest):
         fake_server = deepcopy(CREATED_BASIC_PROFILE)
         fake_server['templateCompliance'] = 'NonCompliant'
 
-        self.resource.get_by_name.return_value = fake_server
-        self.resource.patch.return_value = CREATED_BASIC_PROFILE
+        self.resource.data = fake_server
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
 
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_COMPLIANT)
 
         # shoud power off server to update
         mock_facts = gather_facts(self.mock_ov_client, online_update=False)
+        mock_facts['server_profile']['templateCompliance'] = 'NonCompliant'
 
         ServerProfileModule().run()
 
         self.resource.patch.assert_called_once_with(
-            CREATED_BASIC_PROFILE['uri'], 'replace', '/templateCompliance', 'Compliant')
+            'replace', '/templateCompliance', 'Compliant')
 
         power_set_calls = [
-            mock.call(dict(powerState='Off', powerControl='PressAndHold'), fake_server['serverHardwareUri']),
-            mock.call(dict(powerState='On', powerControl='MomentaryPress'), fake_server['serverHardwareUri'])]
+            mock.call(dict(powerState='Off', powerControl='PressAndHold')),
+            mock.call(dict(powerState='On', powerControl='MomentaryPress'))]
 
         self.mock_ov_client.server_hardware.update_power_state.assert_has_calls(power_set_calls)
 
@@ -279,8 +282,11 @@ class TestServerProfileModule(OneViewBaseTest):
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
         self.resource.get_by_name.return_value = None
-        self.resource.create.return_value = CREATED_BASIC_PROFILE
-        self.resource.get_available_targets.return_value = AVAILABLE_TARGETS
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
+        self.resource.get_available_servers.return_value = AVAILABLE_SERVERS
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         mock_facts = gather_facts(self.mock_ov_client, created=True)
@@ -303,11 +309,15 @@ class TestServerProfileModule(OneViewBaseTest):
         param_for_present['data']['serverProfileTemplateName'] = 'Server-Template-7000'
 
         self.resource.get_by_name.return_value = None
-        self.resource.create.return_value = CREATED_BASIC_PROFILE
-        self.resource.get_available_targets.return_value = AVAILABLE_TARGETS
-        self.mock_ov_client.server_profile_templates.get_by_name.return_value = template
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
+        self.resource.get_available_servers.return_value = AVAILABLE_SERVERS
+        self.mock_ov_client.server_profile_templates.data = template
+        self.mock_ov_client.server_profile_templates.get_by_name.return_value = self.mock_ov_client.server_profile_templates
         self.mock_ov_client.server_profile_templates.get_new_profile.return_value = profile_from_template
         self.resource.server_hardware.update_power_state.return_value = {}
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
         self.mock_ansible_module.params = param_for_present
         mock_facts = gather_facts(self.mock_ov_client, created=True)
 
@@ -336,11 +346,16 @@ class TestServerProfileModule(OneViewBaseTest):
             = '/rest/server-profile-templates/31393736-3831-4753-567h-30335837524E'
 
         self.resource.get_by_name.return_value = None
-        self.resource.create.return_value = CREATED_BASIC_PROFILE
-        self.resource.get_available_targets.return_value = AVAILABLE_TARGETS
-        self.mock_ov_client.server_profile_templates.get.return_value = template
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
+        self.resource.get_available_servers.return_value = AVAILABLE_SERVERS
+        self.mock_ov_client.server_profile_templates.data = template
+        self.mock_ov_client.server_profile_templates.get_by_uri.return_value = self.mock_ov_client.server_profile_templates
         self.mock_ov_client.server_profile_templates.get_new_profile.return_value = profile_from_template
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
+
         self.mock_ansible_module.params = param_for_present
         mock_facts = gather_facts(self.mock_ov_client, created=True)
 
@@ -366,14 +381,39 @@ class TestServerProfileModule(OneViewBaseTest):
         param_for_present['data']['serverHardwareName'] = "ServerHardwareName"
 
         self.resource.get_by_name.return_value = None
-        self.resource.create.return_value = CREATED_BASIC_PROFILE
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
         self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
         self.mock_ansible_module.params = param_for_present
         mock_facts = gather_facts(self.mock_ov_client, created=True)
 
         ServerProfileModule().run()
 
         self.resource.create.assert_called_once_with(profile_data)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerProfileModule.MSG_CREATED,
+            ansible_facts=mock_facts
+        )
+
+    def test_get_available_servers_without_enclosure_and_hardware_type_uri(self):
+        param_for_present = deepcopy(PARAMS_FOR_PRESENT)
+        param_for_present['data']['serverHardwareTypeUri'] = None
+        param_for_present['data']['enclosureGroupUri'] = None
+
+        self.resource.get_by_name.return_value = None
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = {}
+
+        self.mock_ansible_module.params = param_for_present
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
+        mock_facts['server_hardware'] = None
+
+        ServerProfileModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -391,9 +431,13 @@ class TestServerProfileModule(OneViewBaseTest):
         param_for_present['data']['serverProfileTemplateName'] = "TemplateA200"
 
         self.resource.get_by_name.return_value = None
-        self.resource.create.return_value = CREATED_BASIC_PROFILE
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
         self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
-        self.mock_ov_client.server_profile_templates.get_by_name.return_value = template
+        self.mock_ov_client.server_profile_templates.data = template
+        self.mock_ov_client.server_profile_templates.get_by_name.return_value = self.mock_ov_client.server_profile_templates
         self.mock_ov_client.server_profile_templates.get_new_profile.return_value = profile_from_template
         self.mock_ansible_module.params = param_for_present
         mock_facts = gather_facts(self.mock_ov_client, created=True)
@@ -425,7 +469,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         ServerProfileModule().run()
 
-        times_get_targets_called = self.resource.get_available_targets.call_count
+        times_get_targets_called = self.resource.get_available_servers.call_count
         assert(0 == times_get_targets_called)
 
         times_create_called = self.resource.create.call_count
@@ -441,15 +485,19 @@ class TestServerProfileModule(OneViewBaseTest):
         params_for_present['data']['serverHardwareName'] = "ServerHardwareName"
 
         self.resource.get_by_name.return_value = None
-        self.resource.create.side_effect = [TASK_ERROR, CREATED_BASIC_PROFILE]
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.side_effect = [TASK_ERROR, self.resource]
+
         self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
         self.mock_ansible_module.params = params_for_present
 
         mock_facts = gather_facts(self.mock_ov_client, created=True)
 
         ServerProfileModule().run()
 
-        times_get_targets_called = self.resource.get_available_targets.call_count
+        times_get_targets_called = self.resource.get_available_servers.call_count
         assert(0 == times_get_targets_called)
 
         create_calls = [mock.call(profile_data), mock.call(profile_data)]
@@ -464,13 +512,16 @@ class TestServerProfileModule(OneViewBaseTest):
     def test_should_try_create_with_automatically_selected_hardware_25_times_when_not_exists(self):
         self.resource.get_by_name.return_value = None
         self.resource.create.side_effect = TASK_ERROR
-        self.resource.get_available_targets.return_value = AVAILABLE_TARGETS
-        self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.resource.get_available_servers.return_value = AVAILABLE_SERVERS
+
+        obj = mock.Mock()
+        obj.data = FAKE_SERVER_HARDWARE
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = obj
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         ServerProfileModule().run()
 
-        times_get_targets_called = self.resource.get_available_targets.call_count
+        times_get_targets_called = self.resource.get_available_servers.call_count
         assert(25 == times_get_targets_called)
 
         times_create_called = self.resource.create.call_count
@@ -481,8 +532,11 @@ class TestServerProfileModule(OneViewBaseTest):
     def test_should_stop_trying_create_when_unexpected_error_code_is_raised(self):
         self.resource.get_by_name.return_value = None
         self.resource.create.side_effect = OneViewModuleTaskError(msg=FAKE_MSG_ERROR, error_code='unexpected')
-        self.resource.get_available_targets.return_value = AVAILABLE_TARGETS
-        self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.resource.get_available_servers.return_value = AVAILABLE_SERVERS
+
+        obj = mock.Mock()
+        obj.data = FAKE_SERVER_HARDWARE
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = obj
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         create_params = deepcopy(PARAMS_FOR_PRESENT['data'])
@@ -490,7 +544,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         ServerProfileModule().run()
 
-        self.resource.get_available_targets.assert_called_once_with(
+        self.resource.get_available_servers.assert_called_once_with(
             serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI, enclosureGroupUri=ENCLOSURE_GROUP_URI)
         self.resource.create.assert_called_once_with(create_params)
 
@@ -499,13 +553,15 @@ class TestServerProfileModule(OneViewBaseTest):
     def test_should_fail_when_exception_is_not_related_with_server_hardware(self):
         self.resource.get_by_name.return_value = None
         self.resource.create.side_effect = OneViewModuleException(FAKE_MSG_ERROR)
-        self.resource.get_available_targets.return_value = AVAILABLE_TARGETS
-        self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
+        self.resource.get_available_servers.return_value = AVAILABLE_SERVERS
+        obj = mock.Mock()
+        obj.data = FAKE_SERVER_HARDWARE
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = obj
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         ServerProfileModule().run()
 
-        times_get_targets_called = self.resource.get_available_targets.call_count
+        times_get_targets_called = self.resource.get_available_servers.call_count
         assert(1 == times_get_targets_called)
 
         times_create_called = self.resource.create.call_count
@@ -542,15 +598,15 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg="Informed Server Hardware 'ServerHardwareName' not found")
 
     def test_should_create_without_hardware_when_there_are_any_available(self):
-        available_targets = deepcopy(AVAILABLE_TARGETS)
-        available_targets['targets'] = []
-
         self.resource.get_by_name.return_value = None
-        self.resource.create.return_value = CREATED_BASIC_PROFILE
-        self.resource.get_available_targets.return_value = available_targets
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
+        self.mock_ov_client.server_profiles.get_available_servers.return_value = []
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = None
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         mock_facts = gather_facts(self.mock_ov_client, created=True)
+        mock_facts["server_hardware"] = None
 
         ServerProfileModule().run()
 
@@ -1343,22 +1399,13 @@ class TestServerProfileModule(OneViewBaseTest):
         profile_data['serverHardwareUri'] = None
         mock_resource_compare.return_value = False
 
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
-        self.resource.update.return_value = CREATED_BASIC_PROFILE
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
-        mock_facts = gather_facts(self.mock_ov_client)
-
         ServerProfileModule().run()
 
-        self.resource.update.assert_called_once_with(profile_data, SERVER_PROFILE_URI)
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=ServerProfileModule.MSG_UPDATED,
-            ansible_facts=mock_facts
-        )
+        self.resource.update.assert_called_once_with(profile_data)
 
     @mock.patch('oneview_server_profile.compare')
     def test_should_power_off_before_update_when_required(self, mock_resource_compare):
@@ -1368,28 +1415,22 @@ class TestServerProfileModule(OneViewBaseTest):
 
         mock_resource_compare.return_value = False
 
-        self.resource.get_by_name.return_value = fake_profile_data
+        self.resource.data = fake_profile_data
         self.resource.update.side_effect = [OneViewModuleException(power_on_msg), CREATED_BASIC_PROFILE]
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
-
-        mock_facts = gather_facts(self.mock_ov_client)
 
         ServerProfileModule().run()
 
         power_set_calls = [
-            mock.call(dict(powerState='Off', powerControl='PressAndHold'), SERVER_HARDWARE_TEMPLATE_URI),
-            mock.call(dict(powerState='On', powerControl='MomentaryPress'), SERVER_HARDWARE_TEMPLATE_URI)]
+            mock.call(dict(powerState='Off', powerControl='PressAndHold')),
+            mock.call(dict(powerState='On', powerControl='MomentaryPress'))]
         self.mock_ov_client.server_hardware.update_power_state.assert_has_calls(power_set_calls)
 
         assert self.resource.update.mock_calls == [
-            mock.call(fake_profile_data, SERVER_PROFILE_URI), mock.call(fake_profile_data, SERVER_PROFILE_URI)]
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=ServerProfileModule.MSG_UPDATED,
-            ansible_facts=mock_facts
-        )
+            mock.call(fake_profile_data), mock.call(fake_profile_data)]
 
     @mock.patch('oneview_server_profile.compare')
     def test_should_return_error_during_update_when_unrelated_to_power(self, mock_resource_compare):
@@ -1398,14 +1439,14 @@ class TestServerProfileModule(OneViewBaseTest):
 
         mock_resource_compare.return_value = False
 
-        self.resource.get_by_name.return_value = fake_profile_data
+        self.resource.data = fake_profile_data
         self.resource.update.side_effect = OneViewModuleException('test')
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         ServerProfileModule().run()
 
-        self.resource.update.assert_called_once_with(fake_profile_data, SERVER_PROFILE_URI)
+        self.resource.update.assert_called_once_with(fake_profile_data)
 
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg="test")
 
@@ -1415,7 +1456,10 @@ class TestServerProfileModule(OneViewBaseTest):
 
         mock_resource_compare.return_value = True
         mock_facts = gather_facts(self.mock_ov_client)
-        self.resource.get_by_name.return_value = profile_data
+        mock_facts['server_hardware'] = None
+
+        self.resource.data = profile_data
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = None
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         ServerProfileModule().run()
@@ -1432,7 +1476,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         mock_resource_compare.return_value = True
         gather_facts(self.mock_ov_client)
-        self.resource.get_by_name.return_value = profile_data
+        self.resource.data = profile_data
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         ServerProfileModule().run()
@@ -1449,7 +1493,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         mock_resource_compare.return_value = False
 
-        self.resource.get_by_name.return_value = profile_data
+        self.resource.data = profile_data
         self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
         self.mock_ov_client.server_profile_templates.get_by_name.return_value = None
 
@@ -1469,7 +1513,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         mock_resource_compare.return_value = False
 
-        self.resource.get_by_name.return_value = profile_data
+        self.resource.data = profile_data
         self.mock_ov_client.server_hardware.get_by.return_value = None
         self.mock_ov_client.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
 
@@ -1484,7 +1528,7 @@ class TestServerProfileModule(OneViewBaseTest):
     def test_should_call_deep_merge_when_resource_found(self, mock_deep_merge, mock_resource_compare):
         server_profile = deepcopy(BASIC_PROFILE)
         server_profile['serverHardwareUri'] = None
-        self.resource.get_by_name.return_value = server_profile
+        self.resource.data = server_profile
         self.resource.update.return_value = CREATED_BASIC_PROFILE
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
@@ -1498,7 +1542,7 @@ class TestServerProfileModule(OneViewBaseTest):
     def test_should_compare_original_and_merged_resource(self, mock_deep_merge, mock_resource_compare):
         server_profile = deepcopy(BASIC_PROFILE)
         merged_data = dict(name="merged data")
-        self.resource.get_by_name.return_value = server_profile
+        self.resource.data = server_profile
         self.resource.update.return_value = CREATED_BASIC_PROFILE
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
@@ -1517,7 +1561,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params = deepcopy(PARAMS_FOR_PRESENT)
         params['data'][SPKeys.OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.os_deployment_plans.get_by.return_value = [dict(uri=uri)]
         self.mock_ansible_module.params = deepcopy(params)
 
@@ -1530,7 +1574,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params = deepcopy(PARAMS_FOR_PRESENT)
         params['data'][SPKeys.OS_DEPLOYMENT] = dict(osDeploymentPlanName="Deployment Plan Name")
 
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.os_deployment_plans.get_by.return_value = []
         self.mock_ansible_module.params = deepcopy(params)
 
@@ -1545,7 +1589,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params = deepcopy(PARAMS_FOR_PRESENT)
         params['data']['enclosureGroupName'] = "Enclosure Group Name"
 
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.enclosure_groups.get_by.return_value = [dict(uri=uri)]
         self.mock_ansible_module.params = deepcopy(params)
 
@@ -1559,7 +1603,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params = deepcopy(PARAMS_FOR_PRESENT)
         params['data']['enclosureGroupName'] = "Enclosure Group Name"
 
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.enclosure_groups.get_by.return_value = []
         self.mock_ansible_module.params = deepcopy(params)
 
@@ -1577,7 +1621,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params = deepcopy(PARAMS_FOR_PRESENT)
         params['data'][SPKeys.CONNECTIONS] = [conn_1, conn_2, conn_3, conn_4]
 
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], [], []]
         self.mock_ov_client.fcoe_networks.get_by.side_effect = [[dict(uri='/rest/fcoe-networks/16')], []]
         self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
@@ -1599,7 +1643,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params = deepcopy(PARAMS_FOR_PRESENT)
         params['data'][SPKeys.CONNECTIONS] = [conn]
 
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.fc_networks.get_by.return_value = []
         self.mock_ov_client.fcoe_networks.get_by.return_value = []
         self.mock_ov_client.ethernet_networks.get_by.return_value = []
@@ -1617,7 +1661,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params['data'][SPKeys.MAC_TYPE] = 'Virtual'
 
         mock_resource_compare.return_value = False
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
@@ -1635,7 +1679,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params['data'][SPKeys.MAC_TYPE] = 'Physical'
 
         mock_resource_compare.return_value = False
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
@@ -1653,7 +1697,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params['data'][SPKeys.SERIAL_NUMBER] = 'VCGNC3V000'
 
         mock_resource_compare.return_value = False
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
@@ -1671,7 +1715,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params['data'][SPKeys.SERIAL_NUMBER] = 'VCGNC3V000'
 
         mock_resource_compare.return_value = False
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
@@ -1686,7 +1730,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params['data'][SPKeys.CONNECTIONS] = [CONNECTION_1_WITH_WWPN]
 
         mock_resource_compare.return_value = False
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
@@ -1701,7 +1745,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params['data'][SPKeys.CONNECTIONS] = [CONNECTION_2_WITH_WWPN]
 
         mock_resource_compare.return_value = False
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
@@ -1716,7 +1760,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params['data'][SPKeys.LOCAL_STORAGE] = dict(controllers=[CONTROLLER_EMBEDDED.copy()])
 
         mock_resource_compare.return_value = False
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
@@ -1732,7 +1776,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params['data'][SPKeys.SAN] = SAN_STORAGE
 
         mock_resource_compare.return_value = False
-        self.resource.get_by_name.return_value = deepcopy(BASIC_PROFILE)
+        self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
@@ -1761,17 +1805,19 @@ class TestServerProfileModule(OneViewBaseTest):
         profile_data = deepcopy(BASIC_PROFILE)
         profile_data['serverHardwareUri'] = sh_uri
 
-        self.resource.get_by_name.return_value = profile_data
+        self.resource.data = profile_data
+        hardware = self.mock_ov_client.server_hardware
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = hardware
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
 
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_ABSENT)
 
         ServerProfileModule().run()
 
-        self.mock_ov_client.server_hardware.update_power_state.assert_called_once_with(
-            {'powerControl': 'PressAndHold', 'powerState': 'Off'}, sh_uri)
+        hardware.update_power_state.assert_called_once_with(
+            {'powerControl': 'PressAndHold', 'powerState': 'Off'})
 
-        self.resource.delete.assert_called_once_with(profile_data)
+        self.resource.delete.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -1781,7 +1827,7 @@ class TestServerProfileModule(OneViewBaseTest):
     def test_should_not_turn_off_hardware_if_not_associated_before_delete(self):
         profile_data = deepcopy(BASIC_PROFILE)
 
-        self.resource.get_by_name.return_value = profile_data
+        self.resource.data = profile_data
 
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_ABSENT)
 
@@ -1790,7 +1836,7 @@ class TestServerProfileModule(OneViewBaseTest):
         times_power_off_was_called = self.mock_ov_client.server_hardware.update_power_state.call_count
         assert(0 == times_power_off_was_called)
 
-        self.resource.delete.assert_called_once_with(profile_data)
+        self.resource.delete.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -1809,9 +1855,14 @@ class TestServerProfileModule(OneViewBaseTest):
         mock_resource_compare.return_value = True
         mock_facts = gather_facts(self.mock_ov_client)
         mock_facts['server_profile']['osDeploymentSettings'] = profile_data['osDeploymentSettings']
-        self.resource.get_by_name.return_value = profile_data
-        self.mock_ov_client.os_deployment_plans.get.return_value = dict(additionalParameters=[{'name': 'test',
-                                                                                               'caType': 'nic'}])
+        mock_facts['server_hardware'] = None
+
+        self.resource.data = profile_data
+        obj = mock.Mock()
+        obj.data = dict(additionalParameters=[{'name': 'test',
+                                               'caType': 'nic'}])
+        self.mock_ov_client.os_deployment_plans.get_by_uri.return_value = obj
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = None
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_UPDATE)
 
         ServerProfileModule().run()
@@ -1830,24 +1881,15 @@ class TestServerProfileModule(OneViewBaseTest):
         params_for_unassign['auto_assign_server_hardware'] = False
         params_for_unassign['data'] = deepcopy(sp_without_sh)
 
-        self.resource.get_by_name.return_value = deepcopy(CREATED_BASIC_PROFILE)
-        self.resource.update.return_value = sp_without_sh
+        self.resource.data = deepcopy(CREATED_BASIC_PROFILE)
+
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = None
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
         self.mock_ansible_module.params = deepcopy(params_for_unassign)
 
-        mock_facts = deepcopy(gather_facts(self.mock_ov_client))
-        mock_facts['server_profile']['serverHardwareUri'] = None
-        mock_facts['server_hardware'] = None
-
         ServerProfileModule().run()
 
-        self.resource.update.assert_called_once_with(sp_without_sh, sp_without_sh['uri'])
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=ServerProfileModule.MSG_UPDATED,
-            ansible_facts=mock_facts
-        )
+        self.resource.update.assert_called_once_with(sp_without_sh)
 
     def test_validating_os_custom_attr_should_return_if_no_attributes_found_on_resource(self):
         sp_get_value = deepcopy(CREATED_BASIC_PROFILE)
@@ -1855,13 +1897,13 @@ class TestServerProfileModule(OneViewBaseTest):
         sp_exit_value = deepcopy(CREATED_BASIC_PROFILE)
         sp_exit_value.update(deepcopy(PARAMS_FOR_UPDATE['data']))
 
-        self.resource.get_by_name.return_value = sp_get_value
+        self.resource.data = sp_get_value
         self.resource.update.return_value = deepcopy(CREATED_BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_UPDATE)
 
         ServerProfileModule().run()
 
-        self.resource.update.assert_called_once_with(sp_exit_value, sp_exit_value['uri'])
+        self.resource.update.assert_called_once_with(sp_exit_value)
 
     def test_validating_os_custom_attr_should_return_if_no_attributes_found_on_data(self):
         sp_get_value = deepcopy(CREATED_BASIC_PROFILE)
@@ -1873,13 +1915,13 @@ class TestServerProfileModule(OneViewBaseTest):
         params_for_update = deepcopy(PARAMS_FOR_UPDATE)
         params_for_update['data']['osDeploymentSettings']['osCustomAttributes'] = None
 
-        self.resource.get_by_name.return_value = sp_get_value
+        self.resource.data = sp_get_value
         self.resource.update.return_value = deepcopy(CREATED_BASIC_PROFILE)
         self.mock_ansible_module.params = params_for_update
 
         ServerProfileModule().run()
 
-        self.resource.update.assert_called_once_with(sp_exit_value, sp_exit_value['uri'])
+        self.resource.update.assert_called_once_with(sp_exit_value)
 
 
 if __name__ == '__main__':

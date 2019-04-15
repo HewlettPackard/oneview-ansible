@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.1"
+    - "hpOneView >= 5.0.0"
 author:
     - "Bruno Souza (@bsouza)"
     - "Mariana Kreisig (@marikrg)"
@@ -49,6 +49,8 @@ options:
           C(internal_vlans) gets the internal VLAN IDs for the provisioned networks on a logical interconnect.
           C(forwarding_information_base) gets the forwarding information base data for a logical interconnect.
           C(firmware) get the installed firmware for a logical interconnect.
+          C(unassigned_ports) gets a collection of ports from the member interconnects which are eligible
+          for assignment to an analyzer port.
           C(unassigned_uplink_ports) gets a collection of uplink ports from the member interconnects which are eligible
           for assignment to an analyzer port.
           C(telemetry_configuration) gets the telemetry configuration of the logical interconnect.
@@ -67,7 +69,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
 
 - debug: var=logical_interconnects
 
@@ -76,7 +78,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -89,7 +91,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Name of the Logical Interconnect"
     options:
       - qos_aggregated_configuration
@@ -102,7 +104,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Name of the Logical Interconnect"
     options:
       - qos_aggregated_configuration
@@ -112,6 +114,7 @@ EXAMPLES = '''
       - forwarding_information_base
       - firmware
       - unassigned_uplink_ports
+      - unassigned_ports
       - telemetry_configuration
       - ethernet_settings
 
@@ -123,6 +126,7 @@ EXAMPLES = '''
 - debug: var=forwarding_information_base
 - debug: var=firmware
 - debug: var=unassigned_uplink_ports
+- debug: var=unassigned_ports
 - debug: var=telemetry_configuration
 - debug: var=ethernet_settings
 '''
@@ -169,6 +173,12 @@ unassigned_uplink_ports:
     returned: When requested, but can be null.
     type: dict
 
+unassigned_ports:
+    description: "A collection of ports from the member interconnects which are eligible for assignment to an
+                  analyzer port on a logical interconnect."
+    returned: When requested, but can be null.
+    type: dict
+
 telemetry_configuration:
     description: The telemetry configuration of the logical interconnect.
     returned: When requested, but can be null.
@@ -180,10 +190,10 @@ ethernet_settings:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
 
 
-class LogicalInterconnectFactsModule(OneViewModuleBase):
+class LogicalInterconnectFactsModule(OneViewModule):
     MSG_NOT_FOUND = 'Logical Interconnect not found.'
 
     argument_spec = dict(
@@ -195,55 +205,51 @@ class LogicalInterconnectFactsModule(OneViewModuleBase):
     def __init__(self):
         super(LogicalInterconnectFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        self.resource_client = self.oneview_client.logical_interconnects
-        self.options = dict(
-            qos_aggregated_configuration=self.resource_client.get_qos_aggregated_configuration,
-            snmp_configuration=self.resource_client.get_snmp_configuration,
-            port_monitor=self.resource_client.get_port_monitor,
-            internal_vlans=self.resource_client.get_internal_vlans,
-            forwarding_information_base=self.resource_client.get_forwarding_information_base,
-            firmware=self.resource_client.get_firmware,
-            unassigned_uplink_ports=self.resource_client.get_unassigned_uplink_ports,
-            telemetry_configuration=self.resource_client.get_telemetry_configuration,
-            ethernet_settings=self.resource_client.get_ethernet_settings,
-        )
+        self.set_resource_object(self.oneview_client.logical_interconnects)
 
     def execute_module(self):
         name = self.module.params["name"]
 
         if name:
-            facts = self.__get_by_name(name)
+            facts = self.__get_by_options(name)
         else:
             logical_interconnects = self.resource_client.get_all(**self.facts_params)
             facts = dict(logical_interconnects=logical_interconnects)
 
         return dict(changed=False, ansible_facts=facts)
 
-    def __get_by_name(self, name):
-        logical_interconnect = self.resource_client.get_by_name(name=name)
-        if not logical_interconnect:
+    def __get_by_options(self, name):
+        if not self.current_resource:
             raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
 
-        facts = dict(logical_interconnects=logical_interconnect)
+        facts = dict(logical_interconnects=self.current_resource.data)
 
         options = self.module.params["options"]
 
         if options:
-            options_facts = self.__get_options(logical_interconnect, options)
+            self.options = dict(
+                qos_aggregated_configuration=self.current_resource.get_qos_aggregated_configuration,
+                snmp_configuration=self.current_resource.get_snmp_configuration,
+                port_monitor=self.current_resource.get_port_monitor,
+                internal_vlans=self.current_resource.get_internal_vlans,
+                forwarding_information_base=self.current_resource.get_forwarding_information_base,
+                firmware=self.current_resource.get_firmware,
+                unassigned_uplink_ports=self.current_resource.get_unassigned_uplink_ports,
+                unassigned_ports=self.current_resource.get_unassigned_ports,
+                telemetry_configuration=self.current_resource.get_telemetry_configuration,
+                ethernet_settings=self.current_resource.get_ethernet_settings,
+            )
+
+            options_facts = self.__get_options(options)
             facts.update(options_facts)
 
         return facts
 
-    def __get_options(self, logical_interconnect, options):
+    def __get_options(self, options):
         facts = dict()
-        uri = logical_interconnect["uri"]
 
         for option in options:
-            if option == 'telemetry_configuration':
-                telemetry_configuration_uri = logical_interconnect["telemetryConfiguration"]["uri"]
-                facts[option] = self.options[option](telemetry_configuration_uri=telemetry_configuration_uri)
-            else:
-                facts[option] = self.options[option](id_or_uri=uri)
+            facts[option] = self.options[option]()
 
         return facts
 
