@@ -10,12 +10,40 @@ This release extends the planned support of the modules to OneView REST API vers
 3. Modules upgraded in this release required hpOneView version 5.0.0 or above.
 
 #### Modules supported in this release
+- oneview_connection_template
+- oneview_connection_template_facts
 - oneview_enclosure
 - oneview_enclosure_facts
+- oneview_enclosure_group
+- oneview_enclosure_group_facts
+- oneview_ethernet_network
+- oneview_ethernet_network_facts
 - oneview_fc_network
 - oneview_fc_network_facts
+- oneview_fcoe_network
+- oneview_fcoe_network_facts
+- oneview_internal_link_set_facts
+- oneview_interconnect_type_facts
+- oneview_logical_enclosure
+- oneview_logical_enclosure_facts
+- oneview_logical_interconnect
+- oneview_logical_interconnect_facts
+- oneview_logical_interconnect_group
+- oneview_logical_interconnect_group_facts
+- oneview_logical_switch_group
+- oneview_logical_switch_group_facts
+- oneview_sas_interconnect
+- oneview_sas_interconnect_facts
+- oneview_sas_interconnect_type_facts
+- oneview_sas_logical_interconnect_group
+- oneview_sas_logical_interconnect_group_facts
 - oneview_server_hardware
 - oneview_server_hardware_facts
+- oneview_server_profile
+- oneview_server_profile_facts
+- oneview_server_profile_template
+- oneview_server_profile_template_facts
+- oneview_switch_type_facts
 
 ## v5.2.0
 

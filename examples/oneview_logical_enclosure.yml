@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    logical_enclosure_name: "Encl1"  # Set the name of a Logical Enclosure
-    firmware_baseline_uri: "/rest/firmware-drivers/SPPgen9snap6_2016_0405_87"  # Set the URI of a Firmware Driver
+    logical_enclosure_name: "SYN03_LE"  # Set the name of a Logical Enclosure
+    firmware_baseline_uri: "/rest/firmware-drivers/SPP_2018_11_20190205_for_HPE_Synergy_Z7550-96592"  # Set the URI of a Firmware Driver
     enclosure_uri:
-        - "/rest/enclosures/0000000000A66101" # Set the URI of an Enclosure
-    enclosure_group_uri: "/rest/enclosure-groups/9fafc382-bbef-4a94-a9d1-05f77042f3ac" # Set the URI of an Enclosure Group
+        - "/rest/enclosures/013645CN759000AD" # Set the URI of an Enclosure
+    enclosure_group_uri: "/rest/enclosure-groups/0f2a3f46-36ad-4c8f-9e88-763c062855d3" # Set the URI of an Enclosure Group
 
   tasks:
     # This operation is only available on HPE Synergy

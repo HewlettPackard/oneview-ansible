@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ description:
     - Retrieve facts about the OneView Connection Templates.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     name:
@@ -105,10 +105,10 @@ default_connection_template:
 '''
 
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class ConnectionTemplateFactsModule(OneViewModuleBase):
+class ConnectionTemplateFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(
             name=dict(required=False, type='str'),
@@ -116,17 +116,17 @@ class ConnectionTemplateFactsModule(OneViewModuleBase):
             params=dict(required=False, type='dict')
         )
         super(ConnectionTemplateFactsModule, self).__init__(additional_arg_spec=argument_spec)
+        self.set_resource_object(self.oneview_client.connection_templates)
 
     def execute_module(self):
-        client = self.oneview_client.connection_templates
         ansible_facts = {}
 
         if 'defaultConnectionTemplate' in self.options:
-            ansible_facts['default_connection_template'] = client.get_default()
+            ansible_facts['default_connection_template'] = self.resource_client.get_default()
         elif self.module.params.get('name'):
-            ansible_facts['connection_templates'] = client.get_by('name', self.module.params['name'])
+            ansible_facts['connection_templates'] = self.get_by_name(self.module.params['name'])
         else:
-            ansible_facts['connection_templates'] = client.get_all(**self.facts_params)
+            ansible_facts['connection_templates'] = self.resource_client.get_all(**self.facts_params)
 
         return dict(changed=False,
                     ansible_facts=ansible_facts)
