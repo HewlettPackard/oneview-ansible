@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -83,6 +83,8 @@ UNASSIGNED_UPLINK_PORTS = [
     }
 ]
 
+UNASSIGNED_PORTS = UNASSIGNED_UPLINK_PORTS
+
 TELEMETRY_CONFIGURATION = {
     "enableTelemetry": True,
     "sampleCount": 12,
@@ -117,12 +119,12 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_a_logical_interconnects_by_name(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.mock_ansible_module.params = create_params()
 
         LogicalInterconnectFactsModule().run()
 
-        self.resource.get_by_name.assert_called_once_with(name=LOGICAL_INTERCONNECT_NAME)
+        self.resource.get_by_name.assert_called_once_with(LOGICAL_INTERCONNECT_NAME)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -130,16 +132,14 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_qos_configuration(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_qos_aggregated_configuration.return_value = QOS_CONFIGURATION
 
         self.mock_ansible_module.params = create_params(['qos_aggregated_configuration'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.resource.get_qos_aggregated_configuration.assert_called_once_with(
-            id_or_uri=LOGICAL_INTERCONNECT_URI
-        )
+        self.resource.get_qos_aggregated_configuration.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -150,15 +150,13 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_snmp_configuration(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_snmp_configuration.return_value = SNMP_CONFIGURATION
         self.mock_ansible_module.params = create_params(['snmp_configuration'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.resource.get_snmp_configuration.assert_called_once_with(
-            id_or_uri=LOGICAL_INTERCONNECT_URI
-        )
+        self.resource.get_snmp_configuration.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -169,15 +167,13 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_port_monitor(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_port_monitor.return_value = PORT_MONITOR
         self.mock_ansible_module.params = create_params(['port_monitor'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.resource.get_port_monitor.assert_called_once_with(
-            id_or_uri=LOGICAL_INTERCONNECT_URI
-        )
+        self.resource.get_port_monitor.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -188,15 +184,13 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_internal_vlans(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_internal_vlans.return_value = INTERNAL_VLANS
         self.mock_ansible_module.params = create_params(['internal_vlans'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.resource.get_internal_vlans.assert_called_once_with(
-            id_or_uri=LOGICAL_INTERCONNECT_URI
-        )
+        self.resource.get_internal_vlans.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -207,15 +201,13 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_forwarding_information_base(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_internal_vlans.return_value = INTERNAL_VLANS
         self.mock_ansible_module.params = create_params(['internal_vlans'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.resource.get_internal_vlans.assert_called_once_with(
-            id_or_uri=LOGICAL_INTERCONNECT_URI
-        )
+        self.resource.get_internal_vlans.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -226,13 +218,13 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_firmware(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_firmware.return_value = FIRMWARE
         self.mock_ansible_module.params = create_params(['firmware'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.resource.get_firmware.assert_called_once_with(id_or_uri=LOGICAL_INTERCONNECT_URI)
+        self.resource.get_firmware.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -243,21 +235,36 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_unassigned_uplink_ports(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_unassigned_uplink_ports.return_value = UNASSIGNED_UPLINK_PORTS
         self.mock_ansible_module.params = create_params(['unassigned_uplink_ports'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.resource.get_unassigned_uplink_ports.assert_called_once_with(
-            id_or_uri=LOGICAL_INTERCONNECT_URI
-        )
+        self.resource.get_unassigned_uplink_ports.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
                 logical_interconnects=LOGICAL_INTERCONNECT,
                 unassigned_uplink_ports=UNASSIGNED_UPLINK_PORTS
+            )
+        )
+
+    def test_should_get_a_logical_interconnects_by_name_with_unassigned_ports(self):
+        self.resource.data = LOGICAL_INTERCONNECT
+        self.resource.get_unassigned_ports.return_value = UNASSIGNED_PORTS
+        self.mock_ansible_module.params = create_params(['unassigned_ports'])
+
+        LogicalInterconnectFactsModule().run()
+
+        self.resource.get_unassigned_ports.assert_called_once_with()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                logical_interconnects=LOGICAL_INTERCONNECT,
+                unassigned_ports=UNASSIGNED_PORTS
             )
         )
 
@@ -271,15 +278,13 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
             "name": "ES634039453",
             "uri": "/rest/logical-interconnects/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0/ethernetSettings"
         }
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_ethernet_settings.return_value = ethernet_settings
         self.mock_ansible_module.params = create_params(['ethernet_settings'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.resource.get_ethernet_settings.assert_called_once_with(
-            id_or_uri=LOGICAL_INTERCONNECT_URI
-        )
+        self.resource.get_ethernet_settings.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -290,15 +295,13 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_a_logical_interconnects_by_name_with_telemetry_configuration(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_telemetry_configuration.return_value = TELEMETRY_CONFIGURATION
         self.mock_ansible_module.params = create_params(['telemetry_configuration'])
 
         LogicalInterconnectFactsModule().run()
 
-        self.resource.get_telemetry_configuration.assert_called_once_with(
-            telemetry_configuration_uri=TELEMETRY_CONF_URI
-        )
+        self.resource.get_telemetry_configuration.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -310,28 +313,27 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
 
     def test_should_get_a_logical_interconnects_by_name_with_multiple_options(self):
         params = create_params(['qos_aggregated_configuration', 'snmp_configuration', 'port_monitor',
-                                'unassigned_uplink_ports', 'telemetry_configuration'])
+                                'unassigned_uplink_ports', 'unassigned_ports', 'telemetry_configuration'])
 
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_qos_aggregated_configuration.return_value = QOS_CONFIGURATION
         self.resource.get_snmp_configuration.return_value = SNMP_CONFIGURATION
         self.resource.get_port_monitor.return_value = PORT_MONITOR
         self.resource.get_unassigned_uplink_ports.return_value = UNASSIGNED_UPLINK_PORTS
+        self.resource.get_unassigned_ports.return_value = UNASSIGNED_PORTS
         self.resource.get_telemetry_configuration.return_value = TELEMETRY_CONFIGURATION
         self.mock_ansible_module.params = params
 
         LogicalInterconnectFactsModule().run()
 
-        expected_uri = dict(id_or_uri=LOGICAL_INTERCONNECT_URI)
-        telemetry_uri = dict(telemetry_configuration_uri=TELEMETRY_CONF_URI)
-
         # validate the calls to the OneView SDK
-        self.resource.get_by_name.assert_called_once_with(name=LOGICAL_INTERCONNECT_NAME)
-        self.resource.get_qos_aggregated_configuration.assert_called_once_with(**expected_uri)
-        self.resource.get_snmp_configuration.assert_called_once_with(**expected_uri)
-        self.resource.get_port_monitor.assert_called_once_with(**expected_uri)
-        self.resource.get_unassigned_uplink_ports.assert_called_once_with(**expected_uri)
-        self.resource.get_telemetry_configuration.assert_called_once_with(**telemetry_uri)
+        self.resource.get_by_name.assert_called_once_with(LOGICAL_INTERCONNECT_NAME)
+        self.resource.get_qos_aggregated_configuration.assert_called_once_with()
+        self.resource.get_snmp_configuration.assert_called_once_with()
+        self.resource.get_port_monitor.assert_called_once_with()
+        self.resource.get_unassigned_uplink_ports.assert_called_once_with()
+        self.resource.get_unassigned_ports.assert_called_once_with()
+        self.resource.get_telemetry_configuration.assert_called_once_with()
 
         # Validate the result data
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -342,6 +344,7 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
                 snmp_configuration=SNMP_CONFIGURATION,
                 port_monitor=PORT_MONITOR,
                 unassigned_uplink_ports=UNASSIGNED_UPLINK_PORTS,
+                unassigned_ports=UNASSIGNED_PORTS,
                 telemetry_configuration=TELEMETRY_CONFIGURATION
             )
         )

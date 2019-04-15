@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.5.0"
+    - "hpOneView >= 5.0.0"
 author: "Bruno Souza (@bsouza)"
 options:
     state:
@@ -71,7 +71,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: "ProfileTemplate101"
@@ -86,7 +86,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: "ProfileTemplate102"
@@ -101,7 +101,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
       name: "ProfileTemplate101"
@@ -117,10 +117,10 @@ server_profile_template:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, ServerProfileReplaceNamesByUris, ServerProfileMerger, compare
+from ansible.module_utils.oneview import OneViewModule, ServerProfileReplaceNamesByUris, ServerProfileMerger, compare
 
 
-class ServerProfileTemplateModule(OneViewModuleBase):
+class ServerProfileTemplateModule(OneViewModule):
     MSG_CREATED = 'Server Profile Template created successfully.'
     MSG_UPDATED = 'Server Profile Template updated successfully.'
     MSG_DELETED = 'Server Profile Template deleted successfully.'
@@ -143,31 +143,31 @@ class ServerProfileTemplateModule(OneViewModuleBase):
         super(ServerProfileTemplateModule, self).__init__(additional_arg_spec=self.argument_spec,
                                                           validate_etag_support=True)
 
-        self.resource_client = self.oneview_client.server_profile_templates
+        self.set_resource_object(self.oneview_client.server_profile_templates)
+        self.server_profiles = self.oneview_client.server_profiles
 
     def execute_module(self):
 
-        template = self.resource_client.get_by_name(self.data["name"])
         params = self.module.params.get("params")
         self.params = params if params else {}
 
         if self.state == 'present':
-            result = self.__present(self.data, template)
+            result = self.__present()
         else:
-            result = self.__absent(template)
+            result = self.__absent()
 
         return result
 
-    def __present(self, data, template):
+    def __present(self):
 
-        ServerProfileReplaceNamesByUris().replace(self.oneview_client, data)
+        ServerProfileReplaceNamesByUris().replace(self.oneview_client, self.data)
 
-        data = self.__spt_from_sp(data) or data
+        data = self.__spt_from_sp() or self.data
 
-        if not template:
+        if not self.current_resource:
             changed, msg, resource = self.__create(data)
         else:
-            changed, msg, resource = self.__update(data, template)
+            changed, msg, resource = self.__update(data)
 
         return dict(
             changed=changed,
@@ -175,48 +175,49 @@ class ServerProfileTemplateModule(OneViewModuleBase):
             ansible_facts=dict(server_profile_template=resource)
         )
 
-    def __spt_from_sp(self, data):
-        if data.get('serverProfileName'):
-            server_profiles = self.oneview_client.server_profiles.get_by('name', data.pop('serverProfileName'))
-            if server_profiles:
-                spt_from_sp = self.oneview_client.server_profiles.get_new_profile_template(server_profiles[0]['uri'])
+    def __spt_from_sp(self):
+        if self.data.get('serverProfileName'):
+            server_profile = self.server_profiles.get_by_name(self.data.pop('serverProfileName'))
+
+            if server_profile:
+                spt_from_sp = server_profile.get_new_profile_template()
                 copy_of_spt_from_sp = spt_from_sp.copy()
+
                 for key, value in copy_of_spt_from_sp.items():
                     if value is None:
                         del spt_from_sp[key]
-                spt_from_sp.update(data)
+                spt_from_sp.update(self.data)
+
                 return spt_from_sp
 
     def __create(self, data):
         resource = self.resource_client.create(data, **self.params)
-        return True, self.MSG_CREATED, resource
+        return True, self.MSG_CREATED, resource.data
 
-    def __update(self, data, template):
-        resource = template.copy()
+    def __update(self, data):
+        merged_data = ServerProfileMerger().merge_data(self.current_resource.data, data)
 
-        merged_data = ServerProfileMerger().merge_data(resource, data)
-
-        equal = compare(merged_data, resource)
+        equal = compare(merged_data, self.current_resource.data)
 
         if equal:
             msg = self.MSG_ALREADY_PRESENT
         else:
-            resource = self.resource_client.update(resource=merged_data,
-                                                   id_or_uri=merged_data["uri"], **self.params)
+            self.current_resource.update(merged_data, **self.params)
             msg = self.MSG_UPDATED
 
         changed = not equal
 
-        return changed, msg, resource
+        return changed, msg, self.current_resource.data
 
-    def __absent(self, template):
-        msg = self.MSG_ALREADY_ABSENT
-
-        if template:
-            self.resource_client.delete(template, **self.params)
+    def __absent(self):
+        if self.current_resource:
+            self.current_resource.delete(**self.params)
             msg = self.MSG_DELETED
+            changed = True
+        else:
+            msg = self.MSG_ALREADY_ABSENT
+            changed = False
 
-        changed = template is not None
         return dict(changed=changed, msg=msg)
 
 

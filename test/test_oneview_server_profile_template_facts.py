@@ -16,6 +16,7 @@
 # limitations under the License.
 ###
 
+import mock
 import pytest
 
 from hpe_test_utils import OneViewBaseFactsTest
@@ -117,12 +118,12 @@ class TestServerProfileTemplateFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_template_by_name(self):
-        self.mock_ov_client.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
+        self.mock_ov_client.server_profile_templates.data = BASIC_TEMPLATE
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         ServerProfileTemplateFactsModule().run()
 
-        self.mock_ov_client.server_profile_templates.get_by_name.assert_called_once_with(name=TEMPLATE_NAME)
+        self.mock_ov_client.server_profile_templates.get_by_name.assert_called_once_with(TEMPLATE_NAME)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -130,12 +131,14 @@ class TestServerProfileTemplateFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_template_by_uri(self):
-        self.mock_ov_client.server_profile_templates.get.return_value = BASIC_TEMPLATE
+        obj = mock.Mock()
+        obj.data = BASIC_TEMPLATE
+        self.mock_ov_client.server_profile_templates.get_by_uri.return_value = obj
         self.mock_ansible_module.params = PARAMS_GET_BY_URI
 
         ServerProfileTemplateFactsModule().run()
 
-        self.mock_ov_client.server_profile_templates.get.assert_called_once_with('/rest/fake')
+        self.mock_ov_client.server_profile_templates.get_by_uri.assert_called_once_with('/rest/fake')
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -148,7 +151,7 @@ class TestServerProfileTemplateFactsModule(OneViewBaseFactsTest):
 
         ServerProfileTemplateFactsModule().run()
 
-        self.mock_ov_client.server_profile_templates.get_by_name.assert_called_once_with(name=TEMPLATE_NAME)
+        self.mock_ov_client.server_profile_templates.get_by_name.assert_called_once_with(TEMPLATE_NAME)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -156,15 +159,15 @@ class TestServerProfileTemplateFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_template_by_name_with_new_profile(self):
-        self.mock_ov_client.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
+        self.mock_ov_client.server_profile_templates.data = BASIC_TEMPLATE
         self.mock_ov_client.server_profile_templates.get_new_profile.return_value = PROFILE
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_NEW_PROFILE
 
         ServerProfileTemplateFactsModule().run()
 
-        self.mock_ov_client.server_profile_templates.get_by_name.assert_called_once_with(name=TEMPLATE_NAME)
-        self.mock_ov_client.server_profile_templates.get_new_profile.assert_called_once_with(id_or_uri=TEMPLATE_URI)
+        self.mock_ov_client.server_profile_templates.get_by_name.assert_called_once_with(TEMPLATE_NAME)
+        self.mock_ov_client.server_profile_templates.get_new_profile.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -175,7 +178,7 @@ class TestServerProfileTemplateFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_template_by_name_with_options(self):
-        self.mock_ov_client.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
+        self.mock_ov_client.server_profile_templates.data = BASIC_TEMPLATE
         self.mock_ov_client.server_profile_templates.get_new_profile.return_value = PROFILE
         self.mock_ov_client.server_profile_templates.get_transformation.return_value = TRANSFORMATION_TEMPLATE
 
@@ -183,10 +186,9 @@ class TestServerProfileTemplateFactsModule(OneViewBaseFactsTest):
 
         ServerProfileTemplateFactsModule().run()
 
-        self.mock_ov_client.server_profile_templates.get_by_name.assert_called_once_with(name=TEMPLATE_NAME)
-        self.mock_ov_client.server_profile_templates.get_new_profile.assert_called_once_with(id_or_uri=TEMPLATE_URI)
+        self.mock_ov_client.server_profile_templates.get_by_name.assert_called_once_with(TEMPLATE_NAME)
+        self.mock_ov_client.server_profile_templates.get_new_profile.assert_called_once_with()
         self.mock_ov_client.server_profile_templates.get_transformation.assert_called_once_with(
-            id_or_uri=TEMPLATE_URI,
             server_hardware_type_uri=SERVER_HARDWARE_TYPE_FOR_TRANSFORMATION,
             enclosure_group_uri=ENCLOSURE_GROUP_FOR_TRANSFORMATION
         )
