@@ -8827,7 +8827,7 @@ Manage OneView Server Hardware resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.5.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -8849,7 +8849,7 @@ Manage OneView Server Hardware resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
          hostname : "172.18.6.15"
@@ -8865,7 +8865,7 @@ Manage OneView Server Hardware resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
          name : "172.18.6.15"
@@ -8879,7 +8879,7 @@ Manage OneView Server Hardware resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: multiple_servers_added
     data:
         mpHostsAndRanges :
@@ -8897,7 +8897,7 @@ Manage OneView Server Hardware resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: power_state_set
     data:
         name : "172.18.6.15"
@@ -8911,7 +8911,7 @@ Manage OneView Server Hardware resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: refresh_state_set
     data:
         name : "172.18.6.15"
@@ -8924,7 +8924,7 @@ Manage OneView Server Hardware resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: ilo_firmware_version_updated
     data:
         name : "172.18.6.15"
@@ -8935,7 +8935,7 @@ Manage OneView Server Hardware resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: environmental_configuration_set
     data:
         name : "172.18.6.15"
@@ -8948,7 +8948,7 @@ Manage OneView Server Hardware resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
         name : "172.18.6.15"
@@ -8959,7 +8959,7 @@ Manage OneView Server Hardware resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: uid_state_off
     data:
         name : '0000A66102, bay 12'
@@ -8996,7 +8996,7 @@ Retrieve facts about the OneView Server Hardware.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -9015,7 +9015,10 @@ Retrieve facts about the OneView Server Hardware.
 
 - name: Gather facts about all Server Hardwares
   oneview_server_hardware_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
   delegate_to: localhost
 
 - debug: var=server_hardwares
@@ -9023,7 +9026,10 @@ Retrieve facts about the OneView Server Hardware.
 
 - name: Gather paginated, filtered and sorted facts about Server Hardware
   oneview_server_hardware_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -9036,7 +9042,10 @@ Retrieve facts about the OneView Server Hardware.
 
 - name: Gather facts about a Server Hardware by name
   oneview_server_hardware_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     name: "172.18.6.15"
   delegate_to: localhost
 
@@ -9045,7 +9054,10 @@ Retrieve facts about the OneView Server Hardware.
 
 - name: Gather BIOS facts about a Server Hardware
   oneview_server_hardware_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     name: "Encl1, bay 1"
     options:
       - bios
@@ -9057,7 +9069,10 @@ Retrieve facts about the OneView Server Hardware.
 
 - name: Gather all facts about a Server Hardware
   oneview_server_hardware_facts:
-   config: "{{ config }}"
+   hostname: 172.16.101.48
+   username: administrator
+   password: my_password
+   api_version: 800
    name : "Encl1, bay 1"
    options:
        - bios                   # optional
@@ -9085,7 +9100,10 @@ Retrieve facts about the OneView Server Hardware.
 
 - name: Gather facts about the Server Hardware firmware
   oneview_server_hardware_facts:
-   config: "{{ config }}"
+   hostname: 172.16.101.48
+   username: administrator
+   password: my_password
+   api_version: 800
    name : "0000A66102, bay 12"
    options:
        - firmware
