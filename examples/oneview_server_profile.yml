@@ -65,22 +65,22 @@
     - debug: var=compliance_preview
     - debug: var=created
 
-  #    - name: Create a Server Profile with connections
-  #      oneview_server_profile:
-  #        config: "{{ config }}"
-  #        data:
-  #          name: "{{ inventory_hostname }}-with-connections"
-  #          connectionSettings:  # Supported only in API vesrion >= 600.
-  #            connections:
-  #              - id: 1
-  #                name: connection1
-  #                functionType: Ethernet
-  #                portId: Auto
-  #                requestedMbps: 2500
-  #                networkName: "{{ network_name }}"
-  #      delegate_to: localhost
+    - name: Create a Server Profile with connections
+      oneview_server_profile:
+        config: "{{ config }}"
+        data:
+          name: "{{ inventory_hostname }}-with-connections"
+          connectionSettings:  # Supported only in API vesrion >= 600.
+            connections:
+              - id: 1
+                name: connection1
+                functionType: Ethernet
+                portId: Auto
+                requestedMbps: 2500
+                networkName: "{{ network_name }}"
+      delegate_to: localhost
 
-      #    - debug: msg="{{ server_profile }}"
+    - debug: msg="{{ server_profile }}"
 
     - name: Update Server Profile
       oneview_server_profile:
