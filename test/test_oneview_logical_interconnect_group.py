@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -144,8 +144,9 @@ PARAMS_FOR_ABSENT = dict(
 @pytest.mark.resource(TestLogicalInterconnectGroupModule='logical_interconnect_groups')
 class TestLogicalInterconnectGroupModule(OneViewBaseTest):
     def test_should_create_new_lig(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = DEFAULT_LIG_TEMPLATE
+        self.resource.get_by_name.return_value = None
+        self.resource.create.return_value = self.resource
+        self.resource.data = DEFAULT_LIG_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -158,8 +159,9 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_should_create_new_with_named_permitted_interconnect_type(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = PARAMS_FOR_PRESENT
+        self.resource.get_by_name.return_value = None
+        self.resource.create.return_value = self.resource
+        self.resource.data = PARAMS_FOR_PRESENT
 
         self.mock_ansible_module.params = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP)
 
@@ -172,8 +174,9 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_should_fail_when_permitted_interconnect_type_name_not_exists(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = PARAMS_FOR_PRESENT
+        self.resource.get_by_name.return_value = None
+        self.resource.create.return_value = self.resource
+        self.resource.data = PARAMS_FOR_PRESENT
         self.mock_ov_client.interconnect_types.get_by.return_value = []
 
         self.mock_ansible_module.params = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP)
@@ -183,7 +186,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalInterconnectGroupModule.MSG_INTERCONNECT_TYPE_NOT_FOUND)
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
+        self.resource.data = DEFAULT_LIG_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -196,10 +199,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_attributes(self):
-        data_merged = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS.copy()
-
-        self.resource.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
-        self.resource.update.return_value = data_merged
+        self.resource.data = DEFAULT_LIG_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
@@ -208,7 +208,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=LogicalInterconnectGroupModule.MSG_UPDATED,
-            ansible_facts=dict(logical_interconnect_group=data_merged)
+            ansible_facts=dict(logical_interconnect_group=self.resource.data)
         )
 
     def test_rename_when_resource_exists(self):
@@ -216,8 +216,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         data_merged['name'] = RENAMED_LIG
         params_to_rename = PARAMS_TO_RENAME.copy()
 
-        self.resource.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
-        self.resource.update.return_value = data_merged
+        self.resource.data = DEFAULT_LIG_TEMPLATE
 
         self.mock_ansible_module.params = params_to_rename
 
@@ -230,8 +229,9 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         data_merged['name'] = RENAMED_LIG
         params_to_rename = PARAMS_TO_RENAME.copy()
 
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = DEFAULT_LIG_TEMPLATE
+        self.resource.get_by_name.return_value = None
+        self.resource.create.return_value = self.resource
+        self.resource.data = DEFAULT_LIG_TEMPLATE
 
         self.mock_ansible_module.params = params_to_rename
 
@@ -240,7 +240,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         self.resource.create.assert_called_once_with(PARAMS_TO_RENAME['data'])
 
     def test_should_remove_lig(self):
-        self.resource.get_by.return_value = [DEFAULT_LIG_TEMPLATE]
+        self.resource.data = DEFAULT_LIG_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
@@ -252,7 +252,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_lig_not_exist(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
@@ -271,16 +271,17 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         resource_data = DEFAULT_LIG_TEMPLATE.copy()
         resource_data['scopeUris'] = ['fake']
         resource_data['uri'] = 'rest/lig/fake'
-        self.resource.get_by.return_value = [resource_data]
+        self.resource.data = resource_data
 
         patch_return = resource_data.copy()
         patch_return['scopeUris'] = ['test']
-        self.resource.patch.return_value = patch_return
+        obj = mock.Mock()
+        obj.data = patch_return
+        self.resource.patch.return_value = obj
 
         LogicalInterconnectGroupModule().run()
 
-        self.resource.patch.assert_called_once_with('rest/lig/fake',
-                                                    operation='replace',
+        self.resource.patch.assert_called_once_with(operation='replace',
                                                     path='/scopeUris',
                                                     value=['test'])
 
@@ -297,7 +298,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
 
         resource_data = DEFAULT_LIG_TEMPLATE.copy()
         resource_data['scopeUris'] = ['test']
-        self.resource.get_by.return_value = [resource_data]
+        self.resource.data = resource_data
 
         LogicalInterconnectGroupModule().run()
 

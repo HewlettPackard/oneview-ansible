@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -64,13 +64,14 @@ class TestEnclosureGroupFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_enclosure_group_by_name(self):
-        self.resource.get_by.return_value = ENCLOSURE_GROUPS
+        self.resource.get_by_name.return_value = self.resource
+        self.resource.data = ENCLOSURE_GROUPS
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         EnclosureGroupFactsModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', ENCLOSURE_GROUP_NAME)
+        self.resource.get_by_name.assert_called_once_with(ENCLOSURE_GROUP_NAME)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -79,15 +80,16 @@ class TestEnclosureGroupFactsModule(OneViewBaseFactsTest):
 
     def test_should_get_enclosure_group_by_name_with_options(self):
         configuration_script = "echo 'test'"
-        self.resource.get_by.return_value = ENCLOSURE_GROUPS
+        self.resource.get_by_name.return_value = self.resource
+        self.resource.data = ENCLOSURE_GROUPS
         self.resource.get_script.return_value = configuration_script
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         EnclosureGroupFactsModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', ENCLOSURE_GROUP_NAME)
-        self.resource.get_script.assert_called_once_with(id_or_uri=ENCLOSURE_GROUP_URI)
+        self.resource.get_by_name.assert_called_once_with(ENCLOSURE_GROUP_NAME)
+        self.resource.get_script.assert_called_once()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
