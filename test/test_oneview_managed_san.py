@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ PARAMS_TO_CREATE_ISSUES_REPORT = dict(
 @pytest.mark.resource(TestManagedSanModule='managed_sans')
 class TestManagedSanModule(OneViewBaseTest):
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by_name.return_value = MANAGED_SAN
+        self.resource.data = MANAGED_SAN
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT_WITHOUT_CHANGES
 
         ManagedSanModule().run()
@@ -83,8 +83,10 @@ class TestManagedSanModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_attributes(self):
-        self.resource.get_by_name.return_value = MANAGED_SAN
-        self.resource.update.return_value = MANAGED_SAN
+        self.resource.data = MANAGED_SAN
+        obj = mock.Mock()
+        obj.data = MANAGED_SAN
+        self.resource.update.return_value = obj
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT_WITH_CHANGES
 
         ManagedSanModule().run()
@@ -104,8 +106,10 @@ class TestManagedSanModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ManagedSanModule.MSG_NOT_FOUND)
 
     def test_update_refresh_state(self):
-        self.resource.get_by_name.return_value = MANAGED_SAN
-        self.resource.update.return_value = MANAGED_SAN
+        self.resource.data = MANAGED_SAN
+        obj = mock.Mock()
+        obj.data = MANAGED_SAN
+        self.resource.update.return_value = obj
         self.mock_ansible_module.params = PARAMS_FOR_REFRESH
 
         ManagedSanModule().run()
@@ -126,7 +130,7 @@ class TestManagedSanModule(OneViewBaseTest):
 
     def test_create_endpoints_csv_file(self):
         endpoints_csv_file = {"csvFileName": "ci-005056a65f14-172.18.15.1-SAN1_0-endpoints-2016_09_21_05_55_24.csv.gz"}
-        self.resource.get_by_name.return_value = MANAGED_SAN
+        self.resource.data = MANAGED_SAN
         self.resource.create_endpoints_csv_file.return_value = endpoints_csv_file
         self.mock_ansible_module.params = PARAMS_TO_CREATE_ENDPOINTS_CSV_FILE
 
@@ -148,7 +152,7 @@ class TestManagedSanModule(OneViewBaseTest):
 
     def test_create_issues_report(self):
         issues_report = {"status": "report status"}
-        self.resource.get_by_name.return_value = MANAGED_SAN
+        self.resource.data = MANAGED_SAN
         self.resource.create_issues_report.return_value = issues_report
         self.mock_ansible_module.params = PARAMS_TO_CREATE_ISSUES_REPORT
 

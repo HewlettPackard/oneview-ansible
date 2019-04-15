@@ -6630,7 +6630,7 @@ Manage OneView Managed SAN resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -6651,7 +6651,7 @@ Manage OneView Managed SAN resources.
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 600
+      api_version: 800
       state: refresh_state_set
       data:
           name: 'SAN1_0'
@@ -6664,7 +6664,7 @@ Manage OneView Managed SAN resources.
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 600
+      api_version: 800
       state: present
       data:
           name: 'SAN1_0'
@@ -6687,7 +6687,7 @@ Manage OneView Managed SAN resources.
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 600
+      api_version: 800
       state: endpoints_csv_file_created
       data:
           name: '{{ name }}'
@@ -6698,7 +6698,7 @@ Manage OneView Managed SAN resources.
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 600
+      api_version: 800
       state: issues_report_created
       data:
           name: '{{ name }}'
@@ -6737,7 +6737,7 @@ Retrieve facts about the OneView Managed SANs.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -6759,7 +6759,7 @@ Retrieve facts about the OneView Managed SANs.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
   delegate_to: localhost
 
 - debug: var=managed_sans
@@ -6769,7 +6769,7 @@ Retrieve facts about the OneView Managed SANs.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -6784,7 +6784,7 @@ Retrieve facts about the OneView Managed SANs.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "SAN1_0"
   delegate_to: localhost
 
@@ -6795,7 +6795,7 @@ Retrieve facts about the OneView Managed SANs.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "SAN1_0"
     options:
       - endpoints
@@ -6809,7 +6809,7 @@ Retrieve facts about the OneView Managed SANs.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     options:
       - wwn:
          locate: "20:00:4A:2B:21:E0:00:01"

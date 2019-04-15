@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 5.0.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     state:
@@ -59,7 +59,7 @@ EXAMPLES = '''
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 600
+      api_version: 800
       state: refresh_state_set
       data:
           name: 'SAN1_0'
@@ -72,7 +72,7 @@ EXAMPLES = '''
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 600
+      api_version: 800
       state: present
       data:
           name: 'SAN1_0'
@@ -95,7 +95,7 @@ EXAMPLES = '''
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 600
+      api_version: 800
       state: endpoints_csv_file_created
       data:
           name: '{{ name }}'
@@ -106,7 +106,7 @@ EXAMPLES = '''
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 600
+      api_version: 800
       state: issues_report_created
       data:
           name: '{{ name }}'
@@ -130,10 +130,10 @@ managed_san_issues:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, compare
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare
 
 
-class ManagedSanModule(OneViewModuleBase):
+class ManagedSanModule(OneViewModule):
     MSG_UPDATED = 'Managed SAN updated successfully.'
     MSG_REFRESH_STATE_UPDATED = 'Managed SAN\'s refresh state changed successfully.'
     MSG_NOT_FOUND = 'Managed SAN was not found for this operation.'
@@ -151,59 +151,55 @@ class ManagedSanModule(OneViewModuleBase):
 
     def __init__(self):
         super(ManagedSanModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.set_resource_object(self.oneview_client.managed_sans)
 
     def execute_module(self):
-        resource = self.__get_resource(self.data)
-
-        if not resource:
+        if not self.current_resource:
             raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
 
         if self.state == 'present':
-            exit_status = self.__update(self.data, resource)
+            exit_status = self.__update()
         elif self.state == 'refresh_state_set':
-            exit_status = self.__set_refresh_state(self.data, resource)
+            exit_status = self.__set_refresh_state()
         elif self.state == 'endpoints_csv_file_created':
-            exit_status = self.__create_endpoints_csv_file(resource)
+            exit_status = self.__create_endpoints_csv_file()
         elif self.state == 'issues_report_created':
-            exit_status = self.__create_issue_report(resource)
+            exit_status = self.__create_issue_report()
 
         return dict(exit_status)
 
-    def __get_resource(self, data):
-        return self.oneview_client.managed_sans.get_by_name(data['name'])
+    def __update(self):
+        merged_data = self.current_resource.data.copy()
+        merged_data.update(self.data)
 
-    def __update(self, data, resource):
-        merged_data = resource.copy()
-        merged_data.update(data)
-
-        if compare(resource, merged_data):
+        if compare(self.current_resource.data, merged_data):
             changed = False
             msg = self.MSG_NO_CHANGES_PROVIDED
         else:
             changed = True
-            resource = self.oneview_client.managed_sans.update(resource['uri'], data)
+            self.current_resource.update(self.data)
             msg = self.MSG_UPDATED
 
         return dict(changed=changed,
                     msg=msg,
-                    ansible_facts=dict(managed_san=resource))
+                    ansible_facts=dict(managed_san=self.current_resource.data))
 
-    def __set_refresh_state(self, data, resource):
-        resource = self.oneview_client.managed_sans.update(resource['uri'], data['refreshStateData'])
+    def __set_refresh_state(self):
+        self.current_resource.update(self.data['refreshStateData'])
 
         return dict(changed=True,
                     msg=self.MSG_REFRESH_STATE_UPDATED,
-                    ansible_facts=dict(managed_san=resource))
+                    ansible_facts=dict(managed_san=self.current_resource.data))
 
-    def __create_endpoints_csv_file(self, resource):
-        resource = self.oneview_client.managed_sans.create_endpoints_csv_file(resource['uri'])
+    def __create_endpoints_csv_file(self):
+        resource = self.current_resource.create_endpoints_csv_file()
 
         return dict(changed=True,
                     msg=self.MSG_ENDPOINTS_CSV_FILE_CREATED,
                     ansible_facts=dict(managed_san_endpoints=resource))
 
-    def __create_issue_report(self, resource):
-        resource = self.oneview_client.managed_sans.create_issues_report(resource['uri'])
+    def __create_issue_report(self):
+        resource = self.current_resource.create_issues_report()
 
         return dict(changed=True,
                     msg=self.MSG_ISSUES_REPORT_CREATED,
