@@ -1,6 +1,6 @@
 # Ansible Modules for HPE OneView Change Log
 
-## v5.3.0 (Unreleased)
+## v5.3.0
 
 This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1).
 
