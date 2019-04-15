@@ -5599,7 +5599,7 @@ Manage OneView Logical Interconnect resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -5621,7 +5621,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: compliant
     data:
       name: "Name of the Logical Interconnect"
@@ -5631,7 +5631,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: ethernet_settings_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5643,7 +5643,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: internal_networks_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5657,7 +5657,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: settings_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5669,7 +5669,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: forwarding_information_base_generated
     data:
       name: "Name of the Logical Interconnect"  # could also be 'uri'
@@ -5679,7 +5679,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: qos_aggregated_configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5697,7 +5697,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: snmp_configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5709,7 +5709,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: port_monitor_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5721,7 +5721,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5731,7 +5731,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: firmware_installed
     data:
       name: "Name of the Logical Interconnect"
@@ -5744,7 +5744,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: telemetry_configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5807,7 +5807,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -5815,7 +5815,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Logical Interconnect name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Logical Interconnect. Options allowed: `qos_aggregated_configuration` gets the QoS aggregated configuration for the logical interconnect. `snmp_configuration` gets the SNMP configuration for a logical interconnect. `port_monitor` gets the port monitor configuration of a logical interconnect. `internal_vlans` gets the internal VLAN IDs for the provisioned networks on a logical interconnect. `forwarding_information_base` gets the forwarding information base data for a logical interconnect. `firmware` get the installed firmware for a logical interconnect. `unassigned_uplink_ports` gets a collection of uplink ports from the member interconnects which are eligible for assignment to an analyzer port. `telemetry_configuration` gets the telemetry configuration of the logical interconnect. `ethernet_settings` gets the Ethernet interconnect settings for the Logical Interconnect. - These options are valid just when a `name` is provided. Otherwise it will be ignored.  |
+| options  |   No  |  | |  List with options to gather additional facts about Logical Interconnect. Options allowed: `qos_aggregated_configuration` gets the QoS aggregated configuration for the logical interconnect. `snmp_configuration` gets the SNMP configuration for a logical interconnect. `port_monitor` gets the port monitor configuration of a logical interconnect. `internal_vlans` gets the internal VLAN IDs for the provisioned networks on a logical interconnect. `forwarding_information_base` gets the forwarding information base data for a logical interconnect. `firmware` get the installed firmware for a logical interconnect. `unassigned_ports` gets a collection of ports from the member interconnects which are eligible for assignment to an analyzer port. `unassigned_uplink_ports` gets a collection of uplink ports from the member interconnects which are eligible for assignment to an analyzer port. `telemetry_configuration` gets the telemetry configuration of the logical interconnect. `ethernet_settings` gets the Ethernet interconnect settings for the Logical Interconnect. - These options are valid just when a `name` is provided. Otherwise it will be ignored.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
@@ -5829,7 +5829,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
 
 - debug: var=logical_interconnects
 
@@ -5838,7 +5838,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -5851,7 +5851,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Name of the Logical Interconnect"
     options:
       - qos_aggregated_configuration
@@ -5864,7 +5864,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Name of the Logical Interconnect"
     options:
       - qos_aggregated_configuration
@@ -5874,6 +5874,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
       - forwarding_information_base
       - firmware
       - unassigned_uplink_ports
+      - unassigned_ports
       - telemetry_configuration
       - ethernet_settings
 
@@ -5885,6 +5886,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 - debug: var=forwarding_information_base
 - debug: var=firmware
 - debug: var=unassigned_uplink_ports
+- debug: var=unassigned_ports
 - debug: var=telemetry_configuration
 - debug: var=ethernet_settings
 
@@ -5905,6 +5907,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 | qos_aggregated_configuration   | The QoS aggregated configuration for the logical interconnect. |  When requested, but can be null. |  dict |
 | snmp_configuration   | The SNMP configuration for a logical interconnect. |  When requested, but can be null. |  dict |
 | telemetry_configuration   | The telemetry configuration of the logical interconnect. |  When requested, but can be null. |  dict |
+| unassigned_ports   | A collection of ports from the member interconnects which are eligible for assignment to an analyzer port on a logical interconnect. |  When requested, but can be null. |  dict |
 | unassigned_uplink_ports   | A collection of uplink ports from the member interconnects which are eligible for assignment to an analyzer port on a logical interconnect. |  When requested, but can be null. |  dict |
 
 

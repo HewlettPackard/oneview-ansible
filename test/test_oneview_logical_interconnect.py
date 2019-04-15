@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -235,7 +235,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalInterconnectModule.MSG_NO_OPTIONS_PROVIDED)
 
     def test_should_return_to_a_consistent_state(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.update_compliance.return_value = LOGICAL_INTERCONNECT
 
         self.mock_ansible_module.params = PARAMS_COMPLIANCE
@@ -258,7 +258,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalInterconnectModule.MSG_NOT_FOUND)
 
     def test_should_update_ethernet_settings(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.update_ethernet_settings.return_value = LOGICAL_INTERCONNECT
 
         self.mock_ansible_module.params = PARAMS_ETHERNET_SETTINGS
@@ -272,19 +272,18 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         )
 
     def test_should_update_ethernet_with_merged_data(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.update_ethernet_settings.return_value = LOGICAL_INTERCONNECT
 
         self.mock_ansible_module.params = PARAMS_ETHERNET_SETTINGS
 
         LogicalInterconnectModule().run()
 
-        expected_uri = '/rest/logical-interconnects/id'
         expected_data = {'enableIgmpSnooping': True, 'macRefreshInterval': 7}
-        self.resource.update_ethernet_settings.assert_called_once_with(expected_uri, expected_data)
+        self.resource.update_ethernet_settings.assert_called_once_with(expected_data)
 
     def test_should_do_nothing_when_no_changes_ethernet_settings(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.update_ethernet_settings.return_value = LOGICAL_INTERCONNECT
 
         self.mock_ansible_module.params = PARAMS_ETHERNET_SETTINGS_NO_CHANGES
@@ -296,7 +295,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
             msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED)
 
     def test_should_update_internal_networks(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.mock_ov_client.ethernet_networks.get_by.side_effect = [[{'uri': '/path/1'}], [{'uri': '/path/2'}]]
         self.resource.update_internal_networks.return_value = LOGICAL_INTERCONNECT
 
@@ -311,7 +310,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         )
 
     def test_should_update_internal_networks_with_given_list(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.mock_ov_client.ethernet_networks.get_by.side_effect = [[{'uri': '/path/1'}], [{'uri': '/path/2'}]]
         self.resource.update_internal_networks.return_value = LOGICAL_INTERCONNECT
 
@@ -319,13 +318,12 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
 
         LogicalInterconnectModule().run()
 
-        expected_uri = '/rest/logical-interconnects/id'
         expected_list = ['/path/1', '/path/2', '/path/3']
-        self.resource.update_internal_networks.assert_called_once_with(expected_uri,
-                                                                       expected_list)
+        self.resource.update_internal_networks.assert_called_once_with(
+            expected_list)
 
     def test_should_fail_when_ethernet_network_not_found(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.mock_ov_client.ethernet_networks.get_by.side_effect = [[{'uri': '/path/1'}], []]
         self.resource.update_internal_networks.return_value = {}
 
@@ -337,7 +335,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
             exception=mock.ANY, msg=LogicalInterconnectModule.MSG_ETH_NETWORK_NOT_FOUND + "Network Name 2")
 
     def test_should_update_settings(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.update_settings.return_value = LOGICAL_INTERCONNECT
 
         self.mock_ansible_module.params = PARAMS_SETTINGS
@@ -351,14 +349,13 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         )
 
     def test_should_update_settings_ethernet(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.update_settings.return_value = LOGICAL_INTERCONNECT
 
         self.mock_ansible_module.params = PARAMS_SETTINGS_ETHERNET
 
         LogicalInterconnectModule().run()
 
-        expected_uri = '/rest/logical-interconnects/id'
         expected_settings = {
             'ethernetSettings': {
                 'enableIgmpSnooping': True,
@@ -368,17 +365,16 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
                 'fcoeMode': 'Unknown'
             }
         }
-        self.resource.update_settings.assert_called_once_with(expected_uri, expected_settings)
+        self.resource.update_settings.assert_called_once_with(expected_settings)
 
     def test_should_update_fcoe_settings(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.update_settings.return_value = LOGICAL_INTERCONNECT
 
         self.mock_ansible_module.params = PARAMS_SETTTINGS_FCOE
 
         LogicalInterconnectModule().run()
 
-        expected_uri = '/rest/logical-interconnects/id'
         expected_settings = {
             'ethernetSettings': {
                 'enableIgmpSnooping': True,
@@ -388,10 +384,10 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
                 'fcoeMode': 'NotApplicable'
             }
         }
-        self.resource.update_settings.assert_called_once_with(expected_uri, expected_settings)
+        self.resource.update_settings.assert_called_once_with(expected_settings)
 
     def test_update_settings_should_do_nothing_when_data_was_not_modified(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.update_settings.return_value = LOGICAL_INTERCONNECT
 
         params = PARAMS_SETTINGS.copy()
@@ -420,7 +416,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalInterconnectModule.MSG_NO_OPTIONS_PROVIDED)
 
     def test_should_generate_interconnect_fib(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.create_forwarding_information_base.return_value = self.response_body
 
         self.mock_ansible_module.params = PARAMS_GENERATE_FIB
@@ -434,7 +430,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         )
 
     def test_should_update_qos_aggreg_config(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_qos_aggregated_configuration.return_value = self.qos_config
         self.resource.update_qos_aggregated_configuration.return_value = self.qos_config
 
@@ -449,7 +445,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_no_changes_qos(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_qos_aggregated_configuration.return_value = self.qos_config
 
         self.mock_ansible_module.params = PARAMS_QOS_AGGREG_NO_CHANGES
@@ -461,7 +457,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
             msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED)
 
     def test_should_update_snmp_configuration(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_snmp_configuration.return_value = self.snmp_config
         self.resource.update_snmp_configuration.return_value = self.snmp_config
 
@@ -476,7 +472,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_no_changes_snmp(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_snmp_configuration.return_value = self.snmp_config
         self.resource.update_snmp_configuration.return_value = self.snmp_config
 
@@ -489,7 +485,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
             msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED)
 
     def test_should_update_port_monitor_configuration(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_port_monitor.return_value = self.monitor_config
         self.resource.update_port_monitor.return_value = self.monitor_config
 
@@ -504,7 +500,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_no_changes_port_monitor(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_port_monitor.return_value = self.monitor_config
         self.resource.update_port_monitor.return_value = self.monitor_config
 
@@ -517,7 +513,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
             msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED)
 
     def test_should_update_configuration(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.update_configuration.return_value = LOGICAL_INTERCONNECT
 
         self.mock_ansible_module.params = PARAMS_CONFIGURATION
@@ -531,7 +527,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         )
 
     def test_should_install_firmware(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.install_firmware.return_value = self.response
 
         self.mock_ansible_module.params = PARAMS_FIRMWARE_WITH_SPP_NAME
@@ -545,27 +541,27 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         )
 
     def test_should_install_firmware_when_spp_name_set(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.install_firmware.return_value = self.response
 
         self.mock_ansible_module.params = PARAMS_FIRMWARE_WITH_SPP_NAME
 
         LogicalInterconnectModule().run()
 
-        self.resource.install_firmware.assert_called_once_with(self.expected_data, mock.ANY)
+        self.resource.install_firmware.assert_called_once_with(self.expected_data)
 
     def test_should_update_firmware_when_spp_uri_set(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.install_firmware.return_value = self.response
 
         self.mock_ansible_module.params = PARAMS_FIRMWARE_WITH_SPP_URI
 
         LogicalInterconnectModule().run()
 
-        self.resource.install_firmware.assert_called_once_with(self.expected_data, mock.ANY)
+        self.resource.install_firmware.assert_called_once_with(self.expected_data)
 
     def test_update_telemetry_configuration(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
         self.resource.update_telemetry_configurations.return_value = LOGICAL_INTERCONNECT
 
         telemetry_config = LOGICAL_INTERCONNECT['telemetryConfiguration']
@@ -574,8 +570,9 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
 
         LogicalInterconnectModule().run()
 
-        self.resource.update_telemetry_configurations.assert_called_once_with(self.telemetry_config_uri,
-                                                                              TELEMETRY_CONFIG)
+        self.resource.update_telemetry_configurations.assert_called_once_with(
+            TELEMETRY_CONFIG)
+
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=LogicalInterconnectModule.MSG_TELEMETRY_CONFIGURATION_UPDATED,
@@ -583,7 +580,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         )
 
     def test_update_scopes_when_different(self):
-        self.resource.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = LOGICAL_INTERCONNECT
 
         params_to_scope = PARAMS_SCOPES.copy()
         params_to_scope['data']['scopeUris'] = ['test']
@@ -591,12 +588,13 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
 
         patch_return = LOGICAL_INTERCONNECT.copy()
         patch_return['scopeUris'] = ['test']
-        self.resource.patch.return_value = patch_return
+        obj = mock.Mock()
+        obj.data = patch_return
+        self.resource.patch.return_value = obj
 
         LogicalInterconnectModule().run()
 
-        self.resource.patch.assert_called_once_with('/rest/logical-interconnects/id',
-                                                    operation='replace',
+        self.resource.patch.assert_called_once_with(operation='replace',
                                                     path='/scopeUris',
                                                     value=['test'])
 
@@ -613,7 +611,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
 
         resource_data = LOGICAL_INTERCONNECT.copy()
         resource_data['scopeUris'] = ['test']
-        self.resource.get_by_name.return_value = resource_data
+        self.resource.data = resource_data
 
         LogicalInterconnectModule().run()
 
