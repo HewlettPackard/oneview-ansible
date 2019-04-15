@@ -399,6 +399,28 @@ class TestServerProfileModule(OneViewBaseTest):
             ansible_facts=mock_facts
         )
 
+    def test_get_available_servers_without_enclosure_and_hardware_type_uri(self):
+        param_for_present = deepcopy(PARAMS_FOR_PRESENT)
+        param_for_present['data']['serverHardwareTypeUri'] = None
+        param_for_present['data']['enclosureGroupUri'] = None
+
+        self.resource.get_by_name.return_value = None
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = {}
+
+        self.mock_ansible_module.params = param_for_present
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
+        mock_facts['server_hardware'] = None
+
+        ServerProfileModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerProfileModule.MSG_CREATED,
+            ansible_facts=mock_facts
+        )
+
     def test_should_create_with_informed_hardware_and_template_when_not_exists(self):
         template = deepcopy(BASIC_TEMPLATE)
 

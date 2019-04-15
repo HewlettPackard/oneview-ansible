@@ -520,6 +520,7 @@ class ServerProfileModule(OneViewModule):
 
         if not enclosure_group and not server_hardware_type:
             return
+
         self.module.log(msg="Finding an available server hardware")
         available_server_hardware = self.resource_client.get_available_servers(
             enclosureGroupUri=enclosure_group,
