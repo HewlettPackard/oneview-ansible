@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.5.0"
+    - "hpOneView >= 5.0.0"
 author: "Bruno Souza (@bsouza)"
 options:
     name:
@@ -62,7 +62,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -78,7 +78,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "ProfileTemplate101"
 
 - name: Gather facts about a Server Profile by uri
@@ -86,7 +86,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     uri: /rest/server-profile-templates/c0868397-eff6-49ed-8151-4338702792d3
   delegate_to: localhost
 
@@ -95,7 +95,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "ProfileTemplate101"
     options:
       - new_profile
@@ -105,7 +105,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     options:
       - available_networks:
           serverHardwareTypeUri: "/rest/server-hardware-types/253F1D49-0FEE-4DCD-B14C-B26234E9D414"
@@ -132,10 +132,10 @@ server_profile_template_available_networks:
     type: dict
 
 '''
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class ServerProfileTemplateFactsModule(OneViewModuleBase):
+class ServerProfileTemplateFactsModule(OneViewModule):
     argument_spec = dict(
         name=dict(type='str'),
         options=dict(type='list'),
@@ -146,16 +146,14 @@ class ServerProfileTemplateFactsModule(OneViewModuleBase):
     def __init__(self):
         super(ServerProfileTemplateFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
 
-        self.resource_client = self.oneview_client.server_profile_templates
+        self.set_resource_object(self.oneview_client.server_profile_templates)
 
     def execute_module(self):
         name = self.module.params.get("name")
         uri = self.module.params.get("uri")
 
-        if name:
-            facts = self.__get_by_attribute(name, 'name')
-        elif uri:
-            facts = self.__get_by_attribute(uri, 'uri')
+        if name or uri:
+            facts = self.__get_options(name, uri)
         elif self.options and self.options.get("available_networks"):
             network_params = self.options["available_networks"]
             facts = {"server_profile_template_available_networks": self.resource_client.get_available_networks(**network_params)}
@@ -164,27 +162,21 @@ class ServerProfileTemplateFactsModule(OneViewModuleBase):
 
         return dict(changed=False, ansible_facts=facts)
 
-    def __get_by_attribute(self, attribute_value, attribute_name):
-        if attribute_name == 'name':
-            template = self.resource_client.get_by_name(name=attribute_value)
-        else:
-            template = self.resource_client.get(attribute_value)
-        if not template:
+    def __get_options(self, name, uri):
+        if not name and uri:
+            self.current_resource = self.resource_client.get_by_uri(uri)
+        if not self.current_resource:
             return dict(server_profile_templates=[])
 
-        facts = dict(server_profile_templates=[template])
+        facts = dict(server_profile_templates=[self.current_resource.data])
 
         if self.options:
-
             if "new_profile" in self.options:
-                facts["new_profile"] = self.resource_client.get_new_profile(id_or_uri=template["uri"])
+                facts["new_profile"] = self.current_resource.get_new_profile()
 
             if "transformation" in self.options:
                 tranformation_data = self.options.get('transformation')
-                facts["transformation"] = self.resource_client.get_transformation(
-                    id_or_uri=template["uri"],
-                    **tranformation_data
-                )
+                facts["transformation"] = self.current_resource.get_transformation(**tranformation_data)
 
         return facts
 

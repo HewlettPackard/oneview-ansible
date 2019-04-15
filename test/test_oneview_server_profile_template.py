@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019 Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -90,8 +90,10 @@ PARAMS_FOR_ABSENT = dict(
 @pytest.mark.resource(TestServerProfileTemplateModule='server_profile_templates')
 class TestServerProfileTemplateModule(OneViewBaseTest):
     def test_should_create_new_template_when_it_not_exists(self):
-        self.resource.get_by_name.return_value = []
-        self.resource.create.return_value = CREATED_BASIC_TEMPLATE
+        self.resource.get_by_name.return_value = None
+        obj = mock.Mock()
+        obj.data = CREATED_BASIC_TEMPLATE
+        self.resource.create.return_value = obj
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -104,7 +106,7 @@ class TestServerProfileTemplateModule(OneViewBaseTest):
         )
 
     def test_should_not_modify_when_template_already_exists(self):
-        self.resource.get_by_name.return_value = CREATED_BASIC_TEMPLATE
+        self.resource.data = CREATED_BASIC_TEMPLATE
         self.resource.create.return_value = CREATED_BASIC_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
@@ -118,7 +120,7 @@ class TestServerProfileTemplateModule(OneViewBaseTest):
         )
 
     def test_should_update_when_data_has_modified_attributes(self):
-        self.resource.get_by_name.return_value = CREATED_BASIC_TEMPLATE
+        self.resource.data = CREATED_BASIC_TEMPLATE
         self.resource.update.return_value = CREATED_BASIC_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_UPDATE
@@ -128,8 +130,7 @@ class TestServerProfileTemplateModule(OneViewBaseTest):
         expected = CREATED_BASIC_TEMPLATE.copy()
         expected.update(BASIC_TEMPLATE_MODIFIED)
 
-        self.resource.update.assert_called_once_with(resource=expected,
-                                                     id_or_uri=expected["uri"])
+        self.resource.update.assert_called_once_with(expected)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -138,7 +139,7 @@ class TestServerProfileTemplateModule(OneViewBaseTest):
         )
 
     def test_update_using_names_for_dependecies(self):
-        self.resource.get_by_name.return_value = CREATED_BASIC_TEMPLATE
+        self.resource.data = CREATED_BASIC_TEMPLATE
         self.resource.update.return_value = CREATED_BASIC_TEMPLATE
         self.mock_ov_client.enclosure_groups.get_by.return_value = [{'uri': ENCLOSURE_GROUP_URI}]
         self.mock_ov_client.server_hardware_types.get_by.return_value = [{'uri': SHT_URI}]
@@ -150,8 +151,7 @@ class TestServerProfileTemplateModule(OneViewBaseTest):
         expected = CREATED_BASIC_TEMPLATE.copy()
         expected.update(BASIC_TEMPLATE_MODIFIED)
 
-        self.resource.update.assert_called_once_with(resource=expected,
-                                                     id_or_uri=expected["uri"])
+        self.resource.update.assert_called_once_with(expected)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -160,7 +160,7 @@ class TestServerProfileTemplateModule(OneViewBaseTest):
         )
 
     def test_should_fail_when_server_hardware_type_not_found(self):
-        self.resource.get_by_name.return_value = CREATED_BASIC_TEMPLATE
+        self.resource.data = CREATED_BASIC_TEMPLATE
         self.resource.update.return_value = CREATED_BASIC_TEMPLATE
         self.mock_ov_client.enclosure_groups.get_by.return_value = [{'uri': ENCLOSURE_GROUP_URI}]
         self.mock_ov_client.server_hardware_types.get_by.return_value = []
@@ -173,7 +173,7 @@ class TestServerProfileTemplateModule(OneViewBaseTest):
             exception=mock.ANY, msg=ServerProfileTemplateModule.MSG_SRV_HW_TYPE_NOT_FOUND + 'Srv HW Type Name')
 
     def test_should_fail_when_enclosure_group_not_found(self):
-        self.resource.get_by_name.return_value = CREATED_BASIC_TEMPLATE
+        self.resource.data = CREATED_BASIC_TEMPLATE
         self.resource.update.return_value = CREATED_BASIC_TEMPLATE
         self.mock_ov_client.enclosure_groups.get_by.return_value = []
         self.mock_ov_client.server_hardware_types.get_by.return_value = [{'uri': SHT_URI}]
@@ -186,13 +186,13 @@ class TestServerProfileTemplateModule(OneViewBaseTest):
             exception=mock.ANY, msg=ServerProfileTemplateModule.MSG_ENCLOSURE_GROUP_NOT_FOUND + 'EG Name')
 
     def test_should_delete_when_template_exists(self):
-        self.resource.get_by_name.return_value = CREATED_BASIC_TEMPLATE
+        self.resource.data = CREATED_BASIC_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         ServerProfileTemplateModule().run()
 
-        self.resource.delete.assert_called_once_with(CREATED_BASIC_TEMPLATE)
+        self.resource.delete.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -216,13 +216,14 @@ class TestServerProfileTemplateModule(OneViewBaseTest):
         modified_data['name'] = None
         params_with_sp = deepcopy(PARAMS_FOR_PRESENT)
         params_with_sp['data'] = dict(name='ProfileTemplate101', serverProfileName='sp1')
-        self.mock_ov_client.server_profiles.get_by.return_value = [dict(name='ProfileTemplate101',
-                                                                        serverProfileName='sp1',
-                                                                        uri='fake')]
-        self.mock_ov_client.server_profiles.get_new_profile_template.return_value = modified_data
+        profile_obj = self.mock_ov_client.server_profiles
+        profile_obj.get_new_profile_template.return_value = modified_data
+        self.mock_ov_client.server_profiles.get_by_name.return_value = profile_obj
+        self.resource.get_by_name.return_value = None
 
-        self.resource.get_by_name.return_value = []
-        self.resource.create.return_value = CREATED_BASIC_TEMPLATE
+        obj = mock.Mock()
+        obj.data = CREATED_BASIC_TEMPLATE
+        self.resource.create.return_value = obj
 
         self.mock_ansible_module.params = params_with_sp
 
