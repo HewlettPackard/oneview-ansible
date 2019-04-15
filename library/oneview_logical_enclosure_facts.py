@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.5.0"
+    - "hpOneView >= 5.0.0"
 author:
     - "Gustavo Hennig (@GustavoHennig)"
     - "Mariana Kreisig (@marikrg)"
@@ -55,7 +55,7 @@ EXAMPLES = '''
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 600
+      api_version: 800
   delegate_to: localhost
 
 - debug: var=logical_enclosures
@@ -65,7 +65,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -80,7 +80,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Encl1"
   delegate_to: localhost
 
@@ -91,7 +91,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     name: "Encl1"
     options:
       - script
@@ -113,10 +113,10 @@ logical_enclosure_script:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class LogicalEnclosureFactsModule(OneViewModuleBase):
+class LogicalEnclosureFactsModule(OneViewModule):
     argument_spec = dict(
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
@@ -125,30 +125,27 @@ class LogicalEnclosureFactsModule(OneViewModuleBase):
 
     def __init__(self):
         super(LogicalEnclosureFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.set_resource_object(self.oneview_client.logical_enclosures)
 
     def execute_module(self):
-
         ansible_facts = {}
 
         if self.module.params.get('name'):
-            logical_enclosures = self.oneview_client.logical_enclosures.get_by('name', self.module.params['name'])
-
+            logical_enclosures = self.current_resource.data if self.current_resource else []
             if self.options and logical_enclosures:
-                ansible_facts = self.__gather_optional_facts(self.options, logical_enclosures[0])
+                ansible_facts = self.__gather_optional_facts()
         else:
-            logical_enclosures = self.oneview_client.logical_enclosures.get_all(**self.facts_params)
+            logical_enclosures = self.resource_client.get_all(**self.facts_params)
 
         ansible_facts['logical_enclosures'] = logical_enclosures
 
         return dict(changed=False, ansible_facts=ansible_facts)
 
-    def __gather_optional_facts(self, options, logical_enclosure):
-
-        logical_enclosure_client = self.oneview_client.logical_enclosures
+    def __gather_optional_facts(self):
         ansible_facts = {}
 
-        if options.get('script'):
-            ansible_facts['logical_enclosure_script'] = logical_enclosure_client.get_script(logical_enclosure['uri'])
+        if self.options.get('script'):
+            ansible_facts['logical_enclosure_script'] = self.current_resource.get_script()
 
         return ansible_facts
 

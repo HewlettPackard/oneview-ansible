@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -126,8 +126,9 @@ class TestServerHardwareModule(OneViewBaseTest):
     """
 
     def test_should_add_new_server_hardware(self):
-        self.resource.get_by.return_value = []
-        self.resource.add.return_value = {"name": "name"}
+        self.resource.get_by_name.return_value = []
+        self.resource.data = {"name": "name"}
+        self.resource.add.return_value = self.resource
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_PRESENT)
 
@@ -140,7 +141,7 @@ class TestServerHardwareModule(OneViewBaseTest):
         )
 
     def test_should_not_add_when_it_already_exists(self):
-        self.resource.get_by.return_value = [{"name": "name"}]
+        self.resource.data = {"name": "name"}
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_PRESENT)
 
@@ -153,7 +154,7 @@ class TestServerHardwareModule(OneViewBaseTest):
         )
 
     def test_should_add_multiple_servers(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
 
         self.resource.add_multiple_servers.return_value = {'name': 'name'}
 
@@ -168,8 +169,7 @@ class TestServerHardwareModule(OneViewBaseTest):
         )
 
     def test_should_calibrate_max_power_server_hardware(self):
-        self.resource.get_by.return_value = [{"name": "name",
-                                              "uri": "uri"}]
+        self.resource.data = [{"name": "name", "uri": "uri"}]
 
         self.resource.update_environmental_configuration.return_value = {"name": "name"}
 
@@ -205,7 +205,7 @@ class TestServerHardwareModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ServerHardwareModule.MSG_MANDATORY_FIELD_MISSING.format('data.name'))
 
     def test_should_remove_server_hardware(self):
-        self.resource.get_by.return_value = [{'name': 'name'}]
+        self.resource.data = {'name': 'name'}
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_ABSENT)
 
@@ -217,7 +217,7 @@ class TestServerHardwareModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_server_hardware_not_exist(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_ABSENT)
 
@@ -229,7 +229,7 @@ class TestServerHardwareModule(OneViewBaseTest):
         )
 
     def test_should_set_power_state(self):
-        self.resource.get_by.return_value = [{"uri": "resourceuri"}]
+        self.resource.data = {"uri": "resourceuri"}
         self.resource.update_power_state.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_POWER_STATE)
@@ -243,7 +243,7 @@ class TestServerHardwareModule(OneViewBaseTest):
         )
 
     def test_should_fail_when_set_power_state_and_server_hardware_was_not_found(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_POWER_STATE)
 
@@ -252,7 +252,7 @@ class TestServerHardwareModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ServerHardwareModule.MSG_SERVER_HARDWARE_NOT_FOUND)
 
     def test_should_set_refresh_state(self):
-        self.resource.get_by.return_value = [{"uri": "resourceuri"}]
+        self.resource.data = {"uri": "resourceuri"}
         self.resource.refresh_state.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_REFRESH_STATE)
@@ -266,7 +266,7 @@ class TestServerHardwareModule(OneViewBaseTest):
         )
 
     def test_should_fail_when_set_refresh_state_and_server_hardware_was_not_found(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_REFRESH_STATE)
 
@@ -275,7 +275,7 @@ class TestServerHardwareModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ServerHardwareModule.MSG_SERVER_HARDWARE_NOT_FOUND)
 
     def test_should_set_ilo_firmware(self):
-        self.resource.get_by.return_value = [{"uri": "resourceuri"}]
+        self.resource.data = {"uri": "resourceuri"}
         self.resource.update_mp_firware_version.return_value = {"name": "name"}
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_ILO_FIRMWARE)
@@ -289,7 +289,7 @@ class TestServerHardwareModule(OneViewBaseTest):
         )
 
     def test_should_fail_when_set_ilo_firmware_and_server_hardware_was_not_found(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = []
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_ILO_FIRMWARE)
 
@@ -300,46 +300,44 @@ class TestServerHardwareModule(OneViewBaseTest):
     def test_should_reset_ilo_state(self):
         server_hardware_uri = "resourceuri"
 
-        self.resource.get_by.return_value = [{"uri": server_hardware_uri}]
-        self.resource.patch.return_value = {"name": "name"}
+        self.resource.data = {"uri": server_hardware_uri}
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_ILO_STATE_RESET)
 
         ServerHardwareModule().run()
 
         patch_params = ServerHardwareModule.patch_params['ilo_state_reset']
-        self.resource.patch.assert_called_once_with(id_or_uri=server_hardware_uri, **patch_params)
+        self.resource.patch.assert_called_once_with(**patch_params)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ServerHardwareModule.MSG_ILO_STATE_RESET,
-            ansible_facts=dict(server_hardware={"name": "name"})
+            ansible_facts=dict(server_hardware=self.resource.data)
         )
 
     def test_should_set_on_the_uid_state(self):
         server_hardware_uri = "resourceuri"
 
-        self.resource.get_by.return_value = [{"uri": server_hardware_uri, "uidState": "Off"}]
-        self.resource.patch.return_value = {"name": "name"}
+        self.resource.data = {"uri": server_hardware_uri, "uidState": "Off"}
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_UID_STATE_ON)
 
         ServerHardwareModule().run()
 
         patch_params = ServerHardwareModule.patch_params['uid_state_on']
-        self.resource.patch.assert_called_once_with(id_or_uri=server_hardware_uri, **patch_params)
+        self.resource.patch.assert_called_once_with(**patch_params)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ServerHardwareModule.MSG_UID_STATE_CHANGED,
-            ansible_facts=dict(server_hardware={"name": "name"})
+            ansible_facts=dict(server_hardware=self.resource.data)
         )
 
     def test_should_not_set_when_the_uid_state_is_already_on(self):
         server_hardware_uri = "resourceuri"
         server_hardware = {"uri": server_hardware_uri, "uidState": "On"}
 
-        self.resource.get_by.return_value = [server_hardware]
+        self.resource.data = server_hardware
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_UID_STATE_ON)
 
@@ -355,27 +353,26 @@ class TestServerHardwareModule(OneViewBaseTest):
     def test_should_set_off_the_uid_state(self):
         server_hardware_uri = "resourceuri"
 
-        self.resource.get_by.return_value = [{"uri": server_hardware_uri, "uidState": "On"}]
-        self.resource.patch.return_value = {"name": "name"}
+        self.resource.data = {"uri": server_hardware_uri, "uidState": "On"}
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_UID_STATE_OFF)
 
         ServerHardwareModule().run()
 
         patch_params = ServerHardwareModule.patch_params['uid_state_off']
-        self.resource.patch.assert_called_once_with(id_or_uri=server_hardware_uri, **patch_params)
+        self.resource.patch.assert_called_once_with(**patch_params)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ServerHardwareModule.MSG_UID_STATE_CHANGED,
-            ansible_facts=dict(server_hardware={"name": "name"})
+            ansible_facts=dict(server_hardware=self.resource.data)
         )
 
     def test_should_not_set_when_the_uid_state_is_already_off(self):
         server_hardware_uri = "resourceuri"
         server_hardware = {"uri": server_hardware_uri, "uidState": "Off"}
 
-        self.resource.get_by.return_value = [server_hardware]
+        self.resource.data = server_hardware
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_UID_STATE_OFF)
 
@@ -397,14 +394,14 @@ class TestServerHardwareModule(OneViewBaseTest):
         get_results['uri'] = '/rest/server-hardware/fake'
         self.mock_ansible_module.params = params_to_scope
 
-        self.resource.get_by.return_value = [get_results]
-
-        self.resource.patch.return_value = params_to_scope['data']
+        self.resource.data = get_results
+        obj = mock.Mock()
+        obj.data = params_to_scope['data']
+        self.resource.patch.return_value = obj
 
         ServerHardwareModule().run()
 
-        self.resource.patch.assert_called_once_with('/rest/server-hardware/fake',
-                                                    operation='replace',
+        self.resource.patch.assert_called_once_with(operation='replace',
                                                     path='/scopeUris',
                                                     value=['/fake/test'])
 
@@ -421,7 +418,7 @@ class TestServerHardwareModule(OneViewBaseTest):
         get_results['password'] = None
         self.mock_ansible_module.params = params_to_scope
 
-        self.resource.get_by.return_value = [get_results]
+        self.resource.data = get_results
 
         ServerHardwareModule().run()
 

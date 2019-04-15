@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 ###
 
 import pytest
+import mock
 
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import SasLogicalInterconnectGroupModule
@@ -68,9 +69,10 @@ class TestSasLogicalInterconnectGroupModule(OneViewBaseTest):
     """
 
     def test_should_create(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = DEFAULT_SAS_LIG_TEMPLATE
-
+        self.resource.get_by_name.return_value = None
+        obj = mock.Mock()
+        obj.data = DEFAULT_SAS_LIG_TEMPLATE
+        self.resource.create.return_value = obj
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         SasLogicalInterconnectGroupModule().run()
@@ -86,8 +88,10 @@ class TestSasLogicalInterconnectGroupModule(OneViewBaseTest):
         data_merged['name'] = RENAMED_SAS_LIG
         params_to_rename = PARAMS_TO_RENAME.copy()
 
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = DEFAULT_SAS_LIG_TEMPLATE
+        self.resource.get_by_name.return_value = None
+        obj = mock.Mock()
+        obj.data = DEFAULT_SAS_LIG_TEMPLATE
+        self.resource.create.return_value = obj
 
         self.mock_ansible_module.params = params_to_rename
 
@@ -96,7 +100,7 @@ class TestSasLogicalInterconnectGroupModule(OneViewBaseTest):
         self.resource.create.assert_called_once_with(PARAMS_TO_RENAME['data'])
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by.return_value = [DEFAULT_SAS_LIG_TEMPLATE]
+        self.resource.data = DEFAULT_SAS_LIG_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -112,8 +116,7 @@ class TestSasLogicalInterconnectGroupModule(OneViewBaseTest):
         data_merged = DEFAULT_SAS_LIG_TEMPLATE.copy()
         data_merged['description'] = 'New description'
 
-        self.resource.get_by.return_value = [DEFAULT_SAS_LIG_TEMPLATE]
-        self.resource.update.return_value = data_merged
+        self.resource.data = DEFAULT_SAS_LIG_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
@@ -122,7 +125,7 @@ class TestSasLogicalInterconnectGroupModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=SasLogicalInterconnectGroupModule.MSG_UPDATED,
-            ansible_facts=dict(sas_logical_interconnect_group=data_merged)
+            ansible_facts=dict(sas_logical_interconnect_group=self.resource.data)
         )
 
     def test_rename_when_resource_exists(self):
@@ -130,7 +133,7 @@ class TestSasLogicalInterconnectGroupModule(OneViewBaseTest):
         data_merged['name'] = RENAMED_SAS_LIG
         params_to_rename = PARAMS_TO_RENAME.copy()
 
-        self.resource.get_by.return_value = [DEFAULT_SAS_LIG_TEMPLATE]
+        self.resource.data = DEFAULT_SAS_LIG_TEMPLATE
         self.resource.update.return_value = data_merged
 
         self.mock_ansible_module.params = params_to_rename
@@ -140,7 +143,7 @@ class TestSasLogicalInterconnectGroupModule(OneViewBaseTest):
         self.resource.update.assert_called_once_with(data_merged)
 
     def test_should_remove(self):
-        self.resource.get_by.return_value = [DEFAULT_SAS_LIG_TEMPLATE]
+        self.resource.data = DEFAULT_SAS_LIG_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
@@ -152,7 +155,7 @@ class TestSasLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_resource_not_exist(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         SasLogicalInterconnectGroupModule().run()

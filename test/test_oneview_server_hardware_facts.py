@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ class TestServerHardwareFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_server_hardware_by_name(self):
-        self.resource.get_by.return_value = {"name": "Server Hardware Name"}
+        self.resource.data = {"name": "Server Hardware Name"}
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         ServerHardwareFactsModule().run()
@@ -84,7 +84,7 @@ class TestServerHardwareFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_server_hardware_by_name_with_options(self):
-        self.resource.get_by.return_value = [{"name": "Server Hardware Name", "uri": "res_uri"}]
+        self.resource.data = [{"name": "Server Hardware Name", "uri": "res_uri"}]
         self.resource.get_bios.return_value = {'subresource': 'value'}
         self.resource.get_environmental_configuration.return_value = {'subresource': 'value'}
         self.resource.get_java_remote_console_url.return_value = {'subresource': 'value'}

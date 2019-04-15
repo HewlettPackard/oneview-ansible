@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ class TestManagedSanFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_by_name(self):
-        self.resource.get_by_name.return_value = MANAGED_SAN
+        self.resource.data = MANAGED_SAN
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         ManagedSanFactsModule().run()
@@ -90,21 +90,21 @@ class TestManagedSanFactsModule(OneViewBaseFactsTest):
         endpoints = [dict(uri='/rest/fc-sans/endpoints/20:00:00:02:AC:00:08:E2'),
                      dict(uri='/rest/fc-sans/endpoints/20:00:00:02:AC:00:08:FF')]
 
-        self.resource.get_by_name.return_value = MANAGED_SAN
+        self.resource.data = MANAGED_SAN
         self.resource.get_endpoints.return_value = endpoints
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         ManagedSanFactsModule().run()
 
         self.resource.get_by_name.assert_called_once_with(MANAGED_SAN_NAME)
-        self.resource.get_endpoints.assert_called_once_with(MANAGED_SAN_URI)
+        self.resource.get_endpoints.assert_called_once_with()
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(managed_sans=[MANAGED_SAN], managed_san_endpoints=endpoints)
         )
 
     def test_should_get_managed_san_for_an_associated_wwn(self):
-        self.resource.get_by_name.return_value = MANAGED_SAN
+        self.resource.data = MANAGED_SAN
         self.resource.get_wwn.return_value = MANAGED_SAN
         self.mock_ansible_module.params = PARAMS_GET_ASSOCIATED_WWN
 

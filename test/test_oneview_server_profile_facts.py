@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 ###
 
 import pytest
+import mock
 
 from copy import deepcopy
 from hpe_test_utils import OneViewBaseFactsTest
@@ -123,9 +124,10 @@ class TestServerProfileFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_by_name(self):
-        servers = [{"name": "Server Profile Name", 'uri': '/rest/test/123'}]
-
-        self.mock_ov_client.server_profiles.get_by.return_value = servers
+        servers = {"name": "Server Profile Name", 'uri': '/rest/test/123'}
+        obj = mock.Mock()
+        obj.data = servers
+        self.mock_ov_client.server_profiles.get_by_name.return_value = obj
 
         self.mock_ansible_module.params = deepcopy(PARAMS_GET_BY_NAME)
 
@@ -133,13 +135,14 @@ class TestServerProfileFactsModule(OneViewBaseFactsTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(server_profiles=servers)
+            ansible_facts=dict(server_profiles=[servers])
         )
 
     def test_should_get_by_uri(self):
         server_profile = {"name": "Server Profile Name", 'uri': '/rest/test/123'}
-
-        self.mock_ov_client.server_profiles.get.return_value = server_profile
+        obj = mock.Mock()
+        obj.data = server_profile
+        self.mock_ov_client.server_profiles.get_by_uri.return_value = obj
 
         self.mock_ansible_module.params = deepcopy(PARAMS_GET_BY_URI)
 
@@ -152,8 +155,8 @@ class TestServerProfileFactsModule(OneViewBaseFactsTest):
 
     def test_should_get_server_profile_by_name_with_all_options(self):
         mock_option_return = {'subresource': 'value'}
-
-        self.mock_ov_client.server_profiles.get_by.return_value = [{"name": "Server Profile Name", "uri": PROFILE_URI}]
+        self.mock_ov_client.server_profiles.data = {"name": "Server Profile Name", "uri": PROFILE_URI}
+        self.mock_ov_client.server_profiles.get_by_name.return_value = self.mock_ov_client.server_profiles
         self.mock_ov_client.server_profiles.get_messages.return_value = mock_option_return
         self.mock_ov_client.server_profiles.get_transformation.return_value = mock_option_return
         self.mock_ov_client.server_profiles.get_compliance_preview.return_value = mock_option_return
@@ -170,12 +173,12 @@ class TestServerProfileFactsModule(OneViewBaseFactsTest):
 
         ServerProfileFactsModule().run()
 
-        self.mock_ov_client.server_profiles.get_messages.assert_called_once_with(PROFILE_URI)
+        self.mock_ov_client.server_profiles.get_messages.assert_called_once_with()
         self.mock_ov_client.server_profiles.get_transformation.assert_called_once_with(
-            PROFILE_URI, enclosureGroupUri=ENCLOSURE_GROUP_URI, serverHardwareTypeUri=HARDWARE_TYPE_URI,
+            enclosureGroupUri=ENCLOSURE_GROUP_URI, serverHardwareTypeUri=HARDWARE_TYPE_URI,
             serverHardwareUri=HARDWARE_URI)
-        self.mock_ov_client.server_profiles.get_compliance_preview.assert_called_once_with(PROFILE_URI)
-        self.mock_ov_client.server_profiles.get_new_profile_template.assert_called_once_with(PROFILE_URI)
+        self.mock_ov_client.server_profiles.get_compliance_preview.assert_called_once_with()
+        self.mock_ov_client.server_profiles.get_new_profile_template.assert_called_once_with()
         self.mock_ov_client.server_profiles.get_schema.assert_called_once_with()
         self.mock_ov_client.server_profiles.get_profile_ports.assert_called_once_with(
             enclosureGroupUri=ENCLOSURE_GROUP_URI,
@@ -192,8 +195,8 @@ class TestServerProfileFactsModule(OneViewBaseFactsTest):
         self.mock_ov_client.server_profiles.get_available_storage_systems.assert_called_once_with(
             enclosureGroupUri=ENCLOSURE_GROUP_URI, serverHardwareTypeUri=HARDWARE_TYPE_URI, start=1, count=15,
             filter="\"'status'='OK'\"", sort="name:ascending")
-        self.mock_ov_client.server_profiles.get_available_targets.assert_called_once_with(
-            enclosureGroupUri=ENCLOSURE_GROUP_URI, serverHardwareTypeUri=HARDWARE_TYPE_URI, profileUri=PROFILE_URI)
+        self.mock_ov_client.server_profiles.get_available_servers.assert_called_once_with(
+            enclosureGroupUri=ENCLOSURE_GROUP_URI, profileUri=PROFILE_URI, serverHardwareTypeUri=HARDWARE_TYPE_URI)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -248,8 +251,9 @@ class TestServerProfileFactsModule(OneViewBaseFactsTest):
     def test_should_get_server_profiles_with_invalid_profile_ports_option(self):
         mock_option_return = {'subresource': 'value'}
 
-        self.mock_ov_client.server_profiles.get_by.return_value = [{"name": "Server Profile Name", "uri": PROFILE_URI}]
-
+        obj = mock.Mock()
+        obj.data = {"name": "Server Profile Name", "uri": PROFILE_URI}
+        self.mock_ov_client.server_profiles.get_by_name.return_value = obj
         self.mock_ov_client.server_profiles.get_profile_ports.return_value = mock_option_return
 
         self.mock_ansible_module.params = dict(

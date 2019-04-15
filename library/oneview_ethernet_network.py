@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.0.0"
+    - "hpOneView >= 5.0.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     state:
@@ -51,7 +51,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Ensure that the Ethernet Network is present using the default configuration
   oneview_ethernet_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -59,7 +62,10 @@ EXAMPLES = '''
 
 - name: Update the Ethernet Network changing bandwidth and purpose
   oneview_ethernet_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -71,7 +77,10 @@ EXAMPLES = '''
 
 - name: Ensure that the Ethernet Network is present with name 'Renamed Ethernet Network'
   oneview_ethernet_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -79,14 +88,20 @@ EXAMPLES = '''
 
 - name: Ensure that the Ethernet Network is absent
   oneview_ethernet_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: absent
     data:
       name: 'New Ethernet Network'
 
 - name: Create Ethernet networks in bulk
   oneview_ethernet_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       vlanIdRange: '1-10,15,17'
@@ -100,7 +115,10 @@ EXAMPLES = '''
 
 - name: Reset to the default network connection template
   oneview_ethernet_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: default_bandwidth_reset
     data:
       name: 'Test Ethernet Network'
@@ -108,7 +126,10 @@ EXAMPLES = '''
 
 - name: Update the ethernet network scopes
   oneview_ethernet_network:
-    config: "{{ config_file_path }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 800
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -135,10 +156,10 @@ ethernet_network_connection_template:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, compare
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare
 
 
-class EthernetNetworkModule(OneViewModuleBase):
+class EthernetNetworkModule(OneViewModule):
     MSG_CREATED = 'Ethernet Network created successfully.'
     MSG_UPDATED = 'Ethernet Network updated successfully.'
     MSG_DELETED = 'Ethernet Network deleted successfully.'
@@ -165,35 +186,33 @@ class EthernetNetworkModule(OneViewModuleBase):
 
         super(EthernetNetworkModule, self).__init__(additional_arg_spec=argument_spec, validate_etag_support=True)
 
-        self.resource_client = self.oneview_client.ethernet_networks
+        self.set_resource_object(self.oneview_client.ethernet_networks)
+        self.connection_templates = self.oneview_client.connection_templates
 
     def execute_module(self):
 
-        changed, msg, ansible_facts, resource = False, '', {}, None
-
-        if self.data.get('name'):
-            resource = self.get_by_name(self.data['name'])
+        changed, msg, ansible_facts = False, '', {}
 
         if self.state == 'present':
             if self.data.get('vlanIdRange'):
                 changed, msg, ansible_facts = self.__bulk_present()
             else:
-                return self.__present(resource)
+                return self.__present()
         elif self.state == 'absent':
-            return self.resource_absent(resource)
+            return self.resource_absent()
         elif self.state == 'default_bandwidth_reset':
-            changed, msg, ansible_facts = self.__default_bandwidth_reset(resource)
+            changed, msg, ansible_facts = self.__default_bandwidth_reset()
 
         return dict(changed=changed, msg=msg, ansible_facts=ansible_facts)
 
-    def __present(self, resource):
+    def __present(self):
 
         bandwidth = self.data.pop('bandwidth', None)
         scope_uris = self.data.pop('scopeUris', None)
-        result = self.resource_present(resource, self.RESOURCE_FACT_NAME)
+        result = self.resource_present(self.RESOURCE_FACT_NAME)
 
         if bandwidth:
-            if self.__update_connection_template(result['ansible_facts']['ethernet_network'], bandwidth)[0]:
+            if self.__update_connection_template(bandwidth)[0]:
                 if not result['changed']:
                     result['changed'] = True
                     result['msg'] = self.MSG_UPDATED
@@ -234,34 +253,35 @@ class EthernetNetworkModule(OneViewModuleBase):
 
         return changed, msg, dict(ethernet_network_bulk=ethernet_networks)
 
-    def __update_connection_template(self, ethernet_network, bandwidth):
+    def __update_connection_template(self, bandwidth):
 
-        if 'connectionTemplateUri' not in ethernet_network:
+        if 'connectionTemplateUri' not in self.current_resource.data:
             return False, None
 
-        connection_template = self.oneview_client.connection_templates.get(ethernet_network['connectionTemplateUri'])
+        connection_template = self.connection_templates.get_by_uri(
+            self.current_resource.data['connectionTemplateUri'])
 
-        merged_data = connection_template.copy()
+        merged_data = connection_template.data.copy()
         merged_data.update({'bandwidth': bandwidth})
 
-        if not compare(connection_template, merged_data):
-            connection_template = self.oneview_client.connection_templates.update(merged_data)
-            return True, connection_template
+        if not compare(connection_template.data, merged_data):
+            connection_template.update(merged_data)
+            return True, connection_template.data
         else:
             return False, None
 
-    def __default_bandwidth_reset(self, resource):
+    def __default_bandwidth_reset(self):
 
-        if not resource:
+        if not self.current_resource:
             raise OneViewModuleResourceNotFound(self.MSG_ETHERNET_NETWORK_NOT_FOUND)
 
-        default_connection_template = self.oneview_client.connection_templates.get_default()
+        default_connection_template = self.connection_templates.get_default()
 
-        changed, connection_template = self.__update_connection_template(resource,
-                                                                         default_connection_template['bandwidth'])
+        changed, connection_template_data = self.__update_connection_template(
+            default_connection_template['bandwidth'])
 
         return changed, self.MSG_CONNECTION_TEMPLATE_RESET, dict(
-            ethernet_network_connection_template=connection_template)
+            ethernet_network_connection_template=connection_template_data)
 
 
 def main():

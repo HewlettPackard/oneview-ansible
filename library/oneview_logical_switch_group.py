@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.0.0"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -57,7 +57,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         name: "OneView Test Logical Switch Group"
@@ -77,7 +77,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
         name: "OneView Test Logical Switch Group"
@@ -99,7 +99,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: absent
     data:
         name: 'Test Logical Switch Group'
@@ -113,10 +113,10 @@ logical_switch_group:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
 
 
-class LogicalSwitchGroupModule(OneViewModuleBase):
+class LogicalSwitchGroupModule(OneViewModule):
     MSG_CREATED = 'Logical Switch Group created successfully.'
     MSG_UPDATED = 'Logical Switch Group updated successfully.'
     MSG_ALREADY_PRESENT = 'Logical Switch Group is already present.'
@@ -136,26 +136,24 @@ class LogicalSwitchGroupModule(OneViewModuleBase):
         super(LogicalSwitchGroupModule, self).__init__(additional_arg_spec=self.argument_spec,
                                                        validate_etag_support=True)
 
-        self.resource_client = self.oneview_client.logical_switch_groups
+        self.set_resource_object(self.oneview_client.logical_switch_groups)
 
     def execute_module(self):
-        resource = self.get_by_name(self.data['name'])
-
         if self.state == 'present':
-            self.__replace_name_by_uris(self.data)
-            return self.__present(resource)
+            self.__replace_name_by_uris()
+            return self.__present()
         elif self.state == 'absent':
-            return self.resource_absent(resource)
+            return self.resource_absent()
 
-    def __present(self, resource):
+    def __present(self):
         scope_uris = self.data.pop('scopeUris', None)
-        result = self.resource_present(resource, 'logical_switch_group')
+        result = self.resource_present('logical_switch_group')
         if scope_uris:
             result = self.resource_scopes_set(result, 'logical_switch_group', scope_uris)
         return result
 
-    def __replace_name_by_uris(self, resource):
-        switch_map_template = resource.get('switchMapTemplate')
+    def __replace_name_by_uris(self):
+        switch_map_template = self.data.get('switchMapTemplate')
 
         if switch_map_template:
             switch_map_entry_templates = switch_map_template.get('switchMapEntryTemplates')
@@ -163,12 +161,12 @@ class LogicalSwitchGroupModule(OneViewModuleBase):
                 for value in switch_map_entry_templates:
                     permitted_switch_type_name = value.pop('permittedSwitchTypeName', None)
                     if permitted_switch_type_name:
-                        value['permittedSwitchTypeUri'] = self.__get_switch_by_name(permitted_switch_type_name)['uri']
+                        value['permittedSwitchTypeUri'] = self.__get_switch_by_name(permitted_switch_type_name).data['uri']
 
     def __get_switch_by_name(self, name):
-        switch_type = self.oneview_client.switch_types.get_by('name', name)
+        switch_type = self.oneview_client.switch_types.get_by_name(name)
         if switch_type:
-            return switch_type[0]
+            return switch_type
         else:
             raise OneViewModuleResourceNotFound(self.MSG_SWITCH_TYPE_NOT_FOUND)
 

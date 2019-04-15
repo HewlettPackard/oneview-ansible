@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.0.0"
+    - "hpOneView >= 5.0.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     state:
@@ -74,7 +74,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: compliant
     data:
       name: "Name of the Logical Interconnect"
@@ -84,7 +84,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: ethernet_settings_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -96,7 +96,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: internal_networks_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -110,7 +110,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: settings_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -122,7 +122,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: forwarding_information_base_generated
     data:
       name: "Name of the Logical Interconnect"  # could also be 'uri'
@@ -132,7 +132,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: qos_aggregated_configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -150,7 +150,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: snmp_configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -162,7 +162,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: port_monitor_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -174,7 +174,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -184,7 +184,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: firmware_installed
     data:
       name: "Name of the Logical Interconnect"
@@ -197,7 +197,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: telemetry_configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -266,10 +266,10 @@ scope_uris:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, OneViewModuleValueError, compare
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, OneViewModuleValueError, compare
 
 
-class LogicalInterconnectModule(OneViewModuleBase):
+class LogicalInterconnectModule(OneViewModule):
     MSG_CONSISTENT = 'Logical Interconnect returned to a consistent state.'
     MSG_ETH_SETTINGS_UPDATED = 'Ethernet settings updated successfully.'
     MSG_INTERNAL_NETWORKS_UPDATED = 'Internal networks updated successfully.'
@@ -300,42 +300,39 @@ class LogicalInterconnectModule(OneViewModuleBase):
     def __init__(self):
         super(LogicalInterconnectModule, self).__init__(additional_arg_spec=self.argument_spec,
                                                         validate_etag_support=True)
-        self.resource_client = self.oneview_client.logical_interconnects
+        self.set_resource_object(self.oneview_client.logical_interconnects)
 
     def execute_module(self):
 
-        resource = self.__get_by_name(self.data)
-
-        if not resource:
+        if not self.current_resource:
             raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
 
         changed, msg, ansible_facts = False, '', dict()
-        uri = resource['uri']
 
         if self.state == 'compliant':
-            changed, msg, ansible_facts = self.__compliance(uri)
+            changed, msg, ansible_facts = self.__compliance()
         elif self.state == 'ethernet_settings_updated':
-            changed, msg, ansible_facts = self.__update_ethernet_settings(resource, self.data)
+            changed, msg, ansible_facts = self.__update_ethernet_settings()
         elif self.state == 'internal_networks_updated':
-            changed, msg, ansible_facts = self.__update_internal_networks(uri, self.data)
+            changed, msg, ansible_facts = self.__update_internal_networks()
         elif self.state == 'settings_updated':
-            changed, msg, ansible_facts = self.__update_settings(resource, self.data)
+            changed, msg, ansible_facts = self.__update_settings()
         elif self.state == 'forwarding_information_base_generated':
-            changed, msg, ansible_facts = self.__generate_forwarding_information_base(uri)
+            changed, msg, ansible_facts = self.__generate_forwarding_information_base()
         elif self.state == 'qos_aggregated_configuration_updated':
-            changed, msg, ansible_facts = self.__update_qos_configuration(uri, self.data)
+            changed, msg, ansible_facts = self.__update_qos_configuration()
         elif self.state == 'snmp_configuration_updated':
-            changed, msg, ansible_facts = self.__update_snmp_configuration(uri, self.data)
+            changed, msg, ansible_facts = self.__update_snmp_configuration()
         elif self.state == 'port_monitor_updated':
-            changed, msg, ansible_facts = self.__update_port_monitor(uri, self.data)
+            changed, msg, ansible_facts = self.__update_port_monitor()
         elif self.state == 'configuration_updated':
-            changed, msg, ansible_facts = self.__update_configuration(uri)
+            changed, msg, ansible_facts = self.__update_configuration()
         elif self.state == 'firmware_installed':
-            changed, msg, ansible_facts = self.__install_firmware(uri, self.data)
+            changed, msg, ansible_facts = self.__install_firmware()
         elif self.state == 'telemetry_configuration_updated':
-            changed, msg, ansible_facts = self.__update_telemetry_configuration(resource, self.data)
+            changed, msg, ansible_facts = self.__update_telemetry_configuration()
         elif self.state == 'scopes_updated':
-            changed, msg, ansible_facts = self.__update_scopes(resource, self.data)
+            changed, msg, ansible_facts = self.__update_scopes()
 
         if ansible_facts:
             result = dict(changed=changed, msg=msg, ansible_facts=ansible_facts)
@@ -344,137 +341,139 @@ class LogicalInterconnectModule(OneViewModuleBase):
 
         return result
 
-    def __compliance(self, uri):
-        li = self.oneview_client.logical_interconnects.update_compliance(uri)
+    def __compliance(self):
+        li = self.current_resource.update_compliance()
         return True, self.MSG_CONSISTENT, dict(logical_interconnect=li)
 
-    def __update_ethernet_settings(self, resource, data):
-        self.__validate_options('ethernetSettings', data)
+    def __update_ethernet_settings(self):
+        self.__validate_options('ethernetSettings', self.data)
 
-        ethernet_settings_merged = resource['ethernetSettings'].copy()
-        ethernet_settings_merged.update(data['ethernetSettings'])
+        ethernet_settings_merged = self.current_resource.data['ethernetSettings'].copy()
+        ethernet_settings_merged.update(self.data['ethernetSettings'])
 
-        if compare(resource['ethernetSettings'], ethernet_settings_merged):
+        if compare(self.current_resource.data['ethernetSettings'], ethernet_settings_merged):
             return False, self.MSG_NO_CHANGES_PROVIDED, dict()
         else:
-            li = self.oneview_client.logical_interconnects.update_ethernet_settings(resource['uri'],
-                                                                                    ethernet_settings_merged)
+            li = self.current_resource.update_ethernet_settings(ethernet_settings_merged)
             return True, self.MSG_ETH_SETTINGS_UPDATED, dict(logical_interconnect=li)
 
-    def __update_internal_networks(self, uri, data):
-        self.__validate_options('internalNetworks', data)
+    def __update_internal_networks(self):
+        self.__validate_options('internalNetworks', self.data)
 
         networks = []
-        for network_uri_or_name in data['internalNetworks']:
+        for network_uri_or_name in self.data['internalNetworks']:
             if 'name' in network_uri_or_name:
-                ethernet_network = self.__get_ethernet_network_by_name(network_uri_or_name['name'])
+                ethernet_network = self.__get_ethernet_network_by_name(
+                    network_uri_or_name['name'])
+
                 if not ethernet_network:
                     msg = self.MSG_ETH_NETWORK_NOT_FOUND + network_uri_or_name['name']
                     raise OneViewModuleResourceNotFound(msg)
+
                 networks.append(ethernet_network['uri'])
             elif 'uri' in network_uri_or_name:
                 networks.append(network_uri_or_name['uri'])
 
-        li = self.oneview_client.logical_interconnects.update_internal_networks(uri, networks)
+        li = self.current_resource.update_internal_networks(networks)
 
         return True, self.MSG_INTERNAL_NETWORKS_UPDATED, dict(logical_interconnect=li)
 
-    def __update_settings(self, resource, data):
-        self.__validate_settings(data)
+    def __update_settings(self):
+        self.__validate_settings(self.data)
 
-        ethernet_settings_merged = self.__merge_network_settings('ethernetSettings', resource, data)
-        fcoe_settings_merged = self.__merge_network_settings('fcoeSettings', resource, data)
+        ethernet_settings_merged = self.__merge_network_settings(
+            'ethernetSettings', self.current_resource.data, self.data)
+        fcoe_settings_merged = self.__merge_network_settings(
+            'fcoeSettings', self.current_resource.data, self.data)
 
-        if compare(resource['ethernetSettings'], ethernet_settings_merged) and \
-                compare(resource['fcoeSettings'], fcoe_settings_merged):
+        if compare(self.current_resource.data['ethernetSettings'], ethernet_settings_merged) and \
+                compare(self.current_resource.data['fcoeSettings'], fcoe_settings_merged):
 
-            return False, self.MSG_NO_CHANGES_PROVIDED, dict(logical_interconnect=resource)
+            return False, self.MSG_NO_CHANGES_PROVIDED, dict(
+                logical_interconnect=self.current_resource.data)
         else:
             settings = {
                 'ethernetSettings': ethernet_settings_merged,
                 'fcoeSettings': fcoe_settings_merged
             }
-            li = self.oneview_client.logical_interconnects.update_settings(resource['uri'], settings)
+            li = self.current_resource.update_settings(settings)
             return True, self.MSG_SETTINGS_UPDATED, dict(logical_interconnect=li)
 
-    def __generate_forwarding_information_base(self, uri):
-        result = self.oneview_client.logical_interconnects.create_forwarding_information_base(uri)
+    def __generate_forwarding_information_base(self):
+        result = self.current_resource.create_forwarding_information_base()
         return True, result.get('status'), dict(interconnect_fib=result)
 
-    def __update_qos_configuration(self, uri, data):
-        self.__validate_options('qosConfiguration', data)
+    def __update_qos_configuration(self):
+        self.__validate_options('qosConfiguration', self.data)
 
-        qos_config = self.__get_qos_aggregated_configuration(uri)
-        qos_config_merged = self.__merge_options(data['qosConfiguration'], qos_config)
+        qos_config = self.__get_qos_aggregated_configuration()
+        qos_config_merged = self.__merge_options(self.data['qosConfiguration'], qos_config)
 
         if compare(qos_config_merged, qos_config):
             return False, self.MSG_NO_CHANGES_PROVIDED, dict()
         else:
-            qos_config_updated = self.oneview_client.logical_interconnects.update_qos_aggregated_configuration(
-                uri, qos_config_merged)
+            qos_config_updated = self.current_resource.update_qos_aggregated_configuration(
+                qos_config_merged)
 
             return True, self.MSG_QOS_UPDATED, dict(qos_configuration=qos_config_updated)
 
-    def __update_snmp_configuration(self, uri, data):
-        self.__validate_options('snmpConfiguration', data)
+    def __update_snmp_configuration(self):
+        self.__validate_options('snmpConfiguration', self.data)
 
-        snmp_config = self.__get_snmp_configuration(uri)
-        snmp_config_merged = self.__merge_options(data['snmpConfiguration'], snmp_config)
+        snmp_config = self.__get_snmp_configuration()
+        snmp_config_merged = self.__merge_options(self.data['snmpConfiguration'], snmp_config)
 
         if compare(snmp_config_merged, snmp_config):
-
             return False, self.MSG_NO_CHANGES_PROVIDED, None
         else:
-            snmp_config_updated = self.oneview_client.logical_interconnects.update_snmp_configuration(
-                uri, snmp_config_merged)
+            snmp_config_updated = self.current_resource.update_snmp_configuration(
+                snmp_config_merged)
 
             return True, self.MSG_SNMP_UPDATED, dict(snmp_configuration=snmp_config_updated)
 
-    def __update_port_monitor(self, uri, data):
-        self.__validate_options('portMonitor', data)
+    def __update_port_monitor(self):
+        self.__validate_options('portMonitor', self.data)
 
-        monitor_config = self.__get_port_monitor_configuration(uri)
-        monitor_config_merged = self.__merge_options(data['portMonitor'], monitor_config)
+        monitor_config = self.__get_port_monitor_configuration()
+        monitor_config_merged = self.__merge_options(self.data['portMonitor'], monitor_config)
 
         if compare(monitor_config_merged, monitor_config):
             return False, self.MSG_NO_CHANGES_PROVIDED, None
         else:
-            monitor_config_updated = self.oneview_client.logical_interconnects.update_port_monitor(
-                uri, monitor_config_merged)
+            monitor_config_updated = self.current_resource.update_port_monitor(
+                monitor_config_merged)
             result = dict(port_monitor=monitor_config_updated)
             return True, self.MSG_PORT_MONITOR_UPDATED, result
 
-    def __install_firmware(self, uri, data):
-        self.__validate_options('firmware', data)
+    def __install_firmware(self):
+        self.__validate_options('firmware', self.data)
 
-        options = data['firmware'].copy()
+        options = self.data['firmware'].copy()
         if 'spp' in options:
             options['sppUri'] = self.__build_firmware_uri(options.pop('spp'))
 
-        firmware = self.oneview_client.logical_interconnects.install_firmware(options, uri)
+        firmware = self.current_resource.install_firmware(options)
 
         return True, self.MSG_FIRMWARE_INSTALLED, dict(li_firmware=firmware)
 
-    def __update_configuration(self, uri):
-        result = self.oneview_client.logical_interconnects.update_configuration(uri)
+    def __update_configuration(self):
+        result = self.current_resource.update_configuration()
 
         return True, self.MSG_CONFIGURATION_UPDATED, dict(logical_interconnect=result)
 
-    def __update_telemetry_configuration(self, resource, data):
-        config = data.get('telemetryConfiguration')
-        telemetry_config_uri = resource['telemetryConfiguration']['uri']
-
-        result = self.oneview_client.logical_interconnects.update_telemetry_configurations(telemetry_config_uri, config)
+    def __update_telemetry_configuration(self):
+        config = self.data.get('telemetryConfiguration')
+        result = self.current_resource.update_telemetry_configurations(config)
 
         return True, self.MSG_TELEMETRY_CONFIGURATION_UPDATED, dict(
             telemetry_configuration=result.get('telemetryConfiguration'))
 
-    def __update_scopes(self, resource, data):
+    def __update_scopes(self):
 
         scope_uris = self.data.pop('scopeUris', None)
         result = dict(changed=False,
                       msg=self.MSG_NO_CHANGES_PROVIDED,
-                      ansible_facts=dict(scope_uris=resource))
+                      ansible_facts=dict(scope_uris=self.current_resource.data))
         if scope_uris is not None:
             result = self.resource_scopes_set(result, 'scope_uris', scope_uris)
             if result['changed']:
@@ -484,21 +483,18 @@ class LogicalInterconnectModule(OneViewModuleBase):
 
         return result['changed'], result['msg'], result['ansible_facts']
 
-    def __get_by_name(self, data):
-        return self.oneview_client.logical_interconnects.get_by_name(data['name'])
-
     def __get_ethernet_network_by_name(self, name):
         result = self.oneview_client.ethernet_networks.get_by('name', name)
         return result[0] if result else None
 
-    def __get_qos_aggregated_configuration(self, uri):
-        return self.oneview_client.logical_interconnects.get_qos_aggregated_configuration(uri)
+    def __get_qos_aggregated_configuration(self):
+        return self.current_resource.get_qos_aggregated_configuration()
 
-    def __get_snmp_configuration(self, uri):
-        return self.oneview_client.logical_interconnects.get_snmp_configuration(uri)
+    def __get_snmp_configuration(self):
+        return self.current_resource.get_snmp_configuration()
 
-    def __get_port_monitor_configuration(self, uri):
-        return self.oneview_client.logical_interconnects.get_port_monitor(uri)
+    def __get_port_monitor_configuration(self):
+        return self.current_resource.get_port_monitor()
 
     def __merge_network_settings(self, settings_type, resource, data):
         settings_merged = {}
