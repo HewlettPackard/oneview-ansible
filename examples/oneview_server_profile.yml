@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -38,13 +38,13 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     # Set the name of the server profile template that will be used to provision the server profile
-    - ov_template: spt1
+    - ov_template:  ProfileTemplate101
     # Set the name of an existing enclosure group to run this example
-    - enclosure_group_name: eg1
+    - enclosure_group_name: SYN03_EC
     # Set the name of an existing server hardware type to run this example
-    - server_hardware_type_name: SY 480 Gen9 2
+    - server_hardware_type_name: SY 480 Gen9 4
     # Set the name of an existing ethernet network
-    - network_name: eth1
+    - network_name: eth77
   tasks:
     - name: Create a Server Profile from a Server Profile Template
       oneview_server_profile:
