@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 ###
 
 import pytest
+from mock import mock
 
 from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import EthernetNetworkFactsModule
@@ -76,7 +77,7 @@ class TestEthernetNetworkFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_enet_by_name(self):
-        self.resource.get_by.return_value = PRESENT_ENETS
+        self.resource.data = PRESENT_ENETS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         EthernetNetworkFactsModule().run()
@@ -87,11 +88,25 @@ class TestEthernetNetworkFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_enet_by_name_with_options(self):
-        self.resource.get_by.return_value = PRESENT_ENETS
+        self.resource.data = PRESENT_ENETS
+
         self.resource.get_associated_profiles.return_value = ENET_ASSOCIATED_PROFILE_URIS
         self.resource.get_associated_uplink_groups.return_value = ENET_ASSOCIATED_UPLINK_GROUP_URIS
-        self.mock_ov_client.server_profiles.get.side_effect = ENET_ASSOCIATED_PROFILES
-        self.mock_ov_client.uplink_sets.get.side_effect = ENET_ASSOCIATED_UPLINK_GROUPS
+
+        profiles = []
+        for data in ENET_ASSOCIATED_PROFILES:
+            obj = mock.Mock()
+            obj.data = data
+            profiles.append(obj)
+
+        uplinks = []
+        for data in ENET_ASSOCIATED_UPLINK_GROUPS:
+            obj = mock.Mock()
+            obj.data = data
+            uplinks.append(obj)
+
+        self.mock_ov_client.server_profiles.get_by_uri.side_effect = profiles
+        self.mock_ov_client.uplink_sets.get_by_uri.side_effect = uplinks
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 

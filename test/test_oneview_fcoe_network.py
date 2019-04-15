@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -57,8 +57,9 @@ class TestFcoeNetworkModule(OneViewBaseTest):
     """
 
     def test_should_create_new_fcoe_network(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = DEFAULT_FCOE_NETWORK_TEMPLATE
+        self.resource.get_by_name.return_value = []
+        self.resource.create.return_value = self.resource
+        self.resource.data = DEFAULT_FCOE_NETWORK_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -71,7 +72,7 @@ class TestFcoeNetworkModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by.return_value = [DEFAULT_FCOE_NETWORK_TEMPLATE]
+        self.resource.data = DEFAULT_FCOE_NETWORK_TEMPLATE
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT.copy()
 
         FcoeNetworkModule().run()
@@ -86,8 +87,7 @@ class TestFcoeNetworkModule(OneViewBaseTest):
         data_merged = DEFAULT_FCOE_NETWORK_TEMPLATE.copy()
         data_merged['fabricType'] = 'DirectAttach'
 
-        self.resource.get_by.return_value = [DEFAULT_FCOE_NETWORK_TEMPLATE]
-        self.resource.update.return_value = data_merged
+        self.resource.data = data_merged
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
@@ -100,7 +100,7 @@ class TestFcoeNetworkModule(OneViewBaseTest):
         )
 
     def test_should_remove_fcoe_network(self):
-        self.resource.get_by.return_value = [DEFAULT_FCOE_NETWORK_TEMPLATE]
+        self.resource.data = DEFAULT_FCOE_NETWORK_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
@@ -112,7 +112,7 @@ class TestFcoeNetworkModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_fcoe_network_not_exist(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
@@ -131,16 +131,17 @@ class TestFcoeNetworkModule(OneViewBaseTest):
         resource_data = DEFAULT_FCOE_NETWORK_TEMPLATE.copy()
         resource_data['scopeUris'] = ['fake']
         resource_data['uri'] = 'rest/fcoe/fake'
-        self.resource.get_by.return_value = [resource_data]
+        self.resource.data = resource_data
 
         patch_return = resource_data.copy()
         patch_return['scopeUris'] = ['test']
-        self.resource.patch.return_value = patch_return
+        patch_return_obj = self.resource.copy()
+        patch_return_obj.data = patch_return
+        self.resource.patch.return_value = patch_return_obj
 
         FcoeNetworkModule().run()
 
-        self.resource.patch.assert_called_once_with('rest/fcoe/fake',
-                                                    operation='replace',
+        self.resource.patch.assert_called_once_with(operation='replace',
                                                     path='/scopeUris',
                                                     value=['test'])
 
@@ -157,7 +158,7 @@ class TestFcoeNetworkModule(OneViewBaseTest):
 
         resource_data = DEFAULT_FCOE_NETWORK_TEMPLATE.copy()
         resource_data['scopeUris'] = ['test']
-        self.resource.get_by.return_value = [resource_data]
+        self.resource.data = resource_data
 
         FcoeNetworkModule().run()
 

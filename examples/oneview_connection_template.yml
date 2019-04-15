@@ -23,7 +23,7 @@
         config: "{{ config }}"
         state: present
         data:
-            name: 'name1304244267-1467656930023'
+            name: "name-2103368852-1550154575021"
             type : "connection-template"
             bandwidth :
                 maximumBandwidth : 10000
@@ -41,5 +41,5 @@
             bandwidth :
                 maximumBandwidth : 10000
                 typicalBandwidth : 2000
-            newName : 'name1304244267-1467656930023'
+            newName : "name-2103368852-1550154575021"
       delegate_to: localhost
