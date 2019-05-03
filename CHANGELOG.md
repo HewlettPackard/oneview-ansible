@@ -7,7 +7,7 @@ This release extends the planned support of the modules to OneView REST API vers
 #### Major changes
 1. Extended support of planned modules to API800.
 2. Updated library files to support Python SDK changes.
-3. Modules upgraded in this release required hpOneView version 5.0.0b0 or above.
+3. Modules upgraded in this release requires hpOneView version 5.0.0b0 or above.
 
 #### Modules supported in this release
 - oneview_connection_template
