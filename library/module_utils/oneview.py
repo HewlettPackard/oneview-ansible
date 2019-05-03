@@ -985,6 +985,7 @@ class ServerProfileReplaceNamesByUris(object):
     VOLUME_NOT_FOUND = 'Volume not found: '
     STORAGE_POOL_NOT_FOUND = 'Storage Pool not found: '
     STORAGE_SYSTEM_NOT_FOUND = 'Storage System not found: '
+    STORAGE_VOLUME_TEMPLATE_NOT_FOUND = 'Storage volume template not found: '
     INTERCONNECT_NOT_FOUND = 'Interconnect not found: '
     FIRMWARE_DRIVER_NOT_FOUND = 'Firmware Driver not found: '
     SAS_LOGICAL_JBOD_NOT_FOUND = 'SAS logical JBOD not found: '
@@ -1002,8 +1003,9 @@ class ServerProfileReplaceNamesByUris(object):
         self._replace_firmware_baseline_name_by_uri(data)
         self._replace_sas_logical_jbod_name_by_uri(data)
 
-    def _replace_name_by_uri(self, data, attr_name, message, resource_client):
-        attr_uri = attr_name.replace("Name", "Uri")
+    def _replace_name_by_uri(self, data, attr_name, message, resource_client,
+                             replace_name_with='Uri'):
+        attr_uri = attr_name.replace("Name", replace_name_with)
         if attr_name in data:
             name = data.pop(attr_name)
             resource_by_name = resource_client.get_by('name', name)
@@ -1040,6 +1042,7 @@ class ServerProfileReplaceNamesByUris(object):
 
     def _replace_volume_attachment_names_by_uri(self, data):
         volume_attachments = (data.get('sanStorage') or {}).get('volumeAttachments') or []
+
         if len(volume_attachments) > 0:
             for volume in volume_attachments:
                 if not volume.get('volumeUri') and volume.get('volumeName'):
@@ -1052,10 +1055,24 @@ class ServerProfileReplaceNamesByUris(object):
                                      "that the volume does not exist, so it will be created along with the server "
                                      "profile. Be warned that it will always trigger a new creation, so it will not "
                                      " be idempotent.")
+
                 self._replace_name_by_uri(volume, 'volumeStoragePoolName', self.STORAGE_POOL_NOT_FOUND,
                                           self.oneview_client.storage_pools)
                 self._replace_name_by_uri(volume, 'volumeStorageSystemName', self.STORAGE_SYSTEM_NOT_FOUND,
                                           self.oneview_client.storage_systems)
+
+                # Support for API version 600 schema changes
+                if volume.get('volume'):
+                    self._replace_name_by_uri(volume['volume'], 'templateName',
+                                              self.STORAGE_VOLUME_TEMPLATE_NOT_FOUND,
+                                              self.oneview_client.storage_volume_templates)
+
+                    if volume['volume'].get('properites'):
+                        self.replace_name_by_uri(volume['volume']['properties'],
+                                                 'storagePoolName',
+                                                 self.STORAGE_POOL_NOT_FOUND,
+                                                 self.oneview_client.storage_pools,
+                                                 replace_name_with='')
 
     def _replace_enclosure_name_by_uri(self, data):
         self._replace_name_by_uri(data, 'enclosureName', self.ENCLOSURE_NOT_FOUND, self.oneview_client.enclosures)

@@ -161,7 +161,7 @@ class ServerProfileTemplateModule(OneViewModule):
     def __present(self):
 
         ServerProfileReplaceNamesByUris().replace(self.oneview_client, self.data)
-
+        open("/home/sijeesh/Documents/ansible-demo/oneview-ansible/profile_log.txt", "w").write(str(self.data))
         data = self.__spt_from_sp() or self.data
 
         if not self.current_resource:
