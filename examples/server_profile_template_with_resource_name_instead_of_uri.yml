@@ -1,0 +1,184 @@
+###
+# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: localhost
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    server_profile_template_name: "SPT TEST - WITH RESOURCE NAMES"
+    server_hardware_type_name: "SY 480 Gen9 2"
+    enclosure_group_name: "SYN03_EC"
+    server_profile_name: "RHEl76"
+    deployment_network_name: "VLAN512"
+    fc_network_1: "FC01"
+    fc_network_2: "FC02"
+    volume_storage_system: "ECOSTORE01"   
+    os_deployment_plan_name: "RHEL"
+    storage_pool_name: "SSD_r5"   
+    volme_template_name: "SVT-1"    
+    firmware_baseline_name: "HPE Synergy Custom SPP 2018110 2019 02 15"
+  tasks:
+    - name: Create a server profile template
+      oneview_server_profile_template:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: "{{ server_profile_template_name }}"
+          serverHardwareTypeName: "{{ server_hardware_type_name }}"
+          enclosureGroupName: "{{ enclosure_group_name }}"
+          initialScopeNames:
+            - Renamed
+            - test
+          bios:
+            manageBios: false 
+          boot:
+            manageBoot: true
+            order:
+              - "HardDisk"
+          bootMode:
+            manageMode: true
+            mode: UEFIOptimized
+            pxeBootPolicy: Auto           
+          connectionSettings:
+            manageConnections: true
+            connections:
+              - id: 1
+                portId: 'Auto'
+                name: 'Deployment Network A'
+                functionType: 'Ethernet'
+                networkName: "{{ deployment_network_name }}"
+                requestedMbps: 2500
+                requestedVFs: "Auto"
+                boot:
+                  priority: 'Primary'
+                  bootVolumeSource: 'UserDefined'
+                  ethernetBootType: 'iSCSI'
+                  iscsi: 
+                    initiatorNameSource: ProfileInitiatorName
+                    chapLevel: None
+                  bootVlanId: null 
+                ipv4:
+                  ipAddressSource: DHCP
+              - id: 2
+                portId: 'Auto'
+                name: 'Deployment Network B'
+                functionType: 'Ethernet'
+                networkName: "{{ deployment_network_name }}"
+                requestedMbps: 2500
+                requestedVFs: "Auto"
+                boot:
+                  priority: 'Secondary'
+                  bootVolumeSource: 'UserDefined'
+                  ethernetBootType: 'iSCSI'
+                  iscsi: 
+                    initiatorNameSource: ProfileInitiatorName
+                    chapLevel: None
+                  bootVlanId: null 
+                ipv4:
+                  ipAddressSource: DHCP
+              - id: 3
+                portId: 'Auto'
+                name: 'FC Network A'
+                functionType: 'FibreChannel'
+                networkName: "{{ fc_network_1 }}"
+                requestedMbps: 2500
+              - id: 4
+                portId: 'Auto'
+                name: 'FC Network B'
+                functionType: "{{ fc_network_2 }}"
+                networkName: 'FC02'
+                requestedMbps: 2500
+          sanStorage:
+            hostOSType: RHE Linux (5.x, 6.x, 7.x)
+            manageSanStorage: true
+            volumeAttachments:
+            - id: 1
+              lunType: Manual
+              lun: '10'
+              volumeStorageSystemName: "{{ volume_storage_system }}"
+              volume:
+                properties:
+                  name: "new volume"
+                  storagePoolName: "{{ storage_pool_name }}"
+                  provisioningType: "Thin"    
+                  size: 268435456
+                  isShareable: false
+                isPermanent: true
+                templateName: "{{ volume_template_name }}"    
+              storagePaths:
+              - connectionId: 3
+                isEnabled: true
+                targetSelector: 'Auto'
+              - connectionId: 4
+                isEnabled: true                  
+                targetSelector: 'Auto'
+          firmware:
+            manageFirmware: true
+            comlianceControl: checked
+            firmwareBaselineName: "{{ firmware_baseline_name }}"
+            firmwareInstallType: FirmwareAndOSDrivers
+            forceInstallFirmware: false
+          osDeploymentSettings:
+           osDeploymentPlanName: "{{os_deployment_plan_name}}"
+           osCustomAttributes:
+             - name: LogicalVolumeName
+               value: 'new_vol'
+             - name: SSH
+               value: 'Enabled'
+             - name: NewUser
+               value: 'demo'
+             - name: FirstPartitionSize
+               value: '10'
+             - name: LogicalVolumeGroupName
+               value: new_vol_group
+             - name: TotalMgmtNICs
+               value: '1'
+             - name: SecondPartitionSize
+               value: '10'
+             - name: DiskName
+               value: '/dev/sda'
+             - name: DomainName
+               value: 'eco.core.local'
+             - name: LogicalVolumeSize
+               value: '15'
+             - name: NewRootPassword
+               value: 'root'
+             - name: NewUserPassword
+               value: 'demo'
+             - name: HostName
+               value: 'demo'
+             - name: ManagementNIC1.vlanid
+               value: '0'
+             - name: ManagementNIC1.dhcp
+               value: true
+             - name: ManagementNIC1.connectionid
+               value: '3'
+             - name: ManagementNIC1.ipv4disable
+               value: false
+             - name: ManagementNIC1.constraint
+               value: 'dhcp'
+        params:
+          force: "True"
+      delegate_to: localhost
+      register: result
+    - debug: msg= "{{ result.msg }}"
+
+    - name: Gather facts about the Server Profile Template by name
+      oneview_server_profile_template_facts:
+        config: "{{ config }}"
+        name: "{{ server_profile_template_name }}"
+      delegate_to: localhost
+
+    - debug: var=server_profile_templates
