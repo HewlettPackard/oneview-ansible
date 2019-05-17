@@ -978,6 +978,7 @@ class ServerProfileMerger(object):
 
 
 class ServerProfileReplaceNamesByUris(object):
+    SCOPE_NOT_FOUND = 'Scope not found: '
     SERVER_PROFILE_OS_DEPLOYMENT_NOT_FOUND = 'OS Deployment Plan not found: '
     SERVER_PROFILE_ENCLOSURE_GROUP_NOT_FOUND = 'Enclosure Group not found: '
     SERVER_PROFILE_NETWORK_NOT_FOUND = 'Network not found: '
@@ -1002,16 +1003,33 @@ class ServerProfileReplaceNamesByUris(object):
         self._replace_interconnect_name_by_uri(data)
         self._replace_firmware_baseline_name_by_uri(data)
         self._replace_sas_logical_jbod_name_by_uri(data)
+        self._replace_initial_scope_name_by_uri(data)
+
+    def _get_resource_uri_from_name(self, name, message, resource_client):
+        resource_by_name = resource_client.get_by('name', name)
+        if resource_by_name:
+            return resource_by_name[0]['uri']
+        else:
+            raise OneViewModuleResourceNotFound(message + name)
 
     def _replace_name_by_uri(self, data, attr_name, message, resource_client,
                              replace_name_with='Uri'):
         attr_uri = attr_name.replace("Name", replace_name_with)
         if attr_name in data:
             name = data.pop(attr_name)
-            resource_by_name = resource_client.get_by('name', name)
-            if not resource_by_name:
-                raise OneViewModuleResourceNotFound(message + name)
-            data[attr_uri] = resource_by_name[0]['uri']
+            uri = self._get_resource_uri_from_name(name, message, resource_client)
+            data[attr_uri] = uri
+
+    def _replace_initial_scope_name_by_uri(self, data):
+        if data.get("initialScopeNames"):
+            scope_uris = []
+            resource_client = self.oneview_client.scopes
+            for name in data.pop("initialScopeNames", []):
+                scope = resource_client.get_by_name(name)
+                if not scope:
+                    raise OneViewModuleResourceNotFound(self.SCOPE_NOT_FOUND + name)
+                scope_uris.append(scope["uri"])
+            data["initialScopeUris"] = scope_uris
 
     def _replace_os_deployment_name_by_uri(self, data):
         if SPKeys.OS_DEPLOYMENT in data and data[SPKeys.OS_DEPLOYMENT]:
@@ -1067,8 +1085,8 @@ class ServerProfileReplaceNamesByUris(object):
                                               self.STORAGE_VOLUME_TEMPLATE_NOT_FOUND,
                                               self.oneview_client.storage_volume_templates)
 
-                    if volume['volume'].get('properites'):
-                        self.replace_name_by_uri(volume['volume']['properties'],
+                    if volume['volume'].get('properties'):
+                        self._replace_name_by_uri(volume['volume']['properties'],
                                                  'storagePoolName',
                                                  self.STORAGE_POOL_NOT_FOUND,
                                                  self.oneview_client.storage_pools,

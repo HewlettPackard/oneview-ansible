@@ -139,7 +139,6 @@ class ServerProfileTemplateModule(OneViewModule):
     )
 
     def __init__(self):
-
         super(ServerProfileTemplateModule, self).__init__(additional_arg_spec=self.argument_spec,
                                                           validate_etag_support=True)
 
@@ -147,7 +146,6 @@ class ServerProfileTemplateModule(OneViewModule):
         self.server_profiles = self.oneview_client.server_profiles
 
     def execute_module(self):
-
         params = self.module.params.get("params")
         self.params = params if params else {}
 
@@ -159,9 +157,8 @@ class ServerProfileTemplateModule(OneViewModule):
         return result
 
     def __present(self):
-
         ServerProfileReplaceNamesByUris().replace(self.oneview_client, self.data)
-        open("/home/sijeesh/Documents/ansible-demo/oneview-ansible/profile_log.txt", "w").write(str(self.data))
+
         data = self.__spt_from_sp() or self.data
 
         if not self.current_resource:
