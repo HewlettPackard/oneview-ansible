@@ -1087,10 +1087,10 @@ class ServerProfileReplaceNamesByUris(object):
 
                     if volume['volume'].get('properties'):
                         self._replace_name_by_uri(volume['volume']['properties'],
-                                                 'storagePoolName',
-                                                 self.STORAGE_POOL_NOT_FOUND,
-                                                 self.oneview_client.storage_pools,
-                                                 replace_name_with='')
+                                                  'storagePoolName',
+                                                  self.STORAGE_POOL_NOT_FOUND,
+                                                  self.oneview_client.storage_pools,
+                                                  replace_name_with='')
 
     def _replace_enclosure_name_by_uri(self, data):
         self._replace_name_by_uri(data, 'enclosureName', self.ENCLOSURE_NOT_FOUND, self.oneview_client.enclosures)
