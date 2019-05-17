@@ -27,7 +27,7 @@
     volume_storage_system: "ECOSTORE01"   
     os_deployment_plan_name: "RHEL"
     storage_pool_name: "SSD_r5"   
-    volme_template_name: "SVT-1"    
+    volume_template_name: "SVT-1"    
     firmware_baseline_name: "HPE Synergy Custom SPP 2018110 2019 02 15"
   tasks:
     - name: Create a server profile template
@@ -49,64 +49,64 @@
               - "HardDisk"
           bootMode:
             manageMode: true
-            mode: UEFIOptimized
-            pxeBootPolicy: Auto           
+            mode: "UEFIOptimized"
+            pxeBootPolicy: "Auto"
           connectionSettings:
             manageConnections: true
             connections:
               - id: 1
-                portId: 'Auto'
-                name: 'Deployment Network A'
-                functionType: 'Ethernet'
+                portId: "Auto"
+                name: "Deployment Network A"
+                functionType: "Ethernet"
                 networkName: "{{ deployment_network_name }}"
                 requestedMbps: 2500
                 requestedVFs: "Auto"
                 boot:
-                  priority: 'Primary'
-                  bootVolumeSource: 'UserDefined'
-                  ethernetBootType: 'iSCSI'
+                  priority: "Primary"
+                  bootVolumeSource: "UserDefined"
+                  ethernetBootType: "iSCSI"
                   iscsi: 
-                    initiatorNameSource: ProfileInitiatorName
+                    initiatorNameSource: "ProfileInitiatorName"
                     chapLevel: None
                   bootVlanId: null 
                 ipv4:
-                  ipAddressSource: DHCP
+                  ipAddressSource: "DHCP"
               - id: 2
-                portId: 'Auto'
-                name: 'Deployment Network B'
-                functionType: 'Ethernet'
+                portId: "Auto"
+                name: "Deployment Network B"
+                functionType: "Ethernet"
                 networkName: "{{ deployment_network_name }}"
                 requestedMbps: 2500
                 requestedVFs: "Auto"
                 boot:
-                  priority: 'Secondary'
-                  bootVolumeSource: 'UserDefined'
-                  ethernetBootType: 'iSCSI'
+                  priority: "Secondary"
+                  bootVolumeSource: "UserDefined"
+                  ethernetBootType: "iSCSI"
                   iscsi: 
-                    initiatorNameSource: ProfileInitiatorName
+                    initiatorNameSource: "ProfileInitiatorName"
                     chapLevel: None
                   bootVlanId: null 
                 ipv4:
-                  ipAddressSource: DHCP
+                  ipAddressSource: "DHCP"
               - id: 3
-                portId: 'Auto'
-                name: 'FC Network A'
-                functionType: 'FibreChannel'
+                portId: "Auto"
+                name: "FC Network A"
+                functionType: "FibreChannel"
                 networkName: "{{ fc_network_1 }}"
                 requestedMbps: 2500
               - id: 4
-                portId: 'Auto'
-                name: 'FC Network B'
-                functionType: "{{ fc_network_2 }}"
-                networkName: 'FC02'
+                portId: "Auto"
+                name: "FC Network B"
+                functionType: "FibreChannel"
+                networkName: "{{ fc_network_2 }}"
                 requestedMbps: 2500
           sanStorage:
-            hostOSType: RHE Linux (5.x, 6.x, 7.x)
+            hostOSType: "RHE Linux (5.x, 6.x, 7.x)"
             manageSanStorage: true
             volumeAttachments:
             - id: 1
-              lunType: Manual
-              lun: '10'
+              lunType: "Manual"
+              lun: "10"
               volumeStorageSystemName: "{{ volume_storage_system }}"
               volume:
                 properties:
@@ -120,57 +120,57 @@
               storagePaths:
               - connectionId: 3
                 isEnabled: true
-                targetSelector: 'Auto'
+                targetSelector: "Auto"
               - connectionId: 4
                 isEnabled: true                  
-                targetSelector: 'Auto'
+                targetSelector: "Auto"
           firmware:
             manageFirmware: true
-            comlianceControl: checked
+            comlianceControl: "checked"
             firmwareBaselineName: "{{ firmware_baseline_name }}"
-            firmwareInstallType: FirmwareAndOSDrivers
+            firmwareInstallType: "FirmwareAndOSDrivers"
             forceInstallFirmware: false
           osDeploymentSettings:
            osDeploymentPlanName: "{{os_deployment_plan_name}}"
            osCustomAttributes:
-             - name: LogicalVolumeName
-               value: 'new_vol'
-             - name: SSH
-               value: 'Enabled'
-             - name: NewUser
-               value: 'demo'
-             - name: FirstPartitionSize
-               value: '10'
-             - name: LogicalVolumeGroupName
-               value: new_vol_group
-             - name: TotalMgmtNICs
-               value: '1'
-             - name: SecondPartitionSize
-               value: '10'
-             - name: DiskName
-               value: '/dev/sda'
-             - name: DomainName
-               value: 'eco.core.local'
-             - name: LogicalVolumeSize
-               value: '15'
-             - name: NewRootPassword
-               value: 'root'
-             - name: NewUserPassword
-               value: 'demo'
-             - name: HostName
-               value: 'demo'
-             - name: ManagementNIC1.vlanid
-               value: '0'
-             - name: ManagementNIC1.dhcp
+             - name: "LogicalVolumeName"
+               value: "new_vol"
+             - name: "SSH"
+               value: "Enabled"
+             - name: "NewUser"
+               value: "demo"
+             - name: "FirstPartitionSize"
+               value: 10
+             - name: "LogicalVolumeGroupName"
+               value: "new_vol_group"
+             - name: "TotalMgmtNICs"
+               value: 1
+             - name: "SecondPartitionSize"
+               value: 10
+             - name: "DiskName"
+               value: "/dev/sda"
+             - name: "DomainName"
+               value: "eco.core.local"
+             - name: "LogicalVolumeSize"
+               value: 15
+             - name: "NewRootPassword"
+               value: "root"
+             - name: "NewUserPassword"
+               value: "demo"
+             - name: "HostName"
+               value: "demo"
+             - name: "ManagementNIC1.vlanid"
+               value: 0
+             - name: "ManagementNIC1.dhcp"
                value: true
-             - name: ManagementNIC1.connectionid
-               value: '3'
-             - name: ManagementNIC1.ipv4disable
+             - name: "ManagementNIC1.connectionid"
+               value: 3
+             - name: "ManagementNIC1.ipv4disable"
                value: false
-             - name: ManagementNIC1.constraint
-               value: 'dhcp'
+             - name: "ManagementNIC1.constraint"
+               value: "dhcp"
         params:
-          force: "True"
+          force: true
       delegate_to: localhost
       register: result
     - debug: msg= "{{ result.msg }}"
