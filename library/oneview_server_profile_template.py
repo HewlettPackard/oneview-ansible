@@ -52,8 +52,8 @@ notes:
        connections list), volumeName or volumeUri (on the volumeAttachments list), volumeStoragePoolName or
        volumeStoragePoolUri (on the volumeAttachments list), volumeStorageSystemName or volumeStorageSystemUri (on the
        volumeAttachments list), serverHardwareTypeName or  serverHardwareTypeUri, enclosureName or enclosureUri,
-       firmwareBaselineName or firmwareBaselineUri (on the firmware), and sasLogicalJBODName or sasLogicalJBODUri (on
-       the sasLogicalJBODs list)"
+       firmwareBaselineName or firmwareBaselineUri (on the firmware), sasLogicalJBODName or sasLogicalJBODUri (on
+       the sasLogicalJBODs list) and initialScopeNames or initialScopeUris"
     - "If you define the volumeUri as null in the volumeAttachments list, it will be understood that the volume
        does not exist, so it will be created along with the server profile. Be warned that every time this option
        is executed it will always be understood that a new volume needs to be created, so this will not be idempotent.
