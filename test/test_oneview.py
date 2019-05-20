@@ -2321,6 +2321,15 @@ class TestServerProfileReplaceNamesByUris():
 
         assert sp_data == expected
 
+    def test_should_fail_when_scope_name_not_found(self):
+        sp_data = deepcopy(self.BASIC_PROFILE)
+        sp_data['initialScopeNames'] = ["scope1"]
+
+        self.mock_ov_client.scopes.get_by_name.return_value = None
+
+        with pytest.raises(OneViewModuleResourceNotFound):
+            ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
+
 
 class TestServerProfileMerger():
     SERVER_PROFILE_NAME = "Profile101"
