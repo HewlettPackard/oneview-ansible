@@ -6,7 +6,7 @@ This release is to support resource name instead of resource URIs in server prof
 
 #### Major changes
  1. Updated ReplaceServerProfileNamebyUris class to support the schema changes in latest API version.
- 2. Added an end-to-end example playbook for server profile tempalte with the below resources
+ 2. Added an end-to-end example playbook for server profile template with the below resources
     - enclosure group 
     - server hardware type
     - server profile name
