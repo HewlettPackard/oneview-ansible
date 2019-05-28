@@ -2005,6 +2005,40 @@ class TestServerProfileReplaceNamesByUris():
 
         assert sp_data == expected
 
+    def test_should_replace_volume_template_names_by_uri(self):
+        volume_template = {"name": "tempalte name", "uri": "/rest/storage-volume-templates/1"}
+        sp_data = deepcopy(self.BASIC_PROFILE)
+        sp_data['sanStorage'] = {
+            "volumeAttachments": [{"id": 1, "volume": {"templateName": "teplate name"}}]
+        }
+        expected = deepcopy(sp_data)
+        expected['sanStorage']['volumeAttachments'][0] = {"id": 1,
+                                                          "volume": {"templateUri": "/rest/storage-volume-templates/1"}}
+
+        self.mock_ov_client.storage_volume_templates.get_by.return_value = [volume_template]
+
+        ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
+
+        assert sp_data == expected
+
+    def test_should_replace_storage_pool_names_inside_properties(self):
+        storage_pool = {"name": "storage pool name", "uri": "/rest/storage-pools/1"}
+        sp_data = deepcopy(self.BASIC_PROFILE)
+        sp_data['sanStorage'] = {
+            "volumeAttachments": [{"id": 1,
+                                   "volume": {"properties": {"storagePoolName": "storage pool name"}}}]
+        }
+        expected = deepcopy(sp_data)
+        expected['sanStorage']['volumeAttachments'][0] = {"id": 1,
+                                                          "volume": {"properties":
+                                                                     {"storagePool": "/rest/storage-pools/1"}}}
+
+        self.mock_ov_client.storage_pools.get_by.return_value = [storage_pool]
+
+        ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
+
+        assert sp_data == expected
+
     def test_should_not_replace_when_inform_storage_system_uri(self):
         sp_data = deepcopy(self.BASIC_PROFILE)
         sp_data['sanStorage'] = {
@@ -2271,6 +2305,30 @@ class TestServerProfileReplaceNamesByUris():
             assert e.msg == expected_error
         else:
             pytest.fail(msg="Expected Exception was not raised")
+
+    def test_should_replace_scope_names_by_uri(self):
+        scope1 = {"name": "scope1", "uri": "/rest/scopes/1"}
+        scope2 = {"name": "scope2", "uri": "/rest/scopes/2"}
+        sp_data = deepcopy(self.BASIC_PROFILE)
+
+        expected = deepcopy(sp_data)
+        sp_data['initialScopeNames'] = ["scope1", "scope2"]
+        expected['initialScopeUris'] = ["/rest/scopes/1", "/rest/scopes/2"]
+
+        self.mock_ov_client.scopes.get_by_name.side_effect = [scope1, scope2]
+
+        ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
+
+        assert sp_data == expected
+
+    def test_should_fail_when_scope_name_not_found(self):
+        sp_data = deepcopy(self.BASIC_PROFILE)
+        sp_data['initialScopeNames'] = ["scope1"]
+
+        self.mock_ov_client.scopes.get_by_name.return_value = None
+
+        with pytest.raises(OneViewModuleResourceNotFound):
+            ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
 
 
 class TestServerProfileMerger():

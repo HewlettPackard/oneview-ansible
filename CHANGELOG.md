@@ -1,5 +1,26 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v5.3.1
+
+This release is to support resource name instead of resource URIs in server profile and profile template.
+
+#### Major changes
+ 1. Updated ReplaceServerProfileNamebyUris class to support the schema changes in latest API version.
+ 2. Added an end-to-end example playbook for server profile template with the below resources
+    - enclosure group 
+    - server hardware type
+    - server profile name
+    - ethernet network
+    - fc network
+    - volume storage system
+    - os deployment plan
+    - storage pool
+    - volme template
+    - firmware baseline
+
+#### Example playbook added
+- oneview_server_profile_template_with_resource_name
+
 ## v5.3.0
 
 This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1).
