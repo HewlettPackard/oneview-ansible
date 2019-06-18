@@ -52,8 +52,8 @@ notes:
        connections list), volumeName or volumeUri (on the volumeAttachments list), volumeStoragePoolName or
        volumeStoragePoolUri (on the volumeAttachments list), volumeStorageSystemName or volumeStorageSystemUri (on the
        volumeAttachments list), serverHardwareTypeName or  serverHardwareTypeUri, enclosureName or enclosureUri,
-       firmwareBaselineName or firmwareBaselineUri (on the firmware), and sasLogicalJBODName or sasLogicalJBODUri (on
-       the sasLogicalJBODs list)"
+       firmwareBaselineName or firmwareBaselineUri (on the firmware), sasLogicalJBODName or sasLogicalJBODUri (on
+       the sasLogicalJBODs list) and initialScopeNames or initialScopeUris"
     - "If you define the volumeUri as null in the volumeAttachments list, it will be understood that the volume
        does not exist, so it will be created along with the server profile. Be warned that every time this option
        is executed it will always be understood that a new volume needs to be created, so this will not be idempotent.
@@ -139,7 +139,6 @@ class ServerProfileTemplateModule(OneViewModule):
     )
 
     def __init__(self):
-
         super(ServerProfileTemplateModule, self).__init__(additional_arg_spec=self.argument_spec,
                                                           validate_etag_support=True)
 
@@ -147,7 +146,6 @@ class ServerProfileTemplateModule(OneViewModule):
         self.server_profiles = self.oneview_client.server_profiles
 
     def execute_module(self):
-
         params = self.module.params.get("params")
         self.params = params if params else {}
 
@@ -159,7 +157,6 @@ class ServerProfileTemplateModule(OneViewModule):
         return result
 
     def __present(self):
-
         ServerProfileReplaceNamesByUris().replace(self.oneview_client, self.data)
 
         data = self.__spt_from_sp() or self.data
