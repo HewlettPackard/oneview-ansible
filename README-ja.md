@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/HewlettPackard/oneview-ansible.svg?branch=master)](https://travis-ci.org/HewlettPackard/oneview-ansible)
 [![Coverage Status](https://coveralls.io/repos/github/HewlettPackard/oneview-ansible/badge.svg?branch=master)](https://coveralls.io/github/HewlettPackard/oneview-ansible?branch=master)
 
+[English](README.md)
 # Ansible Modules for HPE OneView
 Ansible PlaybookでHPE OneViewを管理するAnsible用Moduleです。
 
@@ -11,9 +12,9 @@ Ansible PlaybookでHPE OneViewを管理するAnsible用Moduleです。
  - HPE OneView Python SDK ([HPE OneView Python SDKのインストールはこちら](https://github.com/HewlettPackard/python-hpOneView#installation))
 
 ## モジュールについて
-本Ansible Moduleを通して、様々なOneviewの操作を行うことが可能です。また、OneViewの情報収集のためのAnsible Moduleも用意しています。
+本Ansible Moduleを通して、HPE Oneviewの様々な操作を行うことが可能です。また、HPE OneViewが保持する情報の収集のためのAnsible Moduleも用意しています。
 
-HPE OneView Ansible Module詳細に関してはこちらをご覧ください。  
+HPE OneView Ansible Module詳細に関しては以下を確認して下さい。  
   - [HPE OneView Ansible Modules Documentation](oneview-ansible.md)
 
 ### Ansible OneView modulesを使ったPlaybookの一例
@@ -45,26 +46,26 @@ HPE OneView Ansible Module詳細に関してはこちらをご覧ください。
 
 ### サンプル
 
-サンプルPlaybookや本Moduleを使用するための各種説明は[`ココ`](/examples)にあります。
+サンプルPlaybookや本Moduleを使用するための各種説明は[`こちら`](/examples)を確認して下さい。
 
 #### その他サンプル
 
-- HPE OneViewを使ったベアメタルサーバーの展開、HPE ICSPを使ったOSの展開、Ansibleモジュールを使ったソフトウェアのセットアップ等のDevOpsで使えるサンプルはこちらにあります。  
+- HPE OneViewを使ったベアメタルサーバーの展開、HPE ICSPを使ったOSの展開、Ansibleモジュールを使ったソフトウェアのセットアップ等のDevOpsで使えるサンプルは以下です。  
   - [Accelerating DevOps with HPE OneView and Ansible sample](/examples/oneview-web-farm)
 
-- HPE Synergy Image StreamerとHPE OneViewを使ったOS展開のサンプルはこちらにあります。  
+- HPE Synergy Image StreamerとHPE OneViewを使ったOS展開のサンプルは以下です。  
   - [HPE Synergy OS Deployment Sample](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/synergy_create_server_profile_with_deployment_plan.yml)  
   - [HPE Image Streamer Samples](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/ImageStreamer)
 
-- HPE Synergy Image Streamerへのアーティファクトバンドルのアップロード、アーティファクトバンドルで提供されているOSビルドプランを使用してHPE OneViewにブレードサーバーをデプロイするサンプルはこちらにあります。  
+- HPE Synergy Image Streamerへのアーティファクトバンドルのアップロード、アーティファクトバンドルで提供されているOSビルドプランを使用してHPE OneViewからブレードサーバーをデプロイするサンプルは以下です。  
   - [HPE Synergy + OneView Sample](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/synergy_image_streamer.yml).
 
-- HPE OneViewとAnsibleを使ってベアメタルサーバーをセットアップするサンプルはこちらにあります。  
+- HPE OneViewとAnsibleを使ってベアメタルサーバーをセットアップするサンプルは以下です。  
   - [C7000 Environment Setup](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/c7000_environment_setup.yml)
   - [HPE Synergy Environment Setup](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/synergy_environment_setup.yml)
 
 ## セットアップ手順
-本Ansible Moduleはコンテナ化されたバージョンとフルインストールバージョンの2つが用意されています。コンテナ化されたModuleは[Docker Store](https://store.docker.com/community/images/hewlettpackardenterprise/oneview-ansible-debian)から取得できます。また、コンテナ化されたModuleのマニュアルは[こちら](https://github.com/HewlettPackard/oneview-ansible-samples/blob/master/oneview-ansible-in-container/oneview-ansible-in-container.md)から参照可能です。  
+本Ansible Moduleはコンテナ化されたバージョンとフルインストールバージョンの2つが用意されています。コンテナ化されたModuleは[Docker Store](https://store.docker.com/community/images/hewlettpackardenterprise/oneview-ansible-debian)から取得できます。また、コンテナ化されたModuleに関する情報は[こちら](https://github.com/HewlettPackard/oneview-ansible-samples/blob/master/oneview-ansible-in-container/oneview-ansible-in-container.md)から確認して下さい。  
 
 フルインストールの手順は以下となります。
 
@@ -93,7 +94,7 @@ $ export ANSIBLE_MODULE_UTILS=/path/to/oneview-ansible/library/module_utils/
 
 #### JSON形式での設定
 本Ansible OneView moduleはHPE OneViewに接続するための情報（パスワードやユーザー名、IP）をJSON形式で設定可能です。
-設定例を以下に示します。
+設定例は以下です。
 
 ```json
 {
@@ -116,7 +117,7 @@ Proxy環境下で本moduleを実行する場合は、以下のようにProxyサ�
 
 :lock: 注意: パスワードはテキストで保存されるため、本JSON設定ファイルのパーミッションに注意してください。
 
-本JSON設定ファイルのパスはPlaybook内の`config`に指定する必要があります。Playbook内での設定例を以下に示します。
+本JSON設定ファイルのパスはPlaybook内の`config`に指定する必要があります。Playbook内での設定例は以下です。
 
 ```yml
 - name: Gather facts about the FCoE Network with name 'FCoE Network Test'
@@ -128,7 +129,7 @@ Proxy環境下で本moduleを実行する場合は、以下のようにProxyサ�
 #### 環境変数形式での設定
 
 環境変数形式でも設定可能です。
-設定例を以下に示します。
+設定例は以下です。
 
 ```bash
 # Required
@@ -144,7 +145,7 @@ export ONEVIEWSDK_PROXY='<proxy_host>:<proxy_port>'
 
 :lock: 注意: パスワードはテキストで保存されるため、特定のユーザーのみ環境変数を参照できる設定にしてください。  
 
-環境変数形式で設定する場合、JSON形式での設定のようにPlaybook内に`config`を指定する必要はありません。例を以下に示します。
+環境変数形式で設定する場合、JSON形式での設定のようにPlaybook内に`config`を指定する必要はありません。設定例は以下です。
 
 ```yml
 - name: Gather facts about the FCoE Network with name 'FCoE Network Test'
@@ -152,7 +153,7 @@ export ONEVIEWSDK_PROXY='<proxy_host>:<proxy_port>'
     name: "FCoE Network Test"
 ```
 
-環境変数を定義した後、本Moduleを利用したPlaybookを実行できます。
+環境変数を定義した後、本Moduleを利用したPlaybookが実行できます。
 
 #### パラメータ形式での設定
 
@@ -185,7 +186,7 @@ HPE OneView Ansible moduleはHPE OneView API エンドポイントバージョ�
 
 デフォルトのAPIバージョンは`3.00`（300）です。
 
-APIバージョンを指定したい場合は、前ステップで選択した設定方法を通じて、APIバージョンと認証情報を指定します。以下に例を示します。
+APIバージョンを指定したい場合は、前ステップで選択した設定方法を通じて、APIバージョンと認証情報を指定します。設定例は以下です。
 
 JSON形式
 ```json
@@ -211,7 +212,7 @@ APIバージョンとHPE OneViewバージョンのリストは以下です。
 
 本ModuleはHPE Synergy Image Streamerに関する機能も含まれています。
 HPE Synergy Image Streamerに対するModuleを使用する場合は、前述のHPE OneViewクライアント設定時にHPE Image StreamerのIPも設定する必要があります。
-以下に例を示します。
+設定例は以下です。
 
 JSON形式
 ```json
@@ -249,7 +250,7 @@ Moduleは**library**フォルダーに配置して下さい。すべてのモジ
 
 Moduleは**HPE OneView API Reference**のリソース名に従い、且つ単数形で命名して下さい。
 ファイル名の先頭に "oneview_"を付け、全て小文字、且つスペースはアンダースコアで置き換えて下さい。  
-例:** oneview_fc_network **
+例: ** oneview_fc_network **
 
 **テスト**
 
