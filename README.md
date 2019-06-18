@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/HewlettPackard/oneview-ansible.svg?branch=master)](https://travis-ci.org/HewlettPackard/oneview-ansible)
 [![Coverage Status](https://coveralls.io/repos/github/HewlettPackard/oneview-ansible/badge.svg?branch=master)](https://coveralls.io/github/HewlettPackard/oneview-ansible?branch=master)
 
+[日本語](README-ja.md)
 # Ansible Modules for HPE OneView
 
 Modules to manage HPE OneView using Ansible playbooks.
