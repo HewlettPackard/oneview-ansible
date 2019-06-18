@@ -250,7 +250,7 @@ Moduleは**library**フォルダーに配置して下さい。すべてのモジ
 
 Moduleは**HPE OneView API Reference**のリソース名に従い、且つ単数形で命名して下さい。
 ファイル名の先頭に "oneview_"を付け、全て小文字、且つスペースはアンダースコアで置き換えて下さい。  
-例: ** oneview_fc_network **
+例: **oneview_fc_network**
 
 **テスト**
 
