@@ -256,14 +256,12 @@ class ServerProfileFactsModule(OneViewModule):
 
     def execute_module(self):
         ansible_facts = {}
-
-        if not self.current_resource and self.module.params.get('uri'):
-            self.current_resource = self.resource_client.get_by_uri(self.module.params['uri'])
-        else:
-            server_profiles = self.resource_client.get_all(**self.facts_params)
+        server_profiles = []
 
         if self.current_resource:
             server_profiles = [self.current_resource.data]
+        elif not self.module.params.get("name") and not self.module.params.get('uri'):
+            server_profiles = self.resource_client.get_all(**self.facts_params)
 
         if self.options:
             ansible_facts = self.__gather_option_facts()

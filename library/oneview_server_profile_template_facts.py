@@ -163,8 +163,6 @@ class ServerProfileTemplateFactsModule(OneViewModule):
         return dict(changed=False, ansible_facts=facts)
 
     def __get_options(self, name, uri):
-        if not name and uri:
-            self.current_resource = self.resource_client.get_by_uri(uri)
         if not self.current_resource:
             return dict(server_profile_templates=[])
 

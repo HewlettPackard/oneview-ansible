@@ -405,16 +405,24 @@ class OneViewModule(object):
 
     def set_resource_object(self, resource_client):
         self.resource_client = resource_client
-        name = None
+        name = uri = None
 
-        if self.data and self.data.get("name"):
-            name = self.data["name"]
+        if self.data:
+            if self.data.get("name"):
+                name = self.data["name"]
+            if self.data.get("uri"):
+                uri = self.data["uri"]
 
-        if not name and self.module.params.get("name"):
-            name = self.module.params["name"]
+        if not name and not uri:
+            if self.module.params.get("name"):
+                name = self.module.params["name"]
+            if self.module.params.get("uri"):
+                uri = self.module.params["uri"]
 
         if name:
             self.current_resource = self.resource_client.get_by_name(name)
+        elif uri:
+            self.current_resource = self.resource_client.get_by_uri(uri)
 
     @abc.abstractmethod
     def execute_module(self):
