@@ -410,13 +410,13 @@ class OneViewModule(object):
         if self.data:
             if self.data.get("name"):
                 name = self.data["name"]
-            if self.data.get("uri"):
+            elif self.data.get("uri"):
                 uri = self.data["uri"]
 
         if not name and not uri:
             if self.module.params.get("name"):
                 name = self.module.params["name"]
-            if self.module.params.get("uri"):
+            elif self.module.params.get("uri"):
                 uri = self.module.params["uri"]
 
         if name:
