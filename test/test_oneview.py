@@ -1690,12 +1690,14 @@ class TestServerProfileReplaceNamesByUris():
     PROFILE_CONNECTIONS = [{"name": "connection-1", "networkUri": "/rest/fc-networks/98"},
                            {"name": "connection-2", "networkName": "FC Network"},
                            {"name": "connection-3", "networkName": "FCoE Network"},
-                           {"name": "connection-4", "networkName": 'Ethernet Network'}]
+                           {"name": "connection-4", "networkName": "Network Set"},
+                           {"name": "connection-5", "networkName": 'Ethernet Network'}]
 
     PROFILE_CONNECTIONS_WITH_NETWORK_URIS = [{"name": "connection-1", "networkUri": "/rest/fc-networks/98"},
                                              {"name": "connection-2", "networkUri": "/rest/fc-networks/14"},
                                              {"name": "connection-3", "networkUri": "/rest/fcoe-networks/16"},
-                                             {"name": "connection-4", "networkUri": "/rest/ethernet-networks/18"}]
+                                             {"name": "connection-4", "networkUri": "/rest/network-sets/20"},
+                                             {"name": "connection-5", "networkUri": "/rest/ethernet-networks/18"}]
 
     @pytest.fixture(autouse=True)
     def setUp(self):
@@ -1764,8 +1766,9 @@ class TestServerProfileReplaceNamesByUris():
         sp_data = deepcopy(self.BASIC_PROFILE)
         sp_data[SPKeys.CONNECTIONS] = self.PROFILE_CONNECTIONS
 
-        self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], [], []]
-        self.mock_ov_client.fcoe_networks.get_by.side_effect = [[dict(uri='/rest/fcoe-networks/16')], []]
+        self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], [], [], []]
+        self.mock_ov_client.fcoe_networks.get_by.side_effect = [[dict(uri='/rest/fcoe-networks/16')], [], []]
+        self.mock_ov_client.network_sets.get_by.side_effect = [[dict(uri='/rest/network-sets/20')], []]
         self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
@@ -1777,8 +1780,9 @@ class TestServerProfileReplaceNamesByUris():
         sp_data = deepcopy(self.BASIC_PROFILE)
         sp_data["connectionSettings"] = {SPKeys.CONNECTIONS: self.PROFILE_CONNECTIONS}
 
-        self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], [], []]
-        self.mock_ov_client.fcoe_networks.get_by.side_effect = [[dict(uri='/rest/fcoe-networks/16')], []]
+        self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], [], [], []]
+        self.mock_ov_client.fcoe_networks.get_by.side_effect = [[dict(uri='/rest/fcoe-networks/16')], [], []]
+        self.mock_ov_client.network_sets.get_by.side_effect = [[dict(uri='/rest/network-sets/20')], []]
         self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
 
         ServerProfileReplaceNamesByUris().replace(self.mock_ov_client, sp_data)
@@ -1794,6 +1798,7 @@ class TestServerProfileReplaceNamesByUris():
 
         self.mock_ov_client.fc_networks.get_by.return_value = []
         self.mock_ov_client.fcoe_networks.get_by.return_value = []
+        self.mock_ov_client.network_sets.get_by.return_value = []
         self.mock_ov_client.ethernet_networks.get_by.return_value = []
 
         expected_error = ServerProfileReplaceNamesByUris.SERVER_PROFILE_NETWORK_NOT_FOUND + "FC Network"
