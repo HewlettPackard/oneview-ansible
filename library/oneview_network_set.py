@@ -163,9 +163,9 @@ class NetworkSetModule(OneViewModuleBase):
                 raise OneViewModuleResourceNotFound(self.MSG_ETHERNET_NETWORK_NOT_FOUND + network_name_or_uri)
 
     def __replace_network_name_by_uri(self, data):
-        if 'networkUris' in data:
+        if data.get('networkUris'):
             data['networkUris'] = [self.__get_network_uri(x) for x in data['networkUris']]
-        if 'nativeNetworkUri' in data:
+        if data.get('nativeNetworkUri'):
             data['nativeNetworkUri'] = self.__get_network_uri(data['nativeNetworkUri'])
 
 
