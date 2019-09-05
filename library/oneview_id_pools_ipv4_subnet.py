@@ -99,9 +99,18 @@ class IdPoolsIpv4SubnetModule(OneViewModuleBase):
     def execute_module(self):
         if self.data.get('uri'):
             resource = self.resource_client.get(self.data.get('uri'))
+        elif self.data.get('networkId'):
+            resources = self.resource_client.get_all()
+            resource = None
+            for row in resources:
+                if row["networkId"] == self.data.get("networkId"):
+                    resource = row
         elif self.data.get('name'):
-            query = self.resource_client.get_all(filter="name='{}'".format(self.data.get('name')))
-            resource = query[0] if query and query[0].get('name') == self.data['name'] else None
+            resources = self.resource_client.get_all()
+            resoruce = None
+            for row in resources:
+                if row["name"] == self.data.get("name"):
+                    resource = row
         else:
             raise OneViewModuleValueError(self.MSG_VALUE_ERROR)
 
