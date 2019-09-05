@@ -41,14 +41,14 @@ config = {
     "ip": "10.50.4.100",
     "credentials": {
         "userName": "kattumun",
-        "password": "P@ssw0rd!"
+        "password": ""
     },
     "image_streamer_ip": "",
     "api_version": 800
 }
 
 class Base(object):
-    """Base class to keep all the common methods"""
+    """Base class for the resource classes"""
     def __init__(self, uri=None, oneview_client=None, write=None):
         self.oneview_client = oneview_client
         self.uri =uri
@@ -67,7 +67,7 @@ class Base(object):
         self.playbook_dir = None
 
     def create_path(self):
-        """Creates playbooks directory"""
+        """Creates playbook directory"""
         if self.playbook_dir:
             self.root_path = "{}/{}".format(self.root_path, self.playbook_dir)
 
@@ -83,9 +83,7 @@ class Base(object):
         return re.sub('\s+', '_', name).lower()
 
     def delete_unwanted_fields(self, data, fields=None):
-        """Deletes the unwanted fields from the resource
-        response to use it as playbook data
-        """
+        """Deletes unwanted fields from the resource data"""
         if not data:
             return
 
@@ -99,12 +97,10 @@ class Base(object):
                 del data[field]
 
     def pick_fields(self, data, fields_list):
-        """ """
         new_data = { field:data[field] for field in fields_list}
         return new_data
 
     def get_task(self, resource_module_name, task_name, data, is_fact=False):
-        """ """
         if is_fact:
             task = {"name": task_name,
                     resource_module_name: {"config": "{{config}}",
