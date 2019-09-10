@@ -681,14 +681,16 @@ class TestServerProfileModule(OneViewBaseTest):
         conn_1 = dict(name="connection-1", networkUri='/rest/fc-networks/98')
         conn_2 = dict(name="connection-2", networkName='FC Network')
         conn_3 = dict(name="connection-3", networkName='FCoE Network')
-        conn_4 = dict(name="connection-4", networkName='Ethernet Network')
+        conn_4 = dict(name="connection-4", networkName='Network Set')
+        conn_5 = dict(name="connection-5", networkName='Ethernet Network')
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][SPKeys.CONNECTIONS] = [conn_1, conn_2, conn_3, conn_4]
+        params['data'][SPKeys.CONNECTIONS] = [conn_1, conn_2, conn_3, conn_4, conn_5]
 
         self.resource.get_by_name.return_value = None
-        self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], [], []]
-        self.mock_ov_client.fcoe_networks.get_by.side_effect = [[dict(uri='/rest/fcoe-networks/16')], []]
+        self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], [], [], []]
+        self.mock_ov_client.fcoe_networks.get_by.side_effect = [[dict(uri='/rest/fcoe-networks/16')], [], []]
+        self.mock_ov_client.network_sets.get_by.side_effect = [[dict(uri='/rest/network-sets/15')], []]
         self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
         self.mock_ansible_module.params = deepcopy(params)
 
@@ -697,7 +699,8 @@ class TestServerProfileModule(OneViewBaseTest):
         expected_connections = [dict(name="connection-1", networkUri='/rest/fc-networks/98'),
                                 dict(name="connection-2", networkUri='/rest/fc-networks/14'),
                                 dict(name="connection-3", networkUri='/rest/fcoe-networks/16'),
-                                dict(name="connection-4", networkUri='/rest/ethernet-networks/18')]
+                                dict(name="connection-4", networkUri='/rest/network-sets/15'),
+                                dict(name="connection-5", networkUri='/rest/ethernet-networks/18')]
 
         args, _ = self.resource.create.call_args
         assert(args[0].get(SPKeys.CONNECTIONS) == expected_connections)
@@ -712,6 +715,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.fc_networks.get_by.return_value = []
         self.mock_ov_client.fcoe_networks.get_by.return_value = []
         self.mock_ov_client.ethernet_networks.get_by.return_value = []
+        self.mock_ov_client.network_sets.get_by.return_value = []
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()
@@ -1616,14 +1620,16 @@ class TestServerProfileModule(OneViewBaseTest):
         conn_1 = dict(name="connection-1", networkUri='/rest/fc-networks/98')
         conn_2 = dict(name="connection-2", networkName='FC Network')
         conn_3 = dict(name="connection-3", networkName='FCoE Network')
-        conn_4 = dict(name="connection-4", networkName='Ethernet Network')
+        conn_4 = dict(name="connection-4", networkName='Network set')
+        conn_5 = dict(name="connection-5", networkName='Ethernet Network')
 
         params = deepcopy(PARAMS_FOR_PRESENT)
-        params['data'][SPKeys.CONNECTIONS] = [conn_1, conn_2, conn_3, conn_4]
+        params['data'][SPKeys.CONNECTIONS] = [conn_1, conn_2, conn_3, conn_4, conn_5]
 
         self.resource.data = deepcopy(BASIC_PROFILE)
-        self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], [], []]
-        self.mock_ov_client.fcoe_networks.get_by.side_effect = [[dict(uri='/rest/fcoe-networks/16')], []]
+        self.mock_ov_client.fc_networks.get_by.side_effect = [[dict(uri='/rest/fc-networks/14')], [], [], []]
+        self.mock_ov_client.fcoe_networks.get_by.side_effect = [[dict(uri='/rest/fcoe-networks/16')], [], []]
+        self.mock_ov_client.network_sets.get_by.side_effect = [[dict(uri='/rest/network-sets/20')], []]
         self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
         self.mock_ansible_module.params = deepcopy(params)
 
@@ -1632,7 +1638,8 @@ class TestServerProfileModule(OneViewBaseTest):
         expected_connections = [dict(name="connection-1", networkUri='/rest/fc-networks/98'),
                                 dict(name="connection-2", networkUri='/rest/fc-networks/14'),
                                 dict(name="connection-3", networkUri='/rest/fcoe-networks/16'),
-                                dict(name="connection-4", networkUri='/rest/ethernet-networks/18')]
+                                dict(name="connection-4", networkUri='/rest/network-sets/20'),
+                                dict(name="connection-5", networkUri='/rest/ethernet-networks/18')]
 
         args, _ = self.resource.update.call_args
         assert(args[0].get(SPKeys.CONNECTIONS) == expected_connections)
@@ -1647,6 +1654,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.fc_networks.get_by.return_value = []
         self.mock_ov_client.fcoe_networks.get_by.return_value = []
         self.mock_ov_client.ethernet_networks.get_by.return_value = []
+        self.mock_ov_client.network_sets.get_by.return_value = []
         self.mock_ansible_module.params = deepcopy(params)
 
         ServerProfileModule().run()

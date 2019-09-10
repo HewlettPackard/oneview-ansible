@@ -1131,6 +1131,10 @@ class ServerProfileReplaceNamesByUris(object):
         if fcoe_networks:
             return fcoe_networks[0]
 
+        network_sets = self.oneview_client.network_sets.get_by('name', name)
+        if network_sets:
+            return network_sets[0]
+
         ethernet_networks = self.oneview_client.ethernet_networks.get_by('name', name)
         if not ethernet_networks:
             raise OneViewModuleResourceNotFound(self.SERVER_PROFILE_NETWORK_NOT_FOUND + name)
