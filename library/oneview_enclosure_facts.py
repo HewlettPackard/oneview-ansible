@@ -164,11 +164,14 @@ class EnclosureFactsModule(OneViewModule):
 
         ansible_facts = {}
 
-        if self.options and self.current_resource:
-            enclosures = self.current_resource.data
-            ansible_facts = self._gather_optional_facts(self.options)
-        else:
+        if self.current_resource:
+            enclosures = [self.current_resource.data]
+            if self.options:
+                ansible_facts = self._gather_optional_facts(self.options)
+        elif not self.module.params.get("name") and not self.module.params.get('uri'):
             enclosures = self.resource_client.get_all(**self.facts_params)
+        else:
+            enclosures = []
 
         ansible_facts['enclosures'] = enclosures
 
