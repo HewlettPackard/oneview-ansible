@@ -345,7 +345,9 @@ class TestOneViewModule():
 
         ov_base = OneViewModule()
         ov_base.resource_client = mock.Mock()
-        ov_base.data = self.RESOURCE_COMMON.copy()
+        data = self.RESOURCE_COMMON.copy()
+        del data["name"]
+        ov_base.data = data
 
         ov_base.set_resource_object(ov_base.resource_client)
         ov_base.current_resource.data = self.RESOURCE_COMMON.copy()
