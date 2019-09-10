@@ -73,6 +73,12 @@ class TestOneViewModule():
         data={'name': 'resource name'}
     )
 
+    PARAMS_FOR_PRESENT_WITH_URI = dict(
+        config='config.json',
+        state='present',
+        data={'uri': '/rest/resource/id'}
+    )
+
     RESOURCE_COMMON = {'uri': '/rest/resource/id',
                        'name': 'Resource Name'
                        }
@@ -326,6 +332,23 @@ class TestOneViewModule():
         ov_base.data = self.RESOURCE_COMMON.copy()
 
         ov_base.resource_client.get_by_name.return_value = mock.Mock()
+        ov_base.set_resource_object(ov_base.resource_client)
+        ov_base.current_resource.data = self.RESOURCE_COMMON.copy()
+
+        facts = ov_base.resource_present(fact_name="resource")
+        assert facts == dict(changed=False,
+                             msg=OneViewModule.MSG_ALREADY_PRESENT,
+                             ansible_facts=dict(resource=self.RESOURCE_COMMON.copy()))
+
+    def test_resource_present_should_not_update_when_data_is_equals_with_resource_uri(self):
+        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT_WITH_URI
+
+        ov_base = OneViewModule()
+        ov_base.resource_client = mock.Mock()
+        data = self.RESOURCE_COMMON.copy()
+        del data["name"]
+        ov_base.data = data
+
         ov_base.set_resource_object(ov_base.resource_client)
         ov_base.current_resource.data = self.RESOURCE_COMMON.copy()
 
