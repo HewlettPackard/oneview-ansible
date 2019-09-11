@@ -9,8 +9,8 @@ Modules to manage HPE OneView using Ansible playbooks.
 
  - Ansible >= 2.1
  - Python >= 2.7.9
- - HPE OneView Python SDK ([Install HPE OneView Python SDK](https://github.com/HewlettPackard/python-hpOneView#installation))
-
+ - HPE OneView Python SDK
+ 
 ## Modules
 
 Each OneView resource operation is exposed through an Ansible module. We also provide a specific module to gather facts about the resource.
@@ -74,7 +74,15 @@ Run:
 $ git clone https://github.com/HewlettPackard/oneview-ansible.git
 ```
 
-### 2. Configure the ANSIBLE_LIBRARY environmental variable
+### 2. Install dependency packages
+
+Run pip command from the cloned directory:
+    
+  ```bash
+  pip install -r requirements.txt
+  ```
+  
+### 3. Configure the ANSIBLE_LIBRARY environmental variable
 
 Set the environment variables `ANSIBLE_LIBRARY` and `ANSIBLE_MODULE_UTILS`, specifying the `library` full path from the cloned project:
 
@@ -83,7 +91,7 @@ $ export ANSIBLE_LIBRARY=/path/to/oneview-ansible/library
 $ export ANSIBLE_MODULE_UTILS=/path/to/oneview-ansible/library/module_utils/
 ```
 
-### 3. OneViewClient Configuration
+### 4. OneViewClient Configuration
 
 #### Using a JSON Configuration File
 
@@ -176,7 +184,7 @@ This option allows the parameters `hostname`, `username`, `password`, `api_versi
 
 Setting `no_log: true` is highly recommended in this case, as the credentials are otherwise returned in the log after task completion.
 
-### 4. Setting your OneView version
+### 5. Setting your OneView version
 
 The Ansible modules for HPE OneView support the API endpoints for HPE OneView 2.0, 3.0, 3.10, 4.0 and 4.10.
 
@@ -203,7 +211,7 @@ The API list is as follows:
 - HPE OneView 4.0 API version: `600`
 - HPE OneView 4.10 API version: `800`
 
-### 5. HPE Synergy Image Streamer
+### 6. HPE Synergy Image Streamer
 
 Modules to manage HPE Synergy Image Streamer appliances are also included in this project.
 To use these modules, you must set the Image Streamer IP on the OneViewClient configuration,
