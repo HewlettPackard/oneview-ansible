@@ -229,7 +229,8 @@ from ansible.module_utils.oneview import (OneViewModule,
                                           OneViewModuleTaskError,
                                           SPKeys,
                                           OneViewModuleException,
-                                          compare)
+                                          compare,
+                                          exceptions)
 
 
 class ServerProfileModule(OneViewModule):
@@ -446,7 +447,7 @@ class ServerProfileModule(OneViewModule):
                 self.module.log(msg="Request Server Profile creation")
                 return self.resource_client.create(server_profile, **self.params)
 
-            except OneViewModuleTaskError as task_error:
+            except exceptions.HPOneViewTaskError as task_error:
                 self.module.log("Error code: {} Message: {}".format(str(task_error.error_code), str(task_error.msg)))
                 if task_error.error_code in self.ASSIGN_HARDWARE_ERROR_CODES:
                     # if this is because the server is already assigned, someone grabbed it before we assigned,
