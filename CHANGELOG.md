@@ -1,5 +1,20 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v5.4.0 (Unreleased)
+
+This release extends the planned support of the modules to OneView REST API version 1000 and 1200 (OneView v5.0).
+
+#### Major changes
+1. Extended support of planned modules to API1000 and API1200.
+
+#### Modules supported in this release
+- oneview_ethernet_network
+- oneview_ethernet_network_facts
+- oneview_fc_network
+- oneview_fc_network_facts
+- oneview_fcoe_network
+- oneview_fcoe_network_facts
+
 ## v5.3.1
 
 This release is to support resource name instead of resource URIs in server profile and profile template.
