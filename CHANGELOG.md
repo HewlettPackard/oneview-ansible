@@ -2,7 +2,7 @@
 
 ## v5.4.0 (Unreleased)
 
-This release extends the planned support of the modules to OneView REST API version 1000 and 1200 (OneView v5.0).
+This release extends the planned support of the modules to OneView REST API version 1000(OneView v4.2) and 1200(OneView v5.0).
 
 #### Major changes
 1. Extended support of planned modules to API1000 and API1200.
