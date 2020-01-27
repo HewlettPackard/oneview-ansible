@@ -1,5 +1,17 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v5.4.0
+
+This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 OneView v4.2) and 1200 (OneView v5.0).
+
+#### Major changes
+1. Extended support of planned modules to API800/1000/1200.
+3. Modules upgraded in this release requires hpOneView version 5.0.0 or above.
+
+#### Modules supported in this release
+- oneview_network_set
+- oneview_network_set_facts
+
 ## v5.3.1
 
 This release is to support resource name instead of resource URIs in server profile and profile template.
@@ -7,7 +19,7 @@ This release is to support resource name instead of resource URIs in server prof
 #### Major changes
  1. Updated ReplaceServerProfileNamebyUris class to support the schema changes in latest API version.
  2. Added an end-to-end example playbook for server profile template with the below resources
-    - enclosure group 
+    - enclosure group
     - server hardware type
     - server profile name
     - ethernet network

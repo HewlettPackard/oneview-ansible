@@ -6850,7 +6850,7 @@ Manage OneView Network Set resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -6872,7 +6872,7 @@ Manage OneView Network Set resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'OneViewSDK Test Network Set'
@@ -6885,7 +6885,7 @@ Manage OneView Network Set resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 800
     state: present
     data:
       name: 'OneViewSDK Test Network Set'
@@ -6948,7 +6948,7 @@ Retrieve facts about the OneView Network Sets
  Retrieve facts about the Network Sets from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -6970,7 +6970,7 @@ Retrieve facts about the OneView Network Sets
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 
@@ -6981,7 +6981,7 @@ Retrieve facts about the OneView Network Sets
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
     params:
       start: 0
       count: 3
