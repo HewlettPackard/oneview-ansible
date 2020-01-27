@@ -76,7 +76,7 @@ class TestNetworkSetModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.data = [NETWORK_SET]
+        self.resource.data = NETWORK_SET
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -108,7 +108,8 @@ class TestNetworkSetModule(OneViewBaseTest):
 
     def test_should_raise_exception_when_ethernet_network_not_found(self):
         self.resource.get_by.side_effect = [NETWORK_SET], []
-
+        self.resource.get_by_name.return_value = None
+        self.mock_ov_client.ethernet_networks.get_by.return_value = []
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES.copy()
         self.mock_ansible_module.params['data']['networkUris'] = ['Name of a Network']
 
@@ -119,6 +120,8 @@ class TestNetworkSetModule(OneViewBaseTest):
 
     def test_should_raise_exception_when_native_ethernet_network_not_found(self):
         self.resource.get_by.side_effect = [NETWORK_SET], []
+        self.resource.get_by_name.return_value = None
+        self.mock_ov_client.ethernet_networks.get_by.return_value = []        
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES.copy()
         self.mock_ansible_module.params['data']['networkUris'] = ['/rest/ethernet-networks/aaa-bbb-ccc']
         self.mock_ansible_module.params['data']['nativeNetworkUri'] = 'Name of a Native Network'
