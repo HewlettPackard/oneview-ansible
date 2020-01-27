@@ -74,10 +74,10 @@ server_profile:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
 
 
-class StorageVolumeAttachmentModule(OneViewModuleBase):
+class StorageVolumeAttachmentModule(OneViewModule):
     PROFILE_NOT_FOUND = "Server Profile not found."
     PRESENTATIONS_REMOVED = "Extra presentations removed"
 
@@ -88,7 +88,7 @@ class StorageVolumeAttachmentModule(OneViewModuleBase):
         }
 
         super(StorageVolumeAttachmentModule, self).__init__(additional_arg_spec=argument_spec)
-        self.resource_client = self.oneview_client.storage_volume_attachments
+        self.set_resource_object(self.oneview_client.storage_volume_attachments)
 
     def execute_module(self):
 
@@ -108,7 +108,7 @@ class StorageVolumeAttachmentModule(OneViewModuleBase):
             profile = self.oneview_client.server_profiles.get_by_name(server_profile)
 
             if profile:
-                return profile['uri']
+                return profile.data['uri']
             else:
                 raise OneViewModuleResourceNotFound(self.PROFILE_NOT_FOUND)
 

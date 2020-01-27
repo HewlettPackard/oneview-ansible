@@ -152,13 +152,13 @@ storage_volume_attachment_paths:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError
 
 SPECIFIC_ATTACHMENT_OPTIONS = ['storageVolumeAttachmentUri', 'storageVolumeUri', 'storageVolumeName',
                                'serverProfileName']
 
 
-class StorageVolumeAttachmentFactsModule(OneViewModuleBase):
+class StorageVolumeAttachmentFactsModule(OneViewModule):
     ATTACHMENT_KEY_REQUIRED = "Server Profile Name and Volume Name or Volume Uri are required."
 
     def __init__(self):
@@ -171,14 +171,13 @@ class StorageVolumeAttachmentFactsModule(OneViewModuleBase):
             params=dict(required=False, type='dict'),
         )
         super(StorageVolumeAttachmentFactsModule, self).__init__(additional_arg_spec=argument_spec)
-        self.resource_client = self.oneview_client.storage_volume_attachments
+        self.set_resource_object(self.oneview_client.storage_volume_attachments)
 
         resource_uri = self.oneview_client.storage_volume_attachments.URI
         self.__search_attachment_uri = str(resource_uri) + "?filter=storageVolumeUri='{}'"
 
     def execute_module(self):
         facts = {}
-        client = self.oneview_client.storage_volume_attachments
         params = self.module.params
 
         param_specific_attachment = [entry for entry in SPECIFIC_ATTACHMENT_OPTIONS if params.get(entry)]
@@ -187,13 +186,13 @@ class StorageVolumeAttachmentFactsModule(OneViewModuleBase):
             attachments = self.__get_specific_attachment(params)
             self.__get_paths(attachments, self.options, facts)
         else:
-            attachments = client.get_all(**self.facts_params)
+            attachments = self.resource_client.get_all(**self.facts_params)
 
         facts['storage_volume_attachments'] = attachments
 
         if self.options.get('extraUnmanagedStorageVolumes'):
             volumes_options = self.__get_sub_options(self.options['extraUnmanagedStorageVolumes'])
-            facts['extra_unmanaged_storage_volumes'] = client.get_extra_unmanaged_storage_volumes(**volumes_options)
+            facts['extra_unmanaged_storage_volumes'] = self.resource_client.get_extra_unmanaged_storage_volumes(**volumes_options)
 
         return dict(changed=False, ansible_facts=facts)
 
@@ -202,7 +201,7 @@ class StorageVolumeAttachmentFactsModule(OneViewModuleBase):
         attachment_uri = params.get('storageVolumeAttachmentUri')
 
         if attachment_uri:
-            return [self.oneview_client.storage_volume_attachments.get(attachment_uri)]
+            return [self.resource_client.get_by_uri(attachment_uri)]
         else:
             volume_uri = params.get('storageVolumeUri')
             profile_name = params.get('serverProfileName')
@@ -216,9 +215,9 @@ class StorageVolumeAttachmentFactsModule(OneViewModuleBase):
                     volume_uri = volumes[0]['uri']
 
             uri = self.__search_attachment_uri.format(volume_uri, profile_name)
-            attachments = self.oneview_client.storage_volume_attachments.get(uri) or {}
+            attachments = self.resource_client.get_by_uri(uri) or {}
 
-            return attachments.get('members')
+            return [attachments.data]
 
     def __get_paths(self, attachments, options, facts):
 
@@ -229,9 +228,9 @@ class StorageVolumeAttachmentFactsModule(OneViewModuleBase):
             path_id_or_uri = paths_options.get('pathId') or paths_options.get('pathUri')
 
             if path_id_or_uri:
-                paths = [self.oneview_client.storage_volume_attachments.get_paths(attachment_uri, path_id_or_uri)]
+                paths = [self.resource_client.get_paths(attachment_uri, path_id_or_uri)]
             else:
-                paths = self.oneview_client.storage_volume_attachments.get_paths(attachment_uri)
+                paths = self.resource_client.get_paths(attachment_uri)
 
             facts['storage_volume_attachment_paths'] = paths
 
