@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ description:
     - Retrieve facts about the Network Sets from OneView.
 version_added: "2.4"
 requirements:
-    - hpOneView >= 2.0.1
+    - hpOneView >= 5.0.0
 author:
     - Felipe Bulsoni (@fgbulsoni)
     - Thiago Miotto (@tmiotto)
@@ -58,7 +58,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
   no_log: true
   delegate_to: localhost
 
@@ -69,7 +69,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 800
     params:
       start: 0
       count: 3
@@ -129,10 +129,10 @@ network_sets:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class NetworkSetFactsModule(OneViewModuleBase):
+class NetworkSetFactsModule(OneViewModule):
     argument_spec = dict(
         name=dict(type='str'),
         options=dict(type='list'),
@@ -141,6 +141,7 @@ class NetworkSetFactsModule(OneViewModuleBase):
 
     def __init__(self):
         super(NetworkSetFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.set_resource_object(self.oneview_client.network_sets)
 
     def execute_module(self):
 
@@ -148,11 +149,11 @@ class NetworkSetFactsModule(OneViewModuleBase):
 
         if 'withoutEthernet' in self.options:
             filter_by_name = ("\"'name'='%s'\"" % name) if name else ''
-            network_sets = self.oneview_client.network_sets.get_all_without_ethernet(filter=filter_by_name)
+            network_sets = self.resource_client.get_all_without_ethernet(filter=filter_by_name)
         elif name:
-            network_sets = self.oneview_client.network_sets.get_by('name', name)
+            network_sets = self.resource_client.get_by('name', name)
         else:
-            network_sets = self.oneview_client.network_sets.get_all(**self.facts_params)
+            network_sets = self.resource_client.get_all(**self.facts_params)
 
         return dict(changed=False,
                     ansible_facts=dict(network_sets=network_sets))
