@@ -299,7 +299,7 @@ class VolumeModule(OneViewModule):
         new_name = self.data.pop('newName', None)
         if new_name:
             new_resource = self.get_by_name(new_name)
-            if new_ resource:
+            if new_resource:
                 raise OneViewModuleValueError(self.MSG_NEW_NAME_INVALID)
             self.data['name'] = new_name
         merged_data = self.current_resource.copy()

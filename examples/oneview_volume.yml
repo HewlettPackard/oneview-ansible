@@ -31,7 +31,7 @@
             description: 'Test volume with common creation: Storage Pool'
             size: 2147483648  # 2GB
             storagePool: '{{ storage_pool_uri }}'
-          templateUri: '/rest/storage-pools/4EF694D4-FB48-4209-8790-AB200070738C'
+          templateUri: '/rest/storage-volume-templates/eb95244f-967b-4e38-9924-ab50011116a8'
           isPermanent: false
       delegate_to: localhost
 
