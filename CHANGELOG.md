@@ -11,6 +11,8 @@ This release extends the planned support of the modules to OneView REST API vers
 #### Modules supported in this release
 - oneview_network_set
 - oneview_network_set_facts
+- oneview_storage_volume_attachment
+- oneview_storage_volume_attachment_facts
 
 ## v5.3.1
 

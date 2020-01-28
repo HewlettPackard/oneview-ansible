@@ -383,11 +383,11 @@
 |<sub>/rest/storage-systems/{id}/reachable-ports</sub>                                    | GET      | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/storage-systems/{id}/templates</sub>                                          | GET      | :white_check_mark:   | :white_check_mark:   |
 |     **Storage Volume Attachments**                                                                                                                |
-|<sub>/rest/storage-volume-attachments</sub>                                              | GET      | :white_check_mark:   |
-|<sub>/rest/storage-volume-attachments/{id}</sub>                                         | GET      | :white_check_mark:   |
-|<sub>/rest/storage-volume-attachments/repair</sub>                                       | POST     | :white_check_mark:   |
-|<sub>/rest/storage-volume-attachments/{attachmentId}/paths</sub>                         | GET      | :heavy_minus_sign:   |
-|<sub>/rest/storage-volume-attachments/{attachmentId)/paths/{id}</sub>                    | GET      | :heavy_minus_sign:   |
+|<sub>/rest/storage-volume-attachments</sub>                                              | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/storage-volume-attachments/{id}</sub>                                         | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/storage-volume-attachments/repair</sub>                                       | POST     | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/storage-volume-attachments/{attachmentId}/paths</sub>                         | GET      | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   |
+|<sub>/rest/storage-volume-attachments/{attachmentId)/paths/{id}</sub>                    | GET      | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   |
 |     **Storage Volume Templates**                                                                                                                  |
 |<sub>/rest/storage-volume-templates</sub>                                                | GET      | :white_check_mark:   | :white_check_mark:
 |<sub>/rest/storage-volume-templates</sub>                                                | POST     | :white_check_mark:   | :white_check_mark:
