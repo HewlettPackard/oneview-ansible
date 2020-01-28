@@ -2,11 +2,11 @@
 
 ## v5.4.0
 
-This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 OneView v4.2) and 1200 (OneView v5.0).
+This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2) and 1200 (OneView v5.0).
 
 #### Major changes
 1. Extended support of planned modules to API800/1000/1200.
-3. Modules upgraded in this release requires hpOneView version 5.0.0 or above.
+2. Modules upgraded in this release requires hpOneView version 5.0.0. Also, OneView Python library is now migrated to new repository which is available at https://github.com/HewlettPackard/oneview-python.
 
 #### Modules supported in this release
 - oneview_network_set
