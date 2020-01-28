@@ -203,10 +203,10 @@ storage_volume:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError, OneViewModuleResourceNotFound, OneViewModuleException
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError, OneViewModuleResourceNotFound, OneViewModuleException
 
 
-class VolumeModule(OneViewModuleBase):
+class VolumeModule(OneViewModule):
     MSG_CREATED = 'Volume added/created successfully.'
     MSG_UPDATED = 'Volume updated successfully.'
     MSG_DELETED = 'Volume removed/deleted successfully.'
@@ -235,53 +235,48 @@ class VolumeModule(OneViewModuleBase):
         super(VolumeModule, self).__init__(additional_arg_spec=argument_spec,
                                            validate_etag_support=True)
 
-        self.resource_client = self.oneview_client.volumes
+        self.set_resource_object(self.oneview_client.volumes)
 
     def execute_module(self):
-        if self.data.get('deviceVolumeName'):
-            name = self.data.get('deviceVolumeName')
-        else:
-            name = self.data.get('name') or self.data.get('properties').get('name')
-        resource = self.get_by_name(name)
 
         if self.state == 'present':
-            return self.__present(resource)
+            return self.__present()
         if self.state == 'managed':
-            return self.__managed(resource)
+            return self.__managed()
         elif self.state == 'absent':
-            return self.__absent(resource)
+            return self.__absent()
         else:
-            if not resource:
+            if not self.current_resource:
                 raise OneViewModuleResourceNotFound(self.MSG_NOT_FOUND)
 
             if self.state == 'repaired':
-                return self.__repair(resource)
+                return self.__repair()
             elif self.state == 'snapshot_created':
-                return self.__create_snapshot(resource)
+                return self.__create_snapshot()
             elif self.state == 'snapshot_deleted':
-                return self.__delete_snapshot(resource)
+                return self.__delete_snapshot()
 
-    def __present(self, resource):
+    def __present(self):
         if 'snapshotUri' in self.data:
             return self.__create_from_snapshot()
-        elif not resource:
+        elif not self.current_resource:
             return self.__create()
         else:
-            return self.__update(resource)
+            return self.__update()
 
-    def __managed(self, resource):
-        if not resource:
-            resource = self.resource_client.add_from_existing(self.data)
+    def __managed(self):
+        if not self.current_resource:
+            self.current_resource = self.resource_client.add_from_existing(self.data)
             changed = True
             msg = self.MSG_ADDED
         else:
             changed = False
             msg = self.MSG_ALREADY_MANAGED
-        return dict(changed=changed, msg=msg, ansible_facts=dict(storage_volume=resource))
+        return dict(changed=changed, msg=msg, ansible_facts=dict(storage_volume=self.current_resource))
 
-    def __absent(self, resource):
-        if resource:
-            self.resource_client.delete(resource,
+    def __absent(self):
+        if self.current_resource:
+            self.resource_client.delete(self.current_resource,
                                         export_only=self.module.params.get('export_only'),
                                         suppress_device_updates=self.module.params.get('suppress_device_updates'))
             return dict(changed=True, msg=self.MSG_DELETED)
@@ -300,14 +295,14 @@ class VolumeModule(OneViewModuleBase):
                     msg=self.MSG_CREATED,
                     ansible_facts=dict(storage_volume=created_volume))
 
-    def __update(self, resource):
+    def __update(self):
         new_name = self.data.pop('newName', None)
         if new_name:
             new_resource = self.get_by_name(new_name)
-            if new_resource:
+            if new_ resource:
                 raise OneViewModuleValueError(self.MSG_NEW_NAME_INVALID)
             self.data['name'] = new_name
-        merged_data = resource.copy()
+        merged_data = self.current_resource.copy()
         merged_data.update(self.data)
 
         updated_volume = self.resource_client.update(merged_data)
@@ -316,23 +311,23 @@ class VolumeModule(OneViewModuleBase):
                     msg=self.MSG_UPDATED,
                     ansible_facts=dict(storage_volume=updated_volume))
 
-    def __repair(self, resource):
+    def __repair(self):
 
-        self.resource_client.repair(resource['uri'])
+        self.resource_client.repair(self.current_resource['uri'])
         return dict(changed=True, msg=self.MSG_REPAIRED)
 
-    def __create_snapshot(self, resource):
+    def __create_snapshot(self):
         if 'snapshotParameters' not in self.data:
             raise OneViewModuleResourceNotFound(self.MSG_NO_OPTIONS_PROVIDED)
 
-        self.resource_client.create_snapshot(resource['uri'], self.data['snapshotParameters'])
+        self.resource_client.create_snapshot(self.current_resource['uri'], self.data['snapshotParameters'])
         return dict(changed=True, msg=self.MSG_SNAPSHOT_CREATED)
 
-    def __delete_snapshot(self, resource):
+    def __delete_snapshot(self):
         if 'snapshotParameters' not in self.data:
             raise OneViewModuleResourceNotFound(self.MSG_NO_OPTIONS_PROVIDED)
 
-        snapshot = self.__get_snapshot_by_name(resource, self.data)
+        snapshot = self.__get_snapshot_by_name(self.current_resource, self.data)
         if not snapshot:
             raise OneViewModuleResourceNotFound(self.MSG_SNAPSHOT_NOT_FOUND)
         else:
