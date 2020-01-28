@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -61,8 +61,9 @@ class TestNetworkSetModule(OneViewBaseTest):
     """
 
     def test_should_create_new_network_set(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = NETWORK_SET
+        self.resource.get_by_name.return_value = []
+        self.resource.create.return_value = self.resource
+        self.resource.data = NETWORK_SET
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -75,7 +76,7 @@ class TestNetworkSetModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by.return_value = [NETWORK_SET]
+        self.resource.data = NETWORK_SET
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -93,9 +94,7 @@ class TestNetworkSetModule(OneViewBaseTest):
                                         '/rest/ethernet-networks/ddd-eee-fff']
                            )
 
-        self.resource.get_by.side_effect = [NETWORK_SET], []
-        self.resource.update.return_value = data_merged
-        self.mock_ov_client.ethernet_networks.get_by.return_value = [{'uri': '/rest/ethernet-networks/ddd-eee-fff'}]
+        self.resource.data = data_merged
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
@@ -109,8 +108,8 @@ class TestNetworkSetModule(OneViewBaseTest):
 
     def test_should_raise_exception_when_ethernet_network_not_found(self):
         self.resource.get_by.side_effect = [NETWORK_SET], []
+        self.resource.get_by_name.return_value = None
         self.mock_ov_client.ethernet_networks.get_by.return_value = []
-
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES.copy()
         self.mock_ansible_module.params['data']['networkUris'] = ['Name of a Network']
 
@@ -121,6 +120,7 @@ class TestNetworkSetModule(OneViewBaseTest):
 
     def test_should_raise_exception_when_native_ethernet_network_not_found(self):
         self.resource.get_by.side_effect = [NETWORK_SET], []
+        self.resource.get_by_name.return_value = None
         self.mock_ov_client.ethernet_networks.get_by.return_value = []
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES.copy()
         self.mock_ansible_module.params['data']['networkUris'] = ['/rest/ethernet-networks/aaa-bbb-ccc']
@@ -132,7 +132,7 @@ class TestNetworkSetModule(OneViewBaseTest):
             exception=mock.ANY, msg=NetworkSetModule.MSG_ETHERNET_NETWORK_NOT_FOUND + "Name of a Native Network")
 
     def test_should_remove_network(self):
-        self.resource.get_by.return_value = [NETWORK_SET]
+        self.resource.data = NETWORK_SET
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
@@ -144,7 +144,7 @@ class TestNetworkSetModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_network_set_not_exist(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
@@ -163,16 +163,16 @@ class TestNetworkSetModule(OneViewBaseTest):
         resource_data = NETWORK_SET.copy()
         resource_data['scopeUris'] = ['fake']
         resource_data['uri'] = 'rest/network-sets/fake'
-        self.resource.get_by.return_value = [resource_data]
+        self.resource.data = resource_data
 
         patch_return = resource_data.copy()
         patch_return['scopeUris'] = ['test']
-        self.resource.patch.return_value = patch_return
-
+        patch_return_obj = self.resource.copy()
+        patch_return_obj.data = patch_return
+        self.resource.patch.return_value = patch_return_obj
         NetworkSetModule().run()
 
-        self.resource.patch.assert_called_once_with('rest/network-sets/fake',
-                                                    operation='replace',
+        self.resource.patch.assert_called_once_with(operation='replace',
                                                     path='/scopeUris',
                                                     value=['test'])
 
@@ -189,7 +189,7 @@ class TestNetworkSetModule(OneViewBaseTest):
 
         resource_data = NETWORK_SET.copy()
         resource_data['scopeUris'] = ['test']
-        self.resource.get_by.return_value = [resource_data]
+        self.resource.data = resource_data
 
         NetworkSetModule().run()
 
