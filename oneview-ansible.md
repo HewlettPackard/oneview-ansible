@@ -6872,7 +6872,7 @@ Manage OneView Network Set resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'OneViewSDK Test Network Set'
@@ -6885,7 +6885,7 @@ Manage OneView Network Set resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'OneViewSDK Test Network Set'
@@ -6903,13 +6903,13 @@ Manage OneView Network Set resources.
     data:
         name: 'OneViewSDK Test Network Set - Renamed'
 
-# This feature is only available for V300 and V500
+# This feature is only available for V300 and V1200
 - name: Update the Network set with two scopes
   oneview_network_set:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 1200
     state: present
     data:
       name: OneViewSDK Test Network Set
@@ -6970,7 +6970,7 @@ Retrieve facts about the OneView Network Sets
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   no_log: true
   delegate_to: localhost
 
@@ -6981,7 +6981,7 @@ Retrieve facts about the OneView Network Sets
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -6997,7 +6997,7 @@ Retrieve facts about the OneView Network Sets
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 1200
     options:
         - withoutEthernet
   no_log: true
@@ -7011,7 +7011,7 @@ Retrieve facts about the OneView Network Sets
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 1200
     name: Name of the Network Set
   no_log: true
   delegate_to: localhost
@@ -7024,7 +7024,7 @@ Retrieve facts about the OneView Network Sets
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 500
+    api_version: 1200
     name: Name of the Network Set
     options:
         - withoutEthernet
