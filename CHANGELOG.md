@@ -9,8 +9,18 @@ This release extends the planned support of the modules to OneView REST API vers
 2. Modules upgraded in this release requires hpOneView version 5.0.0. Also, OneView Python library is now migrated to new repository which is available at https://github.com/HewlettPackard/oneview-python.
 
 #### Modules supported in this release
+- oneview_enclosure
+- oneview_enclosure_facts
+- oneview_interconnect_type_facts
+- oneview_logical_enclosure
+- oneview_logical_enclosure_facts
+- oneview_logical_interconnect
+- oneview_logical_interconnect_facts
+- oneview_logical_interconnect_group
+- oneview_logical_interconnect_group_facts
 - oneview_network_set
 - oneview_network_set_facts
+- oneview_task_facts
 
 ## v5.3.1
 
