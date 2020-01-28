@@ -85,7 +85,7 @@ EXAMPLES = '''
     data:
         name: 'OneViewSDK Test Network Set - Renamed'
 
-# This feature is only available for V300 and V1200
+# This feature is only available for V300 and V500
 - name: Update the Network set with two scopes
   oneview_network_set:
     hostname: 172.16.101.48
