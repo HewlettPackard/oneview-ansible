@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
       device reset, reset port protection, and update the interconnect ports.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.3.0"
+    - "hpOneView >= 5.0.0"
 author: "Bruno Souza (@bsouza)"
 options:
     state:
@@ -77,7 +77,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: 'powered_off'
     name: '0000A66102, interconnect 2'
 
@@ -86,7 +86,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: 'uid_on'
     name: '0000A66102, interconnect 2'
 
@@ -95,7 +95,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: 'uid_on'
     ip: '172.18.1.114'
 
@@ -104,7 +104,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: 'reconfigured'
     ip: '172.18.1.114'
 '''
@@ -116,11 +116,11 @@ interconnect:
     type: dict
 '''
 
-from ansible.module_utils.oneview import (OneViewModuleBase, OneViewModuleResourceNotFound, OneViewModuleValueError)
+from ansible.module_utils.oneview import (OneViewModule, OneViewModuleResourceNotFound, OneViewModuleValueError)
 from hpOneView.resources.resource import extract_id_from_uri
 
 
-class InterconnectModule(OneViewModuleBase):
+class InterconnectModule(OneViewModule):
     MSG_MISSING_KEY = "You must provide the interconnect name or the interconnect ip address."
     MSG_POWERED_ON = "Interconnect Powered On successfully."
     MSG_ALREADY_POWERED_ON = "Interconnect is already Powered On."
@@ -165,24 +165,25 @@ class InterconnectModule(OneViewModuleBase):
             ports=dict(required=False, type='list')
         )
         super(InterconnectModule, self).__init__(additional_arg_spec=argument_spec)
+        self.set_resource_object(self.oneview_client.interconnects)
 
     def execute_module(self):
         interconnect = self.__get_interconnect()
         state_name = self.module.params['state']
 
         if state_name == 'update_ports':
-            changed, msg, resource = self.update_ports(interconnect)
+            changed, msg, resource = self.update_ports()
         elif state_name == 'reset_port_protection':
-            changed, msg, resource = self.reset_port_protection(interconnect)
+            changed, msg, resource = self.reset_port_protection()
         elif state_name == 'reconfigured':
-            changed, msg, resource = self.reconfigure(interconnect)
+            changed, msg, resource = self.reconfigure()
         else:
             state = self.states[state_name]
 
             if state_name == 'device_reset':
-                changed, msg, resource = self.device_reset(state, interconnect)
+                changed, msg, resource = self.device_reset(state)
             else:
-                changed, msg, resource = self.change_state(state, interconnect)
+                changed, msg, resource = self.change_state(state)
 
         return dict(
             changed=changed,
@@ -206,50 +207,48 @@ class InterconnectModule(OneViewModuleBase):
 
         return interconnects[0]
 
-    def change_state(self, state, resource):
+    def change_state(self, state):
         changed = False
 
         property_name = state['path'][1:]
 
-        if resource[property_name] != state['value']:
-            resource = self.execute_operation(resource, state['path'], state['value'])
+        if self.current_resource.data[property_name] != state['value']:
+            resource = self.execute_operation(state['path'], state['value'])
             changed = True
             msg = state['msg']
         else:
             msg = state['msg_no_changes']
 
-        return changed, msg, resource
+        return changed, msg, self.current_resource.data
 
-    def device_reset(self, state, resource):
-        updated_resource = self.execute_operation(resource, state['path'], state['value'])
+    def device_reset(self, state):
+        updated_resource = self.execute_operation(state['path'], state['value'])
         return True, self.MSG_RESET, updated_resource
 
-    def execute_operation(self, resource, path, value, operation="replace"):
-        return self.oneview_client.interconnects.patch(
-            id_or_uri=resource["uri"],
+    def execute_operation(self, path, value, operation="replace"):
+        return self.current_resource.patch(            
             operation=operation,
             path=path,
             value=value
         )
 
-    def update_ports(self, resource):
+    def update_ports(self):
         ports = self.module.params['ports']
 
         if not ports:
-            return False, self.MSG_PORTS_ALREADY_UPDATED, resource
+            return False, self.MSG_PORTS_ALREADY_UPDATED, self.current_resource.data
 
-        updated_resource = self.oneview_client.interconnects.update_ports(
-            id_or_uri=resource["uri"],
+        updated_resource = self.current_resource.update_ports(
             ports=ports
         )
         return True, self.MSG_PORTS_UPDATED, updated_resource
 
-    def reset_port_protection(self, resource):
-        updated_resource = self.oneview_client.interconnects.reset_port_protection(id_or_uri=resource['uri'])
+    def reset_port_protection(self):
+        updated_resource = self.current_resource.reset_port_protection()
         return True, self.MSG_RESET_PORT_PROTECTION, updated_resource
 
-    def reconfigure(self, resource):
-        updated_resource = self.oneview_client.interconnects.update_configuration(id_or_uri=resource['uri'])
+    def reconfigure(self):
+        updated_resource = self.current_resource.update_configuration()
         return True, self.MSG_RECONFIGURED, updated_resource
 
 
