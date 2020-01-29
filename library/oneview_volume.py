@@ -288,13 +288,13 @@ class VolumeModule(OneViewModule):
         created_volume = self.resource_client.create(self.data)
         return dict(changed=True,
                     msg=self.MSG_CREATED,
-                    ansible_facts=dict(storage_volumes=created_volume))
+                    ansible_facts=dict(storage_volumes=created_volume.data))
 
     def __create_from_snapshot(self):
         created_volume = self.resource_client.create_from_snapshot(self.data)
         return dict(changed=True,
                     msg=self.MSG_CREATED,
-                    ansible_facts=dict(storage_volume=created_volume))
+                    ansible_facts=dict(storage_volume=created_volume.data))
 
     def __update(self):
         merged_data = self.current_resource.data.copy()
@@ -305,7 +305,7 @@ class VolumeModule(OneViewModule):
             msg = self.MSG_NO_CHANGES_PROVIDED
         else:
             changed = True
-            self.resource_client.update(self.data)
+            self.current_resource.update(merged_data)
             msg = self.MSG_UPDATED
 
         return dict(changed=changed,
