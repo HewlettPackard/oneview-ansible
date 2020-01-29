@@ -79,8 +79,20 @@ class TestEnclosureFactsModule(OneViewBaseFactsTest):
             ansible_facts=dict(enclosures=(PRESENT_ENCLOSURES))
         )
 
+    def test_get_enclosure_by_name_without_matching_name(self):
+        self.resource.get_by_name.return_value = None
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
+
+        EnclosureFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(enclosures=[])
+        )
+
     def test_should_get_enclosure_by_name(self):
-        self.resource.get_all.return_value = PRESENT_ENCLOSURES
+        self.resource.data = PRESENT_ENCLOSURES[0]
+        self.resource.get_by_name.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         EnclosureFactsModule().run()
@@ -92,7 +104,7 @@ class TestEnclosureFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_enclosure_by_name_with_options(self):
-        self.resource.data = PRESENT_ENCLOSURES
+        self.resource.data = PRESENT_ENCLOSURES[0]
         self.resource.get_by_name.return_value = self.resource
         self.resource.get_by_uri.return_value = self.resource
         self.resource.get_by.return_value = PRESENT_ENCLOSURES

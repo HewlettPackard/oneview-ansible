@@ -38,7 +38,7 @@ setup () {
   export ANSIBLE_MODULE_UTILS=$ANSIBLE_LIBRARY/module_utils
 
   if [ -z ${PYTHON_SDK+x} ]; then
-    export PYTHON_SDK=../python-hpOneView
+    export PYTHON_SDK=../oneview-python
   fi
 
   export PYTHONPATH="test:$PYTHON_SDK:$ANSIBLE_LIBRARY:$PYTHONPATH"

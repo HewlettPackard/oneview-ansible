@@ -1,11 +1,11 @@
 # Ansible Modules for HPE OneView Change Log
 
 ## v5.4.0 (Unreleased)
-
-This release extends the planned support of the modules to OneView REST API version 1000(OneView v4.2) and 1200(OneView v5.0).
+This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2) and 1200 (OneView v5.0).
 
 #### Major changes
-1. Extended support of planned modules to API1000 and API1200.
+1. Extended support of planned modules to API800/1000/1200.
+2. Modules upgraded in this release requires hpOneView version 5.0.0. Also, OneView Python library is now migrated to new repository which is available at https://github.com/HewlettPackard/oneview-python.
 
 #### Modules supported in this release
 - oneview_ethernet_network
@@ -14,6 +14,8 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_fc_network_facts
 - oneview_fcoe_network
 - oneview_fcoe_network_facts
+- oneview_network_set
+- oneview_network_set_facts
 
 ## v5.3.1
 
@@ -22,7 +24,7 @@ This release is to support resource name instead of resource URIs in server prof
 #### Major changes
  1. Updated ReplaceServerProfileNamebyUris class to support the schema changes in latest API version.
  2. Added an end-to-end example playbook for server profile template with the below resources
-    - enclosure group 
+    - enclosure group
     - server hardware type
     - server profile name
     - ethernet network
