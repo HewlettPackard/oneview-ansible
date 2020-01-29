@@ -227,11 +227,12 @@ interconnect_pluggable_module_information:
     type: list
 '''
 
-from ansible.module_utils.oneview import OneViewModule
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
 from hpOneView.resources.resource import extract_id_from_uri
 
 
 class InterconnectFactsModule(OneViewModule):
+    MSG_INTERCONNECT_NOT_FOUND = 'Interconnect not found'
     def __init__(self):
         argument_spec = dict(
             name=dict(required=False, type='str'),
@@ -260,38 +261,39 @@ class InterconnectFactsModule(OneViewModule):
         )
 
     def __get_options(self, facts):
-
+        if not self.current_resource:
+            raise OneViewModuleResourceNotFound(self.MSG_INTERCONNECT_NOT_FOUND)
         if self.options.get('nameServers'):
-            name_servers = self.resource_client.get_name_servers()
+            name_servers = self.current_resource.get_name_servers()
             facts['interconnect_name_servers'] = name_servers
 
         if self.options.get('statistics'):
-            facts['interconnect_statistics'] = self.resource_client.get_statistics()
+            facts['interconnect_statistics'] = self.current_resource.get_statistics()
 
         if self.options.get('portStatistics'):
             port_name = self.options['portStatistics']
-            port_statistics = self.resource_client.get_statistics(port_name)
+            port_statistics = self.current_resource.get_statistics(port_name)
             facts['interconnect_port_statistics'] = port_statistics
 
         if self.options.get('subPortStatistics'):
             facts['interconnect_subport_statistics'] = None
             sub_options = self.options['subPortStatistics']
             if isinstance(sub_options, dict) and sub_options.get('portName') and sub_options.get('subportNumber'):
-                facts['interconnect_subport_statistics'] = self.resource_client.get_subport_statistics(
+                facts['interconnect_subport_statistics'] = self.current_resource.get_subport_statistics(
                     sub_options['portName'], sub_options['subportNumber'])
 
         if self.options.get('ports'):
-            ports = self.resource_client.get_ports()
+            ports = self.current_resource.get_ports()
             facts['interconnect_ports'] = ports
 
         if self.options.get('port'):
             port_name = self.options.get('port')
-            port_id = "{}:{}".format(extract_id_from_uri(interconnect_uri), port_name)
-            port = self.resource_client.get_port(port_id)
+            port_id = "{}:{}".format(extract_id_from_uri(self.current_resource.data['uri']), port_name)
+            port = self.current_resource.get_port(port_id)
             facts['interconnect_port'] = port
 
         if self.options.get('pluggableModuleInformation'):
-            sfp_info = self.resource_client.get_pluggable_module_information()
+            sfp_info = self.current_resource.get_pluggable_module_information()
             facts['interconnect_pluggable_module_information'] = sfp_info
 
 
