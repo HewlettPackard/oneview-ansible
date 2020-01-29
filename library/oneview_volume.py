@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.0.0"
+    - "hpOneView >= 5.0.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     state:
@@ -67,7 +67,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       properties:
@@ -85,7 +85,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       properties:
@@ -121,7 +121,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       name: 'Volume with Storage Pool'
@@ -134,7 +134,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: repaired
     data:
       name: 'Volume with Storage Pool - Renamed'
@@ -144,7 +144,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: snapshot_created
     data:
       name: 'Volume with Snapshot Pool'
@@ -157,7 +157,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: snapshot_deleted
     data:
       name: 'Volume with Snapshot Pool'
@@ -169,7 +169,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
       name: 'Volume with Storage Pool - Renamed'
@@ -179,7 +179,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
       name: 'Volume with Snapshot Pool - Renamed'
@@ -189,7 +189,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
       name: 'Volume added with a specific WWN'
@@ -277,9 +277,7 @@ class VolumeModule(OneViewModule):
 
     def __absent(self):
         if self.current_resource:
-            self.resource_client.delete(self.current_resource,
-                                        export_only=self.module.params.get('export_only'),
-                                        suppress_device_updates=self.module.params.get('suppress_device_updates'))
+            self.current_resource.delete()
             return dict(changed=True, msg=self.MSG_DELETED)
         else:
             return dict(changed=False, msg=self.MSG_ALREADY_ABSENT)
@@ -297,6 +295,12 @@ class VolumeModule(OneViewModule):
                     ansible_facts=dict(storage_volume=created_volume.data))
 
     def __update(self):
+        if "newName" in self.data:
+            new_resource = self.resource_client.get_by_name(self.data["newName"])
+            if new_resource:
+                raise OneViewModuleValueError(self.MSG_NEW_NAME_INVALID)
+            self.data["name"] = self.data.pop("newName")
+
         merged_data = self.current_resource.data.copy()
         merged_data.update(self.data)
 
@@ -314,34 +318,27 @@ class VolumeModule(OneViewModule):
 
     def __repair(self):
 
-        self.resource_client.repair(self.current_resource['uri'])
+        self.current_resource.repair()
         return dict(changed=True, msg=self.MSG_REPAIRED)
 
     def __create_snapshot(self):
         if 'snapshotParameters' not in self.data:
             raise OneViewModuleResourceNotFound(self.MSG_NO_OPTIONS_PROVIDED)
 
-        self.resource_client.create_snapshot(self.current_resource['uri'], self.data['snapshotParameters'])
+        self.current_resource.create_snapshot(self.data["snapshotParameters"])
         return dict(changed=True, msg=self.MSG_SNAPSHOT_CREATED)
 
     def __delete_snapshot(self):
         if 'snapshotParameters' not in self.data:
             raise OneViewModuleResourceNotFound(self.MSG_NO_OPTIONS_PROVIDED)
+        snapshot_parameters = self.data['snapshotParameters']
 
-        snapshot = self.__get_snapshot_by_name(self.current_resource, self.data)
+        snapshot = self.current_resource.get_snapshot_by_name(snapshot_parameters['name'])
         if not snapshot:
             raise OneViewModuleResourceNotFound(self.MSG_SNAPSHOT_NOT_FOUND)
         else:
-            self.resource_client.delete_snapshot(snapshot)
+            snapshot.delete()
             return dict(changed=True, msg=self.MSG_SNAPSHOT_DELETED)
-
-    def __get_snapshot_by_name(self, resource, data):
-        if 'name' not in data['snapshotParameters']:
-            raise OneViewModuleValueError(self.MSG_NO_OPTIONS_PROVIDED)
-
-        result = self.resource_client.get_snapshot_by(resource['uri'], 'name',
-                                                      data['snapshotParameters']['name'])
-        return result[0] if result else None
 
 
 def main():
