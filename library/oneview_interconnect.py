@@ -223,7 +223,7 @@ class InterconnectModule(OneViewModule):
 
     def device_reset(self, state):
         updated_resource = self.execute_operation(state['path'], state['value'])
-        return True, self.MSG_RESET, updated_resource
+        return True, self.MSG_RESET, updated_resource.data
 
     def execute_operation(self, path, value, operation="replace"):
         return self.current_resource.patch(
