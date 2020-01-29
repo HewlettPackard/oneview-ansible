@@ -203,7 +203,7 @@ storage_volume:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError, OneViewModuleResourceNotFound, OneViewModuleException
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError, OneViewModuleResourceNotFound, OneViewModuleException, compare
 
 
 class VolumeModule(OneViewModule):
@@ -220,6 +220,7 @@ class VolumeModule(OneViewModule):
     MSG_ALREADY_ABSENT = 'Volume is already absent.'
     MSG_NO_OPTIONS_PROVIDED = 'No options provided.'
     MSG_NEW_NAME_INVALID = 'Rename failed: the new name provided is being used by another Volume.'
+    MSG_NO_CHANGES_PROVIDED = 'No changed have been provided fro the update.'
 
     def __init__(self):
         argument_spec = dict(
@@ -287,7 +288,7 @@ class VolumeModule(OneViewModule):
         created_volume = self.resource_client.create(self.data)
         return dict(changed=True,
                     msg=self.MSG_CREATED,
-                    ansible_facts=dict(storage_volume=created_volume))
+                    ansible_facts=dict(storage_volumes=created_volume))
 
     def __create_from_snapshot(self):
         created_volume = self.resource_client.create_from_snapshot(self.data)
@@ -296,20 +297,20 @@ class VolumeModule(OneViewModule):
                     ansible_facts=dict(storage_volume=created_volume))
 
     def __update(self):
-        new_name = self.data.pop('newName', None)
-        if new_name:
-            new_resource = self.get_by_name(new_name)
-            if new_resource:
-                raise OneViewModuleValueError(self.MSG_NEW_NAME_INVALID)
-            self.data['name'] = new_name
-        merged_data = self.current_resource.copy()
+        merged_data = self.current_resource.data.copy()
         merged_data.update(self.data)
 
-        updated_volume = self.resource_client.update(merged_data)
+        if compare(self.current_resource.data, merged_data):
+            changed = False
+            msg = self.MSG_NO_CHANGES_PROVIDED
+        else:
+            changed = True
+            self.resource_client.update(self.data)
+            msg = self.MSG_UPDATED
 
-        return dict(changed=True,
-                    msg=self.MSG_UPDATED,
-                    ansible_facts=dict(storage_volume=updated_volume))
+        return dict(changed=changed,
+                    msg=msg,
+                    ansible_facts=dict(storage_volume=self.current_resource.data))
 
     def __repair(self):
 
