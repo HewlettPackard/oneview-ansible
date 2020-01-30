@@ -217,8 +217,7 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
         StorageVolumeAttachmentFactsModule().run()
 
         self.resource.get_by_uri.assert_called_once_with(URI)
-        self.resource.get_paths.assert_called_once_with(
-            "/rest/storage-volume-attachments/ED247E27")
+        self.resource.get_paths.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -247,8 +246,7 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
         StorageVolumeAttachmentFactsModule().run()
 
         self.resource.get_by_uri.assert_called_once_with(URI)
-        self.resource.get_paths.assert_called_once_with(
-            "/rest/storage-volume-attachments/ED247E27", 'AAA-NNN-878787H')
+        self.resource.get_paths.assert_called_once_with('AAA-NNN-878787H')
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -277,8 +275,7 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
         StorageVolumeAttachmentFactsModule().run()
 
         self.resource.get_by_uri.assert_called_once_with(URI)
-        self.resource.get_paths.assert_called_once_with(
-            "/rest/storage-volume-attachments/ED247E27", '/test/uri/AAA-NNN-878787H')
+        self.resource.get_paths.assert_called_once_with('/test/uri/AAA-NNN-878787H')
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,

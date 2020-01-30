@@ -222,15 +222,13 @@ class StorageVolumeAttachmentFactsModule(OneViewModule):
     def __get_paths(self, attachments, options, facts):
 
         if attachments and 'paths' in options:
-
-            attachment_uri = attachments[0]['uri']
             paths_options = self.__get_sub_options(options['paths'])
             path_id_or_uri = paths_options.get('pathId') or paths_options.get('pathUri')
 
             if path_id_or_uri:
-                paths = [self.resource_client.get_paths(attachment_uri, path_id_or_uri)]
+                paths = [self.resource_client.get_paths(path_id_or_uri)]
             else:
-                paths = self.resource_client.get_paths(attachment_uri)
+                paths = self.resource_client.get_paths()
 
             facts['storage_volume_attachment_paths'] = paths
 

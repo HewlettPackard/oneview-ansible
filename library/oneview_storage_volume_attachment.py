@@ -97,7 +97,7 @@ class StorageVolumeAttachmentModule(OneViewModule):
             "resourceUri": self.__get_server_profile_uri(self.module.params['server_profile'])
         }
 
-        attachment = self.oneview_client.storage_volume_attachments.remove_extra_presentations(data)
+        attachment = self.resource_client.remove_extra_presentations(data)
         return dict(changed=True, msg=self.PRESENTATIONS_REMOVED,
                     ansible_facts=dict(server_profile=attachment))
 
