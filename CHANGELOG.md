@@ -14,6 +14,7 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_network_set
 - oneview_network_set_facts
 
+
 ## v5.3.1
 
 This release is to support resource name instead of resource URIs in server profile and profile template.
