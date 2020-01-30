@@ -13,6 +13,8 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_enclosure_group_facts
 - oneview_network_set
 - oneview_network_set_facts
+- oneview_server_hardware_type
+- oneview_server_hardware_type_facts
 
 ## v5.3.1
 
