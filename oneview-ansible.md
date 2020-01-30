@@ -3504,7 +3504,7 @@ Manage OneView Ethernet Network resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -3515,7 +3515,7 @@ Manage OneView Ethernet Network resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -3530,7 +3530,7 @@ Manage OneView Ethernet Network resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -3541,7 +3541,7 @@ Manage OneView Ethernet Network resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: absent
     data:
       name: 'New Ethernet Network'
@@ -3551,7 +3551,7 @@ Manage OneView Ethernet Network resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       vlanIdRange: '1-10,15,17'
@@ -3568,7 +3568,7 @@ Manage OneView Ethernet Network resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: default_bandwidth_reset
     data:
       name: 'Test Ethernet Network'
@@ -3579,7 +3579,7 @@ Manage OneView Ethernet Network resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -3645,7 +3645,7 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
 
 - debug: var=ethernet_networks
 
@@ -3654,7 +3654,7 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 1
       count: 3
@@ -3668,7 +3668,7 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: Ethernet network name
 
 - debug: var=ethernet_networks
@@ -4018,7 +4018,7 @@ Manage OneView Fibre Channel Network resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'New FC Network'
@@ -4028,7 +4028,7 @@ Manage OneView Fibre Channel Network resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'New FC Network'
@@ -4053,7 +4053,7 @@ Manage OneView Fibre Channel Network resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: absent
     data:
       name: 'New FC Network'
@@ -4112,7 +4112,7 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   delegate_to: localhost
 
 - debug: var=fc_networks
@@ -4122,7 +4122,7 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 1
       count: 3
@@ -4197,7 +4197,7 @@ Manage OneView FCoE Network resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: Test FCoE Network
@@ -4223,7 +4223,7 @@ Manage OneView FCoE Network resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: absent
     data:
       name: New FCoE Network
@@ -4283,7 +4283,7 @@ Retrieve the facts about one or more of the OneView FCoE Networks
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   delegate_to: localhost
 
 - debug: var=fcoe_networks
@@ -4293,7 +4293,7 @@ Retrieve the facts about one or more of the OneView FCoE Networks
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -4308,7 +4308,7 @@ Retrieve the facts about one or more of the OneView FCoE Networks
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: Test FCoE Network Facts
   delegate_to: localhost
 
@@ -9370,7 +9370,7 @@ Manage OneView Server Hardware Type resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'DL380p Gen8 1'
@@ -9382,7 +9382,7 @@ Manage OneView Server Hardware Type resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'DL380p Gen8 1'
@@ -9394,7 +9394,7 @@ Manage OneView Server Hardware Type resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: absent
     data:
       name: 'DL380p Gen8 1 (new name)'
@@ -9454,7 +9454,7 @@ Retrieve facts about Server Hardware Types of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   delegate_to: localhost
 - debug: var=server_hardware_types
 
@@ -9463,7 +9463,7 @@ Retrieve facts about Server Hardware Types of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 0
       count: 5
@@ -9477,7 +9477,7 @@ Retrieve facts about Server Hardware Types of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: "BL460c Gen8 1"
   delegate_to: localhost
 - debug: var=server_hardware_types
