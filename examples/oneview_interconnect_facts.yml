@@ -17,7 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - interconnect_name: 'Encl1, interconnect 1' # provide your interconnect name here
+    - interconnect_name: 'Enc-Updated, interconnect 2' # provide your interconnect name here
     - port_name: 'd3' # provide your interconnect port_name
     - subport_number: 1 # provide a subport_number
   tasks:

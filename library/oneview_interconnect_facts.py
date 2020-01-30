@@ -227,12 +227,13 @@ interconnect_pluggable_module_information:
     type: list
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule
 from hpOneView.resources.resource import extract_id_from_uri
 
 
 class InterconnectFactsModule(OneViewModule):
     MSG_INTERCONNECT_NOT_FOUND = 'Interconnect not found'
+
     def __init__(self):
         argument_spec = dict(
             name=dict(required=False, type='str'),
@@ -243,14 +244,12 @@ class InterconnectFactsModule(OneViewModule):
         self.set_resource_object(self.oneview_client.interconnects)
 
     def execute_module(self):
-        interconnect_name = self.module.params['name']
         facts = dict()
 
-        if interconnect_name:
-            interconnects = self.resource_client.get_by('name', interconnect_name)
-            facts['interconnects'] = interconnects
+        if self.current_resource:
+            facts['interconnects'] = [self.current_resource.data]
 
-            if interconnects and self.module.params.get('options'):
+            if self.module.params.get('options'):
                 self.__get_options(facts)
         else:
             facts['interconnects'] = self.resource_client.get_all(**self.facts_params)
@@ -261,8 +260,6 @@ class InterconnectFactsModule(OneViewModule):
         )
 
     def __get_options(self, facts):
-        if not self.current_resource:
-            raise OneViewModuleResourceNotFound(self.MSG_INTERCONNECT_NOT_FOUND)
         if self.options.get('nameServers'):
             name_servers = self.current_resource.get_name_servers()
             facts['interconnect_name_servers'] = name_servers

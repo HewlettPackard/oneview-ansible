@@ -168,7 +168,8 @@ class InterconnectModule(OneViewModule):
         self.set_resource_object(self.oneview_client.interconnects)
 
     def execute_module(self):
-        interconnect = self.__get_interconnect()
+
+        self.__find_interconnect()
         state_name = self.module.params['state']
 
         if state_name == 'update_ports':
@@ -191,21 +192,19 @@ class InterconnectModule(OneViewModule):
             ansible_facts=dict(interconnect=resource)
         )
 
-    def __get_interconnect(self):
+    def __find_interconnect(self):
         interconnect_ip = self.module.params['ip']
-        interconnect_name = self.module.params['name']
 
-        if interconnect_ip:
+        if not self.current_resource and interconnect_ip:
             interconnects = self.oneview_client.interconnects.get_by('interconnectIP', interconnect_ip) or []
-        elif interconnect_name:
-            interconnects = self.oneview_client.interconnects.get_by('name', interconnect_name) or []
-        else:
+            if interconnects:
+                self.current_resource = self.resource_client.get_by_uri(interconnects[0]["uri"])
+
+        if not interconnect_ip and not self.module.params["name"]:
             raise OneViewModuleValueError(self.MSG_MISSING_KEY)
 
-        if not interconnects:
+        if not self.current_resource:
             raise OneViewModuleResourceNotFound(self.MSG_INTERCONNECT_NOT_FOUND)
-
-        return interconnects[0]
 
     def change_state(self, state):
         changed = False
@@ -213,7 +212,7 @@ class InterconnectModule(OneViewModule):
         property_name = state['path'][1:]
 
         if self.current_resource.data[property_name] != state['value']:
-            resource = self.execute_operation(state['path'], state['value'])
+            self.current_resource = self.execute_operation(state['path'], state['value'])
             changed = True
             msg = state['msg']
         else:
