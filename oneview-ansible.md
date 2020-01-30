@@ -9981,7 +9981,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -9997,7 +9997,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: "ProfileTemplate101"
 
 - name: Gather facts about a Server Profile by uri
@@ -10005,7 +10005,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     uri: /rest/server-profile-templates/c0868397-eff6-49ed-8151-4338702792d3
   delegate_to: localhost
 
@@ -10014,7 +10014,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: "ProfileTemplate101"
     options:
       - new_profile
@@ -10024,7 +10024,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     options:
       - available_networks:
           serverHardwareTypeUri: "/rest/server-hardware-types/253F1D49-0FEE-4DCD-B14C-B26234E9D414"
