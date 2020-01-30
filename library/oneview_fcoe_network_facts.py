@@ -51,7 +51,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   delegate_to: localhost
 
 - debug: var=fcoe_networks
@@ -61,7 +61,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -76,7 +76,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: Test FCoE Network Facts
   delegate_to: localhost
 
