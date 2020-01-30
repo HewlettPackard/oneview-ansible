@@ -77,7 +77,9 @@ MOCK_SERVER_PROFILE = {
 @pytest.mark.resource(TestStorageVolumeAttachmentModule='storage_volume_attachments')
 class TestStorageVolumeAttachmentModule(OneViewBaseTest):
     def test_should_remove_extra_presentation_by_profile_name(self):
-        self.mock_ov_client.server_profiles.get_by_name.return_value = MOCK_SERVER_PROFILE
+        obj = mock.Mock()
+        obj.data = MOCK_SERVER_PROFILE
+        self.mock_ov_client.server_profiles.get_by_name.return_value = obj
         self.resource.remove_extra_presentations.return_value = MOCK_SERVER_PROFILE
 
         self.mock_ansible_module.params = yaml.load(YAML_EXTRA_REMOVED_BY_NAME)
