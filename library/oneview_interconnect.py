@@ -194,14 +194,13 @@ class InterconnectModule(OneViewModule):
 
     def __find_interconnect(self):
         interconnect_ip = self.module.params['ip']
+        if not interconnect_ip and not self.module.params["name"]:
+            raise OneViewModuleValueError(self.MSG_MISSING_KEY)
 
         if not self.current_resource and interconnect_ip:
             interconnects = self.oneview_client.interconnects.get_by('interconnectIP', interconnect_ip) or []
             if interconnects:
                 self.current_resource = self.resource_client.get_by_uri(interconnects[0]["uri"])
-
-        if not interconnect_ip and not self.module.params["name"]:
-            raise OneViewModuleValueError(self.MSG_MISSING_KEY)
 
         if not self.current_resource:
             raise OneViewModuleResourceNotFound(self.MSG_INTERCONNECT_NOT_FOUND)
