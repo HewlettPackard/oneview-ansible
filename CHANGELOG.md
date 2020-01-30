@@ -14,6 +14,8 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_fc_network_facts
 - oneview_fcoe_network
 - oneview_fcoe_network_facts
+- oneview_interconnect
+- oneview_interconnect_facts
 - oneview_network_set
 - oneview_network_set_facts
 - oneview_server_hardware_type
