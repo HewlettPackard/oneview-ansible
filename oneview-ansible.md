@@ -10553,7 +10553,7 @@ Provides an interface to remove extra presentations from a specified server prof
  Provides an interface to remove extra presentations from a specified server profile.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
   * python >= 2.7.9
 
 #### Options
@@ -10621,7 +10621,7 @@ Retrieve facts about the OneView Storage Volume Attachments.
  Retrieve facts about the OneView Storage Volume Attachments. To gather facts about a specific Storage Volume Attachment it is required to inform the option _storageVolumeAttachmentUri_. It is also possible to retrieve a specific Storage Volume Attachment by the Server Profile and the Volume. For this option, it is required to inform the option _serverProfileName_ and the param _storageVolumeName_ or _storageVolumeUri_.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
   * python >= 2.7.9
 
 #### Options

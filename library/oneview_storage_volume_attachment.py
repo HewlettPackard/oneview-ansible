@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 5.0.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     state:
