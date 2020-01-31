@@ -10,6 +10,8 @@ This release extends the planned support of the modules to OneView REST API vers
 #### Modules supported in this release
 - oneview_enclosure
 - oneview_enclosure_facts
+- oneview_enclosure_group
+- oneview_enclosure_group_facts
 - oneview_ethernet_network
 - oneview_ethernet_network_facts
 - oneview_fc_network
