@@ -236,9 +236,8 @@ class InterconnectModule(OneViewModule):
         if not ports:
             return False, self.MSG_PORTS_ALREADY_UPDATED, self.current_resource.data
 
-        updated_resource = self.current_resource.update_ports(
-            ports=ports
-        )
+        updated_resource = self.current_resource.update_ports(ports=ports)
+
         return True, self.MSG_PORTS_UPDATED, updated_resource
 
     def reset_port_protection(self):
