@@ -88,8 +88,8 @@
             - reachablePorts
         params:
           networks:
-            - /rest/fc-networks/01FC123456
-            - /rest/fc-networks/02FC123456
+            - /rest/fc-networks/59b2a7ca-105b-4fb2-bef2-429645f22a6c
+            - /rest/fc-networks/21578403-58fb-4679-8b61-b47ee4b1f198
           sort: 'name:descending'
 
     - debug: var=storage_system_reachable_ports
