@@ -17,8 +17,6 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    storage_system_uri: "/rest/storage-systems/TXQ1010307"
-    storage_pool_uri: "/rest/storage-pools/2D69A182-862E-4ECE-8BEE-73E0F5BEC855"
     storage_vol_templ_name: "FusionTemplateExample"
     root_template_uri: "/rest/storage-volume-templates/5dbaf127-053b-4988-82fe-a80800eef1f3"
   tasks:
