@@ -127,8 +127,9 @@ class TestStorageSystemModule(OneViewBaseTest):
 
     def test_should_add_new_storage_system_with_credentials_from_api300(self):
         self.resource.get_by_ip_hostname.return_value = None
-        self.resource.add.return_value = {"name": "name"}
-        self.resource.update.return_value = {"name": "name"}
+        obj = mock.Mock()
+        obj.data = DICT_DEFAULT_STORAGE_SYSTEM
+        self.resource.add.return_value = obj
 
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM)
 
@@ -137,14 +138,15 @@ class TestStorageSystemModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=StorageSystemModule.MSG_ADDED,
-            ansible_facts=dict(storage_system={"name": "name"})
+            ansible_facts=dict(storage_system=DICT_DEFAULT_STORAGE_SYSTEM)
         )
 
     def test_should_add_new_storage_system_with_credentials_from_api500(self):
         self.mock_ov_client.api_version = 500
         self.resource.get_by_hostname.return_value = None
-        self.resource.add.return_value = {"name": "name"}
-        self.resource.update.return_value = {"name": "name"}
+        obj = mock.Mock()
+        obj.data = DICT_DEFAULT_STORAGE_SYSTEM_500
+        self.resource.add.return_value = obj
 
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_500)
 
@@ -162,12 +164,14 @@ class TestStorageSystemModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=StorageSystemModule.MSG_ADDED,
-            ansible_facts=dict(storage_system={"name": "name"})
+            ansible_facts=dict(storage_system=DICT_DEFAULT_STORAGE_SYSTEM_500)
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by_ip_hostname.return_value = DICT_DEFAULT_STORAGE_SYSTEM
-        self.resource.update.return_value = {"name": "name"}
+        obj = mock.Mock()
+        obj.data = DICT_DEFAULT_STORAGE_SYSTEM
+        self.resource.get_by_ip_hostname.return_value = obj
+        self.resource.update.return_value = DICT_DEFAULT_STORAGE_SYSTEM
 
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM)
 
@@ -180,9 +184,11 @@ class TestStorageSystemModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals_using_name(self):
-        dict_by_name = yaml.load(YAML_STORAGE_SYSTEM_BY_NAME)["data"]
+        # dict_by_name = yaml.load(YAML_STORAGE_SYSTEM_BY_NAME)["data"]
 
-        self.resource.get_by_name.return_value = dict_by_name
+        obj = mock.Mock()
+        obj.data = yaml.load(YAML_STORAGE_SYSTEM_BY_NAME)["data"]
+        self.resource.get_by_name.return_value = obj.data
 
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_BY_NAME)
 
@@ -191,7 +197,7 @@ class TestStorageSystemModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=StorageSystemModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(storage_system=dict_by_name.copy())
+            ansible_facts=dict(storage_system=obj.data)
         )
 
     def test_should_fail_with_missing_required_attributes(self):
@@ -217,7 +223,9 @@ class TestStorageSystemModule(OneViewBaseTest):
         data_merged = DICT_DEFAULT_STORAGE_SYSTEM.copy()
         data_merged['credentials']['newIp_hostname'] = '10.10.10.10'
 
-        self.resource.get_by_ip_hostname.return_value = DICT_DEFAULT_STORAGE_SYSTEM
+        obj = mock.Mock()
+        obj.data = DICT_DEFAULT_STORAGE_SYSTEM
+        self.resource.get_by_ip_hostname.return_value = obj
         self.resource.update.return_value = data_merged
 
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_CHANGES)
@@ -235,7 +243,9 @@ class TestStorageSystemModule(OneViewBaseTest):
         data_merged = DICT_DEFAULT_STORAGE_SYSTEM_500.copy()
         data_merged['credentials']['newHostname'] = '10.10.10.10'
 
-        self.resource.get_by_hostname.return_value = DICT_DEFAULT_STORAGE_SYSTEM_500
+        obj = mock.Mock()
+        obj.data = DICT_DEFAULT_STORAGE_SYSTEM_500
+        self.resource.get_by_hostname.return_value = obj
         self.resource.update.return_value = data_merged
 
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_CHANGES_500)
@@ -249,7 +259,9 @@ class TestStorageSystemModule(OneViewBaseTest):
         )
 
     def test_should_remove_storage_system(self):
-        self.resource.get_by_ip_hostname.return_value = DICT_DEFAULT_STORAGE_SYSTEM
+        obj = mock.Mock()
+        obj.data = DICT_DEFAULT_STORAGE_SYSTEM
+        self.resource.get_by_ip_hostname.return_value = obj
 
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_ABSENT)
 

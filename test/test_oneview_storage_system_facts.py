@@ -17,6 +17,7 @@
 ###
 
 import pytest
+import mock
 
 from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import StorageSystemFactsModule
@@ -96,14 +97,16 @@ class TestStorageSystemFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_storage_system_by_name(self):
-        self.resource.get_by_name.return_value = {"name": "Storage System Name"}
+        obj = mock.Mock()
+        obj.data = {"name": "Storage System Name"}
+        self.resource.get_by_name.return_value = obj # {"name": "Storage System Name"}
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         StorageSystemFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(storage_systems=({"name": "Storage System Name"}))
+            ansible_facts=dict(storage_systems=obj) # ({"name": "Storage System Name"}))
         )
 
     def test_should_get_storage_system_by_ip_hostname(self):

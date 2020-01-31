@@ -152,10 +152,10 @@ class StorageSystemModule(OneViewModule):
         self.set_resource_object(self.oneview_client.storage_systems)
 
     def execute_module(self):
-        # if self.oneview_client.api_version < 500:
-        #    resource = self.__get_resource_hostname('ip_hostname', 'newIp_hostname')
-        # else:
-        #    resource = self.__get_resource_hostname('hostname', 'newHostname')
+        if self.oneview_client.api_version < 500:
+            self.__get_resource_hostname('ip_hostname', 'newIp_hostname')
+        else:
+            self.__get_resource_hostname('hostname', 'newHostname')
 
         if self.state == 'present':
             return self.__present()
@@ -169,6 +169,7 @@ class StorageSystemModule(OneViewModule):
         if not self.current_resource:
             if 'credentials' not in self.data:
                 raise OneViewModuleValueError(self.MSG_CREDENTIALS_MANDATORY)
+
             if self.oneview_client.api_version < 500:
                 self.current_resource = self.resource_client.add(self.data['credentials'])
             else:
@@ -180,21 +181,22 @@ class StorageSystemModule(OneViewModule):
             changed = True
             msg = self.MSG_ADDED
 
-        merged_data = self.current_resource.data.copy()
-        merged_data.update(self.data)
-
-        # remove password, it cannot be used in comparison
-        if 'credentials' in merged_data and 'password' in merged_data['credentials']:
-            del merged_data['credentials']['password']
-
-        if not compare(self.current_resource.data, merged_data):
-            # update the resource
-            self.current_resource.update(merged_data)
-            # if not changed:
-            changed = True
-            msg = self.MSG_UPDATED
         else:
-            msg = self.MSG_ALREADY_PRESENT
+            merged_data = self.current_resource.data.copy()
+            merged_data.update(self.data)
+
+            # remove password, it cannot be used in comparison
+            if 'credentials' in merged_data and 'password' in merged_data['credentials']:
+                del merged_data['credentials']['password']
+
+            if not compare(self.current_resource.data, merged_data):
+                # update the resource
+                self.current_resource.update(merged_data)
+                # if not changed:
+                changed = True
+                msg = self.MSG_UPDATED
+            else:
+                msg = self.MSG_ALREADY_PRESENT
 
         return dict(changed=changed,
                     msg=msg,
@@ -204,17 +206,17 @@ class StorageSystemModule(OneViewModule):
         hostname = self.data.get(hostname_key, None)
         if 'credentials' in self.data and hostname is None:
             hostname = self.data['credentials'].get(hostname_key, None)
+
         if hostname:
             get_method = getattr(self.oneview_client.storage_systems, "get_by_{}".format(hostname_key))
-            resource = get_method(hostname)
+            self.current_resource = get_method(hostname)
+
             if self.data['credentials'].get(new_hostname_key):
                 self.data['credentials'][hostname_key] = self.data['credentials'].pop(new_hostname_key)
             elif self.data.get(new_hostname_key):
                 self.data[hostname_key] = self.data.pop(new_hostname_key)
-            return resource
-        elif self.data.get('name'):
-            return self.oneview_client.storage_systems.get_by_name(self.data['name'])
-        else:
+
+        if not hostname and not self.data.get("name"):
             raise OneViewModuleValueError(self.MSG_MANDATORY_FIELDS_MISSING)
 
 
