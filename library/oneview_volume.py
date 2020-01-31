@@ -286,7 +286,7 @@ class VolumeModule(OneViewModule):
         created_volume = self.resource_client.create(self.data)
         return dict(changed=True,
                     msg=self.MSG_CREATED,
-                    ansible_facts=dict(storage_volumes=created_volume.data))
+                    ansible_facts=dict(storage_volume=created_volume.data))
 
     def __create_from_snapshot(self):
         created_volume = self.resource_client.create_from_snapshot(self.data)
@@ -333,7 +333,7 @@ class VolumeModule(OneViewModule):
             raise OneViewModuleResourceNotFound(self.MSG_NO_OPTIONS_PROVIDED)
         snapshot_parameters = self.data['snapshotParameters']
 
-        snapshot = self.current_resource.get_snapshot_by_name(snapshot_parameters['name'])
+        snapshot = self.resource_client.get_snapshot_by_name(snapshot_parameters['name'])
         if not snapshot:
             raise OneViewModuleResourceNotFound(self.MSG_SNAPSHOT_NOT_FOUND)
         else:

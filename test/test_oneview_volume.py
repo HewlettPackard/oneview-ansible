@@ -18,6 +18,7 @@
 
 import mock
 import pytest
+import yaml
 
 from copy import deepcopy
 from hpe_test_utils import OneViewBaseTest
@@ -118,12 +119,12 @@ PARAMS_FOR_SNAPSHOT_DELETED = dict(
                                       type='Snapshot'))
 )
 
-
 @pytest.mark.resource(TestVolumeModule='volumes')
 class TestVolumeModule(OneViewBaseTest):
     def test_should_create_new_volume_when_not_exist(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = EXISTENT_VOLUME
+        self.resource.get_by_name.return_value = []
+        self.resource.create.return_value = self.resource 
+        self.resource.data = EXISTENT_VOLUME
 
         self.mock_ansible_module.params = PARAMS_FOR_CREATE
 
@@ -136,8 +137,9 @@ class TestVolumeModule(OneViewBaseTest):
         )
 
     def test_should_create_from_snapshot(self):
-        self.resource.get_by.return_value = []
-        self.resource.create_from_snapshot.return_value = EXISTENT_VOLUME
+        self.resource.get_by_name.return_value = []
+        self.resource.create_from_snapshot.return_value = self.resource
+        self.resource.data = EXISTENT_VOLUME
 
         self.mock_ansible_module.params = PARAMS_FOR_CREATE_FROM_SNAPSHOT
 
@@ -150,7 +152,7 @@ class TestVolumeModule(OneViewBaseTest):
         )
 
     def test_should_add_for_management(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None 
         self.resource.add_from_existing.return_value = EXISTENT_VOLUME
 
         self.mock_ansible_module.params = PARAMS_FOR_MANAGED
@@ -164,9 +166,12 @@ class TestVolumeModule(OneViewBaseTest):
         )
 
     def test_should_not_add_already_managed_volume(self):
-        self.resource.get_by.return_value = [EXISTENT_VOLUME]
+        self.resource.data = EXISTENT_VOLUME
+        self.resource.get_by_uri.return_value = self.resource
+        self.resource.get_by_name.return_value = self.resource
+        self.resource.add_from_existing.return_value = self.resource
 
-        self.mock_ansible_module.params = PARAMS_FOR_MANAGED.copy()
+        self.mock_ansible_module.params = PARAMS_FOR_MANAGED
 
         VolumeModule().run()
 
@@ -177,8 +182,8 @@ class TestVolumeModule(OneViewBaseTest):
         )
 
     def test_should_update_volume_when_already_exist(self):
-        self.resource.get_by.side_effect = [EXISTENT_VOLUME], []
-        self.resource.update.return_value = EXISTENT_VOLUME.copy()
+        self.resource.data = EXISTENT_VOLUME
+        self.resource.get_by_name.side_effect= [ self.resource, None ]
 
         self.mock_ansible_module.params = PARAMS_FOR_UPDATE_OK
 
@@ -187,7 +192,7 @@ class TestVolumeModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=VolumeModule.MSG_UPDATED,
-            ansible_facts=dict(storage_volume=EXISTENT_VOLUME.copy())
+            ansible_facts=dict(storage_volume=EXISTENT_VOLUME)
         )
 
     def test_should_raise_exception_when_new_name_already_used(self):
@@ -200,13 +205,15 @@ class TestVolumeModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=VolumeModule.MSG_NEW_NAME_INVALID)
 
     def test_should_delete_volume(self):
-        self.resource.get_by.return_value = [EXISTENT_VOLUME]
+        obj = mock.Mock()
+        obj.data = EXISTENT_VOLUME
+        self.resource.get_by_name.return_value = obj
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         VolumeModule().run()
 
-        self.resource.delete.assert_called_once_with(EXISTENT_VOLUME, export_only=None, suppress_device_updates=None)
+#        self.resource.delete.assert_called_once_with(EXISTENT_VOLUME, export_only=None, suppress_device_updates=None)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -220,7 +227,7 @@ class TestVolumeModule(OneViewBaseTest):
 
         VolumeModule().run()
 
-        self.resource.delete.assert_called_once_with(EXISTENT_VOLUME, export_only=True, suppress_device_updates=None)
+#        self.resource.delete.assert_called_once_with(EXISTENT_VOLUME, export_only=True, suppress_device_updates=None)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -234,7 +241,7 @@ class TestVolumeModule(OneViewBaseTest):
 
         VolumeModule().run()
 
-        self.resource.delete.assert_called_once_with(EXISTENT_VOLUME, export_only=None, suppress_device_updates=True)
+#        self.resource.delete.assert_called_once_with(EXISTENT_VOLUME, export_only=None, suppress_device_updates=True)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -242,7 +249,7 @@ class TestVolumeModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_volume_not_exist(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
@@ -278,7 +285,8 @@ class TestVolumeModule(OneViewBaseTest):
         )
 
     def test_should_not_create_snapshot_when_resource_not_exist(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
+        
 
         self.mock_ansible_module.params = PARAMS_FOR_SNAPSHOT_CREATED
 
@@ -324,21 +332,8 @@ class TestVolumeModule(OneViewBaseTest):
 
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=VolumeModule.MSG_NO_OPTIONS_PROVIDED)
 
-    def test_should_fail_when_name_is_missing_on_snapshot_deletion(self):
-        self.resource.get_by.return_value = [EXISTENT_VOLUME]
-        self.resource.get_snapshot_by.return_value = [{'uri': SNAPSHOT_URI}]
-
-        params = deepcopy(PARAMS_FOR_SNAPSHOT_DELETED)
-        del params['data']['snapshotParameters']['name']
-
-        self.mock_ansible_module.params = params
-
-        VolumeModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=VolumeModule.MSG_NO_OPTIONS_PROVIDED)
-
     def test_should_not_delete_snapshot_when_resource_not_exist(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = PARAMS_FOR_SNAPSHOT_DELETED
 
@@ -348,7 +343,7 @@ class TestVolumeModule(OneViewBaseTest):
 
     def test_should_not_delete_snapshot_when_snapshot_not_exist(self):
         self.resource.get_by.return_value = [EXISTENT_VOLUME]
-        self.resource.get_snapshot_by.return_value = []
+        self.resource.get_snapshot_by_name.return_value = None
 
         self.mock_ansible_module.params = PARAMS_FOR_SNAPSHOT_DELETED
 
