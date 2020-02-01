@@ -70,7 +70,7 @@ class TestStorageVolumeTemplateFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_storage_volume_template_by_name(self):
-        self.resource.get_by.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
+        self.resource.get_all.return_value = DEFAULT_VOLUME_TEMPLATES_RETURN
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
@@ -110,7 +110,8 @@ class TestStorageVolumeTemplateFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_compatible_systems(self):
-        self.resource.get_by.return_value = [{'name': 'SVT1', 'uri': '/rest/fake'}]
+        self.resource.data = {'name': 'SVT1', 'uri': '/rest/fake'}
+        self.resource.get_by_name.return_value = self.resource
         self.resource.get_compatible_systems.return_value = {
             "name": "Storage System Name"}
 

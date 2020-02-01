@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    storage_vol_templ_name: "FusionTemplateExample"
-    root_template_uri: "/rest/storage-volume-templates/5dbaf127-053b-4988-82fe-a80800eef1f3"
+    storage_vol_templ_name: "sample"
+    root_template_uri: "/rest/storage-volume-templates/fa45ca75-18ef-4da5-b5fe-ab53009fabff" 
   tasks:
     - name: Create a Storage Volume Template
       oneview_storage_volume_template:
@@ -27,31 +27,30 @@
         data:
             name: '{{storage_vol_templ_name}}'
             description: "Example Template"
-            rootTemplateUri: " {{root_template_uri}} " # Supported form API version >= 500
+            rootTemplateUri: '{{root_template_uri}}' # Supported form API version >= 500
             properties:                                # Supported from API version >= 500
               name:
-                title: Volume name
-                description: A volume name between 1 and 100 characters
                 meta:
-                  locked: 'false'
+                  locked: false
                 type: string
-                required: 'true'
+                title: Volume name
+                required: true
                 maxLength: 100
                 minLength: 1
+                description: A volume name between 1 and 100 characters
               size:
                 meta:
-                  locked: 'false'
+                  locked: false
                   semanticType: capacity
                 type: integer
                 title: Capacity
                 default: 1073741824
-                maximum: 17592186044416
-                minimum: 268435456
-                required: 'true'
-                description: The capacity of the volume in bytes
+                minimum: 4194304
+                required: true
+                description: Capacity of the volume in bytes
               description:
                 meta:
-                  locked: 'false'
+                  locked: false
                 type: string
                 title: Description
                 default: ''
@@ -60,11 +59,29 @@
                 description: A description for the volume
               isShareable:
                 meta:
-                  locked: 'false'
+                  locked: false
                 type: boolean
                 title: Is Shareable
-                default: 'false'
+                default: false
                 description: The shareability of the volume
+              storagePool:
+                meta:
+                  locked: false
+                  createOnly: true
+                  semanticType: device-storage-pool
+                type: string
+                title: Storage Pool
+                format: x-uri-reference
+                required: true
+                description: StoragePoolURI the volume should be added to
+              templateVersion:
+                meta:
+                  locked: true
+                type: string
+                title: Template version
+                default: '1.1'
+                required: true
+                description: Version of the template
               storagePool:
                 meta:
                   locked: 'false'
@@ -74,30 +91,44 @@
                 title: Storage Pool
                 format: x-uri-reference
                 required: 'true'
-                description: A common provisioning group URI reference
-                default: "/rest/storage-pools/0DB2A6C7-04D3-4830-9229-A80800EEF1F1"
-              snapshotPool:
-                meta:
-                  locked: 'true'
-                  semanticType: device-snapshot-storage-pool
-                type: string
-                title: Snapshot Pool
-                format: x-uri-reference
-                default: "/rest/storage-pools/0DB2A6C7-04D3-4830-9229-A80800EEF1F1"
-                description: A URI reference to the common provisioning group used to create snapshots
+                description: none
+                default: "/rest/storage-pools/59D6CCDA-656D-40A5-BBEC-AB53009FABEB"
               provisioningType:
                 enum:
                 - Thin
                 - Full
-                - Thin Deduplication
                 meta:
-                  locked: 'true'
+                  locked: false
                   createOnly: 'true'
+                  semanticType: device-provisioningType
                 type: string
                 title: Provisioning Type
-                default: Thin
+                default: Full
                 description: The provisioning type for the volume
-
+              dataProtectionLevel:
+                enum:
+                - NetworkRaid0None
+                - NetworkRaid5SingleParity
+                - NetworkRaid10Mirror2Way
+                - NetworkRaid10Mirror3Way
+                - NetworkRaid10Mirror4Way
+                - NetworkRaid6DualParity
+                meta:
+                  locked: false
+                  semanticType: device-dataProtectionLevel
+                type: string
+                title: Data Protection Level
+                default: NetworkRaid10Mirror2Way
+                required: true
+                description: Indicates the number and configuration of data copies in the Storage
+                  Pool
+              isAdaptiveOptimizationEnabled:
+                meta:
+                  locked: false
+                type: boolean
+                title: Adaptive Optimization
+                default: true
+                description: ''
       delegate_to: localhost
 
     - name: Update the Storage Volume Template
