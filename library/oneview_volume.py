@@ -236,10 +236,19 @@ class VolumeModule(OneViewModule):
         super(VolumeModule, self).__init__(additional_arg_spec=argument_spec,
                                            validate_etag_support=True)
 
-        self.set_resource_object(self.oneview_client.volumes)
+        name = self.__find_resource_name()
+        self.set_resource_object(self.oneview_client.volumes, name)
+
+    def __find_resource_name(self):
+        name = None
+        if self.data:
+            if self.data.get('deviceVolumeName'):
+                name = self.data.get('deviceVolumeName')
+            elif self.data.get('properties'):
+                name = self.data.get('properties').get('name')
+        return name
 
     def execute_module(self):
-
         if self.state == 'present':
             return self.__present()
         if self.state == 'managed':
@@ -267,13 +276,15 @@ class VolumeModule(OneViewModule):
 
     def __managed(self):
         if not self.current_resource:
-            self.current_resource = self.resource_client.add_from_existing(self.data)
+            added_volume = self.resource_client.add_from_existing(self.data)
             changed = True
             msg = self.MSG_ADDED
         else:
+            added_volume = self.current_resource.data
             changed = False
             msg = self.MSG_ALREADY_MANAGED
-        return dict(changed=changed, msg=msg, ansible_facts=dict(storage_volume=self.current_resource))
+
+        return dict(changed=changed, msg=msg, ansible_facts=dict(storage_volume=added_volume))
 
     def __absent(self):
         if self.current_resource:
