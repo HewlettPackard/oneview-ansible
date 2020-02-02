@@ -205,6 +205,7 @@ class StorageSystemFactsModule(OneViewModule):
     def execute_module(self):
         facts = {}
         is_specific_storage_system = True
+
         # This allows using both "ip_hostname" and "hostname" regardless api_version
         if self.oneview_client.api_version >= 500:
             get_method = self.resource_client.get_by_hostname
@@ -213,6 +214,7 @@ class StorageSystemFactsModule(OneViewModule):
 
         if self.module.params.get('storage_hostname'):
             self.current_resource = get_method(self.module.params['storage_hostname'])
+
         if self.current_resource:
             storage_systems = [self.current_resource.data]
         else:

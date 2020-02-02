@@ -184,11 +184,9 @@ class TestStorageSystemModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals_using_name(self):
-        # dict_by_name = yaml.load(YAML_STORAGE_SYSTEM_BY_NAME)["data"]
-
-        obj = mock.Mock()
-        obj.data = yaml.load(YAML_STORAGE_SYSTEM_BY_NAME)["data"]
-        self.resource.get_by_name.return_value = obj.data
+        dict_by_name = yaml.load(YAML_STORAGE_SYSTEM_BY_NAME)["data"]
+        self.resource.data = dict_by_name
+        self.resource.get_by_name.return_value = self.resource
 
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_BY_NAME)
 
@@ -197,7 +195,7 @@ class TestStorageSystemModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=StorageSystemModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(storage_system=obj.data)
+            ansible_facts=dict(storage_system=dict_by_name)
         )
 
     def test_should_fail_with_missing_required_attributes(self):
