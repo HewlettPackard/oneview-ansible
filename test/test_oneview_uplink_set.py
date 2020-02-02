@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -109,8 +109,11 @@ PARAMS_FOR_ABSENT_WITH_LI_NAME = dict(
 @pytest.mark.resource(TestUplinkSetModule='uplink_sets')
 class TestUplinkSetModule(OneViewBaseTest):
     def test_should_create(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = UPLINK_SET_FOUND_BY_KEY
+        self.resource.get_by_name.return_value = None
+        obj = mock.Mock()
+        obj.data = UPLINK_SET_FOUND_BY_KEY
+        self.resource.create.return_value = obj
+
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         UplinkSetModule().run()
@@ -122,9 +125,14 @@ class TestUplinkSetModule(OneViewBaseTest):
         )
 
     def test_should_replace_logical_interconnect_name_by_uri(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = UPLINK_SET_FOUND_BY_KEY
-        self.mock_ov_client.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.get_by_name.return_value = None
+        obj = mock.Mock()
+        obj.data = UPLINK_SET_FOUND_BY_KEY
+        self.resource.create.return_value = obj
+
+        obj = mock.Mock()
+        obj.data = LOGICAL_INTERCONNECT
+        self.mock_ov_client.logical_interconnects.get_by_name.return_value = obj
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT_WITH_LI_NAME)
 
         UplinkSetModule().run()
@@ -140,7 +148,7 @@ class TestUplinkSetModule(OneViewBaseTest):
         )
 
     def test_should_fail_when_logical_interconnect_not_found(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
         self.mock_ov_client.logical_interconnects.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT_WITH_LI_NAME)
 
@@ -152,7 +160,9 @@ class TestUplinkSetModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=UplinkSetModule.MSG_LOGICAL_INTERCONNECT_NOT_FOUND)
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by.return_value = EXISTENT_UPLINK_SETS
+        self.resource.data = EXISTENT_UPLINK_SETS[1]
+        self.resource.get_by_name.return_value = self.resource
+
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         UplinkSetModule().run()
@@ -164,9 +174,11 @@ class TestUplinkSetModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_attributes(self):
-        data_merged = UPLINK_SET_FOUND_BY_KEY.copy()
+        data_merged = EXISTENT_UPLINK_SETS[0]
         data_merged['description'] = 'New description'
-        self.resource.get_by.return_value = EXISTENT_UPLINK_SETS
+
+        self.resource.data = EXISTENT_UPLINK_SETS[0]
+        self.resource.get_by_name.return_value = self.resource
         self.resource.update.return_value = data_merged
         self.mock_ansible_module.params = deepcopy(PARAMS_WITH_CHANGES)
 
@@ -179,11 +191,21 @@ class TestUplinkSetModule(OneViewBaseTest):
         )
 
     def test_rename_when_resource_exists(self):
-        data_merged = UPLINK_SET_FOUND_BY_KEY.copy()
+        data_merged = EXISTENT_UPLINK_SETS[0].copy()
+        params = PARAMS_TO_RENAME["data"].copy()
+        del params["newName"]
+        data_merged.update(params)
         data_merged['name'] = RENAMED_UPLINK_SET
+
         params_to_rename = deepcopy(PARAMS_TO_RENAME)
-        self.resource.get_by = mock.MagicMock(side_effect=[EXISTENT_UPLINK_SETS, []])
-        self.resource.update.return_value = data_merged
+
+        self.resource.data = EXISTENT_UPLINK_SETS[0]
+        self.resource.get_by_name.return_value = self.resource
+
+        obj = mock.Mock()
+        obj.data = data_merged
+        self.resource.update.return_value = obj
+
         self.mock_ansible_module.params = params_to_rename
 
         UplinkSetModule().run()
@@ -191,7 +213,8 @@ class TestUplinkSetModule(OneViewBaseTest):
         self.resource.update.assert_called_once_with(data_merged)
 
     def test_should_delete(self):
-        self.resource.get_by.return_value = EXISTENT_UPLINK_SETS
+        self.resource.data = EXISTENT_UPLINK_SETS[0]
+        self.resource.get_by_name.return_value = self.resource
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_ABSENT)
 
         UplinkSetModule().run()
@@ -202,18 +225,21 @@ class TestUplinkSetModule(OneViewBaseTest):
         )
 
     def test_should_replace_logical_interconnect_name_by_uri_on_absent_state(self):
-        self.resource.get_by.return_value = EXISTENT_UPLINK_SETS
-        self.mock_ov_client.logical_interconnects.get_by_name.return_value = LOGICAL_INTERCONNECT
+        self.resource.data = EXISTENT_UPLINK_SETS[0]
+        self.resource.get_by_name.return_value = self.resource
+        obj = mock.Mock()
+        obj.data = LOGICAL_INTERCONNECT
+        self.mock_ov_client.logical_interconnects.get_by_name.return_value = obj
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_ABSENT_WITH_LI_NAME)
 
         UplinkSetModule().run()
 
         self.mock_ov_client.logical_interconnects.get_by_name.assert_called_once_with(
             'Name of the Logical Interconnect')
-        self.resource.delete.assert_called_once_with(UPLINK_SET_FOUND_BY_KEY)
+        self.resource.delete.assert_called_once_with()
 
     def test_should_do_nothing_when_not_exist(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_ABSENT)
 
         UplinkSetModule().run()
