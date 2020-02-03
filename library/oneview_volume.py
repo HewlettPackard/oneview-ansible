@@ -344,7 +344,7 @@ class VolumeModule(OneViewModule):
             raise OneViewModuleResourceNotFound(self.MSG_NO_OPTIONS_PROVIDED)
         snapshot_parameters = self.data['snapshotParameters']
 
-        snapshot = self.resource_client.get_snapshot_by_name(snapshot_parameters['name'])
+        snapshot = self.current_resource.get_snapshot_by_name(snapshot_parameters['name'])
         if not snapshot:
             raise OneViewModuleResourceNotFound(self.MSG_SNAPSHOT_NOT_FOUND)
         else:
