@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.5"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 5.0.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     name:
@@ -55,7 +55,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
 - debug: var=storage_volumes
 
 - name: Gather paginated, filtered and sorted facts about Volumes
@@ -63,7 +63,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       start: 0
       count: 2
@@ -77,7 +77,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     options:
         - attachableVolumes        # optional
         - extraManagedVolumePaths  # optional
@@ -91,7 +91,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "{{ volume_name }}"
     options:
         - snapshots  # optional
@@ -104,7 +104,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "{{ volume_name }}"
     options:
        - snapshots:  # optional
@@ -130,14 +130,14 @@ extra_managed_volume_paths:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class VolumeFactsModule(OneViewModuleBase):
+class VolumeFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(name=dict(type='str'), options=dict(type='list'), params=dict(type='dict'))
         super(VolumeFactsModule, self).__init__(additional_arg_spec=argument_spec)
-        self.resource_client = self.oneview_client.volumes
+        self.set_resource_object(self.oneview_client.volumes)
 
     def execute_module(self):
         ansible_facts = {}

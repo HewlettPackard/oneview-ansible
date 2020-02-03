@@ -403,9 +403,9 @@ class OneViewModule(object):
         else:
             self.oneview_client = OneViewClient.from_json_file(self.module.params['config'])
 
-    def set_resource_object(self, resource_client):
+    def set_resource_object(self, resource_client, name=None):
         self.resource_client = resource_client
-        name = uri = None
+        uri = None
 
         if self.data:
             if self.data.get("name"):
