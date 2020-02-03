@@ -49,7 +49,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Removes extra presentations from a specified server profile URI
   oneview_storage_volume_attachment:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     state: extra_presentations_removed
     server_profile: "/rest/server-profiles/e6516410-c873-4644-ab93-d26dba6ccf0d"
   delegate_to: localhost
@@ -59,7 +62,10 @@ EXAMPLES = '''
 
 - name: Removes extra presentations from a specified server profile name
   oneview_storage_volume_attachment:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     state: extra_presentations_removed
     server_profile: "SV-1001"
   delegate_to: localhost

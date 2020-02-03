@@ -66,14 +66,20 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Storage Volume Attachments
   oneview_storage_volume_attachment_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
   delegate_to: localhost
 
 - debug: var=storage_volume_attachments
 
 - name: Gather paginated, filtered and sorted facts about Storage Volume Attachments
   oneview_storage_volume_attachment_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     params:
       start: 0
       count: 2
@@ -84,7 +90,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Storage Volume Attachment by Server Profile and Volume
   oneview_storage_volume_attachment_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     serverProfileName: "sp-web"
     storageVolumeName: "volume-test" # You could inform either the volume name or the volume uri
     # storageVolumeUri: "volume-test"
@@ -95,7 +104,10 @@ EXAMPLES = '''
 
 - name: Gather facts about extra unmanaged storage volumes
   oneview_storage_volume_attachment_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     options:
       - extraUnmanagedStorageVolumes:
             start: 0     # optional
@@ -109,7 +121,10 @@ EXAMPLES = '''
 
 - name: Gather facts about all paths for the specified volume attachment
   oneview_storage_volume_attachment_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     serverProfileName: "sp-web"
     storageVolumeUri: "/rest/storage-volumes/12345-AAA-BBBB-CCCC-121212AA"
     options:
@@ -121,7 +136,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a specific attachment path
   oneview_storage_volume_attachment_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     serverProfileName: "sp-web"
     storageVolumeUri: "/rest/storage-volumes/12345-AAA-BBBB-CCCC-121212AA"
     options:
