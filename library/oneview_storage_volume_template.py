@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -54,7 +54,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
         name: "Volume Template Name"
@@ -69,7 +69,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
         name: 'Volume Template Name'
@@ -88,7 +88,7 @@ import collections
 from copy import deepcopy
 from six import iteritems
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError, compare
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError, compare
 
 
 def _update_dict_with_depth(ov_resource, user_resource):
@@ -100,7 +100,7 @@ def _update_dict_with_depth(ov_resource, user_resource):
     return ov_resource
 
 
-class StorageVolumeTemplateModule(OneViewModuleBase):
+class StorageVolumeTemplateModule(OneViewModule):
     MSG_CREATED = 'Storage Volume Template created successfully.'
     MSG_UPDATED = 'Storage Volume Template updated successfully.'
     MSG_ALREADY_PRESENT = 'Storage Volume Template is already updated.'
@@ -117,39 +117,37 @@ class StorageVolumeTemplateModule(OneViewModuleBase):
             data=dict(required=True, type='dict'),
         )
         super(StorageVolumeTemplateModule, self).__init__(additional_arg_spec=argument_spec, validate_etag_support=True)
-
-        self.resource_client = self.oneview_client.storage_volume_templates
+        self.set_resource_object(self.oneview_client.storage_volume_templates)
 
     def execute_module(self):
 
         if not self.data.get('name'):
             raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING)
 
-        resource = self.get_by_name(self.data['name'])
-
         if self.state == 'present':
-            return self._present(self.data, resource)
+            return self._present()
         elif self.state == 'absent':
-            return self.resource_absent(resource)
+            return self.resource_absent()
 
-    def _present(self, data, resource):
-        if not resource:
-            return self.resource_present(resource, fact_name='storage_volume_template')
+    def _present(self):
+        if not self.current_resource:
+            return self.resource_present(fact_name='storage_volume_template')
         else:
             changed = False
-            merged_data = _update_dict_with_depth(deepcopy(resource), data)
+            merged_data = _update_dict_with_depth(deepcopy(self.current_resource.data),
+                                                  self.data)
 
-            if compare(resource, merged_data):
+            if compare(self.current_resource.data, merged_data):
                 msg = self.MSG_ALREADY_PRESENT
             else:
-                resource = self.resource_client.update(merged_data)
+                self.current_resource.update(merged_data)
                 changed = True
                 msg = self.MSG_UPDATED
 
             return dict(
                 msg=msg,
                 changed=changed,
-                ansible_facts={'storage_volume_template': resource}
+                ansible_facts={'storage_volume_template': self.current_resource.data}
             )
 
 

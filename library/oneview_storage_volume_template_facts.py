@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     name:
@@ -52,7 +52,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
   delegate_to: localhost
 
 - debug: var=storage_volume_templates
@@ -62,7 +62,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -76,7 +76,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "FusionTemplateExample"
   delegate_to: localhost
 
@@ -87,7 +87,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "FusionTemplateExample"
     options:
       - connectableVolumeTemplates
@@ -101,7 +101,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     options:
       - reachableVolumeTemplates
   delegate_to: localhost
@@ -111,7 +111,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "{{ volume_template_name }}"
     options:
       - compatibleSystems
@@ -141,10 +141,10 @@ compatible_systems:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class StorageVolumeTemplateFactsModule(OneViewModuleBase):
+class StorageVolumeTemplateFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(
             name=dict(required=False, type='str'),
@@ -152,17 +152,15 @@ class StorageVolumeTemplateFactsModule(OneViewModuleBase):
             params=dict(required=False, type='dict'),
         )
         super(StorageVolumeTemplateFactsModule, self).__init__(additional_arg_spec=argument_spec)
-
-        self.resource_client = self.oneview_client.storage_volume_templates
+        self.set_resource_object(self.oneview_client.storage_volume_templates)
 
     def execute_module(self):
         ansible_facts = dict(storage_volume_templates=[])
         networks = self.facts_params.pop('networks', None)
-        if self.module.params.get('name'):
-            storage_volume_templates = self.resource_client.get_by('name', self.module.params['name'])
-            if 'compatibleSystems' in self.options and len(storage_volume_templates) > 0:
-                ansible_facts['compatible_systems'] = self.resource_client.get_compatible_systems(
-                    storage_volume_templates[0]['uri'])
+
+        if 'compatibleSystems' in self.options and self.current_resource:
+            ansible_facts['compatible_systems'] = self.current_resource.get_compatible_systems()
+            storage_volume_templates = [self.current_resource.data]
         else:
             storage_volume_templates = self.resource_client.get_all(**self.facts_params)
 
