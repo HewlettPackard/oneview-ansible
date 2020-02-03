@@ -10746,7 +10746,7 @@ Manage OneView Storage Volume Template resources.
  Provides an interface to manage Storage Volume Template resources. Can create, update and delete.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 3.1.0
+  * hpOneView >= 5.0.0
   * python >= 2.7.9
 
 #### Options
@@ -10769,7 +10769,7 @@ Manage OneView Storage Volume Template resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
         name: "Volume Template Name"
@@ -10784,7 +10784,7 @@ Manage OneView Storage Volume Template resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
         name: 'Volume Template Name'
@@ -10822,7 +10822,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
  Retrieve facts about Storage Volume Templates of the OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
   * python >= 2.7.9
 
 #### Options
@@ -10845,7 +10845,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
   delegate_to: localhost
 
 - debug: var=storage_volume_templates
@@ -10855,7 +10855,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -10869,7 +10869,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "FusionTemplateExample"
   delegate_to: localhost
 
@@ -10880,7 +10880,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "FusionTemplateExample"
     options:
       - connectableVolumeTemplates
@@ -10894,7 +10894,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     options:
       - reachableVolumeTemplates
   delegate_to: localhost
@@ -10904,7 +10904,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "{{ volume_template_name }}"
     options:
       - compatibleSystems
