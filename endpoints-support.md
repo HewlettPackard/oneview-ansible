@@ -371,15 +371,15 @@
 |<sub>/rest/storage-pools/{id}</sub>                                                      | PUT      | :white_check_mark:   | :white_check_mark:
 |<sub>/rest/storage-pools/{id}</sub>                                                      | DELETE   | :heavy_minus_sign:   | :heavy_minus_sign:
 |     **Storage Systems**                                                                                                                           |
-|<sub>/rest/storage-systems</sub>                                                         | GET      | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/storage-systems</sub>                                                         | POST     | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/storage-systems/host-types</sub>                                              | GET      | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/storage-systems/{arrayId}/storage-pools</sub>                                 | GET      | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/storage-systems/{id}</sub>                                                    | GET      | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/storage-systems/{id}</sub>                                                    | PUT      | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/storage-systems/{id}</sub>                                                    | DELETE   | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/storage-systems/{id}/reachable-ports</sub>                                    | GET      | :white_check_mark:   | :white_check_mark:   |
-|<sub>/rest/storage-systems/{id}/templates</sub>                                          | GET      | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/storage-systems</sub>                                                         | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/storage-systems</sub>                                                         | POST     | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/storage-systems/host-types</sub>                                              | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/storage-systems/{arrayId}/storage-pools</sub>                                 | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/storage-systems/{id}</sub>                                                    | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/storage-systems/{id}</sub>                                                    | PUT      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/storage-systems/{id}</sub>                                                    | DELETE   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/storage-systems/{id}/reachable-ports</sub>                                    | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/storage-systems/{id}/templates</sub>                                          | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |     **Storage Volume Attachments**                                                                                                                |
 |<sub>/rest/storage-volume-attachments</sub>                                              | GET      | :white_check_mark:   |
 |<sub>/rest/storage-volume-attachments/{id}</sub>                                         | GET      | :white_check_mark:   |
