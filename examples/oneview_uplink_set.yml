@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    logical_interconnect_name: '<LI-name>' # set the name of an existent logical interconnect to run this example
+    logical_interconnect_name: '<LIG>' # set the name of an existent logical interconnect to run this example
     ethernet_networks:                     # set at least one ethernet network URI for this example
-      - '<ethernet-network-uri>'
+      - '/rest/ethernet-networks/21051893-e035-4c25-9dd0-8cd9cc953d25'
   tasks:
     - name: Ensure that the Uplink Set is present
       oneview_uplink_set:

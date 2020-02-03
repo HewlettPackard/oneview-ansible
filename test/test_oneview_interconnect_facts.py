@@ -106,13 +106,14 @@ class TestInterconnectFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_interconnects_by_interconnect_name(self):
-        self.resource.get_by.return_value = MOCK_INTERCONNECTS
+        self.resource.data = MOCK_INTERCONNECTS[0]
+        self.resource.get_by_name.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_GET_BY_NAME
 
         InterconnectFactsModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', INTERCONNECT_NAME)
+        self.resource.get_by_name.assert_called_once_with(INTERCONNECT_NAME)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -121,16 +122,16 @@ class TestInterconnectFactsModule(OneViewBaseFactsTest):
 
     def test_should_get_interconnect_name_servers(self):
         fake_name_servers = [dict(t=1)]
-
-        self.resource.get_by.return_value = MOCK_INTERCONNECTS
+        self.resource.data = MOCK_INTERCONNECTS[0]
+        self.resource.get_by_name.return_value = self.resource
         self.resource.get_name_servers.return_value = fake_name_servers
 
         self.mock_ansible_module.params = PARAMS_FOR_GET_NAME_SERVERS
 
         InterconnectFactsModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', INTERCONNECT_NAME)
-        self.resource.get_name_servers.assert_called_once_with(INTERCONNECT_URI)
+        self.resource.get_by_name.assert_called_once_with(INTERCONNECT_NAME)
+        self.resource.get_name_servers.assert_called_once()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -138,7 +139,8 @@ class TestInterconnectFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_interconnect_statistics_by_interconnect_name(self):
-        self.resource.get_by.return_value = MOCK_INTERCONNECTS
+        self.resource.data = MOCK_INTERCONNECTS[0]
+        self.resource.get_by_name.return_value = self.resource
 
         fake_statistics = dict()
         self.resource.get_statistics.return_value = fake_statistics
@@ -147,7 +149,7 @@ class TestInterconnectFactsModule(OneViewBaseFactsTest):
 
         InterconnectFactsModule().run()
 
-        self.resource.get_statistics.assert_called_once_with(INTERCONNECT_URI)
+        self.resource.get_statistics.assert_called_once()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -160,15 +162,15 @@ class TestInterconnectFactsModule(OneViewBaseFactsTest):
 
     def test_should_gather_facts_about_interconnect_port_statistics(self):
         fake_statistics = dict(name='test')
-
-        self.resource.get_by.return_value = MOCK_INTERCONNECTS
+        self.resource.data = MOCK_INTERCONNECTS[0]
+        self.resource.get_by_name.return_value = self.resource
         self.resource.get_statistics.return_value = fake_statistics
 
         self.mock_ansible_module.params = PARAMS_FOR_PORT_STATISTICS
 
         InterconnectFactsModule().run()
 
-        self.resource.get_statistics.assert_called_once_with(INTERCONNECT_URI, PORT_NAME)
+        self.resource.get_statistics.assert_called_once_with(PORT_NAME)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -180,8 +182,8 @@ class TestInterconnectFactsModule(OneViewBaseFactsTest):
 
     def test_should_gather_facts_about_interconnect_subport_statistics(self):
         fake_statistics = dict(name='test')
-
-        self.resource.get_by.return_value = MOCK_INTERCONNECTS
+        self.resource.data = MOCK_INTERCONNECTS[0]
+        self.resource.get_by_name.return_value = self.resource
         self.resource.get_subport_statistics.return_value = fake_statistics
 
         self.mock_ansible_module.params = PARAMS_FOR_SUBPORT_STATISTICS
@@ -189,7 +191,6 @@ class TestInterconnectFactsModule(OneViewBaseFactsTest):
         InterconnectFactsModule().run()
 
         self.resource.get_subport_statistics.assert_called_once_with(
-            INTERCONNECT_URI,
             PORT_NAME,
             SUBPORT_NUMBER
         )
@@ -204,16 +205,16 @@ class TestInterconnectFactsModule(OneViewBaseFactsTest):
 
     def test_should_get_interconnect_ports(self, testing_module):
         fake_ports = [dict(t=1), dict(t=2)]
-
-        self.resource.get_by.return_value = MOCK_INTERCONNECTS
+        self.resource.data = MOCK_INTERCONNECTS[0]
+        self.resource.get_by_name.return_value = self.resource
         self.resource.get_ports.return_value = fake_ports
 
         self.mock_ansible_module.params = PARAMS_FOR_GET_PORTS
 
         InterconnectFactsModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', INTERCONNECT_NAME)
-        self.resource.get_ports.assert_called_once_with(INTERCONNECT_URI)
+        self.resource.get_by_name.assert_called_once_with(INTERCONNECT_NAME)
+        self.resource.get_ports.assert_called_once()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -223,16 +224,18 @@ class TestInterconnectFactsModule(OneViewBaseFactsTest):
     def test_should_get_interconnect_port(self, testing_module):
         fake_port = dict(t=1)
         port_id = "53fa7d35-1cc8-46c1-abf0-6af091a1aed3:d1"
+        self.resource.data = MOCK_INTERCONNECTS[0]
+        self.resource.get_by_name.return_value = self.resource
 
-        self.resource.get_by.return_value = MOCK_INTERCONNECTS
+        self.resource.get_by_name.return_value = self.resource
         self.resource.get_port.return_value = fake_port
 
         self.mock_ansible_module.params = PARAMS_FOR_GET_PORT
 
         InterconnectFactsModule().run()
 
-        self.resource.get_by.assert_called_once_with('name', INTERCONNECT_NAME)
-        self.resource.get_port.assert_called_once_with(INTERCONNECT_URI, port_id)
+        self.resource.get_by_name.assert_called_once_with(INTERCONNECT_NAME)
+        self.resource.get_port.assert_called_once_with(port_id)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -241,16 +244,13 @@ class TestInterconnectFactsModule(OneViewBaseFactsTest):
 
     def test_should_get_pluggable_module_information(self):
         fake_sfp_info = [dict(t=1), dict(t=2)]
-
-        self.resource.get_by.return_value = MOCK_INTERCONNECTS
+        self.resource.data = MOCK_INTERCONNECTS[0]
+        self.resource.get_by_name.return_value = self.resource
         self.resource.get_pluggable_module_information.return_value = fake_sfp_info
 
         self.mock_ansible_module.params = PARAMS_PLUGGABLE_MODULE
 
         InterconnectFactsModule().run()
-
-        self.resource.get_by.assert_called_once_with('name', INTERCONNECT_NAME)
-        self.resource.get_pluggable_module_information.assert_called_once_with(INTERCONNECT_URI)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
