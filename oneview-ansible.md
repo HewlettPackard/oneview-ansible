@@ -4841,8 +4841,8 @@ Manage the OneView Interconnect resources.
  Provides an interface to manage Interconnect resources. Can change the power state, UID light state, perform device reset, reset port protection, and update the interconnect ports.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 3.3.0
   * python >= 2.7.9
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -4865,7 +4865,7 @@ Manage the OneView Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: 'powered_off'
     name: '0000A66102, interconnect 2'
 
@@ -4874,7 +4874,7 @@ Manage the OneView Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: 'uid_on'
     name: '0000A66102, interconnect 2'
 
@@ -4883,7 +4883,7 @@ Manage the OneView Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: 'uid_on'
     ip: '172.18.1.114'
 
@@ -4892,7 +4892,7 @@ Manage the OneView Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: 'reconfigured'
     ip: '172.18.1.114'
 
@@ -4928,8 +4928,8 @@ Retrieve facts about one or more of the OneView Interconnects.
  Retrieve facts about one or more of the Interconnects from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 3.3.0
   * python >= 2.7.9
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -4951,7 +4951,7 @@ Retrieve facts about one or more of the OneView Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
 
 - debug: var=interconnects
 
@@ -4960,7 +4960,7 @@ Retrieve facts about one or more of the OneView Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       start: 0
       count: 5
@@ -4974,7 +4974,7 @@ Retrieve facts about one or more of the OneView Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: '0000A66102, interconnect 2'
 
 - debug: var=interconnects
@@ -4985,7 +4985,7 @@ Retrieve facts about one or more of the OneView Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: '0000A66102, interconnect 2'
     options:
         - nameServers
@@ -4998,7 +4998,7 @@ Retrieve facts about one or more of the OneView Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: '0000A66102, interconnect 2'
     options:
         - statistics
@@ -5011,7 +5011,7 @@ Retrieve facts about one or more of the OneView Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: '0000A66102, interconnect 2'
     options:
         - portStatistics: 'd3'
@@ -5024,7 +5024,7 @@ Retrieve facts about one or more of the OneView Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: 'Enc2, interconnect 2'
     options:
         - subPortStatistics:
@@ -5039,7 +5039,7 @@ Retrieve facts about one or more of the OneView Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: '0000A66102, interconnect 2'
     options:
         - ports
@@ -5052,7 +5052,7 @@ Retrieve facts about one or more of the OneView Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: '0000A66102, interconnect 2'
     options:
         - port: d1
@@ -5065,7 +5065,7 @@ Retrieve facts about one or more of the OneView Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: '0000A66102, interconnect 2'
     options:
         - pluggableModuleInformation
