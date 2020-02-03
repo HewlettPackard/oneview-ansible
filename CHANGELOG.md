@@ -27,6 +27,7 @@ This release is to support resource name instead of resource URIs in server prof
     - volume storage system
     - os deployment plan
     - storage pool
+    - storage volume
     - volme template
     - firmware baseline
 
