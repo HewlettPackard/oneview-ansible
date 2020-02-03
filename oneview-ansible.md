@@ -11820,7 +11820,6 @@ Manage OneView Volume resources.
  Provides an interface to manage Volume resources. It allows create, update, delete or repair the volume, and create or delete a snapshot.
 
 #### Requirements (on the host that executes the module)
-
   * hpOneView >= 5.0.0
   * python >= 2.7.9
 
@@ -12005,7 +12004,6 @@ Retrieve facts about the OneView Volumes.
  Retrieve facts about the Volumes from OneView.
 
 #### Requirements (on the host that executes the module)
-
   * hpOneView >= 5.0.0
   * python >= 2.7.9
 
