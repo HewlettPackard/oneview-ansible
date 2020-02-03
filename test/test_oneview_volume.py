@@ -18,7 +18,6 @@
 
 import mock
 import pytest
-import yaml
 
 from copy import deepcopy
 from hpe_test_utils import OneViewBaseTest
