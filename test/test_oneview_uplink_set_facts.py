@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -53,7 +53,9 @@ class TestUplinkSetFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_by_name(self):
-        self.resource.get_by.return_value = PRESENT_UPLINKS
+        self.resource.data = PRESENT_UPLINKS[0]
+        self.resource.get_by.return_value = self.resource
+
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         UplinkSetFactsModule().run()

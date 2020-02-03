@@ -42,6 +42,8 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_storage_volume_template
 - oneview_storage_volume_template_facts
 - oneview_task_facts
+- oneview_uplink_set
+- oneview_uplink_set_facts
 
 ## v5.3.1
 
