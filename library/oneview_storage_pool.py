@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.0.0"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -61,7 +61,6 @@ EXAMPLES = '''
        storageSystemUri: "/rest/storage-systems/TXQ1010307"
        poolName: "FST_CPG2"
   delegate_to: localhost
-
 - name: Delete the Storage Pool (prior to API500)
   oneview_storage_pool:
     hostname: 172.16.101.48
@@ -72,26 +71,24 @@ EXAMPLES = '''
     data:
        poolName: "FST_CPG2"
   delegate_to: localhost
-
 - name: Ensure the storage pool 'FST_CPG2' is managed by the appliance (API500 onwards)
   oneview_storage_pool:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
        storageSystemUri: "/rest/storage-systems/TXQ1010307"
        poolName: FST_CPG2
        isManaged: True
   delegate_to: localhost
-
 - name: Ensure the storage pool 'FST_CPG2' is unmanaged (API500 onwards)
   oneview_storage_pool:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
        storageSystemUri: "/rest/storage-systems/TXQ1010307"
@@ -108,10 +105,10 @@ storage_pool:
 '''
 
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError, OneViewModuleResourceNotFound, compare
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError, OneViewModuleResourceNotFound, compare
 
 
-class StoragePoolModule(OneViewModuleBase):
+class StoragePoolModule(OneViewModule):
     MSG_CREATED = 'Storage Pool added successfully.'
     MSG_ALREADY_PRESENT = 'Storage Pool is already present.'
     MSG_UPDATED = 'Storage Pool was updated.'
@@ -134,58 +131,54 @@ class StoragePoolModule(OneViewModuleBase):
         )
 
         super(StoragePoolModule, self).__init__(additional_arg_spec=argument_spec)
-        self.resource_client = self.oneview_client.storage_pools
+        self.set_resource_object(self.oneview_client.storage_pools)
 
     def execute_module(self):
-        resource = self.__get_by('name') if self.oneview_client.api_version >= 500 else self.__get_by('poolName')
+
+        if not self.data.get("poolName") and not self.data.get("name"):
+            raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING)
+
+        if self.data.get("poolName"):
+            self.current_resource = self.resource_client.get_by_name(self.data.get("poolName"))
 
         if self.state == 'present':
-            return self.__present(self.data, resource)
+            return self.__present()
         elif self.state == 'absent':
-            return self.__absent(self.data, resource)
+            return self.__absent()
 
-    def __get_by(self, attribute):
-        if not self.data.get(attribute):
-            raise OneViewModuleValueError(self.MSG_MANDATORY_FIELD_MISSING)
-        else:
-            return self.get_by_name(self.data[attribute])
-
-    def __present(self, data, resource):
+    def __present(self):
         changed = False
         msg = self.MSG_ALREADY_PRESENT
 
-        if not resource:
+        if not self.current_resource:
             if self.oneview_client.api_version >= 500:
                 raise OneViewModuleResourceNotFound(self.MSG_RESOURCE_NOT_FOUND)
             else:
-                resource = self.oneview_client.storage_pools.add(data)
+                self.current_resource = self.resource_client.add(self.data)
                 changed = True
                 msg = self.MSG_CREATED
         else:
-            merged_data = resource.copy()
+            merged_data = self.current_resource.data.copy()
             merged_data.update(self.data)
 
-            if compare(resource, merged_data):
+            if compare(self.current_resource.data, merged_data):
+                changed = False
                 msg = self.MSG_ALREADY_PRESENT
             else:
-                resource = self.resource_client.update(merged_data)
+                self.current_resource.update(merged_data)
                 changed = True
                 msg = self.MSG_UPDATED
 
-        return dict(changed=changed,
-                    msg=msg,
-                    ansible_facts=dict(storage_pool=resource))
+        return dict(changed=changed, msg=msg, ansible_facts=dict(storage_pool=self.current_resource.data))
 
-    def __absent(self, data, resource):
+    def __absent(self):
         if self.oneview_client.api_version >= 500:
-            if resource:
+            if self.current_resource:
                 raise OneViewModuleResourceNotFound(self.MSG_RESOURCE_FOUND)
             else:
-                return dict(changed=False,
-                            msg=self.MSG_ALREADY_ABSENT,
-                            ansible_facts=dict(storage_pool=None))
+                return dict(changed=False, msg=self.MSG_ALREADY_ABSENT, ansible_facts=dict(storage_pool=None))
         else:
-            return self.resource_absent(resource, 'remove')
+            return self.resource_absent('remove')
 
 
 def main():
