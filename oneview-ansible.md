@@ -10066,7 +10066,7 @@ Manage OneView Storage System resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -10182,7 +10182,7 @@ Retrieve facts about the OneView Storage Systems
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
