@@ -37,11 +37,11 @@
           family: StoreServ
           deviceSpecificAttributes:
               managedDomain: '{{ storage_domain }}'
-              managedPools: []
-                      #        - name: CPG-SSD
-                      #                  deviceType: SSD
-                      #                  domain: TestDomain
-                      #                  uuid: 2eda1910-15c7-4cda-a464-c9a46036473d
+              managedPools:
+                - name: CPG-SSD
+                  deviceType: SSD
+                  domain: TestDomain
+                  uuid: 2eda1910-15c7-4cda-a464-c9a46036473d
 
       delegate_to: localhost
 
