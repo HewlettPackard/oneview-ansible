@@ -4841,8 +4841,8 @@ Manage the OneView Interconnect resources.
  Provides an interface to manage Interconnect resources. Can change the power state, UID light state, perform device reset, reset port protection, and update the interconnect ports.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 5.0.0
+  * python >= 2.7.9
 
 #### Options
 
@@ -4928,8 +4928,8 @@ Retrieve facts about one or more of the OneView Interconnects.
  Retrieve facts about one or more of the Interconnects from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 5.0.0
+  * python >= 2.7.9
 
 #### Options
 
