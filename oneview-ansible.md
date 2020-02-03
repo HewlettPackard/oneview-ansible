@@ -9341,7 +9341,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
         name: Web-Server-L2
@@ -9394,7 +9394,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     data:
       name: server-profile-with-connections
       connectionSettings:
@@ -9412,7 +9412,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     # This is required for unassigning a SH, or creating a SP and not auto-assigning a SH
     auto_assign_server_hardware: False
     data:
@@ -9426,7 +9426,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: compliant
     data:
         name: Web-Server-L2
@@ -9437,7 +9437,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: absent
     data:
         name: Web-Server-L2
@@ -9505,7 +9505,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   delegate_to: localhost
 
 - debug: var=server_profiles
@@ -9515,7 +9515,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -9531,7 +9531,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: WebServer-1
   delegate_to: localhost
 
@@ -9543,7 +9543,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     uri: /rest/server-profiles/e23d9fa4-f926-4447-b971-90116ca3e61e
   delegate_to: localhost
 
@@ -9554,7 +9554,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     options:
       - availableTargets:
           enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
@@ -9569,7 +9569,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name : "Encl1, bay 1"
     options:
         - schema
@@ -9777,7 +9777,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -9793,7 +9793,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: "ProfileTemplate101"
 
 - name: Gather facts about a Server Profile by uri
@@ -9801,7 +9801,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     uri: /rest/server-profile-templates/c0868397-eff6-49ed-8151-4338702792d3
   delegate_to: localhost
 
@@ -9810,7 +9810,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: "ProfileTemplate101"
     options:
       - new_profile
@@ -9820,7 +9820,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     options:
       - available_networks:
           serverHardwareTypeUri: "/rest/server-hardware-types/253F1D49-0FEE-4DCD-B14C-B26234E9D414"
@@ -10529,7 +10529,7 @@ Manage OneView Storage Volume Template resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -10551,7 +10551,7 @@ Manage OneView Storage Volume Template resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
         name: "Volume Template Name"
@@ -10566,7 +10566,7 @@ Manage OneView Storage Volume Template resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
         name: 'Volume Template Name'
@@ -10603,7 +10603,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -10625,7 +10625,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
   delegate_to: localhost
 
 - debug: var=storage_volume_templates
@@ -10635,7 +10635,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -10649,7 +10649,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "FusionTemplateExample"
   delegate_to: localhost
 
@@ -10660,7 +10660,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "FusionTemplateExample"
     options:
       - connectableVolumeTemplates
@@ -10674,7 +10674,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     options:
       - reachableVolumeTemplates
   delegate_to: localhost
@@ -10684,7 +10684,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "{{ volume_template_name }}"
     options:
       - compatibleSystems
