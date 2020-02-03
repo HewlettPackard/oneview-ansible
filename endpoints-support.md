@@ -478,8 +478,8 @@
 
 ## HPE Synergy Image Streamer
 
-| Endpoints                                                                       | Verb     | V300 | V500 |V600
-| --------------------------------------------------------------------------------------- | -------- | :------------------: | :------------------: | :------------------: |
+| Endpoints                                                                       | Verb     | V300 | V500 |V600 |V800 |V1000 |V1020
+| --------------------------------------------------------------------------------------- | -------- | :------------------: | :------------------: | :------------------: | :------------------: | :------------------: | :------------------: |
 |     **Artifacts Bundle**                                                                                         |
 |<sub>	/rest/artifact-bundles	</sub>                                                  | GET | :white_check_mark: |
 |<sub>	/rest/artifact-bundles	</sub>                                       |  POST(create)  | :white_check_mark: |
@@ -500,13 +500,13 @@
 |<sub> /rest/deployment-groups</sub>                                       | GET              | :white_check_mark: |
 |<sub> /rest/deployment-groups/{id}</sub>                                  | GET              | :white_check_mark: |
 |     **Deployment Plans**                                                                                         |
-|<sub> /rest/deployment-plans </sub>                                       | POST             | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|<sub> /rest/deployment-plans </sub>                                       | GET              | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|<sub> /rest/deployment-plans/{id} </sub>                                  | GET              | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|<sub> /rest/deployment-plans/{id} </sub>                                  | PUT              | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|<sub> /rest/deployment-plans/{id} </sub>                                  | DELETE           | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-|<sub> /rest/deployment-plans/{id}/usedby </sub>                           | GET              | :heavy_minus_sign: | :white_check_mark: | :white_check_mark: |
-|<sub> /rest/deployment-plans/{id}/osdp </sub>                             | GET              | :heavy_minus_sign: | :heavy_minus_sign: | :white_check_mark: |
+|<sub> /rest/deployment-plans </sub>                                       | POST             | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub> /rest/deployment-plans </sub>                                       | GET              | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub> /rest/deployment-plans/{id} </sub>                                  | GET              | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub> /rest/deployment-plans/{id} </sub>                                  | PUT              | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub> /rest/deployment-plans/{id} </sub>                                  | DELETE           | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub> /rest/deployment-plans/{id}/usedby </sub>                           | GET              | :heavy_minus_sign: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub> /rest/deployment-plans/{id}/osdp </sub>                             | GET              | :heavy_minus_sign: | :heavy_minus_sign: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 |     **Golden Images**                                                                                            |
 |<sub> /rest/golden-images</sub>                                           | POST(create)     | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 |<sub> /rest/golden-images</sub>                                           | POST(upload)     | :white_check_mark: | :white_check_mark: | :white_check_mark: |

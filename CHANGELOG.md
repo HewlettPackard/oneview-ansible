@@ -8,6 +8,8 @@ This release extends the planned support of the modules to OneView REST API vers
 2. Modules upgraded in this release requires hpOneView version 5.0.0. Also, OneView Python library is now migrated to new repository which is available at https://github.com/HewlettPackard/oneview-python.
 
 #### Modules supported in this release
+- image_streamer_deployment_plan
+- image_streamer_deployment_plan_facts
 - oneview_enclosure
 - oneview_enclosure_facts
 - oneview_enclosure_group
