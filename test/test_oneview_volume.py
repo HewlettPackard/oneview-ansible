@@ -18,7 +18,6 @@
 
 import mock
 import pytest
-import yaml
 
 from copy import deepcopy
 from hpe_test_utils import OneViewBaseTest
@@ -61,6 +60,12 @@ PARAMS_FOR_MANAGED = dict(
     state='managed',
     data=dict(deviceVolumeName='Volume with Storage Pool'))
 
+PARAMS_FOR_PROPERTY_NAME = dict(
+    config='config.json',
+    state='present',
+    data=dict(properties=dict(name='Volume with Storage Pool')))
+
+
 PARAMS_FOR_UPDATE_OK = dict(
     config='config.json',
     state='present',
@@ -75,6 +80,12 @@ PARAMS_FOR_UPDATE_EXISTING = dict(
     data=dict(name='Volume with Storage Pool',
               newName='Volume with Storage Pool - Renamed',
               shareable=False)
+)
+
+PARAMS_FOR_PRESENT = dict(
+    config='config.json',
+    state='present',
+    data=dict(name='Volume with Storage Pool')
 )
 
 PARAMS_FOR_ABSENT = dict(
@@ -136,6 +147,16 @@ class TestVolumeModule(OneViewBaseTest):
             msg=VolumeModule.MSG_CREATED,
             ansible_facts=dict(storage_volume=EXISTENT_VOLUME)
         )
+
+    def test_should_find_from_name_in_properties(self):
+        self.resource.data = {"name": "Volume with Storage Pool"}
+        self.resource.get_by_name.return_value = self.resource
+
+        self.mock_ansible_module.params = PARAMS_FOR_PROPERTY_NAME
+
+        VolumeModule().run()
+
+        self.resource.get_by_name.assert_called_once_with("Volume with Storage Pool")
 
     def test_should_create_from_snapshot(self):
         self.resource.get_by_name.return_value = []
@@ -246,6 +267,20 @@ class TestVolumeModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=VolumeModule.MSG_DELETED
+        )
+
+    def test_update_should_do_nothing_when_volume_already_exists_and_is_equal(self):
+        self.resource.data = PARAMS_FOR_PRESENT["data"]
+        self.resource.get_by_name.return_value = self.resource
+
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        VolumeModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=VolumeModule.MSG_NO_CHANGES_PROVIDED,
+            ansible_facts=dict(storage_volume=self.resource.data)
         )
 
     def test_should_do_nothing_when_volume_not_exist(self):

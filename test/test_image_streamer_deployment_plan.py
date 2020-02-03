@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -34,6 +34,14 @@ PARAMS_CREATE = dict(
         oeBuildPlanName='Demo Build Plan'
     )
 )
+PARAMS_FOR_PRESENT = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name="Deployment Plan name",
+        uri="/rest/deployment-plans/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0"
+    )
+)
 PARAMS_UPDATE = dict(
     config='config.json',
     state='present',
@@ -61,14 +69,16 @@ class TestDeploymentPlanModule(ImageStreamerBaseTest):
 
     @pytest.fixture(autouse=True)
     def specific_set_up(self):
-        self.DEPLOYMENT_PLAN = dict(
+        self.DEPLOYMENT_PLAN = mock.Mock()
+        self.DEPLOYMENT_PLAN.data = dict(
             name="Deployment Plan name",
             uri="/rest/deployment-plans/d1c7b09a-6c7b-4ae0-b68e-ed208ccde1b0")
 
     def test_create_new_deployment_plan(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = []
         self.mock_ov_client.build_plans.get_by.return_value = [{'uri': '/rest/build-plans/1'}]
-        self.resource.create.return_value = {"name": "name"}
+        self.resource.data = {"name": "name"}
+        self.resource.create.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_CREATE
 
@@ -88,8 +98,9 @@ class TestDeploymentPlanModule(ImageStreamerBaseTest):
         )
 
     def test_update_deployment_plan(self):
-        self.resource.get_by.return_value = [self.DEPLOYMENT_PLAN]
-        self.resource.update.return_value = {"name": "name"}
+        self.resource.get_by_name.return_value = self.DEPLOYMENT_PLAN
+        self.resource.data = {"name": "name"}
+        self.resource.update.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_UPDATE
 
@@ -98,23 +109,23 @@ class TestDeploymentPlanModule(ImageStreamerBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=DeploymentPlanModule.MSG_UPDATED,
-            ansible_facts=dict(deployment_plan={"name": "name"})
+            ansible_facts=dict(deployment_plan=self.DEPLOYMENT_PLAN.data)
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by.return_value = [PARAMS_UPDATE['data']]
-        self.mock_ansible_module.params = PARAMS_UPDATE
+        self.resource.get_by_name.return_value = self.DEPLOYMENT_PLAN
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         DeploymentPlanModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=DeploymentPlanModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(deployment_plan=PARAMS_UPDATE['data'])
+            ansible_facts=dict(deployment_plan=self.DEPLOYMENT_PLAN.data)
         )
 
     def test_delete_deployment_plan(self):
-        self.resource.get_by.return_value = [self.DEPLOYMENT_PLAN]
+        self.resource.get_by_name.return_value = self.DEPLOYMENT_PLAN
 
         self.mock_ansible_module.params = PARAMS_DELETE
 
@@ -126,7 +137,7 @@ class TestDeploymentPlanModule(ImageStreamerBaseTest):
         )
 
     def test_should_do_nothing_when_deleting_a_non_existent_deployment_plan(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = []
 
         self.mock_ansible_module.params = PARAMS_DELETE
 
@@ -138,7 +149,7 @@ class TestDeploymentPlanModule(ImageStreamerBaseTest):
         )
 
     def test_should_fail_when_build_plan_not_found(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = []
         self.mock_ov_client.build_plans.get_by.return_value = None
 
         del PARAMS_CREATE['data']['oeBuildPlanURI']

@@ -8,6 +8,8 @@ This release extends the planned support of the modules to OneView REST API vers
 2. Modules upgraded in this release requires hpOneView version 5.0.0. Also, OneView Python library is now migrated to new repository which is available at https://github.com/HewlettPackard/oneview-python.
 
 #### Modules supported in this release
+- image_streamer_deployment_plan
+- image_streamer_deployment_plan_facts
 - oneview_enclosure
 - oneview_enclosure_facts
 - oneview_enclosure_group
@@ -18,6 +20,8 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_fc_network_facts
 - oneview_fcoe_network
 - oneview_fcoe_network_facts
+- oneview_interconnect
+- oneview_interconnect_facts
 - oneview_interconnect_type_facts
 - oneview_logical_enclosure
 - oneview_logical_enclosure_facts
@@ -33,9 +37,17 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_server_profile_facts
 - oneview_server_profile_template
 - oneview_server_profile_template_facts
+- oneview_storage_system
+- oneview_storage_system_facts
+- oneview_storage_volume
+- oneview_storage_volume_facts
+- oneview_storage_volume_attachment
+- oneview_storage_volume_attachment_facts
 - oneview_storage_volume_template
 - oneview_storage_volume_template_facts
 - oneview_task_facts
+- oneview_uplink_set
+- oneview_uplink_set_facts
 
 ## v5.3.1
 
