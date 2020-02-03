@@ -749,7 +749,7 @@ Manage Image Streamer Deployment Plan resources.
  Provides an interface to manage Image Streamer Deployment Plans. Can create, update, and remove.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 3.1.0
+  * hpOneView >= 5.0.0
   * python >= 2.7.9
 
 #### Options
@@ -771,7 +771,7 @@ Manage Image Streamer Deployment Plan resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       description: "Description of this Deployment Plan"
@@ -785,7 +785,7 @@ Manage Image Streamer Deployment Plan resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       name: 'Demo Deployment Plan'
@@ -798,7 +798,7 @@ Manage Image Streamer Deployment Plan resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
         name: 'Demo Deployment Plan'
@@ -836,7 +836,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
  Retrieve facts about one or more of the Image Streamer Deployment Plans.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 4.5.0
+  * hpOneView >= 5.0.0
   * python >= 2.7.9
 
 #### Options
@@ -858,7 +858,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
   delegate_to: localhost
 - debug: var=deployment_plans
 
@@ -867,7 +867,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -881,7 +881,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "Demo Deployment Plan"
   delegate_to: localhost
 - debug: var=deployment_plans
@@ -891,7 +891,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "Demo Deployment Plan"
     options: "usedby"
   delegate_to: localhost
@@ -902,7 +902,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "Demo Deployment Plan"
     options: "osdp"
   delegate_to: localhost
