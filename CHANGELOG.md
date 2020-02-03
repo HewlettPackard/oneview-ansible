@@ -35,6 +35,8 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_server_profile_template_facts
 - oneview_storage_volume_attachment
 - oneview_storage_volume_attachment_facts
+- oneview_storage_volume_template
+- oneview_storage_volume_template_facts
 - oneview_task_facts
 
 ## v5.3.1
