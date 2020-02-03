@@ -54,7 +54,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
 
 - debug: var=ethernet_networks
 
@@ -63,7 +63,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 1
       count: 3
@@ -77,7 +77,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: Ethernet network name
 
 - debug: var=ethernet_networks
