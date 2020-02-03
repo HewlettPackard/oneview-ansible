@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -70,8 +70,10 @@ PARAMS_FOR_MISSING_KEY = dict(
 @pytest.mark.resource(TestStorageVolumeTemplateModule='storage_volume_templates')
 class TestStorageVolumeTemplateModule(OneViewBaseTest):
     def test_should_create_new_storage_volume_template(self):
-        self.resource.get_by.return_value = []
-        self.resource.create.return_value = {"name": "name"}
+        self.resource.get_by_name.return_value = None
+        obj = mock.Mock()
+        obj.data = {"name": "name"}
+        self.resource.create.return_value = obj
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -84,8 +86,12 @@ class TestStorageVolumeTemplateModule(OneViewBaseTest):
         )
 
     def test_should_update_the_storage_volume_template(self):
-        self.resource.get_by.return_value = [STORAGE_VOLUME_TEMPLATE]
-        self.resource.update.return_value = {"name": "name"}
+        obj = mock.Mock()
+        obj.data = STORAGE_VOLUME_TEMPLATE
+        self.resource.get_by_name.return_value = obj
+        obj = mock.Mock()
+        obj.data = {"name": "name"}
+        self.resource.update.return_value = obj
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
@@ -94,11 +100,13 @@ class TestStorageVolumeTemplateModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=StorageVolumeTemplateModule.MSG_UPDATED,
-            ansible_facts=dict(storage_volume_template={"name": "name"})
+            ansible_facts=dict(storage_volume_template=STORAGE_VOLUME_TEMPLATE)
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by.return_value = [STORAGE_VOLUME_TEMPLATE]
+        obj = mock.Mock()
+        obj.data = STORAGE_VOLUME_TEMPLATE
+        self.resource.get_by_name.return_value = obj
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -111,7 +119,9 @@ class TestStorageVolumeTemplateModule(OneViewBaseTest):
         )
 
     def test_should_remove_storage_volume_template(self):
-        self.resource.get_by.return_value = [STORAGE_VOLUME_TEMPLATE]
+        obj = mock.Mock()
+        obj.data = STORAGE_VOLUME_TEMPLATE
+        self.resource.get_by_name.return_value = obj
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
@@ -123,7 +133,7 @@ class TestStorageVolumeTemplateModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_storage_volume_template_not_exist(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
@@ -135,7 +145,10 @@ class TestStorageVolumeTemplateModule(OneViewBaseTest):
         )
 
     def test_should_raise_exception_when_key_is_missing(self):
-        self.resource.get_by.return_value = [STORAGE_VOLUME_TEMPLATE]
+        obj = mock.Mock()
+        obj.data = STORAGE_VOLUME_TEMPLATE
+        self.resource.get_by_name.return_value = obj
+
         self.resource.remove.side_effect = Exception(FAKE_MSG_ERROR)
 
         self.mock_ansible_module.params = PARAMS_FOR_MISSING_KEY
