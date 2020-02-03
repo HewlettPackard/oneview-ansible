@@ -29,6 +29,8 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_network_set_facts
 - oneview_server_hardware_type
 - oneview_server_hardware_type_facts
+- oneview_storage_volume
+- oneview_storage_volume_facts
 - oneview_task_facts
 
 ## v5.3.1
@@ -46,7 +48,6 @@ This release is to support resource name instead of resource URIs in server prof
     - volume storage system
     - os deployment plan
     - storage pool
-    - storage volume
     - volme template
     - firmware baseline
 
