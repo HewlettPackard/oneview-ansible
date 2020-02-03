@@ -11820,7 +11820,7 @@ Manage OneView Volume resources.
  Provides an interface to manage Volume resources. It allows create, update, delete or repair the volume, and create or delete a snapshot.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 4.0.0
+  * hpOneView >= 5.0.0
   * python >= 2.7.9
 
 #### Options
@@ -11844,7 +11844,7 @@ Manage OneView Volume resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       properties:
@@ -11862,7 +11862,7 @@ Manage OneView Volume resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       properties:
@@ -11898,7 +11898,7 @@ Manage OneView Volume resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       name: 'Volume with Storage Pool'
@@ -11911,7 +11911,7 @@ Manage OneView Volume resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: repaired
     data:
       name: 'Volume with Storage Pool - Renamed'
@@ -11921,7 +11921,7 @@ Manage OneView Volume resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: snapshot_created
     data:
       name: 'Volume with Snapshot Pool'
@@ -11934,7 +11934,7 @@ Manage OneView Volume resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: snapshot_deleted
     data:
       name: 'Volume with Snapshot Pool'
@@ -11946,7 +11946,7 @@ Manage OneView Volume resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
       name: 'Volume with Storage Pool - Renamed'
@@ -11956,7 +11956,7 @@ Manage OneView Volume resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
       name: 'Volume with Snapshot Pool - Renamed'
@@ -11966,7 +11966,7 @@ Manage OneView Volume resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
       name: 'Volume added with a specific WWN'
@@ -12004,7 +12004,7 @@ Retrieve facts about the OneView Volumes.
  Retrieve facts about the Volumes from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
   * python >= 2.7.9
 
 #### Options
@@ -12027,7 +12027,7 @@ Retrieve facts about the OneView Volumes.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
 - debug: var=storage_volumes
 
 - name: Gather paginated, filtered and sorted facts about Volumes
@@ -12035,7 +12035,7 @@ Retrieve facts about the OneView Volumes.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       start: 0
       count: 2
@@ -12049,7 +12049,7 @@ Retrieve facts about the OneView Volumes.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     options:
         - attachableVolumes        # optional
         - extraManagedVolumePaths  # optional
@@ -12063,7 +12063,7 @@ Retrieve facts about the OneView Volumes.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "{{ volume_name }}"
     options:
         - snapshots  # optional
@@ -12076,7 +12076,7 @@ Retrieve facts about the OneView Volumes.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "{{ volume_name }}"
     options:
        - snapshots:  # optional
