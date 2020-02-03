@@ -364,7 +364,7 @@
 |<sub>/rest/server-profiles/{id}/messages</sub>                                           | GET      | :white_check_mark:   | :heavy_minus_sign:  | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: |
 |<sub>/rest/server-profiles/{id}/transformation</sub>                                     | GET      | :white_check_mark:   | :white_check_mark:  | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 |     **Storage Pools**                                                                                                                            |
-|<sub>/rest/storage-pools</sub>                                                           | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:  |   | :white_check_mark:  |   | :white_check_mark:  |
+|<sub>/rest/storage-pools</sub>                                                           | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:  | :white_check_mark:  | :white_check_mark:  |
 |<sub>/rest/storage-pools</sub>                                                           | POST     | :heavy_minus_sign:   | :heavy_minus_sign:  | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   |
 |<sub>/rest/storage-pools/reachable-storage-pools</sub>                                   | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:  | :white_check_mark:  | :white_check_mark:  |
 |<sub>/rest/storage-pools/{id}</sub>                                                      | GET      | :white_check_mark:   | :white_check_mark:  | :white_check_mark:  | :white_check_mark:  | :white_check_mark:  |
