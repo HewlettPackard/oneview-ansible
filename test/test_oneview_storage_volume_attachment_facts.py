@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -46,9 +46,7 @@ ATTACHMENT = {
     "uri": "/rest/storage-volume-attachments/ED247E27"
 }
 
-RETURN_GET_BY_PROFILE_AND_VOLUME = {
-    'members': [ATTACHMENT]
-}
+RETURN_GET_BY_PROFILE_AND_VOLUME = ATTACHMENT
 
 
 @pytest.mark.resource(TestStorageVolumeAttachmentFactsModule='storage_volume_attachments')
@@ -116,14 +114,16 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_by_server_name_and_volume_uri(self):
-        self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
+        obj = mock.Mock()
+        obj.data = RETURN_GET_BY_PROFILE_AND_VOLUME
+        self.resource.get_by_uri.return_value = obj
         self.resource.URI = "/rest/storage-volume-attachments"
 
         self.mock_ansible_module.params = PARAMS_GET_ONE
 
         StorageVolumeAttachmentFactsModule().run()
 
-        self.resource.get.assert_called_once_with(URI)
+        self.resource.get_by_uri.assert_called_once_with(URI)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -131,7 +131,9 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_by_server_name_and_volume_name(self):
-        self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
+        obj = mock.Mock()
+        obj.data = RETURN_GET_BY_PROFILE_AND_VOLUME
+        self.resource.get_by_uri.return_value = obj
         self.resource.URI = "/rest/storage-volume-attachments"
 
         self.mock_ov_client.volumes.get_by.return_value = [
@@ -143,7 +145,7 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
         StorageVolumeAttachmentFactsModule().run()
 
         self.mock_ov_client.volumes.get_by.assert_called_once_with('name', 'VolumeTest')
-        self.resource.get.assert_called_once_with(URI)
+        self.resource.get_by_uri.assert_called_once_with(URI)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -176,6 +178,9 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=StorageVolumeAttachmentFactsModule.ATTACHMENT_KEY_REQUIRED)
 
     def test_should_get_by_storage_volume_attachment_uri(self):
+        obj = mock.Mock()
+        obj.data = RETURN_GET_BY_PROFILE_AND_VOLUME
+        self.resource.get_by_uri.return_value = obj
         self.resource.get.return_value = {"name": "Storage Volume Attachment Name"}
         self.resource.URI = "/rest/storage-volume-attachments"
 
@@ -190,12 +195,14 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(storage_volume_attachments=([{"name": "Storage Volume Attachment Name"}]))
+            ansible_facts=dict(storage_volume_attachments=([obj]))
         )
 
     def test_should_get_one_and_paths(self):
         self.resource.get_paths.return_value = [{'subresource': 'value'}]
-        self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
+        obj = mock.Mock()
+        obj.data = RETURN_GET_BY_PROFILE_AND_VOLUME
+        self.resource.get_by_uri.return_value = obj
         self.resource.URI = "/rest/storage-volume-attachments"
 
         params_get_paths = dict(
@@ -209,9 +216,8 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
 
         StorageVolumeAttachmentFactsModule().run()
 
-        self.resource.get.assert_called_once_with(URI)
-        self.resource.get_paths.assert_called_once_with(
-            "/rest/storage-volume-attachments/ED247E27")
+        self.resource.get_by_uri.assert_called_once_with(URI)
+        self.resource.get_paths.assert_called_once_with()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -223,7 +229,9 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
 
     def test_should_get_one_and_path_id(self):
         self.resource.get_paths.return_value = {'subresource': 'value'}
-        self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
+        obj = mock.Mock()
+        obj.data = RETURN_GET_BY_PROFILE_AND_VOLUME
+        self.resource.get_by_uri.return_value = obj
         self.resource.URI = "/rest/storage-volume-attachments"
 
         params_get_path = dict(
@@ -237,9 +245,8 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
 
         StorageVolumeAttachmentFactsModule().run()
 
-        self.resource.get.assert_called_once_with(URI)
-        self.resource.get_paths.assert_called_once_with(
-            "/rest/storage-volume-attachments/ED247E27", 'AAA-NNN-878787H')
+        self.resource.get_by_uri.assert_called_once_with(URI)
+        self.resource.get_paths.assert_called_once_with('AAA-NNN-878787H')
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -251,7 +258,9 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
 
     def test_should_get_one_and_path_uri(self):
         self.resource.get_paths.return_value = {'subresource': 'value'}
-        self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
+        obj = mock.Mock()
+        obj.data = RETURN_GET_BY_PROFILE_AND_VOLUME
+        self.resource.get_by_uri.return_value = obj
         self.resource.URI = "/rest/storage-volume-attachments"
 
         params_get_path = dict(
@@ -265,9 +274,8 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
 
         StorageVolumeAttachmentFactsModule().run()
 
-        self.resource.get.assert_called_once_with(URI)
-        self.resource.get_paths.assert_called_once_with(
-            "/rest/storage-volume-attachments/ED247E27", '/test/uri/AAA-NNN-878787H')
+        self.resource.get_by_uri.assert_called_once_with(URI)
+        self.resource.get_paths.assert_called_once_with('/test/uri/AAA-NNN-878787H')
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
@@ -280,7 +288,9 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
     def test_should_get_one_with_options(self):
         self.resource.URI = "/rest/storage-volume-attachments"
 
-        self.resource.get.return_value = RETURN_GET_BY_PROFILE_AND_VOLUME
+        obj = mock.Mock()
+        obj.data = RETURN_GET_BY_PROFILE_AND_VOLUME
+        self.resource.get_by_uri.return_value = obj
 
         params_get_all_options = dict(
             config='config.json',
@@ -298,7 +308,7 @@ class TestStorageVolumeAttachmentFactsModule(OneViewBaseFactsTest):
 
         StorageVolumeAttachmentFactsModule().run()
 
-        self.resource.get.assert_called_once_with(URI)
+        self.resource.get_by_uri.assert_called_once_with(URI)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,

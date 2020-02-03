@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 2.0.1"
+    - "hpOneView >= 5.0.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     state:
@@ -49,7 +49,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Removes extra presentations from a specified server profile URI
   oneview_storage_volume_attachment:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     state: extra_presentations_removed
     server_profile: "/rest/server-profiles/e6516410-c873-4644-ab93-d26dba6ccf0d"
   delegate_to: localhost
@@ -59,7 +62,10 @@ EXAMPLES = '''
 
 - name: Removes extra presentations from a specified server profile name
   oneview_storage_volume_attachment:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     state: extra_presentations_removed
     server_profile: "SV-1001"
   delegate_to: localhost
@@ -74,10 +80,10 @@ server_profile:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
 
 
-class StorageVolumeAttachmentModule(OneViewModuleBase):
+class StorageVolumeAttachmentModule(OneViewModule):
     PROFILE_NOT_FOUND = "Server Profile not found."
     PRESENTATIONS_REMOVED = "Extra presentations removed"
 
@@ -88,7 +94,7 @@ class StorageVolumeAttachmentModule(OneViewModuleBase):
         }
 
         super(StorageVolumeAttachmentModule, self).__init__(additional_arg_spec=argument_spec)
-        self.resource_client = self.oneview_client.storage_volume_attachments
+        self.set_resource_object(self.oneview_client.storage_volume_attachments)
 
     def execute_module(self):
 
@@ -97,7 +103,7 @@ class StorageVolumeAttachmentModule(OneViewModuleBase):
             "resourceUri": self.__get_server_profile_uri(self.module.params['server_profile'])
         }
 
-        attachment = self.oneview_client.storage_volume_attachments.remove_extra_presentations(data)
+        attachment = self.resource_client.remove_extra_presentations(data)
         return dict(changed=True, msg=self.PRESENTATIONS_REMOVED,
                     ansible_facts=dict(server_profile=attachment))
 
@@ -108,7 +114,7 @@ class StorageVolumeAttachmentModule(OneViewModuleBase):
             profile = self.oneview_client.server_profiles.get_by_name(server_profile)
 
             if profile:
-                return profile['uri']
+                return profile.data['uri']
             else:
                 raise OneViewModuleResourceNotFound(self.PROFILE_NOT_FOUND)
 

@@ -10231,6 +10231,8 @@ Retrieve facts about one or more Storage Pools.
         - reachableStoragePools
     params:
         sort: 'name:ascending'
+        
+        
         filter: status='OK'
         networks:
             - /rest/network/123456A
@@ -10553,7 +10555,7 @@ Provides an interface to remove extra presentations from a specified server prof
  Provides an interface to remove extra presentations from a specified server profile.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
   * python >= 2.7.9
 
 #### Options
@@ -10572,7 +10574,10 @@ Provides an interface to remove extra presentations from a specified server prof
 
 - name: Removes extra presentations from a specified server profile URI
   oneview_storage_volume_attachment:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     state: extra_presentations_removed
     server_profile: "/rest/server-profiles/e6516410-c873-4644-ab93-d26dba6ccf0d"
   delegate_to: localhost
@@ -10582,7 +10587,10 @@ Provides an interface to remove extra presentations from a specified server prof
 
 - name: Removes extra presentations from a specified server profile name
   oneview_storage_volume_attachment:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     state: extra_presentations_removed
     server_profile: "SV-1001"
   delegate_to: localhost
@@ -10621,7 +10629,7 @@ Retrieve facts about the OneView Storage Volume Attachments.
  Retrieve facts about the OneView Storage Volume Attachments. To gather facts about a specific Storage Volume Attachment it is required to inform the option _storageVolumeAttachmentUri_. It is also possible to retrieve a specific Storage Volume Attachment by the Server Profile and the Volume. For this option, it is required to inform the option _serverProfileName_ and the param _storageVolumeName_ or _storageVolumeUri_.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 2.0.1
+  * hpOneView >= 5.0.0
   * python >= 2.7.9
 
 #### Options
@@ -10644,14 +10652,20 @@ Retrieve facts about the OneView Storage Volume Attachments.
 
 - name: Gather facts about all Storage Volume Attachments
   oneview_storage_volume_attachment_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
   delegate_to: localhost
 
 - debug: var=storage_volume_attachments
 
 - name: Gather paginated, filtered and sorted facts about Storage Volume Attachments
   oneview_storage_volume_attachment_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     params:
       start: 0
       count: 2
@@ -10662,7 +10676,10 @@ Retrieve facts about the OneView Storage Volume Attachments.
 
 - name: Gather facts about a Storage Volume Attachment by Server Profile and Volume
   oneview_storage_volume_attachment_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     serverProfileName: "sp-web"
     storageVolumeName: "volume-test" # You could inform either the volume name or the volume uri
     # storageVolumeUri: "volume-test"
@@ -10673,7 +10690,10 @@ Retrieve facts about the OneView Storage Volume Attachments.
 
 - name: Gather facts about extra unmanaged storage volumes
   oneview_storage_volume_attachment_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     options:
       - extraUnmanagedStorageVolumes:
             start: 0     # optional
@@ -10687,7 +10707,10 @@ Retrieve facts about the OneView Storage Volume Attachments.
 
 - name: Gather facts about all paths for the specified volume attachment
   oneview_storage_volume_attachment_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     serverProfileName: "sp-web"
     storageVolumeUri: "/rest/storage-volumes/12345-AAA-BBBB-CCCC-121212AA"
     options:
@@ -10699,7 +10722,10 @@ Retrieve facts about the OneView Storage Volume Attachments.
 
 - name: Gather facts about a specific attachment path
   oneview_storage_volume_attachment_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     serverProfileName: "sp-web"
     storageVolumeUri: "/rest/storage-volumes/12345-AAA-BBBB-CCCC-121212AA"
     options:
@@ -11425,8 +11451,8 @@ Manage OneView Uplink Set resources.
  Provides an interface to manage Uplink Set resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 3.1.0
   * python >= 2.7.9
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -11448,7 +11474,7 @@ Manage OneView Uplink Set resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       name: 'Test Uplink Set'
@@ -11472,7 +11498,7 @@ Manage OneView Uplink Set resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       name: 'Test Uplink Set'
@@ -11484,7 +11510,7 @@ Manage OneView Uplink Set resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
       name: 'Test Uplink Set'
@@ -11524,8 +11550,8 @@ Retrieve facts about one or more of the OneView Uplink Sets.
  Retrieve facts about one or more of the Uplink Sets from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 2.0.1
   * python >= 2.7.9
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -11546,7 +11572,7 @@ Retrieve facts about one or more of the OneView Uplink Sets.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
 
 - debug: var=uplink_sets
 
@@ -11555,7 +11581,7 @@ Retrieve facts about one or more of the OneView Uplink Sets.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       start: 0
       count: 2
@@ -11569,7 +11595,7 @@ Retrieve facts about one or more of the OneView Uplink Sets.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: logical lnterconnect group name
 
 - debug: var=uplink_sets

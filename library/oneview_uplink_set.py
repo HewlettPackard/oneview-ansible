@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ description:
     - Provides an interface to manage Uplink Set resources. Can create, update, or delete.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 5.0.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     state:
@@ -58,7 +58,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       name: 'Test Uplink Set'
@@ -82,7 +82,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       name: 'Test Uplink Set'
@@ -94,7 +94,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
       name: 'Test Uplink Set'
@@ -107,10 +107,10 @@ uplink_set:
     returned: On state 'present'. Can be null.
     type: dict
 '''
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound, OneViewModuleValueError
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, OneViewModuleValueError
 
 
-class UplinkSetModule(OneViewModuleBase):
+class UplinkSetModule(OneViewModule):
     MSG_KEY_REQUIRED = "Uplink Set Name and Logical Interconnect required."
     MSG_CREATED = 'Uplink Set created successfully.'
     MSG_UPDATED = 'Uplink Set updated successfully.'
@@ -126,18 +126,18 @@ class UplinkSetModule(OneViewModuleBase):
             data=dict(required=True, type='dict')
         )
         super(UplinkSetModule, self).__init__(additional_arg_spec=argument_spec, validate_etag_support=True)
-        self.resource_client = self.oneview_client.uplink_sets
+        self.set_resource_object(self.oneview_client.uplink_sets)
 
     def execute_module(self):
         self.__validate_key()
         self.__replace_logical_interconnect_name_by_uri()
 
-        uplink_set = self.__get_by(self.data['name'], self.data['logicalInterconnectUri'])
+        self.__set_current_resource(self.data['name'], self.data['logicalInterconnectUri'])
 
         if self.state == 'present':
-            return self.resource_present(uplink_set, self.RESOURCE_FACT_NAME)
+            return self.resource_present(self.RESOURCE_FACT_NAME)
         elif self.state == 'absent':
-            return self.resource_absent(uplink_set)
+            return self.resource_absent()
 
     def __validate_key(self):
         if 'name' not in self.data:
@@ -150,14 +150,15 @@ class UplinkSetModule(OneViewModuleBase):
             name = self.data.pop('logicalInterconnectName')
             logical_interconnect = self.oneview_client.logical_interconnects.get_by_name(name)
             if logical_interconnect:
-                self.data['logicalInterconnectUri'] = logical_interconnect['uri']
+                self.data['logicalInterconnectUri'] = logical_interconnect.data['uri']
             else:
                 raise OneViewModuleResourceNotFound(self.MSG_LOGICAL_INTERCONNECT_NOT_FOUND)
 
-    def __get_by(self, name, logical_interconnect_uri):
+    def __set_current_resource(self, name, logical_interconnect_uri):
         uplink_sets = self.resource_client.get_by('name', name)
         uplink_sets = [x for x in uplink_sets if x['logicalInterconnectUri'] == logical_interconnect_uri]
-        return uplink_sets[0] if uplink_sets else None
+        if uplink_sets:
+            self.current_resource = self.resource_client.get_by_uri(uplink_sets[0]["uri"])
 
 
 def main():
