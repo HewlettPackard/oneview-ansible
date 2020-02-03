@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -54,7 +54,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
         credentials:
@@ -75,7 +75,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       credentials:
@@ -98,7 +98,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
         credentials:
@@ -110,7 +110,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
         credentials:
@@ -125,10 +125,10 @@ storage_system:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError, compare
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError, compare
 
 
-class StorageSystemModule(OneViewModuleBase):
+class StorageSystemModule(OneViewModule):
     MSG_ADDED = 'Storage System added successfully.'
     MSG_UPDATED = 'Storage System updated successfully.'
     MSG_ALREADY_PRESENT = 'Storage System is already present.'
@@ -149,72 +149,74 @@ class StorageSystemModule(OneViewModuleBase):
         super(StorageSystemModule, self).__init__(additional_arg_spec=argument_spec,
                                                   validate_etag_support=True)
 
-        self.resource_client = self.oneview_client.storage_systems
+        self.set_resource_object(self.oneview_client.storage_systems)
 
     def execute_module(self):
         if self.oneview_client.api_version < 500:
-            resource = self.__get_resource_hostname('ip_hostname', 'newIp_hostname')
+            self.__get_resource_hostname('ip_hostname', 'newIp_hostname')
         else:
-            resource = self.__get_resource_hostname('hostname', 'newHostname')
+            self.__get_resource_hostname('hostname', 'newHostname')
 
         if self.state == 'present':
-            return self.__present(resource)
+            return self.__present()
         elif self.state == 'absent':
-            return self.resource_absent(resource, 'remove')
+            return self.resource_absent('remove')
 
-    def __present(self, resource):
+    def __present(self):
         changed = False
         msg = ''
 
-        if not resource:
+        if not self.current_resource:
             if 'credentials' not in self.data:
                 raise OneViewModuleValueError(self.MSG_CREDENTIALS_MANDATORY)
+
             if self.oneview_client.api_version < 500:
-                resource = self.oneview_client.storage_systems.add(self.data['credentials'])
+                self.current_resource = self.resource_client.add(self.data['credentials'])
             else:
                 options = self.data['credentials'].copy()
                 options['family'] = self.data.get('family', None)
                 options['hostname'] = self.data.get('hostname', None)
-                resource = self.oneview_client.storage_systems.add(options)
+                self.current_resource = self.resource_client.add(options)
 
             changed = True
             msg = self.MSG_ADDED
 
-        merged_data = resource.copy()
-        merged_data.update(self.data)
+        else:
+            merged_data = self.current_resource.data.copy()
+            merged_data.update(self.data)
 
-        # remove password, it cannot be used in comparison
-        if 'credentials' in merged_data and 'password' in merged_data['credentials']:
-            del merged_data['credentials']['password']
+            # remove password, it cannot be used in comparison
+            if 'credentials' in merged_data and 'password' in merged_data['credentials']:
+                del merged_data['credentials']['password']
 
-        if not compare(resource, merged_data):
-            # update the resource
-            resource = self.oneview_client.storage_systems.update(merged_data)
-            if not changed:
+            if not compare(self.current_resource.data, merged_data):
+                # update the resource
+                self.current_resource.update(merged_data)
+                # if not changed:
                 changed = True
                 msg = self.MSG_UPDATED
-        else:
-            msg = self.MSG_ALREADY_PRESENT
+            else:
+                msg = self.MSG_ALREADY_PRESENT
 
         return dict(changed=changed,
                     msg=msg,
-                    ansible_facts=dict(storage_system=resource))
+                    ansible_facts=dict(storage_system=self.current_resource.data))
 
     def __get_resource_hostname(self, hostname_key, new_hostname_key):
         hostname = self.data.get(hostname_key, None)
         if 'credentials' in self.data and hostname is None:
             hostname = self.data['credentials'].get(hostname_key, None)
+
         if hostname:
             get_method = getattr(self.oneview_client.storage_systems, "get_by_{}".format(hostname_key))
-            resource = get_method(hostname)
+            self.current_resource = get_method(hostname)
+
             if self.data['credentials'].get(new_hostname_key):
                 self.data['credentials'][hostname_key] = self.data['credentials'].pop(new_hostname_key)
             elif self.data.get(new_hostname_key):
                 self.data[hostname_key] = self.data.pop(new_hostname_key)
-            return resource
-        elif self.data.get('name'):
-            return self.oneview_client.storage_systems.get_by_name(self.data['name'])
-        else:
+
+        if not hostname and not self.data.get("name"):
             raise OneViewModuleValueError(self.MSG_MANDATORY_FIELDS_MISSING)
 
 
