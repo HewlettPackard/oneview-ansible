@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ description:
     - Retrieve facts about one or more of the Interconnects from OneView.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.3.0"
+    - "hpOneView >= 5.0.0"
 author: "Bruno Souza (@bsouza)"
 options:
     name:
@@ -61,7 +61,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
 
 - debug: var=interconnects
 
@@ -70,7 +70,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       start: 0
       count: 5
@@ -84,7 +84,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: '0000A66102, interconnect 2'
 
 - debug: var=interconnects
@@ -95,7 +95,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: '0000A66102, interconnect 2'
     options:
         - nameServers
@@ -108,7 +108,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: '0000A66102, interconnect 2'
     options:
         - statistics
@@ -121,7 +121,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: '0000A66102, interconnect 2'
     options:
         - portStatistics: 'd3'
@@ -134,7 +134,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: 'Enc2, interconnect 2'
     options:
         - subPortStatistics:
@@ -149,7 +149,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: '0000A66102, interconnect 2'
     options:
         - ports
@@ -162,7 +162,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: '0000A66102, interconnect 2'
     options:
         - port: d1
@@ -175,7 +175,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: '0000A66102, interconnect 2'
     options:
         - pluggableModuleInformation
@@ -227,11 +227,13 @@ interconnect_pluggable_module_information:
     type: list
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 from hpOneView.resources.resource import extract_id_from_uri
 
 
-class InterconnectFactsModule(OneViewModuleBase):
+class InterconnectFactsModule(OneViewModule):
+    MSG_INTERCONNECT_NOT_FOUND = 'Interconnect not found'
+
     def __init__(self):
         argument_spec = dict(
             name=dict(required=False, type='str'),
@@ -239,59 +241,56 @@ class InterconnectFactsModule(OneViewModuleBase):
             params=dict(required=False, type='dict'),
         )
         super(InterconnectFactsModule, self).__init__(additional_arg_spec=argument_spec)
+        self.set_resource_object(self.oneview_client.interconnects)
 
     def execute_module(self):
-        interconnect_name = self.module.params['name']
         facts = dict()
 
-        if interconnect_name:
-            interconnects = self.oneview_client.interconnects.get_by('name', interconnect_name)
-            facts['interconnects'] = interconnects
+        if self.current_resource:
+            facts['interconnects'] = [self.current_resource.data]
 
-            if interconnects and self.module.params.get('options'):
-                self.__get_options(interconnects, facts)
+            if self.module.params.get('options'):
+                self.__get_options(facts)
         else:
-            facts['interconnects'] = self.oneview_client.interconnects.get_all(**self.facts_params)
+            facts['interconnects'] = self.resource_client.get_all(**self.facts_params)
 
         return dict(
             changed=False,
             ansible_facts=facts
         )
 
-    def __get_options(self, interconnects, facts):
-        interconnect_uri = interconnects[0]['uri']
-
+    def __get_options(self, facts):
         if self.options.get('nameServers'):
-            name_servers = self.oneview_client.interconnects.get_name_servers(interconnect_uri)
+            name_servers = self.current_resource.get_name_servers()
             facts['interconnect_name_servers'] = name_servers
 
         if self.options.get('statistics'):
-            facts['interconnect_statistics'] = self.oneview_client.interconnects.get_statistics(interconnect_uri)
+            facts['interconnect_statistics'] = self.current_resource.get_statistics()
 
         if self.options.get('portStatistics'):
             port_name = self.options['portStatistics']
-            port_statistics = self.oneview_client.interconnects.get_statistics(interconnect_uri, port_name)
+            port_statistics = self.current_resource.get_statistics(port_name)
             facts['interconnect_port_statistics'] = port_statistics
 
         if self.options.get('subPortStatistics'):
             facts['interconnect_subport_statistics'] = None
             sub_options = self.options['subPortStatistics']
             if isinstance(sub_options, dict) and sub_options.get('portName') and sub_options.get('subportNumber'):
-                facts['interconnect_subport_statistics'] = self.oneview_client.interconnects.get_subport_statistics(
-                    interconnect_uri, sub_options['portName'], sub_options['subportNumber'])
+                facts['interconnect_subport_statistics'] = self.current_resource.get_subport_statistics(
+                    sub_options['portName'], sub_options['subportNumber'])
 
         if self.options.get('ports'):
-            ports = self.oneview_client.interconnects.get_ports(interconnect_uri)
+            ports = self.current_resource.get_ports()
             facts['interconnect_ports'] = ports
 
         if self.options.get('port'):
             port_name = self.options.get('port')
-            port_id = "{}:{}".format(extract_id_from_uri(interconnect_uri), port_name)
-            port = self.oneview_client.interconnects.get_port(interconnect_uri, port_id)
+            port_id = "{}:{}".format(extract_id_from_uri(self.current_resource.data['uri']), port_name)
+            port = self.current_resource.get_port(port_id)
             facts['interconnect_port'] = port
 
         if self.options.get('pluggableModuleInformation'):
-            sfp_info = self.oneview_client.interconnects.get_pluggable_module_information(interconnect_uri)
+            sfp_info = self.current_resource.get_pluggable_module_information()
             facts['interconnect_pluggable_module_information'] = sfp_info
 
 
