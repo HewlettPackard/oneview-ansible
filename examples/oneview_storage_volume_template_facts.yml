@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - volume_template_name: 'vt2'
-    - networks: '/rest/fcoe-networks/7f0f74a0-4957-47ac-81c1-f573aa6d83de'
+    - volume_template_name: 'sample'
+    - networks: '/rest/fc-networks/53dbd1ef-a90c-498d-b015-437c87d822bd'
   tasks:
     - name: Gather facts about all Storage Volume Templates
       oneview_storage_volume_template_facts:

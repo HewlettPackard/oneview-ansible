@@ -387,14 +387,14 @@
 |<sub>/rest/storage-volume-attachments/{attachmentId}/paths</sub>                         | GET      | :heavy_minus_sign:   |
 |<sub>/rest/storage-volume-attachments/{attachmentId)/paths/{id}</sub>                    | GET      | :heavy_minus_sign:   |
 |     **Storage Volume Templates**                                                                                                                  |
-|<sub>/rest/storage-volume-templates</sub>                                                | GET      | :white_check_mark:   | :white_check_mark:
-|<sub>/rest/storage-volume-templates</sub>                                                | POST     | :white_check_mark:   | :white_check_mark:
-|<sub>/rest/storage-volume-templates/connectable-volume-templates</sub>                   | GET      | :heavy_minus_sign:   | :heavy_minus_sign:
-|<sub>/rest/storage-volume-templates/reachable-volume-templates</sub>                     | GET      | :white_check_mark:   | :white_check_mark:
-|<sub>/rest/storage-volume-templates/{id}</sub>                                           | GET      | :white_check_mark:   | :white_check_mark:
-|<sub>/rest/storage-volume-templates/{id}</sub>                                           | PUT      | :white_check_mark:   | :white_check_mark:
-|<sub>/rest/storage-volume-templates/{id}</sub>                                           | DELETE   | :white_check_mark:   | :white_check_mark:
-|<sub>/rest/storage-volume-templates/{id}/compatible-systems</sub>                        | GET      | :white_check_mark:   | :white_check_mark:
+|<sub>/rest/storage-volume-templates</sub>                                                | GET      | :white_check_mark:   | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark:
+|<sub>/rest/storage-volume-templates</sub>                                                | POST     | :white_check_mark:   | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark:
+|<sub>/rest/storage-volume-templates/connectable-volume-templates</sub>                   | GET      | :heavy_minus_sign:   | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign: | :heavy_minus_sign:
+|<sub>/rest/storage-volume-templates/reachable-volume-templates</sub>                     | GET      | :white_check_mark:   | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark:
+|<sub>/rest/storage-volume-templates/{id}</sub>                                           | GET      | :white_check_mark:   | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark:
+|<sub>/rest/storage-volume-templates/{id}</sub>                                           | PUT      | :white_check_mark:   | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark:
+|<sub>/rest/storage-volume-templates/{id}</sub>                                           | DELETE   | :white_check_mark:   | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark:
+|<sub>/rest/storage-volume-templates/{id}/compatible-systems</sub>                        | GET      | :white_check_mark:   | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark:
 |     **Switch Types**                                                                                                                              |
 |<sub>/rest/switch-types</sub>                                                            | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/switch-types/{id}</sub>                                                       | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
