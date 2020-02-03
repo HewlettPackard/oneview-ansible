@@ -10275,8 +10275,8 @@ Manage OneView Storage System resources.
  Provides an interface to manage Storage System resources. Can add, update and remove.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 3.1.0
   * python >= 2.7.9
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -10298,7 +10298,7 @@ Manage OneView Storage System resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
         credentials:
@@ -10319,7 +10319,7 @@ Manage OneView Storage System resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       credentials:
@@ -10342,7 +10342,7 @@ Manage OneView Storage System resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
         credentials:
@@ -10354,7 +10354,7 @@ Manage OneView Storage System resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
         credentials:
@@ -10393,8 +10393,8 @@ Retrieve facts about the OneView Storage Systems
  Retrieve facts about the Storage Systems from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 4.0.0
   * python >= 2.7.9
+  * hpOneView >= 5.0.0
 
 #### Options
 
@@ -10417,7 +10417,7 @@ Retrieve facts about the OneView Storage Systems
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
   delegate_to: localhost
 
 - debug: var=storage_systems
@@ -10427,7 +10427,7 @@ Retrieve facts about the OneView Storage Systems
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -10441,7 +10441,7 @@ Retrieve facts about the OneView Storage Systems
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     ip_hostname: "172.18.11.12"
   delegate_to: localhost
 
@@ -10452,7 +10452,7 @@ Retrieve facts about the OneView Storage Systems
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     hostname: "172.18.11.12"
   delegate_to: localhost
 
@@ -10464,7 +10464,7 @@ Retrieve facts about the OneView Storage Systems
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "ThreePAR7200-4555"
   delegate_to: localhost
 
@@ -10475,7 +10475,7 @@ Retrieve facts about the OneView Storage Systems
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "ThreePAR7200-4555"
     options:
         - hostTypes
@@ -10491,7 +10491,7 @@ Retrieve facts about the OneView Storage Systems
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     hostname: "172.18.11.12"
     options:
         - reachablePorts
@@ -10508,7 +10508,7 @@ Retrieve facts about the OneView Storage Systems
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     hostname: "172.18.11.12"
     options:
       - templates

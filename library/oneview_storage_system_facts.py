@@ -1,6 +1,6 @@
 #!/usr/bin/python
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ description:
 version_added: "2.5"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.0.0"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     storage_hostname:
@@ -59,7 +59,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
   delegate_to: localhost
 
 - debug: var=storage_systems
@@ -69,7 +69,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -83,7 +83,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     ip_hostname: "172.18.11.12"
   delegate_to: localhost
 
@@ -94,7 +94,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     hostname: "172.18.11.12"
   delegate_to: localhost
 
@@ -106,7 +106,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "ThreePAR7200-4555"
   delegate_to: localhost
 
@@ -117,7 +117,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "ThreePAR7200-4555"
     options:
         - hostTypes
@@ -133,7 +133,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     hostname: "172.18.11.12"
     options:
         - reachablePorts
@@ -150,7 +150,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     hostname: "172.18.11.12"
     options:
       - templates
@@ -187,10 +187,10 @@ storage_system_templates:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class StorageSystemFactsModule(OneViewModuleBase):
+class StorageSystemFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(
             name=dict(type='str'),
@@ -200,48 +200,49 @@ class StorageSystemFactsModule(OneViewModuleBase):
         )
 
         super(StorageSystemFactsModule, self).__init__(additional_arg_spec=argument_spec)
-        self.resource_client = self.oneview_client.storage_systems
+        self.set_resource_object(self.oneview_client.storage_systems)
 
     def execute_module(self):
         facts = {}
         is_specific_storage_system = True
+
         # This allows using both "ip_hostname" and "hostname" regardless api_version
         if self.oneview_client.api_version >= 500:
-            get_method = self.oneview_client.storage_systems.get_by_hostname
+            get_method = self.resource_client.get_by_hostname
         else:
-            get_method = self.oneview_client.storage_systems.get_by_ip_hostname
+            get_method = self.resource_client.get_by_ip_hostname
 
         if self.module.params.get('storage_hostname'):
-            storage_systems = get_method(self.module.params['storage_hostname'])
-        elif self.module.params.get('name'):
-            storage_systems = self.oneview_client.storage_systems.get_by_name(self.module.params['name'])
+            self.current_resource = get_method(self.module.params['storage_hostname'])
+
+        if self.current_resource:
+            storage_systems = [self.current_resource.data]
         else:
-            storage_systems = self.oneview_client.storage_systems.get_all(**self.facts_params)
+            storage_systems = self.resource_client.get_all(**self.facts_params)
             is_specific_storage_system = False
 
-        self.__get_options(facts, storage_systems, is_specific_storage_system)
+        self.__get_options(facts, is_specific_storage_system)
 
         facts['storage_systems'] = storage_systems
 
         return dict(changed=False, ansible_facts=facts)
 
-    def __get_options(self, facts, storage_system, is_specific_storage_system):
+    def __get_options(self, facts, is_specific_storage_system):
 
         if self.options:
             if self.options.get('hostTypes'):
                 facts['storage_system_host_types'] = self.oneview_client.storage_systems.get_host_types()
 
-            if storage_system and is_specific_storage_system:
-                storage_uri = storage_system['uri']
+            if self.current_resource and is_specific_storage_system:
                 query_params = self.module.params.get('params', {})
                 if self.options.get('storagePools'):
-                    facts['storage_system_pools'] = self.oneview_client.storage_systems.get_storage_pools(storage_uri)
+                    facts['storage_system_pools'] = self.current_resource.get_storage_pools()
                 if self.options.get('reachablePorts'):
                     facts['storage_system_reachable_ports'] = \
-                        self.oneview_client.storage_systems.get_reachable_ports(storage_uri, **query_params)
+                        self.current_resource.get_reachable_ports(**query_params)
                 if self.options.get('templates'):
                     facts['storage_system_templates'] = \
-                        self.oneview_client.storage_systems.get_templates(storage_uri, **query_params)
+                        self.current_resource.get_templates(**query_params)
 
 
 def main():
