@@ -2798,7 +2798,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       enclosureGroupUri : '{{ enclosure_group_uri }}'
@@ -2813,7 +2813,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'Test-Enclosure'
@@ -2824,7 +2824,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: reconfigured
     data:
       name: 'Test-Enclosure'
@@ -2834,7 +2834,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: absent
     data:
       name: 'Test-Enclosure'
@@ -2844,7 +2844,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: refreshed
     data:
       name: 'Test-Enclosure'
@@ -2855,7 +2855,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: create_certificate_request
     data:
       name: 'Test-Enclosure'
@@ -2873,7 +2873,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: get_certificate_request
     data:
       name: 'Test-Enclosure'
@@ -2884,7 +2884,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: import_certificate_request
     data:
       name: 'Test-Enclosure'
@@ -2896,7 +2896,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'Test-Enclosure'
@@ -2907,7 +2907,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: appliance_bays_powered_on
     data:
       name: 'Test-Enclosure'
@@ -2918,7 +2918,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: uid_on
     data:
       name: 'Test-Enclosure'
@@ -2928,7 +2928,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: uid_off
     data:
       name: 'Test-Enclosure'
@@ -2938,7 +2938,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: manager_bays_uid_on
     data:
       name: 'Test-Enclosure'
@@ -2949,7 +2949,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: manager_bays_uid_off
     data:
       name: 'Test-Enclosure'
@@ -2960,7 +2960,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: manager_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -2971,7 +2971,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: manager_bays_power_state_reset
     data:
       name: 'Test-Enclosure'
@@ -2982,7 +2982,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: appliance_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -2993,7 +2993,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: device_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -3004,7 +3004,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: device_bays_power_state_reset
     data:
       name: 'Test-Enclosure'
@@ -3015,7 +3015,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: interconnect_bays_power_state_e_fuse
     data:
       name: 'Test-Enclosure'
@@ -3026,7 +3026,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: manager_bays_role_active
     data:
       name: 'Test-Enclosure'
@@ -3037,7 +3037,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: device_bays_ipv4_removed
     data:
       name: 'Test-Enclosure'
@@ -3048,7 +3048,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: interconnect_bays_ipv4_removed
     data:
       name: 'Test-Enclosure'
@@ -3059,7 +3059,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: support_data_collection_set
     data:
       name: 'Test-Enclosure'
@@ -3070,7 +3070,7 @@ Manage OneView Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'Test-Enclosure'
@@ -3132,7 +3132,7 @@ Retrieve facts about one or more Enclosures
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -3147,7 +3147,7 @@ Retrieve facts about one or more Enclosures
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -3158,7 +3158,7 @@ Retrieve facts about one or more Enclosures
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -3173,7 +3173,7 @@ Retrieve facts about one or more Enclosures
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -3196,7 +3196,7 @@ Retrieve facts about one or more Enclosures
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -3257,7 +3257,7 @@ Manage OneView Enclosure Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
         name: "Enclosure Group 1"
@@ -3278,7 +3278,7 @@ Manage OneView Enclosure Group resources.
         hostname: 172.16.101.48
         username: administrator
         password: my_password
-        api_version: 800
+        api_version: 1200
         state: present
         data:
             name: "Enclosure Group 1"
@@ -3290,7 +3290,7 @@ Manage OneView Enclosure Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: absent
     data:
       name: "Enclosure Group 1 (renamed)"
@@ -3349,7 +3349,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   delegate_to: localhost
 
 - debug: var=enclosure_groups
@@ -3359,7 +3359,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -3374,7 +3374,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: "Test Enclosure Group Facts"
     options:
       - configuration_script
@@ -5100,7 +5100,7 @@ Retrieve facts about one or more of the OneView Interconnect Types.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
 
 - debug: var=interconnect_types
 
@@ -5109,7 +5109,7 @@ Retrieve facts about one or more of the OneView Interconnect Types.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -5123,7 +5123,7 @@ Retrieve facts about one or more of the OneView Interconnect Types.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: HP VC Flex-10 Enet Module
 
 - debug: var=interconnect_types
@@ -5344,7 +5344,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
         enclosureUris:
@@ -5359,7 +5359,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: firmware_updated
     data:
         name: "Encl1"
@@ -5377,7 +5377,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: firmware_updated
     data:
         name: "Encl1"
@@ -5397,7 +5397,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: script_updated
     data:
         name: "Encl1"
@@ -5409,7 +5409,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: dumped
     data:
         name: "Encl1"
@@ -5425,7 +5425,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: reconfigured
     data:
         name: "Encl1"
@@ -5436,7 +5436,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: updated_from_group
     data:
         name: "Encl1"
@@ -5447,7 +5447,7 @@ Manage OneView Logical Enclosure resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
         name: "Encl1"
@@ -5459,7 +5459,7 @@ Manage OneView Logical Enclosure resources.
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 800
+      api_version: 1200
       state: absent
       data:
           name: 'Encl1'
@@ -5522,7 +5522,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
       hostname: 172.16.101.48
       username: administrator
       password: my_password
-      api_version: 800
+      api_version: 1200
   delegate_to: localhost
 
 - debug: var=logical_enclosures
@@ -5532,7 +5532,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -5547,7 +5547,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: "Encl1"
   delegate_to: localhost
 
@@ -5558,7 +5558,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: "Encl1"
     options:
       - script
@@ -5621,7 +5621,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: compliant
     data:
       name: "Name of the Logical Interconnect"
@@ -5631,7 +5631,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: ethernet_settings_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5643,7 +5643,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: internal_networks_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5657,7 +5657,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: settings_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5669,7 +5669,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: forwarding_information_base_generated
     data:
       name: "Name of the Logical Interconnect"  # could also be 'uri'
@@ -5679,7 +5679,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: qos_aggregated_configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5697,7 +5697,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: snmp_configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5709,7 +5709,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: port_monitor_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5721,7 +5721,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5731,7 +5731,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: firmware_installed
     data:
       name: "Name of the Logical Interconnect"
@@ -5744,7 +5744,7 @@ Manage OneView Logical Interconnect resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: telemetry_configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -5829,7 +5829,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
 
 - debug: var=logical_interconnects
 
@@ -5838,7 +5838,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -5851,7 +5851,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: "Name of the Logical Interconnect"
     options:
       - qos_aggregated_configuration
@@ -5864,7 +5864,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: "Name of the Logical Interconnect"
     options:
       - qos_aggregated_configuration
@@ -5953,7 +5953,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'Test Logical Interconnect Group'
@@ -5976,7 +5976,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'Test Logical Interconnect Group'
@@ -5989,7 +5989,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'Test Logical Interconnect Group'
@@ -6015,7 +6015,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
       name: 'New Logical Interconnect Group'
@@ -6026,7 +6026,7 @@ Manage OneView Logical Interconnect Group resources.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: absent
     data:
       name: 'New Logical Interconnect Group'
@@ -6083,7 +6083,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   no_log: true
   delegate_to: localhost
 
@@ -6099,7 +6099,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   no_log: true
   delegate_to: localhost
 
@@ -6112,7 +6112,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   no_log: true
   delegate_to: localhost
 
@@ -6124,7 +6124,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   no_log: true
   delegate_to: localhost
 
@@ -9341,7 +9341,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: present
     data:
         name: Web-Server-L2
@@ -9394,7 +9394,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     data:
       name: server-profile-with-connections
       connectionSettings:
@@ -9412,7 +9412,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     # This is required for unassigning a SH, or creating a SP and not auto-assigning a SH
     auto_assign_server_hardware: False
     data:
@@ -9426,7 +9426,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: compliant
     data:
         name: Web-Server-L2
@@ -9437,7 +9437,7 @@ Manage OneView Server Profile resources
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     state: absent
     data:
         name: Web-Server-L2
@@ -9505,7 +9505,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
   delegate_to: localhost
 
 - debug: var=server_profiles
@@ -9515,7 +9515,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -9531,7 +9531,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: WebServer-1
   delegate_to: localhost
 
@@ -9543,7 +9543,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     uri: /rest/server-profiles/e23d9fa4-f926-4447-b971-90116ca3e61e
   delegate_to: localhost
 
@@ -9554,7 +9554,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     options:
       - availableTargets:
           enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
@@ -9569,7 +9569,7 @@ Retrieve facts about the OneView Server Profiles.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name : "Encl1, bay 1"
     options:
         - schema
@@ -9777,7 +9777,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     params:
       start: 0
       count: 3
@@ -9793,7 +9793,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: "ProfileTemplate101"
 
 - name: Gather facts about a Server Profile by uri
@@ -9801,7 +9801,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     uri: /rest/server-profile-templates/c0868397-eff6-49ed-8151-4338702792d3
   delegate_to: localhost
 
@@ -9810,7 +9810,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     name: "ProfileTemplate101"
     options:
       - new_profile
@@ -9820,7 +9820,7 @@ Retrieve facts about the Server Profile Templates from OneView.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 1200
     options:
       - available_networks:
           serverHardwareTypeUri: "/rest/server-hardware-types/253F1D49-0FEE-4DCD-B14C-B26234E9D414"
@@ -10963,7 +10963,7 @@ Retrieve facts about the OneView Tasks.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       count: 2
 
@@ -10974,7 +10974,7 @@ Retrieve facts about the OneView Tasks.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       count: 2
       filter: "associatedResource.resourceCategory='server-profile-templates'"
