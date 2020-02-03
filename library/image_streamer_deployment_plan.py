@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -54,7 +54,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       description: "Description of this Deployment Plan"
@@ -68,7 +68,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
       name: 'Demo Deployment Plan'
@@ -81,7 +81,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: absent
     data:
         name: 'Demo Deployment Plan'
@@ -95,10 +95,10 @@ deployment_plan:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
 
 
-class DeploymentPlanModule(OneViewModuleBase):
+class DeploymentPlanModule(OneViewModule):
     MSG_CREATED = 'Deployment Plan created successfully.'
     MSG_UPDATED = 'Deployment Plan updated successfully.'
     MSG_ALREADY_PRESENT = 'Deployment Plan is already present.'
@@ -117,24 +117,22 @@ class DeploymentPlanModule(OneViewModuleBase):
     def __init__(self):
         super(DeploymentPlanModule, self).__init__(additional_arg_spec=self.argument_spec)
         self.i3s_client = self.oneview_client.create_image_streamer_client()
-        self.resource_client = self.i3s_client.deployment_plans
+        self.set_resource_object(self.i3s_client.deployment_plans)
 
     def execute_module(self):
-        resource = self.get_by_name(self.data['name'])
         result = {}
-
         if self.state == 'present':
-            self.__replace_name_by_uris(self.data)
-            result = self.resource_present(resource, 'deployment_plan')
+            self.__replace_name_by_uris()
+            result = self.resource_present('deployment_plan')
         elif self.state == 'absent':
-            result = self.resource_absent(resource)
+            result = self.resource_absent()
 
         return result
 
-    def __replace_name_by_uris(self, data):
-        build_plan_name = data.pop('oeBuildPlanName', None)
+    def __replace_name_by_uris(self):
+        build_plan_name = self.data.pop('oeBuildPlanName', None)
         if build_plan_name:
-            data['oeBuildPlanURI'] = self.__get_build_plan_by_name(build_plan_name)['uri']
+            self.data['oeBuildPlanURI'] = self.__get_build_plan_by_name(build_plan_name)['uri']
 
     def __get_build_plan_by_name(self, name):
         build_plan = self.i3s_client.build_plans.get_by('name', name)

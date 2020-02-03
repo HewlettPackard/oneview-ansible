@@ -28,6 +28,7 @@
           description: "Description of this Deployment Plan"
           name: '{{ deployment_plan_name }}'
           hpProvided: 'false'
+          type: 'OEDeploymentPlanV5'
           oeBuildPlanName: "Demo Build Plan"
       delegate_to: localhost
 
@@ -38,6 +39,7 @@
         data:
           name: '{{ deployment_plan_name }}'
           newName:  '{{ deployment_plan_name_changed }}'
+          type: 'OEDeploymentPlanV5'
           description: "New description"
       delegate_to: localhost
 
