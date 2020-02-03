@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.0.0"
+    - "hpOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     name:
@@ -55,42 +55,36 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
   delegate_to: localhost
-
 - debug: var=storage_pools
-
 - name: Gather paginated, filtered and sorted facts about Storage Pools
   oneview_storage_pool_facts:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       start: 0
       count: 3
       sort: 'name:descending'
       filter: status='OK'
-
 - debug: var=storage_pools
-
 - name: Gather facts about a Storage Pool by name
   oneview_storage_pool_facts:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "CPG_FC-AO"
   delegate_to: localhost
-
 - debug: var=storage_pools
-
 - name: Gather facts about the reachable Storage Pools
   oneview_storage_pool_facts:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     options:
         - reachableStoragePools
     params:
@@ -103,7 +97,6 @@ EXAMPLES = '''
             - /rest/storage-pools/5F9CA89B-C632-4F09-BC55-A8AA00DA5C4A
         scope_uris: '/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7'
   delegate_to: localhost
-
 - debug: var=storage_pools_reachable_storage_pools
 '''
 
@@ -112,17 +105,16 @@ storage_pools:
     description: Has all the OneView facts about the Storage Pools.
     returned: Always, but can be null.
     type: dict
-
 storage_pools_reachable_storage_pools:
     description: Has all the OneView facts about the Reachable Storage Pools.
     returned: Always, but can be null.
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class StoragePoolFactsModule(OneViewModuleBase):
+class StoragePoolFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(
             name=dict(required=False, type='str'),
@@ -130,16 +122,17 @@ class StoragePoolFactsModule(OneViewModuleBase):
             options=dict(required=False, type='list')
         )
         super(StoragePoolFactsModule, self).__init__(additional_arg_spec=argument_spec)
-        self.resource_client = self.oneview_client.storage_pools
+        self.set_resource_object(self.oneview_client.storage_pools)
 
     def execute_module(self):
         facts = {}
-        if self.module.params.get('name'):
-            storage_pool = self.oneview_client.storage_pools.get_by('name', self.module.params['name'])
+        pools = []
+        if self.module.params['name']:
+            pools = self.resource_client.get_by('name', self.module.params['name'])
         else:
-            storage_pool = self.oneview_client.storage_pools.get_all(**self.facts_params)
+            pools = self.resource_client.get_all(**self.facts_params)
 
-        facts['storage_pools'] = storage_pool
+        facts['storage_pools'] = pools
         self.__get_options(facts)
         return dict(changed=False, ansible_facts=facts)
 

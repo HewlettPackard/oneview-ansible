@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -48,14 +48,14 @@ PARAMS_GET_REACHABLE_STORAGE_POOLS = dict(
 @pytest.mark.resource(TestStoragePoolFactsModule='storage_pools')
 class TestStoragePoolFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_storage_pool(self):
-        self.resource.get_all.return_value = {"name": "Storage Pool Name"}
+        self.resource.get_all.return_value = [{"name": "Storage Pool Name"}]
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         StoragePoolFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(storage_pools=({"name": "Storage Pool Name"}))
+            ansible_facts=dict(storage_pools=[{"name": "Storage Pool Name"}])
         )
 
     def test_should_get_storage_pool_by_name(self):
@@ -71,8 +71,8 @@ class TestStoragePoolFactsModule(OneViewBaseFactsTest):
 
     def test_should_get_reachable_storage_pools(self):
         self.mock_ov_client.api_version = 600
-        self.resource.get_by.return_value = {"name": "Storage Pool Name"}
         self.resource.get_reachable_storage_pools.return_value = [{'reachable': 'test'}]
+        self.resource.get_by.return_value = {"name": "Storage Pool Name"}
         self.mock_ansible_module.params = PARAMS_GET_REACHABLE_STORAGE_POOLS
 
         StoragePoolFactsModule().run()

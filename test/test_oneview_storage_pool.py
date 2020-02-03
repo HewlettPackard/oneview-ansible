@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -75,8 +75,9 @@ class TestStoragePoolModule(OneViewBaseTest):
         self.mock_ov_client.api_version = 300
 
     def test_should_create_new_storage_pool(self):
-        self.mock_ov_client.storage_pools.get_by.return_value = []
-        self.mock_ov_client.storage_pools.add.return_value = {"name": "name"}
+        self.resource.get_by_name.return_value = []
+        self.resource.data = {"poolName": "name"}
+        self.resource.add.return_value = self.resource
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL)
 
         StoragePoolModule().run()
@@ -84,11 +85,11 @@ class TestStoragePoolModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=StoragePoolModule.MSG_CREATED,
-            ansible_facts=dict(storage_pool={"name": "name"})
+            ansible_facts=dict(storage_pool={"poolName": "name"})
         )
 
     def test_should_do_nothing_when_storage_pool_already_exist(self):
-        self.mock_ov_client.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL]
+        self.resource.data = DICT_DEFAULT_STORAGE_POOL
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL)
 
         StoragePoolModule().run()
@@ -100,7 +101,7 @@ class TestStoragePoolModule(OneViewBaseTest):
         )
 
     def test_should_remove_storage_pool(self):
-        self.mock_ov_client.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL]
+        self.resource.data = DICT_DEFAULT_STORAGE_POOL
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL_ABSENT)
 
         StoragePoolModule().run()
@@ -111,18 +112,21 @@ class TestStoragePoolModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_storage_pool_not_exist(self):
-        self.mock_ov_client.storage_pools.get_by.return_value = []
+        self.mock_ov_client.api_version = 500
+        self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL_ABSENT)
 
         StoragePoolModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=StoragePoolModule.MSG_ALREADY_ABSENT
+            msg=StoragePoolModule.MSG_ALREADY_ABSENT,
+            ansible_facts=dict(storage_pool=None)
         )
 
     def test_should_fail_when_key_is_missing_api300(self):
-        self.mock_ov_client.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL]
+        self.mock_ov_client.api_version = 300
+        self.resource.data = DICT_DEFAULT_STORAGE_POOL
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL_MISSING_KEY)
 
         StoragePoolModule().run()
@@ -131,7 +135,7 @@ class TestStoragePoolModule(OneViewBaseTest):
 
     def test_should_fail_when_key_is_missing_api500(self):
         self.mock_ov_client.api_version = 500
-        self.mock_ov_client.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL]
+        self.resource.data = DICT_DEFAULT_STORAGE_POOL
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL_MISSING_KEY)
 
         StoragePoolModule().run()
@@ -144,7 +148,7 @@ class TestStoragePoolModule(OneViewBaseTest):
         update_params['data']['isManaged'] = False
         self.mock_ansible_module.params = update_params
 
-        self.mock_ov_client.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL_500]
+        self.resource.data = DICT_DEFAULT_STORAGE_POOL_500
         self.mock_ov_client.storage_pools.update.return_value = update_params
 
         StoragePoolModule().run()
@@ -152,14 +156,14 @@ class TestStoragePoolModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=StoragePoolModule.MSG_UPDATED,
-            ansible_facts=dict(storage_pool=update_params)
+            ansible_facts=dict(storage_pool=DICT_DEFAULT_STORAGE_POOL_500)
         )
 
     def test_update_should_do_nothing_when_storage_pool_already_exists_and_is_equal_api500(self):
         self.mock_ov_client.api_version = 500
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL_500)
 
-        self.mock_ov_client.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL_500]
+        self.resource.data = DICT_DEFAULT_STORAGE_POOL_500
 
         StoragePoolModule().run()
 
@@ -173,7 +177,7 @@ class TestStoragePoolModule(OneViewBaseTest):
         self.mock_ov_client.api_version = 500
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL_ABSENT_500)
 
-        self.mock_ov_client.storage_pools.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
 
         StoragePoolModule().run()
 
@@ -185,7 +189,7 @@ class TestStoragePoolModule(OneViewBaseTest):
 
     def test_should_fail_when_present_but_storage_pool_is_absent_api500(self):
         self.mock_ov_client.api_version = 500
-        self.mock_ov_client.storage_pools.get_by.return_value = []
+        self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL_500)
 
         StoragePoolModule().run()
@@ -194,7 +198,7 @@ class TestStoragePoolModule(OneViewBaseTest):
 
     def test_should_fail_when_absent_but_storage_pool_exists_api500(self):
         self.mock_ov_client.api_version = 500
-        self.mock_ov_client.storage_pools.get_by.return_value = [DICT_DEFAULT_STORAGE_POOL_500]
+        self.resource.data = DICT_DEFAULT_STORAGE_POOL_500
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_POOL_ABSENT_500)
 
         StoragePoolModule().run()

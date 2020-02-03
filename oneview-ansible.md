@@ -10070,7 +10070,7 @@ Manage OneView Storage Pool resources.
  Provides an interface to manage Storage Pool resources. Can add and remove.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 4.0.0
+  * hpOneView >= 5.0.0
   * python >= 2.7.9
 
 #### Options
@@ -10098,7 +10098,6 @@ Manage OneView Storage Pool resources.
        storageSystemUri: "/rest/storage-systems/TXQ1010307"
        poolName: "FST_CPG2"
   delegate_to: localhost
-
 - name: Delete the Storage Pool (prior to API500)
   oneview_storage_pool:
     hostname: 172.16.101.48
@@ -10109,26 +10108,24 @@ Manage OneView Storage Pool resources.
     data:
        poolName: "FST_CPG2"
   delegate_to: localhost
-
 - name: Ensure the storage pool 'FST_CPG2' is managed by the appliance (API500 onwards)
   oneview_storage_pool:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
        storageSystemUri: "/rest/storage-systems/TXQ1010307"
        poolName: FST_CPG2
        isManaged: True
   delegate_to: localhost
-
 - name: Ensure the storage pool 'FST_CPG2' is unmanaged (API500 onwards)
   oneview_storage_pool:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     state: present
     data:
        storageSystemUri: "/rest/storage-systems/TXQ1010307"
@@ -10168,7 +10165,7 @@ Retrieve facts about one or more Storage Pools.
  Retrieve facts about one or more of the Storage Pools from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 4.0.0
+  * hpOneView >= 5.0.0
   * python >= 2.7.9
 
 #### Options
@@ -10191,48 +10188,40 @@ Retrieve facts about one or more Storage Pools.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
   delegate_to: localhost
-
 - debug: var=storage_pools
-
 - name: Gather paginated, filtered and sorted facts about Storage Pools
   oneview_storage_pool_facts:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     params:
       start: 0
       count: 3
       sort: 'name:descending'
       filter: status='OK'
-
 - debug: var=storage_pools
-
 - name: Gather facts about a Storage Pool by name
   oneview_storage_pool_facts:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     name: "CPG_FC-AO"
   delegate_to: localhost
-
 - debug: var=storage_pools
-
 - name: Gather facts about the reachable Storage Pools
   oneview_storage_pool_facts:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 600
+    api_version: 1200
     options:
         - reachableStoragePools
     params:
         sort: 'name:ascending'
-        
-        
         filter: status='OK'
         networks:
             - /rest/network/123456A
@@ -10241,7 +10230,6 @@ Retrieve facts about one or more Storage Pools.
             - /rest/storage-pools/5F9CA89B-C632-4F09-BC55-A8AA00DA5C4A
         scope_uris: '/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7'
   delegate_to: localhost
-
 - debug: var=storage_pools_reachable_storage_pools
 
 ```
@@ -10277,8 +10265,8 @@ Manage OneView Storage System resources.
  Provides an interface to manage Storage System resources. Can add, update and remove.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 5.0.0
+  * python >= 2.7.9
 
 #### Options
 
@@ -10395,8 +10383,8 @@ Retrieve facts about the OneView Storage Systems
  Retrieve facts about the Storage Systems from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 5.0.0
+  * python >= 2.7.9
 
 #### Options
 
@@ -11451,8 +11439,8 @@ Manage OneView Uplink Set resources.
  Provides an interface to manage Uplink Set resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 5.0.0
+  * python >= 2.7.9
 
 #### Options
 
@@ -11550,8 +11538,8 @@ Retrieve facts about one or more of the OneView Uplink Sets.
  Retrieve facts about one or more of the Uplink Sets from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
   * hpOneView >= 5.0.0
+  * python >= 2.7.9
 
 #### Options
 
