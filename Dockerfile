@@ -1,6 +1,6 @@
 FROM python:3.7-slim-buster
 
-LABEL maintainer "Hewlett Packard Enterprise <github@hpe.com>"
+LABEL maintainer "Priyanka Sood <priyanka.sood@hpe.com>"
 
 WORKDIR /root
 
