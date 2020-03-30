@@ -220,7 +220,7 @@ class VolumeModule(OneViewModule):
     MSG_ALREADY_ABSENT = 'Volume is already absent.'
     MSG_NO_OPTIONS_PROVIDED = 'No options provided.'
     MSG_NEW_NAME_INVALID = 'Rename failed: the new name provided is being used by another Volume.'
-    MSG_NO_CHANGES_PROVIDED = 'No changed have been provided for the update.'
+    MSG_NO_CHANGES_PROVIDED = 'No changes have been provided for the update.'
 
     def __init__(self):
         argument_spec = dict(
