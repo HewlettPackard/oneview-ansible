@@ -28,7 +28,7 @@ description:
     - Retrieve the facts about one or more of the Hypervisor Managers from OneView.
 version_added: "2.4"
 requirements:
-    - "python >= 2.7.9"
+    - "python >= 3.4.2"
     - hpOneView >= 5.1.0
 author: "Venkatesh Ravula (@VenkateshRavula)"
 options:
