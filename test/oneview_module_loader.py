@@ -165,3 +165,5 @@ from oneview_user_facts import UserFactsModule
 from oneview_volume import VolumeModule
 from oneview_volume_facts import VolumeFactsModule
 from oneview_version_facts import VersionFactsModule
+from oneview_hypervisor_manager import HypervisorManagerModule
+from oneview_hypervisor_manager_facts import HypervisorManagerFactsModule
