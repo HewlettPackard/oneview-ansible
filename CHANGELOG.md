@@ -10,6 +10,9 @@ This release extends the planned support of the modules to OneView REST API vers
 #### Modules supported in this release
 - oneview_hypervisor_manager
 - oneview_hypervisor_manager_facts
+- oneview_server_hardware
+- oneview_server_hardware_facts
+
 
 ## v5.4.0
 This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2) and 1200 (OneView v5.0).
