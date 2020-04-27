@@ -50,6 +50,8 @@
   * [oneview_firmware_bundle - Upload OneView Firmware Bundle resources.](#oneview_firmware_bundle)
   * [oneview_firmware_driver - Provides an interface to remove Firmware Driver resources.](#oneview_firmware_driver)
   * [oneview_firmware_driver_facts - Retrieve the facts about one or more of the OneView Firmware Drivers.](#oneview_firmware_driver_facts)
+  * [oneview_hypervisor_manager - Manage OneView Hypervisor Manager resources.](#oneview_hypervisor_manager)
+  * [oneview_hypervisor_manager_facts - Retrieve the facts about one or more of the OneView Hypervisor Managers.](#oneview_hypervisor_manager_facts)
   * [oneview_id_pools_ipv4_range - Manage OneView ID pools IPV4 Range resources.](#oneview_id_pools_ipv4_range)
   * [oneview_id_pools_ipv4_range_facts - Retrieve the facts about one or more of the OneView ID Pools IPV4 Ranges.](#oneview_id_pools_ipv4_range_facts)
   * [oneview_id_pools_ipv4_subnet - Manage OneView ID pools IPV4 Subnet resources.](#oneview_id_pools_ipv4_subnet)
@@ -4435,6 +4437,172 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 - Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
 
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_hypervisor_manager
+Manage OneView Hypervisor Manager resources.
+
+#### Synopsis
+ Provides an interface to manage Hypervisor Manager resources. Can create, update, or delete.
+
+#### Requirements (on the host that executes the module)
+  * hpOneView >= 5.1.0
+  * python >= 2.7.9
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+| data  |   Yes  |  | |  List with the Hypervisor Manager properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Hypervisor Manager resource. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists.  |
+| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Create a Hypervisor Manager
+  oneview_hypervisor_manager:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    state: present
+    data:
+      name: '172.18.13.11'
+      displayName: 'vcenter'
+      hypervisorType: 'Vmware'
+      username: 'dcs'
+      password: 'dcs'
+
+- name: Update the Hypervisor Manager display name to 'vcenter Renamed'
+  oneview_hypervisor_manager:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    state: present
+    data:
+      name: '172.18.13.11'
+      displayName: 'vcenter Renamed'
+      hypervisorType: 'Vmware'
+      username: 'dcs'
+      password: 'dcs'
+
+- name: Ensure that the Hypervisor Manager is absent
+  oneview_hypervisor_manager:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    state: absent
+    data:
+      name: '172.18.13.11'
+
+---
+
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
+
+---
+
+
+## oneview_hypervisor_manager_facts
+Retrieve the facts about one or more of the OneView Hypervisor Managers.
+
+#### Synopsis
+ Retrieve the facts about one or more of the Hypervisor Managers from OneView.
+
+#### Requirements (on the host that executes the module)
+  * hpOneView >= 5.1.0
+  * python >= 2.7.9
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+| name  |   No  |  | |  Hypervisor Manager name.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `sort`: The sort order of the returned data set.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Gather facts about all Hypervisor Managers
+  oneview_hypervisor_manager_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+  delegate_to: localhost
+
+- debug: var=hypervisor_managers
+
+- name: Gather paginated, filtered and sorted facts about Hypervisor Managers
+  oneview_hypervisor_manager_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    params:
+      start: 1
+      count: 3
+      sort: 'name:descending'
+      filter: 'hypervisorType=Vmware'
+  delegate_to: localhost
+
+- debug: var=hypervisor_managers
+
+- name: Gather facts about a Hypervisor Manager by name
+  oneview_hypervisor_manager_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    name: hypervisor manager name
+  delegate_to: localhost
+
+- debug: var=hypervisor_managers
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| hypervisor_managers   | Has all the OneView facts about the Hypervisor Managers. |  Always, but can be null. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
 
 
 ---
