@@ -16,6 +16,7 @@
 # limitations under the License.
 ###
 
+import mock
 import pytest
 
 from hpe_test_utils import OneViewBaseTest

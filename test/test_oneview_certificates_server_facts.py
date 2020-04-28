@@ -16,6 +16,7 @@
 # limitations under the License.
 ###
 
+import mock
 import pytest
 
 from hpe_test_utils import OneViewBaseFactsTest
@@ -27,13 +28,11 @@ FAIL_MSG = "test"
 PARAMS_GET_REMOTE = dict(
     config='config.json',
     remote="172.18.13.11",
-    aliasName="172.18.13.11"
 )
 
 PARAMS_GET_BY_ALIASNAME = dict(
     config='config.json',
     aliasName="172.18.13.11",
-    remote="172.18.13.11"
 )
 
 PRESENT_CERTIFICATES = {
@@ -73,7 +72,7 @@ class TestCertificatesServerFactsModule(OneViewBaseFactsTest):
 
     def test_should_return_none_when_certificate_not_present(self):
         self.resource.get_by_aliasName.side_effect = Exception(FAKE_MSG_ERROR)
-        self.mock_ansible_module.params = None
+        self.mock_ansible_module.params = PARAMS_GET_BY_ALIASNAME
 
         CertificatesServerFactsModule().run()
 
