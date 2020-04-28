@@ -22,7 +22,6 @@ from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import CertificatesServerModule
 
 FAKE_MSG_ERROR = "No matching certificate found for the specified alias"
-#TASK_ERROR = Exception(msg=FAKE_MSG_ERROR)
 
 server_certificate = dict(
     aliasName='172.18.13.11',
@@ -53,6 +52,11 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 
+class Exception(Exception):
+    def __init__(self):
+        self.msg=FAKE_MSG_ERROR
+
+
 @pytest.mark.resource(TestCertificatesServerModule='certificates_server')
 class TestCertificatesServerModule(OneViewBaseTest):
     """
@@ -60,7 +64,7 @@ class TestCertificatesServerModule(OneViewBaseTest):
     """
 
     def test_should_create_new_certificate_server(self):
-        self.resource.get_by_aliasName.return_value = None
+        self.resource.get_by_aliasName.side_effect = Exception
 
         self.resource.data = server_certificate
         self.resource.create.return_value = self.resource
@@ -104,7 +108,7 @@ class TestCertificatesServerModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=CertificatesServerModule.MSG_UPDATED,
-            ansible_facts=dict(certificate_server=data_merged)
+            ansible_facts=dict(certificate_server=server_certificate)
         )
 
     def test_should_remove_certificate_server(self):
@@ -130,23 +134,6 @@ class TestCertificatesServerModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=CertificatesServerModule.MSG_ALREADY_ABSENT
-        )
-
-    def test_should_handle_exception_when_certificate_is_not_found(self):
-        self.resource.get_by_aliasName.side_effect = FAKE_MSG_ERROR
-
-        self.resource.data = server_certificate
-        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-        self.resource.data = server_certificate
-        self.resource.create.return_value = self.resource
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        CertificatesServerModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=CertificatesServerModule.MSG_CREATED,
-            ansible_facts=dict(certificate_server=server_certificate)
         )
 
 
