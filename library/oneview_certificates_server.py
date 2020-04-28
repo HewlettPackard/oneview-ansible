@@ -135,8 +135,7 @@ class CertificatesServerModule(OneViewModule):
             cert_not_found_message = "No matching certificate found for the specified alias"
             if cert_not_found_message in e.msg:
                 self.current_resource = None
-            else:
-                raise Exception(e.msg)
+
 
 def main():
     CertificatesServerModule().run()

@@ -91,8 +91,6 @@ class CertificatesServerFactsModule(OneViewModule):
                 cert_not_found_message = "No matching certificate found for the specified alias"
                 if cert_not_found_message in e.msg:
                     certificates_server = None
-                else:
-                    raise Exception(e.msg)
             finally:
                 ansible_facts['certificates_server'] = certificates_server
 

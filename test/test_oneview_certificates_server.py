@@ -16,14 +16,12 @@
 # limitations under the License.
 ###
 
-import mock
 import pytest
 
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import CertificatesServerModule
 
 FAKE_MSG_ERROR = "No matching certificate found for the specified alias"
-FAIL_MSG = "test"
 
 server_certificate = dict(
     aliasName='172.18.13.11',
@@ -135,15 +133,6 @@ class TestCertificatesServerModule(OneViewBaseTest):
             changed=False,
             msg=CertificatesServerModule.MSG_ALREADY_ABSENT
         )
-
-    def test_should_fail_when_other_exception(self):
-        self.resource.get_by_aliasName.side_effect = Exception(FAIL_MSG)
-        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-        obj = mock.Mock()
-
-        CertificatesServerModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=FAIL_MSG)
 
 
 if __name__ == '__main__':
