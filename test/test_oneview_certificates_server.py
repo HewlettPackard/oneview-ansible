@@ -135,6 +135,15 @@ class TestCertificatesServerModule(OneViewBaseTest):
             msg=CertificatesServerModule.MSG_ALREADY_ABSENT
         )
 
+    def test_should_fail_when_other_exception(self):
+        self.resource.get_by_aliasName.side_effect = Exception(FAIL_MSG)
+        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
+        obj = mock.Mock()
+
+        CertificatesServerModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=FAIL_MSG)
+
 
 if __name__ == '__main__':
     pytest.main([__file__])

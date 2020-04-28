@@ -22,17 +22,18 @@ from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import CertificatesServerFactsModule
 
 FAKE_MSG_ERROR = "No matching certificate found for the specified alias"
+FAIL_MSG = "test"
 
 PARAMS_GET_REMOTE = dict(
     config='config.json',
     remote="172.18.13.11",
-    aliasName=None
+    aliasName="172.18.13.11"
 )
 
 PARAMS_GET_BY_ALIASNAME = dict(
     config='config.json',
     aliasName="172.18.13.11",
-    remote=None
+    remote="172.18.13.11"
 )
 
 PRESENT_CERTIFICATES = {
@@ -50,7 +51,7 @@ class Exception(Exception):
 class TestCertificatesServerFactsModule(OneViewBaseFactsTest):
     def test_should_get_remote_certificate(self):
         self.resource.get_remote.return_value = PRESENT_CERTIFICATES
-        self.mock_ansible_module.params = PRESENT_CERTIFICATES
+        self.mock_ansible_module.params = PARAMS_GET_REMOTE
 
         CertificatesServerFactsModule().run()
 
@@ -61,7 +62,7 @@ class TestCertificatesServerFactsModule(OneViewBaseFactsTest):
 
     def test_should_get_certificate_server_by_aliasname(self):
         self.resource.get_by_aliasName.return_value = PRESENT_CERTIFICATES
-        self.mock_ansible_module.params = PRESENT_CERTIFICATES
+        self.mock_ansible_module.params = PARAMS_GET_BY_ALIASNAME
 
         CertificatesServerFactsModule().run()
 
@@ -80,6 +81,15 @@ class TestCertificatesServerFactsModule(OneViewBaseFactsTest):
             changed=False,
             ansible_facts=dict(certificates_server=None)
         )
+
+    def test_should_fail_when_other_exception(self):
+        self.resource.get_by_aliasName.side_effect = Exception(FAIL_MSG)
+        self.mock_ansible_module.params = None
+        obj = mock.Mock()
+
+        CertificatesServerFactsModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=FAIL_MSG)
 
 
 if __name__ == '__main__':
