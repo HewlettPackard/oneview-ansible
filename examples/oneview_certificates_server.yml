@@ -35,7 +35,7 @@
         name: "{{ remote_server }}"
         data:
           certificateDetails:
-            - aliasName: 'vcenter'
+            - aliasName: "{{ remote_server }}"
               base64Data: "{{ certificate }}"
       delegate_to: localhost
       register: svr_cert
@@ -47,7 +47,7 @@
         name: "{{ remote_server }}"
         data:
           certificateDetails:
-            - aliasName: 'vcenter'
+            - aliasName: "{{ remote_server }}"
               base64Data: "{{ certificate }}"
       delegate_to: localhost
 
@@ -59,7 +59,7 @@
         data:
           name: "test"
           certificateDetails:
-            - aliasName: 'vcenter'
+            - aliasName: "{{ remote_server }}"
               base64Data: "{{ certificate }}"
       delegate_to: localhost
 
@@ -67,6 +67,7 @@
       oneview_certificates_server:
         config: "{{ config }}"
         state: absent
+        name: "{{ remote_server }}"
         data: "{{ svr_cert.ansible_facts.certificate_server }}"
       delegate_to: localhost
       register: deleted
@@ -75,6 +76,7 @@
       oneview_certificates_server:
         config: "{{ config }}"
         state: absent
+        name: "{{ remote_server }}"
         data: "{{ svr_cert.ansible_facts.certificate_server }}"
       delegate_to: localhost
       register: deleted

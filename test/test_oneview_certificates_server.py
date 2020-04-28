@@ -21,53 +21,33 @@ import pytest
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import CertificatesServerModule
 
-FAKE_MSG_ERROR = 'Fake message error'
-
 server_certificate = dict(
     aliasName='172.18.13.11',
     name='test',
 )
 
-server_certificate_changed = dict(
-    aliasName='172.18.13.11',
-    name='vcenter renamed',
-)
-
-fake_certificate = dict(
-    name='test'
-)
-
-cert_list = [server_certificate]
-cert_changed_list =[server_certificate_changed]
-fake_cert_list = [fake_certificate]
-
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
     name='cert',
-    data=dict(certificateDetails=cert_list)
-)
-
-PARAMS_FOR_PRESENT_NO_ALIAS = dict(
-    config='config.json',
-    state='present',
-    name='cert',
-    data=dict(certificateDetails=fake_cert_list)
+    data=dict(aliasName=server_certificate['aliasName'])
 )
 
 PARAMS_WITH_CHANGES = dict(
     config='config.json',
     state='present',
     name='cert',
-    data=dict(certificateDetails=cert_changed_list)
+    data=dict(aliasName=server_certificate['aliasName'],
+              name="vcenter renamed")
 )
 
 PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
     name='cert',
-    data=dict(certificateDetails=cert_list)
+    data=dict(aliasName=server_certificate['aliasName'])
 )
+
 
 @pytest.mark.resource(TestCertificatesServerModule='certificates_server')
 class TestCertificatesServerModule(OneViewBaseTest):
@@ -75,10 +55,10 @@ class TestCertificatesServerModule(OneViewBaseTest):
     OneViewBaseTestCase provides the mocks used in this test case
     """
 
-    def test_should_create_new_certificate_server_with_aliasname(self):
+    def test_should_create_new_certificate_server(self):
         self.resource.get_by_aliasName.return_value = []
 
-        self.resource.data = dict(certificateDetails=cert_list)
+        self.resource.data = server_certificate
         self.resource.create.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -87,26 +67,11 @@ class TestCertificatesServerModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=CertificatesServerModule.MSG_CREATED,
-            ansible_facts=dict(certificate_server=dict(certificateDetails=cert_list))
-        )
-
-    def test_should_create_new_certificate_server_without_aliasname(self):
-        self.resource.get_by_aliasName.return_value = []
-
-        self.resource.data = dict(certificateDetails=fake_cert_list)
-        self.resource.create.return_value = self.resource
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT_NO_ALIAS
-
-        CertificatesServerModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=CertificatesServerModule.MSG_CREATED,
-            ansible_facts=dict(certificate_server=dict(certificateDetails=fake_cert_list))
+            ansible_facts=dict(certificate_server=server_certificate)
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.data = dict(certificateDetails=cert_list)
+        self.resource.data = server_certificate
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -115,11 +80,14 @@ class TestCertificatesServerModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=CertificatesServerModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(certificate_server=dict(certificateDetails=cert_list))
+            ansible_facts=dict(certificate_server=server_certificate)
         )
 
     def test_update_when_data_has_modified_attributes(self):
-        self.resource.data = dict(certificateDetails=cert_changed_list)
+        data_merged = server_certificate.copy()
+        data_merged['name'] = 'vcenter renamed'
+
+        self.resource.data = data_merged
         self.resource.update.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
@@ -129,11 +97,11 @@ class TestCertificatesServerModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=CertificatesServerModule.MSG_UPDATED,
-            ansible_facts=dict(certificate_server=dict(certificateDetails=cert_changed_list))
+            ansible_facts=dict(certificate_server=data_merged)
         )
 
     def test_should_remove_certificate_server(self):
-        self.resource.data = dict(certificateDetails=cert_list)
+        self.resource.data = server_certificate
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         CertificatesServerModule().run()

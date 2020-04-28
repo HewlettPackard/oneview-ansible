@@ -95,7 +95,7 @@ certificate_server:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError
+from ansible.module_utils.oneview import OneViewModule
 
 
 class CertificatesServerModule(OneViewModule):
@@ -104,7 +104,6 @@ class CertificatesServerModule(OneViewModule):
     MSG_DELETED = 'Server Certificate deleted successfully.'
     MSG_ALREADY_PRESENT = 'Server Certificate is already present.'
     MSG_ALREADY_ABSENT = 'Server Certificate is already absent.'
-    MSG_VALUE_ERROR = 'The aliasName or remote server name must be specified'
     RESOURCE_FACT_NAME = 'certificate_server'
 
     def __init__(self):
@@ -126,15 +125,11 @@ class CertificatesServerModule(OneViewModule):
     def __set_current_resource(self, resource_client, aliasname=None):
         self.resource_client = resource_client
 
-        if self.data['certificateDetails'][0].get('aliasName'):
-            aliasname = self.data['certificateDetails'][0]['aliasName']
-        elif self.module.params.get('name'):
+        if self.module.params.get('name'):
             aliasname = self.module.params['name']
-        else:
-            raise OneViewModuleValueError(self.MSG_VALUE_ERROR)
 
         try:
-            self.current_resource =  self.resource_client
+            self.current_resource = self.resource_client
             self.current_resource.data = self.resource_client.get_by_aliasName(aliasname)
         except Exception as e:
             cert_not_found_message = "No matching certificate found for the specified alias"
@@ -142,7 +137,6 @@ class CertificatesServerModule(OneViewModule):
                 self.current_resource = None
             else:
                 raise Exception(e.msg)
-
 
 def main():
     CertificatesServerModule().run()
