@@ -45,7 +45,7 @@ class Exception(Exception):
 
 
 @pytest.mark.resource(TestCertificatesServerFactsModule='certificates_server')
-class TestCertificatesServerFactsModule(OneViewBaseFactsTest):
+class TestCertificatesServerFactsModule(OneViewBaseTest):
     def test_should_get_remote_certificate(self):
         self.resource.get_remote.return_value = PRESENT_CERTIFICATES
         self.mock_ansible_module.params = PARAMS_GET_REMOTE
