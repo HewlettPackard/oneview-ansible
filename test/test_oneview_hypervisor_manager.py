@@ -91,8 +91,6 @@ class TestHypervisorManagerModule(OneViewBaseTest):
         data_merged['displayName'] = 'vcenter renamed'
 
         self.resource.data = data_merged
-        self.resource.update.return_value = self.resource
-
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         HypervisorManagerModule().run()
