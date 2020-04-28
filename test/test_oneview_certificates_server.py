@@ -21,7 +21,8 @@ import pytest
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import CertificatesServerModule
 
-FAKE_MSG_ERROR = "fake error"
+FAKE_MSG_ERROR = "No matching certificate found for the specified alias"
+TASK_ERROR = Exception(msg=FAKE_MSG_ERROR)
 
 server_certificate = dict(
     aliasName='172.18.13.11',
@@ -59,7 +60,7 @@ class TestCertificatesServerModule(OneViewBaseTest):
     """
 
     def test_should_create_new_certificate_server(self):
-        self.resource.get_by_aliasName.return_value = []
+        self.resource.get_by_aliasName.return_value = None
 
         self.resource.data = server_certificate
         self.resource.create.return_value = self.resource
@@ -74,9 +75,10 @@ class TestCertificatesServerModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.data = server_certificate
         self.resource.get_by_aliasName.return_value = server_certificate
 
+        self.resource.data = server_certificate
+        self.resource.update = self.resource
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         CertificatesServerModule().run()
@@ -89,11 +91,11 @@ class TestCertificatesServerModule(OneViewBaseTest):
 
     def test_update_when_data_has_modified_attributes(self):
         self.resource.get_by_aliasName.return_value = server_certificate
+
         data_merged = server_certificate.copy()
         data_merged['name'] = 'vcenter renamed'
-
         self.resource.data = data_merged
-        self.resource.update.return_value = self.resource
+        self.resource.update = self.resource
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
@@ -123,13 +125,15 @@ class TestCertificatesServerModule(OneViewBaseTest):
 
         CertificatesServerModule().run()
 
+        self.resource.delete.not_been_called()
+
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=CertificatesServerModule.MSG_ALREADY_ABSENT
         )
 
     def test_should_handle_exception_when_certificate_is_not_found(self):
-        self.resource.get_by_aliasName.side_effect = Exception(FAKE_MSG_ERROR)
+        self.resource.get_by_aliasName.side_effect = TASK_ERROR
 
         self.resource.data = server_certificate
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
