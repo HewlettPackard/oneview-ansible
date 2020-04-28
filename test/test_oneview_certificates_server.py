@@ -22,7 +22,7 @@ from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import CertificatesServerModule
 
 FAKE_MSG_ERROR = "No matching certificate found for the specified alias"
-TASK_ERROR = Exception(msg=FAKE_MSG_ERROR)
+#TASK_ERROR = Exception(msg=FAKE_MSG_ERROR)
 
 server_certificate = dict(
     aliasName='172.18.13.11',
@@ -133,7 +133,7 @@ class TestCertificatesServerModule(OneViewBaseTest):
         )
 
     def test_should_handle_exception_when_certificate_is_not_found(self):
-        self.resource.get_by_aliasName.side_effect = TASK_ERROR
+        self.resource.get_by_aliasName.side_effect = FAKE_MSG_ERROR
 
         self.resource.data = server_certificate
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
