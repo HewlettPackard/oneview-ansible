@@ -41,7 +41,7 @@ PRESENT_CERTIFICATES = {
 
 class Exception(Exception):
     def __init__(self, message):
-        self.msg=message
+        self.msg = message
 
 
 @pytest.mark.resource(TestCertificatesServerFactsModule='certificates_server')

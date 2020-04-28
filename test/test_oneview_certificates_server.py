@@ -54,7 +54,7 @@ PARAMS_FOR_ABSENT = dict(
 
 class Exception(Exception):
     def __init__(self, message):
-        self.msg=message
+        self.msg = message
 
 
 @pytest.mark.resource(TestCertificatesServerModule='certificates_server')
