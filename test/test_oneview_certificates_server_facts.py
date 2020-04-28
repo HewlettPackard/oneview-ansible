@@ -21,7 +21,7 @@ import pytest
 from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import CertificatesServerFactsModule
 
-ERROR_MSG = 'Fake message error'
+FAKE_MSG_ERROR = "No matching certificate found for the specified alias"
 
 PARAMS_GET_REMOTE = dict(
     config='config.json',
@@ -41,11 +41,16 @@ PRESENT_CERTIFICATES = {
 }
 
 
+class Exception(Exception):
+    def __init__(self, message):
+        self.msg=message
+
+
 @pytest.mark.resource(TestCertificatesServerFactsModule='certificates_server')
 class TestCertificatesServerFactsModule(OneViewBaseFactsTest):
     def test_should_get_remote_certificate(self):
         self.resource.get_remote.return_value = PRESENT_CERTIFICATES
-        self.mock_ansible_module.params = PARAMS_GET_REMOTE
+        self.mock_ansible_module.params = PRESENT_CERTIFICATES
 
         CertificatesServerFactsModule().run()
 
@@ -56,13 +61,24 @@ class TestCertificatesServerFactsModule(OneViewBaseFactsTest):
 
     def test_should_get_certificate_server_by_aliasname(self):
         self.resource.get_by_aliasName.return_value = PRESENT_CERTIFICATES
-        self.mock_ansible_module.params = PARAMS_GET_BY_ALIASNAME
+        self.mock_ansible_module.params = PRESENT_CERTIFICATES
 
         CertificatesServerFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(certificates_server=PRESENT_CERTIFICATES)
+        )
+
+    def test_should_return_none_when_certificate_not_present(self):
+        self.resource.get_by_aliasName.side_effect = Exception(FAKE_MSG_ERROR)
+        self.mock_ansible_module.params = None
+
+        CertificatesServerFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(certificates_server=None)
         )
 
 
