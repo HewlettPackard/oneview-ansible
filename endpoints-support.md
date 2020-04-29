@@ -135,6 +135,13 @@
 |<sub>/rest/firmware-drivers</sub>                                                       | POST     | :white_check_mark:   |
 |<sub>/rest/firmware-drivers/{id}</sub>                                                   | GET      | :white_check_mark:   |
 |<sub>/rest/firmware-drivers/{id}</sub>                                                   | DELETE   | :white_check_mark:   |
+|     **Hypervisor Cluster Profiles**
+|<sub>/rest/hypervisor-cluster-profiles</sub>                                             |POST      | :heavy_minus_sign:    | :heavy_minus_sign:    |  :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/hypervisor-cluster-profiles</sub>                                             |GET       | :heavy_minus_sign:    | :heavy_minus_sign:    |  :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/hypervisor-cluster-profiles/{id}</sub>                                        |GET       | :heavy_minus_sign:    | :heavy_minus_sign:    |  :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/hypervisor-cluster-profiles/{id}</sub>                                        |PUT       | :heavy_minus_sign:    | :heavy_minus_sign:    |  :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/hypervisor-cluster-profiles/{id}</sub>                                        |DELETE    | :heavy_minus_sign:    | :heavy_minus_sign:    |  :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/hypervisor-cluster-profiles/{id}/compliance-preview</sub>                     |GET       | :heavy_minus_sign:    | :heavy_minus_sign:    |  :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |     **Hypervisor Managers**
 |<sub>/rest/hypervisor-managers</sub>                                                     |POST      | :heavy_minus_sign:    | :heavy_minus_sign:   |  :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/hypervisor-managers</sub>                                                     |GET       | :heavy_minus_sign:    | :heavy_minus_sign:   |  :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
