@@ -42,7 +42,7 @@ options:
       description:
         - "List with options to gather additional facts about Hypervisor Cluster Profile related resources.
           Options allowed: C(compliancePreview)"
-        - "To gather facts about C(compliancePreview), a Hypervisor Cluster Profile name is required. 
+        - "To gather facts about C(compliancePreview), a Hypervisor Cluster Profile name is required.
           Otherwise, these options will be ignored."
 
 extends_documentation_fragment:
