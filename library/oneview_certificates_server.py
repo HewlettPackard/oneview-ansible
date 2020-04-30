@@ -124,6 +124,7 @@ class CertificatesServerModule(OneViewModule):
 
     def __set_current_resource(self, resource_client):
         self.resource_client = resource_client
+        aliasname = None
 
         if self.module.params.get('name'):
             aliasname = self.module.params['name']
