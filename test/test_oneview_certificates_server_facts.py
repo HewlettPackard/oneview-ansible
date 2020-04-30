@@ -59,6 +59,7 @@ class TestCertificatesServerFactsModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(certificates_server=PRESENT_CERTIFICATES)
+        )
 
 
 if __name__ == '__main__':
