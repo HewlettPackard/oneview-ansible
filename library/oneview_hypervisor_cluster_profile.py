@@ -93,7 +93,7 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-hypervisor_manager:
+hypervisor_cluster_profile:
     description: Has the facts about the managed OneView Hypervisor Cluster Profile.
     returned: On state 'present'. Can be null.
     type: dict
