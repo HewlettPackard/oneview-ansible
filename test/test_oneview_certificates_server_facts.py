@@ -21,6 +21,14 @@ import pytest
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import CertificatesServerFactsModule
 
+PRESENT_CERTIFICATES = {
+    "aliasName": "172.18.13.11",
+    "uri": "/rest/certificates/servers/172.18.13.11",
+    "data": {
+        "aliasName": "172.18.13.11"
+    }
+}
+
 PARAMS_GET_REMOTE = dict(
     config='config.json',
     remote="172.18.13.11",
@@ -31,10 +39,7 @@ PARAMS_GET_BY_ALIASNAME = dict(
     aliasName="172.18.13.11",
 )
 
-PRESENT_CERTIFICATES = {
-    "aliasName": "172.18.13.11",
-    "uri": "/rest/certificates/servers/172.18.13.11"
-}
+DICT_DEFAULT_CERTIFICATE = PRESENT_CERTIFICATES["data"]
 
 
 @pytest.mark.resource(TestCertificatesServerFactsModule='certificates_server')
@@ -47,7 +52,7 @@ class TestCertificatesServerFactsModule(OneViewBaseTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(remote_certificate=PRESENT_CERTIFICATES)
+            ansible_facts=dict(remote_certificate=DICT_DEFAULT_CERTIFICATE)
         )
 
     def test_should_get_certificate_server_by_aliasname(self):
@@ -58,7 +63,7 @@ class TestCertificatesServerFactsModule(OneViewBaseTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(certificates_server=PRESENT_CERTIFICATES)
+            ansible_facts=dict(certificates_server=DICT_DEFAULT_CERTIFICATE)
         )
 
 
