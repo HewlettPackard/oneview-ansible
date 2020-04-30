@@ -1,0 +1,82 @@
+###
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+---
+- hosts: all
+  vars:
+    config: "{{ playbook_dir }}/oneview_config.json"
+    remote_server: '172.18.13.11'
+  tasks:
+    - name: Gather facts about a Server Certificate by remote address
+      oneview_certificates_server_facts:
+        config: "{{ config }}"
+        remote: "{{ remote_server }}"
+      delegate_to: localhost
+
+    - set_fact:
+        certificate: "{{ remote_certificate['certificateDetails'][0]['base64Data'] }}"
+
+    - name: Create a Server Certificate
+      oneview_certificates_server:
+        config: "{{ config }}"
+        state: present
+        name: "{{ remote_server }}"
+        data:
+          certificateDetails:
+            - aliasName: "{{ remote_server }}"
+              base64Data: "{{ certificate }}"
+      delegate_to: localhost
+      register: svr_cert
+
+    - name: Do nothing with the Server Certificate when no changes are provided
+      oneview_certificates_server:
+        config: "{{ config }}"
+        state: present
+        name: "{{ remote_server }}"
+        data:
+          certificateDetails:
+            - aliasName: "{{ remote_server }}"
+              base64Data: "{{ certificate }}"
+      delegate_to: localhost
+
+    - name: Update the Server Certificate changing the attribute name
+      oneview_certificates_server:
+        config: "{{ config }}"
+        state: present
+        name: "{{ remote_server }}"
+        data:
+          name: "test"
+          certificateDetails:
+            - aliasName: "{{ remote_server }}"
+              base64Data: "{{ certificate }}"
+      delegate_to: localhost
+
+    - name: Delete the Server Certificate
+      oneview_certificates_server:
+        config: "{{ config }}"
+        state: absent
+        name: "{{ remote_server }}"
+        data: "{{ svr_cert.ansible_facts.certificate_server }}"
+      delegate_to: localhost
+      register: deleted
+
+    - name: Do nothing when Server Certificate is absent
+      oneview_certificates_server:
+        config: "{{ config }}"
+        state: absent
+        name: "{{ remote_server }}"
+        data: "{{ svr_cert.ansible_facts.certificate_server }}"
+      delegate_to: localhost
+      register: deleted
