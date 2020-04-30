@@ -21,8 +21,6 @@ import pytest
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import CertificatesServerFactsModule
 
-FAKE_MSG_ERROR = "No matching certificate found for the specified alias"
-
 PARAMS_GET_REMOTE = dict(
     config='config.json',
     remote="172.18.13.11",
@@ -37,11 +35,6 @@ PRESENT_CERTIFICATES = {
     "aliasName": "172.18.13.11",
     "uri": "/rest/certificates/servers/172.18.13.11"
 }
-
-
-class Exception(Exception):
-    def __init__(self, message):
-        self.msg = message
 
 
 @pytest.mark.resource(TestCertificatesServerFactsModule='certificates_server')
@@ -66,18 +59,6 @@ class TestCertificatesServerFactsModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(certificates_server=PRESENT_CERTIFICATES)
-        )
-
-    def test_should_return_none_when_certificate_not_present(self):
-        self.resource.get_by_aliasName.side_effect = Exception(FAKE_MSG_ERROR)
-        self.mock_ansible_module.params = PARAMS_GET_BY_ALIASNAME
-
-        CertificatesServerFactsModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            ansible_facts=dict(certificates_server=None)
-        )
 
 
 if __name__ == '__main__':

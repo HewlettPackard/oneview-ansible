@@ -122,19 +122,13 @@ class CertificatesServerModule(OneViewModule):
         elif self.state == 'absent':
             return self.resource_absent()
 
-    def __set_current_resource(self, resource_client, aliasname=None):
+    def __set_current_resource(self, resource_client):
         self.resource_client = resource_client
 
         if self.module.params.get('name'):
             aliasname = self.module.params['name']
 
-        try:
-            self.current_resource = self.resource_client
-            self.current_resource.data = self.resource_client.get_by_aliasName(aliasname)
-        except Exception as e:
-            cert_not_found_message = "No matching certificate found for the specified alias"
-            if cert_not_found_message in e.msg:
-                self.current_resource = None
+        self.current_resource = self.resource_client.get_by_alias_name(aliasname)
 
 
 def main():

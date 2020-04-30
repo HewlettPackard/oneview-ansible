@@ -2421,7 +2421,10 @@ Retrieve the facts about one or more of the OneView Certificates Server.
 
 - name: Gather facts about a Server Certificate by aliasname
   oneview_certificates_server_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     aliasname: "vcenter"
   delegate_to: localhost
 
@@ -2429,7 +2432,10 @@ Retrieve the facts about one or more of the OneView Certificates Server.
 
 - name: Gather facts about a Server Certificate by remote server
   oneview_certificates_server_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     remote: "172.18.13.11"
   delegate_to: localhost
 

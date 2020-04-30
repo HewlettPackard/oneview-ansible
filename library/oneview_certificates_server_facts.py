@@ -44,7 +44,10 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about a Server Certificate by remote address
   oneview_certificates_server_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     remote: "172.18.13.11"
   delegate_to: localhost
 
@@ -52,7 +55,10 @@ EXAMPLES = '''
 
 - name: Gather facts about a Server Certificate by alias_name
   oneview_certificates_server_facts:
-    config: "{{ config }}"
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
     aliasName: "172.18.13.11"
   delegate_to: localhost
 
@@ -85,19 +91,13 @@ class CertificatesServerFactsModule(OneViewModule):
 
         if self.module.params.get('aliasName'):
             aliasname = self.module.params['aliasName']
-            try:
-                certificates_server = self.resource_client.get_by_aliasName(aliasname)
-            except Exception as e:
-                cert_not_found_message = "No matching certificate found for the specified alias"
-                if cert_not_found_message in e.msg:
-                    certificates_server = None
-            finally:
-                ansible_facts['certificates_server'] = certificates_server
+            certificates_server = self.resource_client.get_by_alias_name(aliasname)
+            ansible_facts['certificates_server'] = certificates_server.data if certificates_server else None
 
         elif self.module.params.get('remote'):
             remote_address = self.module.params['remote']
             remote_cert = self.resource_client.get_remote(remote_address)
-            ansible_facts['remote_certificate'] = remote_cert
+            ansible_facts['remote_certificate'] = remote_cert.data
 
         return dict(changed=False, ansible_facts=ansible_facts)
 
