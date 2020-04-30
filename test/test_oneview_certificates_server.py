@@ -72,6 +72,7 @@ class TestCertificatesServerModule(OneViewBaseTest):
 
     def test_should_not_update_when_data_is_equals(self):
         self.resource.data = server_certificate
+        self.resource.update = self.resource
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         CertificatesServerModule().run()
@@ -86,6 +87,7 @@ class TestCertificatesServerModule(OneViewBaseTest):
         data_merged = server_certificate.copy()
         data_merged['name'] = 'vcenter renamed'
         self.resource.data = data_merged
+        self.resource.update = self.resource
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 

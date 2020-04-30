@@ -45,7 +45,8 @@ DICT_DEFAULT_CERTIFICATE = PRESENT_CERTIFICATES["data"]
 @pytest.mark.resource(TestCertificatesServerFactsModule='certificates_server')
 class TestCertificatesServerFactsModule(OneViewBaseTest):
     def test_should_get_remote_certificate(self):
-        self.resource.get_remote.return_value = PRESENT_CERTIFICATES
+        self.resource.data = DICT_DEFAULT_CERTIFICATE
+        self.resource.get_remote.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_GET_REMOTE
 
         CertificatesServerFactsModule().run()
@@ -56,7 +57,8 @@ class TestCertificatesServerFactsModule(OneViewBaseTest):
         )
 
     def test_should_get_certificate_server_by_aliasname(self):
-        self.resource.get_by_alias_name.return_value = PRESENT_CERTIFICATES
+        self.resource.data = DICT_DEFAULT_CERTIFICATE
+        self.resource.get_by_alias_name.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_GET_BY_ALIASNAME
 
         CertificatesServerFactsModule().run()
