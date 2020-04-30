@@ -8,6 +8,8 @@ This release extends the planned support of the modules to OneView REST API vers
 2. Modules implemented in this release requires hpOneView version 5.1.0.
 
 #### Modules supported in this release
+- oneview_hypervisor_cluster_profile
+- oneview_hypervisor_cluster_profile_facts
 - oneview_hypervisor_manager
 - oneview_hypervisor_manager_facts
 - oneview_server_hardware

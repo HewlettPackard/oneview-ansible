@@ -50,6 +50,8 @@
   * [oneview_firmware_bundle - Upload OneView Firmware Bundle resources.](#oneview_firmware_bundle)
   * [oneview_firmware_driver - Provides an interface to remove Firmware Driver resources.](#oneview_firmware_driver)
   * [oneview_firmware_driver_facts - Retrieve the facts about one or more of the OneView Firmware Drivers.](#oneview_firmware_driver_facts)
+  * [oneview_hypervisor_cluster_profile - Manage OneView Hypervisor Cluster Profile resources.](#oneview_hypervisor_cluster_profile)
+  * [oneview_hypervisor_cluster_profile_facts - Retrieve the facts about one or more of the OneView Hypervisor Cluster Profiles.](#oneview_hypervisor_cluster_profile_facts)
   * [oneview_hypervisor_manager - Manage OneView Hypervisor Manager resources.](#oneview_hypervisor_manager)
   * [oneview_hypervisor_manager_facts - Retrieve the facts about one or more of the OneView Hypervisor Managers.](#oneview_hypervisor_manager_facts)
   * [oneview_id_pools_ipv4_range - Manage OneView ID pools IPV4 Range resources.](#oneview_id_pools_ipv4_range)
@@ -4442,6 +4444,193 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 ---
 
 
+## oneview_hypervisor_cluster_profile
+Manage OneView Hypervisor Cluster Profile resources.
+
+#### Synopsis
+ Provides an interface to manage Hypervisor Cluster Profile resources. Can create, update, or delete.
+
+#### Requirements (on the host that executes the module)
+  * hpOneView >= 5.1.0
+  * python >= 3.4.2
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+| data  |   Yes  |  | |  List with the Hypervisor Cluster Profile properties.  |
+| params  |     |  | |  force flag  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Hypervisor Cluster Profile resource. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists.  |
+| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Create a Hypervisor Cluster Profile
+  oneview_hypervisor_cluster_profile:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    state: present
+    data:
+      name: 'hcp'
+      path: 'DC1'
+      hypervisorType: 'Vmware'
+      hypervisorManagerUri: '/rest/hypervisor-manager/rdy-dfdf12'
+      hypervisorHostProfileTemplate:
+        serverProfileTemplateUri: '/rest/server-profile-template/2323-32323'
+        hostprefix: 'test-host'
+
+- name: Update the Hypervisor Cluster Profile name to 'hcp Renamed'
+  oneview_hypervisor_cluster_profile:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    state: present
+    data:
+      name: 'hcp Renamed'
+      path: 'DC1'
+      hypervisorType: 'Vmware'
+      hypervisorManagerUri: '/rest/hypervisor-manager/rdy-dfdf12'
+    params:
+      force: True
+
+- name: Ensure that the Hypervisor Cluster Profile is absent
+  oneview_hypervisor_cluster_profile:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    state: absent
+    data:
+      name: 'hcp'
+
+---
+
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
+
+---
+
+
+## oneview_hypervisor_cluster_profile_facts
+Retrieve the facts about one or more of the OneView Hypervisor Cluster Profiles.
+
+#### Synopsis
+ Retrieve the facts about one or more of the Hypervisor Cluster Profiles from OneView.
+
+#### Requirements (on the host that executes the module)
+  * hpOneView >= 5.1.0
+  * python >= 3.4.2
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+| name  |   No  |  | |  Hypervisor Cluster Profile name.  |
+| options  |   No  |  | |  Hypervisor Cluster Profile compliance.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `sort`: The sort order of the returned data set.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Gather facts about all Hypervisor Cluster Profiles
+  oneview_hypervisor_cluster_profile_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+  delegate_to: localhost
+
+- debug: var=hypervisor_cluster_profiles
+
+- name: Gather paginated, filtered and sorted facts about Hypervisor Managers
+  oneview_hypervisor_cluster_profile_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    params:
+      start: 1
+      count: 3
+      sort: 'name:descending'
+      filter: 'hypervisorType=Vmware'
+  delegate_to: localhost
+
+- debug: var=hypervisor_cluster_profiles
+
+- name: Gather facts about a Hypervisor Manager by name
+  oneview_hypervisor_cluster_profile_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    name: hypervisor cluster profile name
+  delegate_to: localhost
+
+- debug: var=hypervisor_cluster_profiles
+
+- name: Gather facts about a Hypervisor Manager by name with options
+  oneview_hypervisor_cluster_profile_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    name: hypervisor cluster profile name
+    options:
+      - compliancePreview
+  delegate_to: localhost
+
+- debug: var=hypervisor_cluster_profiles
+- debug: var=hypervisor_cluster_profile_compliance_preview
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| hypervisor_cluster_profiles   | Has all the OneView facts about the Hypervisor Cluster Profiles. |  Always, but can be null. |  dict |
+| hypervisor_cluster_profile_compliance_preview   | Has the OneView facts about the Hypervisor Cluster Profile Compliance Preview. |  When required. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
+
+---
+
+
+
 ## oneview_hypervisor_manager
 Manage OneView Hypervisor Manager resources.
 
@@ -4450,7 +4639,7 @@ Manage OneView Hypervisor Manager resources.
 
 #### Requirements (on the host that executes the module)
   * hpOneView >= 5.1.0
-  * python >= 2.7.9
+  * python >= 3.4.2
 
 #### Options
 
@@ -4531,7 +4720,7 @@ Retrieve the facts about one or more of the OneView Hypervisor Managers.
 
 #### Requirements (on the host that executes the module)
   * hpOneView >= 5.1.0
-  * python >= 2.7.9
+  * python >= 3.4.2
 
 #### Options
 

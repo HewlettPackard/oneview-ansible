@@ -90,9 +90,7 @@ class TestHypervisorManagerModule(OneViewBaseTest):
         data_merged = DEFAULT_HYPERVISOR_MANAGER_TEMPLATE.copy()
         data_merged['displayName'] = 'vcenter renamed'
 
-        self.resource.data = data_merged
-        self.resource.update.return_value = self.resource
-
+        self.resource.data = DEFAULT_HYPERVISOR_MANAGER_TEMPLATE
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         HypervisorManagerModule().run()
@@ -100,7 +98,7 @@ class TestHypervisorManagerModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=HypervisorManagerModule.MSG_UPDATED,
-            ansible_facts=dict(hypervisor_manager=data_merged)
+            ansible_facts=dict(hypervisor_manager=DEFAULT_HYPERVISOR_MANAGER_TEMPLATE)
         )
 
     def test_should_remove_hypervisor_manager(self):
