@@ -29,7 +29,7 @@ description:
 version_added: "2.4"
 requirements:
     - "python >= 3.4.2"
-    - hpOneView >= 5.1.0
+    - hpOneView >= 5.1.1
 author: "Venkatesh Ravula (@VenkateshRavula)"
 options:
     alias_name:

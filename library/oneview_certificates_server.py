@@ -29,7 +29,7 @@ description:
 version_added: "2.4"
 requirements:
     - "python >= 3.4.2"
-    - "hpOneView >= 5.1.0"
+    - "hpOneView >= 5.1.1"
 author: "Venkatesh Ravula (@VenkateshRavula)"
 options:
     state:
@@ -129,7 +129,8 @@ class CertificatesServerModule(OneViewModule):
         if self.module.params.get('name'):
             aliasname = self.module.params['name']
 
-        self.current_resource = self.resource_client.get_by_alias_name(aliasname)
+        if self.resource_client.get_by_alias_name(aliasname):
+            self.current_resource = self.resource_client.get_by_alias_name(aliasname)
 
 
 def main():
