@@ -51,7 +51,7 @@ class TestCertificatesServerFactsModule(OneViewBaseTest):
         )
 
     def test_should_get_certificate_server_by_aliasname(self):
-        self.resource.get_by_aliasName.return_value = PRESENT_CERTIFICATES
+        self.resource.get_by_alias_name.return_value = PRESENT_CERTIFICATES
         self.mock_ansible_module.params = PARAMS_GET_BY_ALIASNAME
 
         CertificatesServerFactsModule().run()

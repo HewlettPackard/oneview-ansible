@@ -57,7 +57,7 @@ class TestCertificatesServerModule(OneViewBaseTest):
     """
 
     def test_should_create_new_certificate_server(self):
-        self.resource.get_by_aliasName = None
+        self.resource.get_by_alias_name = None
 
         self.resource.data = server_certificate
         self.resource.create.return_value = self.resource
@@ -72,7 +72,7 @@ class TestCertificatesServerModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by_aliasName.return_value = server_certificate
+        self.resource.get_by_alias_name.return_value = server_certificate
 
         self.resource.data = server_certificate
         self.resource.update = self.resource
@@ -87,7 +87,7 @@ class TestCertificatesServerModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_attributes(self):
-        self.resource.get_by_aliasName.return_value = server_certificate
+        self.resource.get_by_alias_name.return_value = server_certificate
 
         data_merged = server_certificate.copy()
         data_merged['name'] = 'vcenter renamed'
@@ -116,7 +116,7 @@ class TestCertificatesServerModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_certificate_server_not_exist(self):
-        self.resource.get_by_aliasName = None
+        self.resource.get_by_alias_name = None
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
