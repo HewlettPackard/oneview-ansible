@@ -27,6 +27,8 @@
   * [oneview_appliance_device_snmp_v3_users_facts - Retrieve the facts about the OneView appliance SNMPv3 users.](#oneview_appliance_device_snmp_v3_users_facts)
   * [oneview_appliance_time_and_locale_configuration - Manage OneView Appliance Locale and Time Configuration.](#oneview_appliance_time_and_locale_configuration)
   * [oneview_appliance_time_and_locale_configuration_facts - Retrieve the facts about the OneView appliance time and locale configuration.](#oneview_appliance_time_and_locale_configuration_facts)
+  * [oneview_certificates_server - Manage OneView Certificates Server resources.](#oneview_certificates_server)
+  * [oneview_certificates_server_facts - Retrieve the facts about one or more of the OneView Certificates Server.](#oneview_certificates_server_facts)
   * [oneview_connection_template - Manage the OneView Connection Template resources.](#oneview_connection_template)
   * [oneview_connection_template_facts - Retrieve facts about the OneView Connection Templates.](#oneview_connection_template_facts)
   * [oneview_datacenter - Manage OneView Data Center resources.](#oneview_datacenter)
@@ -2268,6 +2270,157 @@ Retrieve the facts about the OneView appliance time and locale configuration.
 
 
 ---
+
+
+## oneview_certificates_server
+Manage OneView Certificates Server resources.
+
+#### Synopsis
+ Provides an interface to manage Certificates Server resources. Can create, update, or delete.
+
+#### Requirements (on the host that executes the module)
+  * hpOneView >= 5.1.1
+  * python >= 3.4.2
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+| data  |   Yes  |  | |  List with the Certificates Server properties.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Certificates Server resource. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists.  |
+| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Create a Server Certificate
+  oneview_certificates_server:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    state: present
+    data:
+      name: 'vcenter'
+      certificateDetails:
+        - aliasName: 'vcenter'
+          base64Data: '--- Certificate ---'
+
+- name: Update the Server Certificate name to 'vcenter Renamed'
+  oneview_certificates_server:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    state: present
+    data:
+      name: 'vcenter renamed'
+      certificateDetails:
+        - aliasName: 'vcenter'
+          base64Data: '--- Certificate ---'
+
+- name: Ensure that the Server Certificate is absent
+  oneview_certificates_server:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    state: absent
+    data:
+      alias_name: 'vcenter'
+
+---
+
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
+
+---
+
+
+## oneview_certificates_server_facts
+Retrieve the facts about one or more of the OneView Certificates Server.
+
+#### Synopsis
+ Retrieve the facts about one or more of the Certificates Server from OneView.
+
+#### Requirements (on the host that executes the module)
+  * hpOneView >= 5.1.1
+  * python >= 3.4.2
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional and when used should be present in the host running the ansible commands. If the file path is not provided, the configuration will be loaded from environment variables. For links to example configuration files or how to use the environment variables verify the notes section.  |
+| aliasName  |   No  |  | |  Certificates Server aliasName.  |
+| remote  |   No  |  | |  Remote Server Certificate.  |
+
+
+ 
+#### Examples
+
+```yaml
+
+- name: Gather facts about a Server Certificate by aliasname
+  oneview_certificates_server_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    aliasname: "vcenter"
+  delegate_to: localhost
+
+- debug: var=certificates_server
+
+- name: Gather facts about a Server Certificate by remote server
+  oneview_certificates_server_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    remote: "172.18.13.11"
+  delegate_to: localhost
+
+- debug: var=remote_certificate
+
+```
+
+
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| certificates_servers   | Has all the OneView facts about the Certificates Server. |  Always, but can be null. |  dict |
+| remote_certificate     | Has facts about remote server certificates               |  When required            |  dict |
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+- The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
+
+---
+
 
 
 ## oneview_connection_template

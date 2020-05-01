@@ -5,9 +5,11 @@ This release extends the planned support of the modules to OneView REST API vers
 
 #### Major changes
 1. Extended support of planned modules to API800/1000/1200.
-2. Modules implemented in this release requires hpOneView version 5.1.0.
+2. Modules implemented in this release requires hpOneView version 5.1.1.
 
 #### Modules supported in this release
+- oneview_certificates_server
+- oneview_certificates_server_facts
 - oneview_hypervisor_cluster_profile
 - oneview_hypervisor_cluster_profile_facts
 - oneview_hypervisor_manager
