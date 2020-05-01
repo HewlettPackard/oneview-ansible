@@ -8,7 +8,7 @@ Modules to manage HPE OneView using Ansible playbooks.
 ## Requirements
 
  - Ansible >= 2.1
- - Python >= 2.7.9
+ - Python >= 3.4.2
  - HPE OneView Python SDK
  
 ## Modules
