@@ -25,32 +25,44 @@ from oneview_module_loader import HypervisorClusterProfileModule
 YAML_CLUSTER_PROFILE = """
     config: "{{ config }}"
     state: present
+    create_vswitch_layout: True
     data:
         uri: /rest/hypervisor-cluster-profiles/4671582d-1746-4122-9cf0-642a59543509
         name: "hcp"
+        hypervisorHostProfileTemplate:
+            virtualSwitches: "test"
     """
 
 YAML_CLUSTER_PROFILE_PRESENT = """
         config: "{{ config }}"
         state: present
+        create_vswitch_layout: True
         data:
             name: "hcp"
+            hypervisorHostProfileTemplate:
+                virtualSwitches: "test"
         """
 
 YAML_CLUSTER_PROFILE_RENAME = """
         config: "{{ config }}"
         state: present
+        create_vswitch_layout: True
         data:
             name: "hcp"
             newName: "hcp (renamed)"
+            hypervisorHostProfileTemplate:
+                virtualSwitches: "test"
         """
 
 YAML_CLUSTER_PROFILE_NO_RENAME = """
     config: "{{ config }}"
     state: present
+    create_vswitch_layout: True
     data:
         name: "hcp (renamed)"
         newName: "hcp"
+        hypervisorHostProfileTemplate:
+            virtualSwitches: "test"
     """
 
 YAML_CLUSTER_PROFILE_ABSENT = """
@@ -69,6 +81,7 @@ DICT_DEFAULT_CLUSTER_PROFILE = yaml.load(YAML_CLUSTER_PROFILE)["data"]
 class TestHypervisorClusterProfileModule(OneViewBaseTest):
     def test_should_create_when_resource_not_exist(self):
         self.resource.get_by_name.return_value = None
+        self.resource.create_virtual_switch_layout.return_value = "test"
         self.resource.create.return_value = self.resource
         self.resource.data = DICT_DEFAULT_CLUSTER_PROFILE
         self.mock_ansible_module.params = yaml.load(YAML_CLUSTER_PROFILE_PRESENT)
@@ -82,6 +95,7 @@ class TestHypervisorClusterProfileModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_existing_data_is_equals(self):
+        self.resource.create_virtual_switch_layout.return_value = "test"
         self.resource.data = DICT_DEFAULT_CLUSTER_PROFILE
         self.mock_ansible_module.params = yaml.load(YAML_CLUSTER_PROFILE_NO_RENAME)
 
@@ -94,6 +108,7 @@ class TestHypervisorClusterProfileModule(OneViewBaseTest):
         )
 
     def test_should_update_when_data_has_modified_attributes(self):
+        self.resource.create_virtual_switch_layout.return_value = "test"
         data_merged = DICT_DEFAULT_CLUSTER_PROFILE.copy()
         data_merged['newName'] = 'New Name'
 

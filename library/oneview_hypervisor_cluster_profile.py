@@ -29,7 +29,7 @@ description:
 version_added: "2.4"
 requirements:
     - "python >= 3.4.2"
-    - "hpOneView >= 5.1.0"
+    - "hpOneView >= 5.2.0"
 author: "Venkatesh Ravula (@VenkateshRavula)"
 options:
     state:
@@ -112,6 +112,7 @@ class HypervisorClusterProfileModule(OneViewModule):
     def __init__(self):
         additional_arg_spec = dict(data=dict(required=True, type='dict'),
                                    params=dict(type='dict', required=False),
+                                   create_vswitch_layout=dict(type='bool', default=False),
                                    state=dict(
                                        required=True,
                                        choices=['present', 'absent']))
@@ -121,6 +122,7 @@ class HypervisorClusterProfileModule(OneViewModule):
 
     def execute_module(self):
         changed, msg, ansible_facts = False, '', {}
+        self.create_vswitch_layout = self.module.params.get('create_vswitch_layout')
         params = self.module.params.get("params")
         self.params = params if params else {}
 
@@ -141,6 +143,13 @@ class HypervisorClusterProfileModule(OneViewModule):
         return response
 
     def __create(self, data):
+
+        # Below code will get the virtual switch layout and modifies the create body if virtualswitches key is present in json data
+        if self.create_vswitch_layout and data.get('hypervisorHostProfileTemplate') and \
+                data.get('hypervisorHostProfileTemplate').get('virtualSwitches'):
+            data['hypervisorHostProfileTemplate']['virtualSwitches'] = \
+                self.resource_client.create_virtual_switch_layout(data['hypervisorHostProfileTemplate']['virtualSwitches'])
+
         self.current_resource = self.resource_client.create(data)
         return True, self.MSG_CREATED, dict(hypervisor_cluster_profile=self.current_resource.data)
 
@@ -157,6 +166,12 @@ class HypervisorClusterProfileModule(OneViewModule):
     def __update(self):
         if "newName" in self.data:
             self.data["name"] = self.data.pop("newName")
+
+        # Below code will get the virtual switch layout and modifies the update body if virtualswitches key is present in json data
+        if self.create_vswitch_layout and self.data.get('hypervisorHostProfileTemplate') and \
+                self.data.get('hypervisorHostProfileTemplate').get('virtualSwitches'):
+            self.data['hypervisorHostProfileTemplate']['virtualSwitches'] = \
+                self.resource_client.create_virtual_switch_layout(self.data['hypervisorHostProfileTemplate']['virtualSwitches'])
 
         merged_data = self.current_resource.data.copy()
         merged_data.update(self.data, **self.params)
