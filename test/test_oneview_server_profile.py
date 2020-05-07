@@ -201,6 +201,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
     @pytest.fixture(autouse=True)
     def specific_set_up(self):
+        self.mock_ov_client.api_version = 1000
         self.sleep_patch = mock.patch('time.sleep')
         self.sleep_patch.start()
         self.sleep_patch.return_value = None
@@ -283,8 +284,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True, msg=ServerProfileModule.MSG_REMEDIATED_COMPLIANCE, ansible_facts=mock_facts)
 
-    def test_should_create_with_automatically_selected_hardware_when_not_exists_api1000(self):
-        self.mock_ov_client.api_version = 1000
+    def test_should_create_with_automatically_selected_hardware_when_not_exists(self):
         profile_data = deepcopy(BASIC_PROFILE)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
