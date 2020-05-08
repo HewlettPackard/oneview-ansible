@@ -315,7 +315,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.get_by_name.return_value = None
         self.resource.data = CREATED_BASIC_PROFILE
         self.resource.create.return_value = self.resource
-        self.resource.get_available_targets.return_value = AVAiLABLE_TARGETS
+        self.resource.get_available_targets.return_value = AVAILABLE_TARGETS
         self.mock_ov_client.server_hardware.data = {}
         self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
