@@ -56,7 +56,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
   delegate_to: localhost
 
 - debug: var=enclosure_groups
@@ -66,7 +66,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     params:
       start: 0
       count: 3
@@ -81,7 +81,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     name: "Test Enclosure Group Facts"
     options:
       - configuration_script
@@ -125,8 +125,6 @@ class EnclosureGroupFactsModule(OneViewModule):
         if name:
             if self.current_resource:
                 enclosure_groups = self.current_resource.data
-                if "configuration_script" in self.options:
-                    facts["enclosure_group_script"] = self.current_resource.get_script()
         else:
             enclosure_groups = self.resource_client.get_all(**self.facts_params)
 
