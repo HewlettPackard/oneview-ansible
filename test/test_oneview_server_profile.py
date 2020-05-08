@@ -115,12 +115,11 @@ AVAILABLE_SERVERS = [
     dict(enclosureBay=4, serverHardwareUri='/rest/server-hardware/37333036-3831-6776-gdfd-3037583rewr0'),
     dict(enclosureBay=8, serverHardwareUri='/rest/server-hardware/37333036-3831-4753-4831-303158sdf458')]
 
-AVAiLABLE_TARGETS = [
+AVAILABLE_TARGETS = dict(targets=[
     dict(enclosureBay=2, serverHardwareUri=''),
     dict(enclosureBay=3, serverHardwareUri='/rest/server-hardware/31393736-3831-4753-567h-30335837524E'),
     dict(enclosureBay=4, serverHardwareUri='/rest/server-hardware/37333036-3831-6776-gdfd-3037583rewr0'),
-    dict(enclosureBay=8, serverHardwareUri='/rest/server-hardware/37333036-3831-4753-4831-303158sdf458')]
-
+    dict(enclosureBay=8, serverHardwareUri='/rest/server-hardware/37333036-3831-4753-4831-303158sdf458')])
 
 BOOT_CONN = dict(priority="NotBootable", chapLevel="none")
 
