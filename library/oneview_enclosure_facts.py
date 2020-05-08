@@ -43,7 +43,7 @@ options:
     options:
       description:
         - "List with options to gather additional facts about an Enclosure and related resources.
-          Options allowed: C(script), C(environmentalConfiguration), and C(utilization). For the option C(utilization),
+          Options allowed: C(environmentalConfiguration), and C(utilization). For the option C(utilization),
           you can provide specific parameters."
 
 extends_documentation_fragment:
@@ -57,7 +57,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -72,7 +72,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -83,7 +83,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -92,17 +92,15 @@ EXAMPLES = '''
   oneview_enclosure_facts:
     name: Test-Enclosure
     options:
-      - script                       # optional
       - environmentalConfiguration   # optional
       - utilization                  # optional
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
-- debug: var=enclosure_script
 - debug: var=enclosure_environmental_configuration
 - debug: var=enclosure_utilization
 
@@ -121,7 +119,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -133,11 +131,6 @@ enclosures:
     description: Has all the OneView facts about the Enclosures.
     returned: Always, but can be null.
     type: dict
-
-enclosure_script:
-    description: Has all the OneView facts about the script of an Enclosure.
-    returned: When requested, but can be null.
-    type: string
 
 enclosure_environmental_configuration:
     description: Has all the OneView facts about the environmental configuration of an Enclosure.
@@ -182,8 +175,6 @@ class EnclosureFactsModule(OneViewModule):
 
         ansible_facts = {}
 
-        if options.get('script'):
-            ansible_facts['enclosure_script'] = self.current_resource.get_script()
         if options.get('environmentalConfiguration'):
             env_config = self.current_resource.get_environmental_configuration()
             ansible_facts['enclosure_environmental_configuration'] = env_config
