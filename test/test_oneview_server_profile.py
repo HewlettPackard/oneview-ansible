@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -114,6 +114,13 @@ AVAILABLE_SERVERS = [
     dict(enclosureBay=3, serverHardwareUri='/rest/server-hardware/31393736-3831-4753-567h-30335837524E'),
     dict(enclosureBay=4, serverHardwareUri='/rest/server-hardware/37333036-3831-6776-gdfd-3037583rewr0'),
     dict(enclosureBay=8, serverHardwareUri='/rest/server-hardware/37333036-3831-4753-4831-303158sdf458')]
+
+AVAiLABLE_TARGETS = [
+    dict(enclosureBay=2, serverHardwareUri=''),
+    dict(enclosureBay=3, serverHardwareUri='/rest/server-hardware/31393736-3831-4753-567h-30335837524E'),
+    dict(enclosureBay=4, serverHardwareUri='/rest/server-hardware/37333036-3831-6776-gdfd-3037583rewr0'),
+    dict(enclosureBay=8, serverHardwareUri='/rest/server-hardware/37333036-3831-4753-4831-303158sdf458')]
+
 
 BOOT_CONN = dict(priority="NotBootable", chapLevel="none")
 
@@ -289,6 +296,31 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         self.mock_ov_client.api_version = 1200
+
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
+
+        ServerProfileModule().run()
+
+        self.resource.create.assert_called_once_with(profile_data)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerProfileModule.MSG_CREATED,
+            ansible_facts=mock_facts
+        )
+
+    def test_should_create_with_automatically_selected_hardware_when_not_exists_with_apiversion_1600(self):
+        profile_data = deepcopy(BASIC_PROFILE)
+        profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
+
+        self.resource.get_by_name.return_value = None
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
+        self.resource.get_available_targets.return_value = AVAiLABLE_TARGETS
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ov_client.api_version = 1600
 
         mock_facts = gather_facts(self.mock_ov_client, created=True)
 
