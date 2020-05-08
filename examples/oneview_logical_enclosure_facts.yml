@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - logical_enclosure_name: "SYN03_LE"  # The name of an existent Logical Enclosure must be set to run this example
-    - scope_uris: "/rest/scopes/637fa556-a78d-4796-8fce-2179e249ea7d"
+    - logical_enclosure_name: "LE"  # The name of an existent Logical Enclosure must be set to run this example
+    - scope_uris: "/rest/scopes/5049d3e3-0367-451d-a555-b2603f09a5d5"
   tasks:
     - name: Gather facts about all Logical Enclosures
       oneview_logical_enclosure_facts:
@@ -46,14 +46,3 @@
       delegate_to: localhost
 
     - debug: var=logical_enclosures
-
-    - name: Gather facts about a Logical Enclosure by name with options
-      oneview_logical_enclosure_facts:
-        config: "{{ config }}"
-        name: "{{ logical_enclosure_name }}"
-        options:
-          - script
-      delegate_to: localhost
-
-    - debug: var=logical_enclosures
-    - debug: var=logical_enclosure_script

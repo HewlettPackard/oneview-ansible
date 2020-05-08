@@ -54,14 +54,6 @@ YAML_LOGICAL_ENCLOSURE_FIRMWARE_UPDATE = """
                 if-Match: "*"
       """
 
-YAML_LOGICAL_ENCLOSURE_UPDATE_SCRIPT = """
-        config: "{{ config }}"
-        state: script_updated
-        data:
-            name: "Encl1"
-            configurationScript: "# script (updated)"
-      """
-
 YAML_LOGICAL_ENCLOSURE_DUMP = """
         config: "{{ config }}"
         state: dumped
@@ -175,26 +167,6 @@ class TestLogicalEnclosureModule(OneViewBaseTest):
     def test_should_not_update_firmware_when_resource_not_found(self):
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_FIRMWARE_UPDATE)
-
-        LogicalEnclosureModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
-
-    def test_should_update_script_when_resource_exists(self):
-        self.resource.data = DICT_DEFAULT_LOGICAL_ENCLOSURE
-        self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_UPDATE_SCRIPT)
-
-        LogicalEnclosureModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=LogicalEnclosureModule.MSG_CONFIGURATION_SCRIPT_UPDATED,
-            ansible_facts=dict(configuration_script='# script (updated)')
-        )
-
-    def test_should_not_update_script_when_resource_not_found(self):
-        self.resource.get_by_name.return_value = None
-        self.mock_ansible_module.params = yaml.load(YAML_LOGICAL_ENCLOSURE_UPDATE_SCRIPT)
 
         LogicalEnclosureModule().run()
 

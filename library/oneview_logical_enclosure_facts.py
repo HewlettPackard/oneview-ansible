@@ -16,32 +16,33 @@
 # limitations under the License.
 ###
 
-ANSIBLE_METADATA = {'status': ['stableinterface'],
-                    'supported_by': 'community',
-                    'metadata_version': '1.1'}
+ANSIBLE_METADATA = {'metadata_version': '1.1',
+                    'status': ['stableinterface'],
+                    'supported_by': 'community'}
 
 DOCUMENTATION = '''
 ---
-module: oneview_logical_enclosure_facts
-short_description: Retrieve facts about one or more of the OneView Logical Enclosures.
+module: oneview_enclosure_group_facts
+short_description: Retrieve facts about one or more of the OneView Enclosure Groups.
 description:
-    - Retrieve facts about one or more of the Logical Enclosures from OneView.
+    - Retrieve facts about one or more of the Enclosure Groups from OneView.
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
     - "hpOneView >= 5.0.0"
 author:
     - "Gustavo Hennig (@GustavoHennig)"
-    - "Mariana Kreisig (@marikrg)"
+    - "Bruno Souza (@bsouza)"
 options:
     name:
       description:
-        - Logical Enclosure name.
+        - Enclosure Group name.
       required: false
     options:
       description:
-        - "List with options to gather additional facts about a Logical Enclosure and related resources.
-          Options allowed: script."
+        - "List with options to gather additional facts about Enclosure Group.
+          Options allowed:
+          C(configuration_script) Gets the configuration script for an Enclosure Group."
       required: false
 
 extends_documentation_fragment:
@@ -50,108 +51,89 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = '''
-- name: Gather facts about all Logical Enclosures
-  oneview_logical_enclosure_facts:
-      hostname: 172.16.101.48
-      username: administrator
-      password: my_password
-      api_version: 1200
-  delegate_to: localhost
-
-- debug: var=logical_enclosures
-
-- name: Gather paginated, filtered and sorted facts about Logical Enclosures
-  oneview_logical_enclosure_facts:
+- name: Gather facts about all Enclosure Groups
+  oneview_enclosure_group_facts:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
+  delegate_to: localhost
+
+- debug: var=enclosure_groups
+
+- name: Gather paginated, filtered and sorted facts about Enclosure Groups
+  oneview_enclosure_group_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1600
     params:
       start: 0
       count: 3
       sort: 'name:descending'
       filter: 'status=OK'
-      scope_uris: '/rest/scope/637fa556-a78d-4796-8fce-2179e249ea7d'
+      scope_uris: '/rest/scopes/cd237b60-09e2-45c4-829e-082e318a6d2a'
 
-- debug: var=logical_enclosures
+- debug: var=enclosure_groups
 
-- name: Gather facts about a Logical Enclosure by name
-  oneview_logical_enclosure_facts:
+- name: Gather facts about an Enclosure Group by name with configuration script
+  oneview_enclosure_group_facts:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
-    name: "Encl1"
-  delegate_to: localhost
-
-- debug: var=logical_enclosures
-
-- name: Gather facts about a Logical Enclosure by name with options
-  oneview_logical_enclosure_facts:
-    hostname: 172.16.101.48
-    username: administrator
-    password: my_password
-    api_version: 1200
-    name: "Encl1"
+    api_version: 1600
+    name: "Test Enclosure Group Facts"
     options:
-      - script
-  delegate_to: localhost
+      - configuration_script
+    delegate_to: localhost
 
-- debug: var=logical_enclosures
-- debug: var=logical_enclosure_script
+- debug: var=enclosure_groups
+- debug: var=enclosure_group_script
 '''
 
 RETURN = '''
-logical_enclosures:
-    description: Has all the OneView facts about the Logical Enclosures.
+enclosure_groups:
+    description: Has all the OneView facts about the Enclosure Groups.
     returned: Always, but can be null.
     type: dict
 
-logical_enclosure_script:
-    description: Has the facts about the script of a Logical Enclosure.
-    returned: When required, but can be null.
-    type: dict
+enclosure_group_script:
+    description: The configuration script for an Enclosure Group.
+    returned: When requested, but can be null.
+    type: string
 '''
 
 from ansible.module_utils.oneview import OneViewModule
 
 
-class LogicalEnclosureFactsModule(OneViewModule):
+class EnclosureGroupFactsModule(OneViewModule):
     argument_spec = dict(
         name=dict(required=False, type='str'),
         options=dict(required=False, type='list'),
-        params=dict(required=False, type='dict'),
+        params=dict(required=False, type='dict')
     )
 
     def __init__(self):
-        super(LogicalEnclosureFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
-        self.set_resource_object(self.oneview_client.logical_enclosures)
+        super(EnclosureGroupFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.set_resource_object(self.oneview_client.enclosure_groups)
 
     def execute_module(self):
-        ansible_facts = {}
+        facts = {}
+        enclosure_groups = []
+        name = self.module.params.get("name")
 
-        if self.module.params.get('name'):
-            logical_enclosures = self.current_resource.data if self.current_resource else []
-            if self.options and logical_enclosures:
-                ansible_facts = self.__gather_optional_facts()
+        if name:
+            if self.current_resource:
+                enclosure_groups = self.current_resource.data
         else:
-            logical_enclosures = self.resource_client.get_all(**self.facts_params)
+            enclosure_groups = self.resource_client.get_all(**self.facts_params)
 
-        ansible_facts['logical_enclosures'] = logical_enclosures
-
-        return dict(changed=False, ansible_facts=ansible_facts)
-
-    def __gather_optional_facts(self):
-        ansible_facts = {}
-
-        if self.options.get('script'):
-            ansible_facts['logical_enclosure_script'] = self.current_resource.get_script()
-
-        return ansible_facts
+        facts["enclosure_groups"] = enclosure_groups
+        return dict(changed=False, ansible_facts=facts)
 
 
 def main():
-    LogicalEnclosureFactsModule().run()
+    EnclosureGroupFactsModule().run()
 
 
 if __name__ == '__main__':

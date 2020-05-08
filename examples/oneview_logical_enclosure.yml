@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -67,16 +67,6 @@
                 updateFirmwareOnUnmanagedInterconnect: "true"
             custom_headers:
                 if-Match: '*'
-      ignore_errors: true
-      delegate_to: localhost
-
-    - name: Update the Logical Enclosure configuration script
-      oneview_logical_enclosure:
-        config: "{{ config }}"
-        state: script_updated
-        data:
-            name: "{{ logical_enclosure_name }}"
-            configurationScript: "# script (updated)"
       ignore_errors: true
       delegate_to: localhost
 
