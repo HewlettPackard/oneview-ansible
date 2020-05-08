@@ -90,7 +90,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     state: present
     data:
         name: Web-Server-L2
@@ -143,7 +143,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     data:
       name: server-profile-with-connections
       connectionSettings:
@@ -161,7 +161,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     # This is required for unassigning a SH, or creating a SP and not auto-assigning a SH
     auto_assign_server_hardware: False
     data:
@@ -175,7 +175,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     state: compliant
     data:
         name: Web-Server-L2
@@ -186,7 +186,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     state: absent
     data:
         name: Web-Server-L2
@@ -522,9 +522,14 @@ class ServerProfileModule(OneViewModule):
             return
 
         self.module.log(msg="Finding an available server hardware")
-        available_server_hardware = self.resource_client.get_available_servers(
-            enclosureGroupUri=enclosure_group,
-            serverHardwareTypeUri=server_hardware_type)
+        if self.oneview_client.api_version <= 1200:
+            available_server_hardware = self.resource_client.get_available_servers(
+                enclosureGroupUri=enclosure_group,
+                serverHardwareTypeUri=server_hardware_type)
+        else:
+            available_server_hardware = self.resource_client.get_available_targets(
+                enclosureGroupUri=enclosure_group,
+                serverHardwareTypeUri=server_hardware_type)['targets']
 
         # targets will list empty bays. We need to pick one that has a server
         index = 0

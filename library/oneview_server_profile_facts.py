@@ -46,6 +46,8 @@ options:
           C(available_targets), C(newProfileTemplate),"
         - "To gather facts about C(compliancePreview), C(messages), C(newProfileTemplate) and C(transformation)
            a Server Profile name is required. Otherwise, these options will be ignored."
+notes:
+    - The option C(newProfileTemplate), C(available_servers) is only available till API version 1200.
 
 extends_documentation_fragment:
     - oneview
@@ -58,7 +60,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
   delegate_to: localhost
 
 - debug: var=server_profiles
@@ -68,7 +70,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     params:
       start: 0
       count: 3
@@ -84,7 +86,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     name: WebServer-1
   delegate_to: localhost
 
@@ -96,7 +98,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     uri: /rest/server-profiles/e23d9fa4-f926-4447-b971-90116ca3e61e
   delegate_to: localhost
 
@@ -107,7 +109,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     options:
       - availableTargets:
           enclosureGroupUri: '/rest/enclosure-groups/3af25c76-dec7-4753-83f6-e1ad06c29a43'
@@ -122,7 +124,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     name : "Encl1, bay 1"
     options:
         - schema
@@ -299,7 +301,7 @@ class ServerProfileFactsModule(OneViewModule):
             enets_options = self.__get_sub_options(self.options['availableNetworks'])
             facts['server_profile_available_networks'] = self.resource_client.get_available_networks(**enets_options)
 
-        if self.options.get('availableServers'):
+        if self.options.get('availableServers'):  # Supported only for API version <= 1200
             servers_options = self.__get_sub_options(self.options['availableServers'])
             facts['server_profile_available_servers'] = self.resource_client.get_available_servers(**servers_options)
 
