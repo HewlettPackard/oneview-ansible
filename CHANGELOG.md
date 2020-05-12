@@ -1,5 +1,25 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v5.6.0
+This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2), 1200 (OneView v5.0) and 1600 (OneView v5.2)
+
+#### Major changes
+1. Extended support of planned modules to API800/1000/1200/1600.
+2. Modules implemented in this release requires hpOneView version 5.2
+
+### Modules supported in this release
+- oneview_ethernet_network
+- oneview_ethernet_network_facts
+- oneview_fc_network
+- oneview_fc_network_facts
+- oneview_fcoe_network
+- oneview_fcoe_network_facts
+- oneview_network_set
+- oneview_network_set_facts
+- oneview_uplink_set
+- oneview_uplink_set_facts
+
+
 ## v5.5.0
 This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2) and 1200 (OneView v5.0).
 
