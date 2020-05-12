@@ -257,7 +257,7 @@ class ServerProfileModule(OneViewModule):
         state=dict(choices=['present', 'absent', 'compliant'], default='present'),
         data=dict(type='dict', required=True),
         params=dict(type='dict', required=False),
-        auto_assign_server_hardware=dict(type='bool', default=False)
+        auto_assign_server_hardware=dict(type='bool', default=True)
     )
 
     def __init__(self):
