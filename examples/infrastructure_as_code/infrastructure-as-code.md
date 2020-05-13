@@ -42,7 +42,7 @@ This example will configure a hardware server with boot settings and a network c
 
 The playbook [`server_profile_template.yml`](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/infrastructure_as_code/server_profile_template.yml) will create the server profile template.
 
-Run the command:
+Run the below command:
 
 ```bash
 ansible-playbook server_profile_template.yml
