@@ -40,8 +40,6 @@
           name: "{{ hypervisor_manager_name }}"
           displayName: 'vcenter'
           hypervisorType: 'Vmware'
-          username: 'dcs'
-          password: 'dcs'
       delegate_to: localhost
 
     - name: Update the Hypervisor Manager changing the attribute displayName
