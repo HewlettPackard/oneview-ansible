@@ -8,12 +8,16 @@ This release extends the planned support of the modules to OneView REST API vers
 2. Modules implemented in this release requires hpOneView version 5.2
 
 ### Modules supported in this release
+- oneview_certificates_server
+- oneview_certificates_server_facts
 - oneview_ethernet_network
 - oneview_ethernet_network_facts
 - oneview_fc_network
 - oneview_fc_network_facts
 - oneview_fcoe_network
 - oneview_fcoe_network_facts
+- oneview_hypervisor_manager
+- oneview_hypervisor_manager_facts
 - oneview_network_set
 - oneview_network_set_facts
 - oneview_uplink_set
