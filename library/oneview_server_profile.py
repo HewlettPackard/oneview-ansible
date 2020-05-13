@@ -330,8 +330,10 @@ class ServerProfileModule(OneViewModule):
                 if self.data.get('serverHardwareUri') is None and server_hardware_uri_exists:
                     self.data['serverHardwareUri'] = None
 
-            # Auto assigns a Server Hardware to Server Profile if auto_assign_server_hardware is True and no SH uris exist
-            if not self.current_resource.data.get('serverHardwareUri') and not self.data.get('serverHardwareUri') and self.auto_assign_server_hardware:
+            # Auto assigns a Server Hardware to Server Profile if auto_assign_server_hardware is True and no SH uris/enclosure uri and bay exist
+            if not self.current_resource.data.get('serverHardwareUri') and not self.data.get('serverHardwareUri') and self.auto_assign_server_hardware \
+                and not self.current_resource.data.get('enclosureUri') and not self.current_resource.data.get('enclosureBay') \
+                    and not self.data.get('enclosureUri') and not self.data.get('enclosureBay'):
                 self.data['serverHardwareUri'] = self._auto_assign_server_profile()
 
             merged_data = ServerProfileMerger().merge_data(self.current_resource.data, self.data)
@@ -522,14 +524,14 @@ class ServerProfileModule(OneViewModule):
             return
 
         self.module.log(msg="Finding an available server hardware")
-        if self.oneview_client.api_version <= 1200:
-            available_server_hardware = self.resource_client.get_available_servers(
-                enclosureGroupUri=enclosure_group,
-                serverHardwareTypeUri=server_hardware_type)
-        else:
+        if self.oneview_client.api_version >= 1600:
             available_server_hardware = self.resource_client.get_available_targets(
                 enclosureGroupUri=enclosure_group,
                 serverHardwareTypeUri=server_hardware_type)['targets']
+        else:
+            available_server_hardware = self.resource_client.get_available_servers(
+                enclosureGroupUri=enclosure_group,
+                serverHardwareTypeUri=server_hardware_type)
 
         # targets will list empty bays. We need to pick one that has a server
         index = 0
@@ -630,8 +632,9 @@ class ServerProfileModule(OneViewModule):
 
     def _auto_assign_server_profile(self):
         server_hardware_uri = self.data.get('serverHardwareUri')
-
-        if not server_hardware_uri and self.auto_assign_server_hardware:
+        enclosure_uri = self.data.get('enclosureUri')
+        enclosure_bay = self.data.get('enclosureBay')
+        if not server_hardware_uri and self.auto_assign_server_hardware and not enclosure_uri and not enclosure_bay:
             # find servers that have no profile, matching Server hardware type and enclosure group
             self.module.log(msg="Get an available Server Hardware for the Profile")
             server_hardware_uri = self.__get_available_server_hardware_uri()

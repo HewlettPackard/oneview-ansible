@@ -201,6 +201,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
     @pytest.fixture(autouse=True)
     def specific_set_up(self):
+        self.mock_ov_client.api_version = 1000
         self.sleep_patch = mock.patch('time.sleep')
         self.sleep_patch.start()
         self.sleep_patch.return_value = None
@@ -320,6 +321,31 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         self.mock_ov_client.api_version = 1600
+
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
+
+        ServerProfileModule().run()
+
+        self.resource.create.assert_called_once_with(profile_data)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerProfileModule.MSG_CREATED,
+            ansible_facts=mock_facts
+        )
+
+    def test_should_create_with_automatically_selected_hardware_when_not_exists_api1600(self):
+        self.mock_ov_client.api_version = 1600
+        profile_data = deepcopy(BASIC_PROFILE)
+        profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
+
+        self.resource.get_by_name.return_value = None
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
+        self.resource.get_available_targets.return_value = AVAILABLE_TARGETS
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         mock_facts = gather_facts(self.mock_ov_client, created=True)
 
