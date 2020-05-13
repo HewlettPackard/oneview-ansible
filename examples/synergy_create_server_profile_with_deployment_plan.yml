@@ -16,6 +16,7 @@
 ---
 ###
 # This playbook is only compatible with HPE Synergy Enclosures
+# This playbook will create server profile using server profile template, deployment plan and os clustom attributes
 ###
 - name: Deploy Server Profile from Template, selecting the right connection for Management NIC
   hosts: all

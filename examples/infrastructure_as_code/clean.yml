@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+
+# This playbook will do cleanup after server profile creation.
+# Cleanup includes power off server hardware, delete server profile and server profile template
 ---
 - hosts: all
   gather_facts: no

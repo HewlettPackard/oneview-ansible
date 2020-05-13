@@ -1,4 +1,4 @@
-![hpe-logo](images/hpe-logo.jpg)
+Copyright (2020) Hewlett Packard Enterprise Development LP
 
 # Infrastructure as code with HPE OneView and Ansible by Red Hat
 
@@ -50,10 +50,6 @@ ansible-playbook server_profile_template.yml
 
 After the server profile template is created, the playbook returns information about the created resource. You can also see the result of the template creation in OneView.
 
-Server profile template
-
-![Server Profile Template](images/server-profile-template.png)
-
 ### Create and apply the server profile
 
 Now that we have a server profile template, we can run [`server-profile.yml`](https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/infrastructure_as_code/server_profile.yml) which will create a server profile and assign it to specific server which will configure the hardware. Then the playbook will boot the server.
@@ -63,10 +59,6 @@ ansible-playbook server_profile.yml
 ```
 
 This playbook will also return a lot of information about the newly provisioned server. You can see the result of the server profile creation in OneView.
-
-Server profile
-
-![Server Profile](images/server-profile.png)
 
 ### Clean up
 
@@ -85,5 +77,3 @@ With a HPE OneView and a few Ansible playbooks, it is possible to easily provisi
 * HPE OneView documentation - <https://hpe.com/info/oneview/docs>
 
 Learn more at <https://hpe.com/info/oneview>
-
-Copyright (2020) Hewlett Packard Enterprise Development LP

@@ -1,3 +1,4 @@
+# This file contains all the variable names used in server profile and template creation.
 ---
 # Name for the created server profile template
 server_profile_template: SPT_sample

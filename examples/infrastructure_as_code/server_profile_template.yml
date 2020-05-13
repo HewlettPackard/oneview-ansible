@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+# This playbook will create server profile template with connections
 ---
 - hosts: all
   gather_facts: no
