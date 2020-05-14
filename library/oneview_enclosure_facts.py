@@ -138,7 +138,7 @@ enclosure_script:
     description: Has all the OneView facts about the script of an Enclosure.
     returned: When requested, but can be null.
     type: string
-    
+
 enclosure_environmental_configuration:
     description: Has all the OneView facts about the environmental configuration of an Enclosure.
     returned: When requested, but can be null.
@@ -164,8 +164,6 @@ class EnclosureFactsModule(OneViewModule):
 
         ansible_facts = {}
 
-        if options.get('script'):
-            ansible_facts['enclosure_script'] = self.current_resource.get_script()
         if self.current_resource:
             enclosures = [self.current_resource.data]
             if self.options:
@@ -184,6 +182,8 @@ class EnclosureFactsModule(OneViewModule):
 
         ansible_facts = {}
 
+        if options.get('script'):
+            ansible_facts['enclosure_script'] = self.current_resource.get_script()
         if options.get('environmentalConfiguration'):
             env_config = self.current_resource.get_environmental_configuration()
             ansible_facts['enclosure_environmental_configuration'] = env_config
