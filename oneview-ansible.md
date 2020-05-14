@@ -3536,6 +3536,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
     options:
       - configuration_script
     delegate_to: localhost
+
 - debug: var=enclosure_groups
 - debug: var=enclosure_group_script
 
@@ -3547,8 +3548,8 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| enclosure_groups   | Has all the OneView facts about the Enclosure Groups. |  Always, but can be null. |  dict |
 | enclosure_group_script   | The configuration script for an Enclosure Group. |  When requested, but can be null. |  string |
+| enclosure_groups   | Has all the OneView facts about the Enclosure Groups. |  Always, but can be null. |  dict |
 
 #### Notes
 

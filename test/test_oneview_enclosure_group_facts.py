@@ -41,7 +41,6 @@ PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
     config='config.json',
     name=ENCLOSURE_GROUP_NAME,
     options=["configuration_script"]
-    name=ENCLOSURE_GROUP_NAME
 )
 
 ENCLOSURE_GROUPS = [{
@@ -97,7 +96,6 @@ class TestEnclosureGroupFactsModule(OneViewBaseFactsTest):
             ansible_facts=dict(
                 enclosure_groups=ENCLOSURE_GROUPS,
                 enclosure_group_script=configuration_script
-                enclosure_groups=ENCLOSURE_GROUPS
             )
         )
 
