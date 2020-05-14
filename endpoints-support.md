@@ -324,13 +324,16 @@
 |<sub>/rest/sas-logical-jbods/{id}</sub>                                                  | GET      | :white_check_mark:   |
 |<sub>/rest/sas-logical-jbods/{id}/drives</sub>                                           | GET      | :white_check_mark:   |
 |     **Scopes**                                                                                                                                   |
-|<sub>/rest/scopes</sub>                                                                  | POST     | :white_check_mark:   |
-|<sub>/rest/scopes</sub>                                                                  | GET      | :white_check_mark:   |
-|<sub>/rest/scopes/{id}</sub>                                                             | GET      | :white_check_mark:   |
-|<sub>/rest/scopes/{id}</sub>                                                             | PUT      | :white_check_mark:   |
-|<sub>/rest/scopes/{id}</sub>                                                             | PATCH    | :white_check_mark:   |
-|<sub>/rest/scopes/{id}</sub>                                                             | DELETE   | :white_check_mark:   |
-|<sub>/rest/scopes/{id}/resource-assignments</sub>                                        | PATCH    | :heavy_minus_sign:   |
+|<sub>/rest/scopes</sub>                                                                  | POST     | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/scopes</sub>                                                                  | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/scopes/{id}</sub>                                                             | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/scopes/{id}</sub>                                                             | PUT      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/scopes/{id}</sub>                                                             | PATCH    | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/scopes/{id}</sub>                                                             | DELETE   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/scopes/{id}/resource-assignments</sub>                                        | PATCH    | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   |
+|<sub>/rest/scopes/resources</sub>                                                        | GET      | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/scopes/resources</sub>                                                        | PUT      | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
+|<sub>/rest/scopes/resources</sub>                                                        | PATCH    | :heavy_minus_sign:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |     **Server Hardware**                                                                                                                          |
 |<sub>/rest/server-hardware</sub>                                                         | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/server-hardware</sub>                                                         | POST     | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |

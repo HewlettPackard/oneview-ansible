@@ -22,6 +22,8 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_hypervisor_manager_facts
 - oneview_network_set
 - oneview_network_set_facts
+- oneview_scope
+- oneview_scope_facts
 - oneview_storage_pool
 - oneview_storage_pool_facts
 - oneview_storage_system
