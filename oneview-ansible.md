@@ -3492,7 +3492,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Enclosure Group name.  |
-| options  |   No  |  | |  List with options to gather additional facts about Enclosure Group.   |
+| options  |   No  |  | |  List with options to gather additional facts about Enclosure Group. Options allowed: `configuration_script` Gets the configuration script for an Enclosure Group.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
@@ -3526,6 +3526,19 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 
 - debug: var=enclosure_groups
 
+- name: Gather facts about an Enclosure Group by name with configuration script
+  oneview_enclosure_group_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    name: "Test Enclosure Group Facts"
+    options:
+      - configuration_script
+    delegate_to: localhost
+- debug: var=enclosure_groups
+- debug: var=enclosure_group_script
+
 ```
 
 
@@ -3535,7 +3548,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | enclosure_groups   | Has all the OneView facts about the Enclosure Groups. |  Always, but can be null. |  dict |
-
+| enclosure_group_script   | The configuration script for an Enclosure Group. |  When requested, but can be null. |  string |
 
 #### Notes
 

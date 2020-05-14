@@ -39,6 +39,8 @@ PARAMS_GET_BY_NAME = dict(
 
 PARAMS_GET_BY_NAME_WITH_OPTIONS = dict(
     config='config.json',
+    name=ENCLOSURE_GROUP_NAME,
+    options=["configuration_script"]
     name=ENCLOSURE_GROUP_NAME
 )
 
@@ -78,18 +80,23 @@ class TestEnclosureGroupFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_enclosure_group_by_name_with_options(self):
+        configuration_script = "echo 'test'"
         self.resource.get_by_name.return_value = self.resource
         self.resource.data = ENCLOSURE_GROUPS
+        self.resource.get_script.return_value = configuration_script
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_WITH_OPTIONS
 
         EnclosureGroupFactsModule().run()
 
         self.resource.get_by_name.assert_called_once_with(ENCLOSURE_GROUP_NAME)
+        self.resource.get_script.assert_called_once()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             ansible_facts=dict(
+                enclosure_groups=ENCLOSURE_GROUPS,
+                enclosure_group_script=configuration_script
                 enclosure_groups=ENCLOSURE_GROUPS
             )
         )
