@@ -56,4 +56,3 @@
       delegate_to: localhost
 
     - debug: var=enclosure_group_script
-

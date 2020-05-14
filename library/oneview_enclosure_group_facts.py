@@ -125,8 +125,8 @@ class EnclosureGroupFactsModule(OneViewModule):
         if name:
             if self.current_resource:
                 enclosure_groups = self.current_resource.data
-            if "configuration_script" in self.options:
-                facts["enclosure_group_script"] = self.current_resource.get_script()
+                if "configuration_script" in self.options:
+                    facts["enclosure_group_script"] = self.current_resource.get_script()
         else:
             enclosure_groups = self.resource_client.get_all(**self.facts_params)
 
