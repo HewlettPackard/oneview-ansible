@@ -70,6 +70,16 @@
       ignore_errors: true
       delegate_to: localhost
 
+    - name: Update the Logical Enclosure configuration script
+      oneview_logical_enclosure:
+        config: "{{ config }}"
+        state: script_updated
+        data:
+            name: "{{ logical_enclosure_name }}"
+            configurationScript: "# script (updated)"
+      ignore_errors: true
+      delegate_to: localhost
+
     - name: Generates a support dump for the Logical Enclosure
       oneview_logical_enclosure:
         config: "{{ config }}"

@@ -5841,8 +5841,7 @@ Manage OneView Logical Enclosure resources.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with Logical Enclosure properties and its associated states.  |
-| state  |   Yes  |  | <ul> <li>present</li>  <li>firmware_updated</li>  
-  <li>dumped</li>  <li>reconfigured</li>  <li>updated_from_group</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Enclosure resource. `present` ensures data properties are compliant with OneView. You can rename the enclosure providing an attribute `newName`. `firmware_updated` updates the firmware for the Logical Enclosure.  `dumped` generates a support dump for the Logical Enclosure. `reconfigured` reconfigures all enclosures associated with a logical enclosure. `updated_from_group` makes the logical enclosure consistent with the enclosure group. `absent` will remove the resource from OneView, if it exists.  |
+| state  |   Yes  |  | <ul> <li>present</li>  <li>firmware_updated</li>  <li>script_updated</li>  <li>dumped</li>  <li>reconfigured</li>  <li>updated_from_group</li>  <li>absent</li> </ul> |  Indicates the desired state for the Logical Enclosure resource. `present` ensures data properties are compliant with OneView. You can rename the enclosure providing an attribute `newName`. `firmware_updated` updates the firmware for the Logical Enclosure. `script_updated` updates the Logical Enclosure configuration script. `dumped` generates a support dump for the Logical Enclosure. `reconfigured` reconfigures all enclosures associated with a logical enclosure. `updated_from_group` makes the logical enclosure consistent with the enclosure group. `absent` will remove the resource from OneView, if it exists.  |
 
 
  
@@ -5901,6 +5900,18 @@ Manage OneView Logical Enclosure resources.
             updateFirmwareOnUnmanagedInterconnect: "true"
         custom_headers:
             if-Match: '*'
+  delegate_to: localhost
+
+- name: Update the Logical Enclosure configuration script
+  oneview_logical_enclosure:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    state: script_updated
+    data:
+        name: "Encl1"
+        configurationScript: "# script (updated)"
   delegate_to: localhost
 
 - name: Generates a support dump for the Logical Enclosure
@@ -6052,6 +6063,19 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 
 - debug: var=logical_enclosures
 
+- name: Gather facts about a Logical Enclosure by name with options
+  oneview_logical_enclosure_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    name: "Encl1"
+    options:
+      - script
+  delegate_to: localhost
+- debug: var=logical_enclosures
+- debug: var=logical_enclosure_script
+
 ```
 
 
@@ -6060,6 +6084,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
+| logical_enclosure_script   | Has the facts about the script of a Logical Enclosure. |  When required, but can be null. |  dict 
 | logical_enclosures   | Has all the OneView facts about the Logical Enclosures. |  Always, but can be null. |  dict |
 
 

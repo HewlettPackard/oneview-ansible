@@ -215,6 +215,7 @@ class LogicalEnclosureModule(OneViewModule):
     MSG_REQUIRED = "An existing Logical Enclosure is required."
     MSG_UPDATED_FROM_GROUP = 'Logical Enclosure updated from group successfully.'
     MSG_FIRMWARE_UPDATED = 'Logical Enclosure firmware updated.'
+    xMSG_CONFIGURATION_SCRIPT_UPDATED = 'Logical Enclosure configuration script updated.'
     MSG_DUMP_GENERATED = 'Logical Enclosure support dump generated.'
     MSG_RECONFIGURED = 'Logical Enclosure configuration reapplied.'
     MSG_DELETED = 'Logical Enclosure deleted'
@@ -247,6 +248,8 @@ class LogicalEnclosureModule(OneViewModule):
 
             if self.state == 'firmware_updated':
                 changed, msg, ansible_facts = self.__update_firmware()
+            elif self.state == 'script_updated':
+                changed, msg, ansible_facts = self.__update_script()
             elif self.state == 'dumped':
                 changed, msg, ansible_facts = self.__support_dump()
             elif self.state == 'reconfigured':
@@ -291,6 +294,12 @@ class LogicalEnclosureModule(OneViewModule):
             return True, self.MSG_UPDATED, dict(logical_enclosure=self.current_resource.data)
         else:
             return False, self.MSG_ALREADY_PRESENT, dict(logical_enclosure=self.current_resource.data)
+
+    def __update_script(self):
+        script = self.data.pop("configurationScript")
+
+        self.current_resource.update_script(script)
+        return True, self.MSG_CONFIGURATION_SCRIPT_UPDATED, dict(configuration_script=script)
 
     def __update_firmware(self):
         self.current_resource.patch(operation="replace",
