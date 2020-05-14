@@ -18,7 +18,7 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     - storage_system_name: ThreePAR-1
-    - storage_system_ip: 172.18.11.11
+    - storage_system_ip: 172.18.11.12
   tasks:
     - name: Gather facts about all Storage Systems
       oneview_storage_system_facts:
@@ -85,11 +85,10 @@
         config: "{{ config }}"
         storage_hostname: "{{ storage_system_ip }}"
         options:
-            - reachablePorts
+          - reachablePorts:
+              networks:
+                  - /rest/fc-networks/507c4b12-2b30-42fb-9675-b9546a3a57c2
         params:
-          networks:
-            - /rest/fc-networks/59b2a7ca-105b-4fb2-bef2-429645f22a6c
-            - /rest/fc-networks/21578403-58fb-4679-8b61-b47ee4b1f198
           sort: 'name:descending'
 
     - debug: var=storage_system_reachable_ports
