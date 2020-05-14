@@ -19,11 +19,7 @@
 ## HPE OneView
 
 | Endpoints                                                                       | Verb     | V500 | V600 | V800 | V1000 | V1200 | V1600
-<<<<<<< HEAD
-| --------------------------------------------------------------------------------------- | -------- | :------------------: | :------------------: | :------------------: | :------------------: | :------------------: |:------------------: |
-=======
 | --------------------------------------------------------------------------------------- | -------- | :------------------: | :------------------: | :------------------: | :------------------: | :------------------: | :------------------: |
->>>>>>> b756e4d7a3daaf08d9a29dfcaeafafd3fc8cc36a
 |     **Alerts**                                                                                                                                   |
 |<sub>/rest/alerts	</sub>                                                                |GET       | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/alerts/{id}	</sub>                                                            |GET       | :white_check_mark:   | :white_check_mark:   |
@@ -139,10 +135,10 @@
 |<sub>/rest/fcoe-networks/{id}</sub>                                                      | PUT      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |<sub>/rest/fcoe-networks/{id}</sub>                                                      | DELETE   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   |
 |     **Firmware Bundles**                                                                                                                          |
-|<sub>/rest/firmware-bundles</sub>                                                       | POST     | :white_check_mark:   |
+|<sub>/rest/firmware-bundles</sub>                                                        | POST     | :white_check_mark:   |
 |     **Firmware Drivers**                                                                                                                          |
-|<sub>/rest/firmware-drivers</sub>                                                       | GET      | :white_check_mark:   |
-|<sub>/rest/firmware-drivers</sub>                                                       | POST     | :white_check_mark:   |
+|<sub>/rest/firmware-drivers</sub>                                                        | GET      | :white_check_mark:   |
+|<sub>/rest/firmware-drivers</sub>                                                        | POST     | :white_check_mark:   |
 |<sub>/rest/firmware-drivers/{id}</sub>                                                   | GET      | :white_check_mark:   |
 |<sub>/rest/firmware-drivers/{id}</sub>                                                   | DELETE   | :white_check_mark:   |
 |     **Hypervisor Cluster Profiles**
