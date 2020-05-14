@@ -173,14 +173,12 @@ class VolumeFactsModule(OneViewModule):
 
     def _gather_facts_about_one_volume(self, volumes):
         facts = {}
-
         if self.options.get('snapshots') and len(volumes) > 0:
             options_snapshots = self.options['snapshots']
-            volume_uri = volumes[0]['uri']
             if isinstance(options_snapshots, dict) and 'name' in options_snapshots:
-                facts['snapshots'] = self.resource_client.get_snapshot_by(volume_uri, 'name', options_snapshots['name'])
+                facts['snapshots'] = self.current_resource.get_snapshot_by('name', options_snapshots['name'])
             else:
-                facts['snapshots'] = self.resource_client.get_snapshots(volume_uri)
+                facts['snapshots'] = self.current_resource.get_snapshots()
 
         return facts
 

@@ -32,7 +32,7 @@
           serverHardwareTypeName: "{{ server_hardware_type_name }}"
           enclosureGroupName: "{{ enclosure_group_name }}"
         params:
-          force: "True" # Supprted only for API version >= 600
+          force: "True" # Supported only for API version >= 600
       delegate_to: localhost
 
     - name: Update bootMode from recently created template
@@ -58,7 +58,7 @@
         data:
           name: "{{ server_profile_template_name }}"
         params:
-          force: True # Supprted only for API version >= 600
+          force: True # Supported only for API version >= 600
       delegate_to: localhost
 
     - name: Do nothing when Server Profile Template is absent
