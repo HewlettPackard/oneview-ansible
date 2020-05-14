@@ -23,6 +23,16 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_network_set_facts
 - oneview_server_profile
 - oneview_server_profile_facts
+- oneview_storage_pool
+- oneview_storage_pool_facts
+- oneview_storage_system
+- oneview_storage_system_facts
+- oneview_storage_volume
+- oneview_storage_volume_facts
+- oneview_storage_volume_attachment
+- oneview_storage_volume_attachment_facts
+- oneview_storage_volume_template
+- oneview_storage_volume_template_facts
 - oneview_uplink_set
 - oneview_uplink_set_facts
 
