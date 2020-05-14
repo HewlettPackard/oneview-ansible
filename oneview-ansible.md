@@ -3324,6 +3324,7 @@ Retrieve facts about one or more Enclosures
   oneview_enclosure_facts:
     name: Test-Enclosure
     options:
+      - script                       # optional
       - environmentalConfiguration   # optional
       - utilization                  # optional
     hostname: 172.16.101.48
@@ -3333,6 +3334,7 @@ Retrieve facts about one or more Enclosures
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
+- debug: var=enclosure_script
 - debug: var=enclosure_environmental_configuration
 - debug: var=enclosure_utilization
 
@@ -3366,6 +3368,7 @@ Retrieve facts about one or more Enclosures
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | enclosure_environmental_configuration   | Has all the OneView facts about the environmental configuration of an Enclosure. |  When requested, but can be null. |  dict |
+| enclosure_script   | Has all the OneView facts about the script of an Enclosure. |  When requested, but can be null. |  string |
 | enclosure_utilization   | Has all the OneView facts about the utilization of an Enclosure. |  When requested, but can be null. |  dict |
 | enclosures   | Has all the OneView facts about the Enclosures. |  Always, but can be null. |  dict |
 

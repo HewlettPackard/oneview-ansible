@@ -43,7 +43,7 @@ options:
     options:
       description:
         - "List with options to gather additional facts about an Enclosure and related resources.
-          Options allowed: C(environmentalConfiguration), and C(utilization). For the option C(utilization),
+          Options allowed: C(script), C(environmentalConfiguration), and C(utilization). For the option C(utilization),
           you can provide specific parameters."
 
 extends_documentation_fragment:
@@ -92,6 +92,7 @@ EXAMPLES = '''
   oneview_enclosure_facts:
     name: Test-Enclosure
     options:
+      - script                       # optional
       - environmentalConfiguration   # optional
       - utilization                  # optional
     hostname: 172.16.101.48
@@ -101,6 +102,7 @@ EXAMPLES = '''
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
+- debug: var=enclosure_script
 - debug: var=enclosure_environmental_configuration
 - debug: var=enclosure_utilization
 
@@ -132,6 +134,11 @@ enclosures:
     returned: Always, but can be null.
     type: dict
 
+enclosure_script:
+    description: Has all the OneView facts about the script of an Enclosure.
+    returned: When requested, but can be null.
+    type: string
+    
 enclosure_environmental_configuration:
     description: Has all the OneView facts about the environmental configuration of an Enclosure.
     returned: When requested, but can be null.
@@ -157,6 +164,8 @@ class EnclosureFactsModule(OneViewModule):
 
         ansible_facts = {}
 
+        if options.get('script'):
+            ansible_facts['enclosure_script'] = self.current_resource.get_script()
         if self.current_resource:
             enclosures = [self.current_resource.data]
             if self.options:
