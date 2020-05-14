@@ -1,0 +1,69 @@
+###
+# Copyright (2020) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+# This playbook will create server profile template with connections
+---
+- hosts: all
+  gather_facts: no
+
+  vars:
+    # Provide the OneView IP address and credentials in oneview-config.json
+    config: "{{ playbook_dir }}/oneview-config.json"
+
+  vars_files:
+    # Provide the names for the server profile template, enclosure group,
+    # server hardware type, and network in infrastructure-config.yml
+    - "{{ playbook_dir }}/infrastructure-config.yml"
+  
+  tasks:
+    - name: Gather facts about an Ethernet Network by name
+      oneview_ethernet_network_facts:
+        config: "{{ config }}"
+        name: "{{ network }}"
+      delegate_to: localhost
+
+    - name: Get the network
+      set_fact: network={{ ethernet_networks }}
+ 
+    - name: Create a server profile template
+      oneview_server_profile_template:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: "{{ server_profile_template }}"
+          serverHardwareTypeName: "{{ server_hardware_type }}"
+          enclosureGroupName: "{{ enclosure_group }}"
+          bootMode:
+            manageMode: true
+            mode: UEFI
+            pxeBootPolicy: Auto
+          bios:
+            manageBios: false
+          connectionSettings:
+            manageConnections: true
+            connections:
+              - id: 1
+                name: network1
+                functionType: Ethernet
+                portId: Auto
+                requestedMbps: 2500
+                networkUri: "{{ network.uri }}"
+        params:
+          force: "True"
+      delegate_to: localhost
+      register: result
+
+    - debug: msg="{{ result.msg }}"
+    - debug: msg="{{ result }}"
