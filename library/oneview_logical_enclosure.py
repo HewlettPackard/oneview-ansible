@@ -215,7 +215,7 @@ class LogicalEnclosureModule(OneViewModule):
     MSG_REQUIRED = "An existing Logical Enclosure is required."
     MSG_UPDATED_FROM_GROUP = 'Logical Enclosure updated from group successfully.'
     MSG_FIRMWARE_UPDATED = 'Logical Enclosure firmware updated.'
-    xMSG_CONFIGURATION_SCRIPT_UPDATED = 'Logical Enclosure configuration script updated.'
+    MSG_CONFIGURATION_SCRIPT_UPDATED = 'Logical Enclosure configuration script updated.'
     MSG_DUMP_GENERATED = 'Logical Enclosure support dump generated.'
     MSG_RECONFIGURED = 'Logical Enclosure configuration reapplied.'
     MSG_DELETED = 'Logical Enclosure deleted'

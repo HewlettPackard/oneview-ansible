@@ -6073,6 +6073,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
     options:
       - script
   delegate_to: localhost
+
 - debug: var=logical_enclosures
 - debug: var=logical_enclosure_script
 
@@ -6084,7 +6085,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| logical_enclosure_script   | Has the facts about the script of a Logical Enclosure. |  When required, but can be null. |  dict 
+| logical_enclosure_script   | Has the facts about the script of a Logical Enclosure. |  When required, but can be null. |  dict |
 | logical_enclosures   | Has all the OneView facts about the Logical Enclosures. |  Always, but can be null. |  dict |
 
 

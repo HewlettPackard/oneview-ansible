@@ -199,7 +199,7 @@ class TestLogicalEnclosureModule(OneViewBaseTest):
         LogicalEnclosureModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalEnclosureModule.MSG_REQUIRED)
-        
+
     def test_should_generate_support_dump_when_resource_exist(self):
         self.resource.data = DICT_DEFAULT_LOGICAL_ENCLOSURE
         self.resource.generate_support_dump.return_value = '/rest/appliance/dumpedfile'
