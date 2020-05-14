@@ -173,7 +173,6 @@ class VolumeFactsModule(OneViewModule):
 
     def _gather_facts_about_one_volume(self, volumes):
         facts = {}
-        
         if self.options.get('snapshots') and len(volumes) > 0:
             options_snapshots = self.options['snapshots']
             if isinstance(options_snapshots, dict) and 'name' in options_snapshots:

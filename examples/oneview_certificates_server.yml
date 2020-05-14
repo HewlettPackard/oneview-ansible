@@ -46,9 +46,7 @@
         state: present
         name: "{{ remote_server }}"
         data:
-          certificateDetails:
-            - aliasName: "{{ remote_server }}"
-              base64Data: "{{ certificate }}"
+          category: certificates
       delegate_to: localhost
 
     - name: Update the Server Certificate changing the attribute name
