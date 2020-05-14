@@ -1,17 +1,48 @@
 # Ansible Modules for HPE OneView Change Log
+## v5.6.0 (Unreleased)
 
-## v5.6.0
-This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2), 1200 (OneView v5.0) and 1600 (OneView v5.2).
+This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2), 1200 (OneView v5.0) and 1600 (OneView v5.2)
 
 #### Major changes
 1. Extended support of planned modules to API800/1000/1200/1600.
-2. Modules implemented in this release requires hpOneView version 5.2.
+2. Modules implemented in this release requires hpOneView version 5.2
 
-#### Modules supported in this release
+### Modules supported in this release
+- oneview_certificates_server
+- oneview_certificates_server_facts
+- oneview_ethernet_network
+- oneview_ethernet_network_facts
+- oneview_fc_network
+- oneview_fc_network_facts
+- oneview_fcoe_network
+- oneview_fcoe_network_facts
+- oneview_hypervisor_cluster_profile
+- oneview_hypervisor_cluster_profile_facts
+- oneview_hypervisor_manager
+- oneview_hypervisor_manager_facts
+- oneview_network_set
+- oneview_network_set_facts
 - oneview_server_hardware
 - oneview_server_hardware_facts
 - oneview_server_hardware_type
 - oneview_server_hardware_type_facts
+- oneview_server_profile_template
+- oneview_server_profile_template_facts
+- oneview_storage_pool
+- oneview_storage_pool_facts
+- oneview_storage_system
+- oneview_storage_system_facts
+- oneview_storage_volume
+- oneview_storage_volume_facts
+- oneview_storage_volume_attachment
+- oneview_storage_volume_attachment_facts
+- oneview_storage_volume_template
+- oneview_storage_volume_template_facts
+- oneview_uplink_set
+- oneview_uplink_set_facts
+
+#### Bug fixes & Enhancements
+- [#489](https://github.com/HewlettPackard/oneview-ansible/issues/489) Server Profile - create operation fails with an error -Value specified for enclosure is not valid or not supported
 
 
 ## v5.5.0
