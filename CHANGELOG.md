@@ -46,6 +46,13 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_server_profile_template
 - oneview_server_profile_template_facts
 
+## v5.6.0(unreleased)
+This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2) and 1200 (OneView v5.0) and 1600(Oneview v5.2).
+
+#### Modules supported in this release
+- oneview_enclosure
+- oneview_enclosure_facts
+
 ## v5.5.0
 This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2) and 1200 (OneView v5.0).
 
