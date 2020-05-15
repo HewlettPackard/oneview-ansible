@@ -17,10 +17,14 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_fc_network_facts
 - oneview_fcoe_network
 - oneview_fcoe_network_facts
+- oneview_hypervisor_cluster_profile
+- oneview_hypervisor_cluster_profile_facts
 - oneview_hypervisor_manager
 - oneview_hypervisor_manager_facts
 - oneview_network_set
 - oneview_network_set_facts
+- oneview_server_profile_template
+- oneview_server_profile_template_facts
 - oneview_server_profile
 - oneview_server_profile_facts
 - oneview_storage_pool
@@ -38,6 +42,7 @@ This release extends the planned support of the modules to OneView REST API vers
 
 #### Bug fixes & Enhancements
 - [#489](https://github.com/HewlettPackard/oneview-ansible/issues/489) Server Profile - create operation fails with an error -Value specified for enclosure is not valid or not supported
+
 
 ## v5.5.0
 This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2) and 1200 (OneView v5.0).
