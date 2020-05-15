@@ -37,6 +37,10 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_logical_interconnect_group_facts
 - oneview_network_set
 - oneview_network_set_facts
+- oneview_server_hardware
+- oneview_server_hardware_facts
+- oneview_server_hardware_type
+- oneview_server_hardware_type_facts
 - oneview_server_profile_template
 - oneview_server_profile_template_facts
 - oneview_storage_pool
