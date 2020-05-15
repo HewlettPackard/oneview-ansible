@@ -8,10 +8,16 @@ This release extends the planned support of the modules to OneView REST API vers
 2. Modules implemented in this release requires hpOneView version 5.2
 
 ### Modules supported in this release
+- image_streamer_deployment_plan
+- image_streamer_deployment_plan_facts
 - oneview_certificates_server
 - oneview_certificates_server_facts
 - oneview_ethernet_network
 - oneview_ethernet_network_facts
+- oneview_enclosure
+- oneview_enclosure_facts
+- oneview_enclosure_group
+- oneview_enclosure_group_facts
 - oneview_fc_network
 - oneview_fc_network_facts
 - oneview_fcoe_network
@@ -20,6 +26,15 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_hypervisor_cluster_profile_facts
 - oneview_hypervisor_manager
 - oneview_hypervisor_manager_facts
+- oneview_interconnect
+- oneview_interconnect_facts
+- oneview_interconnect_type_facts
+- oneview_logical_enclosures
+- oneview_logical_enclosures_facts
+- oneview_logical_interconnect
+- oneview_logical_interconnect_facts
+- oneview_logical_interconnect_group
+- oneview_logical_interconnect_group_facts
 - oneview_network_set
 - oneview_network_set_facts
 - oneview_server_hardware
@@ -38,12 +53,12 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_storage_volume_attachment_facts
 - oneview_storage_volume_template
 - oneview_storage_volume_template_facts
+- oneview_task_facts
 - oneview_uplink_set
 - oneview_uplink_set_facts
 
 #### Bug fixes & Enhancements
 - [#489](https://github.com/HewlettPackard/oneview-ansible/issues/489) Server Profile - create operation fails with an error -Value specified for enclosure is not valid or not supported
-
 
 ## v5.5.0
 This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2) and 1200 (OneView v5.0).
@@ -61,7 +76,6 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_hypervisor_manager_facts
 - oneview_server_hardware
 - oneview_server_hardware_facts
-
 
 ## v5.4.0
 This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2) and 1200 (OneView v5.0).

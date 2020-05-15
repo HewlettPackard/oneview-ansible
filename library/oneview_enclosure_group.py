@@ -53,7 +53,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     state: present
     data:
         name: "Enclosure Group 1"
@@ -74,7 +74,7 @@ EXAMPLES = '''
         hostname: 172.16.101.48
         username: administrator
         password: my_password
-        api_version: 1200
+        api_version: 1600
         state: present
         data:
             name: "Enclosure Group 1"
@@ -86,7 +86,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     state: absent
     data:
       name: "Enclosure Group 1 (renamed)"
