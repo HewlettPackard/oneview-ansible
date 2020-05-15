@@ -8,7 +8,6 @@ This release extends the planned support of the modules to OneView REST API vers
 2. Modules implemented in this release requires hpOneView version 5.2
 
 ### Modules supported in this release
-
 - image_streamer_deployment_plan
 - image_streamer_deployment_plan_facts
 - oneview_certificates_server
