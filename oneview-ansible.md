@@ -3551,7 +3551,6 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 | enclosure_group_script   | The configuration script for an Enclosure Group. |  When requested, but can be null. |  string |
 | enclosure_groups   | Has all the OneView facts about the Enclosure Groups. |  Always, but can be null. |  dict |
 
-
 #### Notes
 
 - A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json

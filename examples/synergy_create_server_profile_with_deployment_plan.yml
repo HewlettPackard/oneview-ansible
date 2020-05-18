@@ -1,5 +1,5 @@
 ###
-# Copyright (2017) Hewlett Packard Enterprise Development LP
+# Copyright (2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,15 +16,16 @@
 ---
 ###
 # This playbook is only compatible with HPE Synergy Enclosures
+# This playbook will create server profile with Nic connections using server profile template, deployment plan and os custom attributes
 ###
 - name: Deploy Server Profile from Template, selecting the right connection for Management NIC
   hosts: all
   gather_facts: no
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - deployment_plan_name: 'update-nodejs-stack-RHEL7.2'
+    - deployment_plan_name: 'Deploy-HPE-Esxi-6.2-U2'
     - management_network_name: 'mgmt'
-    - server_template_name: 'webserver-template'
+    - server_template_name: 'SP_hcp'
 
   tasks:
     - name: Gather facts about the Server Profile Template to retrieve connection information
@@ -34,7 +35,7 @@
       delegate_to: localhost
 
     - name: Find the connection by management network name
-      set_fact: connection={{ server_profile_templates.0.connections | selectattr('name', 'equalto', management_network_name) | first }}
+      set_fact: connection={{ server_profile_templates.0.connectionSettings.connections | selectattr('name', 'equalto', management_network_name) | first }}
 
     - name : "Create server profile with deployment plan {{ deployment_plan_name }}"
       delegate_to: localhost
@@ -42,17 +43,25 @@
         config: "{{ config }}"
         data:
             name: "{{ inventory_hostname }}"
-            server_template: "{{ server_template_name }}"
+            serverProfileTemplateName: "{{ server_template_name }}"
             osDeploymentSettings:
               osDeploymentPlanName: "{{ deployment_plan_name }}"
               osCustomAttributes:
-                -  name: MgmtNIC1.connectionid
+                -  name: ManagementNIC.connectionid
                    value: '{{ connection.id }}'
-                -  name: MgmtNIC1.dhcp
+                -  name:  ManagementNIC.dhcp
                    value: false
-                -  name: MgmtNIC1.ipv4disable
+                -  name:  ManagementNIC.ipv4disable
                    value: false
-                -  name: MgmtNIC1.networkuri
+                -  name:  ManagementNIC.networkuri
                    value: '{{ connection.networkUri }}'
-                -  name: MgmtNIC1.constraint
+                -  name:  ManagementNIC.constraint
                    value: auto
+                -  name: Hostname
+                   value: myhost
+                -  name: DomainName
+                   value: testhpe.com
+                -  name: SSH
+                   value: enabled
+                -  name: Password
+                   value: None

@@ -60,6 +60,14 @@
             newName: "Enclosure Group 1 (renamed)"
       delegate_to: localhost
 
+    - name: Delete the Enclosure Group
+      oneview_enclosure_group:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: "Enclosure Group 1 (renamed)"
+      delegate_to: localhost
+
     - name: Update the Enclosure Group configuration script
       oneview_enclosure_group:
         config: "{{ config }}"
@@ -67,14 +75,6 @@
         data:
             name: "Enclosure Group 1 (renamed)"
 #            configurationScript: "# script (updated)"
-      delegate_to: localhost
-
-    - name: Delete the Enclosure Group
-      oneview_enclosure_group:
-        config: "{{ config }}"
-        state: absent
-        data:
-          name: "Enclosure Group 1 (renamed)"
       delegate_to: localhost
 
     - name: Do nothing when Enclosure Group is absent
