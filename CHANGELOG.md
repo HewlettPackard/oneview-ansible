@@ -42,6 +42,8 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_logical_interconnect_group_facts
 - oneview_network_set
 - oneview_network_set_facts
+- oneview_scope
+- oneview_scope_facts
 - oneview_server_hardware
 - oneview_server_hardware_facts
 - oneview_server_hardware_type
@@ -81,7 +83,6 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_hypervisor_manager_facts
 - oneview_server_hardware
 - oneview_server_hardware_facts
-
 
 ## v5.4.0
 This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2) and 1200 (OneView v5.0).
