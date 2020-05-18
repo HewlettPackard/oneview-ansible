@@ -3,6 +3,11 @@
 
 This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2), 1200 (OneView v5.0) and 1600 (OneView v5.2)
 
+- Added usecases for the following scenarios
+  1. Infrastructure provisioning with OS on Synergy with Image Streamer and having NIC connections.
+  2. Server Profile creation with network connections using profile template and power it on.
+  3. Cleanup activity which includes power off the server hardware, delete the profile and template.
+
 #### Major changes
 1. Extended support of planned modules to API800/1000/1200/1600.
 2. Modules implemented in this release requires hpOneView version 5.2
