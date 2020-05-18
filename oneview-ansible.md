@@ -9906,6 +9906,7 @@ Manage OneView Server Profile resources
     api_version: 1200
     data:
       name: server-profile-with-connections
+      serverHardwareTypeName: "BL460c Gen8 1"
       connectionSettings:
         connections:
           - id: 1

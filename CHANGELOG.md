@@ -1,16 +1,13 @@
 # Ansible Modules for HPE OneView Change Log
+
 ## v5.6.0 (Unreleased)
 
-This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2), 1200 (OneView v5.0) and 1600 (OneView v5.2)
+Extends support of the SDK to OneView REST API version 1600 (OneView v5.20).
 
-- Added usecases for the following scenarios
+Added usecases for the following scenarios
   1. Infrastructure provisioning with OS on Synergy with Image Streamer and having NIC connections.
   2. Server Profile creation with network connections using profile template and power it on.
   3. Cleanup activity which includes power off the server hardware, delete the profile and template.
-
-#### Major changes
-1. Extended support of planned modules to API800/1000/1200/1600.
-2. Modules implemented in this release requires hpOneView version 5.2
 
 ### Modules supported in this release
 - image_streamer_deployment_plan
@@ -48,6 +45,8 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_server_hardware_facts
 - oneview_server_hardware_type
 - oneview_server_hardware_type_facts
+- oneview_server_profile
+- oneview_server_profile_facts
 - oneview_server_profile_template
 - oneview_server_profile_template_facts
 - oneview_storage_pool
