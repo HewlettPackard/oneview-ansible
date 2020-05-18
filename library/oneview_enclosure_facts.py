@@ -57,7 +57,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -72,7 +72,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -83,7 +83,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -98,7 +98,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
@@ -121,7 +121,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
   no_log: true
   delegate_to: localhost
 - debug: var=enclosures
