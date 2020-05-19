@@ -170,7 +170,7 @@ class TestArtifactBundleModule(ImageStreamerBaseTest):
             ansible_facts=dict(artifact_bundle=DICT_DEFAULT_ARTIFACT_BUNDLE)
         )
 
-    def test_should_delete_hypervisor_cluster_profile_when_resource_exist(self):
+    def test_should_delete_when_resource_exist(self):
         self.resource.data = DICT_DEFAULT_ARTIFACT_BUNDLE
         self.resource.delete.return_value = True
         self.mock_ansible_module.params = yaml.load(YAML_ARTIFACT_BUNDLE_ABSENT)
