@@ -39,7 +39,7 @@ options:
       required: false
     options:
       description:
-        - "List with options to gather additional facts about the Artifact Bundle.
+        - List with options to gather additional facts about the Artifact Bundle.
           Options allowed:
           C(allBackups) gets the list of backups for the Artifact Bundles.
       required: false
