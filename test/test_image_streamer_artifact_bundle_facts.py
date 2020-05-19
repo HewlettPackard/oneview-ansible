@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@ import pytest
 
 from hpe_test_utils import ImageStreamerBaseFactsTest
 from oneview_module_loader import ArtifactBundleFactsModule
-
-ERROR_MSG = 'Fake message error'
 
 
 @pytest.mark.resource(TestArtifactBundleFactsModule='artifact_bundles')
@@ -66,21 +64,6 @@ class TestArtifactBundleFactsModule(ImageStreamerBaseFactsTest):
             changed=False,
             ansible_facts=dict(artifact_bundles=[self.ARTIFACT_BUNDLE], artifact_bundle_backups=[self.ARTIFACT_BUNDLE])
         )
-
-    def test_get_backup_for_an_artifact_bundle(self):
-        self.resource.get_by.return_value = [self.ARTIFACT_BUNDLE]
-        self.resource.get_backup.return_value = [self.ARTIFACT_BUNDLE]
-
-        self.mock_ansible_module.params = self.EXAMPLES[9]['image_streamer_artifact_bundle_facts']
-
-        ArtifactBundleFactsModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            ansible_facts=dict(artifact_bundles=[self.ARTIFACT_BUNDLE],
-                               backup_for_artifact_bundle=[self.ARTIFACT_BUNDLE])
-        )
-
 
 if __name__ == '__main__':
     pytest.main([__file__])
