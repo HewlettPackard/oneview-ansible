@@ -502,21 +502,21 @@
 | Endpoints                                                                       | Verb     | V300 | V500 |V600 |V800 |V1000 |V1020               |V1600
 | --------------------------------------------------------------------------------------- | -------- | :------------------: | :------------------: | :------------------: | :------------------: | :------------------: | :------------------: | :------------------: |
 |     **Artifacts Bundle**                                                                                         |
-|<sub>	/rest/artifact-bundles	</sub>                                                  | GET | :white_check_mark: |
-|<sub>	/rest/artifact-bundles	</sub>                                       |  POST(create)  | :white_check_mark: |
-|<sub>	/rest/artifact-bundles	</sub>                                       |  POST(upload)  | :white_check_mark: |
-|<sub>	/rest/artifact-bundles/backups	</sub>                                          | GET | :white_check_mark: |
-|<sub>	/rest/artifact-bundles/backups	</sub>                                 | POST(create) | :white_check_mark: |
-|<sub>	/rest/artifact-bundles/backups/archive	</sub>                         | POST(upload) | :white_check_mark: |
-|<sub>	/rest/artifact-bundles/backups/archive/{id}	</sub>                          | GET | :white_check_mark: |
-|<sub>	/rest/artifact-bundles/backups/{id}	</sub>                                  | GET | :white_check_mark: |
-|<sub>	/rest/artifact-bundles/backups/{id}	</sub>                                  | PUT | :white_check_mark: |
-|<sub>	/rest/artifact-bundles/download/{id}	</sub>                                  | GET | :white_check_mark: |
-|<sub>	/rest/artifact-bundles/{id}	</sub>                                          | GET | :white_check_mark: |
-|<sub>	/rest/artifact-bundles/{id}	</sub>                             | PUT(extract)     | :white_check_mark: |
-|<sub>	/rest/artifact-bundles/{id}	</sub>                             | PUT(update attr) | :white_check_mark: |
-|<sub>	/rest/artifact-bundles/{id}	</sub>                             | DELETE           | :white_check_mark: |
-|<sub>	/rest/artifact-bundles/{id}/stopArtifactCreate	</sub>             | PUT              | :white_check_mark: |
+|<sub>	/rest/artifact-bundles	</sub>                                     | GET              | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub>	/rest/artifact-bundles	</sub>                                     |  POST(create)    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub>	/rest/artifact-bundles	</sub>                                     |  POST(upload)    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub>	/rest/artifact-bundles/backups	</sub>                             | GET              | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub>	/rest/artifact-bundles/backups	</sub>                             | POST(create)     | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub>	/rest/artifact-bundles/backups/archive	</sub>                     | POST(upload)     | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub>	/rest/artifact-bundles/backups/archive/{id} </sub>                 | GET              | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub>	/rest/artifact-bundles/backups/{id} </sub>                         | GET              | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub>	/rest/artifact-bundles/backups/{id} </sub>                         | PUT              | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub>	/rest/artifact-bundles/download/{id} </sub>                        | GET              | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub>	/rest/artifact-bundles/{id} </sub>                                 | GET              | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub>	/rest/artifact-bundles/{id} </sub>                                 | PUT(extract)     | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub>	/rest/artifact-bundles/{id} </sub>                                 | PUT(update attr) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub>	/rest/artifact-bundles/{id} </sub>                                 | DELETE           | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+|<sub>	/rest/artifact-bundles/{id}/stopArtifactCreate  </sub>             | PUT              | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 |     **Deployment Groups**                                                                                        |
 |<sub> /rest/deployment-groups</sub>                                       | GET              | :white_check_mark: |
 |<sub> /rest/deployment-groups/{id}</sub>                                  | GET              | :white_check_mark: |
