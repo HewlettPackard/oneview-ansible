@@ -40,8 +40,8 @@ options:
     options:
       description:
         - List with options to gather additional facts about the Artifact Bundle.
-          Options allowed:
-          C(allBackups) gets the list of backups for the Artifact Bundles.
+      options_allowed:
+        - C(allBackups) gets the list of backups for the Artifact Bundles.
       required: false
 
 extends_documentation_fragment:
