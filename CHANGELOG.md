@@ -10,6 +10,8 @@ Added usecases for the following scenarios
   3. Cleanup activity which includes power off the server hardware, delete the profile and template.
 
 ### Modules supported in this release
+- image_streamer_artifact_bundle
+- image_streamer_artifact_bundle_facts
 - image_streamer_deployment_plan
 - image_streamer_deployment_plan_facts
 - oneview_certificates_server

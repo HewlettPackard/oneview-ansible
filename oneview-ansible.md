@@ -277,8 +277,8 @@ Manage the Artifact Bundle resource.
  Provides an interface to manage the Artifact Bundle. Can create, update, remove, and download, upload, extract
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * python >= 3.4.2
+  * hpOneView >= 5.2.0
 
 #### Options
 
@@ -413,8 +413,8 @@ Retrieve facts about the Artifact Bundle.
  Retrieve facts about the Artifact Bundle.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpOneView >= 3.0.1
+  * python >= 3.4.2
+  * hpOneView >= 5.2.0
 
 #### Options
 
@@ -464,17 +464,6 @@ Retrieve facts about the Artifact Bundle.
   delegate_to: localhost
 - debug: var=artifact_bundles
 - debug: var=artifact_bundle_backups
-
-- name: Gather facts about Backup for an Artifact Bundle
-  image_streamer_artifact_bundle_facts:
-    config: "{{ config }}"
-    name: "Artifact Bundles Test"
-    options:
-      - backupForAnArtifactBundle
-  delegate_to: localhost
-- debug: var=artifact_bundles
-- debug: var=backup_for_artifact_bundle
-
 ```
 
 
@@ -485,7 +474,6 @@ Retrieve facts about the Artifact Bundle.
 | ------------- |-------------| ---------|----------- |
 | artifact_bundle_backups   | The list of backups for the Artifact Bundles. |  When requested, but can also be null. |  list |
 | artifact_bundles   | The list of Artifact Bundles. |  Always, but can be also null. |  list |
-| backup_for_artifact_bundle   | The backup for an Artifact Bundle. |  When requested, but can also be null. |  list |
 
 
 #### Notes
