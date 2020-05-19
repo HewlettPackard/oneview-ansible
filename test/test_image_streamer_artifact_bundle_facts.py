@@ -62,7 +62,7 @@ class TestArtifactBundleFactsModule(ImageStreamerBaseFactsTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(artifact_bundles=[self.ARTIFACT_BUNDLE], artifact_bundle_backups=[self.ARTIFACT_BUNDLE])
+            ansible_facts=dict(artifact_bundle_backups=[self.ARTIFACT_BUNDLE])
         )
 
 if __name__ == '__main__':

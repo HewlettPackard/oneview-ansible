@@ -30,21 +30,21 @@ YAML_ARTIFACT_BUNDLE = """
     state: present
     data:
         uri: /rest/artifact-bundles/4671582d-1746-4122-9cf0-642a59543509
-        name: "hcp"
+        name: "AB"
     """
 
 YAML_ARTIFACT_BUNDLE_PRESENT = """
         config: "{{ config }}"
         state: present
         data:
-            name: "hcp"
+            name: "AB"
         """
 
 YAML_ARTIFACT_BUNDLE_UPLOAD = """
         config: "{{ config }}"
         state: present
         data:
-            name: "hcp"
+            name: "AB"
             localArtifactBundleFilePath: "ab_path"
         """
 
@@ -82,21 +82,21 @@ YAML_ARTIFACT_BUNDLE_EXTRACT = """
         config: "{{ config }}"
         state: extract
         data:
-            name: "ab"
+            name: "AB"
         """
 
 YAML_ARTIFACT_BUNDLE_BACKUP_CREATE = """
         config: "{{ config }}"
         state: backup_create
         data:
-            name: "ab_backup"
+            name: "AB_backup"
         """
 
 YAML_ARTIFACT_BUNDLE_BACKUP_EXTRACT = """
         config: "{{ config }}"
         state: backup_extract
         data:
-            name: "ab_backup"
+            name: "AB_backup"
         """
 
 YAML_ARTIFACT_BUNDLE_BACKUP_UPLOAD = """
@@ -139,7 +139,7 @@ class TestArtifactBundleModule(ImageStreamerBaseTest):
 
     def test_should_not_update_when_existing_data_is_equals(self):
         self.resource.data = DICT_DEFAULT_ARTIFACT_BUNDLE
-        self.mock_ansible_module.params = yaml.load(YAML_ARTIFACT_BUNDLE_NO_RENAME)
+        self.mock_ansible_module.params = yaml.load(YAML_ARTIFACT_BUNDLE_PRESENT)
 
         ArtifactBundleModule().run()
 
@@ -188,7 +188,7 @@ class TestArtifactBundleModule(ImageStreamerBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ArtifactBundleModule.MSG_DELETED,
-            ansible_facts=dict(artifact_bundle=None)
+            ansible_facts=dict()
         )
 
     def test_should_do_nothing_when_resource_already_absent(self):
@@ -200,7 +200,7 @@ class TestArtifactBundleModule(ImageStreamerBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=ArtifactBundleModule.MSG_ALREADY_ABSENT,
-            ansible_facts=dict(artifact_bundle=None)
+            ansible_facts=dict()
         )
 
     def test_should_download(self):
@@ -248,7 +248,7 @@ class TestArtifactBundleModule(ImageStreamerBaseTest):
     def test_should_create_backup(self):
         self.resource.create_backup.return_value = self.resource
         self.resource.data = DICT_DEFAULT_ARTIFACT_BUNDLE
-        self.mock_ansible_module.params = yaml.load(YAML_ARTIFACT_BUNDLE_PRESENT)
+        self.mock_ansible_module.params = yaml.load(YAML_ARTIFACT_BUNDLE_BACKUP_CREATE)
 
         ArtifactBundleModule().run()
 
