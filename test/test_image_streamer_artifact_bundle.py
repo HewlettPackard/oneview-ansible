@@ -67,6 +67,7 @@ YAML_ARTIFACT_BUNDLE_DOWNLOAD = """
         config: "{{ config }}"
         state: download
         data:
+            name: "AB"
             destinationFilePath: "ab_path"
         """
 
