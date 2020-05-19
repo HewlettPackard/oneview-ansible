@@ -72,17 +72,17 @@ tasks:
     type: list
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class TaskFactsModule(OneViewModuleBase):
+class TaskFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(
             params=dict(required=False, type='dict')
         )
         super(TaskFactsModule, self).__init__(additional_arg_spec=argument_spec)
 
-        self.resource_client = self.oneview_client.tasks
+        self.set_resource_object(self.oneview_client.tasks)
 
     def execute_module(self):
         facts = self.resource_client.get_all(**self.facts_params)
