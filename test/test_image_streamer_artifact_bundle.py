@@ -203,6 +203,7 @@ class TestArtifactBundleModule(ImageStreamerBaseTest):
 
     def test_should_download(self):
         self.resource.data = DICT_DEFAULT_ARTIFACT_BUNDLE
+        self.resource.get_by_name.return_value = self.resource
         self.resource.download.return_value = True
         self.mock_ansible_module.params = yaml.load(YAML_ARTIFACT_BUNDLE_DOWNLOAD)
 
@@ -259,7 +260,7 @@ class TestArtifactBundleModule(ImageStreamerBaseTest):
     def test_should_download_backup(self):
         self.resource.data = DICT_DEFAULT_ARTIFACT_BUNDLE
         self.resource.get_all_backups.return_value = [DICT_DEFAULT_ARTIFACT_BUNDLE]
-        self.resource.get_backup.return_value = DICT_DEFAULT_ARTIFACT_BUNDLE
+        self.resource.get_backup.return_value = self.resource
         self.resource.download_archive.return_value = True
         self.mock_ansible_module.params = yaml.load(YAML_ARTIFACT_BUNDLE_BACKUP_DOWNLOAD)
 
@@ -282,7 +283,7 @@ class TestArtifactBundleModule(ImageStreamerBaseTest):
     def test_should_extract_backup(self):
         self.resource.data = DICT_DEFAULT_ARTIFACT_BUNDLE
         self.resource.get_all_backups.return_value = [DICT_DEFAULT_ARTIFACT_BUNDLE]
-        self.resource.get_backup.return_value = DICT_DEFAULT_ARTIFACT_BUNDLE
+        self.resource.get_backup.return_value = self.resource
         self.resource.extract_backup.return_value = DICT_DEFAULT_ARTIFACT_BUNDLE
         self.mock_ansible_module.params = yaml.load(YAML_ARTIFACT_BUNDLE_BACKUP_EXTRACT)
 
