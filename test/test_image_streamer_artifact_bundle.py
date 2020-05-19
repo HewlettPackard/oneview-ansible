@@ -188,7 +188,6 @@ class TestArtifactBundleModule(ImageStreamerBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ArtifactBundleModule.MSG_DELETED,
-            ansible_facts=dict()
         )
 
     def test_should_do_nothing_when_resource_already_absent(self):
@@ -200,7 +199,6 @@ class TestArtifactBundleModule(ImageStreamerBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=ArtifactBundleModule.MSG_ALREADY_ABSENT,
-            ansible_facts=dict()
         )
 
     def test_should_download(self):
