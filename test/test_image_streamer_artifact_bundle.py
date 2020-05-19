@@ -56,14 +56,6 @@ YAML_ARTIFACT_BUNDLE_RENAME = """
             newName: "AB (renamed)"
         """
 
-YAML_ARTIFACT_BUNDLE_NO_RENAME = """
-    config: "{{ config }}"
-    state: present
-    data:
-        name: "AB (renamed)"
-        newName: "AB"
-    """
-
 YAML_ARTIFACT_BUNDLE_ABSENT = """
         config: "{{ config }}"
         state: absent

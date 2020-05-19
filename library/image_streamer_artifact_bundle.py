@@ -249,7 +249,6 @@ class ArtifactBundleModule(OneViewModule):
     def __download(self):
         if not self.current_resource:
             raise OneViewModuleResourceNotFound(self.MSG_REQUIRED)
-
         self.current_resource.download(self.data['destinationFilePath'])
         return False, self.MSG_DOWNLOADED, {}
 
