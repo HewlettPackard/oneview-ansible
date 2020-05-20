@@ -1,6 +1,6 @@
 # Ansible Modules for HPE OneView Change Log
 
-## v5.6.0 (Unreleased)
+## v5.6.0
 
 Extends support of the SDK to OneView REST API version 1600 (OneView v5.20).
 
