@@ -1,6 +1,6 @@
 # Ansible Modules for HPE OneView Change Log
 
-## v5.6.0 (Unreleased)
+## v5.6.0
 
 Extends support of the SDK to OneView REST API version 1600 (OneView v5.20).
 
@@ -16,12 +16,12 @@ Added usecases for the following scenarios
 - image_streamer_deployment_plan_facts
 - oneview_certificates_server
 - oneview_certificates_server_facts
-- oneview_ethernet_network
-- oneview_ethernet_network_facts
 - oneview_enclosure
 - oneview_enclosure_facts
 - oneview_enclosure_group
 - oneview_enclosure_group_facts
+- oneview_ethernet_network
+- oneview_ethernet_network_facts
 - oneview_fc_network
 - oneview_fc_network_facts
 - oneview_fcoe_network
