@@ -20,6 +20,8 @@
     - config: "{{ playbook_dir }}/oneview_config.json"
     # name examples: "172.18.6.15", "Encl1, bay 1"
     - server_hardware_name: "SYN03_Frame1, bay 1"
+    - server_hardware_uri: "/rest/server-hardware/30373737-3237-4D32-3230-333031354752"
+
   tasks:
     - name: Gather facts about all Server Hardwares
       oneview_server_hardware_facts:
@@ -50,6 +52,13 @@
 
     - debug: var=server_hardwares
 
+    - name: Gather facts about a Server Hardware by uri
+      oneview_server_hardware_facts:
+        config: "{{ config }}"
+        uri: "{{ server_hardware_uri }}"
+      delegate_to: localhost
+
+    - debug: var=server_hardwares
 
     - name: Gather BIOS facts about a Server Hardware
       oneview_server_hardware_facts:

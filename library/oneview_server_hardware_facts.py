@@ -89,6 +89,16 @@ EXAMPLES = '''
 
 - debug: var=server_hardwares
 
+- name: Gather facts about a Server Hardware by uri
+  oneview_server_hardware_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    uri: "/rest/server-hardware/30373737-3237-4D32-3230-333031354752"
+  delegate_to: localhost
+
+- debug: var=server_hardwares
 
 - name: Gather BIOS facts about a Server Hardware
   oneview_server_hardware_facts:
@@ -209,6 +219,7 @@ class ServerHardwareFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(
             name=dict(required=False, type='str'),
+            uri=dict(required=False, type='str'),
             options=dict(required=False, type='list'),
             params=dict(required=False, type='dict')
         )

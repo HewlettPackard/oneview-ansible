@@ -1,5 +1,10 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v5.7.0
+
+#### Bug fixes & Enhancements
+- [#525](https://github.com/HewlettPackard/oneview-ansible/issues/525)Server Hardware Facts - Extract the Server Hardware Details by URI.
+
 ## v5.6.0
 
 Extends support of the SDK to OneView REST API version 1600 (OneView v5.20).
