@@ -220,7 +220,7 @@ class VolumeModule(OneViewModule):
     MSG_ALREADY_ABSENT = 'Volume is already absent.'
     MSG_NO_OPTIONS_PROVIDED = 'No options provided.'
     MSG_NEW_NAME_INVALID = 'Rename failed: the new name provided is being used by another Volume.'
-    MSG_NO_CHANGES_PROVIDED = 'No changed have been provided fro the update.'
+    MSG_NO_CHANGES_PROVIDED = 'No changes have been provided for the update.'
 
     def __init__(self):
         argument_spec = dict(
@@ -313,7 +313,14 @@ class VolumeModule(OneViewModule):
             self.data["name"] = self.data.pop("newName")
 
         merged_data = self.current_resource.data.copy()
-        merged_data.update(self.data)
+        input_data = self.data.copy()
+
+        if input_data.get("properties"):
+            del input_data["properties"]
+        if input_data.get("templateUri"):
+            input_data["volumeTemplateUri"] = input_data.pop("templateUri")
+
+        merged_data.update(input_data)
 
         if compare(self.current_resource.data, merged_data):
             changed = False
