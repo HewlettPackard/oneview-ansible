@@ -105,6 +105,7 @@ example:
   "credentials": {
     "userName": "Administrator",
     "authLoginDomain": "",
+    "loginMsgAck": true,  # This parameter is required if "Require Acknowledgement" is enabled in oneview
     "password": "secret123"
   },
   "api_version": 200
@@ -140,6 +141,7 @@ If you prefer, the configuration can also be stored in environment variables.
 export ONEVIEWSDK_IP='172.25.105.12'
 export ONEVIEWSDK_USERNAME='Administrator'
 export ONEVIEWSDK_PASSWORD='secret123'
+export ONEVIEWSDK_LOGIN_MSG_ACK=true    # This parameter is required if "Require Acknowledgement" is enabled in oneview
 
 # Optional
 export ONEVIEWSDK_API_VERSION='200'  # default value is 300
@@ -171,6 +173,7 @@ This option allows the parameters `hostname`, `username`, `password`, `api_versi
     hostname: 172.16.101.48
     username: administrator
     password: my_password
+    login_msg_ack: true   # This parameter is required if "Require Acknowledgement" is enabled in oneview, set as true by default
     api_version: 1200
     state: present
     data:
@@ -186,19 +189,19 @@ Setting `no_log: true` is highly recommended in this case, as the credentials ar
 
 ### 5. Setting your OneView version
 
-The Ansible modules for HPE OneView support the API endpoints for HPE OneView 2.0, 3.0, 3.10, 4.0 and 4.10.
+The Ansible modules for HPE OneView support the API endpoints for HPE OneView 2.0, 3.0, 3.10, 4.0, 4.10, 5.00 and 5.20
 
 The current `default` HPE OneView version used by the modules is `3.00`, API `300`.
 
 To use a different API, you must set the API version together with your credentials, either using the JSON configuration:
 
 ```json
-"api_version": 1200
+"api_version": 1600
 ```
 OR using the Environment variable:
 
 ```bash
-export ONEVIEWSDK_API_VERSION='1200'
+export ONEVIEWSDK_API_VERSION='1600'
 ```
 
 If this property is not specified, it will fall back to the ```300``` default value.
@@ -212,6 +215,7 @@ The API list is as follows:
 - HPE OneView 4.10 API version: `800`
 - HPE OneView 4.20 API version: `1000`
 - HPE OneView 5.00 API version: `1200`
+- HPE OneView 5.20 API version: `1600`
 
 ### 6. HPE Synergy Image Streamer
 
