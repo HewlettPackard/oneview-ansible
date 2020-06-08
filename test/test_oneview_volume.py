@@ -284,8 +284,8 @@ class TestVolumeModule(OneViewBaseTest):
         VolumeModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            msg=VolumeModule.MSG_NO_CHANGES_PROVIDED,
+            changed=True,
+            msg=VolumeModule.MSG_UPDATED,
             ansible_facts=dict(storage_volume=self.resource.data)
         )
 
