@@ -276,10 +276,10 @@ class TestVolumeModule(OneViewBaseTest):
         )
 
     def test_update_should_do_nothing_when_volume_already_exists_with_template(self):
-        self.resource.data = PARAMS_FOR_UPDATE_template["data"]
+        self.resource.data = PARAMS_FOR_PRESENT["data"]
         self.resource.get_by_name.return_value = self.resource
 
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+        self.mock_ansible_module.params = PARAMS_FOR_UPDATE_template
 
         VolumeModule().run()
 
