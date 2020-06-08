@@ -395,7 +395,7 @@ class OneViewModule(object):
             config = dict(ip=self.module.params['hostname'],
                           credentials=dict(userName=self.module.params['username'], password=self.module.params['password'],
                                            authLoginDomain=self.module.params.get('auth_login_domain', ''),
-                                           loginMsgAck=self.module.params.get('login_msg_ack', true)),
+                                           loginMsgAck=self.module.params.get('login_msg_ack', True)),
                           api_version=self.module.params['api_version'],
                           image_streamer_ip=self.module.params['image_streamer_hostname'])
             self.oneview_client = OneViewClient(config)
