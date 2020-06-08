@@ -182,7 +182,7 @@ class TestOneViewModule():
         params = {'hostname': '172.16.1.1', 'username': 'admin', 'password': 'mypass', 'api_version': 500,
                   'image_streamer_hostname': '172.16.1.2'}
         params_for_expect = {'image_streamer_ip': '172.16.1.2', 'api_version': 500, 'ip': '172.16.1.1',
-                             'credentials': {'userName': 'admin', 'password': 'mypass', 'authLoginDomain': ''}}
+                             'credentials': {'userName': 'admin', 'password': 'mypass', 'authLoginDomain': '', 'loginMsgAck': True}}
         self.mock_ansible_module.params = params
 
         with mock.patch('module_utils.oneview.OneViewClient', first='one', second='two') as mock_ov_client_from_credentials:
@@ -197,7 +197,7 @@ class TestOneViewModule():
         params = {'hostname': '172.16.1.1', 'username': 'admin', 'password': 'mypass', 'api_version': 500,
                   'image_streamer_hostname': '172.16.1.2', 'auth_login_domain': 'ADDomain'}
         params_for_expect = {'image_streamer_ip': '172.16.1.2', 'api_version': 500, 'ip': '172.16.1.1',
-                             'credentials': {'userName': 'admin', 'password': 'mypass', 'authLoginDomain': 'ADDomain'}}
+                             'credentials': {'userName': 'admin', 'password': 'mypass', 'authLoginDomain': 'ADDomain', 'loginMsgAck': True}}
         self.mock_ansible_module.params = params
 
         with mock.patch('module_utils.oneview.OneViewClient', first='one', second='two') as mock_ov_client_from_credentials:
