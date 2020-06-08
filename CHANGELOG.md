@@ -3,7 +3,7 @@
 ## v5.6.1 (unreleased)
 
 #### Bug fixes & Enhancements
-- [#470](https://github.com/HewlettPackard/oneview-ansible/issues/470) Error while executing ansible-playbook using example YAMl file
+- [#470](https://github.com/HewlettPackard/oneview-ansible/issues/470) Error while executing ansible-playbook using example YAML file
 
 ## v5.6.0
 
