@@ -230,12 +230,7 @@ class ServerHardwareFactsModule(OneViewModule):
         ansible_facts = {}
         server_hardwares = []
 
-        if self.module.params.get('name'):
-            if self.current_resource:
-                server_hardwares = self.current_resource.data
-                if self.options:
-                    ansible_facts = self.gather_option_facts()
-        elif self.module.params.get('uri'):
+        if self.module.params.get('name') or self.module.params.get('uri'):
             if self.current_resource:
                 server_hardwares = self.current_resource.data
                 if self.options:

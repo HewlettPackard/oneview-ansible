@@ -9501,7 +9501,7 @@ Retrieve facts about the OneView Server Hardware.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Server Hardware name.  |
-| uri  |   No  |  | |  Server Hardware URI.  |
+| uri  |   No  |  | |  Server Hardware uri.  |
 | options  |   No  |  | |  List with options to gather additional facts about Server Hardware related resources. Options allowed: `bios`, `javaRemoteConsoleUrl`, `environmentalConfig`, `iloSsoUrl`, `remoteConsoleUrl`, `utilization`, `firmware`, `firmwares` and `physicalServerHardware`.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
@@ -9555,10 +9555,11 @@ Retrieve facts about the OneView Server Hardware.
     username: administrator
     password: my_password
     api_version: 1200
-    uri: "/rest/server-hardware/123-45-67-89-123"
+    uri: "/rest/server-hardware/30303437-3034-4D32-3230-313030364752"
   delegate_to: localhost
 
 - debug: var=server_hardwares
+
 
 - name: Gather BIOS facts about a Server Hardware
   oneview_server_hardware_facts:
