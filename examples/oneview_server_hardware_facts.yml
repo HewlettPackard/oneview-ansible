@@ -45,7 +45,7 @@
 
 
     - name: Gather facts about a Server Hardware by name
-       oneview_server_hardware_facts:
+      oneview_server_hardware_facts:
         config: "{{ config }}"
         name: "{{ server_hardware_name }}"
       delegate_to: localhost
