@@ -35,6 +35,7 @@ PARAMS_GET_BY_NAME = dict(
 
 PARAMS_GET_BY_URI = dict(
     config='config.json',
+    name="Test Server Hardware",
     uri="resource_uri"
 )
 
@@ -89,14 +90,14 @@ class TestServerHardwareFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_server_hardware_by_uri(self):
-        self.resource.data = { "uri": "resource_uri"}
+        self.resource.data = {"name": "Server Hardware Name", "uri": "resource_uri"}
         self.mock_ansible_module.params = PARAMS_GET_BY_URI
 
         ServerHardwareFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(server_hardwares=({"uri": "resource_uri"}))
+            ansible_facts=dict(server_hardwares=({"name": "Server Hardware Name", "uri": "resource_uri"}))
         )
 
     def test_should_get_server_hardware_by_name_with_options(self):
