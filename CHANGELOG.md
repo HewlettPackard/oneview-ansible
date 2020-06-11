@@ -1,5 +1,10 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v5.6.1 (unreleased)
+
+#### Bug fixes & Enhancements
+- [#487](https://github.com/HewlettPackard/oneview-ansible/issues/487) Fails Server profile update in case of existing network_set
+
 ## v5.6.0
 
 Extends support of the SDK to OneView REST API version 1600 (OneView v5.20).
