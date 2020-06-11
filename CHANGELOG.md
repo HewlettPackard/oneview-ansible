@@ -1,5 +1,9 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v5.6.1(unreleased)
+#### Bug fixes & Enhancements
+- [#341](https://github.com/HewlettPackard/oneview-ansible/issues/341) Logical_Interconnect_Group Module , idempotency , Uplinksets for Synergy.
+
 ## v5.6.0
 
 Extends support of the SDK to OneView REST API version 1600 (OneView v5.20).
