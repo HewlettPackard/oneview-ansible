@@ -1060,7 +1060,7 @@ class ServerProfileReplaceNamesByUris(object):
         for connection in connections:
             if 'networkName' in connection:
                 name = connection.pop('networkName')
-                if name != None:
+                if name is not None:
                     connection['networkUri'] = self._get_network_by_name(name)['uri']
 
     def _replace_server_hardware_type_name_by_uri(self, data):
