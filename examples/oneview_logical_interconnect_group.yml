@@ -14,6 +14,7 @@
 # limitations under the License.
 ###
 # Below example work till Oneview REST API Version 1600.
+# This playbook performs operations for Synergy 3 Enclosure Setup.
 ---
 - hosts: all
   vars:
@@ -78,7 +79,7 @@
                           type: "Enclosure"
                         - relativeValue: 6
                           type: "Bay"
-                permittedInterconnectTypeUri: "/rest/interconnect-types/c16e12d7-06ea-4bbf-ad22-f46d78540dcc"
+                permittedInterconnectTypeName: "{{ permitted_interconnect_type_name }}"
               - enclosureIndex: 2
                 logicalLocation:
                     locationEntries:
@@ -86,7 +87,7 @@
                           type: "Enclosure"
                         - relativeValue: 6
                           type: "Bay"
-                permittedInterconnectTypeUri: "/rest/interconnect-types/b8873560-ff0f-4535-b618-b381a47115d0"
+                permittedInterconnectTypeName: "{{ permitted_interconnect_type_name_1 }}"
               - enclosureIndex: 2
                 logicalLocation:
                     locationEntries:
@@ -94,7 +95,7 @@
                           type: "Enclosure"
                         - relativeValue: 3
                           type: "Bay"
-                permittedInterconnectTypeUri: "/rest/interconnect-types/c16e12d7-06ea-4bbf-ad22-f46d78540dcc"
+                permittedInterconnectTypeName: "{{ permitted_interconnect_type_name }}"
               - enclosureIndex: 3
                 logicalLocation:
                     locationEntries:
@@ -102,7 +103,7 @@
                           type: "Enclosure"
                         - relativeValue: 3
                           type: "Bay"
-                permittedInterconnectTypeUri: "/rest/interconnect-types/c16e12d7-06ea-4bbf-ad22-f46d78540dcc"
+                permittedInterconnectTypeName: "{{ permitted_interconnect_type_name }}"
               - enclosureIndex: 1
                 logicalLocation:
                     locationEntries:
@@ -110,7 +111,7 @@
                           type: "Enclosure"
                         - relativeValue: 6
                           type: "Bay"
-                permittedInterconnectTypeUri: "/rest/interconnect-types/c16e12d7-06ea-4bbf-ad22-f46d78540dcc"
+                permittedInterconnectTypeName: "{{ permitted_interconnect_type_name }}"
               - enclosureIndex: 1
                 logicalLocation:
                     locationEntries:
@@ -118,8 +119,8 @@
                           type: "Enclosure"
                         - relativeValue: 3
                           type: "Bay"
-                permittedInterconnectTypeUri: "/rest/interconnect-types/b8873560-ff0f-4535-b618-b381a47115d0"
-               # Alternatively you can inform permittedInterconnectTypeName
+                permittedInterconnectTypeName: "{{ permitted_interconnect_type_name_1 }}"
+               # Alternatively you can inform permittedInterconnectTypeUri
       delegate_to: localhost
  
     - name: Do nothing with the Logical Interconnect Group when no changes are provided
