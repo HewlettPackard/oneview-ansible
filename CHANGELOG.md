@@ -1,5 +1,8 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v5.6.1(unreleased)
+This release adds support for docker image versioning as per GIT release version. 
+
 ## v5.6.0
 
 Extends support of the SDK to OneView REST API version 1600 (OneView v5.20).
