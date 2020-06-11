@@ -1,25 +1,56 @@
 # Ansible Modules for HPE OneView Change Log
-## v5.6.0 (Unreleased)
 
-This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2), 1200 (OneView v5.0) and 1600 (OneView v5.2)
+## v5.6.0
 
-#### Major changes
-1. Extended support of planned modules to API800/1000/1200/1600.
-2. Modules implemented in this release requires hpOneView version 5.2
+Extends support of the SDK to OneView REST API version 1600 (OneView v5.20).
+
+Added usecases for the following scenarios
+  1. Infrastructure provisioning with OS on Synergy with Image Streamer and having NIC connections.
+  2. Server Profile creation with network connections using profile template and power it on.
+  3. Cleanup activity which includes power off the server hardware, delete the profile and template.
 
 ### Modules supported in this release
+- image_streamer_artifact_bundle
+- image_streamer_artifact_bundle_facts
+- image_streamer_deployment_plan
+- image_streamer_deployment_plan_facts
 - oneview_certificates_server
 - oneview_certificates_server_facts
+- oneview_enclosure
+- oneview_enclosure_facts
+- oneview_enclosure_group
+- oneview_enclosure_group_facts
 - oneview_ethernet_network
 - oneview_ethernet_network_facts
 - oneview_fc_network
 - oneview_fc_network_facts
 - oneview_fcoe_network
 - oneview_fcoe_network_facts
+- oneview_hypervisor_cluster_profile
+- oneview_hypervisor_cluster_profile_facts
 - oneview_hypervisor_manager
 - oneview_hypervisor_manager_facts
+- oneview_interconnect
+- oneview_interconnect_facts
+- oneview_interconnect_type_facts
+- oneview_logical_enclosures
+- oneview_logical_enclosures_facts
+- oneview_logical_interconnect
+- oneview_logical_interconnect_facts
+- oneview_logical_interconnect_group
+- oneview_logical_interconnect_group_facts
 - oneview_network_set
 - oneview_network_set_facts
+- oneview_scope
+- oneview_scope_facts
+- oneview_server_hardware
+- oneview_server_hardware_facts
+- oneview_server_hardware_type
+- oneview_server_hardware_type_facts
+- oneview_server_profile
+- oneview_server_profile_facts
+- oneview_server_profile_template
+- oneview_server_profile_template_facts
 - oneview_storage_pool
 - oneview_storage_pool_facts
 - oneview_storage_system
@@ -30,19 +61,12 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_storage_volume_attachment_facts
 - oneview_storage_volume_template
 - oneview_storage_volume_template_facts
+- oneview_task_facts
 - oneview_uplink_set
 - oneview_uplink_set_facts
 
 #### Bug fixes & Enhancements
 - [#489](https://github.com/HewlettPackard/oneview-ansible/issues/489) Server Profile - create operation fails with an error -Value specified for enclosure is not valid or not supported
-
-
-## v5.6.0(unreleased)
-This release extends the planned support of the modules to OneView REST API version 800(OneView v4.1), 1000(OneView v4.2) and 1200(OneView v5.0) and 1600(Oneview v5.2).
-
-#### Modules supported in this release
-- oneview_server_profile_template
-- oneview_server_profile_template_facts
 
 ## v5.5.0
 This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2) and 1200 (OneView v5.0).
@@ -60,7 +84,6 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_hypervisor_manager_facts
 - oneview_server_hardware
 - oneview_server_hardware_facts
-
 
 ## v5.4.0
 This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2) and 1200 (OneView v5.0).
