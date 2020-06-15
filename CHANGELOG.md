@@ -4,6 +4,7 @@
 
 #### Bug fixes & Enhancements
 - [#341](https://github.com/HewlettPackard/oneview-ansible/issues/341) Logical_Interconnect_Group Module , idempotency , Uplinksets for Synergy.
+- [#481](https://github.com/HewlettPackard/oneview-ansible/issues/481) oneview_volume is not idempotent
 - [#487](https://github.com/HewlettPackard/oneview-ansible/issues/487) Fails Server profile update in case of existing network_set
 
 ## v5.6.0
