@@ -1,6 +1,6 @@
 # Ansible Modules for HPE OneView Change Log
 
-## v5.7.0
+## v5.6.1
 
 #### Bug fixes & Enhancements
 - [#525](https://github.com/HewlettPackard/oneview-ansible/issues/525)Server Hardware Facts - Extract the Server Hardware Details by URI.
