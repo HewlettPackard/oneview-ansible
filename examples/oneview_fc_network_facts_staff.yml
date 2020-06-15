@@ -15,19 +15,25 @@
 ###
 ---
 - hosts: all
-  vars:
-    - config: "{{ playbook_dir }}/oneview_config.json"
+  vars_files:
+    - av_ov_password_file.yml
   tasks:
     - name: Gather facts about all Fibre Channel Networks
       oneview_fc_network_facts:
-        config: "{{ config }}"
+        hostname: 10.50.8.80
+        username: Staff
+        password: "{{ staff_password }}"
+        api_version: 1600
       delegate_to: localhost
 
     - debug: var=fc_networks
 
     - name: Gather paginated, filtered and sorted facts about Fibre Channel Networks
       oneview_fc_network_facts:
-        config: "{{ config }}"
+        hostname: 10.50.8.80
+        username: Staff
+        password: "{{ staff_password }}"
+        api_version: 1600
         params:
           start: 0
           count: 3
@@ -37,7 +43,10 @@
 
     - name: Gather facts about a Fibre Channel Network by name
       oneview_fc_network_facts:
-        config: "{{ config }}"
+        hostname: 10.50.8.80
+        username: Staff
+        password: "{{ staff_password }}"
+        api_version: 1600
         name: "Test FC Network"
       delegate_to: localhost
 
