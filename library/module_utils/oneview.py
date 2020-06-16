@@ -354,7 +354,7 @@ class OneViewModule(object):
         """
         argument_spec = self._build_argument_spec(additional_arg_spec, validate_etag_support)
 
-        self.module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+        self.module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
         self.resource_client = None
         self.current_resource = None

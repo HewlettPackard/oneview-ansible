@@ -104,8 +104,7 @@ fc_network:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule
-
+from ansible.module_utils.oneview import OneViewModule, compare
 
 class FcNetworkModule(OneViewModule):
     MSG_CREATED = 'FC Network created successfully.'
@@ -114,6 +113,9 @@ class FcNetworkModule(OneViewModule):
     MSG_ALREADY_PRESENT = 'FC Network is already present.'
     MSG_ALREADY_ABSENT = 'FC Network is already absent.'
     RESOURCE_FACT_NAME = 'fc_network'
+    CHECK_MSG_CREATED = 'FC Network will be created.'
+    CHECK_MSG_UPDATED = 'FC Network will be updated.'
+    CHECK_MSG_DELETED = 'FC Network will be deleted.'
 
     def __init__(self):
 
@@ -131,15 +133,59 @@ class FcNetworkModule(OneViewModule):
         if self.state == 'present':
             return self._present()
         else:
-            return self.resource_absent()
+            if not self.module.check_mode:
+                return self.resource_absent()
+            else:
+                return self._resource_absent_check()
 
     def _present(self):
         scope_uris = self.data.pop('scopeUris', None)
-        result = self.resource_present(self.RESOURCE_FACT_NAME)
+
+        if not self.module.check_mode:
+            result = self.resource_present(self.RESOURCE_FACT_NAME)
+        else:
+             result = self._resource_present_check(self.RESOURCE_FACT_NAME)
 
         if scope_uris is not None:
             result = self.resource_scopes_set(result, 'fc_network', scope_uris)
         return result
+
+    def _resource_present_check(self, fact_name):
+        
+        changed = False
+        
+        if 'newName' in self.data:
+            self.data["name"] = self.data.pop("newName")
+
+        if not self.current_resource:
+            msg = self.CHECK_MSG_CREATED
+        else:
+            changed, msg = self._update_resource_check()
+
+        return dict(
+                msg=msg,
+                changed=changed,
+                ansible_facts={fact_name: self.data}
+        )
+    
+    def _update_resource_check(self):
+        
+        updated_data = self.current_resource.data.copy()
+        updated_data.update(self.data)
+        changed = False
+
+        if compare(self.current_resource.data, updated_data):
+            msg = self.MSG_ALREADY_PRESENT
+        else:
+            msg = self.CHECK_MSG_UPDATED
+        return (changed, msg)
+
+    def _resource_absent_check(self):
+
+        if self.current_resource:
+            return {"changed": False, "msg": self.CHECK_MSG_DELETED}
+        else:
+            return {"changed": False, "msg": self.MSG_ALREADY_ABSENT}
 
 
 def main():
