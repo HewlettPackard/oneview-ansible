@@ -1,23 +1,36 @@
 # Ansible Modules for HPE OneView Change Log
-## v5.6.0 (Unreleased)
 
-This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2), 1200 (OneView v5.0) and 1600 (OneView v5.2)
+## v5.6.1(unreleased)
 
-#### Major changes
-1. Extended support of planned modules to API800/1000/1200/1600.
-2. Modules implemented in this release requires hpOneView version 5.2
+#### Bug fixes & Enhancements
+- [#341](https://github.com/HewlettPackard/oneview-ansible/issues/341) Logical_Interconnect_Group Module , idempotency , Uplinksets for Synergy.
+- [#481](https://github.com/HewlettPackard/oneview-ansible/issues/481) oneview_volume is not idempotent
+- [#487](https://github.com/HewlettPackard/oneview-ansible/issues/487) Fails Server profile update in case of existing network_set
+- [#525](https://github.com/HewlettPackard/oneview-ansible/issues/525)Server Hardware Facts - Extract the Server Hardware Details by URI.
+- [#532](https://github.com/HewlettPackard/oneview-ansible/issues/532) Add multiple servers method in server hardware module returns invalid response
+
+## v5.6.0
+
+Extends support of the SDK to OneView REST API version 1600 (OneView v5.20).
+
+Added usecases for the following scenarios
+  1. Infrastructure provisioning with OS on Synergy with Image Streamer and having NIC connections.
+  2. Server Profile creation with network connections using profile template and power it on.
+  3. Cleanup activity which includes power off the server hardware, delete the profile and template.
 
 ### Modules supported in this release
+- image_streamer_artifact_bundle
+- image_streamer_artifact_bundle_facts
 - image_streamer_deployment_plan
 - image_streamer_deployment_plan_facts
 - oneview_certificates_server
 - oneview_certificates_server_facts
-- oneview_ethernet_network
-- oneview_ethernet_network_facts
 - oneview_enclosure
 - oneview_enclosure_facts
 - oneview_enclosure_group
 - oneview_enclosure_group_facts
+- oneview_ethernet_network
+- oneview_ethernet_network_facts
 - oneview_fc_network
 - oneview_fc_network_facts
 - oneview_fcoe_network
@@ -43,6 +56,8 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_server_hardware_facts
 - oneview_server_hardware_type
 - oneview_server_hardware_type_facts
+- oneview_server_profile
+- oneview_server_profile_facts
 - oneview_server_profile_template
 - oneview_server_profile_template_facts
 - oneview_storage_pool

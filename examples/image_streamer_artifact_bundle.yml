@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -20,13 +20,13 @@
     artifact_bundle_name: 'Artifact Bundle'
     artifact_bundle_name_update: 'Artifact Bundle Updated'
     artifact_bundle_description: 'Description of Artifact Bundles Test'
-    deployment_group_uri: '/rest/deployment-groups/beb9081a-1494-459c-b037-24fa838c7440'
-    build_plan_uri: '/rest/build-plans/f99ce495-7aa1-41b5-91c0-a4e6a5076ef5'
+    deployment_group_uri: '/rest/deployment-groups/2117634b-d911-4673-98ac-1a7e19f3b40f'
+    build_plan_uri: '/rest/build-plans/81088ef9-631d-4c5c-9de1-026afa234bc8'
     build_plan_read_only: 'false'
-    artifact_download_path: '~/downloaded_artifact.zip'
-    artifact_archive_download_path: '~/downloaded_archive.zip'
-    local_artifact_path: '~/uploaded_artifact.zip'
-    local_backup_artifact_bundle_path: '~/uploaded_backup.zip'
+    artifact_download_path: './downloaded_artifact.zip'
+    artifact_archive_download_path: './downloaded_archive.zip'
+    local_artifact_path: './downloaded_artifact.zip'
+    local_backup_artifact_bundle_path: './downloaded_archive.zip'
   tasks:
     - name: Create an Artifact Bundle
       image_streamer_artifact_bundle:
@@ -40,10 +40,19 @@
               readOnly: '{{ build_plan_read_only }}'
       delegate_to: localhost
 
+    - name: Artifact Bundle should not create when already present
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: '{{ artifact_bundle_name }}'
+          description: '{{ artifact_bundle_description }}'
+      delegate_to: localhost
+
     - name: Download the Artifact Bundle to the file path provided
       image_streamer_artifact_bundle:
         config: "{{ config }}"
-        state: downloaded
+        state: download
         data:
           name: '{{ artifact_bundle_name }}'
           destinationFilePath: '{{ artifact_download_path }}'
@@ -52,7 +61,7 @@
     - name: Download the Archive for Artifact Bundle to the file path provided
       image_streamer_artifact_bundle:
         config: "{{ config }}"
-        state: archive_downloaded
+        state: archive_download
         data:
           name: '{{ artifact_bundle_name }}'
           destinationFilePath: '{{ artifact_archive_download_path }}'
@@ -69,7 +78,7 @@
     - name: Upload an Artifact Bundle Backup
       image_streamer_artifact_bundle:
         config: "{{ config }}"
-        state: backup_uploaded
+        state: backup_upload
         data:
           deploymentGroupURI: '{{ deployment_group_uri }}'
           localBackupArtifactBundleFilePath: '{{ local_backup_artifact_bundle_path }}'
@@ -78,7 +87,7 @@
     - name: Create Backup for Artifact Bundle
       image_streamer_artifact_bundle:
         config: "{{ config }}"
-        state: backup_created
+        state: backup_create
         data:
           deploymentGroupURI: '{{ deployment_group_uri }}'
       delegate_to: localhost
@@ -86,17 +95,9 @@
     - name: Extract an Artifact Bundle
       image_streamer_artifact_bundle:
         config: "{{ config }}"
-        state: extracted
+        state: extract
         data:
           name: '{{ artifact_bundle_name }}'
-      delegate_to: localhost
-
-    - name: Extract an Artifact Bundle Backup
-      image_streamer_artifact_bundle:
-        config: "{{ config }}"
-        state: backup_extracted
-        data:
-          deploymentGroupURI: '{{ deployment_group_uri }}'
       delegate_to: localhost
 
     - name: Update an Artifact Bundle
@@ -114,4 +115,12 @@
         state: absent
         data:
           name: '{{ artifact_bundle_name_update }}'
+      delegate_to: localhost
+
+    - name: Extract an Artifact Bundle Backup
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: backup_extract
+        data:
+          deploymentGroupURI: '{{ deployment_group_uri }}'
       delegate_to: localhost
