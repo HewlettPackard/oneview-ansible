@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -155,8 +155,9 @@ class TestServerHardwareModule(OneViewBaseTest):
 
     def test_should_add_multiple_servers(self):
         self.resource.get_by_name.return_value = None
+        self.resource.data = {'name': 'name'}
 
-        self.resource.add_multiple_servers.return_value = {'name': 'name'}
+        self.resource.add_multiple_servers.return_value = self.resource
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_ADD_MULTIPLE_SERVERS)
 
