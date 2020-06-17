@@ -190,9 +190,11 @@ If you prefer, the credential of the user can be stored in encrypted format.
 
 1. Create a oneview_config.yml file.
 2. Run below commands to encrypt your username and password for oneview. 
+
    `ansible-vault encrypt_string 'secret123' --name ONEVIEWSDK_PASSWORD`
 
 Note: This password will be used to run the playbook.
+
 3. Paste the encrypted password along with the configuration in oneview_config.yml file.
 
 ```yaml
