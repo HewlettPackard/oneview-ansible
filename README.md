@@ -241,6 +241,8 @@ We can encrypt the oneview_config.yml file also, but if you encrypt the file the
 ansible-playbook example.yml --ask-vault-pass
 ```
 
+Note: Most of the examples provided in this repository uses OneView Credentials in plain text.
+
 ### 5. Setting your OneView version
 
 The Ansible modules for HPE OneView support the API endpoints for HPE OneView 2.0, 3.0, 3.10, 4.0 and 4.10.
