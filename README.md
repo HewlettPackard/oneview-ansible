@@ -188,7 +188,6 @@ Setting `no_log: true` is highly recommended in this case, as the credentials ar
 
 If you prefer, the credential of the user can be stored in encrypted format.
 
-# Required
 1. Create a oneview_config.yml file.
 2. Run below commands to encrypt your username and password for oneview. 
    `ansible-vault encrypt_string 'secret123' --name ONEVIEWSDK_PASSWORD`
@@ -197,6 +196,7 @@ Note: This password will be used to run the playbook.
 3. Paste the encrypted password along with the configuration in oneview_config.yml file.
 
 ```yaml
+# Required
 ip: 172.168.1.1
 api_version:1600
 username: Administrator
@@ -228,10 +228,10 @@ password: !vault |
       autoLoginRedistribution: true
   no_log: true
   delegate_to: localhost
-```
 
 # Optional
 We can encrypt the oneview_config.yml file also, but if you encrypt the file then you shall not encrypt the password inside the encrypted file. 
+```
 🔒 Tip: Make sure no unauthorised person has access to the encrypted variables/files, since the password can be decrypted with the password.
 
 5. Run the playbook with --ask-vault-pass option to get the password prompt to run the playbook.
