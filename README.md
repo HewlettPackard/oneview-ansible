@@ -184,10 +184,7 @@ This option allows the parameters `hostname`, `username`, `password`, `api_versi
 
 Setting `no_log: true` is highly recommended in this case, as the credentials are otherwise returned in the log after task completion.
 
-
-
-
-### Storing credentials using Ansible Vault.
+#### Storing credentials using Ansible Vault.
 
 If you prefer, the credential of the user can be stored in encrypted format.
 
@@ -210,7 +207,7 @@ password: !vault |
           35343863313563363830356638343339373138316539613636336532333065366133386662333833
           6663363236663031340a636562646634323136353737373539326434626137353837333530376665
           3835
-'''
+```
 
 4. Update the oneview_config.yml as vars_file in playbook for example:
 
