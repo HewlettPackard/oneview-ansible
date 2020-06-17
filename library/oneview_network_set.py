@@ -164,9 +164,8 @@ class NetworkSetModule(OneViewModule):
     def __replace_network_name_by_uri(self, data):
         if 'networkUris' in data:
             data['networkUris'] = [self.__get_network_uri(x) for x in data['networkUris']]
-        if 'nativeNetworkUri' in data:
-            if data['nativeNetworkUri']:
-                data['nativeNetworkUri'] = self.__get_network_uri(data['nativeNetworkUri'])
+        if 'nativeNetworkUri' in data and data['nativeNetworkUri']:
+            data['nativeNetworkUri'] = self.__get_network_uri(data['nativeNetworkUri'])
 
 
 def main():

@@ -7,7 +7,8 @@
 - [#481](https://github.com/HewlettPackard/oneview-ansible/issues/481) oneview_volume is not idempotent
 - [#487](https://github.com/HewlettPackard/oneview-ansible/issues/487) Fails Server profile update in case of existing network_set
 - [#525](https://github.com/HewlettPackard/oneview-ansible/issues/525) Server Hardware Facts - Extract the Server Hardware Details by URI.
-- [#532](https://github.com/HewlettPackard/oneview-ansible/issues/532) Add multiple servers method in server hardware module returns invalid response- [#390](https://github.com/HewlettPackard/oneview-ansible/issues/397) oneview_network_set does not support clearing the nativeNetworkUri
+- [#532](https://github.com/HewlettPackard/oneview-ansible/issues/532) Add multiple servers method in server hardware module returns invalid response
+- [#397](https://github.com/HewlettPackard/oneview-ansible/issues/397) oneview_network_set does not support clearing the nativeNetworkUri
 
 ## v5.6.0
 
