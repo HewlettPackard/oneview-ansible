@@ -152,7 +152,7 @@ class NetworkSetModule(OneViewModule):
         return result[0] if result else None
 
     def __get_network_uri(self, network_name_or_uri):
-        if network_name_or_uri.startswith('/rest/ethernet-networks'):
+        if network_name_or_uri and network_name_or_uri.startswith('/rest/ethernet-networks'):
             return network_name_or_uri
         else:
             enet_network = self.__get_ethernet_network_by_name(network_name_or_uri)
@@ -164,7 +164,7 @@ class NetworkSetModule(OneViewModule):
     def __replace_network_name_by_uri(self, data):
         if 'networkUris' in data:
             data['networkUris'] = [self.__get_network_uri(x) for x in data['networkUris']]
-        if 'nativeNetworkUri' in data:
+        if 'nativeNetworkUri' in data and data['nativeNetworkUri']:
             data['nativeNetworkUri'] = self.__get_network_uri(data['nativeNetworkUri'])
 
 
