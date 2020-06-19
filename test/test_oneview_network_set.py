@@ -28,7 +28,6 @@ FAKE_MSG_ERROR = 'Fake message error'
 NETWORK_SET = dict(
     name='OneViewSDK Test Network Set',
     networkUris=['/rest/ethernet-networks/aaa-bbb-ccc']
-    connectionTemplateUri=None
 )
 
 NETWORK_SET_WITH_NEW_NAME = dict(name='OneViewSDK Test Network Set - Renamed')
@@ -197,18 +196,6 @@ class TestNetworkSetModule(OneViewBaseTest):
             ansible_facts=dict(network_set=NETWORK_SET)
         )
 
-    def test_update_successfully_even_when_connection_template_uri_not_exists(self):
-        self.resource.data = NETWORK_SET.copy()
-        del self.resource.data["connectionTemplateUri"]
-        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
-
-        NetworkSetModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=NetworkSetModule.MSG_UPDATED,
-            ansible_facts=dict(network_set=self.resource.data)
-        )
 
     def test_reset_successfully(self):
         self.resource.data = DICT_PARAMS_WITH_CHANGES
@@ -228,16 +215,6 @@ class TestNetworkSetModule(OneViewBaseTest):
             changed=True, msg=NetworkSetModule.MSG_CONNECTION_TEMPLATE_RESET,
             ansible_facts=dict(network_set_connection_template=obj.data))
 
-    def test_should_fail_when_reset_not_existing_ethernet_network(self):
-        self.resource.get_by_name.return_value = None
-
-        self.mock_ansible_module.params = yaml.load(YAML_RESET_CONNECTION_TEMPLATE)
-
-        NetworkSetModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            exception=mock.ANY,
-            msg=NetworkSetModule.MSG_ETHERNET_NETWORK_NOT_FOUND)
 
     def test_should_do_nothing_when_network_set_not_exist(self):
         self.resource.get_by_name.return_value = None
