@@ -111,7 +111,7 @@ example:
 }
 ```
 
-The `api_version` specifies the version of the Rest API to invoke. When not defined, it will use `300` as the
+The `api_version` specifies the version of the Rest API to invoke. When not defined, it will use `600` as the
 default value.
 
 If your environment requires a proxy, define the proxy properties in the JSON file using the following syntax:
@@ -142,7 +142,7 @@ export ONEVIEWSDK_USERNAME='Administrator'
 export ONEVIEWSDK_PASSWORD='secret123'
 
 # Optional
-export ONEVIEWSDK_API_VERSION='200'  # default value is 300
+export ONEVIEWSDK_API_VERSION='1600'  # default value is 600
 export ONEVIEWSDK_AUTH_LOGIN_DOMAIN='authdomain'
 export ONEVIEWSDK_PROXY='<proxy_host>:<proxy_port>'
 ```
@@ -184,34 +184,92 @@ This option allows the parameters `hostname`, `username`, `password`, `api_versi
 
 Setting `no_log: true` is highly recommended in this case, as the credentials are otherwise returned in the log after task completion.
 
+#### Storing credentials using Ansible Vault.
+
+If you prefer, the credential of the user can be stored in encrypted format.
+
+1. Create a oneview_config.yml file.
+2. Run below commands to encrypt your username and password for oneview. 
+
+   `ansible-vault encrypt_string 'secret123' --name ONEVIEWSDK_PASSWORD`
+
+Note: This password will be used to run the playbook.
+
+3. Paste the encrypted password along with the configuration in oneview_config.yml file.
+
+```yaml
+# Required
+ip: 172.168.1.1
+api_version:1600
+username: Administrator
+password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          37646435306637633461376438653439323666383934353234333934616363313164636637376536
+          3239356538653537643734626265366662623863323661350a613834313562303635343931356139
+          35343863313563363830356638343339373138316539613636336532333065366133386662333833
+          6663363236663031340a636562646634323136353737373539326434626137353837333530376665
+          3835
+```
+
+4. Update the oneview_config.yml as vars_file in playbook for example:
+
+```yaml
+- vars_file:
+  - oneview_config.yml
+- name: Create a Fibre Channel Network
+  oneview_fc_network:
+    hostname: "{{ ip }}"
+    username: "{{ username }}"
+    password: "{{ password }}"
+    api_version: "{{ api_version }}"
+    state: present
+    data:
+      name: "Test Network"
+      fabricType: 'FabricAttach'
+      linkStabilityTime: '30'
+      autoLoginRedistribution: true
+  no_log: true
+  delegate_to: localhost
+
+# Optional
+We can encrypt the oneview_config.yml file also, but if you encrypt the file then you shall not encrypt the password inside the encrypted file. 
+```
+🔒 Tip: Make sure no unauthorised person has access to the encrypted variables/files, since the password can be decrypted with the password.
+
+5. Run the playbook with --ask-vault-pass option to get the password prompt to run the playbook.
+```bash   
+ansible-playbook example.yml --ask-vault-pass
+```
+
+Note: Most of the examples provided in this repository uses OneView Credentials in plain text.
+
 ### 5. Setting your OneView version
 
-The Ansible modules for HPE OneView support the API endpoints for HPE OneView 2.0, 3.0, 3.10, 4.0 and 4.10.
+The Ansible modules for HPE OneView support the API endpoints for HPE OneView 4.00, 4.10, 4.20, 5.00 and 5.20.
 
-The current `default` HPE OneView version used by the modules is `3.00`, API `300`.
+The current `default` HPE OneView version used by the modules is `4.00`, API `600`.
 
 To use a different API, you must set the API version together with your credentials, either using the JSON configuration:
 
 ```json
-"api_version": 1200
+"api_version": 1600
 ```
 OR using the Environment variable:
 
 ```bash
-export ONEVIEWSDK_API_VERSION='1200'
+export ONEVIEWSDK_API_VERSION='1600'
 ```
 
-If this property is not specified, it will fall back to the ```300``` default value.
+If this property is not specified, it will fall back to the ```600``` default value.
 
 The API list is as follows:
 
-- HPE OneView 2.0 API version: `200`
-- HPE OneView 3.0 API version: `300`
-- HPE OneView 3.10 API version: `500`
-- HPE OneView 4.0 API version: `600`
+- HPE OneView 4.00 API version: `600`
 - HPE OneView 4.10 API version: `800`
 - HPE OneView 4.20 API version: `1000`
 - HPE OneView 5.00 API version: `1200`
+- HPE OneView 5.20 API version: `1600`
+
 
 ### 6. HPE Synergy Image Streamer
 
