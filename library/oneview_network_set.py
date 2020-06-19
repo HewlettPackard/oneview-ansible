@@ -118,6 +118,7 @@ class NetworkSetModule(OneViewModule):
     MSG_ALREADY_PRESENT = 'Network Set is already present.'
     MSG_ALREADY_ABSENT = 'Network Set is already absent.'
     MSG_ETHERNET_NETWORK_NOT_FOUND = 'Ethernet Network not found: '
+    MSG_CONNECTION_TEMPLATE_RESET = 'Network Set connection template was reset to the default.'
     RESOURCE_FACT_NAME = 'network_set'
 
     argument_spec = dict(
@@ -196,6 +197,20 @@ class NetworkSetModule(OneViewModule):
             return True, connection_template.data
         else:
             return False, None
+
+    def __default_bandwidth_reset(self):
+
+        if not self.current_resource:
+            raise OneViewModuleResourceNotFound(self.MSG_ETHERNET_NETWORK_NOT_FOUND)
+
+        default_connection_template = self.connection_templates.get_default()
+
+        changed, connection_template_data = self.__update_connection_template(
+            default_connection_template['bandwidth'])
+
+        return changed, self.MSG_CONNECTION_TEMPLATE_RESET, dict(
+            ethernet_network_connection_template=connection_template_data)
+
 
 
 def main():
