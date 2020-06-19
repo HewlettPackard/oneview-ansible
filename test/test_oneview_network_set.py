@@ -18,6 +18,7 @@
 
 import mock
 import pytest
+import yaml
 
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import NetworkSetModule
