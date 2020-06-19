@@ -46,12 +46,32 @@ PARAMS_WITH_CHANGES = dict(
               networkUris=['/rest/ethernet-networks/aaa-bbb-ccc', 'Name of a Network'])
 )
 
+YAML_PARAMS_WITH_CHANGES = """
+    config: "config.json"
+    state: present
+    data:
+      name: 'Test Ethernet Network'
+      purpose: Management
+      connectionTemplateUri: ~
+      bandwidth:
+          maximumBandwidth: 3000
+          typicalBandwidth: 2000
+"""
+
+YAML_RESET_CONNECTION_TEMPLATE = """
+        config: "{{ config }}"
+        state: default_bandwidth_reset
+        data:
+          name: 'network name'
+"""
+
 PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
     data=dict(name=NETWORK_SET['name'])
 )
 
+DICT_PARAMS_WITH_CHANGES = yaml.load(YAML_PARAMS_WITH_CHANGES)["data"]
 
 @pytest.mark.resource(TestNetworkSetModule='network_sets')
 class TestNetworkSetModule(OneViewBaseTest):
@@ -142,6 +162,69 @@ class TestNetworkSetModule(OneViewBaseTest):
             changed=True,
             msg=NetworkSetModule.MSG_DELETED
         )
+
+    def test_update_when_only_bandwidth_has_modified_attributes(self):
+        self.resource.data = DICT_PARAMS_WITH_CHANGES
+        obj = mock.Mock()
+        obj.data = {"uri": "uri"}
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
+
+        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
+
+        NetworkSetModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=NetworkSetModule.MSG_UPDATED,
+            ansible_facts=dict(network_set=DICT_PARAMS_WITH_CHANGES)
+        )
+
+    def test_update_when_data_has_modified_attributes_but_bandwidth_is_equal(self):
+        self.resource.data = NETWORK_SET
+        obj = mock.Mock()
+        obj.data = {"bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
+
+        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
+
+        NetworkSetModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=NetworkSetModule.MSG_UPDATED,
+            ansible_facts=dict(network_set=NETWORK_SET)
+        )
+
+    def test_update_successfully_even_when_connection_template_uri_not_exists(self):
+        self.resource.data = NETWORK_SET.copy()
+        del self.resource.data["connectionTemplateUri"]
+        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
+
+        NetworkSetModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=NetworkSetModule.MSG_UPDATED,
+            ansible_facts=dict(network_set=self.resource.data)
+        )
+
+    def test_reset_successfully(self):
+        self.resource.data = DICT_PARAMS_WITH_CHANGES
+
+        obj = mock.Mock()
+        obj.data = {"bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
+        self.mock_ov_client.connection_templates.get_default.return_value = {"bandwidth": {
+            "max": 1
+        }}
+
+        self.mock_ansible_module.params = yaml.load(YAML_RESET_CONNECTION_TEMPLATE)
+
+        NetworkSetModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True, msg=NetworkSetModule.MSG_CONNECTION_TEMPLATE_RESET,
+            ansible_facts=dict(network_set_connection_template=obj.data))
 
     def test_should_do_nothing_when_network_set_not_exist(self):
         self.resource.get_by_name.return_value = None

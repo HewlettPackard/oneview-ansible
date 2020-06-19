@@ -123,7 +123,7 @@ class NetworkSetModule(OneViewModule):
     argument_spec = dict(
         state=dict(
             required=True,
-            choices=['present', 'absent']
+            choices=['present', 'absent', 'default_bandwidth_reset']
         ),
         data=dict(required=True, type='dict'))
 
