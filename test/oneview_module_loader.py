@@ -30,6 +30,9 @@ ONEVIEW_MODULE_UTILS_PATH = 'module_utils.oneview'
 sys.modules['ansible.module_utils.oneview'] = oneview
 sys.modules['ansible.module_utils.icsp'] = icsp
 
+from module_utils import oneview_check_mode
+sys.modules['ansible.module_utils.oneview_check_mode'] = oneview_check_mode
+
 from module_utils.oneview import (OneViewModuleBase,
                                   OneViewClient,
                                   OneViewModuleException,
@@ -45,6 +48,7 @@ from module_utils.oneview import (OneViewModuleBase,
                                   compare,
                                   get_logger)
 from module_utils.icsp import ICspHelper
+from module_utils.oneview_check_mode import OneViewModuleCheckMode
 from image_streamer_artifact_bundle import ArtifactBundleModule
 from image_streamer_artifact_bundle_facts import ArtifactBundleFactsModule
 from image_streamer_build_plan import BuildPlanModule

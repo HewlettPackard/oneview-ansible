@@ -105,9 +105,10 @@ fc_network:
 '''
 
 from ansible.module_utils.oneview import OneViewModule
+from ansible.module_utils.oneview_check_mode import OneViewModuleCheckMode
 
 
-class FcNetworkModule(OneViewModule):
+class FcNetworkModule(OneViewModule, OneViewModuleCheckMode):
     MSG_CREATED = 'FC Network created successfully.'
     MSG_UPDATED = 'FC Network updated successfully.'
     MSG_DELETED = 'FC Network deleted successfully.'
@@ -135,10 +136,15 @@ class FcNetworkModule(OneViewModule):
 
     def _present(self):
         scope_uris = self.data.pop('scopeUris', None)
-        result = self.resource_present(self.RESOURCE_FACT_NAME)
-
+        if not self.module.check_mode:
+            result = self.resource_present(self.RESOURCE_FACT_NAME)
+        else:
+            result = self.check_resource_present(self.RESOURCE_FACT_NAME)
         if scope_uris is not None:
-            result = self.resource_scopes_set(result, 'fc_network', scope_uris)
+            if not self.module.check_mode:
+                result = self.resource_scopes_set(result, 'fc_network', scope_uris)
+            else:
+                result = self.check_resource_scopes_set(result, 'fc_network', scope_uris)
         return result
 
 

@@ -58,7 +58,7 @@ class TestFcNetworkModule(OneViewBaseTest):
 
     def test_should_create_new_fc_network(self):
         self.resource.get_by_name.return_value = []
-
+        self.mock_ansible_module.check_mode = False
         self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE
         self.resource.create.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
@@ -75,7 +75,7 @@ class TestFcNetworkModule(OneViewBaseTest):
         self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
+        self.mock_ansible_module.check_mode = False
         FcNetworkModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -90,7 +90,7 @@ class TestFcNetworkModule(OneViewBaseTest):
 
         self.resource.data = data_merged
         self.resource.update.return_value = self.resource
-
+        self.mock_ansible_module.check_mode = False
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         FcNetworkModule().run()
@@ -104,7 +104,7 @@ class TestFcNetworkModule(OneViewBaseTest):
     def test_should_remove_fc_network(self):
         self.resource.data = [DEFAULT_FC_NETWORK_TEMPLATE]
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-
+        self.mock_ansible_module.check_mode = False
         FcNetworkModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -116,7 +116,7 @@ class TestFcNetworkModule(OneViewBaseTest):
         self.resource.get_by_name.return_value = []
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-
+        self.mock_ansible_module.check_mode = False
         FcNetworkModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -141,7 +141,7 @@ class TestFcNetworkModule(OneViewBaseTest):
         patch_return_obj = self.resource.copy()
         patch_return_obj.data = patch_return
         self.resource.patch.return_value = patch_return_obj
-
+        self.mock_ansible_module.check_mode = False
         FcNetworkModule().run()
 
         self.resource.patch.assert_called_once_with(operation='replace',
@@ -158,7 +158,7 @@ class TestFcNetworkModule(OneViewBaseTest):
         params_to_scope = PARAMS_FOR_PRESENT.copy()
         params_to_scope['data']['scopeUris'] = ['test']
         self.mock_ansible_module.params = params_to_scope
-
+        self.mock_ansible_module.check_mode = False
         resource_data = DEFAULT_FC_NETWORK_TEMPLATE.copy()
         resource_data['scopeUris'] = ['test']
 

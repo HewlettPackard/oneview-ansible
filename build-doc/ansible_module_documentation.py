@@ -95,7 +95,7 @@ def main():
         }
     }
 
-    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=False)
+    module = AnsibleModule(argument_spec=argument_spec, supports_check_mode=True)
 
     root_path = module.params['path']
     root_path = os.path.abspath(root_path)
