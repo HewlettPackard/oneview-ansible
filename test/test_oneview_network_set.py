@@ -51,7 +51,7 @@ YAML_PARAMS_WITH_CHANGES = """
     config: "config.json"
     state: present
     data:
-      name: 'Test Ethernet Network'
+      name: 'Test Network Set'
       purpose: Management
       connectionTemplateUri: ~
       bandwidth:
@@ -225,7 +225,18 @@ class TestNetworkSetModule(OneViewBaseTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True, msg=NetworkSetModule.MSG_CONNECTION_TEMPLATE_RESET,
-            ansible_facts=dict(network_set_connection_template=obj.data))
+            ansible_facts=dicit(network_set_connection_template=obj.data))
+
+    def test_should_fail_when_reset_not_existing_ethernet_network(self):
+        self.resource.get_by_name.return_value = None
+
+        self.mock_ansible_module.params = yaml.load(YAML_RESET_CONNECTION_TEMPLATE)
+
+        NetworkSetModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY,
+            msg=NetworkSetModule.MSG_ETHERNET_NETWORK_NOT_FOUND)
 
     def test_should_do_nothing_when_network_set_not_exist(self):
         self.resource.get_by_name.return_value = None
