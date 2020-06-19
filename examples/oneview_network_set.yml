@@ -28,10 +28,13 @@
         config: '{{ config }}'
         state: present
         data:
-          name: 'OneViewSDK Test Network Set'
+          name: 'Network Set Bandwidth'
           networkUris:
             - '{{ ethernet_network_1_name }}'  # can be a name
             - '{{ ethernet_network_2_uri }}'   # or a URI
+          bandwidth:
+            maximumBandwidth: 15000
+            typicalBandwidth: 3000
       delegate_to: localhost
 
     # Scope update is only supported V300 and V500
