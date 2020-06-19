@@ -28,6 +28,7 @@ FAKE_MSG_ERROR = 'Fake message error'
 NETWORK_SET = dict(
     name='OneViewSDK Test Network Set',
     networkUris=['/rest/ethernet-networks/aaa-bbb-ccc']
+    connectionTemplateUri=None
 )
 
 NETWORK_SET_WITH_NEW_NAME = dict(name='OneViewSDK Test Network Set - Renamed')
@@ -225,7 +226,7 @@ class TestNetworkSetModule(OneViewBaseTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True, msg=NetworkSetModule.MSG_CONNECTION_TEMPLATE_RESET,
-            ansible_facts=dicit(network_set_connection_template=obj.data))
+            ansible_facts=dict(network_set_connection_template=obj.data))
 
     def test_should_fail_when_reset_not_existing_ethernet_network(self):
         self.resource.get_by_name.return_value = None
