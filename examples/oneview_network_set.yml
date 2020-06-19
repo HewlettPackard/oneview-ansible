@@ -28,7 +28,7 @@
         config: '{{ config }}'
         state: present
         data:
-          name: 'Network Set Bandwidth'
+          name: 'OneViewSDK Test Network Set'
           networkUris:
             - '{{ ethernet_network_1_name }}'  # can be a name
             - '{{ ethernet_network_2_uri }}'   # or a URI
