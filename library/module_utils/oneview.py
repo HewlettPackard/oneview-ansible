@@ -103,9 +103,9 @@ def dict_merge(resource_dict, data_dict):
         elif isinstance(resource_dict[key], list) and isinstance(data_dict[key], list):
             tmp_list1 = []
             tmp_list2 = []
-            for index,value in enumerate(resource_dict[key]):
+            for index, value in enumerate(resource_dict[key]):
                 tmp_list1.append([index, value])
-            for index,value in enumerate(data_dict[key]):
+            for index, value in enumerate(data_dict[key]):
                 tmp_list2.append([index, value])
             output_dict = dict_merge(dict(tmp_list1), dict(tmp_list2))
             resource_dict[key] = list(output_dict.values())
@@ -860,8 +860,8 @@ class ServerProfileMerger(object):
             params_connections = data[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS]
             merged_data[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS] = merge_list_by_key(existing_connections, params_connections, key=SPKeys.ID)
 
-            merged_data[SPKeys.CONNECTION_SETTINGS] = self._merge_connections_boot(merged_data[SPKeys.CONNECTION_SETTINGS],
-                resource[SPKeys.CONNECTION_SETTINGS])
+            merged_data[SPKeys.CONNECTION_SETTINGS] = self._merge_connections_boot(merged_data[SPKeys.CONNECTION_SETTINGS], resource[
+                SPKeys.CONNECTION_SETTINGS])
 
         if self._should_merge(data, resource, key=SPKeys.CONNECTIONS):
             existing_connections = resource[SPKeys.CONNECTIONS]
