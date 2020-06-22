@@ -195,9 +195,6 @@ class NetworkSetModule(OneViewModule):
         if not compare(connection_template.data, merged_data):
             connection_template.update(merged_data)
             return True, connection_template.data
-        else:
-            return False, None
-
 
 def main():
     NetworkSetModule().run()
