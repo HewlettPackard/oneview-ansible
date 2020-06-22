@@ -3066,6 +3066,7 @@ class TestServerProfileMerger():
         expected_drives = [self.CONTROLLER_EMBEDDED[SPKeys.LOGICAL_DRIVES][0],
                            self.CONTROLLER_EMBEDDED[SPKeys.LOGICAL_DRIVES][1],
                            new_drive]
+
         result = merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_EMBED][SPKeys.LOGICAL_DRIVES]
 
         assert result == expected_drives
