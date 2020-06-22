@@ -2447,6 +2447,10 @@ class TestServerProfileMerger():
                                                                                   SAS_LOGICAL_JBOD_1]
     profile_with_local_storage[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS] = [CONTROLLER_MEZZ_1, CONTROLLER_EMBEDDED]
 
+    profile_with_connection_settings = CREATED_BASIC_PROFILE.copy()
+    profile_with_connection_settings[SPKeys.CONNECTION_SETTINGS] = dict()
+    profile_with_connection_settings[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS] = [CONNECTION_1, CONNECTION_2]
+
     @pytest.fixture(autouse=True)
     def setUp(self):
         patcher_json_file = mock.patch.object(OneViewClient, 'from_json_file')
@@ -2458,6 +2462,19 @@ class TestServerProfileMerger():
 
         yield
         patcher_json_file.stop
+
+    def test_merge_when_having_connection_settings(self):
+        connection_added = dict(id=3, name="new-connection")
+        data = dict(name="Profile101",
+                    connectionSettings=dict(connections=[self.CONN_1_NO_MAC_BASIC_BOOT.copy(),
+                                                         self.CONN_2_NO_MAC_BASIC_BOOT.copy(),
+                                                         connection_added.copy()]))
+        resource = deepcopy(self.profile_with_connection_settings)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        expected_connections = [self.CONNECTION_1.copy(), self.CONNECTION_2.copy(), connection_added]
+        assert merged_data[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS] == expected_connections
 
     def test_merge_when_connections_have_new_item(self):
         connection_added = dict(id=3, name="new-connection")
@@ -2965,7 +2982,7 @@ class TestServerProfileMerger():
         item_2_merged = dict(numPhysicalDrives=2,
                              id=2, name="jbod-2", deviceSlot="Mezz 1", driveTechnology="SataHdd", status="Pending")
         expected_sas_logical_jbods = [self.SAS_LOGICAL_JBOD_1.copy(), item_2_merged.copy()]
-        assert expected_sas_logical_jbods in merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS]) == True
+        assert expected_sas_logical_jbods in merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS] is True
 
     @mock.patch.object(oneview, 'merge_list_by_key')
     def test_merge_should_ignore_logical_jbod_uri_when_null(self, mock_merge_list):
@@ -3008,7 +3025,7 @@ class TestServerProfileMerger():
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_controllers = [self.CONTROLLER_MEZZ_1.copy()]
-        assert expected_controllers in merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS]) == True
+        assert expected_controllers in merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS] is True
 
     def test_merge_when_controllers_have_changed_item(self):
         controller_embedded_changed = dict(deviceSlot="Embedded", initialize=True)
@@ -3065,7 +3082,7 @@ class TestServerProfileMerger():
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_drives = [self.CONTROLLER_EMBEDDED[SPKeys.LOGICAL_DRIVES][0]]
-        assert expected_drives in merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_EMBED][SPKeys.LOGICAL_DRIVES]) == True
+        assert expected_drives in merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_EMBED][SPKeys.LOGICAL_DRIVES] is True
 
     def test_merge_when_drives_have_incomplete_data(self):
         controller_embedded = deepcopy(self.CONTROLLER_EMBEDDED)
@@ -3129,7 +3146,7 @@ class TestServerProfileMerger():
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_drives = [self.CONTROLLER_MEZZ_1[SPKeys.LOGICAL_DRIVES][0]]
-        assert expected_drives in merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES]) == True
+        assert expected_drives in merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES] is True
 
     def test_merge_when_drives_from_mezz_controller_have_changed_item(self):
         """
