@@ -189,7 +189,7 @@ class TestNetworkSetModule(OneViewBaseTest):
             msg=NetworkSetModule.MSG_UPDATED,
             ansible_facts=dict(network_set=NETWORK_SET)
         )
-        
+
     def test_should_do_nothing_when_network_set_not_exist(self):
         self.resource.get_by_name.return_value = None
 
