@@ -67,6 +67,7 @@ PARAMS_FOR_ABSENT = dict(
 
 DICT_PARAMS_WITH_CHANGES = yaml.load(YAML_PARAMS_WITH_CHANGES)["data"]
 
+
 @pytest.mark.resource(TestNetworkSetModule='network_sets')
 class TestNetworkSetModule(OneViewBaseTest):
     """
@@ -188,8 +189,7 @@ class TestNetworkSetModule(OneViewBaseTest):
             msg=NetworkSetModule.MSG_UPDATED,
             ansible_facts=dict(network_set=NETWORK_SET)
         )
-
-
+        
     def test_should_do_nothing_when_network_set_not_exist(self):
         self.resource.get_by_name.return_value = None
 

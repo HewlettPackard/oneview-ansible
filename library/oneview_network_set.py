@@ -196,6 +196,7 @@ class NetworkSetModule(OneViewModule):
             connection_template.update(merged_data)
             return True, connection_template.data
 
+
 def main():
     NetworkSetModule().run()
 
