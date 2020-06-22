@@ -136,15 +136,10 @@ class NetworkSetModule(OneViewModule):
 
     def execute_module(self):
 
-        changed, msg, ansible_facts = False, '', {}
         if self.state == 'present':
             return self.__present()
         elif self.state == 'absent':
             return self.resource_absent()
-        elif self.state == 'default_bandwidth_reset':
-            changed, msg, ansible_facts = self.__default_bandwidth_reset()
-
-         return dict(changed=changed, msg=msg, ansible_facts=ansible_facts)
 
     def __present(self):
 
@@ -202,20 +197,6 @@ class NetworkSetModule(OneViewModule):
             return True, connection_template.data
         else:
             return False, None
-
-    def __default_bandwidth_reset(self):
-
-        if not self.current_resource:
-            raise OneViewModuleResourceNotFound(self.MSG_ETHERNET_NETWORK_NOT_FOUND)
-
-        default_connection_template = self.connection_templates.get_default()
-
-        changed, connection_template_data = self.__update_connection_template(
-            default_connection_template['bandwidth'])
-
-        return changed, self.MSG_CONNECTION_TEMPLATE_RESET, dict(
-            network_set_connection_template=connection_template_data)
-
 
 
 def main():

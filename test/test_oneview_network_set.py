@@ -59,13 +59,6 @@ YAML_PARAMS_WITH_CHANGES = """
           typicalBandwidth: 2000
 """
 
-YAML_RESET_CONNECTION_TEMPLATE = """
-        config: "{{ config }}"
-        state: default_bandwidth_reset
-        data:
-          name: 'network name'
-"""
-
 PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
@@ -196,35 +189,6 @@ class TestNetworkSetModule(OneViewBaseTest):
             ansible_facts=dict(network_set=NETWORK_SET)
         )
 
-
-    def test_reset_successfully(self):
-        self.resource.data = DICT_PARAMS_WITH_CHANGES
-
-        obj = mock.Mock()
-        obj.data = {"bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
-        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
-        self.mock_ov_client.connection_templates.get_default.return_value = {"bandwidth": {
-            "max": 1
-        }}
-
-        self.mock_ansible_module.params = yaml.load(YAML_RESET_CONNECTION_TEMPLATE)
-
-        NetworkSetModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True, msg=NetworkSetModule.MSG_CONNECTION_TEMPLATE_RESET,
-            ansible_facts=dict(network_set_connection_template=obj.data))
-
-    def test_should_fail_when_reset_not_existing_ethernet_network(self):
-        self.resource.get_by_name.return_value = None
-
-        self.mock_ansible_module.params = yaml.load(YAML_RESET_CONNECTION_TEMPLATE)
-
-        NetworkSetModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            exception=mock.ANY,
-            msg=NetworkSetModule.MSG_ETHERNET_NETWORK_NOT_FOUND)
 
     def test_should_do_nothing_when_network_set_not_exist(self):
         self.resource.get_by_name.return_value = None
