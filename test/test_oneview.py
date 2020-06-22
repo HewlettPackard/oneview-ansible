@@ -3051,6 +3051,25 @@ class TestServerProfileMerger():
 
         assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS]
 
+    def test_merge_when_drives_from_embedded_controller_no_name_no_jbodid(self):
+        new_drive = dict(name=None, raidLevel="RAID1", bootable=False, sasLogicalJBODId=None)
+        controller_embedded = deepcopy(self.CONTROLLER_EMBEDDED)
+        controller_embedded[SPKeys.LOGICAL_DRIVES].append(new_drive.copy())
+
+        data = dict(name="Profile101",
+                    localStorage=dict(controllers=[self.CONTROLLER_MEZZ_1.copy(),
+                                                   controller_embedded.copy()]))
+        resource = deepcopy(self.profile_with_local_storage)
+
+        merged_data = ServerProfileMerger().merge_data(resource, data)
+
+        expected_drives = [self.CONTROLLER_EMBEDDED[SPKeys.LOGICAL_DRIVES][0],
+                           self.CONTROLLER_EMBEDDED[SPKeys.LOGICAL_DRIVES][1],
+                           new_drive]
+        result = merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_EMBED][SPKeys.LOGICAL_DRIVES]
+
+        assert result == expected_drives
+
     def test_merge_when_drives_from_embedded_controller_have_new_item(self):
         new_drive = dict(name="drive-3", raidLevel="RAID1", bootable=False, sasLogicalJBODId=None)
         controller_embedded = deepcopy(self.CONTROLLER_EMBEDDED)
