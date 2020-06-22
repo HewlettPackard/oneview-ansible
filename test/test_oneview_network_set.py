@@ -53,6 +53,8 @@ YAML_PARAMS_WITH_CHANGES = """
     data:
       name: 'Test Network Set'
       purpose: Management
+      connection_template: 
+         uri: 'uri'
       connectionTemplateUri: ~
       bandwidth:
           maximumBandwidth: 3000
