@@ -163,7 +163,7 @@ class TestNetworkSetModule(OneViewBaseTest):
     def test_update_when_only_bandwidth_has_modified_attributes(self):
         self.resource.data = DICT_PARAMS_WITH_CHANGES
         obj = mock.Mock()
-        obj.data = {"uri": "uri"}
+        obj.data = {'connection_template': DICT_PARAMS_WITH_CHANGES['connection_template']}
         self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
 
         self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
