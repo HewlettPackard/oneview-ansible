@@ -215,6 +215,16 @@ class TestNetworkSetModule(OneViewBaseTest):
             changed=True, msg=NetworkSetModule.MSG_CONNECTION_TEMPLATE_RESET,
             ansible_facts=dict(network_set_connection_template=obj.data))
 
+    def test_should_fail_when_reset_not_existing_ethernet_network(self):
+        self.resource.get_by_name.return_value = None
+
+        self.mock_ansible_module.params = yaml.load(YAML_RESET_CONNECTION_TEMPLATE)
+
+        NetworkSetModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY,
+            msg=NetworkSetModule.MSG_ETHERNET_NETWORK_NOT_FOUND)
 
     def test_should_do_nothing_when_network_set_not_exist(self):
         self.resource.get_by_name.return_value = None
