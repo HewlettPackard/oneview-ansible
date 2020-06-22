@@ -118,13 +118,12 @@ class NetworkSetModule(OneViewModule):
     MSG_ALREADY_PRESENT = 'Network Set is already present.'
     MSG_ALREADY_ABSENT = 'Network Set is already absent.'
     MSG_ETHERNET_NETWORK_NOT_FOUND = 'Ethernet Network not found: '
-    MSG_CONNECTION_TEMPLATE_RESET = 'Network Set connection template was reset to the default.'
     RESOURCE_FACT_NAME = 'network_set'
 
     argument_spec = dict(
         state=dict(
             required=True,
-            choices=['present', 'absent', 'default_bandwidth_reset']
+            choices=['present', 'absent']
         ),
         data=dict(required=True, type='dict'))
 
@@ -149,7 +148,7 @@ class NetworkSetModule(OneViewModule):
         result = self.resource_present(self.RESOURCE_FACT_NAME)
 
         if bandwidth:
-            if self.__update_connection_template(bandwidth)[0]:
+            if self.__update_connection_template(bandwidth):
                 if not result['changed']:
                     result['changed'] = True
                     result['msg'] = self.MSG_UPDATED
@@ -181,10 +180,11 @@ class NetworkSetModule(OneViewModule):
         if 'nativeNetworkUri' in data and data['nativeNetworkUri']:
             data['nativeNetworkUri'] = self.__get_network_uri(data['nativeNetworkUri'])
 
+    # Update network set connection template with bandwidth
     def __update_connection_template(self, bandwidth):
 
         if 'connectionTemplateUri' not in self.current_resource.data:
-            return False, None
+            return False
 
         connection_template = self.connection_templates.get_by_uri(
             self.current_resource.data['connectionTemplateUri'])
@@ -194,7 +194,7 @@ class NetworkSetModule(OneViewModule):
 
         if not compare(connection_template.data, merged_data):
             connection_template.update(merged_data)
-            return True, connection_template.data
+            return True
 
 
 def main():
