@@ -109,8 +109,11 @@ class TestNetworkSetModule(OneViewBaseTest):
                            )
 
         self.resource.data = data_merged
+        obj = mock.Mock()
+        obj.data = {"uri": "uri"}
+        self.mock_ov_client.connection_templates.get.return_value = obj
 
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
 
         NetworkSetModule().run()
 
