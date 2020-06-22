@@ -2965,7 +2965,7 @@ class TestServerProfileMerger():
         item_2_merged = dict(numPhysicalDrives=2,
                              id=2, name="jbod-2", deviceSlot="Mezz 1", driveTechnology="SataHdd", status="Pending")
         expected_sas_logical_jbods = [self.SAS_LOGICAL_JBOD_1.copy(), item_2_merged.copy()]
-        assertTrue(expected_sas_logical_jbods, merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS])
+        assert expected_sas_logical_jbods in merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS]) == True
 
     @mock.patch.object(oneview, 'merge_list_by_key')
     def test_merge_should_ignore_logical_jbod_uri_when_null(self, mock_merge_list):
@@ -3008,7 +3008,7 @@ class TestServerProfileMerger():
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_controllers = [self.CONTROLLER_MEZZ_1.copy()]
-        assertTrue(expected_controllers in merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS])
+        assert expected_controllers in merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS]) == True
 
     def test_merge_when_controllers_have_changed_item(self):
         controller_embedded_changed = dict(deviceSlot="Embedded", initialize=True)
@@ -3065,7 +3065,7 @@ class TestServerProfileMerger():
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_drives = [self.CONTROLLER_EMBEDDED[SPKeys.LOGICAL_DRIVES][0]]
-        assertTrue(expected_drives, merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_EMBED][SPKeys.LOGICAL_DRIVES])
+        assert expected_drives in merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_EMBED][SPKeys.LOGICAL_DRIVES]) == True
 
     def test_merge_when_drives_have_incomplete_data(self):
         controller_embedded = deepcopy(self.CONTROLLER_EMBEDDED)
@@ -3129,7 +3129,7 @@ class TestServerProfileMerger():
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_drives = [self.CONTROLLER_MEZZ_1[SPKeys.LOGICAL_DRIVES][0]]
-        assertTrue(expected_drives, merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES])
+        assert expected_drives in merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES]) == True
 
     def test_merge_when_drives_from_mezz_controller_have_changed_item(self):
         """
