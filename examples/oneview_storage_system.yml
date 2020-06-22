@@ -23,6 +23,8 @@
     storage_system_username : 'dcs'
     storage_system_password : 'dcs'
   tasks:
+    # This is POST operation which adds a storage system for management by appliance. 
+    # An asynchronous task will be created as a result of this API call.
     - name: Add a StoreServ Storage System
       oneview_storage_system:
         config: "{{ config }}"
@@ -35,6 +37,8 @@
           family: StoreServ
       delegate_to: localhost
 
+    # This is PUT operation to update storage system attributes like managed domains and managed pools. 
+    # This is a one-time only action, after this you cannot change the managed values
     - name: Update the Storage System adding one managed pool using name as key
       oneview_storage_system:
         config: "{{ config }}"
@@ -60,6 +64,7 @@
                  - name: CPG_FC-AO
       delegate_to: localhost
 
+    # This is PUT operation to update port configuration by changing expectedNetworkUri. 
     - name: Update the Storage System adding one port using name as key
       oneview_storage_system:
         config: "{{ config }}"
@@ -78,7 +83,7 @@
           
       delegate_to: localhost
 
-    - name: Remove the storage system by its IP
+    - name: Remove the storage system by its IP(before API500)
       oneview_storage_system:
         config: "{{ config }}"
         state: absent
@@ -88,7 +93,7 @@
               hostname: '{{ storage_system_ip }}'
       delegate_to: localhost
 
-    - name: Do nothing when the storage system is already removed (by name)
+    - name: Do nothing when the storage system is already removed (by name) (API500 onwards)
       oneview_storage_system:
         config: "{{ config }}"
         state: absent

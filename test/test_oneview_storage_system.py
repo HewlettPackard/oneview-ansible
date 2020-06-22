@@ -63,12 +63,13 @@ YAML_STORAGE_SYSTEM_BY_NAME = """
     state: present
     data:
         name: SSName
-        managedDomain: TestDomain
-        managedPools:
-          - domain: TestDomain
-            type: StoragePoolV2
-            name: CPG_FC-AO
-            deviceType: FC
+        deviceSpecificAttributes:
+            managedDomain: TestDomain
+            managedPools:
+                - domain: TestDomain
+                  type: StoragePoolV2
+                  name: CPG_FC-AO
+                  deviceType: FC
       """
 
 YAML_STORAGE_SYSTEM_CHANGES = """
@@ -80,12 +81,13 @@ YAML_STORAGE_SYSTEM_CHANGES = """
                 newIp_hostname: 'New IP Hostname'
                 username: '{{ storage_system_username }}'
                 password: '{{ storage_system_password }}'
-            managedDomain: TestDomain
-            managedPools:
-              - domain: TestDomain
-                type: StoragePoolV2
-                name: CPG_FC-AO
-                deviceType: FC
+                deviceSpecificAttributes:
+                    managedDomain: TestDomain
+                    managedPools:
+                      - domain: TestDomain
+                        type: StoragePoolV2
+                        name: CPG_FC-AO
+                        deviceType: FC
       """
 
 YAML_STORAGE_SYSTEM_CHANGES_500 = """
@@ -97,12 +99,18 @@ YAML_STORAGE_SYSTEM_CHANGES_500 = """
                 password: '{{ storage_system_password }}'
             hostname: '{{ storage_system_ip_hostname }}'
             newHostname: 'New IP Hostname'
-            managedDomain: TestDomain
-            managedPools:
-              - domain: TestDomain
-                type: StoragePoolV2
-                name: CPG_FC-AO
-                deviceType: FC
+            deviceSpecificAttributes:
+                managedDomain: TestDomain
+                managedPools:
+                  - domain: TestDomain
+                    type: StoragePoolV2
+                    name: CPG_FC-AO
+                    deviceType: FC
+                discoveredPools:
+                  - domain: TestDomain
+                    type: StoragePoolV2
+                    name: CPG-SSD
+                    deviceType: FC
       """
 
 YAML_STORAGE_SYSTEM_ABSENT = """
