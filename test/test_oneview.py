@@ -498,6 +498,19 @@ class TestOneViewModule():
         assert facts == dict(changed=False,
                              msg=OneViewModule.MSG_ALREADY_ABSENT)
 
+    def test_to_check_resource_absent_should_do_nothing_when_not_exist(self):
+        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
+
+        ov_base = OneViewModule()
+        ov_base.resource_client = mock.Mock()
+        ov_base.resource_client.get_by_name.return_value = None
+        ov_base.set_resource_object(ov_base.resource_client)
+
+        facts = ov_base.check_resource_absent()
+
+        assert facts == dict(changed=False,
+                             msg=OneViewModule.MSG_ALREADY_ABSENT)
+
     def scope_update_helper(self, before_value=None, action_value=None, expected_value=None):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT.copy()
 
@@ -603,6 +616,25 @@ class TestOneViewModule():
                                                  msg=OneViewModule.MSG_ALREADY_PRESENT),
                                             'resource',
                                             None)
+        ov_base.resource_client.patch.assert_not_called()
+
+        assert facts == dict(changed=False,
+                             msg=OneViewModule.MSG_ALREADY_PRESENT,
+                             ansible_facts=dict(resource=ov_base.data))
+
+    def test_to_check_should_do_nothing_when_scopes_empty_and_none_wanted(self):
+        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT.copy()
+
+        ov_base = OneViewModule()
+        ov_base.resource_client = mock.Mock()
+        ov_base.data = self.RESOURCE_COMMON.copy()
+        ov_base.data['scopeUris'] = []
+
+        facts = ov_base.check_resource_scopes_set(dict(changed=False,
+                                                       ansible_facts=dict(resource=ov_base.data),
+                                                       msg=OneViewModule.MSG_ALREADY_PRESENT),
+                                                  'resource',
+                                                  None)
         ov_base.resource_client.patch.assert_not_called()
 
         assert facts == dict(changed=False,
