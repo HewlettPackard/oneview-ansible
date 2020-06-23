@@ -138,22 +138,6 @@ class TestStorageSystemModule(OneViewBaseTest):
     def specific_set_up(self, setUp):
         self.mock_ov_client.api_version = 300
 
-    def test_should_add_new_storage_system_with_credentials_from_api300(self):
-        self.resource.get_by_ip_hostname.return_value = None
-        obj = mock.Mock()
-        obj.data = DICT_DEFAULT_STORAGE_SYSTEM
-        self.resource.add.return_value = obj
-
-        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_500)
-
-        StorageSystemModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=StorageSystemModule.MSG_ADDED,
-            ansible_facts=dict(storage_system=DICT_DEFAULT_STORAGE_SYSTEM)
-        )
-
     def test_should_add_new_storage_system_with_credentials_from_api500(self):
         self.mock_ov_client.api_version = 500
         self.resource.get_by_hostname.return_value = None
@@ -182,18 +166,18 @@ class TestStorageSystemModule(OneViewBaseTest):
 
     def test_should_not_update_when_data_is_equals(self):
         obj = mock.Mock()
-        obj.data = DICT_DEFAULT_STORAGE_SYSTEM_500
+        obj.data = DICT_DEFAULT_STORAGE_SYSTEM
         self.resource.get_by_ip_hostname.return_value = obj
-        self.resource.update.return_value = DICT_DEFAULT_STORAGE_SYSTEM_500
+        self.resource.update.return_value = DICT_DEFAULT_STORAGE_SYSTEM
 
-        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_500)
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM)
 
         StorageSystemModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=StorageSystemModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(storage_system=DICT_DEFAULT_STORAGE_SYSTEM_500)
+            ansible_facts=dict(storage_system=DICT_DEFAULT_STORAGE_SYSTEM)
         )
 
     def test_should_not_update_when_data_is_equals_using_name(self):
