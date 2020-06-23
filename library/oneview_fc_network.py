@@ -105,10 +105,8 @@ fc_network:
 '''
 
 from ansible.module_utils.oneview import OneViewModule
-from ansible.module_utils.oneview_check_mode import OneViewModuleCheckMode
 
-
-class FcNetworkModule(OneViewModule, OneViewModuleCheckMode):
+class FcNetworkModule(OneViewModule):
     MSG_CREATED = 'FC Network created successfully.'
     MSG_UPDATED = 'FC Network updated successfully.'
     MSG_DELETED = 'FC Network deleted successfully.'
@@ -132,7 +130,10 @@ class FcNetworkModule(OneViewModule, OneViewModuleCheckMode):
         if self.state == 'present':
             return self._present()
         else:
-            return self.resource_absent()
+            if not self.module.check_mode:
+                return self.resource_absent()
+            else:
+                return self.check_resource_absent()
 
     def _present(self):
         scope_uris = self.data.pop('scopeUris', None)
