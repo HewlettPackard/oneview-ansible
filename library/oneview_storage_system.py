@@ -107,7 +107,7 @@ EXAMPLES = '''
     ports:
        - expectedNetworkUri: '/rest/fc-networks/9141498a-9616-4512-b683-a8848be039c3'
         name: 0:1:2
-        mode: Managed   
+        mode: Managed
     delegate_to: localhost
 
 - name: Remove the storage system by its IP (before API500)
@@ -207,12 +207,12 @@ class StorageSystemModule(OneViewModule):
             merged_data_copy = deepcopy(merged_data)
             if merged_data_copy['deviceSpecificAttributes']['discoveredPools'] is not None and \
                 merged_data_copy['deviceSpecificAttributes']['managedPools'] is not None:
-                for discoveredPool in merged_data_copy['deviceSpecificAttributes']['discoveredPools']:
-                    for managedPool in merged_data['deviceSpecificAttributes']['managedPools']:
-                        if discoveredPool['name'] == managedPool['name']:
-                            temp_list.append(discoveredPool)
-                            merged_data['deviceSpecificAttributes']['discoveredPools'].remove(discoveredPool)
-            merged_data['deviceSpecificAttributes']['managedPools'] = temp_list
+                    for discoveredPool in merged_data_copy['deviceSpecificAttributes']['discoveredPools']:
+                        for managedPool in merged_data['deviceSpecificAttributes']['managedPools']:
+                            if discoveredPool['name'] == managedPool['name']:
+                                temp_list.append(discoveredPool)
+                                merged_data['deviceSpecificAttributes']['discoveredPools'].remove(discoveredPool)
+                merged_data['deviceSpecificAttributes']['managedPools'] = temp_list
 
             # remove password, it cannot be used in comparison
             if 'credentials' in merged_data and 'password' in merged_data['credentials']:
