@@ -70,6 +70,11 @@ YAML_STORAGE_SYSTEM_BY_NAME = """
                   type: StoragePoolV2
                   name: CPG_FC-AO
                   deviceType: FC
+            discoveredPools:
+                - domain: TestDomain
+                  type: StoragePoolV2
+                  name: CPG-SSD
+                  deviceType: FC
       """
 
 YAML_STORAGE_SYSTEM_CHANGES = """
@@ -139,7 +144,7 @@ class TestStorageSystemModule(OneViewBaseTest):
         obj.data = DICT_DEFAULT_STORAGE_SYSTEM
         self.resource.add.return_value = obj
 
-        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM)
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_500)
 
         StorageSystemModule().run()
 
@@ -156,7 +161,7 @@ class TestStorageSystemModule(OneViewBaseTest):
         obj.data = DICT_DEFAULT_STORAGE_SYSTEM_500
         self.resource.add.return_value = obj
 
-        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_500)
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_500_500)
 
         StorageSystemModule().run()
 
@@ -177,18 +182,18 @@ class TestStorageSystemModule(OneViewBaseTest):
 
     def test_should_not_update_when_data_is_equals(self):
         obj = mock.Mock()
-        obj.data = DICT_DEFAULT_STORAGE_SYSTEM
+        obj.data = DICT_DEFAULT_STORAGE_SYSTEM_500
         self.resource.get_by_ip_hostname.return_value = obj
-        self.resource.update.return_value = DICT_DEFAULT_STORAGE_SYSTEM
+        self.resource.update.return_value = DICT_DEFAULT_STORAGE_SYSTEM_500
 
-        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM)
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_500)
 
         StorageSystemModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=StorageSystemModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(storage_system=DICT_DEFAULT_STORAGE_SYSTEM)
+            ansible_facts=dict(storage_system=DICT_DEFAULT_STORAGE_SYSTEM_500)
         )
 
     def test_should_not_update_when_data_is_equals_using_name(self):
@@ -224,25 +229,6 @@ class TestStorageSystemModule(OneViewBaseTest):
         StorageSystemModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=StorageSystemModule.MSG_CREDENTIALS_MANDATORY)
-
-    def test_update_when_data_has_modified_attributes(self):
-        data_merged = DICT_DEFAULT_STORAGE_SYSTEM.copy()
-        data_merged['credentials']['newIp_hostname'] = '10.10.10.10'
-
-        obj = mock.Mock()
-        obj.data = DICT_DEFAULT_STORAGE_SYSTEM
-        self.resource.get_by_ip_hostname.return_value = obj
-        self.resource.update.return_value = data_merged
-
-        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_CHANGES)
-
-        StorageSystemModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=StorageSystemModule.MSG_UPDATED,
-            ansible_facts=dict(storage_system=data_merged)
-        )
 
     def test_update_when_data_has_modified_attributes_when_api500(self):
         self.mock_ov_client.api_version = 500
