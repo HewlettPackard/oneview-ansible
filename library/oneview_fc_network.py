@@ -106,6 +106,7 @@ fc_network:
 
 from ansible.module_utils.oneview import OneViewModule
 
+
 class FcNetworkModule(OneViewModule):
     MSG_CREATED = 'FC Network created successfully.'
     MSG_UPDATED = 'FC Network updated successfully.'

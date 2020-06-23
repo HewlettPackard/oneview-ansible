@@ -80,10 +80,9 @@ class TestOneViewModule():
     )
 
     RESOURCE_COMMON = {'uri': '/rest/resource/id',
-                       'name': 'Resource Name'
-                       }
-    CHECK_RESOURCE_COMMON = { 'name': 'Resource Name'
-                       }
+                       'name': 'Resource Name'}
+
+    CHECK_RESOURCE_COMMON = {'name': 'Resource Name'}
 
     EXPECTED_ARG_SPEC = {'api_version': {'type': u'int'},
                          'config': {'type': 'path'},
@@ -326,7 +325,7 @@ class TestOneViewModule():
                              msg=OneViewModule.MSG_CREATED,
                              ansible_facts=dict(resource=expected))
 
-    def test_check_resource_present_should_create(self):
+    def test_to_check_resource_present_should_create(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
 
         ov_base = OneViewModule()
@@ -345,7 +344,6 @@ class TestOneViewModule():
                              msg=OneViewModule.MSG_CREATED,
                              ansible_facts=dict(resource=expected))
 
-
     def test_resource_present_should_not_update_when_data_is_equals(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
 
@@ -362,8 +360,7 @@ class TestOneViewModule():
                              msg=OneViewModule.MSG_ALREADY_PRESENT,
                              ansible_facts=dict(resource=self.RESOURCE_COMMON.copy()))
 
-
-    def test_check_resource_present_should_not_update_when_data_is_equals(self):
+    def test_to_check_resource_present_should_not_update_when_data_is_equals(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
 
         ov_base = OneViewModule()
@@ -378,8 +375,6 @@ class TestOneViewModule():
         assert facts == dict(changed=False,
                              msg=OneViewModule.MSG_ALREADY_PRESENT,
                              ansible_facts=dict(resource=self.RESOURCE_COMMON.copy()))
-
-
 
     def test_resource_present_should_not_update_when_data_is_equals_with_resource_uri(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT_WITH_URI
@@ -398,7 +393,7 @@ class TestOneViewModule():
                              msg=OneViewModule.MSG_ALREADY_PRESENT,
                              ansible_facts=dict(resource=self.RESOURCE_COMMON.copy()))
 
-    def test_check_resource_present_should_not_update_when_data_is_equals_with_resource_uri(self):
+    def test_to_check_resource_present_should_not_update_when_data_is_equals_with_resource_uri(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT_WITH_URI
 
         ov_base = OneViewModule()
@@ -414,8 +409,6 @@ class TestOneViewModule():
         assert facts == dict(changed=False,
                              msg=OneViewModule.MSG_ALREADY_PRESENT,
                              ansible_facts=dict(resource=self.RESOURCE_COMMON.copy()))
-
-
 
     def test_resource_present_should_update_when_data_has_modified_attributes(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
@@ -442,7 +435,7 @@ class TestOneViewModule():
         assert dict(changed=facts['changed'], msg=facts['msg']) == dict(changed=True,
                                                                         msg=OneViewModule.MSG_UPDATED)
 
-    def test_check_resource_present_should_update_when_data_has_modified_attributes(self):
+    def test_to_check_resource_present_should_update_when_data_has_modified_attributes(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
 
         ov_base = OneViewModule()
@@ -465,7 +458,6 @@ class TestOneViewModule():
         assert dict(changed=facts['changed'], msg=facts['msg']) == dict(changed=True,
                                                                         msg=OneViewModule.MSG_UPDATED)
 
-
     def test_resource_absent_should_remove(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
 
@@ -480,7 +472,7 @@ class TestOneViewModule():
         assert facts == dict(changed=True,
                              msg=OneViewModule.MSG_DELETED)
 
-    def test_check_resource_absent_should_remove(self):
+    def test_to_check_resource_absent_should_remove(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
 
         ov_base = OneViewModule()
@@ -547,10 +539,10 @@ class TestOneViewModule():
         ov_base.data['scopeUris'] = before_value
 
         facts = ov_base.check_resource_scopes_set(dict(changed=False,
-                                                 ansible_facts=dict(resource=ov_base.data),
-                                                 msg=OneViewModule.MSG_ALREADY_PRESENT),
-                                            'resource',
-                                            action_value)
+                                                       ansible_facts=dict(resource=ov_base.data),
+                                                       msg=OneViewModule.MSG_ALREADY_PRESENT),
+                                                  'resource',
+                                                  action_value)
 
         assert facts == dict(changed=True,
                              msg=OneViewModule.MSG_UPDATED,

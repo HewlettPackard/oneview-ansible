@@ -549,21 +549,22 @@ class OneViewModule(object):
         """
         if scope_uris is None:
             scope_uris = []
-                    
+
         resource = state['ansible_facts'][fact_name]
-                 
+
         if resource.get('scopeUris') is None or set(resource['scopeUris']) != set(scope_uris):
             operation_data = dict(operation='replace', path='/scopeUris', value=scope_uris)
             updated_resource = self.current_resource.patch(**operation_data)
             state['ansible_facts'][fact_name] = updated_resource.data
             state['changed'] = True
             state['msg'] = self.MSG_UPDATED
-              
+
         return state
-         
+
     def check_resource_present(self, fact_name):
 
         """
+        The following implementation will work for resource_present under check mode.
         Generic implementation of the present state to be run under check mode for the OneView resources.
 
         It checks if the resource needs to be created or updated.
@@ -589,6 +590,11 @@ class OneViewModule(object):
         )
 
     def check_update_resource(self):
+        """
+        The following implementation will work for update_resource under check mode.
+        It checks if the resource needs to be updated or not.
+        """
+
         updated_data = self.current_resource.data.copy()
         updated_data.update(self.data)
         changed = False
@@ -602,10 +608,9 @@ class OneViewModule(object):
 
     def check_resource_absent(self, method='delete'):
         """
-        Generic implementation of the absent state for the OneView resources.
-
+        The following implementation will work for resource_absent under check mode.
+        Generic implementation of the absent state for the OneView resources that to be run under check_mode.
         It checks if the resource needs to be removed.
-
         :return: A dictionary with the expected arguments for the AnsibleModule.exit_json
         """
         if self.current_resource:
@@ -615,9 +620,9 @@ class OneViewModule(object):
 
     def check_resource_scopes_set(self, state, fact_name, scope_uris):
         """
+        The following implementation will work for resource_scopes_set under check mode.
         Generic implementation of the scopes to check the update PATCH for the OneView resources.
         It checks if the resource needs to be updated with the current scopes.
-        This method is meant to be run after ensuring the present state.
         :arg dict state: Dict containing the data from the last state results in the resource.
         It needs to have the 'msg', 'changed', and 'ansible_facts' entries.
         :arg str fact_name: Name of the fact returned to the Ansible.
@@ -633,7 +638,6 @@ class OneViewModule(object):
             state['changed'] = True
             state['msg'] = self.MSG_UPDATED
         return state
-
 
 
 # @six.add_metaclass(abc.ABCMeta)
