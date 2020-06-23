@@ -95,20 +95,20 @@ EXAMPLES = '''
 
 - name: Update the Storage System adding one port using name as key
   oneview_storage_system:
-    config: "{{ config }}"
     state: present
     data:
-    credentials:
+      credentials:
         username: '{{ storage_system_username }}'
         password: '{{ storage_system_password }}'
     name: '{{ storage_system_name }}'
     family: StoreServ
     hostname: '{{ storage_system_ip }}'
-    ports:
-       - expectedNetworkUri: '/rest/fc-networks/9141498a-9616-4512-b683-a8848be039c3'
+    ports: 
+      - expectedNetworkUri: '/rest/fc-networks/9141498a-9616-4512-b683-a8848be039c3'
         name: 0:1:2
         mode: Managed
-    delegate_to: localhost
+          
+  delegate_to: localhost
 
 - name: Remove the storage system by its IP (before API500)
   oneview_storage_system:
