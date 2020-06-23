@@ -161,7 +161,7 @@ class TestStorageSystemModule(OneViewBaseTest):
         obj.data = DICT_DEFAULT_STORAGE_SYSTEM_500
         self.resource.add.return_value = obj
 
-        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_500_500)
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_500)
 
         StorageSystemModule().run()
 

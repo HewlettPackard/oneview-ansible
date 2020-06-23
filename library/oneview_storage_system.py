@@ -104,11 +104,10 @@ EXAMPLES = '''
     name: '{{ storage_system_name }}'
     family: StoreServ
     hostname: '{{ storage_system_ip }}'
-    ports: 
+    ports:
        - expectedNetworkUri: '/rest/fc-networks/9141498a-9616-4512-b683-a8848be039c3'
         name: 0:1:2
-        mode: Managed
-        
+        mode: Managed   
     delegate_to: localhost
 
 - name: Remove the storage system by its IP (before API500)
@@ -180,7 +179,7 @@ class StorageSystemModule(OneViewModule):
             return self.__present()
         elif self.state == 'absent':
             return self.resource_absent('remove')
- 
+
     def __present(self):
         changed = False
         msg = ''
@@ -206,8 +205,8 @@ class StorageSystemModule(OneViewModule):
             merged_data = dict_merge(resource, data)
             temp_list = []
             merged_data_copy = deepcopy(merged_data)
-            if merged_data_copy['deviceSpecificAttributes']['discoveredPools'] is not None and 
-            merged_data_copy['deviceSpecificAttributes']['managedPools'] is not None:
+            if merged_data_copy['deviceSpecificAttributes']['discoveredPools'] is not None and \
+                merged_data_copy['deviceSpecificAttributes']['managedPools'] is not None:
                 for discoveredPool in merged_data_copy['deviceSpecificAttributes']['discoveredPools']:
                     for managedPool in merged_data['deviceSpecificAttributes']['managedPools']:
                         if discoveredPool['name'] == managedPool['name']:
