@@ -603,6 +603,26 @@ class TestOneViewModule():
                              msg=OneViewModule.MSG_ALREADY_PRESENT,
                              ansible_facts=dict(resource=ov_base.data))
 
+    def test_to_check_should_do_nothing_when_scopes_are_the_same(self):
+        self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT.copy()
+
+        ov_base = OneViewModule()
+        ov_base.resource_client = mock.Mock()
+        ov_base.data = self.RESOURCE_COMMON.copy()
+        ov_base.data['scopeUris'] = ['test']
+
+        facts = ov_base.check_resource_scopes_set(dict(changed=False,
+                                                       ansible_facts=dict(resource=ov_base.data),
+                                                       msg=OneViewModule.MSG_ALREADY_PRESENT),
+                                                  'resource',
+                                                  ['test'])
+
+        ov_base.resource_client.patch.assert_not_called()
+
+        assert facts == dict(changed=False,
+                             msg=OneViewModule.MSG_ALREADY_PRESENT,
+                             ansible_facts=dict(resource=ov_base.data))
+
     def test_should_do_nothing_when_scopes_empty_and_none_wanted(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT.copy()
 

@@ -29,6 +29,10 @@ DEFAULT_FC_NETWORK_TEMPLATE = dict(
     fabricType='FabricAttach'
 )
 
+CHECK_MODE_DEFAULT_FC_NETWORK_TEMPLATE = dict(
+    name='New FC Network 2',
+)
+
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
@@ -41,6 +45,13 @@ PARAMS_WITH_CHANGES = dict(
     data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'],
               newName="New Name",
               fabricType='DirectAttach')
+)
+
+CHECK_MODE_PARAMS_WITH_CHANGES = dict(
+    config='config.json',
+    state='present',
+    data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'],
+              newName="New Name")
 )
 
 PARAMS_FOR_ABSENT = dict(
@@ -71,6 +82,20 @@ class TestFcNetworkModule(OneViewBaseTest):
             ansible_facts=dict(fc_network=DEFAULT_FC_NETWORK_TEMPLATE)
         )
 
+    def test_to_check_create_new_fc_network(self):
+        self.resource.get_by_name.return_value = []
+        self.mock_ansible_module.check_mode = True
+        self.resource.data = CHECK_MODE_DEFAULT_FC_NETWORK_TEMPLATE
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        FcNetworkModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=FcNetworkModule.MSG_CREATED,
+            ansible_facts=dict(fc_network=CHECK_MODE_DEFAULT_FC_NETWORK_TEMPLATE)
+        )
+
     def test_should_not_update_when_data_is_equals(self):
         self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE
 
@@ -82,6 +107,19 @@ class TestFcNetworkModule(OneViewBaseTest):
             changed=False,
             msg=FcNetworkModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(fc_network=DEFAULT_FC_NETWORK_TEMPLATE)
+        )
+
+    def test_with_check_mode_should_not_update_when_data_is_equals(self):
+        self.resource.data = CHECK_MODE_DEFAULT_FC_NETWORK_TEMPLATE
+
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+        self.mock_ansible_module.check_mode = True
+        FcNetworkModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=FcNetworkModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(fc_network=CHECK_MODE_DEFAULT_FC_NETWORK_TEMPLATE)
         )
 
     def test_update_when_data_has_modified_attributes(self):
@@ -101,10 +139,38 @@ class TestFcNetworkModule(OneViewBaseTest):
             ansible_facts=dict(fc_network=data_merged)
         )
 
+    def test_with_check_mode_update_when_data_has_modified_attributes(self):
+        data_merged = CHECK_MODE_DEFAULT_FC_NETWORK_TEMPLATE.copy()
+
+        self.resource.data = data_merged
+        self.resource.update.return_value = self.resource
+        self.mock_ansible_module.check_mode = True
+        self.mock_ansible_module.params = CHECK_MODE_PARAMS_WITH_CHANGES
+
+        FcNetworkModule().run()
+
+        data_merged['name'] = 'New Name'
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=FcNetworkModule.MSG_UPDATED,
+            ansible_facts=dict(fc_network=data_merged)
+        )
+
     def test_should_remove_fc_network(self):
         self.resource.data = [DEFAULT_FC_NETWORK_TEMPLATE]
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
         self.mock_ansible_module.check_mode = False
+        FcNetworkModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=FcNetworkModule.MSG_DELETED
+        )
+
+    def test_with_check_mode_should_remove_fc_network(self):
+        self.resource.data = [DEFAULT_FC_NETWORK_TEMPLATE]
+        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
+        self.mock_ansible_module.check_mode = True
         FcNetworkModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -117,6 +183,18 @@ class TestFcNetworkModule(OneViewBaseTest):
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
         self.mock_ansible_module.check_mode = False
+        FcNetworkModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=FcNetworkModule.MSG_ALREADY_ABSENT
+        )
+
+    def test_with_check_mode_should_do_nothing_when_fc_network_not_exist(self):
+        self.resource.get_by_name.return_value = []
+
+        self.mock_ansible_module.params = PARAMS_FOR_ABSENT
+        self.mock_ansible_module.check_mode = True
         FcNetworkModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -148,6 +226,32 @@ class TestFcNetworkModule(OneViewBaseTest):
                                                     path='/scopeUris',
                                                     value=['test'])
 
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            ansible_facts=dict(fc_network=patch_return),
+            msg=FcNetworkModule.MSG_UPDATED
+        )
+
+    def test_with_check_mode_update_scopes_when_different(self):
+        params_to_scope = PARAMS_FOR_PRESENT.copy()
+        params_to_scope['data']['scopeUris'] = ['test']
+        self.mock_ansible_module.params = params_to_scope
+
+        resource_data = CHECK_MODE_DEFAULT_FC_NETWORK_TEMPLATE.copy()
+        resource_data['scopeUris'] = ['fake']
+
+        self.resource.data = resource_data
+
+        patch_return = resource_data.copy()
+        patch_return['scopeUris'] = ['test']
+
+        patch_return_obj = self.resource.copy()
+        patch_return_obj.data = patch_return
+        self.resource.patch.return_value = patch_return_obj
+        self.mock_ansible_module.check_mode = True
+        FcNetworkModule().run()
+
+        del(patch_return['scopeUris'])
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             ansible_facts=dict(fc_network=patch_return),

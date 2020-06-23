@@ -142,6 +142,7 @@ class FcNetworkModule(OneViewModule):
             result = self.resource_present(self.RESOURCE_FACT_NAME)
         else:
             result = self.check_resource_present(self.RESOURCE_FACT_NAME)
+
         if scope_uris is not None:
             if not self.module.check_mode:
                 result = self.resource_scopes_set(result, 'fc_network', scope_uris)
