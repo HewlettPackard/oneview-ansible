@@ -206,7 +206,7 @@ class StorageSystemModule(OneViewModule):
             temp_list = []
             merged_data_copy = deepcopy(merged_data)
             if merged_data_copy.get('deviceSpecificAttributes').get('discoveredPools') and \
-            merged_data_copy.get('deviceSpecificAttributes').get('managedPools'):
+                merged_data_copy.get('deviceSpecificAttributes').get('managedPools'):
                 for discoveredPool in merged_data_copy['deviceSpecificAttributes']['discoveredPools']:
                     for managedPool in merged_data['deviceSpecificAttributes']['managedPools']:
                         if discoveredPool['name'] == managedPool['name']:
