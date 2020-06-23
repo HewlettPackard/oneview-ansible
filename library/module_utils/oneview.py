@@ -620,11 +620,12 @@ class OneViewModule(object):
 
     def check_resource_scopes_set(self, state, fact_name, scope_uris):
         """
-        The following implementation will work for resource_scopes_set under check mode.
-        Generic implementation of the scopes to check the update PATCH for the OneView resources.
+        The following implementation will work for resource_absent under check mode.
+        Generic implementation of the scopes update PATCH for the OneView resources.
         It checks if the resource needs to be updated with the current scopes.
+        This method is meant to be run after ensuring the present state.
         :arg dict state: Dict containing the data from the last state results in the resource.
-        It needs to have the 'msg', 'changed', and 'ansible_facts' entries.
+            It needs to have the 'msg', 'changed', and 'ansible_facts' entries.
         :arg str fact_name: Name of the fact returned to the Ansible.
         :arg list scope_uris: List with all the scope URIs to be added to the resource.
         :return: A dictionary with the expected arguments for the AnsibleModule.exit_json
@@ -637,6 +638,7 @@ class OneViewModule(object):
         if resource.get('scopeUris') is None or set(resource['scopeUris']) != set(scope_uris):
             state['changed'] = True
             state['msg'] = self.MSG_UPDATED
+
         return state
 
 

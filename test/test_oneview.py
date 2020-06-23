@@ -535,7 +535,7 @@ class TestOneViewModule():
         resource_obj = StubResource()
         resource_obj.data = {'return': 'value'}
         ov_base.current_resource.patch.return_value = resource_obj
-        ov_base.data = self.RESOURCE_COMMON.copy()
+        ov_base.data = self.CHECK_RESOURCE_COMMON.copy()
         ov_base.data['scopeUris'] = before_value
 
         facts = ov_base.check_resource_scopes_set(dict(changed=False,
@@ -546,13 +546,19 @@ class TestOneViewModule():
 
         assert facts == dict(changed=True,
                              msg=OneViewModule.MSG_UPDATED,
-                             ansible_facts=dict(resource={'return': 'value'}))
+                             ansible_facts=dict(resource=ov_base.data))
 
     def test_update_scopes_when_not_defined_before(self):
         self.scope_update_helper(before_value=None, action_value=['test'], expected_value=['test'])
 
+    def test_to_check_update_scopes_when_not_defined_before(self):
+        self.check_scope_update_helper(before_value=None, action_value=['test'], expected_value=['test'])
+
     def test_update_scopes_when_empty_before(self):
         self.scope_update_helper(before_value=[], action_value=['test'], expected_value=['test'])
+
+    def test_to_check_update_scopes_when_empty_before(self):
+        self.check_scope_update_helper(before_value=[], action_value=['test'], expected_value=['test'])
 
     def test_update_scopes_with_empty_list(self):
         self.scope_update_helper(before_value=['test1', 'test2'], action_value=[], expected_value=[])
