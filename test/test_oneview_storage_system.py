@@ -110,6 +110,10 @@ YAML_STORAGE_SYSTEM_CHANGES_500 = """
                     type: StoragePoolV2
                     name: CPG-SSD
                     deviceType: FC
+                  - domain: TestDomain
+                    type: StoragePoolV2
+                    name:  CPG_FC-AO
+                    deviceType: FC
       """
 
 YAML_STORAGE_SYSTEM_ABSENT = """
