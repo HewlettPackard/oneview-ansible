@@ -72,7 +72,7 @@ $ docker pull hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v5.6.0-OV5.2
 # a sh session where you can create files, issue commands and execute playbooks
 $ docker run -it hewlettpackardenterprise/hpe-oneview-sdk-for-terraform:v5.6.0-OV5.2 /bin/sh
 ```
-There is also a [how-to guide](https://github.com/HewlettPackard/oneview-ansible-samples/blob/master/oneview-ansible-in-container/oneview-ansible-in-container.md) with instructions on how to use the container without creating a sh session..
+There is also a [how-to guide](https://github.com/HewlettPackard/oneview-ansible-samples/blob/master/oneview-ansible-in-container/oneview-ansible-in-container.md) with instructions on how to use the container without creating a sh session.
 
 To perform a full installation, you should execute the following steps:
 
