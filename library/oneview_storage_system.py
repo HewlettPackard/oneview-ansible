@@ -103,11 +103,11 @@ EXAMPLES = '''
     name: '{{ storage_system_name }}'
     family: StoreServ
     hostname: '{{ storage_system_ip }}'
-    ports: 
+    ports:
       - expectedNetworkUri: '/rest/fc-networks/9141498a-9616-4512-b683-a8848be039c3'
         name: 0:1:2
         mode: Managed
-          
+
   delegate_to: localhost
 
 - name: Remove the storage system by its IP (before API500)
@@ -205,8 +205,8 @@ class StorageSystemModule(OneViewModule):
             merged_data = dict_merge(resource, data)
             temp_list = []
             merged_data_copy = deepcopy(merged_data)
-            if merged_data_copy.get('deviceSpecificAttributes').get('discoveredPools') and \
-                merged_data_copy.get('deviceSpecificAttributes').get('managedPools'):
+            if merged_data_copy.get('deviceSpecificAttributes') and merged_data_copy.get('deviceSpecificAttributes').get('discoveredPools') and \
+                    merged_data_copy.get('deviceSpecificAttributes').get('managedPools'):
                 for discoveredPool in merged_data_copy['deviceSpecificAttributes']['discoveredPools']:
                     for managedPool in merged_data['deviceSpecificAttributes']['managedPools']:
                         if discoveredPool['name'] == managedPool['name']:

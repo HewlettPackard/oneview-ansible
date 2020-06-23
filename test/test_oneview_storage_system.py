@@ -63,18 +63,12 @@ YAML_STORAGE_SYSTEM_BY_NAME = """
     state: present
     data:
         name: SSName
-        deviceSpecificAttributes:
-            managedDomain: TestDomain
-            managedPools:
-                - domain: TestDomain
-                  type: StoragePoolV2
-                  name: CPG_FC-AO
-                  deviceType: FC
-            discoveredPools:
-                - domain: TestDomain
-                  type: StoragePoolV2
-                  name: CPG-SSD
-                  deviceType: FC
+        managedDomain: TestDomain
+        managedPools:
+          - domain: TestDomain
+            type: StoragePoolV2
+            name: CPG_FC-AO
+            deviceType: FC
       """
 
 YAML_STORAGE_SYSTEM_CHANGES = """
