@@ -136,6 +136,19 @@ class TestStorageSystemModule(OneViewBaseTest):
     def specific_set_up(self, setUp):
         self.mock_ov_client.api_version = 300
 
+    def test_should_add_new_storage_system_with_credentials_from_api300(self):
+        self.resource.get_by_ip_hostname.return_value = None
+        obj = mock.Mock()
+        obj.data = DICT_DEFAULT_STORAGE_SYSTEM
+        self.resource.add.return_value = obj
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM)
+        StorageSystemModule().run()
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=StorageSystemModule.MSG_ADDED,
+            ansible_facts=dict(storage_system=DICT_DEFAULT_STORAGE_SYSTEM)
+        )
+
     def test_should_add_new_storage_system_with_credentials_from_api500(self):
         self.mock_ov_client.api_version = 500
         self.resource.get_by_hostname.return_value = None
@@ -211,6 +224,25 @@ class TestStorageSystemModule(OneViewBaseTest):
         StorageSystemModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=StorageSystemModule.MSG_CREDENTIALS_MANDATORY)
+
+    def test_update_when_data_has_modified_attributes(self):
+        data_merged = DICT_DEFAULT_STORAGE_SYSTEM.copy()
+        data_merged['credentials']['newIp_hostname'] = '10.10.10.10'
+
+        obj = mock.Mock()
+        obj.data = DICT_DEFAULT_STORAGE_SYSTEM
+        self.resource.get_by_ip_hostname.return_value = obj
+        self.resource.update.return_value = data_merged
+
+        self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM_CHANGES)
+
+        StorageSystemModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=StorageSystemModule.MSG_UPDATED,
+            ansible_facts=dict(storage_system=data_merged)
+        )
 
     def test_update_when_data_has_modified_attributes_when_api500(self):
         self.mock_ov_client.api_version = 500
