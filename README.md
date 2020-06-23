@@ -63,6 +63,8 @@ Sample playbooks and instructions on how to run the modules can be found in the 
 ## Setup
 
 To run the Ansible modules provided in this project, you may run a containerized version or perform a full installation. The containerized version of the `oneview-ansible` modules is available in the [Docker Store](https://store.docker.com/community/images/hewlettpackardenterprise/hpe-oneview-sdk-for-ansible). 
+
+The Docker Store image `tag` consist of two sections: `<sdk_version-OV_version>`
  ```bash
 #Download and store a local copy of terraform-provider-oneview and
 # use it as a Docker image.
