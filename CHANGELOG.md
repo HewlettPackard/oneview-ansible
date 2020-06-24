@@ -11,6 +11,7 @@
 - [#510](https://github.com/HewlettPackard/oneview-ansible/issues/510) Ensure users are aware of how to secure oneview credentials.
 - [#525](https://github.com/HewlettPackard/oneview-ansible/issues/525) Server Hardware Facts - Extract the Server Hardware Details by URI.
 - [#532](https://github.com/HewlettPackard/oneview-ansible/issues/532) Add multiple servers method in server hardware module returns invalid response.
+- [#342](https://github.com/HewlettPackard/oneview-ansible/issues/532) Re-Running Server Profile Creation (including OS Deployment via Image Streamer) updates Server Profile over and over.
 
 ## v5.6.0
 
