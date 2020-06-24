@@ -194,11 +194,13 @@ class LogicalInterconnectGroupModule(OneViewModule):
                         value['permittedInterconnectTypeUri'] = self.__get_interconnect_type_by_name(
                             permitted_interconnect_type_name).get('uri')
 
-        for uplinkSet in self.data['uplinkSets']:
-            if 'networkNames' in uplinkSet:
-                networkUris = [self.__get_network_uri(x) for x in uplinkSet.pop('networkNames')]
+        if 'uplinkSets' in self.data:
+            for uplinkSet in self.data['uplinkSets']:
+                networkNames = uplinkSet.pop('networkNames', None)
+                if networkNames:
+                    networkUris = [self.__get_network_uri(x) for x in networkNames]
 
-                uplinkSet['networkUris'].extend(networkUris)
+                    uplinkSet['networkUris'].extend(networkUris)
 
     def __get_network_uri(self, network_name_or_uri):
 
