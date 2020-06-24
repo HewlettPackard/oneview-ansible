@@ -4,6 +4,7 @@
 
 #### Bug fixes & Enhancements
 - [#341](https://github.com/HewlettPackard/oneview-ansible/issues/341) Logical_Interconnect_Group Module , idempotency , Uplinksets for Synergy.
+- [#370](https://github.com/HewlettPackard/oneview-ansible/issues/370) oneview_logical_interconnect_group doesn't support network names
 - [#380](https://github.com/HewlettPackard/oneview-ansible/issues/380) oneview_network_set does not support bandwidth and untagged network
 - [#397](https://github.com/HewlettPackard/oneview-ansible/issues/397) oneview_network_set does not support clearing the nativeNetworkUri
 - [#451](https://github.com/HewlettPackard/oneview-ansible/issues/451) auto_assign_server_hardware does not work with DLs
