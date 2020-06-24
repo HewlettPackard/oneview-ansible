@@ -97,6 +97,8 @@ EXAMPLES = '''
         - name: 'e23 uplink set'
           mode: 'Auto'
           networkType: 'Ethernet'
+          networkNames:
+            - 'TestNetwork_1'
           networkUris:
             - '/rest/ethernet-networks/b2be27ec-ae31-41cb-9f92-ff6da5905abc'
           logicalPortConfigInfos:
@@ -139,7 +141,7 @@ logical_interconnect_group:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare
 
 
 class LogicalInterconnectGroupModule(OneViewModule):
@@ -149,6 +151,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
     MSG_ALREADY_PRESENT = 'Logical Interconnect Group is already present.'
     MSG_ALREADY_ABSENT = 'Logical Interconnect Group is already absent.'
     MSG_INTERCONNECT_TYPE_NOT_FOUND = 'Interconnect Type was not found.'
+    MSG_ETHERNET_NETWORK_NOT_FOUND = 'Ethernet Network was not found.'
 
     RESOURCE_FACT_NAME = 'logical_interconnect_group'
 
@@ -190,6 +193,27 @@ class LogicalInterconnectGroupModule(OneViewModule):
                     if permitted_interconnect_type_name:
                         value['permittedInterconnectTypeUri'] = self.__get_interconnect_type_by_name(
                             permitted_interconnect_type_name).get('uri')
+
+        if 'uplinkSets' in self.data:
+            for uplinkSet in self.data['uplinkSets']:
+                networkUris = [self.__get_network_uri(x) for x in uplinkSet.pop('networkNames', None)]
+
+                uplinkSet['networkUris'].extend(networkUris)
+
+    def __get_network_uri(self, network_name_or_uri):
+
+        if network_name_or_uri and network_name_or_uri.startswith('/rest/ethernet-networks'):
+            return network_name_or_uri
+        else:
+            network_name = self.__get_network_by_name(network_name_or_uri)
+            return network_name['uri']
+
+    def __get_network_by_name(self, name):
+
+        ethernet_networks = self.oneview_client.ethernet_networks.get_by('name', name)
+        if not ethernet_networks:
+            raise OneViewModuleResourceNotFound(self.MSG_ETHERNET_NETWORK_NOT_FOUND + name)
+        return ethernet_networks[0]
 
     def __get_interconnect_type_by_name(self, name):
         i_type = self.oneview_client.interconnect_types.get_by('name', name)
