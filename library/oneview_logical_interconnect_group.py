@@ -204,8 +204,8 @@ class LogicalInterconnectGroupModule(OneViewModule):
 
     def __get_network_uri(self, name):
 
-            network_name = self.oneview_client.ethernet_networks.get_by('name', name)
-            return network_name[0]['uri']
+        network_name = self.oneview_client.ethernet_networks.get_by('name', name)
+        return network_name[0]['uri']
 
     def __get_interconnect_type_by_name(self, name):
         i_type = self.oneview_client.interconnect_types.get_by('name', name)
