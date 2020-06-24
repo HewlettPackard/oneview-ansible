@@ -852,7 +852,7 @@ class TestOneViewModuleBase():
 
         OneViewModuleBase(validate_etag_support=True).run()
         self.mock_ansible_module_init.assert_called_once_with(argument_spec=self.EXPECTED_ARG_SPEC,
-                                                              supports_check_mode=True)
+                                                              supports_check_mode=False)
         self.mock_ov_client.connection.enable_etag_validation.not_been_called()
         self.mock_ov_client.connection.disable_etag_validation.not_been_called()
 
@@ -862,7 +862,7 @@ class TestOneViewModuleBase():
 
         OneViewModuleBase(validate_etag_support=True).run()
         self.mock_ansible_module_init.assert_called_once_with(argument_spec=self.EXPECTED_ARG_SPEC,
-                                                              supports_check_mode=True)
+                                                              supports_check_mode=False)
         self.mock_ov_client.connection.enable_etag_validation.not_been_called()
         self.mock_ov_client.connection.disable_etag_validation.assert_called_once_with()
 
@@ -875,7 +875,7 @@ class TestOneViewModuleBase():
         expected_arg_spec = deepcopy(self.EXPECTED_ARG_SPEC)
         expected_arg_spec.pop('validate_etag')
         self.mock_ansible_module_init.assert_called_once_with(argument_spec=expected_arg_spec,
-                                                              supports_check_mode=True)
+                                                              supports_check_mode=False)
 
         self.mock_ov_client.connection.enable_etag_validation.not_been_called()
         self.mock_ov_client.connection.disable_etag_validation.not_been_called()
@@ -890,7 +890,7 @@ class TestOneViewModuleBase():
         expected_arg_spec['options'] = 'list'
 
         self.mock_ansible_module_init.assert_called_once_with(argument_spec=expected_arg_spec,
-                                                              supports_check_mode=True)
+                                                              supports_check_mode=False)
 
     def test_should_call_fail_json_when_oneview_exception(self):
         self.mock_ansible_module.params = self.PARAMS_FOR_PRESENT
