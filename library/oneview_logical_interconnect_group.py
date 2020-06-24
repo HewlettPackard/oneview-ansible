@@ -141,7 +141,7 @@ logical_interconnect_group:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
 
 
 class LogicalInterconnectGroupModule(OneViewModule):
