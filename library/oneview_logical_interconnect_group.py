@@ -202,20 +202,10 @@ class LogicalInterconnectGroupModule(OneViewModule):
 
                     uplinkSet['networkUris'].extend(networkUris)
 
-    def __get_network_uri(self, network_name_or_uri):
+    def __get_network_uri(self, name):
 
-        if network_name_or_uri and network_name_or_uri.startswith('/rest/ethernet-networks'):
-            return network_name_or_uri
-        else:
-            network_name = self.__get_network_by_name(network_name_or_uri)
-            return network_name['uri']
-
-    def __get_network_by_name(self, name):
-
-        ethernet_networks = self.oneview_client.ethernet_networks.get_by('name', name)
-        if not ethernet_networks:
-            raise OneViewModuleResourceNotFound(self.MSG_ETHERNET_NETWORK_NOT_FOUND + name)
-        return ethernet_networks[0]
+            network_name = self.oneview_client.ethernet_networks.get_by('name', name)
+            return network_name[0]['uri']
 
     def __get_interconnect_type_by_name(self, name):
         i_type = self.oneview_client.interconnect_types.get_by('name', name)
