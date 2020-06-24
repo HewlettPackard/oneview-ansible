@@ -93,6 +93,27 @@ def transform_list_to_dict(list_):
     return ret
 
 
+# Makes a deep merge of 2 dictionaries and returns the merged dictionary
+def dict_merge(resource_dict, data_dict):
+    for key, val in data_dict.items():
+        if not resource_dict.get(key):
+            resource_dict[key] = val
+        elif isinstance(resource_dict[key], dict) and isinstance(data_dict[key], collections.Mapping):
+            resource_dict[key] = dict_merge(resource_dict[key], data_dict[key])
+        elif isinstance(resource_dict[key], list) and isinstance(data_dict[key], list):
+            tmp_list1 = []
+            tmp_list2 = []
+            for index,value in enumerate(resource_dict[key]):
+                tmp_list1.append([index, value])
+            for index,value in enumerate(data_dict[key]):
+                tmp_list2.append([index, value])
+            output_dict = dict_merge(dict(tmp_list1), dict(tmp_list2))
+            resource_dict[key] = list(output_dict.values())
+        else:
+            resource_dict[key] = val
+
+    return resource_dict
+
 def merge_list_by_key(original_list, updated_list, key, ignore_when_null=None):
     """
     Merge two lists by the key. It basically:
@@ -811,7 +832,7 @@ class SPKeys(object):
 class ServerProfileMerger(object):
     def merge_data(self, resource, data):
         merged_data = deepcopy(resource)
-        merged_data.update(data)
+        merged_data = dict_merge(merged_data, data)
 
         merged_data = self._merge_bios_and_boot(merged_data, resource, data)
         merged_data = self._merge_connections(merged_data, resource, data)
@@ -890,8 +911,6 @@ class ServerProfileMerger(object):
 
     def _merge_os_deployment_settings(self, merged_data, resource, data):
         if self._should_merge(data, resource, key=SPKeys.OS_DEPLOYMENT):
-            merged_data = self._merge_dict(merged_data, resource, data, key=SPKeys.OS_DEPLOYMENT)
-
             merged_data = self._merge_os_deployment_custom_attr(merged_data, resource, data)
         return merged_data
 
