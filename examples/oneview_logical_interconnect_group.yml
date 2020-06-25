@@ -39,8 +39,11 @@
               mode: 'Auto'
               networkType: 'Ethernet'
               ethernetNetworkType: 'Tagged'
+              networkNames:
+                - 'TestNetwork_1'
+                - 'TestNetwork_2'
               networkUris:
-                - '/rest/ethernet-networks/221905e8-4e22-4888-9ab8-50a2d4ebaac2'
+                - '/rest/ethernet-networks/e882896c-265f-4437-8ce6-838b917238b0'
               logicalPortConfigInfos:
                - desiredSpeed: 'Auto'
                  logicalLocation:
@@ -67,7 +70,7 @@
                           type: 'Port'
                         - relativeValue: 6
                           type: 'Bay'
-          interconnectBaySet: 3    
+          interconnectBaySet: 3
           enclosureIndexes: [1,2,3]
           redundancyType: "HighlyAvailable"
           interconnectMapTemplate:

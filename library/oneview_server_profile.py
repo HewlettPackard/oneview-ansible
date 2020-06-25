@@ -520,6 +520,10 @@ class ServerProfileModule(OneViewModule):
             enclosure_group = self.data.get('enclosureGroupUri', '')
             server_hardware_type = self.data.get('serverHardwareTypeUri', '')
 
+        # This change is made to handle auto assign for rack mount servers, because there is no EG for rack servers
+        if enclosure_group is None:
+            enclosure_group = ''
+
         if not enclosure_group and not server_hardware_type:
             return
 

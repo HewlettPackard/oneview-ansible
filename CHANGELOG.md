@@ -3,9 +3,12 @@
 ## v5.6.1(unreleased)
 
 #### Bug fixes & Enhancements
+- [#171](https://github.com/HewlettPackard/oneview-ansible/issues/171) oneview_server_profile doesn't appear to be idempotent
 - [#341](https://github.com/HewlettPackard/oneview-ansible/issues/341) Logical_Interconnect_Group Module , idempotency , Uplinksets for Synergy.
+- [#370](https://github.com/HewlettPackard/oneview-ansible/issues/370) oneview_logical_interconnect_group doesn't support network names
 - [#380](https://github.com/HewlettPackard/oneview-ansible/issues/380) oneview_network_set does not support bandwidth and untagged network
 - [#397](https://github.com/HewlettPackard/oneview-ansible/issues/397) oneview_network_set does not support clearing the nativeNetworkUri
+- [#451](https://github.com/HewlettPackard/oneview-ansible/issues/451) auto_assign_server_hardware does not work with DLs
 - [#481](https://github.com/HewlettPackard/oneview-ansible/issues/481) oneview_volume is not idempotent
 - [#487](https://github.com/HewlettPackard/oneview-ansible/issues/487) Fails Server profile update in case of existing network_set
 - [#510](https://github.com/HewlettPackard/oneview-ansible/issues/510) Ensure users are aware of how to secure oneview credentials.
