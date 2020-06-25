@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    artifact_bundle_name: 'HPE-ESXi-2016-11-25'
+    artifact_bundle_name: 'AB_test'
     backup_artifact_bundle_name: 'ci-9cb654980018backup2017-01-06T12:40:07.161Z'
   tasks:
     - name: Gather facts about all Artifact Bundles
@@ -45,24 +45,10 @@
       delegate_to: localhost
     - debug: var=artifact_bundles
 
-
     - name: Gather facts about all Backups for Artifact Bundle
       image_streamer_artifact_bundle_facts:
         config: "{{ config }}"
-        name: '{{ artifact_bundle_name }}'
         options:
           - allBackups
       delegate_to: localhost
-    - debug: var=artifact_bundles
     - debug: var=artifact_bundle_backups
-
-
-    - name: Gather facts about Backup for an Artifact Bundle
-      image_streamer_artifact_bundle_facts:
-        config: "{{ config }}"
-        name: '{{ backup_artifact_bundle_name }}'
-        options:
-          - backupForAnArtifactBundle
-      delegate_to: localhost
-    - debug: var=artifact_bundles
-    - debug: var=backup_for_artifact_bundle

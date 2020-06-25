@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -91,6 +91,28 @@ def transform_list_to_dict(list_):
             ret[to_native(value)] = True
 
     return ret
+
+
+# Makes a deep merge of 2 dictionaries and returns the merged dictionary
+def dict_merge(resource_dict, data_dict):
+    for key, val in data_dict.items():
+        if not resource_dict.get(key):
+            resource_dict[key] = val
+        elif isinstance(resource_dict[key], dict) and isinstance(data_dict[key], collections.Mapping):
+            resource_dict[key] = dict_merge(resource_dict[key], data_dict[key])
+        elif isinstance(resource_dict[key], list) and isinstance(data_dict[key], list):
+            tmp_list1 = []
+            tmp_list2 = []
+            for index, value in enumerate(resource_dict[key]):
+                tmp_list1.append([index, value])
+            for index, value in enumerate(data_dict[key]):
+                tmp_list2.append([index, value])
+            output_dict = dict_merge(dict(tmp_list1), dict(tmp_list2))
+            resource_dict[key] = list(output_dict.values())
+        else:
+            resource_dict[key] = val
+
+    return resource_dict
 
 
 def merge_list_by_key(original_list, updated_list, key, ignore_when_null=None):
@@ -777,6 +799,7 @@ class SPKeys(object):
     ID = 'id'
     NAME = 'name'
     DEVICE_SLOT = 'deviceSlot'
+    CONNECTION_SETTINGS = 'connectionSettings'
     CONNECTIONS = 'connections'
     OS_DEPLOYMENT = 'osDeploymentSettings'
     OS_DEPLOYMENT_URI = 'osDeploymentPlanUri'
@@ -811,7 +834,7 @@ class SPKeys(object):
 class ServerProfileMerger(object):
     def merge_data(self, resource, data):
         merged_data = deepcopy(resource)
-        merged_data.update(data)
+        merged_data = dict_merge(merged_data, data)
 
         merged_data = self._merge_bios_and_boot(merged_data, resource, data)
         merged_data = self._merge_connections(merged_data, resource, data)
@@ -831,6 +854,15 @@ class ServerProfileMerger(object):
         return merged_data
 
     def _merge_connections(self, merged_data, resource, data):
+        # The below condition is added to handle connectionSettings in server profile json
+        if data.get(SPKeys.CONNECTION_SETTINGS) and SPKeys.CONNECTIONS in data.get(SPKeys.CONNECTION_SETTINGS):
+            existing_connections = resource[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS]
+            params_connections = data[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS]
+            merged_data[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS] = merge_list_by_key(existing_connections, params_connections, key=SPKeys.ID)
+
+            merged_data[SPKeys.CONNECTION_SETTINGS] = self._merge_connections_boot(merged_data[SPKeys.CONNECTION_SETTINGS], resource[
+                SPKeys.CONNECTION_SETTINGS])
+
         if self._should_merge(data, resource, key=SPKeys.CONNECTIONS):
             existing_connections = resource[SPKeys.CONNECTIONS]
             params_connections = data[SPKeys.CONNECTIONS]
@@ -1060,7 +1092,8 @@ class ServerProfileReplaceNamesByUris(object):
         for connection in connections:
             if 'networkName' in connection:
                 name = connection.pop('networkName')
-                connection['networkUri'] = self._get_network_by_name(name)['uri']
+                if name is not None:
+                    connection['networkUri'] = self._get_network_by_name(name)['uri']
 
     def _replace_server_hardware_type_name_by_uri(self, data):
         self._replace_name_by_uri(data, 'serverHardwareTypeName', self.SERVER_HARDWARE_TYPE_NOT_FOUND,

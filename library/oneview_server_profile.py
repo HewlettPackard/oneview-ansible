@@ -90,7 +90,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     state: present
     data:
         name: Web-Server-L2
@@ -143,7 +143,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     data:
       name: server-profile-with-connections
       connectionSettings:
@@ -161,7 +161,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     # This is required for unassigning a SH, or creating a SP and not auto-assigning a SH
     auto_assign_server_hardware: False
     data:
@@ -175,7 +175,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     state: compliant
     data:
         name: Web-Server-L2
@@ -186,7 +186,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     state: absent
     data:
         name: Web-Server-L2
@@ -519,6 +519,10 @@ class ServerProfileModule(OneViewModule):
         else:
             enclosure_group = self.data.get('enclosureGroupUri', '')
             server_hardware_type = self.data.get('serverHardwareTypeUri', '')
+
+        # This change is made to handle auto assign for rack mount servers, because there is no EG for rack servers
+        if enclosure_group is None:
+            enclosure_group = ''
 
         if not enclosure_group and not server_hardware_type:
             return

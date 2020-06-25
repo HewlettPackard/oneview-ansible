@@ -18,6 +18,7 @@
 
 import mock
 import pytest
+import yaml
 
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import NetworkSetModule
@@ -30,6 +31,12 @@ NETWORK_SET = dict(
 )
 
 NETWORK_SET_WITH_NEW_NAME = dict(name='OneViewSDK Test Network Set - Renamed')
+
+CONNECTION_TEMPLATE = dict(bandwidth=dict(maximumBandwidth=15000,
+                           typicalBandwidth=3000),
+                           name='name828625927-1592834188743',
+                           type='connection-template',
+                           uri='/rest/connection-templates/aaa-bbb-ccc')
 
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
@@ -46,11 +53,26 @@ PARAMS_WITH_CHANGES = dict(
               networkUris=['/rest/ethernet-networks/aaa-bbb-ccc', 'Name of a Network'])
 )
 
+YAML_PARAMS_WITH_CHANGES = """
+    config: "config.json"
+    state: present
+    data:
+      name: 'Test Network Set'
+      purpose: Management
+      connectionTemplateUri: ~
+      bandwidth:
+          maximumBandwidth: 3000
+          typicalBandwidth: 2000
+"""
+
+
 PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
     data=dict(name=NETWORK_SET['name'])
 )
+
+DICT_PARAMS_WITH_CHANGES = yaml.load(YAML_PARAMS_WITH_CHANGES)["data"]
 
 
 @pytest.mark.resource(TestNetworkSetModule='network_sets')
@@ -141,6 +163,38 @@ class TestNetworkSetModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=NetworkSetModule.MSG_DELETED
+        )
+
+    def test_update_when_only_bandwidth_has_modified_attributes(self):
+        self.resource.data = DICT_PARAMS_WITH_CHANGES
+        obj = mock.Mock()
+        obj.data = CONNECTION_TEMPLATE
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
+
+        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
+
+        NetworkSetModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=NetworkSetModule.MSG_UPDATED,
+            ansible_facts=dict(network_set=DICT_PARAMS_WITH_CHANGES, connection_template=CONNECTION_TEMPLATE)
+        )
+
+    def test_update_when_data_has_modified_attributes_but_bandwidth_is_equal(self):
+        self.resource.data = NETWORK_SET
+        obj = mock.Mock()
+        obj.data = {"bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
+
+        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
+
+        NetworkSetModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=NetworkSetModule.MSG_UPDATED,
+            ansible_facts=dict(network_set=NETWORK_SET)
         )
 
     def test_should_do_nothing_when_network_set_not_exist(self):

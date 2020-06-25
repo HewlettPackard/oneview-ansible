@@ -18,22 +18,63 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     cluster_profile_name: 'Test-1'
+    spt_name: '/rest/server-profile-templates/edc7ee03-eb09-42ea-9d81-3887b8ebad38'
+    spt_name_ca: '/rest/server-profile-templates/72cff973-6296-4a67-ac7c-785c522a9f81'
+    hyp_mgr: '/rest/hypervisor-managers/e517143c-a4e6-4c7b-b1f3-8fe3fc8e4d9a'
   tasks:
-    - name: Create a Hypervisor Cluster Profile
+    - name: Create a basic Hypervisor Cluster Profile
       oneview_hypervisor_cluster_profile:
         config: "{{ config }}"
         state: present
         data:
           type: "HypervisorClusterProfileV3"
           name: "{{ cluster_profile_name }}"
-          hypervisorManagerUri: '/rest/hypervisor-managers/ee73af7a-1775-44ba-8a66-d0479ec85678'
+          hypervisorManagerUri: "{{ hyp_mgr }}"
           path: 'DC1'
           hypervisorType: 'Vmware'
           hypervisorHostProfileTemplate:
-            serverProfileTemplateUri: '/rest/server-profile-templates/f8e56c43-cfd7-436c-9812-394ecdbd32ed'
+            serverProfileTemplateUri: "{{ spt_name }}"
             hostprefix: 'Test-cluster-host'
       delegate_to: localhost
       register: hyp_cp
+
+    # For creating virtual switch layout, enable that param and send the vswitch body under "hypervisorHostProfileTemplate:virtualSwitches"
+    - name: Create a Hypervisor Cluster Profile with vswitch
+      oneview_hypervisor_cluster_profile:
+        config: "{{ config }}"
+        state: present
+        params:
+          create_vswitch_layout: True                          # If this is true, virtual switch layout will be created
+        data:
+          type: "HypervisorClusterProfileV3"
+          description: "test cluster"
+          hypervisorType: "Vmware"
+          hypervisorClusterSettings:
+            type: "Vmware"
+            drsEnabled: True
+            haEnabled: False
+            multiNicVMotion: False
+            virtualSwitchType: "Standard"
+          hypervisorHostProfileTemplate:
+            serverProfileTemplateUri: "{{ spt_name_ca }}"
+            deploymentPlan:
+              serverPassword: "test"
+            hostprefix: "Test_cluster_profile_with_vswitch"
+            virtualSwitches:                                 # this is the json body used to create vswitch
+              serverProfileTemplateUri: "{{ spt_name_ca }}"
+              hypervisorManagerUri: "{{ hyp_mgr }}"
+            hostConfigPolicy:
+              leaveHostInMaintenance: False
+              useHostnameToRegister: False
+            virtualSwitchConfigPolicy:
+              manageVirtualSwitches: True
+              configurePortGroups: True
+          name: "{{ cluster_profile_name }}_with_vswitch"
+          hypervisorManagerUri: "{{ hyp_mgr }}"
+          path: "DC1"
+
+      delegate_to: localhost
+      register: hyp_cp_vswitch
 
     - name: Do nothing with the Hypervisor Cluster Profile when no changes are provided
       oneview_hypervisor_cluster_profile:
@@ -41,7 +82,7 @@
         state: present
         data:
           name: "{{ cluster_profile_name }}"
-          hypervisorManagerUri: '/rest/hypervisor-managers/ee73af7a-1775-44ba-8a66-d0479ec85678'
+          hypervisorManagerUri: "{{ hyp_mgr }}"
           path: 'DC1'
           hypervisorType: 'Vmware'
       delegate_to: localhost
@@ -53,7 +94,7 @@
         data:
           name: "{{ cluster_profile_name }}"
           newName: "HCP-renamed"
-          hypervisorManagerUri: '/rest/hypervisor-managers/ee73af7a-1775-44ba-8a66-d0479ec85678'
+          hypervisorManagerUri: "{{ hyp_mgr }}"
           path: 'DC1'
           hypervisorType: 'Vmware'
       delegate_to: localhost
@@ -65,7 +106,19 @@
         state: absent
         params:
           force: True
+          soft_delete: False
         data: "{{ hyp_cp.ansible_facts.hypervisor_cluster_profile }}"
+      delegate_to: localhost
+      register: deleted
+
+    - name: Delete the Hypervisor Cluster Profile with vswitch
+      oneview_hypervisor_cluster_profile:
+        config: "{{ config }}"
+        state: absent
+        params:
+          force: False
+          soft_delete: False
+        data: "{{ hyp_cp_vswitch.ansible_facts.hypervisor_cluster_profile }}"
       delegate_to: localhost
       register: deleted
 

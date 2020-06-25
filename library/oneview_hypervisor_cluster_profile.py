@@ -29,7 +29,7 @@ description:
 version_added: "2.4"
 requirements:
     - "python >= 3.4.2"
-    - "hpOneView >= 5.1.0"
+    - "hpOneView >= 5.2.0"
 author: "Venkatesh Ravula (@VenkateshRavula)"
 options:
     state:
@@ -64,6 +64,28 @@ EXAMPLES = '''
       hypervisorHostProfileTemplate:
         serverProfileTemplateUri: '/rest/server-profile-template/2323-32323'
         hostprefix: 'test-host'
+
+- name: Create a Hypervisor Cluster Profile
+  oneview_hypervisor_cluster_profile:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    state: present
+    data:
+      type: "HypervisorClusterProfileV3"
+      name: "{{ cluster_profile_name }}"
+      hypervisorManagerUri: '/rest/hypervisor-managers/ee73af7a-1775-44ba-8a66-d0479ec85678'
+      path: 'DC1'
+      hypervisorType: 'Vmware'
+      hypervisorHostProfileTemplate:
+        serverProfileTemplateUri: '/rest/server-profile-templates/f8e56c43-cfd7-436c-9812-394ecdbd32ed'
+        virtualSwitches:
+          serverProfileTemplateUri: '/rest/server-profile-templates/f8e56c43-cfd7-436c-9812-394ecdbd32ed'
+          hypervisorManagerUri: '/rest/hypervisor-managers/ee73af7a-1775-44ba-8a66-d0479ec85678'
+        hostprefix: 'Test-cluster-host'
+    params:
+      create_vswitch_layout: True
 
 - name: Update the Hypervisor Cluster Profile name to 'hcp Renamed'
   oneview_hypervisor_cluster_profile:
@@ -121,8 +143,7 @@ class HypervisorClusterProfileModule(OneViewModule):
 
     def execute_module(self):
         changed, msg, ansible_facts = False, '', {}
-        params = self.module.params.get("params")
-        self.params = params if params else {}
+        self.create_vswitch_layout = self.facts_params.pop('create_vswitch_layout', None)
 
         if self.state == 'present':
             changed, msg, ansible_facts = self.__present()
@@ -141,6 +162,9 @@ class HypervisorClusterProfileModule(OneViewModule):
         return response
 
     def __create(self, data):
+
+        self.__create_vswitch_layout()
+
         self.current_resource = self.resource_client.create(data)
         return True, self.MSG_CREATED, dict(hypervisor_cluster_profile=self.current_resource.data)
 
@@ -148,7 +172,7 @@ class HypervisorClusterProfileModule(OneViewModule):
         if self.current_resource:
             changed = True
             msg = self.MSG_DELETED
-            self.current_resource.delete(**self.params)
+            self.current_resource.delete(**self.facts_params)
         else:
             changed = False
             msg = self.MSG_ALREADY_ABSENT
@@ -158,14 +182,23 @@ class HypervisorClusterProfileModule(OneViewModule):
         if "newName" in self.data:
             self.data["name"] = self.data.pop("newName")
 
+        self.__create_vswitch_layout()
+
         merged_data = self.current_resource.data.copy()
-        merged_data.update(self.data, **self.params)
+        merged_data.update(self.data)
 
         if not compare(self.current_resource.data, merged_data):
-            self.current_resource.update(merged_data)
+            self.current_resource.update(merged_data, **self.facts_params)
             return True, self.MSG_UPDATED, dict(hypervisor_cluster_profile=self.current_resource.data)
         else:
             return False, self.MSG_ALREADY_PRESENT, dict(hypervisor_cluster_profile=self.current_resource.data)
+
+    # Below code will create the virtual switch layout and modifies the update body if virtualswitches key is present in json data
+    def __create_vswitch_layout(self):
+        if self.create_vswitch_layout and self.data.get('hypervisorHostProfileTemplate') and \
+                self.data.get('hypervisorHostProfileTemplate').get('virtualSwitches'):
+            self.data['hypervisorHostProfileTemplate']['virtualSwitches'] = \
+                self.resource_client.create_virtual_switch_layout(self.data['hypervisorHostProfileTemplate']['virtualSwitches'])
 
 
 def main():

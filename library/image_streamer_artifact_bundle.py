@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -28,10 +28,10 @@ description:
     - "Provides an interface to manage the Artifact Bundle. Can create, update, remove, and download, upload, extract"
 version_added: "2.3"
 requirements:
-    - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "python >= 3.4.2"
+    - "hpOneView >= 5.2.0"
 author:
-    - "Abilio Parada (@abiliogp)"
+    - "Venkatesh Ravula (@VenkateshRavula)"
 options:
     state:
       description:
@@ -39,14 +39,14 @@ options:
           C(present) will ensure data properties are compliant with OneView. When the artifact bundle already exists,
           only the name is updated. Changes in any other attribute value is ignored.
           C(absent) will remove the resource from OneView, if it exists.
-          C(downloaded) will download the Artifact Bundle to the file path provided.
-          C(archive_downloaded) will download the Artifact Bundle archive to the file path provided.
-          C(backup_uploaded) will upload the Backup for the Artifact Bundle from the file path provided.
-          C(backup_created) will create a Backup for the Artifact Bundle.
-          C(extracted) will extract an Artifact Bundle.
-          C(backup_extracted) will extract an Artifact Bundle from the Backup.
-      choices: ['present', 'absent', 'downloaded', 'archive_downloaded',
-                'backup_uploaded', 'backup_created', 'extracted', 'backup_extracted']
+          C(download) will download the Artifact Bundle to the file path provided.
+          C(archive_download) will download the Artifact Bundle archive to the file path provided.
+          C(backup_upload) will upload the Backup for the Artifact Bundle from the file path provided.
+          C(backup_create) will create a Backup for the Artifact Bundle.
+          C(extract) will extract an Artifact Bundle.
+          C(backup_extract) will extract an Artifact Bundle from the Backup.
+      choices: ['present', 'absent', 'download', 'archive_download',
+                'backup_upload', 'backup_create', 'extract', 'backup_extract']
       required: true
     data:
       description:
@@ -73,7 +73,7 @@ EXAMPLES = '''
 - name: Download the Artifact Bundle to the file path provided
   image_streamer_artifact_bundle:
     config: "{{ config }}"
-    state: downloaded
+    state: download
     data:
       name: 'Artifact Bundle'
       destinationFilePath: '~/downloaded_artifact.zip'
@@ -82,7 +82,7 @@ EXAMPLES = '''
 - name: Download the Archive for Artifact Bundle to the file path provided
   image_streamer_artifact_bundle:
     config: "{{ config }}"
-    state: archive_downloaded
+    state: archive_download
     data:
       name: 'Artifact Bundle'
       destinationFilePath: '~/downloaded_archive.zip'
@@ -99,7 +99,7 @@ EXAMPLES = '''
 - name: Upload Backup an Artifact Bundle
   image_streamer_artifact_bundle:
     config: "{{ config }}"
-    state: backup_uploaded
+    state: backup_upload
     data:
       deploymentGroupURI: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
       localBackupArtifactBundleFilePath: '~/uploaded_backup.zip'
@@ -108,7 +108,7 @@ EXAMPLES = '''
 - name: Create Backup for Artifact Bundle
   image_streamer_artifact_bundle:
     config: "{{ config }}"
-    state: backup_created
+    state: backup_create
     data:
       deploymentGroupURI: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
   delegate_to: localhost
@@ -116,7 +116,7 @@ EXAMPLES = '''
 - name: Extract an Artifact Bundle
   image_streamer_artifact_bundle:
     config: "{{ config }}"
-    state: extracted
+    state: extract
     data:
       name: 'Artifact Bundle'
   delegate_to: localhost
@@ -124,7 +124,7 @@ EXAMPLES = '''
 - name: Extract Backup an Artifact Bundle
   image_streamer_artifact_bundle:
     config: "{{ config }}"
-    state: backup_extracted
+    state: backup_extract
     data:
       deploymentGroupURI: '/rest/deployment-groups/c5a727ef-71e9-4154-a512-6655b168c2e3'
   delegate_to: localhost
@@ -150,20 +150,19 @@ EXAMPLES = '''
 RETURN = '''
 artifact_bundle:
     description: Has the OneView facts about the Artifact Bundles.
-    returned: On state 'present' and 'extracted'.
+    returned: On state 'present' and 'extract'.
     type: dict
 
 artifact_bundle_deployment_group:
     description: Has the OneView facts about the Deployment Group.
-    returned: On state 'backup_extracted', 'backup_uploaded', and 'backup_created'.
+    returned: On state 'backup_extract', 'backup_upload', and 'backup_create'.
     type: dict
 '''
 
-import os
-from ansible.module_utils.oneview import OneViewModuleBase, compare
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare
 
 
-class ArtifactBundleModule(OneViewModuleBase):
+class ArtifactBundleModule(OneViewModule):
     MSG_CREATED = 'Artifact Bundle created successfully.'
     MSG_UPDATED = 'Artifact Bundle updated successfully.'
     MSG_DELETED = 'Artifact Bundle deleted successfully.'
@@ -176,12 +175,14 @@ class ArtifactBundleModule(OneViewModuleBase):
     MSG_BACKUP_CREATED = 'Backup of Artifact Bundle created successfully.'
     MSG_EXTRACTED = 'Artifact Bundle extracted successfully.'
     MSG_BACKUP_EXTRACTED = 'Artifact Bundle extracted successfully.'
+    MSG_REQUIRED = "An existing Artifact Bundle is required."
+    MSG_BACKUP_REQUIRED = "An existing Backup is required"
 
     argument_spec = dict(
         state=dict(
             required=True,
-            choices=['present', 'absent', 'downloaded', 'archive_downloaded', 'backup_created',
-                     'backup_uploaded', 'extracted', 'backup_extracted']
+            choices=['present', 'absent', 'download', 'archive_download', 'backup_create',
+                     'backup_upload', 'extract', 'backup_extract']
         ),
         data=dict(required=True, type='dict')
     )
@@ -189,108 +190,101 @@ class ArtifactBundleModule(OneViewModuleBase):
     def __init__(self):
         super(ArtifactBundleModule, self).__init__(additional_arg_spec=self.argument_spec)
         self.i3s_client = self.oneview_client.create_image_streamer_client()
-        self.resource_client = self.i3s_client.artifact_bundles
+        self.set_resource_object(self.i3s_client.artifact_bundles)
 
     def execute_module(self):
         ansible_facts = {}
 
-        resource = self.__get_by_name(self.data.get('name'))
-
         if self.state == 'present':
-            changed, msg, ansible_facts = self.__present(self.data, resource)
+            changed, msg, ansible_facts = self.__present()
         elif self.state == 'absent':
-            return self.resource_absent(resource)
-        elif self.state == 'downloaded':
-            changed, msg, ansible_facts = self.__download(self.data, resource)
-        elif self.state == 'archive_downloaded':
-            changed, msg, ansible_facts = self.__download_archive(self.data, resource)
-        elif self.state == 'backup_uploaded':
-            changed, msg, ansible_facts = self.__upload_backup(self.data)
-        elif self.state == 'backup_created':
-            changed, msg, ansible_facts = self.__create_backup(self.data)
-        elif self.state == 'extracted':
-            changed, msg, ansible_facts = self.__extract(resource)
-        elif self.state == 'backup_extracted':
-            changed, msg, ansible_facts = self.__extract_backup(self.data)
+            return self.resource_absent()
+        elif self.state == 'download':
+            changed, msg, ansible_facts = self.__download()
+        elif self.state == 'archive_download':
+            changed, msg, ansible_facts = self.__download_archive()
+        elif self.state == 'backup_upload':
+            changed, msg, ansible_facts = self.__upload_backup()
+        elif self.state == 'backup_create':
+            changed, msg, ansible_facts = self.__create_backup()
+        elif self.state == 'extract':
+            changed, msg, ansible_facts = self.__extract()
+        elif self.state == 'backup_extract':
+            changed, msg, ansible_facts = self.__extract_backup()
 
         return dict(msg=msg, changed=changed, ansible_facts=ansible_facts)
 
-    def __get_by_name(self, name):
-        if name is None:
-            return None
-        return self.get_by_name(name)
-
-    def __present(self, data, resource):
-        if data.get('newName'):
-            changed, msg, facts = self.__update(data, resource)
-        elif data.get('localArtifactBundleFilePath'):
-            changed, msg, facts = self.__upload(data)
-        elif not resource:
-            changed, msg, facts = self.__create(data)
+    def __present(self):
+        if not self.current_resource:
+            if self.data.get('localArtifactBundleFilePath'):
+                changed, msg, facts = self.__upload()
+            else:
+                changed, msg, facts = self.__create()
         else:
-            changed = False
-            msg = self.MSG_ALREADY_PRESENT
-            facts = dict(artifact_bundle=resource)
+            changed, msg, facts = self.__update()
         return changed, msg, facts
 
-    def __create(self, data):
-        resource = self.i3s_client.artifact_bundles.create(data)
-        return True, self.MSG_CREATED, dict(artifact_bundle=resource)
+    def __upload(self):
+        file_name = self.data['localArtifactBundleFilePath']
+        artifact_bundle = self.resource_client.upload_bundle_from_file(file_name)
+        return True, self.MSG_UPLOADED, dict(artifact_bundle=artifact_bundle)
 
-    def __update(self, data, resource):
-        if resource is None:
-            resource = self.__get_by_name(data['newName'])
-        data["name"] = data.pop("newName")
-        merged_data = resource.copy()
-        merged_data.update(data)
+    def __create(self):
+        self.current_resource = self.resource_client.create(self.data)
+        return True, self.MSG_CREATED, dict(artifact_bundle=self.current_resource.data)
 
-        if not compare(resource, merged_data):
-            resource = self.i3s_client.artifact_bundles.update(merged_data)
-            changed = True
-            msg = self.MSG_UPDATED
+    def __update(self):
+        if "newName" in self.data:
+            self.data["name"] = self.data.pop("newName")
+
+        merged_data = self.current_resource.data.copy()
+        merged_data.update(self.data)
+
+        if not compare(self.current_resource.data, merged_data):
+            self.current_resource.update(merged_data)
+            return True, self.MSG_UPDATED, dict(artifact_bundle=self.current_resource.data)
         else:
-            changed = False
-            msg = self.MSG_ALREADY_PRESENT
-        return changed, msg, dict(artifact_bundle=resource)
+            return False, self.MSG_ALREADY_PRESENT, dict(artifact_bundle=self.current_resource.data)
 
-    def __download(self, data, resource):
-        self.i3s_client.artifact_bundles.download_artifact_bundle(resource['uri'], data['destinationFilePath'])
+    def __download(self):
+        if not self.current_resource:
+            raise OneViewModuleResourceNotFound(self.MSG_REQUIRED)
+        self.current_resource.download(self.data['destinationFilePath'])
         return False, self.MSG_DOWNLOADED, {}
 
-    def __download_archive(self, data, resource):
-        self.i3s_client.artifact_bundles.download_archive_artifact_bundle(resource['uri'], data['destinationFilePath'])
-        return False, self.MSG_ARCHIVE_DOWNLOADED, {}
-
-    def __upload(self, data):
-        file_name = data['localArtifactBundleFilePath']
-        file_name_path = os.path.basename(file_name)
-        file_name_wo_ext = os.path.splitext(file_name_path)[0]
-        artifact_bundle = self.__get_by_name(file_name_wo_ext)
-        if artifact_bundle is None:
-            artifact_bundle = self.i3s_client.artifact_bundles.upload_bundle_from_file(file_name)
-            changed = True
-            msg = self.MSG_UPLOADED
-        else:
-            changed = False
-            msg = self.MSG_ALREADY_PRESENT
-        return changed, msg, dict(artifact_bundle=artifact_bundle)
-
-    def __upload_backup(self, data):
-        deployment_group = self.i3s_client.artifact_bundles.upload_backup_bundle_from_file(
-            data['localBackupArtifactBundleFilePath'], data['deploymentGroupURI'])
-        return True, self.MSG_BACKUP_UPLOADED, dict(artifact_bundle_deployment_group=deployment_group)
-
-    def __create_backup(self, data):
-        resource = self.i3s_client.artifact_bundles.create_backup(data)
-        return False, self.MSG_BACKUP_CREATED, dict(artifact_bundle_deployment_group=resource)
-
-    def __extract(self, resource):
-        resource = self.i3s_client.artifact_bundles.extract_bundle(resource)
+    def __extract(self):
+        if not self.current_resource:
+            raise OneViewModuleResourceNotFound(self.MSG_REQUIRED)
+        resource = self.current_resource.extract()
         return True, self.MSG_EXTRACTED, dict(artifact_bundle=resource)
 
-    def __extract_backup(self, data):
-        resource = self.i3s_client.artifact_bundles.extract_backup_bundle(data)
+    def __create_backup(self):
+        self.current_resource = self.resource_client.create_backup(self.data)
+        return True, self.MSG_BACKUP_CREATED, dict(artifact_bundle_deployment_group=self.current_resource.data)
+
+    def __download_archive(self):
+        self.allbackups = self.resource_client.get_all_backups()
+        if len(self.allbackups) == 0:
+            raise OneViewModuleResourceNotFound(self.MSG_BACKUP_REQUIRED)
+
+        self.current_resource = self.resource_client.get_backup(self.allbackups[0]['uri'])
+        self.current_resource.download_archive(self.data['destinationFilePath'])
+        return False, self.MSG_ARCHIVE_DOWNLOADED, {}
+
+    def __extract_backup(self):
+        self.allbackups = self.resource_client.get_all_backups()
+        if len(self.allbackups) == 0:
+            raise OneViewModuleResourceNotFound(self.MSG_BACKUP_REQUIRED)
+
+        self.current_resource = self.resource_client.get_backup(self.allbackups[0]['uri'])
+        resource = self.current_resource.extract_backup(self.data)
         return True, self.MSG_BACKUP_EXTRACTED, dict(artifact_bundle_deployment_group=resource)
+
+    def __upload_backup(self):
+        if self.data.get('localBackupArtifactBundleFilePath') and self.data.get('deploymentGroupURI'):
+            deployment_group = self.resource_client.upload_backup_bundle_from_file(
+                self.data['localBackupArtifactBundleFilePath'], self.data['deploymentGroupURI'])
+        return True, self.MSG_BACKUP_UPLOADED, dict(artifact_bundle_deployment_group=deployment_group)
 
 
 def main():

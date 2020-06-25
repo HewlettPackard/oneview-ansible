@@ -341,7 +341,7 @@ class ServerHardwareModule(OneViewModule):
 
     def __add_multiple_rack_mount_servers(self):
         resource = self.resource_client.add_multiple_servers(self.data)
-        return True, self.MSG_MULTIPLE_RACK_MOUNT_SERVERS_ADDED, {"server_hardware": resource}
+        return True, self.MSG_MULTIPLE_RACK_MOUNT_SERVERS_ADDED, {"server_hardware": resource.data}
 
 
 def main():
