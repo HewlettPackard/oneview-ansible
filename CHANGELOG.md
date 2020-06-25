@@ -3,6 +3,7 @@
 ## v5.6.1(unreleased)
 
 #### Bug fixes & Enhancements
+- [#171](https://github.com/HewlettPackard/oneview-ansible/issues/171) oneview_server_profile doesn't appear to be idempotent
 - [#341](https://github.com/HewlettPackard/oneview-ansible/issues/341) Logical_Interconnect_Group Module , idempotency , Uplinksets for Synergy.
 - [#370](https://github.com/HewlettPackard/oneview-ansible/issues/370) oneview_logical_interconnect_group doesn't support network names
 - [#380](https://github.com/HewlettPackard/oneview-ansible/issues/380) oneview_network_set does not support bandwidth and untagged network
