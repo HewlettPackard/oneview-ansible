@@ -139,6 +139,7 @@ class RackModule(OneViewModuleBase):
         else:
             return self.__update()
 
+    # The below snippet requires to add or override rackMounts in rack module
     def __mergeRackMounts(self):
         resource_copy = deepcopy(self.current_resource)
         data_copy = deepcopy(self.data)

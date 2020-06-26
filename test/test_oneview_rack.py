@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -88,7 +88,6 @@ class TestRackModule(OneViewBaseTest):
 
         data_merged['name'] = 'Rename Rack'
 
-        # self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
         self.resource.update.return_value = data_merged
 
         self.resource.data = DEFAULT_RACK_TEMPLATE
