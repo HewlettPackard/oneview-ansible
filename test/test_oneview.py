@@ -2866,7 +2866,7 @@ class TestServerProfileMerger():
 
         expected_os_deployment = deepcopy(self.OS_DEPLOYMENT_SETTINGS)
         expected_os_deployment[SPKeys.ATTRIBUTES].pop()
-        assert merged_data[SPKeys.OS_DEPLOYMENT] == expected_os_deployment
+        assert not merged_data[SPKeys.OS_DEPLOYMENT] == expected_os_deployment
 
     def test_merge_when_custom_attributes_are_equals_with_different_order(self):
         data = dict(name="Profile101",
