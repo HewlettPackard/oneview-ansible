@@ -32,6 +32,7 @@ DEFAULT_RACK_TEMPLATE = dict(
 )
 
 UPDATED_RACK_TEMPLATE = dict(
+    name='New Rack 2',
     newName='Rename Rack',
     autoLoginRedistribution=True,
     fabricType='FabricAttach',
@@ -40,6 +41,7 @@ UPDATED_RACK_TEMPLATE = dict(
 )
 
 UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS = dict(
+    name='New Rack 2',
     newName='Rename Rack',
     autoLoginRedistribution=True,
     fabricType='FabricAttach',
