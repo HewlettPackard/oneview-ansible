@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -799,6 +799,7 @@ class SPKeys(object):
     ID = 'id'
     NAME = 'name'
     DEVICE_SLOT = 'deviceSlot'
+    CONNECTION_SETTINGS = 'connectionSettings'
     CONNECTIONS = 'connections'
     OS_DEPLOYMENT = 'osDeploymentSettings'
     OS_DEPLOYMENT_URI = 'osDeploymentPlanUri'
@@ -833,7 +834,7 @@ class SPKeys(object):
 class ServerProfileMerger(object):
     def merge_data(self, resource, data):
         merged_data = deepcopy(resource)
-        merged_data.update(data)
+        merged_data = dict_merge(merged_data, data)
 
         merged_data = self._merge_bios_and_boot(merged_data, resource, data)
         merged_data = self._merge_connections(merged_data, resource, data)
@@ -853,6 +854,15 @@ class ServerProfileMerger(object):
         return merged_data
 
     def _merge_connections(self, merged_data, resource, data):
+        # The below condition is added to handle connectionSettings in server profile json
+        if data.get(SPKeys.CONNECTION_SETTINGS) and SPKeys.CONNECTIONS in data.get(SPKeys.CONNECTION_SETTINGS):
+            existing_connections = resource[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS]
+            params_connections = data[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS]
+            merged_data[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS] = merge_list_by_key(existing_connections, params_connections, key=SPKeys.ID)
+
+            merged_data[SPKeys.CONNECTION_SETTINGS] = self._merge_connections_boot(merged_data[SPKeys.CONNECTION_SETTINGS], resource[
+                SPKeys.CONNECTION_SETTINGS])
+
         if self._should_merge(data, resource, key=SPKeys.CONNECTIONS):
             existing_connections = resource[SPKeys.CONNECTIONS]
             params_connections = data[SPKeys.CONNECTIONS]
@@ -912,8 +922,6 @@ class ServerProfileMerger(object):
 
     def _merge_os_deployment_settings(self, merged_data, resource, data):
         if self._should_merge(data, resource, key=SPKeys.OS_DEPLOYMENT):
-            merged_data = self._merge_dict(merged_data, resource, data, key=SPKeys.OS_DEPLOYMENT)
-
             merged_data = self._merge_os_deployment_custom_attr(merged_data, resource, data)
         return merged_data
 
