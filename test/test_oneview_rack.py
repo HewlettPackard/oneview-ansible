@@ -89,7 +89,7 @@ class TestRackModule(OneViewBaseTest):
         data_merged['name'] = 'Rename Rack'
 
         # self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
-        # self.resource.update.return_value = data_merged
+        self.resource.update.return_value = data_merged
 
         self.resource.data = DEFAULT_RACK_TEMPLATE
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
