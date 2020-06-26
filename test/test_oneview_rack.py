@@ -84,16 +84,14 @@ class TestRackModule(OneViewBaseTest):
         )
 
     @mock.patch('module_utils.oneview.dict_merge')
-    @mock.patch('oneview_rack.__mergeRackMounts')
     @mock.patch('module_utils.oneview.compare')
-    def test_update_when_data_has_modified_attributes(self, mock_resource_compare, mock_merge_rackMounts, mock_dict_merge):
+    def test_update_when_data_has_modified_attributes(self, mock_resource_compare, mock_dict_merge):
         data_merged = deepcopy(DEFAULT_RACK_TEMPLATE)
 
         data_merged['name'] = 'Rename Rack'
         self.resource.data = deepcopy(DEFAULT_RACK_TEMPLATE)
 
         self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
-        mock_merge_rackMounts.return_value = data_merged
         mock_dict_merge.return_value = data_merged
         mock_resource_compare.return_value = False
         self.resource.update.return_value = data_merged
