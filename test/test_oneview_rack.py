@@ -31,6 +31,22 @@ DEFAULT_RACK_TEMPLATE = dict(
     fabricType='FabricAttach'
 )
 
+UPDATED_RACK_TEMPLATE = dict(
+    newName='Rename Rack',
+    autoLoginRedistribution=True,
+    fabricType='FabricAttach',
+    rackMounts=[{'mountUri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E', 'topUSlot': 'fakeip'},
+                {'mountUri': '/rest/server-hardware/31393736-3831-4753-567h-30335837526F', 'topUSlot': 'fakeip'}] 
+)
+
+UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS = dict(
+    newName='Rename Rack',
+    autoLoginRedistribution=True,
+    fabricType='FabricAttach',
+    rackMounts=[{'mountUri': '/rest/server-hardware/31393736-3831-4753-569h-30335837524E', 'topUSlot': 'fakeip'},
+                {'mountUri': '/rest/server-hardware/31393736-3831-4753-568h-30335837526F', 'topUSlot': 'fakeip'}] 
+)
+
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
@@ -40,7 +56,7 @@ PARAMS_FOR_PRESENT = dict(
 PARAMS_WITH_CHANGES = dict(
     config='config.json',
     state='present',
-    data=dict(name='Rename Rack')
+    data=UPDATED_RACK_TEMPLATE
 )
 
 PARAMS_FOR_ABSENT = dict(
@@ -83,14 +99,32 @@ class TestRackModule(OneViewBaseTest):
             ansible_facts=dict(rack=DEFAULT_RACK_TEMPLATE)
         )
 
-    def test_update_when_data_has_modified_attributes(self):
+    def test_update_when_data_has_modified_attributes_in_mountUris(self):
         data_merged = DEFAULT_RACK_TEMPLATE.copy()
 
         data_merged['name'] = 'Rename Rack'
 
         self.resource.update.return_value = data_merged
 
-        self.resource.data = DEFAULT_RACK_TEMPLATE
+        self.resource.data = UPDATED_RACK_TEMPLATE
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+
+        RackModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=RackModule.MSG_UPDATED,
+            ansible_facts=dict(rack=data_merged)
+        )
+
+    def test_update_when_data_has_modified_attributes_not_in_mountUris(self):
+        data_merged = DEFAULT_RACK_TEMPLATE.copy()
+
+        data_merged['name'] = 'Rename Rack'
+
+        self.resource.update.return_value = data_merged
+
+        self.resource.data = UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         RackModule().run()
