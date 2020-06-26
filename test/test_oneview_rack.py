@@ -84,13 +84,14 @@ class TestRackModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_attributes(self):
-        data_merged = deepcopy(DEFAULT_RACK_TEMPLATE)
+        data_merged = DEFAULT_RACK_TEMPLATE.copy()
 
         data_merged['name'] = 'Rename Rack'
 
-        self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
-        self.resource.update.return_value = data_merged
+        # self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
+        # self.resource.update.return_value = data_merged
 
+        self.resource.data = DEFAULT_RACK_TEMPLATE
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         RackModule().run()
