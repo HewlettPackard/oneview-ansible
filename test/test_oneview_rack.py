@@ -17,7 +17,8 @@
 ###
 
 import pytest
-
+import mock
+from copy import deepcopy
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import RackModule
 
@@ -82,15 +83,22 @@ class TestRackModule(OneViewBaseTest):
             ansible_facts=dict(rack=DEFAULT_RACK_TEMPLATE)
         )
 
-    def test_update_when_data_has_modified_attributes(self):
-        data_merged = DEFAULT_RACK_TEMPLATE.copy()
+    @mock.patch('module_utils.oneview.dict_merge')
+    @mock.patch('oneview_rack.__mergeRackMounts')
+    @mock.patch('module_utils.oneview.compare')
+    def test_update_when_data_has_modified_attributes(self, mock_resource_compare, mock_merge_rackMounts, mock_dict_merge):
+        data_merged = deepcopy(DEFAULT_RACK_TEMPLATE)
 
         data_merged['name'] = 'Rename Rack'
+        self.resource.data = deepcopy(DEFAULT_RACK_TEMPLATE)
 
         self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
+        mock_merge_rackMounts.return_value = data_merged
+        mock_dict_merge.return_value = data_merged
+        mock_resource_compare.return_value = False
         self.resource.update.return_value = data_merged
 
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = DEFAULT_RACK_TEMPLATE
 
         RackModule().run()
 
@@ -110,7 +118,7 @@ class TestRackModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=RackModule.MSG_DELETED,
-             ansible_facts=dict(rack=None)
+            ansible_facts=dict(rack=None)
         )
 
     def test_should_do_nothing_when_rack_not_exist(self):
@@ -123,7 +131,7 @@ class TestRackModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=RackModule.MSG_ALREADY_ABSENT,
-             ansible_facts=dict(rack=None)
+            ansible_facts=dict(rack=None)
         )
 
 
