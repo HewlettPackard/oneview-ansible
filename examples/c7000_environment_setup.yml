@@ -98,70 +98,77 @@
     - name: Gather facts about the Storage System with hostname '{{ storage_system_ip_hostname }}'
       oneview_storage_system_facts:
         config: "{{ config }}"
-        ip_hostname: "{{ storage_system_ip_hostname }}"
+        storage_hostname: "{{ storage_system_ip_hostname }}"
       delegate_to: localhost
 
-    - name: Create the Storage System with one managed pool if it doesn't exist
+    - name: Create the Storage System if it doesn't exist
       oneview_storage_system:
         config: "{{ config }}"
         state: present
         data:
             credentials:
-                ip_hostname: '{{ storage_system_ip_hostname }}'
                 username: '{{ storage_system_username }}'
                 password: '{{ storage_system_password }}'
-            managedDomain: TestDomain
-            managedPools:
-              - domain: TestDomain
-                type: StoragePoolV2
-                name: CPG_FC-AO
-                deviceType: FC
+            hostname: '{{ storage_system_ip_hostname }}'
+            family: StoreServ
       when: (storage_systems is undefined or storage_systems is none)
       delegate_to: localhost
 
-    - name: Set the storage system
-      set_fact: storage_system="{{ storage_systems }}"
-      when: (storage_system is undefined or storage_system is none)
-
-    - set_fact: storage_system_ports={{ storage_system['unmanagedPorts'] + storage_system['managedPorts'] }}
-    - set_fact: port_1={{ storage_system_ports | selectattr('portName', 'equalto', '0:1:1') | first }}
-    - set_fact: port_2={{ storage_system_ports | selectattr('portName', 'equalto', '0:1:2') | first }}
-
-    - name: Associate the fc-networks with the storage system
+    - name: Update the Storage System adding one managed pool using name as key
       oneview_storage_system:
         config: "{{ config }}"
         state: present
         data:
-            refreshState: RefreshPending
             credentials:
-                ip_hostname: '{{ storage_system_ip_hostname }}'
                 username: '{{ storage_system_username }}'
                 password: '{{ storage_system_password }}'
-            managedPorts:
-              - name: '{{ port_1.name }}'
-                protocolType": "FC"
-                expectedNetworkUri: '{{ fc_network_1.uri }}'
-                portWwn: '{{ port_1.portWwn }}'
-                type:  '{{ port_1.type }}'
-                groupName: Auto
-              - name: '{{ port_2.name }}'
-                protocolType": "FC"
-                expectedNetworkUri: '{{ fc_network_2.uri }}'
-                portWwn: '{{ port_2.portWwn }}'
-                type:  '{{ port_2.type }}'
-                groupName: Auto
-      when: >
-            (port_1.expectedNetworkUri != '{{ fc_network_1.uri }}') or
-            (port_2.expectedNetworkUri != '{{ fc_network_2.uri }}')
+            name: 'ThreePAR-2'
+            family: StoreServ
+            hostname: '{{ storage_system_ip_hostname }}'
+            deviceSpecificAttributes:
+                managedDomain: 'TestDomain'
+                managedPools: 
+                 - name: CPG-SSD
+                   deviceType: SSD
+                   domain: TestDomain
+                   raidLevel: RAID6
+                 - name: CPG-SSD-AO
+                   deviceType: SSD
+                   domain: TestDomain
+                   raidLevel: RAID6
+                 - name: CPG_FC-AO
       delegate_to: localhost
+
+    - name: Set the storage system
+      set_fact: storage_system="{{ storage_systems.0 }}"
+      when: (storage_system is undefined or storage_system is none)
+
+    # This is PUT operation to update port configuration by changing expectedNetworkUri.
+    - name: Update the Storage System adding one port using name as key
+      oneview_storage_system:
+        config: "{{ config }}"
+        state: present
+        data:
+            credentials:
+                username: '{{ storage_system_username }}'
+                password: '{{ storage_system_password }}'
+            name: '{{ storage_system_name }}'
+            family: StoreServ
+            hostname: '{{ storage_system_ip_hostname }}'
+            ports:
+              - expectedNetworkUri: '{{ fc_network_1.uri }}'
+                name: null
+                mode: Managed
+      delegate_to: localhost
+
 
     - name: Ensure a Storage Pool is present
       oneview_storage_pool:
         config: "{{ config }}"
         state: present
         data:
-           storageSystemUri: '{{ storage_system.uri }}'
-           poolName: '{{ storage_pool_name }}'
+           storageSystemUri: "{{ storage_system.uri }}"
+           name: '{{ storage_pool_name }}'
       delegate_to: localhost
 
     - name: Gather facts about the Volume named '{{ storage_volume_name }}'
@@ -171,24 +178,23 @@
       delegate_to: localhost
 
     - name: Set the storage volume to be associated with the Server Profile
-      set_fact: storage_volume="{{ storage_volumes.0 }}"
+      set_fact: storage_volume= "{{ storage_volumes.0 }}"
       when: >
-            not(storage_volumes.0 is undefined or storage_system.0 is none) and
-            (storage_volumes.0.storagePoolUri == '{{ storage_pool.uri }}') and
-            (storage_volumes.0.storageSystemUri == '{{ storage_system.uri }}')
+            not(storage_volumes.0 is undefined or storage_systems.0 is none) and
+            (storage_volumes.0.storagePoolUri == '{{ storage_pool.uri }}')
 
     - name: Create the storage volume '{{ storage_volume_name }}'
       oneview_volume:
         config: '{{ config }}'
         state: present
         data:
-          name: '{{ storage_volume_name }}'
-          provisioningParameters:
-              provisionType: 'Full'
-              shareable: True
-              requestedCapacity: 1073741824  # 1GB
-              storagePoolUri: '{{ storage_pool.uri }}'
-          storageSystemUri: '{{ storage_system.uri }}'
+          properties: 
+              name: '{{ storage_volume_name }}'
+              size: 1073741824  # 1GB
+              storagePool: '/rest/storage-pools/4C4037B4-D038-4F51-A33A-ABD9012FACFE'
+          templateUri: '/rest/storage-volume-templates/5b0523c5-5b2c-4c89-8c18-abd901529392'
+          isPermanent: false
+
       when: (storage_volume is undefined)
       delegate_to: localhost
 
