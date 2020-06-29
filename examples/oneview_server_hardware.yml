@@ -128,6 +128,22 @@
             name: '{{ server_hardware_hostname }}'
       delegate_to: localhost
 
+    - name: Set the server one-time boot device to Network
+      oneview_server_hardware:
+        config: "{{ config }}"
+        state: one_time_boot_network
+        data:
+          name: '{{ server_hardware_hostname }}'
+      delegate_to: localhost
+
+    - name: Set the server one-time boot device to No one-time boot
+      oneview_server_hardware:
+        config: "{{ config }}"
+        state: one_time_boot_normal
+        data:
+          name: '{{ server_hardware_hostname }}'
+      delegate_to: localhost
+
     - name: Remove the server hardware by its IP
       oneview_server_hardware:
         config: "{{ config }}"
