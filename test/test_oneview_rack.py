@@ -45,7 +45,7 @@ UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS = dict(
     newName='Rename Rack',
     autoLoginRedistribution=True,
     fabricType='FabricAttach',
-    rackMounts=[{'mountUri': '/rest/server-hardware/31393736-3831-4753-568h-30335837526F', 'topUSlot': 20}]
+    rackMounts=[{'mountUri': '/rest/server-hardware/31393736-3831-4753-568h-30335837526F', 'topUSlot': 22}]
 )
 
 PARAMS_FOR_PRESENT = dict(
@@ -106,7 +106,7 @@ class TestRackModule(OneViewBaseTest):
         data_merged['name'] = 'Rename Rack'
 
         self.resource.update.return_value = data_merged
-
+        self.data = DEFAULT_RACK_TEMPLATE
         self.resource.data = DEFAULT_RACK_TEMPLATE
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
@@ -124,7 +124,7 @@ class TestRackModule(OneViewBaseTest):
         data_merged['name'] = 'Rename Rack'
 
         self.resource.update.return_value = data_merged
-
+        self.data = UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS
         self.resource.data = DEFAULT_RACK_TEMPLATE
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
