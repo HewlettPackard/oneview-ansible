@@ -107,11 +107,12 @@ class TestRackModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_attributes_with_different_mountUris(self):
-        data_merged = UPDATED_RACK_TEMPLATE.copy()
+        data_merged = DEFAULT_RACK_TEMPLATE.copy()
+        DEFAULT_RACK_TEMPLATE['rackMounts'] = [{'mountUri': '/rest/server-hardware/31393736-3831-4753-569h-30335837524E', 'topUSlot': 20}]
         data_merged['name'] = 'Rename Rack'
 
         self.resource.update.return_value = data_merged
-        self.resource.data = UPDATED_RACK_TEMPLATE
+        self.resource.data = DEFAULT_RACK_TEMPLATE
         self.resource.current_resource = UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
@@ -124,12 +125,13 @@ class TestRackModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_attributes_with_same_mountUris(self):
-        data_merged = UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS.copy()
+        data_merged = DEFAULT_RACK_TEMPLATE.copy()
+        DEFAULT_RACK_TEMPLATE['rackMounts'] = [{'mountUri': '/rest/server-hardware/31393736-3831-4753-569h-30335837524E', 'topUSlot': 22}]
         data_merged['name'] = 'Rename Rack'
 
         self.resource.update.return_value = data_merged
-        self.resource.data = UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS
-        self.mock_ansible_module.params = PARAMS_WITH_MOUNTURI
+        self.resource.data = DEFAULT_RACK_TEMPLATE
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
         self.resource.current_resource = UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS
 
         RackModule().run()
