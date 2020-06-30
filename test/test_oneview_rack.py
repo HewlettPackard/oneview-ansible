@@ -137,9 +137,9 @@ class TestRackModule(OneViewBaseTest):
         RackModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            msg=RackModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(rack=DEFAULT_RACK_TEMPLATE)
+            changed=True,
+            msg=RackModule.MSG_UPDATED,
+            ansible_facts=dict(rack=data_merged)
         )
 
     def test_should_remove_rack(self):
