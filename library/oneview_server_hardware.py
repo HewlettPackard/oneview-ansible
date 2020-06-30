@@ -186,7 +186,7 @@ EXAMPLES = '''
     data:
         name : '0000A66102, bay 12'
   delegate_to: localhost
-  
+
 - name: Set the server one-time boot device to Network
   oneview_server_hardware:
     hostname: 172.16.101.48
@@ -197,7 +197,7 @@ EXAMPLES = '''
     data:
         name : '0000A66102, bay 12'
   delegate_to: localhost
-  
+
 - name: Set the server one-time boot device to No one-time boot
   oneview_server_hardware:
     hostname: 172.16.101.48
