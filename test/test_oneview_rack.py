@@ -131,7 +131,7 @@ class TestRackModule(OneViewBaseTest):
 
         self.resource.update.return_value = data_merged
         self.resource.data = DEFAULT_RACK_TEMPLATE
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = PARAMS_WITH_MOUNTURI
         self.resource.current_resource = UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS
 
         RackModule().run()
