@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -131,14 +131,23 @@ class FcNetworkModule(OneViewModule):
         if self.state == 'present':
             return self._present()
         else:
-            return self.resource_absent()
+            if not self.module.check_mode:
+                return self.resource_absent()
+            else:
+                return self.check_resource_absent()
 
     def _present(self):
         scope_uris = self.data.pop('scopeUris', None)
-        result = self.resource_present(self.RESOURCE_FACT_NAME)
+        if not self.module.check_mode:
+            result = self.resource_present(self.RESOURCE_FACT_NAME)
+        else:
+            result = self.check_resource_present(self.RESOURCE_FACT_NAME)
 
         if scope_uris is not None:
-            result = self.resource_scopes_set(result, 'fc_network', scope_uris)
+            if not self.module.check_mode:
+                result = self.resource_scopes_set(result, 'fc_network', scope_uris)
+            else:
+                result = self.check_resource_scopes_set(result, 'fc_network', scope_uris)
         return result
 
 
