@@ -1031,9 +1031,9 @@ class ServerProfileMerger(object):
         return merged_data
 
     def _merge_sas_logical_jbods(self, merged_data, resource, data):
-        if self._should_merge(data[SPKeys.LOCAL_STORAGE], resource[SPKeys.LOCAL_STORAGE], key=SPKeys.SAS_LOGICAL_JBODS):
+        if data.get(SPKeys.LOCAL_STORAGE) and SPKeys.SAS_LOGICAL_JBODS in data.get(SPKeys.LOCAL_STORAGE):
             existing_items = resource[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS]
-            provided_items = merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS]
+            provided_items = data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS]
             merged_jbods = merge_list_by_key(existing_items, provided_items, key=SPKeys.ID, ignore_when_null=[SPKeys.SAS_LOGICAL_JBOD_URI])
             merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS] = merged_jbods
         return merged_data
