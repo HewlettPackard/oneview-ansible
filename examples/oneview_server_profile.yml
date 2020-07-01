@@ -51,7 +51,7 @@
         config: "{{ config }}"
         data:
           serverProfileTemplateName: "{{ ov_template }}"
-          name: ServerPro
+          name: "{{ inventory_hostname }}"
           # To assign SH for scoped user
           initialScopeUris:
             - '/rest/scopes/12ab33bb-391f-491a-adfb-02b0dc625b3e'
