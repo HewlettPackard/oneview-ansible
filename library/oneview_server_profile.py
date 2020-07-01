@@ -513,6 +513,8 @@ class ServerProfileModule(OneViewModule):
                         volume.pop(SPKeys.LUN, None)
 
     def __get_available_server_hardware_uri(self):
+        scope_uri = self.data.get('initialScopeUris', [])
+
         if self.server_template:
             enclosure_group = self.server_template.data.get('enclosureGroupUri', '')
             server_hardware_type = self.server_template.data.get('serverHardwareTypeUri', '')
@@ -529,13 +531,22 @@ class ServerProfileModule(OneViewModule):
 
         self.module.log(msg="Finding an available server hardware")
         if self.oneview_client.api_version >= 1600:
-            available_server_hardware = self.resource_client.get_available_targets(
-                enclosureGroupUri=enclosure_group,
-                serverHardwareTypeUri=server_hardware_type)['targets']
+            # To get available targets for scoped user
+            if scope_uri:
+                available_server_hardware = self.resource_client.get_available_targets(
+                    scopeUris='%20OR%20'.join(scope_uri))['targets']
+            else:
+                available_server_hardware = self.resource_client.get_available_targets(
+                    enclosureGroupUri=enclosure_group,
+                    serverHardwareTypeUri=server_hardware_type)['targets']
         else:
-            available_server_hardware = self.resource_client.get_available_servers(
-                enclosureGroupUri=enclosure_group,
-                serverHardwareTypeUri=server_hardware_type)
+            if scope_uri:
+                available_server_hardware = self.resource_client.get_available_servers(
+                    scopeUris='%20OR%20'.join(scope_uri))
+            else:
+                available_server_hardware = self.resource_client.get_available_servers(
+                    enclosureGroupUri=enclosure_group,
+                    serverHardwareTypeUri=server_hardware_type)
 
         # targets will list empty bays. We need to pick one that has a server
         index = 0
