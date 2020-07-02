@@ -62,6 +62,21 @@ PARAMS_FOR_PRESENT = dict(
     data=BASIC_PROFILE
 )
 
+BASIC_SCOPE_PROFILE = dict(
+    name=SERVER_PROFILE_NAME,
+    uri=SERVER_PROFILE_URI,
+    enclosureGroupUri="/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89",
+    serverHardwareTypeUri="/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B"
+)
+
+CREATED_SCOPE_PROFILE = dict(
+    name=SERVER_PROFILE_NAME,
+    uri=SERVER_PROFILE_URI,
+    enclosureGroupUri="/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89",
+    serverHardwareTypeUri="/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B",
+    scopeUris='/rest/scopes/12ab33bb-391f-491a-adfb-02b0dc625b3e%20OR%20/rest/scopes/3006eb67-a58f-4f5c-b173-e46309b2b87d'
+)
+
 PARAMS_FOR_UPDATE = dict(
     config='config.json',
     auto_assign_server_hardware=True,
@@ -285,35 +300,10 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True, msg=ServerProfileModule.MSG_REMEDIATED_COMPLIANCE, ansible_facts=mock_facts)
 
-    def test_should_create_with_automatically_selected_hardware_when_not_exists(self):
-        profile_data = deepcopy(BASIC_PROFILE)
-        profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
-
-        self.resource.get_by_name.return_value = None
-        self.resource.data = CREATED_BASIC_PROFILE
-        self.resource.create.return_value = self.resource
-        self.resource.get_available_servers.return_value = AVAILABLE_SERVERS
-        self.mock_ov_client.server_hardware.data = {}
-        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
-        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
-        self.mock_ov_client.api_version = 1200
-
-        mock_facts = gather_facts(self.mock_ov_client, created=True)
-
-        ServerProfileModule().run()
-
-        self.resource.create.assert_called_once_with(profile_data)
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=ServerProfileModule.MSG_CREATED,
-            ansible_facts=mock_facts
-        )
-
     def test_should_create_with_automatically_selected_hardware_when_scopeuri_exists_with_api1600(self):
-        profile_data = deepcopy(BASIC_PROFILE)
-        profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
+        profile_data = deepcopy(BASIC_SCOPE_PROFILE)
         profile_data['scopeUris'] = '/rest/scopes/12ab33bb-391f-491a-adfb-02b0dc625b3e%20OR%20/rest/scopes/3006eb67-a58f-4f5c-b173-e46309b2b87d'
+        profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
         self.resource.get_by_name.return_value = None
         self.resource.data = CREATED_BASIC_PROFILE
