@@ -13,8 +13,9 @@
 - [#397](https://github.com/HewlettPackard/oneview-ansible/issues/397) oneview_network_set does not support clearing the nativeNetworkUri.
 - [#451](https://github.com/HewlettPackard/oneview-ansible/issues/451) auto_assign_server_hardware does not work with DLs
 - [#456](https://github.com/HewlettPackard/oneview-ansible/issues/456) oneview_storage_system - How to assign Ports to Networks?
-- [#481](https://github.com/HewlettPackard/oneview-ansible/issues/481) oneview_volume is not idempotent.
-- [#487](https://github.com/HewlettPackard/oneview-ansible/issues/487) Fails Server profile update in case of existing network_set.
+- [#469](https://github.com/HewlettPackard/oneview-ansible/issues/469) module: ov_server_profile auto_assign_hw with scoped user
+- [#481](https://github.com/HewlettPackard/oneview-ansible/issues/481) oneview_volume is not idempotent
+- [#487](https://github.com/HewlettPackard/oneview-ansible/issues/487) Fails Server profile update in case of existing network_set
 - [#496](https://github.com/HewlettPackard/oneview-ansible/issues/496) Feature: Check Mode.
 - [#510](https://github.com/HewlettPackard/oneview-ansible/issues/510) Ensure users are aware of how to secure oneview credentials.
 - [#525](https://github.com/HewlettPackard/oneview-ansible/issues/525) Server Hardware Facts - Extract the Server Hardware Details by URI.
