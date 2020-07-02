@@ -543,9 +543,15 @@ class ServerProfileModule(OneViewModule):
                     enclosureGroupUri=enclosure_group,
                     serverHardwareTypeUri=server_hardware_type)['targets']
         else:
-            available_server_hardware = self.resource_client.get_available_servers(
-                enclosureGroupUri=enclosure_group,
-                serverHardwareTypeUri=server_hardware_type)
+            if scope_uri:
+                available_server_hardware = self.resource_client.get_available_servers(
+                    enclosureGroupUri=enclosure_group,
+                    serverHardwareTypeUri=server_hardware_type,
+                    scopeUris=scope_uri)
+            else:
+                available_server_hardware = self.resource_client.get_available_servers(
+                    enclosureGroupUri=enclosure_group,
+                    serverHardwareTypeUri=server_hardware_type)
 
         # targets will list empty bays. We need to pick one that has a server
         index = 0
