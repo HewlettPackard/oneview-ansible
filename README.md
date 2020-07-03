@@ -62,7 +62,19 @@ Sample playbooks and instructions on how to run the modules can be found in the 
 
 ## Setup
 
-To run the Ansible modules provided in this project, you may run a containerized version or perform a full installation. The containerized version of the `oneview-ansible` modules is available in the [Docker Store](https://store.docker.com/community/images/hewlettpackardenterprise/oneview-ansible-debian). There is also a [how-to guide](https://github.com/HewlettPackard/oneview-ansible-samples/blob/master/oneview-ansible-in-container/oneview-ansible-in-container.md) with instructions on how to use the container.
+To run the Ansible modules provided in this project, you may run a containerized version or perform a full installation. The containerized version of the `oneview-ansible` modules is available in the [Docker Store](https://store.docker.com/community/images/hewlettpackardenterprise/hpe-oneview-sdk-for-ansible). 
+
+The Docker Store image `tag` consist of two sections: `<sdk_version-OV_version>`
+ ```bash
+#Download and store a local copy of  hpe-oneview-sdk-for-ansible and
+# use it as a Docker image.
+$ docker pull hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v5.6.0-OV5.2
+
+# Run docker commands using the below command and this will in turn create
+# a sh session where you can create files, issue commands and execute playbooks
+$ docker run -it hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v5.6.0-OV5.2 /bin/sh
+```
+There is also a [how-to guide](https://github.com/HewlettPackard/oneview-ansible-samples/blob/master/oneview-ansible-in-container/oneview-ansible-in-container.md) with instructions on how to use the container without creating a sh session.
 
 To perform a full installation, you should execute the following steps:
 
