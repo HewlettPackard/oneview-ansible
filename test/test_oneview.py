@@ -3152,7 +3152,7 @@ class TestServerProfileMerger():
         item_2_merged = dict(numPhysicalDrives=2,
                              id=2, name="jbod-2", deviceSlot="Mezz 1", driveTechnology="SataHdd", status="Pending")
         expected_sas_logical_jbods = [self.SAS_LOGICAL_JBOD_1.copy(), item_2_merged.copy()]
-        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS] != expected_sas_logical_jbods
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS] == expected_sas_logical_jbods
 
     @mock.patch.object(oneview, 'merge_list_by_key')
     def test_merge_should_ignore_logical_jbod_uri_when_null(self, mock_merge_list):
@@ -3172,7 +3172,7 @@ class TestServerProfileMerger():
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS]
+        assert not merged_data[SPKeys.LOCAL_STORAGE][SPKeys.SAS_LOGICAL_JBODS]
 
     def test_merge_when_controllers_have_new_item(self):
         controller_added = dict(deviceSlot="Device Slot Name", mode="RAID", initialize=False, importConfiguration=True)
