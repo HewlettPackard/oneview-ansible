@@ -119,7 +119,7 @@ example:
     "authLoginDomain": "",
     "password": "secret123"
   },
-  "api_version": 200
+  "api_version": 1600
 }
 ```
 
@@ -183,7 +183,7 @@ This option allows the parameters `hostname`, `username`, `password`, `api_versi
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1600
     state: present
     data:
       name: "{{ network_name }}"
