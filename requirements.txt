@@ -1,3 +1,3 @@
 ansible
 hpICsp
-hpOneView==5.2.0
+hpOneView==5.2.1
