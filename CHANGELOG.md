@@ -1,6 +1,7 @@
 # Ansible Modules for HPE OneView Change Log
 
-## v5.6.1(unreleased)
+## v5.6.1
+Added 'dict_merge' method in oneview library to merge nested dictionaries and lists and avoid idempotency issues.
 
 #### Bug fixes & Enhancements
 - [#171](https://github.com/HewlettPackard/oneview-ansible/issues/171) oneview_server_profile doesn't appear to be idempotent
