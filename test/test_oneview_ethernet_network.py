@@ -294,9 +294,11 @@ class TestEthernetNetworkModule(OneViewBaseTest):
             "/rest/ethernet-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
         ]
 
-        EthernetNetworkModule().run()
+        self.resource.delete_bulk.return_value = None
 
         self.mock_ansible_module.params = YAML_BULK_DELETE
+
+        EthernetNetworkModule().run()
 
         self.resource.delete_bulk.assert_called_once_with(networkUris)
         self.mock_ansible_module.exit_json.assert_called_once_with(
@@ -332,7 +334,8 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         EthernetNetworkModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False, msg=EthernetNetworkModule.MSG_BULK_ALREADY_EXIST)
+            changed=False, msg=EthernetNetworkModule.MSG_BULK_ALREADY_EXIST,
+            ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
 
     def test_reset_successfully(self):
         self.resource.data = DICT_PARAMS_WITH_CHANGES
@@ -401,7 +404,7 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         resource_data['scopeUris'] = ['test']
         self.resource.data = resource_data
 
-        self.mock_ansible_module.params = yaml.load(YAML_RESET_CONNECTION_TEMPLATE)
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         EthernetNetworkModule().run()
 

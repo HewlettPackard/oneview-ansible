@@ -296,9 +296,9 @@ class TestFcNetworkModule(OneViewBaseTest):
             "/rest/fc-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
         ]
 
-        FcNetworkModule().run()
-
         self.mock_ansible_module.params = YAML_BULK_DELETE
+
+        FcNetworkModule().run()
 
         self.resource.delete_bulk.assert_called_once_with(networkUris)
         self.mock_ansible_module.exit_json.assert_called_once_with(
