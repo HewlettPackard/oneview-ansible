@@ -279,7 +279,7 @@ class TestFcNetworkModule(OneViewBaseTest):
         )
 
     def test_should_delete_bulk_fc_networks(self):
-        networkUris: [
+        networkUris = [
             "/rest/fc-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548",
             "/rest/fc-networks/f2f0031b-52bd-4223-9ac1-d91cb519d549",
             "/rest/fc-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
@@ -290,7 +290,7 @@ class TestFcNetworkModule(OneViewBaseTest):
         self.resource.delete_bulk.assert_called_once_with(networkUris)
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True, msg=FcNetworkModule.MSG_BULK_DELETED,
-            ansible_facts=dict(fc_network_bulk_delete=None)) 
+            ansible_facts=dict(fc_network_bulk_delete=None))
 
 
 if __name__ == '__main__':

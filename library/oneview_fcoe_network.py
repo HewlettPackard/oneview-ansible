@@ -142,6 +142,8 @@ class FcoeNetworkModule(OneViewModule):
             else:
                 return self.resource_absent()
 
+        return dict(changed=changed, msg=msg, ansible_facts=ansible_facts)
+
     def __present(self):
         scope_uris = self.data.pop('scopeUris', None)
         result = self.resource_present(self.RESOURCE_FACT_NAME)
@@ -157,7 +159,7 @@ class FcoeNetworkModule(OneViewModule):
             changed = True
             msg = self.MSG_BULK_DELETED
 
-        return changed, msg, dict(fcoe_network_bulk_delete=None)   
+        return changed, msg, dict(fcoe_network_bulk_delete=None)
 
 
 def main():

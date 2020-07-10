@@ -153,6 +153,8 @@ class FcNetworkModule(OneViewModule):
             else:
                 return self.check_resource_absent()
 
+        return dict(changed=changed, msg=msg, ansible_facts=ansible_facts)
+
     def _present(self):
         scope_uris = self.data.pop('scopeUris', None)
         if not self.module.check_mode:
@@ -175,7 +177,8 @@ class FcNetworkModule(OneViewModule):
             changed = True
             msg = self.BULK_MSG_DELETED
 
-        return changed, msg, dict(fc_network_bulk_delete=None) 
+        return changed, msg, dict(fc_network_bulk_delete=None)
+
 
 def main():
     FcNetworkModule().run()
