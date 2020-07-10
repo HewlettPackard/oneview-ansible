@@ -1,4 +1,18 @@
 # Ansible Modules for HPE OneView Change Log
+## v5.7.0 (Unreleased)
+
+This release extends the planned support of the modules to OneView REST API version 1800 (OneView v5.3)
+
+### Modules supported in this release
+- oneview_certificates_server
+- oneview_certificates_server_facts
+- oneview_connection_template
+- oneview_connection_template_facts
+- oneview_hypervisor_manager
+- oneview_hypervisor_manager_facts
+- oneview_hypervisor_cluster_profile
+- oneview_hypervisor_cluster_profile_facts
+
 ## v5.6.0 (Unreleased)
 
 This release extends the planned support of the modules to OneView REST API version 800 (OneView v4.1), 1000 (OneView v4.2), 1200 (OneView v5.0) and 1600 (OneView v5.2)
