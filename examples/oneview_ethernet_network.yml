@@ -112,3 +112,12 @@
               typicalBandwidth: 2000
       delegate_to: localhost
     - debug: msg="{{ethernet_network_bulk | map(attribute='name') | list }}"
+
+    - name: Delete Ethernet Networks in bulk
+      oneview_ethernet_network:
+        config: "{{ config }}"
+        state: absent
+        data:
+          networkUris:
+            -  "/rest/ethernet-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548"
+      delegate_to: localhost

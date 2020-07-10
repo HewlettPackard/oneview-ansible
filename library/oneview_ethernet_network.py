@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1800
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -65,7 +65,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1800
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -80,7 +80,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1800
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -91,7 +91,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1800
     state: absent
     data:
       name: 'New Ethernet Network'
@@ -101,7 +101,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1800
     state: present
     data:
       vlanIdRange: '1-10,15,17'
@@ -118,7 +118,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1800
     state: default_bandwidth_reset
     data:
       name: 'Test Ethernet Network'
@@ -129,13 +129,25 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1800
     state: present
     data:
       name: 'Test Ethernet Network'
       scopeUris:
         - '/rest/scopes/00SC123456'
         - '/rest/scopes/01SC123456'
+  delegate_to: localhost
+
+- name: Delete Ethernet Networks in bulk(works from API1600)
+  oneview_ethernet_network:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1800
+    state: absent
+    data:
+      networkUris:
+        -  "/rest/ethernet-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548"
   delegate_to: localhost
 '''
 
@@ -167,6 +179,7 @@ class EthernetNetworkModule(OneViewModule):
     MSG_ALREADY_ABSENT = 'Ethernet Network is already absent.'
 
     MSG_BULK_CREATED = 'Ethernet Networks created successfully.'
+    MSG_BULK_DELETED = 'Ethernet Networks deleted successfully.'
     MSG_MISSING_BULK_CREATED = 'Some missing Ethernet Networks were created successfully.'
     MSG_BULK_ALREADY_EXIST = 'The specified Ethernet Networks already exist.'
     MSG_CONNECTION_TEMPLATE_RESET = 'Ethernet Network connection template was reset to the default.'
@@ -199,7 +212,10 @@ class EthernetNetworkModule(OneViewModule):
             else:
                 return self.__present()
         elif self.state == 'absent':
-            return self.resource_absent()
+            if self.data.get('networkUris'):
+                changed, msg, ansible_facts = self.__bulk_absent()
+            else:
+                return self.resource_absent()
         elif self.state == 'default_bandwidth_reset':
             changed, msg, ansible_facts = self.__default_bandwidth_reset()
 
@@ -252,6 +268,16 @@ class EthernetNetworkModule(OneViewModule):
                 msg = self.MSG_MISSING_BULK_CREATED
 
         return changed, msg, dict(ethernet_network_bulk=ethernet_networks)
+
+    def __bulk_absent(self):
+        networkUris = self.data['networkUris']
+
+        if networkUris is not None:
+            self.resource_client.delete_bulk(self.data)
+            changed = True
+            msg = self.MSG_BULK_DELETED
+
+        return changed, msg, dict(ethernet_network_bulk_delete=None)
 
     def __update_connection_template(self, bandwidth):
 

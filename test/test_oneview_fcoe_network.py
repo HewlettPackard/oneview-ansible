@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -169,6 +169,20 @@ class TestFcoeNetworkModule(OneViewBaseTest):
             ansible_facts=dict(fcoe_network=resource_data),
             msg=FcoeNetworkModule.MSG_ALREADY_PRESENT
         )
+
+    def test_should_delete_bulk_fcoe_networks(self):
+        networkUris: [
+            "/rest/fcoe-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548",
+            "/rest/fcoe-networks/f2f0031b-52bd-4223-9ac1-d91cb519d549",
+            "/rest/fcoe-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
+        ]
+
+        FcoeNetworkModule().run()
+
+        self.resource.delete_bulk.assert_called_once_with(networkUris)
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True, msg=FcoeNetworkModule.MSG_BULK_DELETED,
+            ansible_facts=dict(fcoe_network_bulk_delete=None))    
 
 
 if __name__ == '__main__':
