@@ -282,7 +282,7 @@ class TestFcNetworkModule(OneViewBaseTest):
 
         YAML_BULK_DELETE = """
         config: "{{ config }}"
-        state: absent
+        state: 'absent'
         data:
           networkUris:
             -   "/rest/fc-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548",
