@@ -188,7 +188,7 @@ class TestFcoeNetworkModule(OneViewBaseTest):
             "/rest/fcoe-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
         ]
 
-          self.mock_ansible_module.params = YAML_BULK_DELETE
+        self.mock_ansible_module.params = YAML_BULK_DELETE
 
         FcoeNetworkModule().run()
 
