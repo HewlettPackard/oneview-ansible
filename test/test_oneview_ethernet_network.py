@@ -95,12 +95,6 @@ PARAMS_FOR_BULK_CREATED = dict(
     data=dict(namePrefix="TestNetwork", vlanIdRange="1-2,5,9-10")
 )
 
-PARAMS_FOR_BULK_CREATED = dict(
-    config='config.json',
-    state='absent',
-    data=dict(namePrefix="TestNetwork", vlanIdRange="1-2,5,9-10")
-)
-
 DEFAULT_BULK_ENET_TEMPLATE = [
     {'name': 'TestNetwork_1', 'vlanId': 1},
     {'name': 'TestNetwork_2', 'vlanId': 2},
@@ -338,8 +332,7 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         EthernetNetworkModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False, msg=EthernetNetworkModule.MSG_BULK_ALREADY_EXIST,
-            ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
+            changed=False, msg=EthernetNetworkModule.MSG_BULK_ALREADY_EXIST)
 
     def test_reset_successfully(self):
         self.resource.data = DICT_PARAMS_WITH_CHANGES
@@ -407,6 +400,8 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         resource_data = DEFAULT_ENET_TEMPLATE.copy()
         resource_data['scopeUris'] = ['test']
         self.resource.data = resource_data
+
+        self.mock_ansible_module.params = yaml.load(YAML_RESET_CONNECTION_TEMPLATE)
 
         EthernetNetworkModule().run()
 

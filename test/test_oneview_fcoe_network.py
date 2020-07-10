@@ -171,6 +171,17 @@ class TestFcoeNetworkModule(OneViewBaseTest):
         )
 
     def test_should_delete_bulk_fcoe_networks(self):
+
+        YAML_BULK_DELETE = """
+        config: "{{ config }}"
+        state: absent
+        data:
+          networkUris:
+            -   "/rest/fcoe-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548",
+                "/rest/fcoe-networks/f2f0031b-52bd-4223-9ac1-d91cb519d549",
+                "/rest/fcoe-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
+        """
+
         networkUris = [
             "/rest/fcoe-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548",
             "/rest/fcoe-networks/f2f0031b-52bd-4223-9ac1-d91cb519d549",
@@ -178,6 +189,8 @@ class TestFcoeNetworkModule(OneViewBaseTest):
         ]
 
         FcoeNetworkModule().run()
+
+        self.mock_ansible_module.params = YAML_BULK_DELETE
 
         self.resource.delete_bulk.assert_called_once_with(networkUris)
         self.mock_ansible_module.exit_json.assert_called_once_with(
