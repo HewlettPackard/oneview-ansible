@@ -70,11 +70,13 @@ YAML_RESET_CONNECTION_TEMPLATE = """
 """
 
 YAML_BULK_DELETE = """
-        config: "{{ config }}"
+        config: 'config.json',
         state: 'absent'
         data:
           networkUris:
-            -  "/rest/ethernet-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548"
+            - "/rest/ethernet-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548",
+              "/rest/ethernet-networks/f2f0031b-52bd-4223-9ac1-d91cb519d549",
+              "/rest/ethernet-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
 """
 
 PARAMS_FOR_SCOPES_SET = dict(
@@ -294,9 +296,19 @@ class TestEthernetNetworkModule(OneViewBaseTest):
             "/rest/ethernet-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
         ]
 
+        PARAMS_FOR_BULK_DELETED = dict(
+            config='config.json',
+            state='absent',
+            data=dict(networkUris = [
+                "/rest/ethernet-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548",
+                "/rest/ethernet-networks/f2f0031b-52bd-4223-9ac1-d91cb519d549",
+                "/rest/ethernet-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
+            ])
+        )
+
         self.resource.delete_bulk.return_value = None
 
-        self.mock_ansible_module.params = YAML_BULK_DELETE
+        self.mock_ansible_module.params = PARAMS_FOR_BULK_DELETED
 
         EthernetNetworkModule().run()
 
