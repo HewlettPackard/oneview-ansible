@@ -8,6 +8,10 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_certificates_server_facts
 - oneview_connection_template
 - oneview_connection_template_facts
+- oneview_enclosure
+- oneview_enclosure_facts
+- oneview_enclosure_group
+- oneview_enclosure_group_facts
 - oneview_hypervisor_manager
 - oneview_hypervisor_manager_facts
 - oneview_hypervisor_cluster_profile
