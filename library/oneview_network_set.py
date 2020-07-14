@@ -108,7 +108,7 @@ network_set:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare
 
 
 class NetworkSetModule(OneViewModule):
@@ -131,6 +131,7 @@ class NetworkSetModule(OneViewModule):
         super(NetworkSetModule, self).__init__(additional_arg_spec=self.argument_spec,
                                                validate_etag_support=True)
         self.set_resource_object(self.oneview_client.network_sets)
+        self.connection_templates = self.oneview_client.connection_templates
 
     def execute_module(self):
 
@@ -140,19 +141,31 @@ class NetworkSetModule(OneViewModule):
             return self.resource_absent()
 
     def __present(self):
+
+        bandwidth = self.data.pop('bandwidth', None)
         scope_uris = self.data.pop('scopeUris', None)
         self.__replace_network_name_by_uri(self.data)
         result = self.resource_present(self.RESOURCE_FACT_NAME)
+
+        if bandwidth:
+            changed, connection_template = self.__update_connection_template(bandwidth)
+            if changed:
+                result['changed'] = True
+                result['msg'] = self.MSG_UPDATED
+                result['ansible_facts']['connection_template'] = connection_template
+
         if scope_uris is not None:
             result = self.resource_scopes_set(result, self.RESOURCE_FACT_NAME, scope_uris)
         return result
 
     def __get_ethernet_network_by_name(self, name):
+
         result = self.oneview_client.ethernet_networks.get_by('name', name)
         return result[0] if result else None
 
     def __get_network_uri(self, network_name_or_uri):
-        if network_name_or_uri.startswith('/rest/ethernet-networks'):
+
+        if network_name_or_uri and network_name_or_uri.startswith('/rest/ethernet-networks'):
             return network_name_or_uri
         else:
             enet_network = self.__get_ethernet_network_by_name(network_name_or_uri)
@@ -162,10 +175,27 @@ class NetworkSetModule(OneViewModule):
                 raise OneViewModuleResourceNotFound(self.MSG_ETHERNET_NETWORK_NOT_FOUND + network_name_or_uri)
 
     def __replace_network_name_by_uri(self, data):
+
         if 'networkUris' in data:
             data['networkUris'] = [self.__get_network_uri(x) for x in data['networkUris']]
-        if 'nativeNetworkUri' in data:
+        if 'nativeNetworkUri' in data and data['nativeNetworkUri']:
             data['nativeNetworkUri'] = self.__get_network_uri(data['nativeNetworkUri'])
+
+    # Update network set connection template with bandwidth
+    def __update_connection_template(self, bandwidth):
+
+        if 'connectionTemplateUri' not in self.current_resource.data:
+            return False, None
+
+        connection_template = self.connection_templates.get_by_uri(
+            self.current_resource.data['connectionTemplateUri'])
+
+        merged_data = connection_template.data.copy()
+        merged_data.update({'bandwidth': bandwidth})
+
+        if not compare(connection_template.data, merged_data):
+            connection_template.update(merged_data)
+            return True, connection_template.data
 
 
 def main():

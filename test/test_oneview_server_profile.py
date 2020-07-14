@@ -61,6 +61,21 @@ PARAMS_FOR_PRESENT = dict(
     data=BASIC_PROFILE
 )
 
+BASIC_SCOPE_PROFILE = dict(
+    name=SERVER_PROFILE_NAME,
+    uri=SERVER_PROFILE_URI,
+    enclosureGroupUri="/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89",
+    serverHardwareTypeUri="/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B",
+    initialScopeUris='/rest/scopes/12ab33bb-391f-491a-adfb-02b0dc625b3e%20OR%20/rest/scopes/3006eb67-a58f-4f5c-b173-e46309b2b87d'
+)
+
+PARAMS_FOR_PRESENT_WITH_SCOPE = dict(
+    config='config.json',
+    auto_assign_server_hardware=True,
+    state='present',
+    data=BASIC_SCOPE_PROFILE
+)
+
 PARAMS_FOR_UPDATE = dict(
     config='config.json',
     auto_assign_server_hardware=True,
@@ -295,6 +310,82 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.server_hardware.data = {}
         self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ov_client.api_version = 1200
+
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
+
+        ServerProfileModule().run()
+
+        self.resource.create.assert_called_once_with(profile_data)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerProfileModule.MSG_CREATED,
+            ansible_facts=mock_facts
+        )
+
+    def test_should_create_with_automatically_selected_hardware_when_scopeuri_exists(self):
+        profile_data = deepcopy(BASIC_SCOPE_PROFILE)
+        profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
+
+        self.resource.get_by_name.return_value = None
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
+        self.resource.get_available_servers.return_value = AVAILABLE_SERVERS
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT_WITH_SCOPE)
+        self.mock_ov_client.api_version = 1200
+
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
+
+        ServerProfileModule().run()
+
+        self.resource.create.assert_called_once_with(profile_data)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerProfileModule.MSG_CREATED,
+            ansible_facts=mock_facts
+        )
+
+    def test_should_create_with_automatically_selected_hardware_when_not_exists_with_apiversion_1600(self):
+        profile_data = deepcopy(BASIC_PROFILE)
+        profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
+
+        self.resource.get_by_name.return_value = None
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
+        self.resource.get_available_targets.return_value = AVAILABLE_TARGETS
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ov_client.api_version = 1600
+
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
+
+        ServerProfileModule().run()
+
+        self.resource.create.assert_called_once_with(profile_data)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerProfileModule.MSG_CREATED,
+            ansible_facts=mock_facts
+        )
+
+    def test_should_create_with_automatically_selected_hardware_when_scopeuri_exists_api1600(self):
+        self.mock_ov_client.api_version = 1600
+        profile_data = deepcopy(BASIC_SCOPE_PROFILE)
+        profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
+
+        self.resource.get_by_name.return_value = None
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
+        self.resource.get_available_targets.return_value = AVAILABLE_TARGETS
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT_WITH_SCOPE)
 
         mock_facts = gather_facts(self.mock_ov_client, created=True)
 
@@ -344,6 +435,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.data = CREATED_BASIC_PROFILE
         self.resource.create.return_value = self.resource
         self.resource.get_available_servers.return_value = AVAILABLE_SERVERS
+        self.mock_ov_client.api_version = 1200
         self.mock_ov_client.server_profile_templates.data = template
         self.mock_ov_client.server_profile_templates.get_by_name.return_value = self.mock_ov_client.server_profile_templates
         self.mock_ov_client.server_profile_templates.get_new_profile.return_value = profile_from_template
@@ -382,6 +474,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.create.return_value = self.resource
         self.resource.get_available_servers.return_value = AVAILABLE_SERVERS
         self.mock_ov_client.server_profile_templates.data = template
+        self.mock_ov_client.api_version = 1200
         self.mock_ov_client.server_profile_templates.get_by_uri.return_value = self.mock_ov_client.server_profile_templates
         self.mock_ov_client.server_profile_templates.get_new_profile.return_value = profile_from_template
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
@@ -503,7 +596,6 @@ class TestServerProfileModule(OneViewBaseTest):
 
         times_get_targets_called = self.resource.get_available_servers.call_count
         assert(0 == times_get_targets_called)
-
         times_create_called = self.resource.create.call_count
         assert(25 == times_create_called)
 
@@ -550,6 +642,7 @@ class TestServerProfileModule(OneViewBaseTest):
         obj.data = FAKE_SERVER_HARDWARE
         self.mock_ov_client.server_hardware.get_by_uri.return_value = obj
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -570,6 +663,7 @@ class TestServerProfileModule(OneViewBaseTest):
         obj.data = FAKE_SERVER_HARDWARE
         self.mock_ov_client.server_hardware.get_by_uri.return_value = obj
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ov_client.api_version = 1200
 
         create_params = deepcopy(PARAMS_FOR_PRESENT['data'])
         create_params['serverHardwareUri'] = FAKE_SERVER_HARDWARE['uri']
@@ -589,6 +683,7 @@ class TestServerProfileModule(OneViewBaseTest):
         obj = mock.Mock()
         obj.data = FAKE_SERVER_HARDWARE
         self.mock_ov_client.server_hardware.get_by_uri.return_value = obj
+        self.mock_ov_client.api_version = 1200
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         ServerProfileModule().run()
@@ -636,6 +731,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.server_profiles.get_available_servers.return_value = []
         self.mock_ov_client.server_hardware.get_by_uri.return_value = None
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
+        self.mock_ov_client.api_version = 1200
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         mock_facts = gather_facts(self.mock_ov_client, created=True)
         mock_facts["server_hardware"] = None
@@ -661,6 +757,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.get_by_name.return_value = None
         self.mock_ov_client.os_deployment_plans.get_by.return_value = [dict(uri=uri)]
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -689,6 +786,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.get_by_name.return_value = None
         self.mock_ov_client.enclosure_groups.get_by.return_value = [dict(uri=uri)]
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -725,6 +823,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.network_sets.get_by.side_effect = [[dict(uri='/rest/network-sets/15')], []]
         self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -762,6 +861,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ov_client.server_hardware_types.get_by.return_value = [server_hardware_template]
+        self.mock_ov_client.api_version = 1200
 
         self.mock_ansible_module.params = params
 
@@ -800,6 +900,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ov_client.volumes.get_by.side_effect = [[volume1], [volume2]]
+        self.mock_ov_client.api_version = 1200
 
         self.mock_ansible_module.params = params
 
@@ -820,6 +921,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -836,6 +938,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -850,6 +953,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -875,6 +979,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ov_client.storage_pools.get_by.side_effect = [[pool1], [pool2]]
+        self.mock_ov_client.api_version = 1200
 
         self.mock_ansible_module.params = params
 
@@ -895,6 +1000,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -911,6 +1017,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -925,6 +1032,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -943,6 +1051,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.get_by_name.return_value = None
         self.mock_ov_client.storage_pools.get_by.return_value = []
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -967,6 +1076,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ov_client.storage_systems.get_by.side_effect = [[storage_system1], [storage_system2]]
+        self.mock_ov_client.api_version = 1200
 
         self.mock_ansible_module.params = params
 
@@ -987,6 +1097,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1003,6 +1114,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1017,6 +1129,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1035,6 +1148,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.get_by_name.return_value = None
         self.mock_ov_client.storage_systems.get_by.return_value = []
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1049,6 +1163,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ov_client.enclosures.get_by.return_value = [enclosure]
+        self.mock_ov_client.api_version = 1200
 
         self.mock_ansible_module.params = params
 
@@ -1086,6 +1201,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ov_client.interconnects.get_by.side_effect = [[interconnect1], [interconnect2]]
+        self.mock_ov_client.api_version = 1200
 
         self.mock_ansible_module.params = params
 
@@ -1105,6 +1221,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1119,6 +1236,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1149,6 +1267,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ov_client.firmware_drivers.get_by.return_value = [firmware_driver]
+        self.mock_ov_client.api_version = 1200
 
         self.mock_ansible_module.params = params
 
@@ -1165,6 +1284,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1179,6 +1299,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1217,6 +1338,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.sas_logical_jbods.get_by.side_effect = [[sas_logical_jbod1], [sas_logical_jbod2]]
 
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1235,6 +1357,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1251,6 +1374,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1265,6 +1389,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = params
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1296,6 +1421,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1313,6 +1439,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1331,6 +1458,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1346,6 +1474,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1358,6 +1487,7 @@ class TestServerProfileModule(OneViewBaseTest):
         params['data'][SPKeys.CONNECTIONS] = [CONNECTION_1_WITH_WWPN, CONNECTION_2_WITH_WWPN]
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1376,6 +1506,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1392,6 +1523,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1411,6 +1543,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1424,6 +1557,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1438,6 +1572,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1457,6 +1592,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.server_hardware.data = {}
         self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1479,6 +1615,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.update.side_effect = OneViewModuleException('test')
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1496,6 +1633,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.data = profile_data
         self.mock_ov_client.server_hardware.get_by_uri.return_value = None
+        self.mock_ov_client.api_version = 1200
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         ServerProfileModule().run()
@@ -1514,6 +1652,7 @@ class TestServerProfileModule(OneViewBaseTest):
         gather_facts(self.mock_ov_client)
         self.resource.data = profile_data
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1532,6 +1671,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.data = profile_data
         self.mock_ov_client.server_hardware.get_by.return_value = [FAKE_SERVER_HARDWARE]
         self.mock_ov_client.server_profile_templates.get_by_name.return_value = None
+        self.mock_ov_client.api_version = 1200
 
         self.mock_ansible_module.params = params_for_present
 
@@ -1551,6 +1691,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.resource.data = profile_data
         self.mock_ov_client.server_hardware.get_by.return_value = None
+        self.mock_ov_client.api_version = 1200
         self.mock_ov_client.server_profile_templates.get_by_name.return_value = BASIC_TEMPLATE
 
         self.mock_ansible_module.params = params_for_present
@@ -1568,6 +1709,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.update.return_value = CREATED_BASIC_PROFILE
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1582,6 +1724,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.update.return_value = CREATED_BASIC_PROFILE
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ov_client.api_version = 1200
 
         mock_deep_merge.return_value = merged_data
 
@@ -1600,6 +1743,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.os_deployment_plans.get_by.return_value = [dict(uri=uri)]
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1613,6 +1757,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.os_deployment_plans.get_by.return_value = []
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1628,6 +1773,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.enclosure_groups.get_by.return_value = [dict(uri=uri)]
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1642,6 +1788,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ov_client.enclosure_groups.get_by.return_value = []
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1664,6 +1811,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.network_sets.get_by.side_effect = [[dict(uri='/rest/network-sets/20')], []]
         self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1688,6 +1836,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.ethernet_networks.get_by.return_value = []
         self.mock_ov_client.network_sets.get_by.return_value = []
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1703,6 +1852,7 @@ class TestServerProfileModule(OneViewBaseTest):
         mock_resource_compare.return_value = False
         self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1721,6 +1871,7 @@ class TestServerProfileModule(OneViewBaseTest):
         mock_resource_compare.return_value = False
         self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1739,6 +1890,7 @@ class TestServerProfileModule(OneViewBaseTest):
         mock_resource_compare.return_value = False
         self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1757,6 +1909,7 @@ class TestServerProfileModule(OneViewBaseTest):
         mock_resource_compare.return_value = False
         self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1772,6 +1925,7 @@ class TestServerProfileModule(OneViewBaseTest):
         mock_resource_compare.return_value = False
         self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1787,6 +1941,7 @@ class TestServerProfileModule(OneViewBaseTest):
         mock_resource_compare.return_value = False
         self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1802,6 +1957,7 @@ class TestServerProfileModule(OneViewBaseTest):
         mock_resource_compare.return_value = False
         self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1818,6 +1974,7 @@ class TestServerProfileModule(OneViewBaseTest):
         mock_resource_compare.return_value = False
         self.resource.data = deepcopy(BASIC_PROFILE)
         self.mock_ansible_module.params = deepcopy(params)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1830,6 +1987,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
 
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_ABSENT)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1851,6 +2009,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
 
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_ABSENT)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1870,6 +2029,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.data = profile_data
 
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_ABSENT)
+        self.mock_ov_client.api_version = 1200
 
         ServerProfileModule().run()
 
@@ -1903,6 +2063,7 @@ class TestServerProfileModule(OneViewBaseTest):
                                                'caType': 'nic'}])
         self.mock_ov_client.os_deployment_plans.get_by_uri.return_value = obj
         self.mock_ov_client.server_hardware.get_by_uri.return_value = None
+        self.mock_ov_client.api_version = 1200
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_UPDATE)
 
         ServerProfileModule().run()
@@ -1925,6 +2086,7 @@ class TestServerProfileModule(OneViewBaseTest):
 
         self.mock_ov_client.server_hardware.get_by_uri.return_value = None
         self.mock_ov_client.server_hardware.update_power_state.return_value = {}
+        self.mock_ov_client.api_version = 1200
         self.mock_ansible_module.params = deepcopy(params_for_unassign)
 
         ServerProfileModule().run()

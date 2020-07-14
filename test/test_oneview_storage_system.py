@@ -80,12 +80,13 @@ YAML_STORAGE_SYSTEM_CHANGES = """
                 newIp_hostname: 'New IP Hostname'
                 username: '{{ storage_system_username }}'
                 password: '{{ storage_system_password }}'
-            managedDomain: TestDomain
-            managedPools:
-              - domain: TestDomain
-                type: StoragePoolV2
-                name: CPG_FC-AO
-                deviceType: FC
+                deviceSpecificAttributes:
+                    managedDomain: TestDomain
+                    managedPools:
+                      - domain: TestDomain
+                        type: StoragePoolV2
+                        name: CPG_FC-AO
+                        deviceType: FC
       """
 
 YAML_STORAGE_SYSTEM_CHANGES_500 = """
@@ -97,12 +98,22 @@ YAML_STORAGE_SYSTEM_CHANGES_500 = """
                 password: '{{ storage_system_password }}'
             hostname: '{{ storage_system_ip_hostname }}'
             newHostname: 'New IP Hostname'
-            managedDomain: TestDomain
-            managedPools:
-              - domain: TestDomain
-                type: StoragePoolV2
-                name: CPG_FC-AO
-                deviceType: FC
+            deviceSpecificAttributes:
+                managedDomain: TestDomain
+                managedPools:
+                  - domain: TestDomain
+                    type: StoragePoolV2
+                    name: CPG_FC-AO
+                    deviceType: FC
+                discoveredPools:
+                  - domain: TestDomain
+                    type: StoragePoolV2
+                    name: CPG-SSD
+                    deviceType: FC
+                  - domain: TestDomain
+                    type: StoragePoolV2
+                    name:  CPG_FC-AO
+                    deviceType: FC
       """
 
 YAML_STORAGE_SYSTEM_ABSENT = """
@@ -130,11 +141,8 @@ class TestStorageSystemModule(OneViewBaseTest):
         obj = mock.Mock()
         obj.data = DICT_DEFAULT_STORAGE_SYSTEM
         self.resource.add.return_value = obj
-
         self.mock_ansible_module.params = yaml.load(YAML_STORAGE_SYSTEM)
-
         StorageSystemModule().run()
-
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=StorageSystemModule.MSG_ADDED,

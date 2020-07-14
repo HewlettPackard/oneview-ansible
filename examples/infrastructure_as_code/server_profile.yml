@@ -1,0 +1,55 @@
+###
+# Copyright (2020) Hewlett Packard Enterprise Development LP
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###
+# This playbook will create server profile using template and powers on hardware after profile creation
+---
+- hosts: all
+  gather_facts: no
+
+  vars:
+    # Provide the OneView IP address and credentials in oneview-config.json
+    config: "{{ playbook_dir }}/../oneview_config.json"
+ 
+  vars_files:
+    # Provide the names for the server profile template, server profile, and
+    # server hardware in infrastructure-config.yml
+    - "{{ playbook_dir }}/infrastructure-config.yml"
+  
+  tasks:
+    - name: Create a Server Profile from a Server Profile Template
+      oneview_server_profile:
+        config: "{{ config }}"
+        data:
+          serverProfileTemplateName: "{{ server_profile_template }}"
+          serverHardwareName: "{{ server_hardware }}"
+          name: "{{ server_profile }}"
+        params:
+          force: True
+      delegate_to: localhost
+      register: result
+
+    - debug: msg="{{ result.msg }}"
+    - debug: msg="{{ result }}"
+
+    - name: Power On the server hardware
+      oneview_server_hardware:
+        config: "{{ config }}"
+        state: power_state_set
+        data:
+            name : "{{ server_hardware }}"
+            powerStateData:
+                powerState: "On"
+                powerControl: "MomentaryPress"
+      delegate_to: localhost
