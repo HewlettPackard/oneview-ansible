@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@
 ###
 
 import pytest
-
+import mock
+from copy import deepcopy
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import RackModule
 
@@ -30,6 +31,23 @@ DEFAULT_RACK_TEMPLATE = dict(
     fabricType='FabricAttach'
 )
 
+UPDATED_RACK_TEMPLATE = dict(
+    name='New Rack 2',
+    newName='Rename Rack',
+    autoLoginRedistribution=True,
+    fabricType='FabricAttach',
+    rackMounts=[{'mountUri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E', 'topUSlot': 20},
+                {'mountUri': '/rest/server-hardware/31393736-3831-4753-567h-30335837526F', 'topUSlot': 20}]
+)
+
+UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS = dict(
+    name='New Rack 2',
+    newName='Rename Rack',
+    autoLoginRedistribution=True,
+    fabricType='FabricAttach',
+    rackMounts=[{'mountUri': '/rest/server-hardware/31393736-3831-4753-568h-30335837526F', 'topUSlot': 22}]
+)
+
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
@@ -39,7 +57,13 @@ PARAMS_FOR_PRESENT = dict(
 PARAMS_WITH_CHANGES = dict(
     config='config.json',
     state='present',
-    data=dict(name='Rename Rack')
+    data=UPDATED_RACK_TEMPLATE
+)
+
+PARAMS_WITH_MOUNTURI = dict(
+    config='config.json',
+    state='present',
+    data=UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS
 )
 
 PARAMS_FOR_ABSENT = dict(
@@ -65,7 +89,7 @@ class TestRackModule(OneViewBaseTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=RackModule.MSG_CREATED,
+            msg=RackModule.MSG_ADDED,
             ansible_facts=dict(rack=DEFAULT_RACK_TEMPLATE)
         )
 
@@ -82,15 +106,33 @@ class TestRackModule(OneViewBaseTest):
             ansible_facts=dict(rack=DEFAULT_RACK_TEMPLATE)
         )
 
-    def test_update_when_data_has_modified_attributes(self):
+    def test_update_when_data_has_modified_attributes_with_different_mountUris(self):
         data_merged = DEFAULT_RACK_TEMPLATE.copy()
-
+        DEFAULT_RACK_TEMPLATE['rackMounts'] = [{'mountUri': '/rest/server-hardware/31393736-3831-4753-569h-30335837524E', 'topUSlot': 20}]
         data_merged['name'] = 'Rename Rack'
 
-        self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
         self.resource.update.return_value = data_merged
-
+        self.resource.data = DEFAULT_RACK_TEMPLATE
+        self.resource.get_by.return_value = [UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS]
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+
+        RackModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=RackModule.MSG_UPDATED,
+            ansible_facts=dict(rack=data_merged)
+        )
+
+    def test_update_when_data_has_modified_attributes_with_same_mountUris(self):
+        data_merged = DEFAULT_RACK_TEMPLATE.copy()
+        DEFAULT_RACK_TEMPLATE['rackMounts'] = [{'mountUri': '/rest/server-hardware/31393736-3831-4753-569h-30335837524E', 'topUSlot': 22}]
+        data_merged['name'] = 'Rename Rack'
+
+        self.resource.update.return_value = data_merged
+        self.resource.data = DEFAULT_RACK_TEMPLATE
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.resource.get_by.return_value = [UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS]
 
         RackModule().run()
 
@@ -109,7 +151,8 @@ class TestRackModule(OneViewBaseTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=RackModule.MSG_DELETED
+            msg=RackModule.MSG_DELETED,
+            ansible_facts=dict(rack=None)
         )
 
     def test_should_do_nothing_when_rack_not_exist(self):
@@ -121,7 +164,8 @@ class TestRackModule(OneViewBaseTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=RackModule.MSG_ALREADY_ABSENT
+            msg=RackModule.MSG_ALREADY_ABSENT,
+            ansible_facts=dict(rack=None)
         )
 
 
