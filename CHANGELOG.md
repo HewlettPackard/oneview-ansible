@@ -1,5 +1,19 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v5.7.0(unreleased)
+
+Extends support of the SDK to OneView REST API version 1800 (OneView v5.30).
+
+### Modules supported in this release
+- oneview_server_hardware
+- oneview_server_hardware_facts
+- oneview_server_hardware_type
+- oneview_server_hardware_type_facts
+- oneview_server_profile
+- oneview_server_profile_facts
+- oneview_server_profile_template
+- oneview_server_profile_template_facts
+
 ## v5.6.1
 Added 'dict_merge' method in oneview library to merge nested dictionaries and lists and avoid idempotency issues.
 
