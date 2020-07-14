@@ -303,7 +303,7 @@ class TestFcNetworkModule(OneViewBaseTest):
 
         self.resource.delete_bulk.assert_called_once_with({'networkUris': networkUris})
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True, msg=FcNetworkModule.MSG_BULK_DELETED,
+            changed=True, msg=FcNetworkModule.BULK_MSG_DELETED,
             ansible_facts=dict(fc_network_bulk_delete=None))
 
 
