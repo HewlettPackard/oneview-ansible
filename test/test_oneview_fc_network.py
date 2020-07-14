@@ -280,15 +280,15 @@ class TestFcNetworkModule(OneViewBaseTest):
 
     def test_should_delete_bulk_fc_networks(self):
         networkUris = [
-                    "/rest/fc-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548",
-                    "/rest/fc-networks/f2f0031b-52bd-4223-9ac1-d91cb519d549",
-                    "/rest/fc-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
-                ]
+            "/rest/fc-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548",
+            "/rest/fc-networks/f2f0031b-52bd-4223-9ac1-d91cb519d549",
+            "/rest/fc-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
+        ]
 
         PARAMS_FOR_BULK_DELETED = dict(
             config='config.json',
             state='absent',
-            data=dict(networkUris = [
+            data=dict(networkUris=[
                 "/rest/fc-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548",
                 "/rest/fc-networks/f2f0031b-52bd-4223-9ac1-d91cb519d549",
                 "/rest/fc-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
