@@ -69,16 +69,6 @@ YAML_RESET_CONNECTION_TEMPLATE = """
           name: 'network name'
 """
 
-YAML_BULK_DELETE = """
-        config: 'config.json',
-        state: 'absent'
-        data:
-          networkUris:
-            - "/rest/ethernet-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548",
-              "/rest/ethernet-networks/f2f0031b-52bd-4223-9ac1-d91cb519d549",
-              "/rest/ethernet-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
-"""
-
 PARAMS_FOR_SCOPES_SET = dict(
     config='config.json',
     state='present',
@@ -312,7 +302,7 @@ class TestEthernetNetworkModule(OneViewBaseTest):
 
         EthernetNetworkModule().run()
 
-        self.resource.delete_bulk.assert_called_once_with(networkUris)
+        self.resource.delete_bulk.assert_called_once_with({'networkUris': networkUris})
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True, msg=EthernetNetworkModule.MSG_BULK_DELETED,
             ansible_facts=dict(ethernet_network_bulk_delete=None))
