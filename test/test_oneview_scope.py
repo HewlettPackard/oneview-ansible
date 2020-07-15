@@ -68,7 +68,8 @@ PARAMS_NO_RESOURCE_ASSIGNMENTS = dict(
 class TestScopeModule(OneViewBaseTest):
     def test_should_create_new_scope_when_not_found(self):
         self.resource.get_by_name.return_value = None
-        self.resource.create.return_value = RESOURCE
+        self.resource.create.return_value = self.resource
+        self.resource.data = PARAMS_FOR_PRESENT
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_FOR_PRESENT)
 
         ScopeModule().run()
@@ -76,7 +77,7 @@ class TestScopeModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ScopeModule.MSG_CREATED,
-            ansible_facts=dict(scope=RESOURCE)
+            ansible_facts=dict(scope=PARAMS_FOR_PRESENT)
         )
 
     def test_should_not_update_when_data_is_equals(self):
