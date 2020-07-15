@@ -154,7 +154,7 @@ class ScopeModule(OneViewModule):
             raise OneViewModuleResourceNotFound(self.MSG_RESOURCE_NOT_FOUND)
 
         if self.oneview_client.api_version < 500:
-            scope = self.resource_client.update_resource_assignments(resource['uri'],
+            return self.resource_client.update_resource_assignments(resource['uri'],
                                                                      self.data.get('resourceAssignments'))
         else:
             add_resources = self.data.get('resourceAssignments').get('addedResourceUris/-') is not None
@@ -163,16 +163,16 @@ class ScopeModule(OneViewModule):
             updated_description = self.data.get('resourceAssignments').get('description') is not None
             if add_resources:
                 self.resource_client.patch(resource['uri'], 'add', '/addedResourceUris/-',
-                                                   self.data.get('resourceAssignments').get('addedResourceUris'))
+                                                  self.data.get('resourceAssignments').get('addedResourceUris'))
             if remove_resources:
                 self.current_resource.patch(resource['uri'], 'replace', '/removedResourceUris',
-                                                   self.data.get('resourceAssignments').get('removedResourceUris'))
+                                                  self.data.get('resourceAssignments').get('removedResourceUris'))
             if updated_name:
                 self.current_resource.patch(resource['uri'], 'replace', '/name',
-                                                   self.data.get('resourceAssignments').get('name'))
+                                                  self.data.get('resourceAssignments').get('name'))
             if updated_description:
                 self.current_resource.patch(resource['uri'], 'replace', '/description',
-                                                   self.data.get('resourceAssignments').get('description'))                                     
+                                                  self.data.get('resourceAssignments').get('description'))                                 
             if not add_resources and not remove_resources and not updated_name and not updated_description:
                 return dict(changed=False,
                             msg=self.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED,

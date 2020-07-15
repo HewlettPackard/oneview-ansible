@@ -53,8 +53,9 @@
               - '{{ resource_uri_1 }}'
               - '{{ resource_uri_2 }}'
       delegate_to: localhost
-
-   - name: Update the scope resource assignments, adding one resource and removing another previously added(available only in API300)
+    
+    # Below task is available only in API300
+   - name: Update the scope resource assignments, adding one resource and removing another previously added
      oneview_scope:
        config: '{{ config }}'
        state: resource_assignments_updated

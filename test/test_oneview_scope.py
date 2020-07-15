@@ -81,7 +81,8 @@ class TestScopeModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by_name.return_value = RESOURCE
+        self.resource.get_by_name.return_value = self.resource
+        self.resource.data = PARAMS_FOR_PRESENT
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_FOR_PRESENT)
 
         ScopeModule().run()
@@ -89,12 +90,15 @@ class TestScopeModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=ScopeModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(scope=RESOURCE)
+            ansible_facts=dict(scope=PARAMS_FOR_PRESENT)
         )
 
     def test_should_update_when_data_has_changes(self):
-        self.resource.get_by_name.return_value = RESOURCE
-        self.resource.update.return_value = RESOURCE_UPDATED
+        self.resource.get_by_name.return_value = self.resource
+        self.resource.data = PARAMS_FOR_PRESENT
+        data_updated = self.resource.data.copy()
+        data_updated['name'] = 'ScopeNameRenamed'
+        self.resource.update.return_value = data_updated
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_WITH_CHANGES)
 
         ScopeModule().run()
@@ -102,11 +106,12 @@ class TestScopeModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ScopeModule.MSG_UPDATED,
-            ansible_facts=dict(scope=RESOURCE_UPDATED)
+            ansible_facts=dict(scope=data_updated)
         )
 
     def test_should_remove_scope_when_found(self):
-        self.resource.get_by_name.return_value = RESOURCE
+        self.resource.get_by_name.return_value = self.resource
+        self.resource.data = PARAMS_FOR_PRESENT
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_FOR_ABSENT)
 
         ScopeModule().run()
@@ -157,8 +162,17 @@ class TestScopeModule(OneViewBaseTest):
 
     def test_should_add_and_remove_resource_assignments_in_api500(self):
         self.mock_ov_client.api_version = 500
-        self.resource.get_by_name.return_value = RESOURCE
-        self.resource.patch.return_value = RESOURCE
+        self.resource.get_by_name.return_value = self.resource
+
+        resource_data = PARAMS_RESOURCE_ASSIGNMENTS.copy()
+        self.resource.data = resource_data
+
+        patch_return = resource_data.copy()
+        patch_return['scopeUris'] = ['test']
+        patch_return_obj = self.resource.copy()
+        patch_return_obj.data = patch_return
+        self.resource.patch.return_value = patch_return_obj
+
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_RESOURCE_ASSIGNMENTS)
 
         ScopeModule().run()
