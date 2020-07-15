@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     # Set the URI of existent resources to be added to the scope resource assignments
-    resource_uri_1: '/rest/fc-networks/faa540ab-a4eb-456c-aa47-98969756d4e7'
+    resource_uri_1: '/rest/ethernet-networks/29769296-ea14-47e5-80d0-24bf7c4f5020'
     resource_uri_2: '/rest/fc-networks/4cf6f8f9-3edb-4ddb-9df8-03b2a8ada0bb'
     resource_uri_3: '/rest/fc-networks/4ee791d7-6f2a-4a2e-85ce-994be04fa94a'
   tasks:
@@ -49,26 +49,28 @@
           resourceAssignments:
             addedResourceUris:
               - '{{ resource_uri_1 }}'
+            removedResourceUris:
+              - '{{ resource_uri_1 }}'
               - '{{ resource_uri_2 }}'
       delegate_to: localhost
 
-    - name: Update the scope resource assignments, adding one resource and removing another previously added
-      oneview_scope:
-        config: '{{ config }}'
-        state: resource_assignments_updated
-        data:
-          name: 'SampleScopeRenamed'
-          resourceAssignments:
-            addedResourceUris:
-              - '{{ resource_uri_3 }}'
-            removedResourceUris:
-              - '{{ resource_uri_1 }}'
-      delegate_to: localhost
+   - name: Update the scope resource assignments, adding one resource and removing another previously added(available only in API300)
+     oneview_scope:
+       config: '{{ config }}'
+       state: resource_assignments_updated
+       data:
+         name: 'SampleScopeRenamed'
+         resourceAssignments:
+           addedResourceUris:
+             - '{{ resource_uri_3 }}'
+           removedResourceUris:
+             - '{{ resource_uri_1 }}'
+     delegate_to: localhost
 
-    - name: Delete the Scope
-      oneview_scope:
-        config: '{{ config }}'
-        state: absent
-        data:
-          name: 'SampleScopeRenamed'
-      delegate_to: localhost
+   - name: Delete the Scope
+     oneview_scope:
+       config: '{{ config }}'
+       state: absent
+       data:
+         name: 'SampleScopeRenamed'
+     delegate_to: localhost
