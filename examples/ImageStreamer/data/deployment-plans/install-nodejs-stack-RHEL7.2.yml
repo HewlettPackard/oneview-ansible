@@ -1,9 +1,0 @@
-os_custom_attributes_for_server_profile:
--   name: MgmtNIC1.mac
-    value: null
--   name: MgmtNIC1.gateway
-    value: null
--   name: MgmtNIC1.ipaddress
-    value: null
--   name: MgmtNIC1
-    value: ''
