@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  role_name: oneview_fc_network
+  author: Chebrolu Bala Sai Harika
+  description: Ansible role to manage OneView Fibre Channel Network resources.
+  company: Hewlett Packard Enterprise
+  license: Apache
+  min_ansible_version: 2.1
+  min_python_version: 3.4.2
+  platforms: []
+  galaxy_tags:
+    - ansible
+    - hpe-oneview
+    - ansible-modules
+    - sdk
+dependencies: []

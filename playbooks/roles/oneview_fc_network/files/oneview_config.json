@@ -1,0 +1,11 @@
+{
+    "ip": "10.50.9.33",
+    "credentials": {
+      "userName": "Administrator",
+      "password": "admin123"
+    },
+    "image_streamer_ip": "",
+    "api_version": 1800,
+    "variant": "Synergy"
+  }
+  
