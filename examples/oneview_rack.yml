@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 - hosts: all
   vars:
     config_file_path: "{{ playbook_dir }}/oneview_config.json"
-    enclosure_uri: "/rest/enclosures/09SGH102X6J1" # To run this example you must set an enclosure uri
+    server_hardware_uri: "/rest/server-hardware/37353738-3336-584D-5131-303030343037" # To run this example you must have an server hardware uri
   tasks:
     - name: Ensure that a Rack is present using the default configuration
       oneview_rack:
@@ -28,7 +28,7 @@
 
     - debug: var=rack
 
-    - name: Rename the rack, change size and add single mounted enclosure at slot 20
+    - name: Rename the rack, change size and add single mounted server hardware at slot 42
       oneview_rack:
         config: "{{ config_file_path }}"
         state: present
@@ -39,9 +39,9 @@
           height: 2500
           width: 1200
           rackMounts:
-            - mountUri: "{{ enclosure_uri }}"
-              topUSlot: 20
-              uHeight: 10
+            - mountUri: " {{ server_hardware_uri }}"
+              topUSlot: 42
+              uHeight: 2
     - debug: var=rack
 
     - name: Ensure that Rack is absent

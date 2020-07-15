@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -65,6 +65,12 @@ PARAMS_FOR_PROPERTY_NAME = dict(
     state='present',
     data=dict(properties=dict(name='Volume with Storage Pool')))
 
+PARAMS_FOR_UPDATE_template = dict(
+    config='config.json',
+    state='present',
+    data=dict(name='Volume with Storage Pool',
+              templateUri='/rest/fake')
+)
 
 PARAMS_FOR_UPDATE_OK = dict(
     config='config.json',
@@ -267,6 +273,20 @@ class TestVolumeModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=VolumeModule.MSG_DELETED
+        )
+
+    def test_update_should_do_nothing_when_volume_already_exists_with_template(self):
+        self.resource.data = PARAMS_FOR_PRESENT["data"]
+        self.resource.get_by_name.return_value = self.resource
+
+        self.mock_ansible_module.params = PARAMS_FOR_UPDATE_template
+
+        VolumeModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=VolumeModule.MSG_UPDATED,
+            ansible_facts=dict(storage_volume=self.resource.data)
         )
 
     def test_update_should_do_nothing_when_volume_already_exists_and_is_equal(self):
