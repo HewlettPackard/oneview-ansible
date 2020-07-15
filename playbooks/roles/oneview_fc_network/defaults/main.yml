@@ -2,3 +2,8 @@
 # defaults file for oneview_fc_network
 network_name: 'Ansible Test FC Network'
 config: "{{ playbook_dir }}/roles/oneview_fc_network/files/oneview_config.json"
+network_scope_uris :
+  - '/rest/scopes/d0324c4b-56c9-485b-b7dd-8f6218a4b5bb'
+  - '/rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412'
+contents: "{{lookup('file', config)}}"
+

@@ -1,10 +1,5 @@
 ---
 - name: Create a Fibre Channel Network
-  # vars:
-  #   files:
-  #     - "{{ playbook_dir }}/oneview_config.json"
-    # config: "{{ playbook_dir }}/oneview_config.json"
-    # network_name: 'Ansible Test FC Network'
   oneview_fc_network:
       config: "{{ config }}"
       state: present

@@ -1,10 +1,5 @@
 ---
 - name: Create a Fibre Channel Network
-  # vars:
-  #   files:
-  #     - "{{ playbook_dir }}/oneview_config.json"
-    # config: "{{ playbook_dir }}/oneview_config.json"
-    # network_name: 'Ansible Test FC Network'
   oneview_fc_network:
       config: "{{ config }}"
       state: present
@@ -16,3 +11,52 @@
         autoLoginRedistribution: true
   delegate_to: localhost
   register: fc_network_1
+
+- name: Do nothing with the Fibre Channel Network when no changes are provided
+  oneview_fc_network:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: "{{ network_name }}"
+      fabricType: 'FabricAttach'
+      linkStabilityTime: '30'
+      autoLoginRedistribution: true
+  delegate_to: localhost
+
+- name: Update the Fibre Channel Network changing the attribute autoLoginRedistribution to True
+  oneview_fc_network:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: "{{ network_name }}"
+      autoLoginRedistribution: False
+      fabricType: 'FabricAttach'
+      linkStabilityTime: '30'
+  delegate_to: localhost
+
+  # This feature is available only till OneView 3.10
+- name: Update the FC Network with two scopes
+  oneview_fc_network:
+    config: "{{ config }}"
+    state: present
+    data:
+      name: "{{ network_name }}"
+      scopeUris: "{{ network_scope_uris }}"
+  delegate_to: localhost
+  when: contents.api_version >= 300 and contents.api_version <= 500
+
+- name: Delete the Fibre Channel Network
+  oneview_fc_network:
+    config: "{{ config }}"
+    state: absent
+    data: "{{ fc_network_1.ansible_facts.fc_network }}"
+  delegate_to: localhost
+  register: deleted
+
+- name: Do nothing when Fibre Channel Network is absent
+  oneview_fc_network:
+    config: "{{ config }}"
+    state: absent
+    data: "{{ fc_network_1.ansible_facts.fc_network }}"
+  delegate_to: localhost
+  register: deleted
