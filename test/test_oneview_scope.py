@@ -82,6 +82,7 @@ class TestScopeModule(OneViewBaseTest):
 
     def test_should_not_update_when_data_is_equals(self):
         self.resource.data = PARAMS_FOR_PRESENT
+        self.resource.get_by_name.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         ScopeModule().run()
@@ -104,7 +105,7 @@ class TestScopeModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ScopeModule.MSG_UPDATED,
-            ansible_facts=dict(hypervisor_manager=PARAMS_FOR_PRESENT)
+            ansible_facts=dict(scope=PARAMS_FOR_PRESENT)
         )
 
     def test_should_remove_scope_when_found(self):
