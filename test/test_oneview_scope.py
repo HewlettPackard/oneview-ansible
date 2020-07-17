@@ -81,7 +81,6 @@ class TestScopeModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by_name.return_value = self.resource
         self.resource.data = PARAMS_FOR_PRESENT
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_FOR_PRESENT)
 
@@ -106,7 +105,7 @@ class TestScopeModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ScopeModule.MSG_UPDATED,
-            ansible_facts=dict(scope=PARAMS_WITH_CHANGES)
+            ansible_facts=dict(scope=data_updated)
         )
 
     def test_should_remove_scope_when_found(self):
@@ -134,15 +133,16 @@ class TestScopeModule(OneViewBaseTest):
 
     def test_should_update_resource_assignments(self):
         self.mock_ov_client.api_version = 300
-        self.resource.get_by_name.return_value = RESOURCE
-        self.resource.update_resource_assignments.return_value = RESOURCE
+        self.resource.get_by_name.return_value = self.resource
+        self.resource.data = PARAMS_RESOURCE_ASSIGNMENTS
+        self.resource.update_resource_assignments.return_value = self.resource.data
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_RESOURCE_ASSIGNMENTS)
 
         ScopeModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            ansible_facts=dict(scope=RESOURCE),
+            ansible_facts=dict(scope=PARAMS_RESOURCE_ASSIGNMENTS),
             msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_UPDATED
         )
 
