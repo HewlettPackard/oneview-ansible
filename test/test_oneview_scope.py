@@ -82,7 +82,7 @@ class TestScopeModule(OneViewBaseTest):
 
     def test_should_not_update_when_data_is_equals(self):
         self.resource.data = PARAMS_FOR_PRESENT
-        self.mock_ansible_module.params = copy.deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         ScopeModule().run()
 
@@ -93,19 +93,18 @@ class TestScopeModule(OneViewBaseTest):
         )
 
     def test_should_update_when_data_has_changes(self):
-        self.resource.get_by_name.return_value = self.resource
+        data_merged = PARAMS_FOR_PRESENT.copy()
+        data_merged['name'] = 'ScopeNameRenamed'
+
         self.resource.data = PARAMS_FOR_PRESENT
-        data_updated = self.resource.data.copy()
-        data_updated['name'] = 'ScopeNameRenamed'
-        self.resource.update.return_value = data_updated
-        self.mock_ansible_module.params = copy.deepcopy(PARAMS_WITH_CHANGES)
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         ScopeModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ScopeModule.MSG_UPDATED,
-            ansible_facts=dict(scope=data_updated)
+            ansible_facts=dict(hypervisor_manager=PARAMS_FOR_PRESENT)
         )
 
     def test_should_remove_scope_when_found(self):
