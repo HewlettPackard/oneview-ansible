@@ -88,8 +88,8 @@ class TestScopeModule(OneViewBaseTest):
         ScopeModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            msg=ScopeModule.MSG_ALREADY_PRESENT,
+            changed=True,
+            msg=ScopeModule.MSG_UPDATED,
             ansible_facts=dict(scope=PARAMS_FOR_PRESENT)
         )
 
@@ -142,7 +142,7 @@ class TestScopeModule(OneViewBaseTest):
         ScopeModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
+            changed=False,
             ansible_facts=dict(scope=PARAMS_NO_RESOURCE_ASSIGNMENTS),
             msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED
         )
@@ -169,15 +169,6 @@ class TestScopeModule(OneViewBaseTest):
             ansible_facts=dict(scope=PARAMS_RESOURCE_ASSIGNMENTS),
             msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_UPDATED
         )
-
-    def test_should_fail_when_scope_not_found(self):
-        self.resource.get_by_name.return_value = None
-        self.mock_ansible_module.params = copy.deepcopy(PARAMS_RESOURCE_ASSIGNMENTS)
-
-        ScopeModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ScopeModule.MSG_RESOURCE_NOT_FOUND)
-
 
 if __name__ == '__main__':
     pytest.main([__file__])

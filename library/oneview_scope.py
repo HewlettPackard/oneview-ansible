@@ -162,15 +162,15 @@ class ScopeModule(OneViewModule):
         if updated_description:
             self.current_resource.patch(operation='replace',
                                         path='/description',
-                                        value=self.data.get('resourceAssignments').get('description'))                              
+                                        value=self.data.get('resourceAssignments').get('description'))                             
         if not add_resources and not remove_resources and not updated_name and not updated_description:
             return dict(changed=False,
                         msg=self.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED,
                         ansible_facts=dict(scope=self.current_resource.data))
 
         return dict(changed=True,
-                  msg=self.MSG_RESOURCE_ASSIGNMENTS_UPDATED,
-                  ansible_facts=dict(scope=self.current_resource.data))
+                    msg=self.MSG_RESOURCE_ASSIGNMENTS_UPDATED,
+                    ansible_facts=dict(scope=self.current_resource.data))
 
 
 def main():
