@@ -147,31 +147,28 @@ class ScopeModule(OneViewModule):
         elif self.state == 'absent':
             return self.resource_absent()
         elif self.state == 'resource_assignments_updated':
-            return self.__update_resource_assignments(resource)
+            return self.__update_resource_assignments()
 
-    def __update_resource_assignments(self, resource):
-        if not resource:
-            raise OneViewModuleResourceNotFound(self.MSG_RESOURCE_NOT_FOUND)
-
+    def __update_resource_assignments(self):
         if self.oneview_client.api_version < 500:
             return self.resource_client.update_resource_assignments(resource['uri'],
                                                                      self.data.get('resourceAssignments'))
         else:
-            add_resources = self.data.get('resourceAssignments').get('addedResourceUris/-') is not None
+            add_resources = self.data.get('resourceAssignments').get('addedResourceUris') is not None
             remove_resources = self.data.get('resourceAssignments').get('removedResourceUris') is not None
             updated_name = self.data.get('resourceAssignments').get('name') is not None
             updated_description = self.data.get('resourceAssignments').get('description') is not None
             if add_resources:
-                self.resource_client.patch(resource['uri'], 'add', '/addedResourceUris/-',
+                self.current_resource.patch('add', '/addedResourceUris/-',
                                                   self.data.get('resourceAssignments').get('addedResourceUris'))
             if remove_resources:
-                self.current_resource.patch(resource['uri'], 'replace', '/removedResourceUris',
+                self.current_resource.patch('replace', '/removedResourceUris',
                                                   self.data.get('resourceAssignments').get('removedResourceUris'))
             if updated_name:
-                self.current_resource.patch(resource['uri'], 'replace', '/name',
+                self.current_resource.patch('replace', '/name',
                                                   self.data.get('resourceAssignments').get('name'))
             if updated_description:
-                self.current_resource.patch(resource['uri'], 'replace', '/description',
+                self.current_resource.patch('replace', '/description',
                                                   self.data.get('resourceAssignments').get('description'))                                 
             if not add_resources and not remove_resources and not updated_name and not updated_description:
                 return dict(changed=False,

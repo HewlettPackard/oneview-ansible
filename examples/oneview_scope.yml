@@ -47,27 +47,20 @@
         data:
           name: 'SampleScopeRenamed'
           resourceAssignments:
-            addedResourceUris:
-              - '{{ resource_uri_1 }}'
-            removedResourceUris:
-              - '{{ resource_uri_1 }}'
-              - '{{ resource_uri_2 }}'
+            addedResourceUris: '/rest/ethernet-networks/29769296-ea14-47e5-80d0-24bf7c4f5020'
       delegate_to: localhost
-    
-    # Below task is available only in API300
-    - name: Update the scope resource assignments, adding one resource and removing another previously added
+
+    - name: Update the scope resource assignments, removing two resources
       oneview_scope:
         config: '{{ config }}'
         state: resource_assignments_updated
         data:
           name: 'SampleScopeRenamed'
           resourceAssignments:
-            addedResourceUris:
-              - '{{ resource_uri_3 }}'
             removedResourceUris:
-              - '{{ resource_uri_1 }}'
+               - '/rest/ethernet-networks/29769296-ea14-47e5-80d0-24bf7c4f5020'
       delegate_to: localhost
-
+ 
     - name: Delete the Scope
       oneview_scope:
         config: '{{ config }}'
