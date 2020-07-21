@@ -178,7 +178,7 @@ class TestScopeModule(OneViewBaseTest):
             config='config.json',
             state='resource_assignments_updated',
             data=dict(name='ScopeName',
-                    resourceAssignments=dict(name='TestScope'))
+                      resourceAssignments=dict(name='TestScope'))
         )
 
         resource_data = PARAMS_RESOURCE_ASSIGNMENTS_UPDATED_NAME.copy()
@@ -208,7 +208,7 @@ class TestScopeModule(OneViewBaseTest):
             config='config.json',
             state='resource_assignments_updated',
             data=dict(name='ScopeName',
-                    resourceAssignments=dict(description='Test'))
+                      resourceAssignments=dict(description='Test'))
         )
 
         resource_data = PARAMS_RESOURCE_ASSIGNMENTS_UPDATED_DESCRIPTION.copy()
