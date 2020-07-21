@@ -81,6 +81,7 @@ class TestScopeModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
+        self.resource.get_by_name.return_value = self.resource
         self.resource.data = PARAMS_FOR_PRESENT
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -141,7 +142,7 @@ class TestScopeModule(OneViewBaseTest):
         ScopeModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
+            changed=True,
             ansible_facts=dict(scope=PARAMS_NO_RESOURCE_ASSIGNMENTS),
             msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED
         )
