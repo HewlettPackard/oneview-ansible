@@ -135,8 +135,6 @@ class ScopeModule(OneViewModule):
         self.set_resource_object(self.oneview_client.scopes)
 
     def execute_module(self):
-        resource = self.resource_client.get_by_name(self.data.get('name'))
-
         if self.state == 'present':
             return self.resource_present('scope')
         elif self.state == 'absent':
@@ -150,7 +148,7 @@ class ScopeModule(OneViewModule):
         updated_name = self.data.get('resourceAssignments').get('name') is not None
         updated_description = self.data.get('resourceAssignments').get('description') is not None
         if add_resources:
-            self.current_resource.patch(operation='add', 
+            self.current_resource.patch(operation='add',
                                         path='/addedResourceUris/-',
                                         value=self.data.get('resourceAssignments').get('addedResourceUris'))
         if remove_resources:
@@ -164,13 +162,13 @@ class ScopeModule(OneViewModule):
         if updated_description:
             self.current_resource.patch(operation='replace',
                                         path='/description',
-                                        value=self.data.get('resourceAssignments').get('description'))                                 
+                                        value=self.data.get('resourceAssignments').get('description'))                              
         if not add_resources and not remove_resources and not updated_name and not updated_description:
             return dict(changed=False,
-                      msg=self.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED,
-                      ansible_facts=dict(scope=self.current_resource.data))
+                        msg=self.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED,
+                        ansible_facts=dict(scope=self.current_resource.data))
 
-      return dict(changed=True,
+        return dict(changed=True,
                   msg=self.MSG_RESOURCE_ASSIGNMENTS_UPDATED,
                   ansible_facts=dict(scope=self.current_resource.data))
 
