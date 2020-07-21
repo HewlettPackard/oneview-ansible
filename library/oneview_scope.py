@@ -78,29 +78,24 @@ EXAMPLES = '''
       name: 'SampleScopeRenamed'
   delegate_to: localhost
 
-- name: Update the scope resource assignments, adding two resources
+- name: Update the scope resource assignments, adding a resource
   oneview_scope:
     config: '{{ config }}'
     state: resource_assignments_updated
     data:
       name: 'SampleScopeRenamed'
       resourceAssignments:
-        addedResourceUris:
-          - '{{ fc_network_1.uri }}'
-          - '{{ fc_network_2.uri }}'
+        addedResourceUris: '{{ fc_network_1.uri }}'
   delegate_to: localhost
 
-- name: Update the scope resource assignments, adding one resource and removing another previously added
+- name: Update the scope resource assignments, removing two resources
   oneview_scope:
     config: '{{ config }}'
     state: resource_assignments_updated
     data:
       name: 'SampleScopeRenamed'
       resourceAssignments:
-        addedResourceUris:
-          - '{{ fc_network_3.uri }}'
-        removedResourceUris:
-          - '{{ fc_network_1.uri }}'
+        removedResourceUris: '{{ fc_network_1.uri }}'
   delegate_to: localhost
 '''
 
@@ -150,34 +145,30 @@ class ScopeModule(OneViewModule):
             return self.__update_resource_assignments()
 
     def __update_resource_assignments(self):
-        if self.oneview_client.api_version < 500:
-            return self.resource_client.update_resource_assignments(resource['uri'],
-                                                                     self.data.get('resourceAssignments'))
-        else:
-            add_resources = self.data.get('resourceAssignments').get('addedResourceUris') is not None
-            remove_resources = self.data.get('resourceAssignments').get('removedResourceUris') is not None
-            updated_name = self.data.get('resourceAssignments').get('name') is not None
-            updated_description = self.data.get('resourceAssignments').get('description') is not None
-            if add_resources:
-                self.current_resource.patch('add', '/addedResourceUris/-',
-                                                  self.data.get('resourceAssignments').get('addedResourceUris'))
-            if remove_resources:
-                self.current_resource.patch('replace', '/removedResourceUris',
-                                                  self.data.get('resourceAssignments').get('removedResourceUris'))
-            if updated_name:
-                self.current_resource.patch('replace', '/name',
-                                                  self.data.get('resourceAssignments').get('name'))
-            if updated_description:
-                self.current_resource.patch('replace', '/description',
-                                                  self.data.get('resourceAssignments').get('description'))                                 
-            if not add_resources and not remove_resources and not updated_name and not updated_description:
-                return dict(changed=False,
-                            msg=self.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED,
-                            ansible_facts=dict(scope=self.current_resource.data))
+      add_resources = self.data.get('resourceAssignments').get('addedResourceUris') is not None
+      remove_resources = self.data.get('resourceAssignments').get('removedResourceUris') is not None
+      updated_name = self.data.get('resourceAssignments').get('name') is not None
+      updated_description = self.data.get('resourceAssignments').get('description') is not None
+      if add_resources:
+        self.current_resource.patch('add', '/addedResourceUris/-', 
+                                        self.data.get('resourceAssignments').get('addedResourceUris'))
+        if remove_resources:
+          self.current_resource.patch('replace', '/removedResourceUris',
+                                        self.data.get('resourceAssignments').get('removedResourceUris'))
+        if updated_name:
+          self.current_resource.patch('replace', '/name',
+                                        self.data.get('resourceAssignments').get('name'))
+        if updated_description:
+          self.current_resource.patch('replace', '/description',
+                                        self.data.get('resourceAssignments').get('description'))                                 
+        if not add_resources and not remove_resources and not updated_name and not updated_description:
+          return dict(changed=False,
+                      msg=self.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED,
+                      ansible_facts=dict(scope=self.current_resource.data))
 
-        return dict(changed=True,
-                    msg=self.MSG_RESOURCE_ASSIGNMENTS_UPDATED,
-                    ansible_facts=dict(scope=self.current_resource.data))
+      return dict(changed=True,
+                  msg=self.MSG_RESOURCE_ASSIGNMENTS_UPDATED,
+                  ansible_facts=dict(scope=self.current_resource.data))
 
 
 def main():
