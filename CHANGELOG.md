@@ -5,6 +5,8 @@
 Extends support of the SDK to OneView REST API version 1800 (OneView v5.30).
 
 ### Modules supported in this release
+- oneview_logical_interconnect_group
+- oneview_logical_interconnect_group_facts
 - oneview_scope
 - oneview_scope_facts
 - oneview_storage_pool
