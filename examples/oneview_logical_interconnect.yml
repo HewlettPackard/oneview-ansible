@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-# Below example work till Oneview REST API Version 1600.
 ---
 - hosts: all
   vars:
@@ -44,7 +43,7 @@
             - name: "{{ network_name }}"  # could also be a URI. e.g.: - uri: '/rest/ethernet-network/<id>'
       when: network_name is defined
       delegate_to: localhost
-# Below task is supported only with OneView 3.10
+    # Below task is supported only with OneView 3.10
     - name: Update the Interconnect Settings
       oneview_logical_interconnect:
         config: "{{ config }}"
@@ -126,7 +125,7 @@
 
     - debug: var=telemetry_configuration
 
-# Below task is supported only with OneView 3.10
+    # Below task is supported only with OneView 3.10
     - name: Update the Logical Interconnect with two scopes
       oneview_logical_interconnect:
         config: "{{ config }}"
