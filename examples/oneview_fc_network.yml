@@ -33,6 +33,7 @@
           fabricType: 'FabricAttach'
           linkStabilityTime: '30'
           autoLoginRedistribution: true
+          type: "fc-networkV4"
       delegate_to: localhost
       register: fc_network_1
 
