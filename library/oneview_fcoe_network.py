@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1800
     state: present
     data:
       name: Test FCoE Network
@@ -84,10 +84,22 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1800
     state: absent
     data:
       name: New FCoE Network
+  delegate_to: localhost
+
+- name: Delete FCoE Networks in bulk(works from API1600)
+  oneview_fcoe_network:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1800
+    state: absent
+    data:
+      networkUris:
+        -  "/rest/fcoe-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548"
   delegate_to: localhost
 '''
 
@@ -105,6 +117,7 @@ class FcoeNetworkModule(OneViewModule):
     MSG_CREATED = 'FCoE Network created successfully.'
     MSG_UPDATED = 'FCoE Network updated successfully.'
     MSG_DELETED = 'FCoE Network deleted successfully.'
+    MSG_BULK_DELETED = 'FCoE Networks deleted successfully.'
     MSG_ALREADY_PRESENT = 'FCoE Network is already present.'
     MSG_ALREADY_ABSENT = 'FCoE Network is already absent.'
     RESOURCE_FACT_NAME = 'fcoe_network'
@@ -124,7 +137,12 @@ class FcoeNetworkModule(OneViewModule):
         if self.state == 'present':
             return self.__present()
         elif self.state == 'absent':
-            return self.resource_absent()
+            if self.data.get('networkUris'):
+                changed, msg, ansible_facts = self.__bulk_absent()
+            else:
+                return self.resource_absent()
+
+        return dict(changed=changed, msg=msg, ansible_facts=ansible_facts)
 
     def __present(self):
         scope_uris = self.data.pop('scopeUris', None)
@@ -132,6 +150,16 @@ class FcoeNetworkModule(OneViewModule):
         if scope_uris is not None:
             result = self.resource_scopes_set(result, 'fcoe_network', scope_uris)
         return result
+
+    def __bulk_absent(self):
+        networkUris = self.data['networkUris']
+
+        if networkUris is not None:
+            self.resource_client.delete_bulk(self.data)
+            changed = True
+            msg = self.MSG_BULK_DELETED
+
+        return changed, msg, dict(fcoe_network_bulk_delete=None)
 
 
 def main():

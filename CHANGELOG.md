@@ -25,6 +25,22 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_logical_interconnect_facts
 - oneview_task_facts
 
+# 5.7.0(unreleased)
+#### Notes
+Extends support of the SDK to OneView REST API version 1800 (OneView v5.30).
+
+#### Features supported with the current release
+- oneview_ethernet_network
+- oneview_ethernet_network_facts
+- oneview_fc_network
+- oneview_fc_network_facts
+- oneview_fcoe_network
+- oneview_fcoe_network_facts
+- oneview_network_set
+- oneview_network_set_facts
+- oneview_uplink_set
+- oneview_uplink_set_facts
+
 ## v5.6.1
 Added 'dict_merge' method in oneview library to merge nested dictionaries and lists and avoid idempotency issues.
 
