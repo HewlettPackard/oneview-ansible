@@ -80,7 +80,7 @@
        config: "{{ config }}"
        name : "{{server_profile_name}}"
        options:
-           - schema
+           - schema  # Supported only for API version <= 1200
            - compliancePreview
            - newProfileTemplate # Supported only for API version <= 1200
            - profilePorts:

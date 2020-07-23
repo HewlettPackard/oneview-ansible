@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -279,6 +279,34 @@ class TestEthernetNetworkModule(OneViewBaseTest):
             changed=True, msg=EthernetNetworkModule.MSG_MISSING_BULK_CREATED,
             ansible_facts=dict(ethernet_network_bulk=DEFAULT_BULK_ENET_TEMPLATE))
 
+    def test_should_delete_bulk_ethernet_networks(self):
+        networkUris = [
+            "/rest/ethernet-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548",
+            "/rest/ethernet-networks/f2f0031b-52bd-4223-9ac1-d91cb519d549",
+            "/rest/ethernet-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
+        ]
+
+        PARAMS_FOR_BULK_DELETED = dict(
+            config='config.json',
+            state='absent',
+            data=dict(networkUris=[
+                "/rest/ethernet-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548",
+                "/rest/ethernet-networks/f2f0031b-52bd-4223-9ac1-d91cb519d549",
+                "/rest/ethernet-networks/02f0031b-52bd-4223-9ac1-d91cb519d54a"
+            ])
+        )
+
+        self.resource.delete_bulk.return_value = None
+
+        self.mock_ansible_module.params = PARAMS_FOR_BULK_DELETED
+
+        EthernetNetworkModule().run()
+
+        self.resource.delete_bulk.assert_called_once_with({'networkUris': networkUris})
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True, msg=EthernetNetworkModule.MSG_BULK_DELETED,
+            ansible_facts=dict(ethernet_network_bulk_delete=None))
+
     def test_should_create_missing_ethernet_networks_with_just_one_difference(self):
         enet_get_range_return = [
             {'name': 'TestNetwork_1', 'vlanId': 1},
@@ -377,6 +405,8 @@ class TestEthernetNetworkModule(OneViewBaseTest):
         resource_data = DEFAULT_ENET_TEMPLATE.copy()
         resource_data['scopeUris'] = ['test']
         self.resource.data = resource_data
+
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         EthernetNetworkModule().run()
 

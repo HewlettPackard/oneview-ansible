@@ -19,6 +19,7 @@
     - config: "{{ playbook_dir }}/oneview_config.json"
     - logical_enclosure_name: "LE"  # The name of an existent Logical Enclosure must be set to run this example
     - scope_uris: "/rest/scopes/5049d3e3-0367-451d-a555-b2603f09a5d5"
+    - variant: Synergy
   tasks:
     - name: Gather facts about all Logical Enclosures
       oneview_logical_enclosure_facts:
@@ -47,6 +48,7 @@
 
     - debug: var=logical_enclosures
 
+    # This method is available for API version 300 in synergy and in all API versions in c7000
     - name: Gather facts about a Logical Enclosure by name with options
       oneview_logical_enclosure_facts:
         config: "{{ config }}"
@@ -54,6 +56,7 @@
         options:
           - script
       delegate_to: localhost
+      when: variant == 'C7000'
 
     - debug: var=logical_enclosures
     - debug: var=logical_enclosure_script
