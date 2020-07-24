@@ -68,11 +68,11 @@ The Docker Store image `tag` consist of two sections: `<sdk_version-OV_version>`
  ```bash
 #Download and store a local copy of  hpe-oneview-sdk-for-ansible and
 # use it as a Docker image.
-$ docker pull hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v5.6.0-OV5.2
+$ docker pull hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v5.7.0-OV5.3
 
 # Run docker commands using the below command and this will in turn create
 # a sh session where you can create files, issue commands and execute playbooks
-$ docker run -it hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v5.6.0-OV5.2 /bin/sh
+$ docker run -it hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v5.7.0-OV5.3 /bin/sh
 ```
 There is also a [how-to guide](https://github.com/HewlettPackard/oneview-ansible-samples/blob/master/oneview-ansible-in-container/oneview-ansible-in-container.md) with instructions on how to use the container without creating a sh session.
 
@@ -119,7 +119,7 @@ example:
     "authLoginDomain": "",
     "password": "secret123"
   },
-  "api_version": 1600
+  "api_version": 1800
 }
 ```
 
@@ -154,7 +154,7 @@ export ONEVIEWSDK_USERNAME='Administrator'
 export ONEVIEWSDK_PASSWORD='secret123'
 
 # Optional
-export ONEVIEWSDK_API_VERSION='1600'  # default value is 600
+export ONEVIEWSDK_API_VERSION='1800'  # default value is 600
 export ONEVIEWSDK_AUTH_LOGIN_DOMAIN='authdomain'
 export ONEVIEWSDK_PROXY='<proxy_host>:<proxy_port>'
 ```
@@ -183,7 +183,7 @@ This option allows the parameters `hostname`, `username`, `password`, `api_versi
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1600
+    api_version: 1800
     state: present
     data:
       name: "{{ network_name }}"
@@ -212,7 +212,7 @@ Note: This password will be used to run the playbook.
 ```yaml
 # Required
 ip: 172.168.1.1
-api_version:1600
+api_version:1800
 username: Administrator
 password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
@@ -264,12 +264,12 @@ The current `default` HPE OneView version used by the modules is `4.00`, API `60
 To use a different API, you must set the API version together with your credentials, either using the JSON configuration:
 
 ```json
-"api_version": 1600
+"api_version": 1800
 ```
 OR using the Environment variable:
 
 ```bash
-export ONEVIEWSDK_API_VERSION='1600'
+export ONEVIEWSDK_API_VERSION='1800'
 ```
 
 If this property is not specified, it will fall back to the ```600``` default value.
@@ -281,7 +281,7 @@ The API list is as follows:
 - HPE OneView 4.20 API version: `1000`
 - HPE OneView 5.00 API version: `1200`
 - HPE OneView 5.20 API version: `1600`
-
+- HPE OneView 5.30 API version: `1800`
 
 ### 6. HPE Synergy Image Streamer
 
