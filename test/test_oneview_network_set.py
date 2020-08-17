@@ -181,7 +181,7 @@ class TestNetworkSetModule(OneViewBaseTest):
             ansible_facts=dict(network_set=DICT_PARAMS_WITH_CHANGES, connection_template=CONNECTION_TEMPLATE)
         )
 
-    def test_update_when_data_has_modified_attributes_but_bandwidth_is_equal(self):
+    def test_update_when_data_has_modified_attributes_but_bandwidth_is_not_equal(self):
         self.resource.data = NETWORK_SET
         obj = mock.Mock()
         obj.data = {"bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
@@ -197,15 +197,14 @@ class TestNetworkSetModule(OneViewBaseTest):
             ansible_facts=dict(network_set=NETWORK_SET)
         )
 
-    def test_should_not_update_when_connection_template_is_same(self):
-        resource_data = PARAMS_FOR_PRESENT.copy()
-        resource_data['bandwidth'] = DICT_PARAMS_WITH_CHANGES['bandwidth']
-        self.mock_ansible_module.params = resource_data
+    def test_should_not_update_when_bandwidth_is_equal(self):
+        self.resource.data = CONNECTION_TEMPLATE
+        obj = mock.Mock()
+        obj.data = CONNECTION_TEMPLATE
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
 
-        connection_template - CONNECTION_TEMPLATE.copy()
-        connection_template['bandwidth'] =  DICT_PARAMS_WITH_CHANGES['bandwidth']
-        self.resource.data = connection_template
-        
+        self.mock_ansible_module.params = CONNECTION_TEMPLATE
+
         NetworkSetModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
