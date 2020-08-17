@@ -1,4 +1,10 @@
 # Ansible Modules for HPE OneView Change Log
+## v5.8.0 (unreleased)
+
+#### Breaking Changes
+  Enhancement made in this version breaks the previous version of the SDK.
+  From this version onwards, oneview-ansible library refers to hpeOneView module.
+
 ## v5.7.0
 
 This release extends the planned support of the modules to OneView REST API version 1800 (OneView v5.3)
