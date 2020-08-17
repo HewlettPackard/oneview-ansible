@@ -197,6 +197,23 @@ class TestNetworkSetModule(OneViewBaseTest):
             ansible_facts=dict(network_set=NETWORK_SET)
         )
 
+    def test_update_when_connection_template_is_same(self):
+        resource_data = PARAMS_FOR_PRESENT.copy()
+        resource_data['bandwidth'] = DICT_PARAMS_WITH_CHANGES['bandwidth']
+        self.mock_ansible_module.params = resource_data
+
+        connection_template - CONNECTION_TEMPLATE.copy()
+        connection_template['bandwidth'] =  DICT_PARAMS_WITH_CHANGES['bandwidth']
+        self.resource.data = connection_template.data
+        
+        NetworkSetModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=NetworkSetModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(network_set=NETWORK_SET, connection_template=CONNECTION_TEMPLATE)
+        )
+
     def test_should_do_nothing_when_network_set_not_exist(self):
         self.resource.get_by_name.return_value = None
 
