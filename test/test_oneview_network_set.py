@@ -181,7 +181,7 @@ class TestNetworkSetModule(OneViewBaseTest):
             ansible_facts=dict(network_set=DICT_PARAMS_WITH_CHANGES, connection_template=CONNECTION_TEMPLATE)
         )
 
-    def test_update_when_data_has_modified_attributes_but_bandwidth_is_not_equal(self):
+    def test_update_when_data_has_modified_attributes_but_bandwidth_is_equal(self):
         self.resource.data = NETWORK_SET
         obj = mock.Mock()
         obj.data = {"bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
@@ -195,15 +195,16 @@ class TestNetworkSetModule(OneViewBaseTest):
             changed=True,
             msg=NetworkSetModule.MSG_UPDATED,
             ansible_facts=dict(network_set=NETWORK_SET)
+        
         )
 
-    def test_should_not_update_when_bandwidth_is_equal(self):
-        self.resource.data = CONNECTION_TEMPLATE
+    def test_should_not_update_when_data_is_equal(self):
+        resource_data = DICT_PARAMS_WITH_CHANGES
         obj = mock.Mock()
         obj.data = CONNECTION_TEMPLATE
         self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
 
-        self.mock_ansible_module.params = CONNECTION_TEMPLATE
+        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
 
         NetworkSetModule().run()
 
