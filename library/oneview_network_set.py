@@ -150,9 +150,12 @@ class NetworkSetModule(OneViewModule):
         if bandwidth:
             changed, connection_template = self.__update_connection_template(bandwidth)
             if changed:
-                result['changed'] = True
+                result['changed'] = changed
                 result['msg'] = self.MSG_UPDATED
-                result['ansible_facts']['connection_template'] = connection_template
+                result['ansible_facts'][self.RESOURCE_FACT_NAME]['connection_template'] = connection_template
+            else:
+                result['changed'] = changed
+                result['msg'] = self.MSG_ALREADY_PRESENT
 
         if scope_uris is not None:
             result = self.resource_scopes_set(result, self.RESOURCE_FACT_NAME, scope_uris)
@@ -183,7 +186,6 @@ class NetworkSetModule(OneViewModule):
 
     # Update network set connection template with bandwidth
     def __update_connection_template(self, bandwidth):
-
         if 'connectionTemplateUri' not in self.current_resource.data:
             return False, None
 
@@ -196,6 +198,8 @@ class NetworkSetModule(OneViewModule):
         if not compare(connection_template.data, merged_data):
             connection_template.update(merged_data)
             return True, connection_template.data
+        else:
+            return False, connection_template.data
 
 
 def main():
