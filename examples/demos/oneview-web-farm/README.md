@@ -18,7 +18,7 @@ Basically this playbook will:
 - Insight Control Provisioning 7.4 or later must be installed (if you need to install the OS).
 - Python >= 2.7.9
 - Ansible >= 2.0.2
-- HPE OneView Python SDK must be installed - available at: https://github.com/HewlettPackard/python-hpOneView.
+- HPE OneView Python SDK must be installed - available at: https://github.com/HewlettPackard/python-hpeOneView.
 - HPE ICsp installed - available at https://github.com/HewlettPackard/python-hpICsp.
 
 ## Running the example

@@ -18,7 +18,7 @@ import pytest
 
 from mock import Mock, patch
 from oneview_module_loader import ONEVIEW_MODULE_UTILS_PATH
-from hpOneView.oneview_client import OneViewClient
+from hpeOneView.oneview_client import OneViewClient
 
 
 @pytest.fixture

@@ -6,7 +6,7 @@ This repository contains a collection of sample ansible playbooks for using HPE 
 
 * [Ansible >= 2.0.2](http://docs.ansible.com/ansible/intro_installation.html)
 * Linux host (Ubuntu, CentOS, etc)
-* [HPE OneView Python SDK](https://github.com/HewlettPackard/python-hpOneView#installation)
+* [HPE OneView Python SDK](https://github.com/HewlettPackard/python-hpeOneView#installation)
 * Python >= 2.7.9
 * [Ansible modules for HPE OneView](https://github.com/HewlettPackard/oneview-ansible)
 
