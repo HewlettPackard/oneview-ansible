@@ -199,9 +199,9 @@ class TestNetworkSetModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equal(self):
-        resource_data = DICT_PARAMS_WITH_CHANGES
+        resource_data = NETWORK_SET
         obj = mock.Mock()
-        obj.data = CONNECTION_TEMPLATE
+        obj.data = {"bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
         self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
 
         self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
@@ -210,8 +210,7 @@ class TestNetworkSetModule(OneViewBaseTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=NetworkSetModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(network_set=NETWORK_SET, connection_template=CONNECTION_TEMPLATE)
+            msg=NetworkSetModule.MSG_ALREADY_PRESENT
         )
 
     def test_should_do_nothing_when_network_set_not_exist(self):
