@@ -85,6 +85,7 @@ PARAMS_FOR_ABSENT = dict(
 )
 
 DICT_PARAMS_WITH_CHANGES = yaml.load(YAML_PARAMS_WITH_CHANGES)["data"]
+DICT_PARAMS_CONNECTION_TEMPLATE = yaml.load(YAML_PARAMS_WITH_CONNECTION_TEMPLATE)["data"]
 
 
 @pytest.mark.resource(TestNetworkSetModule='network_sets')
@@ -211,7 +212,7 @@ class TestNetworkSetModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_bandwidth_is_equal(self):
-        self.resource.data = CONNECTION_TEMPLATE.copy()
+        self.resource.data = DICT_PARAMS_WITH_CONNECTION_TEMPLATE
         obj = mock.Mock()
         obj.data = CONNECTION_TEMPLATE
         self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
@@ -222,7 +223,8 @@ class TestNetworkSetModule(OneViewBaseTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=NetworkSetModule.MSG_ALREADY_PRESENT
+            msg=NetworkSetModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(network_set=DICT_PARAMS_WITH_CHANGES, connection_template=CONNECTION_TEMPLATE)
         )
 
     def test_should_do_nothing_when_network_set_not_exist(self):
