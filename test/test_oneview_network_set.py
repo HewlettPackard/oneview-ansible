@@ -44,7 +44,7 @@ PARAMS_FOR_PRESENT = dict(
     data=dict(name=NETWORK_SET['name'],
               networkUris=['/rest/ethernet-networks/aaa-bbb-ccc'])
 )
-YAML_PARAMS_WITH_CONNECTION_TEMPLATE 
+
 PARAMS_WITH_CHANGES = dict(
     config='config.json',
     state='present',
@@ -191,16 +191,16 @@ class TestNetworkSetModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=NetworkSetModule.MSG_UPDATED,
-            ansible_facts=dict(network_set=DICT_PARAMS_WITH_CHANGES, connection_template=CONNECTION_TEMPLATE)
+            ansible_facts=dict(network_set=DICT_PARAMS_WITH_CHANGES)
         )
 
-    def test_update_when_data_has_modified_attributes_but_bandwidth_is_equal(self):
+    def test_update_when_data_has_modified_attributes_but_bandwith_is_equal(self):
         self.resource.data = NETWORK_SET
         obj = mock.Mock()
         obj.data = {"bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
         self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
 
-        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         NetworkSetModule().run()
 
@@ -208,11 +208,13 @@ class TestNetworkSetModule(OneViewBaseTest):
             changed=True,
             msg=NetworkSetModule.MSG_UPDATED,
             ansible_facts=dict(network_set=NETWORK_SET)
-        
         )
 
-    def test_should_not_update_when_bandwidth_is_equal(self):
-        self.resource.data = DICT_PARAMS_WITH_CONNECTION_TEMPLATE
+    def test_should_not_update_when_connection_template_is_equal(self):
+        resource_data = NETWORK_SET
+        resource_data['connection_template'] = CONNECTION_TEMPLATE.copy()
+        self.resource.data = resource_data
+
         obj = mock.Mock()
         obj.data = CONNECTION_TEMPLATE
         self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
@@ -224,7 +226,7 @@ class TestNetworkSetModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=NetworkSetModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(network_set=DICT_PARAMS_WITH_CHANGES, connection_template=CONNECTION_TEMPLATE)
+            ansible_facts=dict(network_set=NETWORK_SET)
         )
 
     def test_should_do_nothing_when_network_set_not_exist(self):
