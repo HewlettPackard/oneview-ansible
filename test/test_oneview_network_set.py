@@ -44,7 +44,7 @@ PARAMS_FOR_PRESENT = dict(
     data=dict(name=NETWORK_SET['name'],
               networkUris=['/rest/ethernet-networks/aaa-bbb-ccc'])
 )
-
+YAML_PARAMS_WITH_CONNECTION_TEMPLATE 
 PARAMS_WITH_CHANGES = dict(
     config='config.json',
     state='present',
@@ -52,6 +52,18 @@ PARAMS_WITH_CHANGES = dict(
               newName=NETWORK_SET['name'] + " - Renamed",
               networkUris=['/rest/ethernet-networks/aaa-bbb-ccc', 'Name of a Network'])
 )
+
+YAML_PARAMS_WITH_CONNECTION_TEMPLATE = """
+    config: "config.json"
+    state: present
+    data:
+        name: 'name828625927-1592834188743'
+        type: 'connection-template'
+        uri: '/rest/connection-templates/aaa-bbb-ccc'
+        bandwidth:
+            maximumBandwidth: 15000
+            typicalBandwidth: 3000
+"""
 
 YAML_PARAMS_WITH_CHANGES = """
     config: "config.json"
@@ -198,13 +210,13 @@ class TestNetworkSetModule(OneViewBaseTest):
         
         )
 
-    def test_should_not_update_when_data_is_equal(self):
-        resource_data = NETWORK_SET
+    def test_should_not_update_when_bandwidth_is_equal(self):
+        self.resource.data = CONNECTION_TEMPLATE.copy()
         obj = mock.Mock()
-        obj.data = {"bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
+        obj.data = CONNECTION_TEMPLATE
         self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
 
-        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CHANGES)
+        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CONNECTION_TEMPLATE)
 
         NetworkSetModule().run()
 
