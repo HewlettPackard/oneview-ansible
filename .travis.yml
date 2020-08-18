@@ -33,7 +33,8 @@ install:
   - if [[ $PYPI_VERSION ]]; then pip install ansible==$PYPI_VERSION; fi
   - pip install flake8
   - pip install mock
-  - pip install git+https://github.com/HewlettPackard/oneview-python.git
+#  - pip install git+https://github.com/HewlettPackard/oneview-python.git
+  - pip install git+https://github.com/HewlettPackard/oneview-python.git@debranded_python_sdk
   - pip install coveralls
   - pip install hpICsp
   - |
