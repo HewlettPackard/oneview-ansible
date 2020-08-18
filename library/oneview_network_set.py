@@ -118,6 +118,7 @@ class NetworkSetModule(OneViewModule):
     MSG_ALREADY_PRESENT = 'Network Set is already present.'
     MSG_ALREADY_ABSENT = 'Network Set is already absent.'
     MSG_ETHERNET_NETWORK_NOT_FOUND = 'Ethernet Network not found: '
+    MSG_CONNECTION_TEMPLATE_NOT_FOUND = 'Connection Template not found.'
     RESOURCE_FACT_NAME = 'network_set'
 
     argument_spec = dict(
@@ -187,7 +188,7 @@ class NetworkSetModule(OneViewModule):
     # Update network set connection template with bandwidth
     def __update_connection_template(self, bandwidth):
         if 'connectionTemplateUri' not in self.current_resource.data:
-            return False, None
+            raise OneViewModuleResourceNotFound(self.MSG_CONNECTION_TEMPLATE_NOT_FOUND)
 
         connection_template = self.connection_templates.get_by_uri(
             self.current_resource.data['connectionTemplateUri'])

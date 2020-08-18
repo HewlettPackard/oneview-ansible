@@ -226,6 +226,18 @@ class TestNetworkSetModule(OneViewBaseTest):
             ansible_facts=dict(network_set=DICT_PARAMS_WITH_CHANGES)
         )
 
+    def test_should_fail_when_connection_template_was_not_found(self):
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = []
+
+        self.mock_ansible_module.params = yaml.load(YAML_PARAMS_WITH_CONNECTION_TEMPLATE)
+
+        NetworkSetModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY,
+            msg=NetworkSetModule.MSG_CONNECTION_TEMPLATE_NOT_FOUND
+        )
+
     def test_should_do_nothing_when_network_set_not_exist(self):
         self.resource.get_by_name.return_value = None
 
