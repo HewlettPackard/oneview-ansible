@@ -171,7 +171,7 @@ class RackModule(OneViewModuleBase):
         if self.current_resource:
             changed = True
             msg = self.MSG_DELETED
-            self.resource_client.delete(**self.params)
+            return self.resource_absent(self.current_resource, 'remove')
         else:
             changed = False
             msg = self.MSG_ALREADY_ABSENT
