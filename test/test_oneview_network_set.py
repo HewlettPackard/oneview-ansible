@@ -194,7 +194,7 @@ class TestNetworkSetModule(OneViewBaseTest):
             ansible_facts=dict(network_set=DICT_PARAMS_WITH_CHANGES)
         )
 
-    def test_update_when_data_has_modified_attributes_but_bandwith_is_equal(self):
+    def test_update_when_data_has_modified_attributes_but_bandwidth_is_equal(self):
         self.resource.data = NETWORK_SET
         obj = mock.Mock()
         obj.data = {"bandwidth": DICT_PARAMS_WITH_CHANGES['bandwidth']}
