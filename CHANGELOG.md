@@ -163,7 +163,7 @@ This release extends the planned support of the modules to OneView REST API vers
 
 #### Major changes
 1. Extended support of planned modules to API800/1000/1200.
-2. Modules implemented in this release requires hpeOneView version 5.1.1.
+2. Modules implemented in this release requires hpOneView version 5.1.1.
 
 #### Modules supported in this release
 - oneview_certificates_server
@@ -180,7 +180,7 @@ This release extends the planned support of the modules to OneView REST API vers
 
 #### Major changes
 1. Extended support of planned modules to API800/1000/1200.
-2. Modules upgraded in this release requires hpeOneView version 5.0.0. Also, OneView Python library is now migrated to new repository which is available at https://github.com/HewlettPackard/oneview-python.
+2. Modules upgraded in this release requires hpOneView version 5.0.0. Also, OneView Python library is now migrated to new repository which is available at https://github.com/HewlettPackard/oneview-python.
 
 #### Modules supported in this release
 - image_streamer_deployment_plan
@@ -254,7 +254,7 @@ This release extends the planned support of the modules to OneView REST API vers
 #### Major changes
 1. Extended support of planned modules to API800.
 2. Updated library files to support Python SDK changes.
-3. Modules upgraded in this release requires hpeOneView version 5.0.0b0 or above.
+3. Modules upgraded in this release requires hpOneView version 5.0.0b0 or above.
 
 #### Modules supported in this release
 - oneview_connection_template
