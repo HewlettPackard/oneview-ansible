@@ -13,7 +13,7 @@ RUN DEBIAN_FRONTEND=noninteractive \
     ansible
 
 RUN python -m pip install --upgrade pip
-RUN pip install pyOpenSSL hpOneView
+RUN pip install pyOpenSSL hpeOneView
 
 ADD . oneview-ansible/
 

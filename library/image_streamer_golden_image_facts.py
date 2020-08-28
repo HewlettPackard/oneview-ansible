@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0.1"
+    - "hpeOneView >= 3.0.1"
 author:
     - "Gustavo Hennig (@GustavoHennig)"
 options:

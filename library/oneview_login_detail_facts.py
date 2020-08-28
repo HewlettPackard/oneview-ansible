@@ -28,7 +28,7 @@ description:
     - Retrieve the facts about login details from oneview.
 version_added: "2.5"
 requirements:
-    - hpOneView >= 4.3.0
+    - hpeOneView >= 4.3.0
 author: Madhav Bharadwaj(@madhav-bharadwaj)
 
 extends_documentation_fragment:

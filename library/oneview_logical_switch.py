@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.0.0"
+    - "hpeOneView >= 4.0.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     state:

@@ -29,7 +29,7 @@ description:
 version_added: "2.4"
 requirements:
     - "python >= 3.4.2"
-    - "hpOneView >= 5.2.0"
+    - "hpeOneView >= 5.2.0"
 author: "Venkatesh Ravula (@VenkateshRavula)"
 options:
     state:

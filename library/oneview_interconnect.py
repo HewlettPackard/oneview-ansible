@@ -29,7 +29,7 @@ description:
       device reset, reset port protection, and update the interconnect ports.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 5.0.0"
+    - "hpeOneView >= 5.0.0"
 author: "Bruno Souza (@bsouza)"
 options:
     state:
@@ -117,7 +117,7 @@ interconnect:
 '''
 
 from ansible.module_utils.oneview import (OneViewModule, OneViewModuleResourceNotFound, OneViewModuleValueError)
-from hpOneView.resources.resource import extract_id_from_uri
+from hpeOneView.resources.resource import extract_id_from_uri
 
 
 class InterconnectModule(OneViewModule):

@@ -1,6 +1,9 @@
 # Ansible Modules for HPE OneView Change Log
-## v5.7.1(unreleased)
-Retained idempotency of NetworkSet resource with bandwidth field.
+## v5.8.0 (unreleased)
+
+#### Breaking Changes
+Enhancement made in this version breaks the previous version of the SDK.
+From this version onwards, oneview-ansible library refers to hpeOneView module.
 
 #### Bug fixes & Enhancements
 - [#565] (https://github.com/HewlettPackard/oneview-ansible/issues/565) Problem creating / changing a network_set

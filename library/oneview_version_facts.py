@@ -28,7 +28,7 @@ description:
     - Provides an interface to return the range of possible API versions supported by the appliance.
 version_added: "2.5"
 requirements:
-    - "hpOneView >= 4.3.0"
+    - "hpeOneView >= 4.3.0"
 author: "Priyanka Sood (@soodpr)"
 extends_documentation_fragment:
     - oneview

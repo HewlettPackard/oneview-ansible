@@ -26,7 +26,7 @@ import os
 import traceback
 
 try:
-    from hpOneView.oneview_client import OneViewClient
+    from hpeOneView.oneview_client import OneViewClient
     HAS_HPE_ONEVIEW = True
 except ImportError:
     HAS_HPE_ONEVIEW = False
