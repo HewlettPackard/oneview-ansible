@@ -147,7 +147,7 @@
           state: '{{ csr_data.state }}'
           country: '{{ csr_data.country }}'
           commonName: '{{ csr_data.commonName }}'
-          bay_number: '{{ bay_number }}'
+          bay_number: '{{ bay_number }}' #Required for C7000
       delegate_to: localhost
 
     - name: Get certificate signing request
@@ -156,7 +156,7 @@
         state: get_certificate_request
         data:
           name: '{{ enclosure_name }}'
-          bay_number: '{{ bay_number }}'
+          bay_number: '{{ bay_number }}' #Required for C7000
       delegate_to: localhost
 
     # Waiting for 10 seconds before attempting operations on enclosure

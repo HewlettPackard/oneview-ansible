@@ -8,6 +8,18 @@
 #### Major changes
 - Added support for automatic publish of Docker Image when there is a new release in GitHub
 
+### Modules supported in this release
+- oneview_enclosure
+- oneview_enclosure_facts
+- oneview_enclosure_group
+- oneview_enclosure_group_facts
+- oneview_logical_enclosures
+- oneview_logical_enclosures_facts
+- oneview_server_hardware
+- oneview_server_hardware_facts
+- oneview_server_hardware_type
+- oneview_server_hardware_type_facts
+
 #### Bug fixes & Enhancements
 - [#565] (https://github.com/HewlettPackard/oneview-ansible/issues/565) Problem creating / changing a network_set
 
