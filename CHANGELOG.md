@@ -1,7 +1,97 @@
 # Ansible Modules for HPE OneView Change Log
+## v5.8.0 (unreleased)
 
-## v5.6.1(unreleased)
-This release adds support for docker image versioning as per GIT release version. 
+#### Breaking Changes
+- Enhancement made in this version breaks the previous version of the SDK.
+- From this version onwards, oneview-ansible library refers to hpeOneView module.
+
+#### Major changes
+- Added support for automatic publish of Docker Image when there is a new release in GitHub
+
+#### Bug fixes & Enhancements
+- [#565] (https://github.com/HewlettPackard/oneview-ansible/issues/565) Problem creating / changing a network_set
+
+## v5.7.0
+
+This release extends the planned support of the modules to OneView REST API version 1800 (OneView v5.3)
+
+### Modules supported in this release
+- oneview_certificates_server
+- oneview_certificates_server_facts
+- oneview_connection_template
+- oneview_connection_template_facts
+- oneview_enclosure
+- oneview_enclosure_facts
+- oneview_enclosure_group
+- oneview_enclosure_group_facts
+- oneview_ethernet_network
+- oneview_ethernet_network_facts
+- oneview_fc_network
+- oneview_fc_network_facts
+- oneview_fcoe_network
+- oneview_fcoe_network_facts
+- oneview_hypervisor_manager
+- oneview_hypervisor_manager_facts
+- oneview_hypervisor_cluster_profile
+- oneview_hypervisor_cluster_profile_facts
+- oneview_interconnect
+- oneview_interconnect_facts
+- oneview_interconnect_type_facts
+- oneview_logical_enclosures
+- oneview_logical_enclosures_facts
+- oneview_logical_interconnect
+- oneview_logical_interconnect_facts
+- oneview_logical_interconnect_group
+- oneview_logical_interconnect_group_facts
+- oneview_network_set
+- oneview_network_set_facts
+- oneview_scope
+- oneview_scope_facts
+- oneview_server_hardware
+- oneview_server_hardware_facts
+- oneview_server_hardware_type
+- oneview_server_hardware_type_facts
+- oneview_server_profile
+- oneview_server_profile_facts
+- oneview_server_profile_template
+- oneview_server_profile_template_facts
+- oneview_storage_pool
+- oneview_storage_pool_facts
+- oneview_storage_system
+- oneview_storage_system_facts
+- oneview_storage_volume
+- oneview_storage_volume_facts
+- oneview_storage_volume_attachment
+- oneview_storage_volume_attachment_facts
+- oneview_storage_volume_template
+- oneview_storage_volume_template_facts
+- oneview_task_facts
+- oneview_uplink_set
+- oneview_uplink_set_facts
+
+## v5.6.1
+Added 'dict_merge' method in oneview library to merge nested dictionaries and lists and avoid idempotency issues.
+
+#### Bug fixes & Enhancements
+- [#171](https://github.com/HewlettPackard/oneview-ansible/issues/171) oneview_server_profile doesn't appear to be idempotent
+- [#311](https://github.com/HewlettPackard/oneview-ansible/issues/311) Module oneview_storage_system_facts examples and documentation contains old/incorrect parameter "ip_hostname"
+- [#341](https://github.com/HewlettPackard/oneview-ansible/issues/341) Logical_Interconnect_Group Module , idempotency , Uplinksets for Synergy.
+- [#342](https://github.com/HewlettPackard/oneview-ansible/issues/532) Re-Running Server Profile Creation(including OS Deployment via Image Streamer) updates Server Profile over and over.
+- [#358](https://github.com/HewlettPackard/oneview-ansible/issues/358) oneview_rack task overwriting other rack mounts
+- [#370](https://github.com/HewlettPackard/oneview-ansible/issues/370) oneview_logical_interconnect_group doesn't support network names.
+- [#380](https://github.com/HewlettPackard/oneview-ansible/issues/380) oneview_network_set does not support bandwidth and untagged network
+- [#397](https://github.com/HewlettPackard/oneview-ansible/issues/397) oneview_network_set does not support clearing the nativeNetworkUri.
+- [#451](https://github.com/HewlettPackard/oneview-ansible/issues/451) auto_assign_server_hardware does not work with DLs
+- [#456](https://github.com/HewlettPackard/oneview-ansible/issues/456) oneview_storage_system - How to assign Ports to Networks?
+- [#469](https://github.com/HewlettPackard/oneview-ansible/issues/469) module: ov_server_profile auto_assign_hw with scoped user
+- [#481](https://github.com/HewlettPackard/oneview-ansible/issues/481) oneview_volume is not idempotent
+- [#487](https://github.com/HewlettPackard/oneview-ansible/issues/487) Fails Server profile update in case of existing network_set
+- [#496](https://github.com/HewlettPackard/oneview-ansible/issues/496) Feature: Check Mode.
+- [#510](https://github.com/HewlettPackard/oneview-ansible/issues/510) Ensure users are aware of how to secure oneview credentials.
+- [#525](https://github.com/HewlettPackard/oneview-ansible/issues/525) Server Hardware Facts - Extract the Server Hardware Details by URI.
+- [#532](https://github.com/HewlettPackard/oneview-ansible/issues/532) Add multiple servers method in server hardware module returns invalid response.
+- [#550](https://github.com/HewlettPackard/oneview-ansible/issues/550) Failed to delete last sasJBOD connection in server profile
+
 
 ## v5.6.0
 
