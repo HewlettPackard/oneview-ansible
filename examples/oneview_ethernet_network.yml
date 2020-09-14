@@ -23,6 +23,17 @@
       - '/rest/scopes/63d1ca81-95b3-41f1-a1ee-f9e1bc2d635f'
       - '/rest/scopes/96661df3-fb4f-4617-a1fb-d6f11adf18d3'
   tasks:
+    - name: Get currrentVersion from URL
+      oneview_version_facts:
+        config: "{{ config }}" 
+      delegate_to: localhost
+      when: contents.api_version|length == 0
+      register: version
+   
+    - name: Print currentVersion
+      set_fact: 
+        currentVersion: "{{ version.ansible_facts.version.currentVersion | int }}"
+        
     - name: Create an Ethernet Network
       oneview_ethernet_network:
         config: "{{ config }}"
@@ -66,7 +77,7 @@
         data:
           name: "{{ network_name }}"
           scopeUris: []
-      when: contents.api_version >= 300 and contents.api_version <= 500
+      when: currentVersion >= '300' and currentVersion <= '500'
       delegate_to: localhost
 
     - name: Ensure Ethernet Network has two scopes
@@ -76,7 +87,7 @@
         data:
           name: "{{ network_name }}"
           scopeUris: "{{ network_scope_uris }}"
-      when: contents.api_version >= 300 and contents.api_version <= 500
+      when: currentVersion >= '300' and currentVersion <= '500'
       delegate_to: localhost
 
     - name: Rename the Ethernet Network to 'Updated Ethernet Network'
@@ -121,3 +132,5 @@
           networkUris:
             -  "/rest/ethernet-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548"
       delegate_to: localhost
+      when: currentVersion >= '1600'
+

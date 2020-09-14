@@ -49,7 +49,8 @@
           newName: 'Test FCoE Network - Changed'
           vlanId: 201
       delegate_to: localhost
-# Below task is supported only with OneView 3.10
+
+    # Below task is supported only with OneView 3.10
     - name: Update the FCoE Network with two scopes
       oneview_fcoe_network:
         config: "{{ config }}"
@@ -57,7 +58,6 @@
         data:
           name: 'Test FCoE Network - Changed'
           scopeUris: "{{ network_scope_uris }}"
-      when: contents.api_version >= 300 and contents.api_version <= 500
       delegate_to: localhost
 
     - name: Delete the FCoE Network
@@ -76,6 +76,7 @@
           name: 'Test FCoE Network - Changed'
       delegate_to: localhost
 
+    # This feature is available only from OneView 5.20
     - name: Delete FCoE Networks in bulk
       oneview_fcoe_network:
         config: "{{ config }}"
