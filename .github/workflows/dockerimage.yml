@@ -1,0 +1,23 @@
+name: Docker Image CI
+
+on:
+  release:
+    types:
+      - created
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:      
+      - uses: actions/checkout@v2
+        name: Check out code
+      - run: |
+         echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+      - name: Login to Docker Hub
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+      - name: Build the tagged Docker image
+        run: docker build . --file Dockerfile --tag hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:${{ env.RELEASE_VERSION }}-OV5.4
+      - name: Push the tagged Docker image
+        run: docker push hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:${{ env.RELEASE_VERSION }}-OV5.4
