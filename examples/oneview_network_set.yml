@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    contents: "{{lookup('file', config)}}"
     ethernet_network_1_name: 'Test Ethernet Network 1' # Define a Name of an Ethernet Network to add on the Network Set
     ethernet_network_2_uri: '/rest/ethernet-networks/d7643aca-01e1-4fc0-a678-e1529ebd955d' # Define a URI of another Ethernet Network to add on the Network Set
     network_set_scope_uris:
@@ -32,6 +33,9 @@
           networkUris:
             - '{{ ethernet_network_1_name }}'  # can be a name
             - '{{ ethernet_network_2_uri }}'   # or a URI
+          bandwidth:
+            maximumBandwidth: 15000
+            typicalBandwidth: 3000
       delegate_to: localhost
 
     # Scope update is only supported V300 and V500
@@ -42,6 +46,7 @@
         data:
           name: OneViewSDK Test Network Set
           scopeUris: "{{ network_set_scope_uris }}"
+      when: contents.api_version >= 300 and contents.api_version <= 500
       delegate_to: localhost
 
     - name: Update the Network Set name to 'OneViewSDK Test Network Set - Renamed' and change the associated networks

@@ -278,7 +278,7 @@ Manage the Artifact Bundle resource.
 
 #### Requirements (on the host that executes the module)
   * python >= 3.4.2
-  * hpOneView >= 5.2.0
+  * hpeOneView >= 5.2.0
 
 #### Options
 
@@ -414,7 +414,7 @@ Retrieve facts about the Artifact Bundle.
 
 #### Requirements (on the host that executes the module)
   * python >= 3.4.2
-  * hpOneView >= 5.2.0
+  * hpeOneView >= 5.2.0
 
 #### Options
 
@@ -496,7 +496,7 @@ Manages Image Stream OS Build Plan resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpeOneView >= 3.1.0
 
 #### Options
 
@@ -580,7 +580,7 @@ Retrieve facts about one or more of the Image Streamer Build Plans.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.1
+  * hpeOneView >= 3.0.1
 
 #### Options
 
@@ -660,7 +660,7 @@ Retrieve facts about the Image Streamer Deployment Groups.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.1
+  * hpeOneView >= 3.0.1
 
 #### Options
 
@@ -734,7 +734,7 @@ Manage Image Streamer Deployment Plan resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -819,7 +819,7 @@ Retrieve facts about the Image Streamer Deployment Plans.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -921,7 +921,7 @@ Manage Image Streamer Golden Image resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpeOneView >= 3.1.0
 
 #### Options
 
@@ -1044,7 +1044,7 @@ Retrieve facts about one or more of the Image Streamer Golden Image.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.1
+  * hpeOneView >= 3.0.1
 
 #### Options
 
@@ -1124,7 +1124,7 @@ Retrieve facts about the Image Streamer OS Volumes.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.1
+  * hpeOneView >= 3.0.1
 
 #### Options
 
@@ -1238,7 +1238,7 @@ Manage the Image Streamer Plan Script resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpeOneView >= 3.1.0
 
 #### Options
 
@@ -1343,7 +1343,7 @@ Retrieve facts about the Image Streamer Plan Scripts.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.1
+  * hpeOneView >= 3.0.1
 
 #### Options
 
@@ -1426,7 +1426,7 @@ Retrieve facts about the OneView Alerts.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpeOneView >= 3.0.0
 
 #### Options
 
@@ -1507,7 +1507,7 @@ Manage the Appliance Device Read Community string.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.8.0
+  * hpeOneView >= 4.8.0
 
 #### Options
 
@@ -1568,7 +1568,7 @@ Retrieve the facts about the OneView appliance device read community.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.8.0
+  * hpeOneView >= 4.8.0
 
 #### Options
 
@@ -1623,7 +1623,7 @@ Manage the Appliance Device SNMPv1 Trap Destinations.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.8.0
+  * hpeOneView >= 4.8.0
 
 #### Options
 
@@ -1730,7 +1730,7 @@ Retrieve the facts about the OneView appliance SNMPv1 trap forwarding destinatio
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.8.0
+  * hpeOneView >= 4.8.0
 
 #### Options
 
@@ -1816,7 +1816,7 @@ Manage the Appliance Device SNMPv3 Trap Destinations.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.8.0
+  * hpeOneView >= 4.8.0
 
 #### Options
 
@@ -1906,7 +1906,7 @@ Retrieve the facts about the OneView appliance SNMPv3 trap forwarding destinatio
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.8.0
+  * hpeOneView >= 4.8.0
 
 #### Options
 
@@ -1990,7 +1990,7 @@ Manage the Appliance Device SNMPv3 Users.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.8.0
+  * hpeOneView >= 4.8.0
 
 #### Options
 
@@ -2080,7 +2080,7 @@ Retrieve the facts about the OneView appliance SNMPv3 users.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.8.0
+  * hpeOneView >= 4.8.0
 
 #### Options
 
@@ -2163,7 +2163,7 @@ Manage OneView Appliance Locale and Time Configuration.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.2.0
+  * hpeOneView >= 3.2.0
 
 #### Options
 
@@ -2217,7 +2217,7 @@ Retrieve the facts about the OneView appliance time and locale configuration.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.2.0
+  * hpeOneView >= 3.2.0
 
 #### Options
 
@@ -2267,7 +2267,7 @@ Manage OneView Certificates Server resources.
  Provides an interface to manage Certificates Server resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 5.1.1
+  * hpeOneView >= 5.1.1
   * python >= 3.4.2
 
 #### Options
@@ -2346,7 +2346,7 @@ Retrieve the facts about one or more of the OneView Certificates Server.
  Retrieve the facts about one or more of the Certificates Server from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 5.1.1
+  * hpeOneView >= 5.1.1
   * python >= 3.4.2
 
 #### Options
@@ -2419,7 +2419,7 @@ Manage the OneView Connection Template resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -2482,7 +2482,7 @@ Retrieve facts about the OneView Connection Templates.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -2575,7 +2575,7 @@ Manage OneView Data Center resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpeOneView >= 3.1.0
 
 #### Options
 
@@ -2675,7 +2675,7 @@ Retrieve facts about the OneView Data Centers.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpeOneView >= 2.0.1
 
 #### Options
 
@@ -2757,7 +2757,7 @@ Manage OneView Drive Enclosure resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpeOneView >= 3.0.0
 
 #### Options
 
@@ -2837,7 +2837,7 @@ Retrieve the facts about one or more of the OneView Drive Enclosures.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpeOneView >= 3.0.0
 
 #### Options
 
@@ -2922,7 +2922,7 @@ Manage OneView Enclosure resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -3255,7 +3255,7 @@ Retrieve facts about one or more Enclosures
  Retrieve facts about one or more of the Enclosures from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -3381,7 +3381,7 @@ Manage OneView Enclosure Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -3472,7 +3472,7 @@ Retrieve facts about one or more of the OneView Enclosure Groups.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -3559,7 +3559,7 @@ Manage OneView Ethernet Network resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -3698,7 +3698,7 @@ Retrieve the facts about one or more of the OneView Ethernet Networks.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -3796,7 +3796,7 @@ Manage OneView Events.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.2.0
+  * hpeOneView >= 3.2.0
 
 #### Options
 
@@ -3856,7 +3856,7 @@ Retrieve the facts about one or more of the OneView Events.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.2.0
+  * hpeOneView >= 3.2.0
 
 #### Options
 
@@ -3920,7 +3920,7 @@ Manage OneView Fabric resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpeOneView >= 3.1.0
 
 #### Options
 
@@ -3979,7 +3979,7 @@ Retrieve the facts about one or more of the OneView Fabrics.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpeOneView >= 2.0.1
 
 #### Options
 
@@ -4060,7 +4060,7 @@ Manage OneView Fibre Channel Network resources.
  Provides an interface to manage Fibre Channel Network resources. Can create, update, and delete.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -4152,7 +4152,7 @@ Retrieve the facts about one or more of the OneView Fibre Channel Networks
  Retrieve the facts about one or more of the Fibre Channel Networks from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -4234,7 +4234,7 @@ Manage OneView FCoE Network resources
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -4318,7 +4318,7 @@ Retrieve the facts about one or more of the OneView FCoE Networks
  Retrieve the facts about one or more of the FCoE Networks from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -4401,7 +4401,7 @@ Upload OneView Firmware Bundle resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpeOneView >= 2.0.1
 
 #### Options
 
@@ -4457,7 +4457,7 @@ Provides an interface to remove Firmware Driver resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpeOneView >= 2.0.1
 
 #### Options
 
@@ -4522,7 +4522,7 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpeOneView >= 2.0.1
 
 #### Options
 
@@ -4591,7 +4591,7 @@ Manage OneView Hypervisor Cluster Profile resources.
  Provides an interface to manage Hypervisor Cluster Profile resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 5.1.0
+  * hpeOneView >= 5.1.0
   * python >= 3.4.2
 
 #### Options
@@ -4676,7 +4676,7 @@ Retrieve the facts about one or more of the OneView Hypervisor Cluster Profiles.
  Retrieve the facts about one or more of the Hypervisor Cluster Profiles from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 5.1.0
+  * hpeOneView >= 5.1.0
   * python >= 3.4.2
 
 #### Options
@@ -4778,7 +4778,7 @@ Manage OneView Hypervisor Manager resources.
  Provides an interface to manage Hypervisor Manager resources. Can create, update, or delete.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 5.1.0
+  * hpeOneView >= 5.1.0
   * python >= 3.4.2
 
 #### Options
@@ -4859,7 +4859,7 @@ Retrieve the facts about one or more of the OneView Hypervisor Managers.
  Retrieve the facts about one or more of the Hypervisor Managers from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 5.1.0
+  * hpeOneView >= 5.1.0
   * python >= 3.4.2
 
 #### Options
@@ -4945,7 +4945,7 @@ Manage OneView ID pools IPV4 Range resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpeOneView >= 4.0.0
 
 #### Options
 
@@ -5007,7 +5007,7 @@ Retrieve the facts about one or more of the OneView ID Pools IPV4 Ranges.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpeOneView >= 4.0.0
 
 #### Options
 
@@ -5102,7 +5102,7 @@ Manage OneView ID pools IPV4 Subnet resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpeOneView >= 4.0.0
 
 #### Options
 
@@ -5165,7 +5165,7 @@ Retrieve the facts about one or more of the OneView ID Pools IPV4 Subnets.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpeOneView >= 2.0.1
 
 #### Options
 
@@ -5235,7 +5235,7 @@ Manage the OneView Interconnect resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -5320,7 +5320,7 @@ Retrieve facts about one or more of the OneView Interconnects.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -5503,7 +5503,7 @@ Retrieve facts about the OneView Interconnect Link Topologies.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpeOneView >= 3.0.0
 
 #### Options
 
@@ -5576,7 +5576,7 @@ Retrieve facts about one or more of the OneView Interconnect Types.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -5656,7 +5656,7 @@ Retrieve facts about the OneView Internal Link Sets.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -5737,7 +5737,7 @@ Retrieve facts about one or more of the OneView Logical Downlinks.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpeOneView >= 2.0.1
 
 #### Options
 
@@ -5820,7 +5820,7 @@ Manage OneView Logical Enclosure resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -5997,7 +5997,7 @@ Retrieve facts about one or more of the OneView Logical Enclosures.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -6096,7 +6096,7 @@ Manage OneView Logical Interconnect resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -6304,7 +6304,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -6428,7 +6428,7 @@ Manage OneView Logical Interconnect Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -6559,7 +6559,7 @@ Retrieve facts about one or more of the OneView Logical Interconnect Groups
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -6658,7 +6658,7 @@ Manage OneView Logical Switch resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpeOneView >= 4.0.0
 
 #### Options
 
@@ -6808,7 +6808,7 @@ Retrieve the facts about one or more of the OneView Logical Switches.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpeOneView >= 2.0.1
 
 #### Options
 
@@ -6889,7 +6889,7 @@ Manage OneView Logical Switch Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -6992,7 +6992,7 @@ Retrieve facts about OneView Logical Switch Groups.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -7075,7 +7075,7 @@ Retrieve the facts about login details
  Retrieve the facts about login details from oneview.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 4.3.0
+  * hpeOneView >= 4.3.0
 
 #### Options
 
@@ -7127,7 +7127,7 @@ Manage OneView Managed SAN resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -7234,7 +7234,7 @@ Retrieve facts about the OneView Managed SANs.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -7347,7 +7347,7 @@ Manage OneView Network Set resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -7445,7 +7445,7 @@ Retrieve facts about the OneView Network Sets
  Retrieve facts about the Network Sets from OneView.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -7561,7 +7561,7 @@ Retrieve facts about one or more OS Deployment Plans.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpeOneView >= 3.0.0
 
 #### Options
 
@@ -7657,7 +7657,7 @@ Manage OneView Deployment Server resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.1
+  * hpeOneView >= 3.1.1
 
 #### Options
 
@@ -7736,7 +7736,7 @@ Retrieve facts about one or more OS Deployment Servers.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.1
+  * hpeOneView >= 3.1.1
 
 #### Options
 
@@ -7818,7 +7818,7 @@ Manage OneView Power Device resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpeOneView >= 3.1.0
 
 #### Options
 
@@ -7924,7 +7924,7 @@ Retrieve facts about the OneView Power Devices.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpeOneView >= 2.0.1
 
 #### Options
 
@@ -8028,7 +8028,7 @@ Manage OneView Racks resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpeOneView >= 3.1.0
 
 #### Options
 
@@ -8112,7 +8112,7 @@ Retrieve facts about Rack resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpeOneView >= 2.0.1
 
 #### Options
 
@@ -8193,7 +8193,7 @@ Manage OneView SAN Manager resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.1
+  * hpeOneView >= 3.1.1
 
 #### Options
 
@@ -8290,7 +8290,7 @@ Retrieve facts about one or more of the OneView SAN Managers
  Retrieve facts about one or more of the SAN Managers from OneView
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 2.0.1
+  * hpeOneView >= 2.0.1
 
 #### Options
 
@@ -8364,7 +8364,7 @@ Manage the OneView SAS Interconnect resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -8434,7 +8434,7 @@ Retrieve facts about the OneView SAS Interconnects.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -8510,7 +8510,7 @@ Retrieve facts about the OneView SAS Interconnect Types.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -8589,7 +8589,7 @@ Manage OneView SAS Logical Interconnect resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -8704,7 +8704,7 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnects.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -8799,7 +8799,7 @@ Manage OneView SAS Logical Interconnect Group resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -8902,7 +8902,7 @@ Retrieve facts about one or more of the OneView SAS Logical Interconnect Groups.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -8991,7 +8991,7 @@ Retrieve facts about one or more of the OneView SAS Logical JBOD Attachments.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0
+  * hpeOneView >= 3.0
 
 #### Options
 
@@ -9065,7 +9065,7 @@ Retrieve facts about one or more of the OneView SAS Logical JBODs.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpeOneView >= 3.0.0
 
 #### Options
 
@@ -9150,7 +9150,7 @@ Manage OneView Scope resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpeOneView >= 3.1.0
 
 #### Options
 
@@ -9250,7 +9250,7 @@ Retrieve facts about one or more of the OneView Scopes.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.0.0
+  * hpeOneView >= 3.0.0
 
 #### Options
 
@@ -9324,7 +9324,7 @@ Manage OneView Server Hardware resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -9493,7 +9493,7 @@ Retrieve facts about the OneView Server Hardware.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -9501,6 +9501,7 @@ Retrieve facts about the OneView Server Hardware.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Server Hardware name.  |
+| uri  |   No  |  | |  Server Hardware uri.  |
 | options  |   No  |  | |  List with options to gather additional facts about Server Hardware related resources. Options allowed: `bios`, `javaRemoteConsoleUrl`, `environmentalConfig`, `iloSsoUrl`, `remoteConsoleUrl`, `utilization`, `firmware`, `firmwares` and `physicalServerHardware`.  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
@@ -9544,6 +9545,17 @@ Retrieve facts about the OneView Server Hardware.
     password: my_password
     api_version: 1200
     name: "172.18.6.15"
+  delegate_to: localhost
+
+- debug: var=server_hardwares
+
+- name: Gather facts about a Server Hardware by uri
+  oneview_server_hardware_facts:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    uri: "/rest/server-hardware/30303437-3034-4D32-3230-313030364752"
   delegate_to: localhost
 
 - debug: var=server_hardwares
@@ -9652,7 +9664,7 @@ Manage OneView Server Hardware Type resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -9735,7 +9747,7 @@ Retrieve facts about Server Hardware Types of the OneView.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -9814,7 +9826,7 @@ Manage OneView Server Profile resources
  Manage the servers lifecycle with OneView Server Profiles. On `present` state, it selects a server hardware automatically based on the server profile configuration if no server hardware was provided.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -9980,7 +9992,7 @@ Retrieve facts about the OneView Server Profiles.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -10150,7 +10162,7 @@ Manage OneView Server Profile Template resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -10246,7 +10258,7 @@ Retrieve facts about the Server Profile Templates from OneView.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -10363,7 +10375,7 @@ Manage OneView Storage Pool resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -10456,7 +10468,7 @@ Retrieve facts about one or more Storage Pools.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -10554,7 +10566,7 @@ Manage OneView Storage System resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -10670,7 +10682,7 @@ Retrieve facts about the OneView Storage Systems
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -10828,7 +10840,7 @@ Provides an interface to remove extra presentations from a specified server prof
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -10900,7 +10912,7 @@ Retrieve facts about the OneView Storage Volume Attachments.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -11041,7 +11053,7 @@ Manage OneView Storage Volume Template resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -11115,7 +11127,7 @@ Retrieve facts about Storage Volume Templates of the OneView.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -11236,7 +11248,7 @@ Provides an interface to remove ToR Switch resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 4.0.0
+  * hpeOneView >= 4.0.0
 
 #### Options
 
@@ -11287,7 +11299,7 @@ Retrieve facts about the OneView Switches.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpeOneView >= 2.0.1
 
 #### Options
 
@@ -11375,7 +11387,7 @@ Retrieve facts about the OneView Switch Types.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -11455,7 +11467,7 @@ Retrieve facts about the OneView Tasks.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpeOneView >= 2.0.1
 
 #### Options
 
@@ -11524,7 +11536,7 @@ Manage OneView Unmanaged Device resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.1.0
+  * hpeOneView >= 3.1.0
 
 #### Options
 
@@ -11622,7 +11634,7 @@ Retrieve facts about one or more of the OneView Unmanaged Device.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 2.0.1
+  * hpeOneView >= 2.0.1
 
 #### Options
 
@@ -11704,7 +11716,7 @@ Manage OneView Uplink Set resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -11801,7 +11813,7 @@ Retrieve facts about one or more of the OneView Uplink Sets.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -11881,7 +11893,7 @@ Manage OneView Users.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.2.0
+  * hpeOneView >= 3.2.0
 
 #### Options
 
@@ -11966,7 +11978,7 @@ Retrieve the facts about one or more of the OneView Users.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 3.2.0
+  * hpeOneView >= 3.2.0
 
 #### Options
 
@@ -12036,7 +12048,7 @@ Returns the range of possible API versions supported by the appliance
  Provides an interface to return the range of possible API versions supported by the appliance.
 
 #### Requirements (on the host that executes the module)
-  * hpOneView >= 4.3.0
+  * hpeOneView >= 4.3.0
 
 #### Options
 
@@ -12088,7 +12100,7 @@ Manage OneView Volume resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 
@@ -12270,7 +12282,7 @@ Retrieve facts about the OneView Volumes.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpOneView >= 5.0.0
+  * hpeOneView >= 5.0.0
 
 #### Options
 

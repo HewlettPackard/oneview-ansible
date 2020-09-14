@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 5.0.0"
+    - "hpeOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -341,7 +341,7 @@ class ServerHardwareModule(OneViewModule):
 
     def __add_multiple_rack_mount_servers(self):
         resource = self.resource_client.add_multiple_servers(self.data)
-        return True, self.MSG_MULTIPLE_RACK_MOUNT_SERVERS_ADDED, {"server_hardware": resource}
+        return True, self.MSG_MULTIPLE_RACK_MOUNT_SERVERS_ADDED, {"server_hardware": resource.data}
 
 
 def main():

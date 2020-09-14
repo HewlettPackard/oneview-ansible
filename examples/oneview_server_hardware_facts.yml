@@ -13,21 +13,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-# Below example run till Oneview REST API Version 1600.
+
 ---
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     # name examples: "172.18.6.15", "Encl1, bay 1"
     - server_hardware_name: "SYN03_Frame1, bay 1"
+    - server_hardware_uri: "/rest/server-hardware/30373737-3237-4D32-3230-333031354752"
+
   tasks:
     - name: Gather facts about all Server Hardwares
       oneview_server_hardware_facts:
         config: "{{ config }}"
       delegate_to: localhost
-
+ 
     - debug: var=server_hardwares
-
+ 
 
     - name: Gather paginated, filtered and sorted facts about Server Hardware
       oneview_server_hardware_facts:
@@ -38,7 +40,7 @@
           sort: name:ascending
           filter: uidState='Off'
       delegate_to: localhost
-
+  
     - debug: msg="{{server_hardwares | map(attribute='name') | list }}"
 
 
@@ -47,10 +49,17 @@
         config: "{{ config }}"
         name: "{{ server_hardware_name }}"
       delegate_to: localhost
-
+      
     - debug: var=server_hardwares
 
+    - name: Gather facts about a Server Hardware by uri
+      oneview_server_hardware_facts:
+        config: "{{ config }}"
+        uri: "{{ server_hardware_uri }}"
+      delegate_to: localhost
 
+    - debug: var=server_hardwares
+ 
     - name: Gather BIOS facts about a Server Hardware
       oneview_server_hardware_facts:
         config: "{{ config }}"
@@ -58,11 +67,11 @@
         options:
           - bios
       delegate_to: localhost
-
+ 
     - debug: var=server_hardwares
     - debug: var=server_hardware_bios
-
-
+ 
+ 
     - name: Gather all facts about a Server Hardware
       oneview_server_hardware_facts:
        config: "{{ config }}"
@@ -79,7 +88,7 @@
                     filter : ['startDate=2016-05-30T03:29:42.000Z']
                     view : 'day'
       delegate_to: localhost
-
+ 
     - debug: var=server_hardwares
     - debug: var=server_hardware_bios
     - debug: var=server_hardware_env_config
@@ -88,7 +97,7 @@
     - debug: var=server_hardware_physical_server_hardware
     - debug: var=server_hardware_remote_console_url
     - debug: var=server_hardware_utilization
-
+ 
     # This option is available for API version 300 or later.
     - name: Gather facts about the Server Hardware firmware
       oneview_server_hardware_facts:
@@ -97,9 +106,9 @@
        options:
            - firmware
       delegate_to: localhost
-
+ 
     - debug: var=server_hardware_firmware
-
+ 
     # This option is available for API version 300 or later.
     - name: Gather facts about all the firmwares inventory across all servers
       oneview_server_hardware_facts:
@@ -108,10 +117,10 @@
        options:
         - firmwares
       delegate_to: localhost
-
+ 
     - debug: var=server_hardware_firmwares
-
-
+ 
+ 
     - name: List the firmware inventory of the servers which have HPE Synergy 3530C version matches '1.2'
       oneview_server_hardware_facts:
        config: "{{ config }}"
@@ -122,5 +131,7 @@
               "components.componentVersion matches '1.2%'"
             ]
       delegate_to: localhost
-
+ 
     - debug: var=server_hardware_firmwares
+ 
+ 

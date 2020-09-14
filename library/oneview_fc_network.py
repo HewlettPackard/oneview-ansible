@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ description:
     - Provides an interface to manage Fibre Channel Network resources. Can create, update, and delete.
 version_added: "2.4"
 requirements:
-    - "hpOneView >= 5.0.0"
+    - "hpeOneView >= 5.0.0"
 author: "Felipe Bulsoni (@fgbulsoni)"
 options:
     state:
@@ -56,7 +56,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1800
     state: present
     data:
       name: 'New FC Network'
@@ -66,7 +66,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1800
     state: present
     data:
       name: 'New FC Network'
@@ -91,10 +91,22 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 1800
     state: absent
     data:
       name: 'New FC Network'
+
+- name: Delete Fibre Channel Networks in bulk(works from API1600)
+  oneview_fc_network:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1800
+    state: absent
+    data:
+      networkUris:
+        -  "/rest/fc-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548"
+  delegate_to: localhost
 '''
 
 RETURN = '''
@@ -111,6 +123,7 @@ class FcNetworkModule(OneViewModule):
     MSG_CREATED = 'FC Network created successfully.'
     MSG_UPDATED = 'FC Network updated successfully.'
     MSG_DELETED = 'FC Network deleted successfully.'
+    BULK_MSG_DELETED = 'FC Networks deleted successfully.'
     MSG_ALREADY_PRESENT = 'FC Network is already present.'
     MSG_ALREADY_ABSENT = 'FC Network is already absent.'
     RESOURCE_FACT_NAME = 'fc_network'
@@ -128,18 +141,43 @@ class FcNetworkModule(OneViewModule):
         self.set_resource_object(self.oneview_client.fc_networks)
 
     def execute_module(self):
+        changed, msg, ansible_facts = False, '', {}
+
         if self.state == 'present':
             return self._present()
-        else:
-            return self.resource_absent()
+        elif self.state == 'absent':
+            if self.data.get('networkUris'):
+                changed, msg, ansible_facts = self.__bulk_absent()
+            elif not self.module.check_mode:
+                return self.resource_absent()
+            else:
+                return self.check_resource_absent()
+
+        return dict(changed=changed, msg=msg, ansible_facts=ansible_facts)
 
     def _present(self):
         scope_uris = self.data.pop('scopeUris', None)
-        result = self.resource_present(self.RESOURCE_FACT_NAME)
+        if not self.module.check_mode:
+            result = self.resource_present(self.RESOURCE_FACT_NAME)
+        else:
+            result = self.check_resource_present(self.RESOURCE_FACT_NAME)
 
         if scope_uris is not None:
-            result = self.resource_scopes_set(result, 'fc_network', scope_uris)
+            if not self.module.check_mode:
+                result = self.resource_scopes_set(result, 'fc_network', scope_uris)
+            else:
+                result = self.check_resource_scopes_set(result, 'fc_network', scope_uris)
         return result
+
+    def __bulk_absent(self):
+        networkUris = self.data['networkUris']
+
+        if networkUris is not None:
+            self.resource_client.delete_bulk(self.data)
+            changed = True
+            msg = self.BULK_MSG_DELETED
+
+        return changed, msg, dict(fc_network_bulk_delete=None)
 
 
 def main():

@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 5.0.0"
+    - "hpeOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     state:
@@ -93,6 +93,23 @@ EXAMPLES = '''
 
   delegate_to: localhost
 
+- name: Update the Storage System adding one port using name as key
+  oneview_storage_system:
+    state: present
+    data:
+      credentials:
+        username: '{{ storage_system_username }}'
+        password: '{{ storage_system_password }}'
+    name: '{{ storage_system_name }}'
+    family: StoreServ
+    hostname: '{{ storage_system_ip }}'
+    ports:
+      - expectedNetworkUri: '/rest/fc-networks/9141498a-9616-4512-b683-a8848be039c3'
+        name: 0:1:2
+        mode: Managed
+
+  delegate_to: localhost
+
 - name: Remove the storage system by its IP (before API500)
   oneview_storage_system:
     hostname: 172.16.101.48
@@ -125,7 +142,9 @@ storage_system:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError, compare
+import collections
+from copy import deepcopy
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError, compare, dict_merge
 
 
 class StorageSystemModule(OneViewModule):
@@ -148,7 +167,6 @@ class StorageSystemModule(OneViewModule):
         )
         super(StorageSystemModule, self).__init__(additional_arg_spec=argument_spec,
                                                   validate_etag_support=True)
-
         self.set_resource_object(self.oneview_client.storage_systems)
 
     def execute_module(self):
@@ -182,8 +200,19 @@ class StorageSystemModule(OneViewModule):
             msg = self.MSG_ADDED
 
         else:
-            merged_data = self.current_resource.data.copy()
-            merged_data.update(self.data)
+            resource = deepcopy(self.current_resource.data)
+            data = self.data.copy()
+            merged_data = dict_merge(resource, data)
+            temp_list = []
+            merged_data_copy = deepcopy(merged_data)
+            if merged_data_copy.get('deviceSpecificAttributes') and merged_data_copy.get('deviceSpecificAttributes').get('discoveredPools') and \
+                    merged_data_copy.get('deviceSpecificAttributes').get('managedPools'):
+                for discoveredPool in merged_data_copy['deviceSpecificAttributes']['discoveredPools']:
+                    for managedPool in merged_data['deviceSpecificAttributes']['managedPools']:
+                        if discoveredPool['name'] == managedPool['name']:
+                            temp_list.append(discoveredPool)
+                            merged_data['deviceSpecificAttributes']['discoveredPools'].remove(discoveredPool)
+                merged_data['deviceSpecificAttributes']['managedPools'] = temp_list
 
             # remove password, it cannot be used in comparison
             if 'credentials' in merged_data and 'password' in merged_data['credentials']:

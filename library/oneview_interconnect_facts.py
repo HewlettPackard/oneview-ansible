@@ -28,7 +28,7 @@ description:
     - Retrieve facts about one or more of the Interconnects from OneView.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 5.0.0"
+    - "hpeOneView >= 5.0.0"
 author: "Bruno Souza (@bsouza)"
 options:
     name:
@@ -228,7 +228,7 @@ interconnect_pluggable_module_information:
 '''
 
 from ansible.module_utils.oneview import OneViewModule
-from hpOneView.resources.resource import extract_id_from_uri
+from hpeOneView.resources.resource import extract_id_from_uri
 
 
 class InterconnectFactsModule(OneViewModule):

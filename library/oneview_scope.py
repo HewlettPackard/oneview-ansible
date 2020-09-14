@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpeOneView >= 3.1.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     state:
@@ -78,29 +78,26 @@ EXAMPLES = '''
       name: 'SampleScopeRenamed'
   delegate_to: localhost
 
-- name: Update the scope resource assignments, adding two resources
+- name: Update the scope resource assignments, adding a resource
   oneview_scope:
     config: '{{ config }}'
     state: resource_assignments_updated
     data:
       name: 'SampleScopeRenamed'
       resourceAssignments:
-        addedResourceUris:
-          - '{{ fc_network_1.uri }}'
-          - '{{ fc_network_2.uri }}'
+        addedResourceUris: '{{ fc_network_1.uri }}'
   delegate_to: localhost
 
-- name: Update the scope resource assignments, adding one resource and removing another previously added
+- name: Update the scope resource assignments, removing two resources
   oneview_scope:
     config: '{{ config }}'
     state: resource_assignments_updated
     data:
       name: 'SampleScopeRenamed'
       resourceAssignments:
-        addedResourceUris:
-          - '{{ fc_network_3.uri }}'
         removedResourceUris:
-          - '{{ fc_network_1.uri }}'
+            - '{{ fc_network_1.uri }}'
+            - '{{ fc_network_2.uri }}'
   delegate_to: localhost
 '''
 
@@ -111,10 +108,10 @@ scope:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
 
 
-class ScopeModule(OneViewModuleBase):
+class ScopeModule(OneViewModule):
     MSG_CREATED = 'Scope created successfully.'
     MSG_UPDATED = 'Scope updated successfully.'
     MSG_DELETED = 'Scope deleted successfully.'
@@ -137,42 +134,45 @@ class ScopeModule(OneViewModuleBase):
         super(ScopeModule, self).__init__(additional_arg_spec=self.argument_spec,
                                           validate_etag_support=True)
 
-        self.resource_client = self.oneview_client.scopes
+        self.set_resource_object(self.oneview_client.scopes)
 
     def execute_module(self):
-        resource = self.resource_client.get_by_name(self.data.get('name'))
-
         if self.state == 'present':
-            return self.resource_present(resource, 'scope')
+            return self.resource_present('scope')
         elif self.state == 'absent':
-            return self.resource_absent(resource)
+            return self.resource_absent()
         elif self.state == 'resource_assignments_updated':
-            return self.__update_resource_assignments(resource)
+            return self.__update_resource_assignments()
 
-    def __update_resource_assignments(self, resource):
-        if not resource:
-            raise OneViewModuleResourceNotFound(self.MSG_RESOURCE_NOT_FOUND)
-
-        if self.oneview_client.api_version < 500:
-            scope = self.resource_client.update_resource_assignments(resource['uri'],
-                                                                     self.data.get('resourceAssignments'))
-        else:
-            add_resources = self.data.get('resourceAssignments').get('addedResourceUris') is not None
-            remove_resources = self.data.get('resourceAssignments').get('removedResourceUris') is not None
-            if add_resources:
-                scope = self.resource_client.patch(resource['uri'], 'replace', '/addedResourceUris',
-                                                   self.data.get('resourceAssignments').get('addedResourceUris'))
-            if remove_resources:
-                scope = self.resource_client.patch(resource['uri'], 'replace', '/removedResourceUris',
-                                                   self.data.get('resourceAssignments').get('removedResourceUris'))
-            if not add_resources and not remove_resources:
-                return dict(changed=False,
-                            msg=self.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED,
-                            ansible_facts=dict(scope=resource))
+    def __update_resource_assignments(self):
+        add_resources = self.data.get('resourceAssignments').get('addedResourceUris') is not None
+        remove_resources = self.data.get('resourceAssignments').get('removedResourceUris') is not None
+        updated_name = self.data.get('resourceAssignments').get('name') is not None
+        updated_description = self.data.get('resourceAssignments').get('description') is not None
+        if add_resources:
+            self.current_resource.patch(operation='add',
+                                        path='/addedResourceUris/-',
+                                        value=self.data.get('resourceAssignments').get('addedResourceUris'))
+        if remove_resources:
+            self.current_resource.patch(operation='replace',
+                                        path='/removedResourceUris',
+                                        value=self.data.get('resourceAssignments').get('removedResourceUris'))
+        if updated_name:
+            self.current_resource.patch(operation='replace',
+                                        path='/name',
+                                        value=self.data.get('resourceAssignments').get('name'))
+        if updated_description:
+            self.current_resource.patch(operation='replace',
+                                        path='/description',
+                                        value=self.data.get('resourceAssignments').get('description'))
+        if not add_resources and not remove_resources and not updated_name and not updated_description:
+            return dict(changed=False,
+                        msg=self.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED,
+                        ansible_facts=dict(scope=self.current_resource.data))
 
         return dict(changed=True,
                     msg=self.MSG_RESOURCE_ASSIGNMENTS_UPDATED,
-                    ansible_facts=dict(scope=scope))
+                    ansible_facts=dict(scope=self.current_resource.data))
 
 
 def main():

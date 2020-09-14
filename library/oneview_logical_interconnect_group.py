@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 5.0.0"
+    - "hpeOneView >= 5.0.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     state:
@@ -97,6 +97,8 @@ EXAMPLES = '''
         - name: 'e23 uplink set'
           mode: 'Auto'
           networkType: 'Ethernet'
+          networkNames:
+            - 'TestNetwork_1'
           networkUris:
             - '/rest/ethernet-networks/b2be27ec-ae31-41cb-9f92-ff6da5905abc'
           logicalPortConfigInfos:
@@ -149,6 +151,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
     MSG_ALREADY_PRESENT = 'Logical Interconnect Group is already present.'
     MSG_ALREADY_ABSENT = 'Logical Interconnect Group is already absent.'
     MSG_INTERCONNECT_TYPE_NOT_FOUND = 'Interconnect Type was not found.'
+    MSG_ETHERNET_NETWORK_NOT_FOUND = 'Ethernet Network was not found.'
 
     RESOURCE_FACT_NAME = 'logical_interconnect_group'
 
@@ -190,6 +193,19 @@ class LogicalInterconnectGroupModule(OneViewModule):
                     if permitted_interconnect_type_name:
                         value['permittedInterconnectTypeUri'] = self.__get_interconnect_type_by_name(
                             permitted_interconnect_type_name).get('uri')
+
+        if 'uplinkSets' in self.data:
+            for uplinkSet in self.data['uplinkSets']:
+                networkNames = uplinkSet.pop('networkNames', None)
+                if networkNames:
+                    networkUris = [self.__get_network_uri(x) for x in networkNames]
+
+                    uplinkSet['networkUris'].extend(networkUris)
+
+    def __get_network_uri(self, name):
+
+        network_name = self.oneview_client.ethernet_networks.get_by('name', name)
+        return network_name[0]['uri']
 
     def __get_interconnect_type_by_name(self, name):
         i_type = self.oneview_client.interconnect_types.get_by('name', name)

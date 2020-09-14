@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.1.0"
+    - "hpeOneView >= 3.1.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     state:
@@ -57,19 +57,19 @@ EXAMPLES = '''
     data:
       name: 'Rack Name'
 
-- name: Add rack with custom size and a single mounted enclosure at slot 20
+- name: Rename the rack, change size and add single mounted server hardware at slot 42
   oneview_rack:
     config: "{{ config_file_path }}"
     state: present
     data:
-      name: 'Rack101'
+      name: 'Rack Name'
       depth: 1500
       height: 2500
       width: 1200
       rackMounts:
-        - mountUri: "/rest/enclosures/39SGH102X6J2"
-          topUSlot: 20
-          uHeight: 10
+        - mountUri: "/rest/server-hardware/37353738-3336-584D-5131-303030343037"
+          topUSlot: 42
+          uHeight: 2
 
 - name: Rename the Rack to 'Rack101'
   oneview_rack:
@@ -94,11 +94,12 @@ rack:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModuleBase, dict_merge, compare
+from copy import deepcopy
 
 
 class RackModule(OneViewModuleBase):
-    MSG_CREATED = 'Rack added successfully.'
+    MSG_ADDED = 'Rack added successfully.'
     MSG_UPDATED = 'Rack updated successfully.'
     MSG_DELETED = 'Rack removed successfully.'
     MSG_ALREADY_PRESENT = 'Rack is already present.'
@@ -118,13 +119,63 @@ class RackModule(OneViewModuleBase):
         self.resource_client = self.oneview_client.racks
 
     def execute_module(self):
-
-        resource = self.get_by_name(self.data['name'])
-
+        changed, msg, ansible_facts = False, '', {}
+        params = self.module.params.get("params")
+        self.params = params if params else {}
+        self.current_resource = self.resource_client.get_by('name', self.data['name'])
         if self.state == 'present':
-            return self.resource_present(resource, "rack", 'add')
+            changed, msg, ansible_facts = self.__present()
         elif self.state == 'absent':
-            return self.resource_absent(resource, "remove")
+            changed, msg, ansible_facts = self.__absent()
+
+        return dict(changed=changed,
+                    msg=msg,
+                    ansible_facts=ansible_facts)
+
+    def __present(self):
+        if not self.current_resource:
+            self.current_resource = self.resource_client.add(self.data)
+            return True, self.MSG_ADDED, dict(rack=self.current_resource)
+        else:
+            return self.__update()
+
+    # The below snippet requires to add or override rackMounts in rack module
+    def __mergeRackMounts(self):
+        resource_copy = deepcopy(self.current_resource)
+        data_copy = deepcopy(self.data)
+        if resource_copy.get('rackMounts') and data_copy.get('rackMounts') and len(resource_copy['rackMounts']) != 0 and len(data_copy['rackMounts']) != 0:
+            for resource_rackMount in resource_copy['rackMounts']:
+                for data_rackMount in self.data['rackMounts']:
+                    if resource_rackMount['mountUri'] != data_rackMount['mountUri'] and resource_rackMount['topUSlot'] != data_rackMount['topUSlot']:
+                        data_copy['rackMounts'].append(resource_rackMount)
+                    else:
+                        data_rackMount.update(resource_rackMount)
+        return data_copy
+
+    def __update(self):
+        if "newName" in self.data:
+            self.data["name"] = self.data.pop("newName")
+
+        self.current_resource = self.current_resource[0]
+        merged_rack_mounts = self.__mergeRackMounts()
+        merged_data = dict_merge(self.data, self.current_resource)
+        if "rackMounts" in merged_rack_mounts:
+            merged_data['rackMounts'] = merged_rack_mounts['rackMounts']
+        if not compare(self.current_resource, merged_data):
+            updated_response = self.resource_client.update(merged_data)
+            return True, self.MSG_UPDATED, dict(rack=updated_response)
+        else:
+            return False, self.MSG_ALREADY_PRESENT, dict(rack=self.current_resource)
+
+    def __absent(self):
+        if self.current_resource:
+            changed = True
+            msg = self.MSG_DELETED
+            self.resource_client.delete(**self.params)
+        else:
+            changed = False
+            msg = self.MSG_ALREADY_ABSENT
+        return changed, msg, dict(rack=None)
 
 
 def main():
