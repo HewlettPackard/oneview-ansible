@@ -22,17 +22,25 @@
     network_scope_uris:
       - '/rest/scopes/d0324c4b-56c9-485b-b7dd-8f6218a4b5bb'
       - '/rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412'
+    networkUris_to_bulkdelete:
+      - '/rest/fc-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548'
   tasks:
-    - name: Get currrentVersion from URL
+    - name: Get currentVersion from URL
       oneview_version_facts:
         config: "{{ config }}" 
       delegate_to: localhost
       when: contents.api_version|length == 0
       register: version
 
-    - name: Print currentVersion
+    - name: Print currentVersion if an apiVersion is not specified in config file
       set_fact: 
-        currentVersion: "{{ version.ansible_facts.version.currentVersion | int }}"
+        currentVersion: "{{ version.ansible_facts.version.currentVersion|int }}"
+      when: contents.api_version|length == 0
+
+    - name: Print currentVersion if an apiVersion is specified in config file
+      set_fact: 
+        currentVersion: contents.api_version | string
+      when: contents.api_version|length != 0
 
     - name: Create a Fibre Channel Network
       oneview_fc_network:
@@ -103,7 +111,6 @@
         config: "{{ config }}"
         state: absent
         data:
-          networkUris:
-            -  "/rest/fc-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548"
+          networkUris: "{{ networkUris_to_bulkdelete }}"
       delegate_to: localhost
       when: currentVersion >= '1600'

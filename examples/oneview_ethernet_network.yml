@@ -22,17 +22,25 @@
     network_scope_uris:
       - '/rest/scopes/63d1ca81-95b3-41f1-a1ee-f9e1bc2d635f'
       - '/rest/scopes/96661df3-fb4f-4617-a1fb-d6f11adf18d3'
+    networkUris_to_bulkdelete:
+      - '/rest/ethernet-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548'
   tasks:
-    - name: Get currrentVersion from URL
+    - name: Get currentVersion from URL
       oneview_version_facts:
         config: "{{ config }}" 
       delegate_to: localhost
       when: contents.api_version|length == 0
       register: version
    
-    - name: Print currentVersion
+    - name: Print currentVersion if an apiVersion is not specified in config file
       set_fact: 
-        currentVersion: "{{ version.ansible_facts.version.currentVersion | int }}"
+        currentVersion: "{{ version.ansible_facts.version.currentVersion|int }}"
+      when: contents.api_version|length == 0
+
+    - name: Print currentVersion if an apiVersion is specified in config file
+      set_fact: 
+        currentVersion: contents.api_version | string
+      when: contents.api_version|length != 0
         
     - name: Create an Ethernet Network
       oneview_ethernet_network:
@@ -129,8 +137,7 @@
         config: "{{ config }}"
         state: absent
         data:
-          networkUris:
-            -  "/rest/ethernet-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548"
+          networkUris: "{{ networkUris_to_bulkdelete }}"
       delegate_to: localhost
       when: currentVersion >= '1600'
 
