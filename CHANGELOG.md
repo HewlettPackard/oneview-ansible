@@ -11,6 +11,17 @@
 #### Bug fixes & Enhancements
 - [#565] (https://github.com/HewlettPackard/oneview-ansible/issues/565) Problem creating / changing a network_set
 
+### Modules supported in this release
+- oneview_certificates_server
+- oneview_certificates_server_facts
+- oneview_hypervisor_manager
+- oneview_hypervisor_manager_facts
+- oneview_hypervisor_cluster_profile
+- oneview_hypervisor_cluster_profile_facts
+- oneview_interconnect
+- oneview_interconnect_facts
+- oneview_interconnect_type_facts
+
 ## v5.7.0
 
 This release extends the planned support of the modules to OneView REST API version 1800 (OneView v5.3)
