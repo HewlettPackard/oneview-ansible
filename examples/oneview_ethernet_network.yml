@@ -30,9 +30,15 @@
       when: contents.api_version|length == 0
       register: version
    
-    - name: Print currentVersion
+    - name: Print currentVersion if api version is not specified in config file
       set_fact: 
         currentVersion: "{{ version.ansible_facts.version.currentVersion | int }}"
+      when: contents.api_version|length == 0
+
+    - name: Print currentVersion if api version is specified in config file
+      set_fact: 
+        currentVersion: contents.api_version | string
+      when: contents.api_version|length != 0
         
     - name: Create an Ethernet Network
       oneview_ethernet_network:
