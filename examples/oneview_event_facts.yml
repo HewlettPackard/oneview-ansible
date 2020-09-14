@@ -32,5 +32,5 @@
           start: 0
           count: 3
           sort: description:descending
-          filter: eventTypeID=hp.justATest
+          filter: eventTypeID=Appliance.Startup
     - debug: var=events

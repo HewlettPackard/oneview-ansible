@@ -11,6 +11,19 @@
 #### Bug fixes & Enhancements
 - [#565] (https://github.com/HewlettPackard/oneview-ansible/issues/565) Problem creating / changing a network_set
 
+### Modules supported in this release
+- oneview_alert_facts.yml
+- oneview_appliance_device_read_community.yml
+- oneview_appliance_device_read_community_facts.yml
+- oneview_appliance_time_and_locale_configuration.yml
+- oneview_appliance_time_and_locale_configuration_facts.yml
+- oneview_interconnect_link_topology_facts.yml
+- oneview_internal_link_set_facts.yml
+- oneview_logical_downlink_facts.yml
+- oneview_login_detail_facts.yml
+- oneview_os_deployment_plan_facts.yml
+- oneview_switch_type_facts.yml
+
 ## v5.7.0
 
 This release extends the planned support of the modules to OneView REST API version 1800 (OneView v5.3)
