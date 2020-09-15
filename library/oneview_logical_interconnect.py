@@ -54,11 +54,12 @@ options:
               non-idempotent.
               C(telemetry_configuration_updated) updates the telemetry configuration of a logical interconnect.
               C(scopes_updated) updates the scopes associated with the logical interconnect.
-              C(bulk_inconsistency_validated) updates the telemetry configuration of a logical interconnect.
+              C(bulk_inconsistency_validated) Validates the bulk update from group operation and gets the
+              consolidated inconsistency report.
         choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
                   'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
                   'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated', 'firmware_installed',
-                  'telemetry_configuration_updated']
+                  'telemetry_configuration_updated', 'bulk_inconsistency_validated']
     data:
         description:
             - List with the options.
@@ -303,7 +304,8 @@ class LogicalInterconnectModule(OneViewModule):
             choices=['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
                      'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
                      'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated',
-                     'firmware_installed', 'telemetry_configuration_updated', 'scopes_updated']
+                     'firmware_installed', 'telemetry_configuration_updated', 'scopes_updated',
+                     'bulk_inconsistency_validated']
         ),
         data=dict(required=True, type='dict')
     )
