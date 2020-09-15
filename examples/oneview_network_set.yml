@@ -46,7 +46,6 @@
         data:
           name: OneViewSDK Test Network Set
           scopeUris: "{{ network_set_scope_uris }}"
-      when: contents.api_version >= 300 and contents.api_version <= 500
       delegate_to: localhost
 
     - name: Update the Network Set name to 'OneViewSDK Test Network Set - Renamed' and change the associated networks

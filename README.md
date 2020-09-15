@@ -154,7 +154,7 @@ export ONEVIEWSDK_USERNAME='Administrator'
 export ONEVIEWSDK_PASSWORD='secret123'
 
 # Optional
-export ONEVIEWSDK_API_VERSION='1800'  # default value is 600
+export ONEVIEWSDK_API_VERSION='1800'
 export ONEVIEWSDK_AUTH_LOGIN_DOMAIN='authdomain'
 export ONEVIEWSDK_PROXY='<proxy_host>:<proxy_port>'
 ```
@@ -257,9 +257,9 @@ Note: Most of the examples provided in this repository uses OneView Credentials 
 
 ### 5. Setting your OneView version
 
-The Ansible modules for HPE OneView support the API endpoints for HPE OneView 4.00, 4.10, 4.20, 5.00 and 5.20.
+The Ansible modules for HPE OneView support the API endpoints for HPE OneView 4.00, 4.10, 4.20, 5.00, 5.20, 5.30.
 
-The current `default` HPE OneView version used by the modules is `4.00`, API `600`.
+The current `default` HPE OneView version will pick the OneView appliance version.
 
 To use a different API, you must set the API version together with your credentials, either using the JSON configuration:
 
@@ -272,7 +272,7 @@ OR using the Environment variable:
 export ONEVIEWSDK_API_VERSION='1800'
 ```
 
-If this property is not specified, it will fall back to the ```600``` default value.
+If this property is not specified, it will fall back to the default value.
 
 The API list is as follows:
 
