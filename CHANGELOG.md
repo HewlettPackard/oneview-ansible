@@ -1,5 +1,6 @@
 # Ansible Modules for HPE OneView Change Log
 ## v5.8.0 (unreleased)
+This release extends the planned support of the modules to OneView REST API version 2000 (OneView v5.4)
 
 #### Breaking Changes
 - Enhancement made in this version breaks the previous version of the SDK.
@@ -22,8 +23,12 @@
 - oneview_fcoe_network_facts
 - oneview_network_set
 - oneview_network_set_facts
+- oneview_scope
+- oneview_scope_facts
+- oneview_task_facts
 - oneview_uplink_set
 - oneview_uplink_set_facts
+- oneview_version_facts
 
 ## v5.7.0
 
