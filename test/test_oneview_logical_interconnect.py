@@ -632,7 +632,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
             'allowUpdateFromGroup': True
         }
 
-        PARAMS_FOR_BULK_INCONSISENCY_VALIDATE = dict(
+        PARAMS_FOR_BULK_INCONSISTENCY_VALIDATE = dict(
             config='config.json',
             state='bulk_inconsistency_validated',
             data=dict(logicalInterconnectUris=[
@@ -642,12 +642,13 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
 
         self.resource.bulk_inconsistency_validate.return_value = BULK_INCONSISTENCY_VALIDATION_RESPONSE
 
-        self.mock_ansible_module.params = PARAMS_FOR_BULK_INCONSISENCY_VALIDATE
+        self.mock_ansible_module.params = PARAMS_FOR_BULK_INCONSISTENCY_VALIDATE
 
         LogicalInterconnectModule().run()
 
-        self.resource.bulk_inconsistency_validate.assert_called_once_with({'logicalInterconnectUris': logicalInterconnectUris})
-
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            True, True,
+            ansible_facts=dict(bulk_inconsistency_validation_result=BULK_INCONSISTENCY_VALIDATION_RESPONSE))
 
 if __name__ == '__main__':
     pytest.main([__file__])
