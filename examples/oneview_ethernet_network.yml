@@ -34,10 +34,10 @@
    
     - name: Print currentVersion if an apiVersion is not specified in config file
       set_fact: 
-        currentVersion: "{{ version.ansible_facts.version.currentVersion|int }}"
+        currentVersion: "{{ version.ansible_facts.version.currentVersion | int }}"
       when: contents.api_version|length == 0
 
-    - name: Print currentVersion if an apiVersion is specified in config file
+    - name: Print currentVersion if api version is specified in config file
       set_fact: 
         currentVersion: contents.api_version | string
       when: contents.api_version|length != 0
