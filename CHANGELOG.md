@@ -23,6 +23,8 @@
 - oneview_login_detail_facts.yml
 - oneview_os_deployment_plan_facts.yml
 - oneview_switch_type_facts.yml
+- oneview_unmanaged_device.yml
+- oneview_unmanaged_device_facts.yml
 
 ## v5.7.0
 
