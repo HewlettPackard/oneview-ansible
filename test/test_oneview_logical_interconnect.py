@@ -223,6 +223,10 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
 
     telemetry_config_uri = LOGICAL_INTERCONNECT['telemetryConfiguration']['uri']
 
+    @pytest.fixture(autouse=True)
+    def specific_set_up(self):
+        self.mock_ov_client.api_version = 500
+
     def test_should_fail_when_option_is_invalid(self):
         self.mock_ansible_module.params = dict(
             config='config.json',
@@ -624,6 +628,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         )
 
     def test_should_bulk_inconsistent_validate(self):
+        self.mock_ov_client.api_version = 2000
         logicalInterconnectUris = [
             "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"
         ]
@@ -646,9 +651,8 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
 
         LogicalInterconnectModule().run()
 
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            True, True,
-            ansible_facts=dict(bulk_inconsistency_validation_result=BULK_INCONSISTENCY_VALIDATION_RESPONSE))
+        self.resource.bulk_inconsistency_validate.assert_called_once_with({'logicalInterconnectUris': logicalInterconnectUris})
+
 
 if __name__ == '__main__':
     pytest.main([__file__])
