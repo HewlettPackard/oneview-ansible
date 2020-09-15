@@ -11,6 +11,18 @@
 #### Bug fixes & Enhancements
 - [#565] (https://github.com/HewlettPackard/oneview-ansible/issues/565) Problem creating / changing a network_set
 
+### Modules supported in this release
+- oneview_storage_pool
+- oneview_storage_pool_facts
+- oneview_storage_system
+- oneview_storage_system_facts
+- oneview_storage_volume
+- oneview_storage_volume_facts
+- oneview_storage_volume_attachment
+- oneview_storage_volume_attachment_facts
+- oneview_storage_volume_template
+- oneview_storage_volume_template_facts
+
 ## v5.7.0
 
 This release extends the planned support of the modules to OneView REST API version 1800 (OneView v5.3)
