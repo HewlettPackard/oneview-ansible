@@ -13,6 +13,9 @@ This release extends the planned support of the modules to OneView REST API vers
 - [#565] (https://github.com/HewlettPackard/oneview-ansible/issues/565) Problem creating / changing a network_set
 
 ### Modules supported in this release
+
+- oneview_certificates_server
+- oneview_certificates_server_facts
 - oneview_connection_template
 - oneview_connection_template_facts
 - oneview_ethernet_network
@@ -21,6 +24,13 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_fc_network_facts
 - oneview_fcoe_network
 - oneview_fcoe_network_facts
+- oneview_hypervisor_manager
+- oneview_hypervisor_manager_facts
+- oneview_hypervisor_cluster_profile
+- oneview_hypervisor_cluster_profile_facts
+- oneview_interconnect
+- oneview_interconnect_facts
+- oneview_interconnect_type_facts
 - oneview_network_set
 - oneview_network_set_facts
 - oneview_scope
