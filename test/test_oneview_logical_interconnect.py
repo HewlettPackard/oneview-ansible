@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -622,6 +622,31 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
             ansible_facts=dict(scope_uris=['test']),
             msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED
         )
+
+    def test_should_bulk_inconsistent_validate(self):
+        logicalInterconnectUris = [
+            "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"
+        ]
+
+        BULK_INCONSISTENCY_VALIDATION_RESPONSE = {
+            'allowUpdateFromGroup': True
+        }
+
+        PARAMS_FOR_BULK_INCONSISENCY_VALIDATE= dict(
+            config='config.json',
+            state='bulk_inconsistency_validated',
+            data=dict(logicalInterconnectUris = [
+            "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"
+        ])
+        )     
+
+        self.resource.bulk_inconsistency_validate.return_value = BULK_INCONSISTENCY_VALIDATION_RESPONSE
+
+        self.mock_ansible_module.params = PARAMS_FOR_BULK_INCONSISENCY_VALIDATE
+
+        LogicalInterconnectModule().run()
+
+        self.resource.bulk_inconsistency_validate.assert_called_once_with({'logicalInterconnectUris': logicalInterconnectUris})
 
 
 if __name__ == '__main__':

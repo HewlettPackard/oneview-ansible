@@ -11,6 +11,16 @@
 #### Bug fixes & Enhancements
 - [#565] (https://github.com/HewlettPackard/oneview-ansible/issues/565) Problem creating / changing a network_set
 
+### Modules supported in this release
+- oneview_logical_interconnect
+- oneview_logical_interconnect_facts
+- oneview_logical_interconnect_group
+- oneview_logical_interconnect_group_facts
+- oneview_server_profile
+- oneview_server_profile_facts
+- oneview_server_profile_template
+- oneview_server_profile_template_facts
+
 ## v5.7.0
 
 This release extends the planned support of the modules to OneView REST API version 1800 (OneView v5.3)

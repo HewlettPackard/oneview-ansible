@@ -17,11 +17,29 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    contents: "{{lookup('file', config)}}"
     server_profile_template_name: "ProfileTemplate"
     enclosure_group_uri: "/rest/enclosure-groups/0f2a3f46-36ad-4c8f-9e88-763c062855d3"
     server_hardware_type_uri: "/rest/server-hardware-types/5DC5ABD6-5F43-4D76-BB35-04DD814369D0"
     scope_uris: "/rest/scopes/74877630-9a22-4061-9db4-d12b6c4cfee0"
   tasks:
+    - name: Get currentVersion from URL
+      oneview_version_facts:
+        config: "{{ config }}" 
+      delegate_to: localhost
+      when: contents.api_version|length == 0
+      register: version
+   
+    - name: Print currentVersion if an apiVersion is not specified in config file
+      set_fact: 
+        currentVersion: "{{ version.ansible_facts.version.currentVersion|int }}"
+      when: contents.api_version|length == 0
+
+    - name: Print currentVersion if an apiVersion is specified in config file
+      set_fact: 
+        currentVersion: contents.api_version | string
+      when: contents.api_version|length != 0
+
     - name: Gather facts about all Server Profile Templates
       oneview_server_profile_template_facts:
         config: "{{ config }}"
@@ -77,6 +95,7 @@
               enclosure_group_uri: "{{ enclosure_group_uri }}"
               server_hardware_type_uri: "{{ server_hardware_type_uri }}"
       delegate_to: localhost
+      when: currentVersion >= '300'
 
     - debug: var=transformation
 
@@ -90,5 +109,6 @@
               enclosureGroupUri: "{{enclosure_group_uri}}"
 
       delegate_to: localhost
+      when: currentVersion >= '600'
 
     - debug: var=server_profile_template_available_networks
