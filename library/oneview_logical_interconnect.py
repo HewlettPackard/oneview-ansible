@@ -54,6 +54,7 @@ options:
               non-idempotent.
               C(telemetry_configuration_updated) updates the telemetry configuration of a logical interconnect.
               C(scopes_updated) updates the scopes associated with the logical interconnect.
+              C(bulk_inconsistency_validated) updates the telemetry configuration of a logical interconnect.
         choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
                   'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
                   'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated', 'firmware_installed',
@@ -344,7 +345,7 @@ class LogicalInterconnectModule(OneViewModule):
         elif self.state == 'scopes_updated':
             changed, msg, ansible_facts = self.__update_scopes()
         elif self.state == 'bulk_inconsistency_validated':
-                changed, msg, ansible_facts = self.__bulk_inconsistency_validate()
+            changed, msg, ansible_facts = self.__bulk_inconsistency_validate()
 
         if ansible_facts:
             result = dict(changed=changed, msg=msg, ansible_facts=ansible_facts)

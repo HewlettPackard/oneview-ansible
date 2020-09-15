@@ -636,7 +636,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
             config='config.json',
             state='bulk_inconsistency_validated',
             data=dict(logicalInterconnectUris=[
-                 "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"
+                "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"
             ])
         )
 

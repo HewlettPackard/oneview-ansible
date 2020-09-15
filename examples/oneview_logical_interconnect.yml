@@ -32,7 +32,7 @@
       delegate_to: localhost
       when: contents.api_version|length == 0
       register: version
-   
+
     - name: Print currentVersion if an apiVersion is not specified in config file
       set_fact: 
         currentVersion: "{{ version.ansible_facts.version.currentVersion|int }}"
