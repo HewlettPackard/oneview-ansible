@@ -1,5 +1,6 @@
 # Ansible Modules for HPE OneView Change Log
 ## v5.8.0 (unreleased)
+This release extends the planned support of the modules to OneView REST API version 2000 (OneView v5.4)
 
 #### Breaking Changes
 - Enhancement made in this version breaks the previous version of the SDK.
@@ -12,8 +13,17 @@
 - [#565] (https://github.com/HewlettPackard/oneview-ansible/issues/565) Problem creating / changing a network_set
 
 ### Modules supported in this release
+
 - oneview_certificates_server
 - oneview_certificates_server_facts
+- oneview_connection_template
+- oneview_connection_template_facts
+- oneview_ethernet_network
+- oneview_ethernet_network_facts
+- oneview_fc_network
+- oneview_fc_network_facts
+- oneview_fcoe_network
+- oneview_fcoe_network_facts
 - oneview_hypervisor_manager
 - oneview_hypervisor_manager_facts
 - oneview_hypervisor_cluster_profile
@@ -21,6 +31,14 @@
 - oneview_interconnect
 - oneview_interconnect_facts
 - oneview_interconnect_type_facts
+- oneview_network_set
+- oneview_network_set_facts
+- oneview_scope
+- oneview_scope_facts
+- oneview_task_facts
+- oneview_uplink_set
+- oneview_uplink_set_facts
+- oneview_version_facts
 
 ## v5.7.0
 
