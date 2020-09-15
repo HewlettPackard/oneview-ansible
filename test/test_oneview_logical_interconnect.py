@@ -632,13 +632,13 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
             'allowUpdateFromGroup': True
         }
 
-        PARAMS_FOR_BULK_INCONSISENCY_VALIDATE= dict(
+        PARAMS_FOR_BULK_INCONSISENCY_VALIDATE = dict(
             config='config.json',
             state='bulk_inconsistency_validated',
-            data=dict(logicalInterconnectUris = [
-            "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"
-        ])
-        )     
+            data=dict(logicalInterconnectUris=[
+                 "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"
+            ])
+        )
 
         self.resource.bulk_inconsistency_validate.return_value = BULK_INCONSISTENCY_VALIDATION_RESPONSE
 
