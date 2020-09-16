@@ -22,6 +22,7 @@
     enclosure_uri:
         - "/rest/enclosures/013645CN759000AD" # Set the URI of an Enclosure
     enclosure_group_uri: "/rest/enclosure-groups/0f2a3f46-36ad-4c8f-9e88-763c062855d3" # Set the URI of an Enclosure Group
+    variant: "Synergy"
 
   tasks:
     # This operation is only available on HPE Synergy
@@ -35,6 +36,7 @@
             name: "{{ logical_enclosure_name }}"
       ignore_errors: true
       delegate_to: localhost
+      when: variant == "Synergy"
 
     - name: Update the firmware for the Logical Enclosure
       oneview_logical_enclosure:
@@ -69,6 +71,7 @@
                 if-Match: '*'
       ignore_errors: true
       delegate_to: localhost
+      when: variant == "Synergy"
 
     - name: Update the Logical Enclosure configuration script(available only on C7000)
       oneview_logical_enclosure:
@@ -79,6 +82,7 @@
             configurationScript: "# script (updated)"
       ignore_errors: true
       delegate_to: localhost
+      when: variant == "C7000"
 
     - name: Generates a support dump for the Logical Enclosure
       oneview_logical_enclosure:
@@ -135,3 +139,4 @@
         data: '{{ logical_enclosure }}'
       ignore_errors: true
       delegate_to: localhost
+      when: variant == "Synergy"

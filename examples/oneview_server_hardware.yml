@@ -27,8 +27,6 @@
       - "{{ server_hardware_hostname }}"
     initial_scope_uris:
       - '/rest/scopes/4e3a3d5d-1658-400b-9429-72745c0817ca'
-  vars_files:
-    - "{{ playbook_dir }}/vars/config.yml"
   tasks:
     - name: Add a Server Hardware
       oneview_server_hardware:

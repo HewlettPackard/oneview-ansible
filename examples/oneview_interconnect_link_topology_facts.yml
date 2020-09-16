@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     - name: "name1379299256-1476390351192"  # set the name of an existent Interconnect Link Topology to run this example
+    - variant: "Synergy"
   tasks:
     - name: Gather facts about all Interconnect Link Topologies
       oneview_interconnect_link_topology_facts:
         config: "{{ config }}"
       delegate_to: localhost
+      when: variant == "Synergy"
 
     - debug: var=interconnect_link_topologies
 
@@ -35,6 +37,7 @@
           count: 3
           sort: 'name:descending'
           filter: "name='name1900571853-1483553596802'"
+      when: variant == "Synergy"
 
     - debug: var=interconnect_link_topologies
 
@@ -43,5 +46,6 @@
         config: "{{ config }}"
         name: "{{ name }}"
       delegate_to: localhost
+      when: variant == "Synergy"
 
     - debug: var=interconnect_link_topologies
