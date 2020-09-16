@@ -71,7 +71,7 @@
         name: '{{ name }}'
         options:
           - script
-      when: variant == 'C7000' and currentVersion == '300'
+      when: variant == 'C7000' or currentVersion == '300'
       delegate_to: localhost 
 
     - name: Gather facts about an Enclosure by name with options

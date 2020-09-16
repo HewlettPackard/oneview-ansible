@@ -25,9 +25,6 @@ This release extends the planned support of the modules to OneView REST API vers
 - [#565] (https://github.com/HewlettPackard/oneview-ansible/issues/565) Problem creating / changing a network_set
 
 ### Modules supported in this release
-
-
-
 - oneview_alert_facts.yml
 - oneview_appliance_device_read_community.yml
 - oneview_appliance_device_read_community_facts.yml
@@ -84,7 +81,6 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_uplink_set
 - oneview_uplink_set_facts
 - oneview_version_facts
->>>>>>> 62bdf86abbf9942335d5f17d48a27e8da016778a
 
 ## v5.7.0
 
