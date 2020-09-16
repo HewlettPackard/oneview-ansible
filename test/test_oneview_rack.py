@@ -155,7 +155,7 @@ class TestRackModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_rack_not_exist(self):
-        self.resource.get_by.return_value = []
+        self.resource.get_by.return_value = {}
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
