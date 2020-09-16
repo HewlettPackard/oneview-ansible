@@ -639,11 +639,13 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
             "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"
         ]
 
-        BULK_INCONSISTENCY_VALIDATION_RESPONSE = {
-            'allowUpdateFromGroup': True
-        }
+        self.resource.data = LOGICAL_INTERCONNECT
 
-        self.resource.bulk_inconsistency_validate.return_value = BULK_INCONSISTENCY_VALIDATION_RESPONSE
+        # BULK_INCONSISTENCY_VALIDATION_RESPONSE = {
+        #     'allowUpdateFromGroup': True
+        # }
+
+        self.resource.bulk_inconsistency_validate.return_value = self.response_body
 
         self.mock_ansible_module.params = PARAMS_FOR_BULK_INCONSISTENCY_VALIDATE
 
