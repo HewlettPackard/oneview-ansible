@@ -87,7 +87,7 @@
         data:
           name: "{{ network_name }}"
           scopeUris: "{{ network_scope_uris }}"
-      when: currentVersion >= '300' and currentVersion <= '500'
+      when: currentVersion >= '300' or currentVersion <= '500'
       delegate_to: localhost
 
     - name: Delete the Fibre Channel Network

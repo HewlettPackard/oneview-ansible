@@ -54,10 +54,12 @@ options:
               non-idempotent.
               C(telemetry_configuration_updated) updates the telemetry configuration of a logical interconnect.
               C(scopes_updated) updates the scopes associated with the logical interconnect.
+              C(bulk_inconsistency_validated) Validates the bulk update from group operation and gets the
+              consolidated inconsistency report.
         choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
                   'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
                   'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated', 'firmware_installed',
-                  'telemetry_configuration_updated']
+                  'telemetry_configuration_updated', 'bulk_inconsistency_validated']
     data:
         description:
             - List with the options.
@@ -221,6 +223,16 @@ EXAMPLES = '''
         - '/rest/scopes/01SC123456'
 
 - debug: var=scope_uris
+
+- name: Validates the bulk update from group operation and gets the consolidated inconsistency report
+  oneview_logical_interconnect:
+  config: "{{ config }}"
+  state: bulk_inconsistency_validated
+  data:
+  logicalInterconnectUris:
+    -  "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"
+  delegate_to: localhost
+  when: currentVersion >= '2000' and variant == 'Synergy'
 '''
 
 RETURN = '''
@@ -292,7 +304,8 @@ class LogicalInterconnectModule(OneViewModule):
             choices=['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
                      'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
                      'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated',
-                     'firmware_installed', 'telemetry_configuration_updated', 'scopes_updated']
+                     'firmware_installed', 'telemetry_configuration_updated', 'scopes_updated',
+                     'bulk_inconsistency_validated']
         ),
         data=dict(required=True, type='dict')
     )
@@ -333,6 +346,8 @@ class LogicalInterconnectModule(OneViewModule):
             changed, msg, ansible_facts = self.__update_telemetry_configuration()
         elif self.state == 'scopes_updated':
             changed, msg, ansible_facts = self.__update_scopes()
+        elif self.state == 'bulk_inconsistency_validated':
+            changed, msg, ansible_facts = self.__bulk_inconsistency_validate()
 
         if ansible_facts:
             result = dict(changed=changed, msg=msg, ansible_facts=ansible_facts)
@@ -482,6 +497,10 @@ class LogicalInterconnectModule(OneViewModule):
         result['ansible_facts']['scope_uris'] = result['ansible_facts']['scope_uris'].pop('scopeUris', None)
 
         return result['changed'], result['msg'], result['ansible_facts']
+
+    def __bulk_inconsistency_validate(self):
+        result = self.current_resource.bulk_inconsistency_validate(self.data)
+        return True, result.get('allowUpdateFromGroup'), dict(bulk_inconsistency_validation_result=result)
 
     def __get_ethernet_network_by_name(self, name):
         result = self.oneview_client.ethernet_networks.get_by('name', name)
