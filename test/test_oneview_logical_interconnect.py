@@ -186,11 +186,11 @@ PARAMS_FIRMWARE_WITH_SPP_URI = dict(
               firmware=dict(command='Update',
                             sppUri='/rest/firmware-drivers/filename-of-the-firmware-to-install')))
 
-PARAMS_FOR_BULK_INCONSISTENCY_VALIDATE = dict(
-    config='config.json',
-    state='bulk_inconsistency_validated',
-    data=dict(logicalInterconnectUris=[
-              "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"]))
+# PARAMS_FOR_BULK_INCONSISTENCY_VALIDATE = dict(
+#     config='config.json',
+#     state='bulk_inconsistency_validated',
+#     data=dict(logicalInterconnectUris=[
+#               "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"]))
 
 @pytest.mark.resource(TestLogicalInterconnectModule='logical_interconnects')
 class TestLogicalInterconnectModule(OneViewBaseTest):
@@ -632,23 +632,23 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
             msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED
         )
 
-    def test_should_bulk_inconsistent_validate(self):
-        self.mock_ov_client.api_version = 2000
-        logicalInterconnectUris = [
-            "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"
-        ]
+    # def test_should_bulk_inconsistent_validate(self):
+    #     self.mock_ov_client.api_version = 2000
+    #     logicalInterconnectUris = [
+    #         "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"
+    #     ]
 
-        BULK_INCONSISTENCY_VALIDATION_RESPONSE = {
-            'allowUpdateFromGroup': True
-        }
+    #     BULK_INCONSISTENCY_VALIDATION_RESPONSE = {
+    #         'allowUpdateFromGroup': True
+    #     }
 
-        self.resource.bulk_inconsistency_validate.return_value = BULK_INCONSISTENCY_VALIDATION_RESPONSE
+    #     self.resource.bulk_inconsistency_validate.return_value = BULK_INCONSISTENCY_VALIDATION_RESPONSE
 
-        self.mock_ansible_module.params = PARAMS_FOR_BULK_INCONSISTENCY_VALIDATE
+    #     self.mock_ansible_module.params = PARAMS_FOR_BULK_INCONSISTENCY_VALIDATE
 
-        LogicalInterconnectModule().run()
+    #     LogicalInterconnectModule().run()
 
-        self.resource.bulk_inconsistency_validate.assert_called_once_with({'logicalInterconnectUris': logicalInterconnectUris})
+    #     self.resource.bulk_inconsistency_validate.assert_called_once_with({'logicalInterconnectUris': logicalInterconnectUris})
 
 
 if __name__ == '__main__':
