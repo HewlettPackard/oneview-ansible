@@ -119,23 +119,23 @@ class RackModule(OneViewModuleBase):
         self.resource_client = self.oneview_client.racks
 
     def execute_module(self):
-        changed, msg, ansible_facts = False, '', {}
         params = self.module.params.get("params")
         self.params = params if params else {}
         self.current_resource = self.resource_client.get_by('name', self.data['name'])
         if self.state == 'present':
-            changed, msg, ansible_facts = self.__present()
+            return self.__present()
         elif self.state == 'absent':
-            changed, msg, ansible_facts = self.__absent()
-
-        return dict(changed=changed,
-                    msg=msg,
-                    ansible_facts=ansible_facts)
+            return self.__absent()
 
     def __present(self):
         if not self.current_resource:
             self.current_resource = self.resource_client.add(self.data)
-            return True, self.MSG_ADDED, dict(rack=self.current_resource)
+            changed = True
+            msg = self.MSG_ADDED
+
+            return dict(changed=changed,
+                    msg=msg,
+                    ansible_facts=dict(rack=self.current_resource))
         else:
             return self.__update()
 
@@ -163,9 +163,17 @@ class RackModule(OneViewModuleBase):
             merged_data['rackMounts'] = merged_rack_mounts['rackMounts']
         if not compare(self.current_resource, merged_data):
             updated_response = self.resource_client.update(merged_data)
-            return True, self.MSG_UPDATED, dict(rack=updated_response)
+            changed = True
+            msg = self.MSG_UPDATED
+            return dict(changed=changed,
+                    msg=msg,
+                    ansible_facts=dict(rack=updated_response))
         else:
-            return False, self.MSG_ALREADY_PRESENT, dict(rack=self.current_resource)
+            changed = False
+            msg = self.MSG_ALREADY_PRESENT
+            return dict(changed=changed,
+                    msg=msg,
+                    ansible_facts=dict(rack=self.current_resource))
 
     def __absent(self):
         if self.current_resource:
