@@ -88,7 +88,7 @@
           ethernetSettings:
             macRefreshInterval: 12
       delegate_to: localhost
-      when: currentVersion >= '500'
+      when: currentVersion <= '500'
 
     - name: Generate the forwarding information base dump file for the logical interconnect
       oneview_logical_interconnect:
@@ -170,7 +170,7 @@
           name: "{{ logical_interconnect_name }}"
           scopeUris: "{{ scope_uris }}"
       delegate_to: localhost
-      when: currentVersion >= '500'
+      when: currentVersion >= '300' and currentVersion <= '500'
 
     - debug: var=scope_uris
 
