@@ -17,12 +17,30 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    contents: "{{lookup('file', config)}}"
     storage_domain: 'TestDomain'
     storage_system_name : 'ThreePAR-2'
     storage_system_ip : '172.18.11.12'
     storage_system_username : 'dcs'
     storage_system_password : 'dcs'
   tasks:
+    - name: Get currentVersion from URL
+      oneview_version_facts:
+        config: "{{ config }}" 
+      delegate_to: localhost
+      when: contents.api_version|length == 0
+      register: version
+   
+    - name: Print currentVersion if an apiVersion is not specified in config file
+      set_fact: 
+        currentVersion: "{{ version.ansible_facts.version.currentVersion|int }}"
+      when: contents.api_version|length == 0
+
+    - name: Print currentVersion if an apiVersion is specified in config file
+      set_fact: 
+        currentVersion: contents.api_version | string
+      when: contents.api_version|length != 0
+
     # This is POST operation which adds a storage system for management by appliance. 
     # An asynchronous task will be created as a result of this API call.
     - name: Add a StoreServ Storage System
@@ -92,6 +110,7 @@
           credentials:
               hostname: '{{ storage_system_ip }}'
       delegate_to: localhost
+      when: currentVersion < '500'
 
     - name: Do nothing when the storage system is already removed (by name) (API500 onwards)
       oneview_storage_system:
@@ -100,3 +119,4 @@
         data:
             name: '{{ storage_system_name }}'
       delegate_to: localhost
+      when: currentVersion >= '500'

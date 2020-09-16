@@ -24,6 +24,23 @@
       - /rest/scopes/483d4056-03a3-4eed-a606-e1d32e14dd61
       - /rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412
   tasks:
+    - name: Get currentVersion from URL
+      oneview_version_facts:
+        config: "{{ config }}" 
+      delegate_to: localhost
+      when: contents.api_version|length == 0
+      register: version
+   
+    - name: Print currentVersion if an apiVersion is not specified in config file
+      set_fact: 
+        currentVersion: "{{ version.ansible_facts.version.currentVersion|int }}"
+      when: contents.api_version|length == 0
+
+    - name: Print currentVersion if an apiVersion is specified in config file
+      set_fact: 
+        currentVersion: contents.api_version | string
+      when: contents.api_version|length != 0
+
     - name: Create a Network Set
       oneview_network_set:
         config: '{{ config }}'
@@ -46,8 +63,8 @@
         data:
           name: OneViewSDK Test Network Set
           scopeUris: "{{ network_set_scope_uris }}"
-      when: contents.api_version >= 300 and contents.api_version <= 500
       delegate_to: localhost
+      when: currentVersion >= '300' or currentVersion <= '500'
 
     - name: Update the Network Set name to 'OneViewSDK Test Network Set - Renamed' and change the associated networks
       oneview_network_set:

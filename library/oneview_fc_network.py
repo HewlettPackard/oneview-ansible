@@ -31,7 +31,7 @@ description:
     - Provides an interface to manage Fibre Channel Network resources. Can create, update, and delete.
 version_added: "2.4"
 requirements:
-    - "hpOneView >= 5.0.0"
+    - "hpeOneView >= 5.0.0"
 author: "Felipe Bulsoni (@fgbulsoni)"
 options:
     state:
@@ -56,7 +56,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1800
+    api_version: 2000
     state: present
     data:
       name: 'New FC Network'
@@ -66,7 +66,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1800
+    api_version: 2000
     state: present
     data:
       name: 'New FC Network'
@@ -91,7 +91,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1800
+    api_version: 2000
     state: absent
     data:
       name: 'New FC Network'
@@ -101,7 +101,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1800
+    api_version: 2000
     state: absent
     data:
       networkUris:

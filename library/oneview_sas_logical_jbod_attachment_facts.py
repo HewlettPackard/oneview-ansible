@@ -28,7 +28,7 @@ description:
     - Retrieve facts about one or more of the SAS Logical JBOD Attachments from OneView.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.0"
+    - "hpeOneView >= 3.0"
 author: "Abilio Parada (@abiliogp)"
 options:
     name:

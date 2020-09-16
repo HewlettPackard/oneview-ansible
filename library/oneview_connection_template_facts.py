@@ -28,7 +28,7 @@ description:
     - Retrieve facts about the OneView Connection Templates.
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 5.0.0"
+    - "hpeOneView >= 5.0.0"
 author: "Gustavo Hennig (@GustavoHennig)"
 options:
     name:

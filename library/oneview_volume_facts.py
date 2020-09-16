@@ -29,7 +29,7 @@ description:
 version_added: "2.5"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 5.0.0"
+    - "hpeOneView >= 5.0.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     name:

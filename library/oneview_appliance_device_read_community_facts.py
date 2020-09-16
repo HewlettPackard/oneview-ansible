@@ -29,7 +29,7 @@ description:
 version_added: "2.5"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 4.8.0"
+    - "hpeOneView >= 4.8.0"
 author:
     "Gianluca Zecchi (@gzecchi)"
 extends_documentation_fragment:

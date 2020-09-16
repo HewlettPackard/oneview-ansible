@@ -21,7 +21,26 @@
     network_scope_uris:
       - '/rest/scopes/d0324c4b-56c9-485b-b7dd-8f6218a4b5bb'
       - '/rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412'
+    networkUris_to_bulkdelete:
+      - '/rest/fcoe-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548'     
   tasks:
+    - name: Get currentVersion from URL
+      oneview_version_facts:
+        config: "{{ config }}" 
+      delegate_to: localhost
+      when: contents.api_version|length == 0
+      register: version
+   
+    - name: Print currentVersion if an apiVersion is not specified in config file
+      set_fact: 
+        currentVersion: "{{ version.ansible_facts.version.currentVersion|int }}"
+      when: contents.api_version|length == 0
+
+    - name: Print currentVersion if an apiVersion is specified in config file
+      set_fact: 
+        currentVersion: contents.api_version | string
+      when: contents.api_version|length != 0
+
     - name: Create a FCoE Network
       oneview_fcoe_network:
         config: "{{ config }}"
@@ -49,7 +68,8 @@
           newName: 'Test FCoE Network - Changed'
           vlanId: 201
       delegate_to: localhost
-# Below task is supported only with OneView 3.10
+
+    # Below task is supported only with OneView 3.10
     - name: Update the FCoE Network with two scopes
       oneview_fcoe_network:
         config: "{{ config }}"
@@ -57,7 +77,7 @@
         data:
           name: 'Test FCoE Network - Changed'
           scopeUris: "{{ network_scope_uris }}"
-      when: contents.api_version >= 300 and contents.api_version <= 500
+      when: currentVersion >= '300' or currentVersion <= '500'
       delegate_to: localhost
 
     - name: Delete the FCoE Network
@@ -76,11 +96,12 @@
           name: 'Test FCoE Network - Changed'
       delegate_to: localhost
 
+    # This feature is available only from OneView 5.20
     - name: Delete FCoE Networks in bulk
       oneview_fcoe_network:
         config: "{{ config }}"
         state: absent
         data:
-          networkUris:
-            -  "/rest/fcoe-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548"
+          networkUris: "{{ networkUris_to_bulkdelete }}"
       delegate_to: localhost
+      when: currentVersion >= '1600'

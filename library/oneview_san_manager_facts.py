@@ -31,7 +31,7 @@ description:
     - Retrieve facts about one or more of the SAN Managers from OneView
 version_added: "2.5"
 requirements:
-    - hpOneView >= 2.0.1
+    - hpeOneView >= 2.0.1
 author:
     - Felipe Bulsoni (@fgbulsoni)
     - Thiago Miotto (@tmiotto)

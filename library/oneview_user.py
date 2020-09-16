@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpOneView >= 3.2.0"
+    - "hpeOneView >= 3.2.0"
 author: "Felipe Bulsoni (@fgbulsoni)"
 options:
     state:
@@ -96,7 +96,7 @@ user:
 '''
 
 from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleException, compare
-from hpOneView.exceptions import HPOneViewException
+from hpeOneView.exceptions import HPEOneViewException
 
 
 class UserModule(OneViewModuleBase):
@@ -127,7 +127,7 @@ class UserModule(OneViewModuleBase):
             self.data["userName"] = self.data.pop("name")
         try:
             resource = self.resource_client.get_by('name', self.data['userName'])
-        except HPOneViewException:
+        except HPEOneViewException:
             resource = None
 
         if self.state == 'present':

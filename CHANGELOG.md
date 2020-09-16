@@ -1,4 +1,87 @@
 # Ansible Modules for HPE OneView Change Log
+## v5.8.0 (unreleased)
+This release extends the planned support of the modules to OneView REST API version 2000 (OneView v5.4)
+
+#### Breaking Changes
+- Enhancement made in this version breaks the previous version of the SDK.
+- From this version onwards, oneview-ansible library refers to hpeOneView module.
+
+#### Major changes
+- Added support for automatic publish of Docker Image when there is a new release in GitHub
+
+### Modules supported in this release
+- oneview_enclosure
+- oneview_enclosure_facts
+- oneview_enclosure_group
+- oneview_enclosure_group_facts
+- oneview_logical_enclosures
+- oneview_logical_enclosures_facts
+- oneview_server_hardware
+- oneview_server_hardware_facts
+- oneview_server_hardware_type
+- oneview_server_hardware_type_facts
+
+#### Bug fixes & Enhancements
+- [#565] (https://github.com/HewlettPackard/oneview-ansible/issues/565) Problem creating / changing a network_set
+
+### Modules supported in this release
+- oneview_alert_facts.yml
+- oneview_appliance_device_read_community.yml
+- oneview_appliance_device_read_community_facts.yml
+- oneview_appliance_time_and_locale_configuration.yml
+- oneview_appliance_time_and_locale_configuration_facts.yml
+- oneview_certificates_server
+- oneview_certificates_server_facts
+- oneview_connection_template
+- oneview_connection_template_facts
+- oneview_ethernet_network
+- oneview_ethernet_network_facts
+- oneview_fc_network
+- oneview_fc_network_facts
+- oneview_fcoe_network
+- oneview_fcoe_network_facts
+- oneview_hypervisor_manager
+- oneview_hypervisor_manager_facts
+- oneview_hypervisor_cluster_profile
+- oneview_hypervisor_cluster_profile_facts
+- oneview_interconnect
+- oneview_interconnect_facts
+- oneview_interconnect_type_facts
+- oneview_interconnect_link_topology_facts.yml
+- oneview_internal_link_set_facts.yml
+- oneview_logical_downlink_facts.yml
+- oneview_logical_interconnect
+- oneview_logical_interconnect_facts
+- oneview_logical_interconnect_group
+- oneview_logical_interconnect_group_facts
+- oneview_login_detail_facts.yml
+- oneview_network_set
+- oneview_network_set_facts
+- oneview_os_deployment_plan_facts.yml
+- oneview_scope
+- oneview_scope_facts
+- oneview_server_profile
+- oneview_server_profile_facts
+- oneview_server_profile_template
+- oneview_server_profile_template_facts
+- oneview_storage_pool
+- oneview_storage_pool_facts
+- oneview_storage_system
+- oneview_storage_system_facts
+- oneview_storage_volume
+- oneview_storage_volume_facts
+- oneview_storage_volume_attachment
+- oneview_storage_volume_attachment_facts
+- oneview_storage_volume_template
+- oneview_storage_volume_template_facts
+- oneview_switch_type_facts.yml
+- oneview_task_facts
+- oneview_unmanaged_device.yml
+- oneview_unmanaged_device_facts.yml
+- oneview_uplink_set
+- oneview_uplink_set_facts
+- oneview_version_facts
+
 ## v5.7.0
 
 This release extends the planned support of the modules to OneView REST API version 1800 (OneView v5.3)

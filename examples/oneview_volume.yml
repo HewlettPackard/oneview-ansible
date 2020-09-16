@@ -19,6 +19,7 @@
     config: '{{ playbook_dir }}/oneview_config.json'
     storage_pool_uri: '/rest/storage-pools/4EF694D4-FB48-4209-8790-AB200070738C' # set a Storage Pool URI to run this example
     storage_system_uri: '/rest/storage-systems/TXQ1000307' # set a Storage System URI to run this example
+    template_uri: '/rest/storage-volume-templates/eb95244f-967b-4e38-9924-ab50011116a8'
     # wwn:  # set a WWN to add a volume using the WWN of the volume (optional)
   tasks:
     - name: Create a Volume with a specified Storage Pool
@@ -31,7 +32,7 @@
             description: 'Test volume with common creation: Storage Pool'
             size: 2147483648  # 2GB
             storagePool: '{{ storage_pool_uri }}'
-          templateUri: '/rest/storage-volume-templates/eb95244f-967b-4e38-9924-ab50011116a8'
+          templateUri: '{{ template_uri }}'
           isPermanent: false
       delegate_to: localhost
 
@@ -55,7 +56,7 @@
             size: 1073741824  # 1GB
             storagePool: '{{ storage_pool_uri }}'
             snapshotPool: '{{ storage_pool_uri }}'
-          templateUri: '/rest/storage-volume-templates/e2f95f1d-de9d-406e-803f-a8aa00da92b0'
+          templateUri: '{{ template_uri }}'
           isPermanent: false
           initialScopeUris: ['/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7'] # This option available only with API version 600 and above
       delegate_to: localhost

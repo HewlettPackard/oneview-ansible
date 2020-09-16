@@ -31,7 +31,6 @@
            storageSystemUri: '{{ storage_system_uri }}'
            poolName: '{{ storage_pool_name }}'
       delegate_to: localhost
-      when: contents.api_version <= 300
 
     - name: Do nothing when the Storage Pool already exists
       oneview_storage_pool:
@@ -60,7 +59,6 @@
         data:
            poolName: '{{ storage_pool_name }}'
       delegate_to: localhost
-      when: contents.api_version <= 300
 
     - name: Do nothing when Storage Pool is absent
       oneview_storage_pool:
@@ -69,4 +67,3 @@
         data:
            poolName: '{{ storage_pool_name }}'
       delegate_to: localhost
-      when: contents.api_version <= 300
