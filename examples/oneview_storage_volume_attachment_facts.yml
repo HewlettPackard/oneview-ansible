@@ -95,7 +95,7 @@
         options:
           - paths
       delegate_to: localhost
-      when: currentVersion == '200' and currentVersion == '300'
+      when: currentVersion == '200' or currentVersion == '300'
 
     - debug: var=storage_volume_attachments
     - debug: var=storage_volume_attachment_paths
@@ -111,7 +111,7 @@
           - paths:
                 pathId: '9DFC8953-15A4-4EA9-AB65-23AE663F48D4'
       delegate_to: localhost
-      when: currentVersion == '200' and currentVersion == '300'
+      when: currentVersion == '200' or currentVersion == '300'
 
     - debug: var=storage_volume_attachments
     - debug: var=storage_volume_attachment_paths
