@@ -192,6 +192,7 @@ PARAMS_FIRMWARE_WITH_SPP_URI = dict(
 #     data=dict(logicalInterconnectUris=[
 #               "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"]))
 
+
 @pytest.mark.resource(TestLogicalInterconnectModule='logical_interconnects')
 class TestLogicalInterconnectModule(OneViewBaseTest):
     """
