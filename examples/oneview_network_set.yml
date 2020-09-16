@@ -64,7 +64,7 @@
           name: OneViewSDK Test Network Set
           scopeUris: "{{ network_set_scope_uris }}"
       delegate_to: localhost
-      when: currentVersion >= '300' and currentVersion <= '500'
+      when: currentVersion >= '300' or currentVersion <= '500'
 
     - name: Update the Network Set name to 'OneViewSDK Test Network Set - Renamed' and change the associated networks
       oneview_network_set:
