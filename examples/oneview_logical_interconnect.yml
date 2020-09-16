@@ -170,7 +170,7 @@
           name: "{{ logical_interconnect_name }}"
           scopeUris: "{{ scope_uris }}"
       delegate_to: localhost
-      when: currentVersion >= '300' and currentVersion <= '500'
+      when: currentVersion >= '300' or currentVersion <= '500'
 
     - debug: var=scope_uris
 
