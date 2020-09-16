@@ -186,6 +186,11 @@ PARAMS_FIRMWARE_WITH_SPP_URI = dict(
               firmware=dict(command='Update',
                             sppUri='/rest/firmware-drivers/filename-of-the-firmware-to-install')))
 
+PARAMS_FOR_BULK_INCONSISTENCY_VALIDATE = dict(
+    config='config.json',
+    state='bulk_inconsistency_validated',
+    data=dict(logicalInterconnectUris=[
+              "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"]))
 
 @pytest.mark.resource(TestLogicalInterconnectModule='logical_interconnects')
 class TestLogicalInterconnectModule(OneViewBaseTest):
@@ -636,14 +641,6 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         BULK_INCONSISTENCY_VALIDATION_RESPONSE = {
             'allowUpdateFromGroup': True
         }
-
-        PARAMS_FOR_BULK_INCONSISTENCY_VALIDATE = dict(
-            config='config.json',
-            state='bulk_inconsistency_validated',
-            data=dict(logicalInterconnectUris=[
-                "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"
-            ])
-        )
 
         self.resource.bulk_inconsistency_validate.return_value = BULK_INCONSISTENCY_VALIDATION_RESPONSE
 
