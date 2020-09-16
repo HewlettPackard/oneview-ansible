@@ -55,6 +55,7 @@
         params:
           networks: "{{ networks }}"
       delegate_to: localhost
+      when: currentVersion >= '500'
 
     - name: Gather facts about Storage Systems compatible to the SVT
       oneview_storage_volume_template_facts:
@@ -74,6 +75,7 @@
         options:
           - connectableVolumeTemplates
       delegate_to: localhost
+      when: currentVersion <= '500'
 
     - debug: var=storage_volume_templates
     - debug: var=connectable_volume_templates

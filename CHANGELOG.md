@@ -56,6 +56,16 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_os_deployment_plan_facts.yml
 - oneview_scope
 - oneview_scope_facts
+- oneview_storage_pool
+- oneview_storage_pool_facts
+- oneview_storage_system
+- oneview_storage_system_facts
+- oneview_storage_volume
+- oneview_storage_volume_facts
+- oneview_storage_volume_attachment
+- oneview_storage_volume_attachment_facts
+- oneview_storage_volume_template
+- oneview_storage_volume_template_facts
 - oneview_switch_type_facts.yml
 - oneview_task_facts
 - oneview_unmanaged_device.yml
