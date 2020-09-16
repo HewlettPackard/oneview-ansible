@@ -183,7 +183,9 @@ class RackModule(OneViewModuleBase):
         else:
             changed = False
             msg = self.MSG_ALREADY_ABSENT
-            return changed, msg, dict(rack=None)
+            return dict(changed=changed,
+                        msg=msg,
+                        ansible_facts=dict(rack=None))
 
 
 def main():
