@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    variant: "Synergy"
   tasks:
     - name: Create an Enclosure Group
       oneview_enclosure_group:
@@ -32,7 +33,6 @@
                 - interconnectBay: 4
                 - interconnectBay: 5
                 - interconnectBay: 6
-#            configurationScript: "# example script"
       delegate_to: localhost
 
     - name: Do nothing with the Enclosure Group when no changes are provided
@@ -68,7 +68,8 @@
           name: "Enclosure Group 1 (renamed)"
       delegate_to: localhost
 
-    - name: Update the Enclosure Group configuration script(available only for C7000)
+    # This play is compatible with C7000 Enclosures
+    - name: Update the Enclosure Group configuration script
       oneview_enclosure_group:
         config: "{{ config }}"
         state: present
@@ -76,6 +77,7 @@
             name: "Enclosure Group 1 (renamed)"
             configurationScript: "# script (updated)"
       delegate_to: localhost
+      when: variant == "C7000"
 
     - name: Do nothing when Enclosure Group is absent
       oneview_enclosure_group:
