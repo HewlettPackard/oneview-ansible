@@ -633,7 +633,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
             msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED
         )
 
-    def test_should_bulk_inconsistent_validate(self):
+    def test_should_validate_bulk_inconsistent_request(self):
         self.mock_ov_client.api_version = 2000
         logicalInterconnectUris = [
             "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"

@@ -134,8 +134,8 @@ class RackModule(OneViewModuleBase):
             msg = self.MSG_ADDED
 
             return dict(changed=changed,
-                    msg=msg,
-                    ansible_facts=dict(rack=self.current_resource))
+                        msg=msg,
+                        ansible_facts=dict(rack=self.current_resource))
         else:
             return self.__update()
 
@@ -166,14 +166,14 @@ class RackModule(OneViewModuleBase):
             changed = True
             msg = self.MSG_UPDATED
             return dict(changed=changed,
-                    msg=msg,
-                    ansible_facts=dict(rack=updated_response))
+                        msg=msg,
+                        ansible_facts=dict(rack=updated_response))
         else:
             changed = False
             msg = self.MSG_ALREADY_PRESENT
             return dict(changed=changed,
-                    msg=msg,
-                    ansible_facts=dict(rack=self.current_resource))
+                        msg=msg,
+                        ansible_facts=dict(rack=self.current_resource))
 
     def __absent(self):
         if self.current_resource:
@@ -183,7 +183,7 @@ class RackModule(OneViewModuleBase):
         else:
             changed = False
             msg = self.MSG_ALREADY_ABSENT
-        return changed, msg, dict(rack=None)
+            return changed, msg, dict(rack=None)
 
 
 def main():
