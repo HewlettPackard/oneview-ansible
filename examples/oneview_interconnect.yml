@@ -57,7 +57,7 @@
         ip: '{{ interconnect_ip_for_update }}'
         ports: [
           {
-              "type": "portV5",
+              "type": "portV6",
               "portType": "Uplink",
               "portName": "d1",
               "bayNumber": 1,
