@@ -9,20 +9,9 @@ This release extends the planned support of the modules to OneView REST API vers
 #### Major changes
 - Added support for automatic publish of Docker Image when there is a new release in GitHub
 
-### Modules supported in this release
-- oneview_enclosure
-- oneview_enclosure_facts
-- oneview_enclosure_group
-- oneview_enclosure_group_facts
-- oneview_logical_enclosures
-- oneview_logical_enclosures_facts
-- oneview_server_hardware
-- oneview_server_hardware_facts
-- oneview_server_hardware_type
-- oneview_server_hardware_type_facts
-
 #### Bug fixes & Enhancements
 - [#565] (https://github.com/HewlettPackard/oneview-ansible/issues/565) Problem creating / changing a network_set
+- [#559] (https://github.com/HewlettPackard/oneview-ansible/issues/559) Unable to delete rack resources
 
 ### Modules supported in this release
 - oneview_alert_facts.yml
@@ -34,6 +23,10 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_certificates_server_facts
 - oneview_connection_template
 - oneview_connection_template_facts
+- oneview_enclosure
+- oneview_enclosure_facts
+- oneview_enclosure_group
+- oneview_enclosure_group_facts
 - oneview_ethernet_network
 - oneview_ethernet_network_facts
 - oneview_fc_network
@@ -50,6 +43,8 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_interconnect_link_topology_facts.yml
 - oneview_internal_link_set_facts.yml
 - oneview_logical_downlink_facts.yml
+- oneview_logical_enclosures
+- oneview_logical_enclosures_facts
 - oneview_logical_interconnect
 - oneview_logical_interconnect_facts
 - oneview_logical_interconnect_group
@@ -58,6 +53,10 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_network_set
 - oneview_network_set_facts
 - oneview_os_deployment_plan_facts.yml
+- oneview_server_hardware
+- oneview_server_hardware_facts
+- oneview_server_hardware_type
+- oneview_server_hardware_type_facts
 - oneview_scope
 - oneview_scope_facts
 - oneview_server_profile
