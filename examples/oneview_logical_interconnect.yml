@@ -193,13 +193,3 @@
         data:
           name: "{{ logical_interconnect_name }}"
       delegate_to: localhost
-
-    - name: Validates the bulk update from group operation and gets the consolidated inconsistency report
-      oneview_logical_interconnect:
-        config: "{{ config }}"
-        state: bulk_inconsistency_validated
-        data:
-          logicalInterconnectUris:
-            -  "/rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2"
-      delegate_to: localhost
-      when: currentVersion >= '2000' and variant == 'Synergy'
