@@ -31,7 +31,7 @@ description:
     - Retrieve the facts about one or more of the FCoE Networks from OneView.
 version_added: "2.4"
 requirements:
-    - hpeOneView >= 5.0.0
+    - hpeOneView >= 5.4.0
 author:
     - Felipe Bulsoni (@fgbulsoni)
     - Thiago Miotto (@tmiotto)

@@ -31,7 +31,7 @@ description:
       automatically based on the server profile configuration if no server hardware was provided.
 version_added: "2.5"
 requirements:
-    - hpeOneView >= 5.0.0
+    - hpeOneView >= 5.4.0
 author:
     - "Chakravarthy Racharla"
     - "Camila Balestrin (@balestrinc)"
@@ -90,10 +90,11 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1600
+    api_version: 2000
     state: present
     data:
         name: Web-Server-L2
+        description: Server Profile created from a selected Server Profile Template
         # You can choose either server_template or serverProfileTemplateUri to inform the Server Profile Template
         # serverProfileTemplateUri: "/rest/server-profile-templates/31ade62c-2112-40a0-935c-2f9450a75198"
         server_template: Compute-node-template
@@ -105,6 +106,9 @@ EXAMPLES = '''
         # You can choose either serverHardwareTypeUri or serverHardwareTypeName to inform the Server Hardware Type
         # serverHardwareTypeUri: /rest/server-hardware-types/BCAB376E-DA2E-450D-B053-0A9AE7E5114C
         # serverHardwareTypeName: SY 480 Gen9 1
+        # You can choose either enclosureGroupName or enclosureGroupUri to inform the EnclosureGroup
+        # enclosureGroupUri: /rest/enclosuregroups/EG
+        enclosureGroupName: EG
         # You can choose either enclosureName or enclosureUri to inform the Enclosure
         # enclosureUri: /rest/enclosures/09SGH100Z6J1
         enclosureName: 0000A66102
@@ -146,6 +150,7 @@ EXAMPLES = '''
     api_version: 1600
     data:
       name: server-profile-with-connections
+      description: Server Profile with connections created from a selected Server Profile Template
       connectionSettings:
         connections:
           - id: 1
