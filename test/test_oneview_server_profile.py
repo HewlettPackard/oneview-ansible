@@ -45,7 +45,7 @@ BASIC_PROFILE = dict(
     name=SERVER_PROFILE_NAME,
     serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI,
     enclosureGroupUri=ENCLOSURE_GROUP_URI,
-    description= DESCRIPTION,
+    description=DESCRIPTION,
     uri=SERVER_PROFILE_URI
 )
 
@@ -53,7 +53,7 @@ BASIC_TEMPLATE = dict(
     name="Server-Template-7000",
     serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI,
     enclosureGroupUri=ENCLOSURE_GROUP_URI,
-    description= DESCRIPTION,
+    description=DESCRIPTION,
     uri='/rest/server-profile-templates/9a156b04-fce8-40b0-b0cd-92ced1311dda'
 )
 
@@ -67,7 +67,7 @@ PARAMS_FOR_PRESENT = dict(
 BASIC_SCOPE_PROFILE = dict(
     name=SERVER_PROFILE_NAME,
     uri=SERVER_PROFILE_URI,
-    description= DESCRIPTION,
+    description=DESCRIPTION,
     enclosureGroupUri="/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89",
     serverHardwareTypeUri="/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B",
     initialScopeUris='/rest/scopes/12ab33bb-391f-491a-adfb-02b0dc625b3e%20OR%20/rest/scopes/3006eb67-a58f-4f5c-b173-e46309b2b87d'
@@ -116,7 +116,7 @@ CREATED_BASIC_PROFILE = dict(
     category="server-profile-templates",
     enclosureGroupUri="/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89",
     name=SERVER_PROFILE_NAME,
-    description= DESCRIPTION,
+    description=DESCRIPTION,
     serialNumber='VCGGU8800W',
     serialNumberType="Virtual",
     serverHardwareTypeUri="/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B",
