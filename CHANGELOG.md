@@ -6,7 +6,7 @@ This release extends the planned support of the modules to OneView REST API vers
 #### Bug fixes & Enhancements
 - [#582] (https://github.com/HewlettPackard/oneview-ansible/issues/582) description field is empty after server profile creation
 
-## v5.8.0 (unreleased)
+## v5.8.0
 This release extends the planned support of the modules to OneView REST API version 2000 (OneView v5.4)
 
 #### Breaking Changes
