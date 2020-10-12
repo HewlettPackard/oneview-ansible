@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -104,15 +104,13 @@ class ScopeFactsModule(OneViewModuleBase):
 
     def __init__(self):
         super(ScopeFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
-        self.resource_client = self.oneview_client.scopes
+        self.set_resource_object(self.oneview_client.scopes)
 
     def execute_module(self):
-        name = self.module.params.get('name')
-        if name:
-            scope = self.oneview_client.scopes.get_by_name(name)
-            scopes = [scope] if scope else []
+        if self.current_resource:
+            scopes = [self.current_resource.data]
         else:
-            scopes = self.oneview_client.scopes.get_all(**self.facts_params)
+            scopes = self.resource_client.get_all(**self.facts_params)
 
         return dict(changed=False, ansible_facts=dict(scopes=scopes))
 
