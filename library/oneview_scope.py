@@ -148,8 +148,7 @@ class ScopeModule(OneViewModule):
         # returns None if scope doesn't exist
         if not self.current_resource:
             return dict(changed=False,
-                        msg=self.MSG_RESOURCE_NOT_FOUND,
-                        ansible_facts=dict(scope=None)
+                        msg=self.MSG_RESOURCE_NOT_FOUND)
 
         add_resources = self.data.get('resourceAssignments').get('addedResourceUris') is not None
         remove_resources = self.data.get('resourceAssignments').get('removedResourceUris') is not None
