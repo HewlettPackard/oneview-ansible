@@ -173,7 +173,7 @@ class TestScopeModule(OneViewBaseTest):
 
     def test_should_not_add_and_remove_resource_assignment_in_api500(self):
         self.mock_ov_client.api_version = 500
-        self.get_by_name.return_value = None
+        self.resource.get_by_name.return_value = None
 
         resource_data = PARAMS_RESOURCE_ASSIGNMENTS.copy()
         self.resource.data = resource_data
