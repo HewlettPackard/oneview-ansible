@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpeOneView >= 3.0.0"
+    - "hpeOneView >= 5.4.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     config:
@@ -93,10 +93,10 @@ scopes:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class ScopeFactsModule(OneViewModuleBase):
+class ScopeFactsModule(OneViewModule):
     argument_spec = dict(
         name=dict(required=False, type='str'),
         params=dict(required=False, type='dict')
