@@ -145,35 +145,37 @@ class ScopeModule(OneViewModule):
             return self.__update_resource_assignments()
 
     def __update_resource_assignments(self):
-        add_resources = self.data.get('resourceAssignments').get('addedResourceUris') is not None
-        remove_resources = self.data.get('resourceAssignments').get('removedResourceUris') is not None
-        updated_name = self.data.get('resourceAssignments').get('name') is not None
-        updated_description = self.data.get('resourceAssignments').get('description') is not None
-        if add_resources:
-            self.current_resource.patch(operation='add',
-                                        path='/addedResourceUris/-',
-                                        value=self.data.get('resourceAssignments').get('addedResourceUris'))
-        if remove_resources:
-            self.current_resource.patch(operation='replace',
-                                        path='/removedResourceUris',
-                                        value=self.data.get('resourceAssignments').get('removedResourceUris'))
-        if updated_name:
-            self.current_resource.patch(operation='replace',
-                                        path='/name',
-                                        value=self.data.get('resourceAssignments').get('name'))
-        if updated_description:
-            self.current_resource.patch(operation='replace',
-                                        path='/description',
-                                        value=self.data.get('resourceAssignments').get('description'))
-        if not add_resources and not remove_resources and not updated_name and not updated_description:
-            return dict(changed=False,
-                        msg=self.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED,
-                        ansible_facts=dict(scope=self.current_resource.data))
-
+        scope_res = self.get_by_name(self.data.get('name'))
+        if scope_res:
+            add_resources = self.data.get('resourceAssignments').get('addedResourceUris') is not None
+            remove_resources = self.data.get('resourceAssignments').get('removedResourceUris') is not None
+            updated_name = self.data.get('resourceAssignments').get('name') is not None
+            updated_description = self.data.get('resourceAssignments').get('description') is not None
+            if add_resources:
+                self.current_resource.patch(operation='add',
+                                            path='/addedResourceUris/-',
+                                            value=self.data.get('resourceAssignments').get('addedResourceUris'))
+            if remove_resources:
+                self.current_resource.patch(operation='replace',
+                                            path='/removedResourceUris',
+                                            value=self.data.get('resourceAssignments').get('removedResourceUris'))
+            if updated_name:
+                self.current_resource.patch(operation='replace',
+                                            path='/name',
+                                            value=self.data.get('resourceAssignments').get('name'))
+            if updated_description:
+                self.current_resource.patch(operation='replace',
+                                            path='/description',
+                                            value=self.data.get('resourceAssignments').get('description'))
+            if not add_resources and not remove_resources and not updated_name and not updated_description:
+                return dict(changed=False,
+                            msg=self.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED,
+                            ansible_facts=dict(scope=self.current_resource.data))
+        else:
+            return dict(failed=True,  msg="Scope Not Found", ansible_facts=dict(scope=scope_res))
         return dict(changed=True,
                     msg=self.MSG_RESOURCE_ASSIGNMENTS_UPDATED,
                     ansible_facts=dict(scope=self.current_resource.data))
-
 
 def main():
     ScopeModule().run()
