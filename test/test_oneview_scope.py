@@ -170,6 +170,21 @@ class TestScopeModule(OneViewBaseTest):
             msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_UPDATED
         )
 
+    def test_should_not_add_and_remove_resource_assignment_in_api500(self):
+        self.mock_ov_client.api_version = 500
+        self.resource.get_by_name.return_value = None
+
+        resource_data = PARAMS_RESOURCE_ASSIGNMENTS.copy()
+        self.resource.data = resource_data
+
+        ScopeModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            failed=True,
+            ansible_facts=dict(scope=None),
+            msg="Scope Not Found"
+        )
+
     def test_should_update_name_in_api500(self):
         self.mock_ov_client.api_version = 500
         self.resource.get_by_name.return_value = self.resource

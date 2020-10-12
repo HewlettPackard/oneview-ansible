@@ -147,7 +147,7 @@ class ScopeModule(OneViewModule):
     def __update_resource_assignments(self):
         scope_res = self.get_by_name(self.data.get('name'))
         if not scope_res:
-            return dict(failed=True,  msg="Scope Not Found", ansible_facts=dict(scope=scope_res))
+            return dict(failed=True, msg="Scope Not Found", ansible_facts=dict(scope=scope_res))
         add_resources = self.data.get('resourceAssignments').get('addedResourceUris') is not None
         remove_resources = self.data.get('resourceAssignments').get('removedResourceUris') is not None
         updated_name = self.data.get('resourceAssignments').get('name') is not None
@@ -175,6 +175,7 @@ class ScopeModule(OneViewModule):
         return dict(changed=True,
                     msg=self.MSG_RESOURCE_ASSIGNMENTS_UPDATED,
                     ansible_facts=dict(scope=self.current_resource.data))
+
 
 def main():
     ScopeModule().run()
