@@ -109,7 +109,7 @@ class ScopeFactsModule(OneViewModuleBase):
     def execute_module(self):
         name = self.module.params.get('name')
         if name:
-            scope = self.oneview_client.scopes.get_by_name(name)
+            scope = self.get_by_name(name)
             scopes = [scope] if scope else []
         else:
             scopes = self.oneview_client.scopes.get_all(**self.facts_params)
