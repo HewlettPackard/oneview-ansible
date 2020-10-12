@@ -177,7 +177,7 @@ class TestScopeModule(OneViewBaseTest):
 
         resource_data = PARAMS_RESOURCE_ASSIGNMENTS.copy()
         self.resource.data = resource_data
-        self.resource.update_resource_assignments.return_value = None
+        self.resource.update_resource_assignments.return_value = self.resource
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_RESOURCE_ASSIGNMENTS)
 
         ScopeModule().run()
