@@ -111,6 +111,7 @@ class TestScopeModule(OneViewBaseTest):
     def test_should_remove_scope_when_found(self):
         self.resource.get_by_name.return_value = self.resource
         self.resource.data = PARAMS_FOR_PRESENT
+
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_FOR_ABSENT)
 
         ScopeModule().run()
@@ -176,7 +177,7 @@ class TestScopeModule(OneViewBaseTest):
 
         resource_data = PARAMS_RESOURCE_ASSIGNMENTS.copy()
         self.resource.data = resource_data
-        self.resource.update_resource_assignments.return_value = self.resource
+        self.resource.update_resource_assignments.return_value = None
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_RESOURCE_ASSIGNMENTS)
 
         ScopeModule().run()
