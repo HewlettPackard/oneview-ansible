@@ -139,6 +139,7 @@ class TestScopeModule(OneViewBaseTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             failed=True,
+            changed=False,
             msg=ScopeModule.MSG_RESOURCE_NOT_FOUND
         )
 
