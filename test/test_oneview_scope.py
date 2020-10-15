@@ -131,14 +131,14 @@ class TestScopeModule(OneViewBaseTest):
             msg=ScopeModule.MSG_ALREADY_ABSENT
         )
 
-    def test_should_not_update_resource_assignments_when_scope_not_found(self):
+    def test_should_fail_resource_assignments_when_scope_not_found(self):
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_RESOURCE_ASSIGNMENTS)
 
         ScopeModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
+            failed=True,
             msg=ScopeModule.MSG_RESOURCE_NOT_FOUND
         )
 

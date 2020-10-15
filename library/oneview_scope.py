@@ -147,7 +147,7 @@ class ScopeModule(OneViewModule):
     def __update_resource_assignments(self):
         # returns None if scope doesn't exist
         if not self.current_resource:
-            return dict(changed=False,
+            return dict(failed=True,
                         msg=self.MSG_RESOURCE_NOT_FOUND)
 
         add_resources = self.data.get('resourceAssignments').get('addedResourceUris') is not None
