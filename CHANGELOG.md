@@ -12,6 +12,7 @@ This release extends the planned support of the modules to OneView REST API vers
 #### Bug fixes & Enhancements
 - [#565] (https://github.com/HewlettPackard/oneview-ansible/issues/565) Problem creating / changing a network_set
 - [#559] (https://github.com/HewlettPackard/oneview-ansible/issues/559) Unable to delete rack resources
+- [#581] (https://github.com/HewlettPackard/oneview-ansible/issues/581) Updating single uplinkSet in LIG removes other uplinkSet
 
 ### Modules supported in this release
 - oneview_alert_facts.yml

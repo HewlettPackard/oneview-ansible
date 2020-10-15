@@ -175,6 +175,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
         scope_uris = self.data.pop('scopeUris', None)
 
         self.__replace_name_by_uris()
+        self.__uplink_set_update()
         result = self.resource_present(self.RESOURCE_FACT_NAME)
 
         if scope_uris is not None:
@@ -194,13 +195,33 @@ class LogicalInterconnectGroupModule(OneViewModule):
                         value['permittedInterconnectTypeUri'] = self.__get_interconnect_type_by_name(
                             permitted_interconnect_type_name).get('uri')
 
+    def __uplink_set_update(self):
+        
         if 'uplinkSets' in self.data:
             for uplinkSet in self.data['uplinkSets']:
                 networkNames = uplinkSet.pop('networkNames', None)
                 if networkNames:
                     networkUris = [self.__get_network_uri(x) for x in networkNames]
-
                     uplinkSet['networkUris'].extend(networkUris)
+                
+                allUplinkSets = self.__update_existing_uplink_set(uplinkSet)
+            self.data['uplinkSets'] = allUplinkSets
+
+    def __update_existing_uplink_set(self, newUplinkSet):
+        allUplinkSets = self.__get_all_uplink_sets()
+
+        for i, ups in enumerate(allUplinkSets):
+            if ups['name'] == newUplinkSet['name']:
+                newUris = set(newUplinkSet['networkUris']) - set(ups['networkUris'])
+                if newUris:
+                   ups['networkUris'].extend(newUris)
+                allUplinkSets[i] = ups
+
+        return allUplinkSets
+
+    def __get_all_uplink_sets(self):
+        lig_uri = self.oneview_client.logical_interconnect_groups.get_by('name', self.data['name'])
+        return lig_uri[0]['uplinkSets']
 
     def __get_network_uri(self, name):
 
