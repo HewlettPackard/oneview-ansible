@@ -59,7 +59,7 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
         name="EnetUplink1",
         networkType="Ethernet",
         networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"],
-        networkNames="TestNetwork_1"
+        networkNames=["TestNetwork_1"]
     )
     ],
     enclosureType='C7000',
@@ -130,7 +130,8 @@ PARAMS_WITH_CHANGES = dict(
                   }],
                   "name": "EnetUplink1",
                   "networkType": "Ethernet",
-                  "networkUris": ["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"],
+                  "networkUris": ["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd",
+                                  "/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734869edg"],
                   "networkNames": ["TestNetwork_1"]
               }]
               )
