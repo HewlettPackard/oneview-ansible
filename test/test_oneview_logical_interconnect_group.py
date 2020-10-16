@@ -58,7 +58,8 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
         ],
         name="EnetUplink1",
         networkType="Ethernet",
-        networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"]
+        networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"],
+        networkNames="TestNetwork_1"
     )
     ],
     enclosureType='C7000',
@@ -210,32 +211,6 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
             changed=True,
             msg=LogicalInterconnectGroupModule.MSG_UPDATED,
             ansible_facts=dict(logical_interconnect_group=self.resource.data)
-        )
-
-     def test_should_update_uplinkset_when_network_uri_not_exists(self):
-        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
-
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
-
-        LogicalInterconnectGroupModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
-            ansible_facts=dict(logical_interconnect_group=self.resource.data)
-        )
-
-    def test_should_not_update_uplinkset_when_network_uri_exists(self):
-        self.resource.data = DEFAULT_LIG_TEMPLATE
-
-        self.mock_ansible_module.params = PARAMS_WITH_PRESENT
-
-        LogicalInterconnectGroupModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=LogicalInterconnectGroupModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
         )
 
     def test_rename_when_resource_exists(self):
