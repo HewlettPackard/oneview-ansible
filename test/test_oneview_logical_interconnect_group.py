@@ -214,6 +214,17 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
             ansible_facts=dict(logical_interconnect_group=self.resource.data)
         )
 
+    def test_update_when_data_has_modified_uplinkset_attributes(self):
+        uplink_set_data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS.copy()
+        uplink_set_data['networkUris'] = ['/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734869edg']
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES.copy()
+
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.update.assert_called_once_with(uplink_set_data)
+
     def test_rename_when_resource_exists(self):
         data_merged = DEFAULT_LIG_TEMPLATE.copy()
         data_merged['name'] = RENAMED_LIG
