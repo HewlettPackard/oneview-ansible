@@ -224,7 +224,11 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
 
         LogicalInterconnectGroupModule().run()
 
-        self.mock_ansible_module.update.assert_called_once_with(uplink_set_data)
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
+            ansible_facts=dict(logical_interconnect_group=self.resource.data)
+        )
 
     def test_rename_when_resource_exists(self):
         data_merged = DEFAULT_LIG_TEMPLATE.copy()
