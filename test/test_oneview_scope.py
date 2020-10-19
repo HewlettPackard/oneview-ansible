@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -129,6 +129,18 @@ class TestScopeModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             msg=ScopeModule.MSG_ALREADY_ABSENT
+        )
+
+    def test_should_fail_resource_assignments_when_scope_not_found(self):
+        self.resource.get_by_name.return_value = None
+        self.mock_ansible_module.params = copy.deepcopy(PARAMS_RESOURCE_ASSIGNMENTS)
+
+        ScopeModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            failed=True,
+            changed=False,
+            msg=ScopeModule.MSG_RESOURCE_NOT_FOUND
         )
 
     def test_should_not_update_resource_assignments_in_api500(self):
