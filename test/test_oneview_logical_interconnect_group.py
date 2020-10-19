@@ -216,7 +216,8 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
 
     def test_update_when_data_has_modified_uplinkset_attributes(self):
         uplink_set_data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS.copy()
-        uplink_set_data['networkUris'] = ['/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734869edg']
+        new_uris = set(PARAMS_WITH_CHANGES['networkUris']) - set(uplink_set_data['networkUris'])
+        uplink_set_data['networkUris'] = new_uris
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES.copy()
 
         self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
