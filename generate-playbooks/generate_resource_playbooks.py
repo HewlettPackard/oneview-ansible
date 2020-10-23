@@ -38,13 +38,13 @@ logging.basicConfig(
               logging.StreamHandler()])
 
 config = {
-    "ip": "10.50.4.100",
+    "ip": "10.1.19.63",
     "credentials": {
-        "userName": "kattumun",
-        "password": ""
+        "userName": "Administrator",
+        "password": "admin123"
     },
     "image_streamer_ip": "",
-    "api_version": 800
+    "api_version": 2200
 }
 
 class Base(object):
@@ -609,7 +609,7 @@ class Network(Base):
         if not data:
             data = self.address_ranges.get(uri)
         in_fields = ["name", "type", "rangeCategory", "subnetUri",
-                     "startAddress", "endAddress"]
+                     "startAddress", "endAddress", "startStopFragments"]
         range_data = self.pick_fields(data, in_fields)
         range_data["subnetUri"] = '{{ ' + subnet_fact_name + '["uri"] }}'
 
