@@ -37,65 +37,73 @@ DEFAULT_LIG_TEMPLATE = dict(
     )
 )
 DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
-    name=DEFAULT_LIG_NAME,
-    uplinkSets=[dict(
-        logicalPortConfigInfos=[dict(
-            desiredSpeed="Auto",
-            logicalLocation=dict(
-                locationEntries=[dict(
-                    relativeValue=1,
-                    type="Bay"
-                ), dict(
-                    relativeValue=21,
-                    type="Port"
-                ), dict(
-                    relativeValue=1,
-                    type="Enclosure"
+    config='config.json',
+    state='present',
+    data = dict(
+        name=DEFAULT_LIG_NAME,
+        uplinkSets=[dict(
+            logicalPortConfigInfos=[dict(
+                desiredSpeed="Auto",
+                logicalLocation=dict(
+                    locationEntries=[dict(
+                        relativeValue=1,
+                        type="Bay"
+                    ), dict(
+                        relativeValue=21,
+                        type="Port"
+                    ), dict(
+                        relativeValue=1,
+                        type="Enclosure"
+                    )
+                    ]
                 )
-                ]
             )
+            ],
+            name="EnetUplink1",
+            networkType="Ethernet",
+            networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"],
+            networkNames=["TestNetwork_1"]
         )
         ],
-        name="EnetUplink1",
-        networkType="Ethernet",
-        networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"],
-        networkNames=["TestNetwork_1"]
-    )
-    ],
-    enclosureType='C7000',
-    interconnectMapTemplate=dict(
-        interconnectMapEntryTemplates=[]
+        enclosureType='C7000',
+        interconnectMapTemplate=dict(
+            interconnectMapEntryTemplates=[]
+        )
     )
 )
 DEFAULT_LIG_TEMPLATE_WITH_DIFFERENT_UPLINKSETS = dict(
-    name=DEFAULT_LIG_NAME,
-    uplinkSets=[dict(
-        logicalPortConfigInfos=[dict(
-            desiredSpeed="Auto",
-            logicalLocation=dict(
-                locationEntries=[dict(
-                    relativeValue=1,
-                    type="Bay"
-                ), dict(
-                    relativeValue=21,
-                    type="Port"
-                ), dict(
-                    relativeValue=1,
-                    type="Enclosure"
+    config='config.json',
+    state='present',
+    data = dict(
+        name=DEFAULT_LIG_NAME,
+        uplinkSets=[dict(
+            logicalPortConfigInfos=[dict(
+                desiredSpeed="Auto",
+                logicalLocation=dict(
+                    locationEntries=[dict(
+                        relativeValue=1,
+                        type="Bay"
+                    ), dict(
+                        relativeValue=21,
+                        type="Port"
+                    ), dict(
+                        relativeValue=1,
+                        type="Enclosure"
+                    )
+                    ]
                 )
-                ]
             )
+            ],
+            name="EnetUplink1",
+            networkType="Ethernet",
+            networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd1"],
+            networkNames=["TestNetwork_1"]
         )
         ],
-        name="EnetUplink1",
-        networkType="Ethernet",
-        networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd1"],
-        networkNames=["TestNetwork_1"]
-    )
-    ],
-    enclosureType='C7000',
-    interconnectMapTemplate=dict(
-        interconnectMapEntryTemplates=[]
+        enclosureType='C7000',
+        interconnectMapTemplate=dict(
+            interconnectMapEntryTemplates=[]
+        )
     )
 )
 PARAMS_LIG_TEMPLATE_WITH_MAP = dict(
@@ -240,8 +248,8 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         LogicalInterconnectGroupModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
+            changed=False,
+            msg=LogicalInterconnectGroupModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(logical_interconnect_group=self.resource.data)
         )
 
