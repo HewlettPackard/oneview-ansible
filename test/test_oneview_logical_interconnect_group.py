@@ -67,6 +67,37 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
         interconnectMapEntryTemplates=[]
     )
 )
+DEFAULT_LIG_TEMPLATE_WITH_DIFFERENT_UPLINKSETS = dict(
+    name=DEFAULT_LIG_NAME,
+    uplinkSets=[dict(
+        logicalPortConfigInfos=[dict(
+            desiredSpeed="Auto",
+            logicalLocation=dict(
+                locationEntries=[dict(
+                    relativeValue=1,
+                    type="Bay"
+                ), dict(
+                    relativeValue=21,
+                    type="Port"
+                ), dict(
+                    relativeValue=1,
+                    type="Enclosure"
+                )
+                ]
+            )
+        )
+        ],
+        name="EnetUplink1",
+        networkType="Ethernet",
+        networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd1"],
+        networkNames=["TestNetwork_1"]
+    )
+    ],
+    enclosureType='C7000',
+    interconnectMapTemplate=dict(
+        interconnectMapEntryTemplates=[]
+    )
+)
 PARAMS_LIG_TEMPLATE_WITH_MAP = dict(
     config='config.json',
     state='present',
@@ -215,10 +246,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_uplinkset_attributes(self):
-        uplink_set_data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS.copy()
-        new_uris = set(PARAMS_WITH_CHANGES['networkUris']) - set(uplink_set_data['networkUris'])
-        uplink_set_data['networkUris'] = new_uris
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES.copy()
+        self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_DIFFERENT_UPLINKSETS
 
         self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
 
