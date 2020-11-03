@@ -45,6 +45,7 @@
     - server_hardware_type_name: SY 480 Gen9 4
     # Set the name of an existing ethernet network
     - network_name: eth77
+    - server_profile_description: test
   tasks:
     - name: Create a Server Profile from a Server Profile Template
       oneview_server_profile:
@@ -52,6 +53,7 @@
         data:
           serverProfileTemplateName: "{{ ov_template }}"
           name: "{{ inventory_hostname }}"
+          description: "{{ server_profile_description }}"
           # User should set initialScopeUris in case of scoped user
           initialScopeUris:
             - '/rest/scopes/12ab33bb-391f-491a-adfb-02b0dc625b3e'
@@ -144,6 +146,7 @@
           name: "{{ inventory_hostname }}"
           serverHardwareTypeName: "{{ server_hardware_type_name }}"
           enclosureGroupName: "{{ enclosure_group_name }}"
+          description: "{{ server_profile_description }}"
       delegate_to: localhost
 
     - debug: var=server_profile

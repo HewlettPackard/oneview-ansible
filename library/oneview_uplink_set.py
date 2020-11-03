@@ -28,7 +28,7 @@ description:
     - Provides an interface to manage Uplink Set resources. Can create, update, or delete.
 requirements:
     - "python >= 2.7.9"
-    - "hpeOneView >= 5.0.0"
+    - "hpeOneView >= 5.4.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     state:

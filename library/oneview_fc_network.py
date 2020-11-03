@@ -31,7 +31,7 @@ description:
     - Provides an interface to manage Fibre Channel Network resources. Can create, update, and delete.
 version_added: "2.4"
 requirements:
-    - "hpeOneView >= 5.0.0"
+    - "hpeOneView >= 5.4.0"
 author: "Felipe Bulsoni (@fgbulsoni)"
 options:
     state:
