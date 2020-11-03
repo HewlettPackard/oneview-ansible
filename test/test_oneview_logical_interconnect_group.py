@@ -228,7 +228,8 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         self.resource.create.return_value = self.resource
         self.resource.data = PARAMS_FOR_PRESENT
         self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
-        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = [dict(uplinkSets=[{
+        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = [
+                                            dict(uplinkSets=[{
                                             "logicalPortConfigInfos": [{
                                                 "desiredSpeed": "Auto",
                                                 "logicalLocation": {
