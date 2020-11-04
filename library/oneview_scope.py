@@ -30,7 +30,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpeOneView >= 3.1.0"
+    - "hpeOneView >= 5.4.0"
 author: "Mariana Kreisig (@marikrg)"
 options:
     state:
@@ -145,6 +145,11 @@ class ScopeModule(OneViewModule):
             return self.__update_resource_assignments()
 
     def __update_resource_assignments(self):
+        # returns None if scope doesn't exist
+        if not self.current_resource:
+            return dict(failed=True,
+                        msg=self.MSG_RESOURCE_NOT_FOUND)
+
         add_resources = self.data.get('resourceAssignments').get('addedResourceUris') is not None
         remove_resources = self.data.get('resourceAssignments').get('removedResourceUris') is not None
         updated_name = self.data.get('resourceAssignments').get('name') is not None

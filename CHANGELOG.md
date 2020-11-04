@@ -3,7 +3,8 @@
 This release extends the planned support of the modules to OneView REST API version 2000 (OneView v5.4)
 
 #### Bug fixes & Enhancements
-- [#581] (https://github.com/HewlettPackard/oneview-ansible/issues/581) Updating single uplinkSet in LIG removes other uplinkSet
+- [#581] (https://github.com/HewlettPackard/oneview-ansible/issues/581) Updating single uplinkSet in LIG removes other uplinkSet.
+- [#582] (https://github.com/HewlettPackard/oneview-ansible/issues/582) description field is empty after server profile creation
 
 ## v5.8.0
 This release extends the planned support of the modules to OneView REST API version 2000 (OneView v5.4)
