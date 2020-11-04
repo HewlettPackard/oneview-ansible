@@ -205,7 +205,7 @@ PARAMS_FOR_ABSENT = dict(
     data=dict(name=DEFAULT_LIG_NAME)
 )
 
-UPLINK_SETS =  [dict(
+UPLINK_SETS = [dict(
     uplinkSets=[{
         "logicalPortConfigInfos": [{
             "desiredSpeed": "Auto",
@@ -225,11 +225,11 @@ UPLINK_SETS =  [dict(
         "name": "EnetUplink1",
         "networkType": "Ethernet",
         "networkUris": ["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd",
-        "/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734869edg"],
+                        "/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734869edg"],
         "networkNames": ["TestNetwork_1"]
-        }]
-        )
-    ]
+    }]
+    )
+]
 
 
 @pytest.mark.resource(TestLogicalInterconnectGroupModule='logical_interconnect_groups')
