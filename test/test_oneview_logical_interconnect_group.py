@@ -228,7 +228,7 @@ UPLINK_SETS = [dict(
                         "/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734869edg"],
         "networkNames": ["TestNetwork_1"]
     }]
-    )
+                    )
 ]
 
 
