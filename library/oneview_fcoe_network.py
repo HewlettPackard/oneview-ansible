@@ -32,7 +32,7 @@ description:
 version_added: "2.4"
 requirements:
     - "python >= 2.7.9"
-    - "hpeOneView >= 5.0.0"
+    - "hpeOneView >= 5.4.0"
 author: "Felipe Bulsoni (@fgbulsoni)"
 options:
     state:
