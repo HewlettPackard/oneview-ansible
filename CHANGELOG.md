@@ -1,4 +1,10 @@
 # Ansible Modules for HPE OneView Change Log
+## v5.9.0(Unreleased)
+This release extends the planned support of the modules to OneView REST API version 2000 (OneView v5.4)
+
+#### Bug fixes & Enhancements
+- [#581] (https://github.com/HewlettPackard/oneview-ansible/issues/581) Updating single uplinkSet in LIG removes other uplinkSet
+
 ## v5.8.0
 This release extends the planned support of the modules to OneView REST API version 2000 (OneView v5.4)
 
@@ -12,7 +18,6 @@ This release extends the planned support of the modules to OneView REST API vers
 #### Bug fixes & Enhancements
 - [#565] (https://github.com/HewlettPackard/oneview-ansible/issues/565) Problem creating / changing a network_set
 - [#559] (https://github.com/HewlettPackard/oneview-ansible/issues/559) Unable to delete rack resources
-- [#581] (https://github.com/HewlettPackard/oneview-ansible/issues/581) Updating single uplinkSet in LIG removes other uplinkSet
 
 ### Modules supported in this release
 - oneview_alert_facts.yml
