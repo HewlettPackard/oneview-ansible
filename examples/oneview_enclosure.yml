@@ -134,7 +134,23 @@
     - wait_for: port=22 host="{{ ansible_host }}" delay=10
       connection: local
 
-    - name: Create certificate signing request
+    - name: Create certificate signing request for Synergy
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: create_certificate_request
+        data:
+          name: '{{ enclosure_name }}'
+          type: '{{ csr_data.type }}'
+          organization: '{{ csr_data.organization }}'
+          organizationalUnit: '{{ csr_data.organizationalUnit }}'
+          locality: '{{ csr_data.locality }}'
+          state: '{{ csr_data.state }}'
+          country: '{{ csr_data.country }}'
+          commonName: '{{ csr_data.commonName }}'
+      delegate_to: localhost
+      when: variant == 'Synergy'
+
+    - name: Create certificate signing request for C7000
       oneview_enclosure:
         config: "{{ config }}"
         state: create_certificate_request
@@ -150,7 +166,15 @@
           bay_number: '{{ bay_number }}' #Required for C7000
       delegate_to: localhost
 
-    - name: Get certificate signing request
+    - name: Get certificate signing request for Synergy
+      oneview_enclosure:
+        config: "{{ config }}"
+        state: get_certificate_request
+        data:
+          name: '{{ enclosure_name }}'
+      delegate_to: localhost
+
+    - name: Get certificate signing request for C7000
       oneview_enclosure:
         config: "{{ config }}"
         state: get_certificate_request
@@ -158,6 +182,7 @@
           name: '{{ enclosure_name }}'
           bay_number: '{{ bay_number }}' #Required for C7000
       delegate_to: localhost
+      when: variant == 'C7000'
 
     # Waiting for 10 seconds before attempting operations on enclosure
     - wait_for: port=22 host="{{ ansible_host }}" delay=10
@@ -396,18 +421,18 @@
     - debug: var=result.msg
       when: variant == 'Synergy'
 
-    - name: Remove the Enclosure
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: absent
-        data:
-          name: '{{ enclosure_name }}'
-      delegate_to: localhost
+    # - name: Remove the Enclosure
+    #   oneview_enclosure:
+    #     config: "{{ config }}"
+    #     state: absent
+    #     data:
+    #       name: '{{ enclosure_name }}'
+    #   delegate_to: localhost
 
-    - name: Do nothing when Enclosure is absent
-      oneview_enclosure:
-        config: "{{ config }}"
-        state: absent
-        data:
-          name: '{{ enclosure_name }}'
-      delegate_to: localhost
+    # - name: Do nothing when Enclosure is absent
+    #   oneview_enclosure:
+    #     config: "{{ config }}"
+    #     state: absent
+    #     data:
+    #       name: '{{ enclosure_name }}'
+    #   delegate_to: localhost

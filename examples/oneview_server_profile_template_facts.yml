@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -18,10 +18,7 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     contents: "{{lookup('file', config)}}"
-    server_profile_template_name: "ProfileTemplate"
-    enclosure_group_uri: "/rest/enclosure-groups/0f2a3f46-36ad-4c8f-9e88-763c062855d3"
-    server_hardware_type_uri: "/rest/server-hardware-types/5DC5ABD6-5F43-4D76-BB35-04DD814369D0"
-    scope_uris: "/rest/scopes/74877630-9a22-4061-9db4-d12b6c4cfee0"
+    server_profile_template_name: "example_spt1"
   tasks:
     - name: Get currentVersion from URL
       oneview_version_facts:
@@ -47,6 +44,11 @@
 
     - debug: var=server_profile_templates
 
+    - name: Gather facts about all Scopes
+      oneview_scope_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
     - name: Gather paginated, filtered and sorted facts about Server Profile Templates
       oneview_server_profile_template_facts:
         config: "{{ config }}"
@@ -55,7 +57,7 @@
           count: 3
           sort: name:ascending
           filter: macType='Virtual'
-          scope_uris: "{{ scope_uris }}" #Supported only for OneView API version >= 600
+          scope_uris: "{{ scopes[0]['uri'] }}" #Supported only for OneView API version >= 600
       delegate_to: localhost
 
     - debug: var=server_profile_templates
@@ -85,6 +87,16 @@
     - debug: var=server_profile_templates
     - debug: var=new_profile
 
+    - name: Gather facts about all Server Hardware Types
+      oneview_server_hardware_type_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - name: Gather facts about all Enclosure Groups
+      oneview_enclosure_group_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
     # This option is available for API version 300 or later.
     - name: Transform an existing profile template by supplying a new server hardware type and/or enclosure group.
       oneview_server_profile_template_facts:
@@ -92,8 +104,8 @@
         name: "{{ server_profile_template_name }}"
         options:
           - transformation:
-              enclosure_group_uri: "{{ enclosure_group_uri }}"
-              server_hardware_type_uri: "{{ server_hardware_type_uri }}"
+              enclosure_group_uri: "{{ enclosure_groups[0]['uri'] }}"
+              server_hardware_type_uri: "{{ server_hardware_types[0]['uri'] }}"
       delegate_to: localhost
       when: currentVersion >= '300'
 
@@ -105,8 +117,8 @@
         config: "{{ config }}"
         options:
           - available_networks:
-              serverHardwareTypeUri: "{{server_hardware_type_uri}}"
-              enclosureGroupUri: "{{enclosure_group_uri}}"
+              serverHardwareTypeUri: "{{server_hardware_types[0]['uri']}}"
+              enclosureGroupUri: "{{enclosure_groups[0]['uri'] }}"
 
       delegate_to: localhost
       when: currentVersion >= '600'

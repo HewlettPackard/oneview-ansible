@@ -86,3 +86,19 @@
         data:
           name: "Enclosure Group 1 (renamed)"
       delegate_to: localhost
+
+    - name: Create an Enclosure Group to ensure continuity with automation script
+      oneview_enclosure_group:
+        config: "{{ config }}"
+        state: present
+        data:
+            name: "EG"
+            ipAddressingMode: "External"    
+            interconnectBayMappings:
+                - interconnectBay: 1
+                - interconnectBay: 2
+                - interconnectBay: 3
+                - interconnectBay: 4
+                - interconnectBay: 5
+                - interconnectBay: 6
+      delegate_to: localhost

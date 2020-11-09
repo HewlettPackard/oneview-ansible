@@ -17,15 +17,25 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    # set the name of an existent server profile to run this example
-    server_profile_name: "RHEl76"
-    # set the uri of an existent enclosure group to run this example
-    enclosure_group_uri: '/rest/enclosure-groups/0f2a3f46-36ad-4c8f-9e88-763c062855d3'
-    # set the uri of an existent server hardware type to run this example
-    server_hardware_type_uri: '/rest/server-hardware-types/1A7C413B-6677-49A6-B435-09A71490EBB4'
-    # set the ID of an existent storage system to run this example
-    storage_system_id: "MXN6122CVA"
+    contents: "{{lookup('file', config)}}"
   tasks:
+    - name: Get currentVersion from URL
+      oneview_version_facts:
+        config: "{{ config }}" 
+      delegate_to: localhost
+      when: contents.api_version|length == 0
+      register: version
+   
+    - name: Print currentVersion if an apiVersion is not specified in config file
+      set_fact: 
+        currentVersion: "{{ version.ansible_facts.version.currentVersion|int }}"
+      when: contents.api_version|length == 0
+
+    - name: Print currentVersion if an apiVersion is specified in config file
+      set_fact: 
+        currentVersion: contents.api_version | string
+      when: contents.api_version|length != 0
+
     - name: Gather facts about all Server Profiles
       oneview_server_profile_facts:
         config: "{{ config }}"
@@ -51,7 +61,7 @@
     - name: Gather facts about a Server Profile by name
       oneview_server_profile_facts:
         config: "{{ config }}"
-        name: "{{server_profile_name}}"
+        name: "{{contents.server_profile_name}}"
       delegate_to: localhost
 
     - debug: var=server_profiles
@@ -64,45 +74,54 @@
 
     - debug: var=server_profiles
 
+    - name: Gather facts about all Server Hardware Types
+      oneview_server_hardware_type_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - name: Gather facts about all Enclosure Groups
+      oneview_enclosure_group_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
     - name: Gather facts about available servers and bays for a given enclosure group and server hardware type
       oneview_server_profile_facts:
         config: "{{ config }}"
         options:
           - availableTargets:
-              serverHardwareTypeUri: "{{server_hardware_type_uri}}"
-              enclosureGroupUri: "{{enclosure_group_uri}}"
+              serverHardwareTypeUri: "{{server_hardware_types[0]['uri']}}"
+              enclosureGroupUri: "{{enclosure_groups[0]['uri']}}"
       delegate_to: localhost
 
     - debug: var=server_profile_available_targets
+
+    - name: Gather all facts about a Server Profile works below API Version 1200
+      oneview_server_profile_facts:
+       config: "{{ config }}"
+       name : "{{server_profile_name}}"
+       options:
+           - schema  # Supported only for API version <= 1200
+           - newProfileTemplate # Supported only for API version <= 1200
+           - availableServers # Supported only for API version <= 1200
+      delegate_to: localhost
+      when: currentVersion <= '1200'
 
     - name: Gather all facts about a Server Profile
       oneview_server_profile_facts:
        config: "{{ config }}"
        name : "{{server_profile_name}}"
        options:
-           - schema  # Supported only for API version <= 1200
            - compliancePreview
-           - newProfileTemplate # Supported only for API version <= 1200
            - profilePorts:
               serverHardwareTypeUri: "{{server_hardware_type_uri}}"
               enclosureGroupUri: "{{enclosure_group_uri}}"
-           - messages # Supported only for API version <= 500
            - transformation:
                serverHardwareTypeUri: "{{server_hardware_type_uri}}"
                enclosureGroupUri: "{{enclosure_group_uri}}"
            - availableNetworks:
                serverHardwareTypeUri: "{{server_hardware_type_uri}}"
                enclosureGroupUri: "{{enclosure_group_uri}}"
-           - availableServers # Supported only for API version <= 1200
-           - availableStorageSystem: # Supported only for API version <=500
-               storageSystemId: "{{storage_system_id}}"
-               serverHardwareTypeUri: "{{server_hardware_type_uri}}"
-               enclosureGroupUri: "{{enclosure_group_uri}}"
-           - availableStorageSystems: # Supported only for API version <=500
-               serverHardwareTypeUri: "{{server_hardware_type_uri}}"
-               enclosureGroupUri: "{{enclosure_group_uri}}"
            - availableTargets
-
       delegate_to: localhost
 
     - debug: var=server_profiles

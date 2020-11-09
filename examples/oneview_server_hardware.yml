@@ -18,39 +18,40 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    server_hardware_hostname: '<server-hardware-hostname>'
-    server_hardware_username: '<server-hardware-username>'
-    server_hardware_password: '<server-hardware-password>'
-    scope_uris:
-      - '<scope_uri_1>'
+    contents: "{{lookup('file', config)}}"
+    variant: 'Synergy'
     multiple_hosts:
-      - "{{ server_hardware_hostname }}"
-    initial_scope_uris:
-      - '/rest/scopes/4e3a3d5d-1658-400b-9429-72745c0817ca'
+      - "{{ contents.server_hardware_hostname }}"
   tasks:
+    - name: Gather facts about all Scopes
+      oneview_scope_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
     - name: Add a Server Hardware
       oneview_server_hardware:
         config: "{{ config }}"
         state: present
         data:
-             hostname : '{{ server_hardware_hostname }}'
-             username : '{{ server_hardware_username }}'
-             password : '{{ server_hardware_password }}'
+             hostname : '{{ contents.server_hardware_hostname }}'
+             username : '{{ contents.server_hardware_username }}'
+             password : '{{ contents.server_hardware_password }}'
              force : false
              licensingIntent: "OneView"
              configurationState: "Managed"
-             scopeUris: "{{ scope_uris }}" #Supported only with OneView API version <= 500.
-             initialScopeUris: "{{ initial_scope_uris }}" #Supported only with OneView API version >= 600.
+             initialScopeUris: 
+              - "{{ scopes[0]['uri'] }}" #Supported only with OneView API version >= 600.
       delegate_to: localhost
+      when: variant == 'C7000'
 
     - name: Do nothing when the server hardware is already present
       oneview_server_hardware:
         config: "{{ config }}"
         state: present
         data:
-             hostname : '{{ server_hardware_hostname }}'
-             username : '{{ server_hardware_username }}'
-             password : '{{ server_hardware_password }}'
+             hostname : '{{ contents.server_hardware_hostname }}'
+             username : '{{ contents.server_hardware_username }}'
+             password : '{{ contents.server_hardware_password }}'
              force : false
              licensingIntent: "OneView"
              configurationState: "Managed"
@@ -63,9 +64,10 @@
         state: multiple_servers_added
         data:
              mpHostsAndRanges : "{{ multiple_hosts }}"
-             username : "{{ server_hardware_username }}"
-             password : "{{ server_hardware_password }}"
-             initialScopeUris: "{{ initial_scope_uris }}"
+             username : "{{ contents.server_hardware_username }}"
+             password : "{{ contents.server_hardware_password }}"
+             initialScopeUris: 
+              - "{{ scopes[0]['uri'] }}"
              licensingIntent: "OneView"
              configurationState: "Managed"
       delegate_to: localhost
@@ -75,7 +77,7 @@
         config: "{{ config }}"
         state: power_state_set
         data:
-            name : '{{ server_hardware_hostname }}'
+            name : '{{ contents.server_hardware_hostname }}'
             powerStateData:
                 powerState: "Off"
                 powerControl: "MomentaryPress"
@@ -86,7 +88,7 @@
         config: "{{ config }}"
         state: power_state_set
         data:
-            name : '{{ server_hardware_hostname }}'
+            name : '{{ contents.server_hardware_hostname }}'
             powerStateData:
                 powerState: "On"
                 powerControl: "MomentaryPress"
@@ -97,7 +99,7 @@
         config: "{{ config }}"
         state: refresh_state_set
         data:
-            name : '{{ server_hardware_hostname }}'
+            name : '{{ contents.server_hardware_hostname }}'
             refreshStateData:
                 refreshState : "RefreshPending"
       delegate_to: localhost
@@ -107,7 +109,7 @@
         config: "{{ config }}"
         state: ilo_firmware_version_updated
         data:
-            name : '{{ server_hardware_hostname }}'
+            name : '{{ contents.server_hardware_hostname }}'
       delegate_to: localhost
 
     - name: Reset the Server Hardware iLO State
@@ -115,7 +117,7 @@
         config: "{{ config }}"
         state: ilo_state_reset
         data:
-            name: '{{ server_hardware_hostname }}'
+            name: '{{ contents.server_hardware_hostname }}'
       delegate_to: localhost
 
     - name: Set the server UID state off
@@ -123,21 +125,22 @@
         config: "{{ config }}"
         state: uid_state_off
         data:
-            name: '{{ server_hardware_hostname }}'
+            name: '{{ contents.server_hardware_hostname }}'
       delegate_to: localhost
 
-    - name: Remove the server hardware by its IP
-      oneview_server_hardware:
-        config: "{{ config }}"
-        state: absent
-        data:
-            name : '{{ server_hardware_hostname }}'
-      delegate_to: localhost
+    # Commenting below tasks to ensure continuity for automation script
+    # - name: Remove the server hardware by its IP
+    #   oneview_server_hardware:
+    #     config: "{{ config }}"
+    #     state: absent
+    #     data:
+    #         name : '{{ contents.server_hardware_hostname }}'
+    #   delegate_to: localhost
 
-    - name: Do nothing when the server hardware is already removed
-      oneview_server_hardware:
-        config: "{{ config }}"
-        state: absent
-        data:
-            name : '{{ server_hardware_hostname }}'
-      delegate_to: localhost
+    # - name: Do nothing when the server hardware is already removed
+    #   oneview_server_hardware:
+    #     config: "{{ config }}"
+    #     state: absent
+    #     data:
+    #         name : '{{ contents.server_hardware_hostname }}'
+    #   delegate_to: localhost

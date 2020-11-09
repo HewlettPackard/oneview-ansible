@@ -1,0 +1,25 @@
+{
+  "ip": "",
+  "credentials": {
+    "userName": "",
+    "password": ""
+  },
+  "image_streamer_ip": "",
+  "api_version": 600,
+  "storage_domain": "TestDomain",
+  "storage_system_name" : "ThreePAR-1",
+  "storage_system_ip" : "172.18.11.11",
+  "storage_system_username" : "dcs",
+  "storage_system_password" : "dcs",
+  "storage_pool_name": "cpg-growth-limit-1TiB",
+  "server_profile_name": "sp1",
+  "storage_volume_name": "Volume with Storage Pool",
+  "snapshot_name": "Testing facts_20160823201021",
+  "server_hardware_hostname": "<server-hardware-hostname>",
+  "server_hardware_username": "<server-hardware-username>",
+  "server_hardware_password": "<server-hardware-password>",
+  "logical_interconnect_name": "LIG",
+  "volume_template_name": "svt1",
+  "scope_name": "MySampleScope",
+  "server_hardware_name": "0000A66101, bay 3"
+}
