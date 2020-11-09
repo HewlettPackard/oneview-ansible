@@ -1,10 +1,24 @@
 # Ansible Modules for HPE OneView Change Log
 ## v5.9.0(Unreleased)
-This release extends the planned support of the modules to OneView REST API version 2000 (OneView v5.4)
+This release extends the planned support of the modules to OneView REST API version 2200 (OneView v5.5) and ImageStreamer REST API version 2000 (I3S v5.4)
 
 #### Bug fixes & Enhancements
 - [#581] (https://github.com/HewlettPackard/oneview-ansible/issues/581) Updating single uplinkSet in LIG removes other uplinkSet.
 - [#582] (https://github.com/HewlettPackard/oneview-ansible/issues/582) description field is empty after server profile creation
+
+### Modules supported in this release
+- image_streamer_artifact_bundle
+- image_streamer_artifact_bundle_facts
+- image_streamer_build_plan
+- image_streamer_build_plan_facts
+- image_streamer_deployment_group_facts
+- image_streamer_deployment_plan
+- image_streamer_deployment_plan_facts
+- image_streamer_golden_image
+- image_streamer_golden_image_facts
+- image_streamer_os_volume_facts
+- image_streamer_plan_script
+- image_streamer_plan_script_facts
 
 ## v5.8.0
 This release extends the planned support of the modules to OneView REST API version 2000 (OneView v5.4)

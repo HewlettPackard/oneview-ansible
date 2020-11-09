@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+# NOTE: This resource is only available on HPE Synergy
 ---
-# This resource is only available on HPE Synergy
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"

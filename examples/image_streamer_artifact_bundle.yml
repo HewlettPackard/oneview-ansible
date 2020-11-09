@@ -20,14 +20,28 @@
     artifact_bundle_name: 'Artifact Bundle'
     artifact_bundle_name_update: 'Artifact Bundle Updated'
     artifact_bundle_description: 'Description of Artifact Bundles Test'
-    deployment_group_uri: '/rest/deployment-groups/2117634b-d911-4673-98ac-1a7e19f3b40f'
-    build_plan_uri: '/rest/build-plans/81088ef9-631d-4c5c-9de1-026afa234bc8'
     build_plan_read_only: 'false'
     artifact_download_path: './downloaded_artifact.zip'
     artifact_archive_download_path: './downloaded_archive.zip'
     local_artifact_path: './downloaded_artifact.zip'
     local_backup_artifact_bundle_path: './downloaded_archive.zip'
   tasks:
+    - name: Gather facts about deployment groups
+      image_streamer_deployment_group_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - set_fact: 
+        deployment_group_uri: "{{ deployment_groups[0]['uri'] }}"
+      
+    - name: Gather facts about build plans
+      image_streamer_build_plan_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - set_fact: 
+        build_plan_uri: "{{ build_plans[0]['uri'] }}"
+      
     - name: Create an Artifact Bundle
       image_streamer_artifact_bundle:
         config: "{{ config }}"
@@ -58,6 +72,14 @@
           destinationFilePath: '{{ artifact_download_path }}'
       delegate_to: localhost
 
+    - name: Create Backup for Artifact Bundle
+      image_streamer_artifact_bundle:
+        config: "{{ config }}"
+        state: backup_create
+        data:
+          deploymentGroupURI: '{{ deployment_group_uri }}'
+      delegate_to: localhost
+
     - name: Download the Archive for Artifact Bundle to the file path provided
       image_streamer_artifact_bundle:
         config: "{{ config }}"
@@ -82,14 +104,6 @@
         data:
           deploymentGroupURI: '{{ deployment_group_uri }}'
           localBackupArtifactBundleFilePath: '{{ local_backup_artifact_bundle_path }}'
-      delegate_to: localhost
-
-    - name: Create Backup for Artifact Bundle
-      image_streamer_artifact_bundle:
-        config: "{{ config }}"
-        state: backup_create
-        data:
-          deploymentGroupURI: '{{ deployment_group_uri }}'
       delegate_to: localhost
 
     - name: Extract an Artifact Bundle
