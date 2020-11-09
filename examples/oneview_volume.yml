@@ -17,11 +17,41 @@
 - hosts: all
   vars:
     config: '{{ playbook_dir }}/oneview_config.json'
-    storage_pool_uri: '/rest/storage-pools/4EF694D4-FB48-4209-8790-AB200070738C' # set a Storage Pool URI to run this example
-    storage_system_uri: '/rest/storage-systems/TXQ1000307' # set a Storage System URI to run this example
-    template_uri: '/rest/storage-volume-templates/eb95244f-967b-4e38-9924-ab50011116a8'
-    # wwn:  # set a WWN to add a volume using the WWN of the volume (optional)
+    contents: "{{lookup('file', config)}}"
   tasks:
+    - name: Get currentVersion from URL
+      oneview_version_facts:
+        config: "{{ config }}" 
+      delegate_to: localhost
+      when: contents.api_version|length == 0
+      register: version
+   
+    - name: Print currentVersion if an apiVersion is not specified in config file
+      set_fact: 
+        currentVersion: "{{ version.ansible_facts.version.currentVersion|int }}"
+      when: contents.api_version|length == 0
+
+    - name: Print currentVersion if an apiVersion is specified in config file
+      set_fact: 
+        currentVersion: contents.api_version | string
+      when: contents.api_version|length != 0
+
+    - name: Gather paginated, filtered and sorted facts about Storage Pools
+      oneview_storage_pool_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: 'name:descending'
+          filter: status='OK'
+
+    - name: Gather facts about all Storage Volume Templates
+      oneview_storage_volume_template_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=storage_volume_templates
+
     - name: Create a Volume with a specified Storage Pool
       oneview_volume:
         config: '{{ config }}'
@@ -31,10 +61,12 @@
             name: 'Volume with Storage Pool'
             description: 'Test volume with common creation: Storage Pool'
             size: 2147483648  # 2GB
-            storagePool: '{{ storage_pool_uri }}'
-          templateUri: '{{ template_uri }}'
+            storagePool: '{{ storage_pools[0]['uri'] }}'
+          templateUri: '{{ storage_volume_templates[0]['uri'] }}'
           isPermanent: false
       delegate_to: localhost
+      when: (storage_pools is not none and storage_pools is not undefined and 
+             storage_volume_templates is not none and storage_volume_templates is not undefined)
 
     - name: Extend the Volume size
       oneview_volume:
@@ -43,6 +75,11 @@
         data:
           name: 'Volume with Storage Pool'
           provisionedCapacity: 2684354560  # 2.5GB - The volume actual size
+      delegate_to: localhost
+
+    - name: Gather facts about all Scopes
+      oneview_scope_facts:
+        config: "{{ config }}"
       delegate_to: localhost
 
     - name: Create a volume with a specified Snapshot Pool
@@ -54,28 +91,16 @@
             name: 'Volume with Snapshot Pool'
             description: 'Test volume with common creation: Storage System + Storage Pool + Snapshot Pool'
             size: 1073741824  # 1GB
-            storagePool: '{{ storage_pool_uri }}'
-            snapshotPool: '{{ storage_pool_uri }}'
-          templateUri: '{{ template_uri }}'
+            storagePool: '{{ storage_pools[0]['uri'] }}'
+            snapshotPool: '{{ storage_pools[0]['uri'] }}'
+          templateUri: '{{ storage_volume_templates[0]['uri'] }}'
           isPermanent: false
-          initialScopeUris: ['/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7'] # This option available only with API version 600 and above
+          initialScopeUris:  # This option available only with API version 600 and above
+            - '{{ scopes[0]['uri'] }}'
       delegate_to: localhost
-
-    # Supported only with API version 300 and below.
-    - name: Add a volume for management by the appliance using the WWN of the volume
-      oneview_volume:
-        config: '{{ config }}'
-        state: present
-        data:
-          type: AddStorageVolumeV2
-          name: 'Volume added with a specific WWN'
-          description: 'Test volume added for management: Storage System + Storage Pool + WWN'
-          storageSystemUri: '{{ storage_system_uri }}'
-          wwn: '{{ wwn }}'
-          provisioningParameters:
-              shareable: True
-      when: wwn is defined
-      delegate_to: localhost
+      when: (storage_pools is not none and storage_pools is not undefined and 
+             storage_volume_templates is not none and storage_volume_templates is not undefined and
+             scopes is not none and scopes is not undefined)
 
     - name: Update the name of the volume to 'Volume with Storage Pool - Renamed' and shareable to false
       oneview_volume:
@@ -131,13 +156,22 @@
         data:
           name: 'Volume with Snapshot Pool'
       delegate_to: localhost
-
-    - name: Delete the volume previously added using the WWN of the volume
+    
+    # Volume creation to ensure continuity with automation script
+    - name: Create a Volume with a specified Storage Pool
       oneview_volume:
         config: '{{ config }}'
-        state: absent
+        state: present
         data:
-          name: 'Volume added with a specific WWN'
-        export_only: True
-      when: wwn is defined
+          properties:
+            name: 'Volume with Storage Pool'
+            description: 'Test volume with common creation: Storage Pool'
+            size: 2147483648  # 2GB
+            storagePool: '{{ storage_pools[0]['uri'] }}'
+          templateUri: '{{ storage_volume_templates[0]['uri'] }}'
+          isPermanent: false
       delegate_to: localhost
+      when: (storage_pools is not none and storage_pools is not undefined and 
+             storage_volume_templates is not none and storage_volume_templates is not undefined)
+
+

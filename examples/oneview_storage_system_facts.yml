@@ -17,8 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - storage_system_name: ThreePAR-1
-    - storage_system_ip: 172.18.11.12
+    - contents: "{{lookup('file', config)}}"
   tasks:
     - name: Gather facts about all Storage Systems
       oneview_storage_system_facts:
@@ -40,7 +39,7 @@
     - name: Gather facts about a Storage System by IP (storage_hostname)
       oneview_storage_system_facts:
         config: "{{ config }}"
-        storage_hostname: "{{ storage_system_ip }}"
+        storage_hostname: "{{ contents.storage_system_ip }}"
       delegate_to: localhost
 
     - debug: var=storage_systems
@@ -48,7 +47,7 @@
     - name: Gather facts about a Storage System by IP (hostname)
       oneview_storage_system_facts:
         config: "{{ config }}"
-        storage_hostname: "{{ storage_system_ip }}"
+        storage_hostname: "{{ contents.storage_system_ip }}"
       delegate_to: localhost
 
     - debug: var=storage_systems
@@ -56,7 +55,7 @@
     - name: Gather facts about a Storage System by name
       oneview_storage_system_facts:
         config: "{{ config }}"
-        name: "{{ storage_system_name }}"
+        name: "{{ contents.storage_system_name }}"
       delegate_to: localhost
 
     - debug: var=storage_systems
@@ -73,21 +72,28 @@
     - name: Gather facts about Storage Pools of a Storage System by name
       oneview_storage_system_facts:
         config: "{{ config }}"
-        name: "{{ storage_system_name }}"
+        name: "{{ contents.storage_system_name }}"
         options:
           - storagePools
       delegate_to: localhost
 
     - debug: var=storage_system_pools
 
+    - name: Gather facts about all Fibre Channel Networks
+      oneview_fc_network_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=fc_networks    
+
     - name: Gather queried facts about Storage System reachable ports
       oneview_storage_system_facts:
         config: "{{ config }}"
-        storage_hostname: "{{ storage_system_ip }}"
+        storage_hostname: "{{ contents.storage_system_ip }}"
         options:
           - reachablePorts:
               networks:
-                  - /rest/fc-networks/507c4b12-2b30-42fb-9675-b9546a3a57c2
+                  - fc_networks[0]['uri']
         params:
           sort: 'name:descending'
 
@@ -96,7 +102,7 @@
     - name: Gather facts about the Storage System storage templates
       oneview_storage_system_facts:
         config: "{{ config }}"
-        storage_hostname: "{{ storage_system_ip }}"
+        storage_hostname: "{{ contents.storage_system_ip }}"
         options:
           - templates
         params:

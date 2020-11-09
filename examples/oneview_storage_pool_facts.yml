@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,12 +16,8 @@
 ---
 - hosts: all
   vars:
-    - config: "{{ playbook_dir }}/oneview_config.json"
-    - networks_query:
-      - /rest/fc-networks/f61d2299-c6dd-4f81-bcd2-1f99dbae118a
-    - scope_uris: '/rest/scopes/754e0dce-3cbd-4188-8923-edf86f068bf7'
-    - scope_exclusions:
-      - /rest/storage-pools/5F9CA89B-C632-4F09-BC55-A8AA00DA5C4A
+    config: "{{ playbook_dir }}/oneview_config.json"
+    contents: "{{lookup('file', config)}}"
   tasks:
     - name: Gather facts about all Storage Pools
       oneview_storage_pool_facts:
@@ -44,17 +40,31 @@
     - name: Gather facts about a Storage Pool by name
       oneview_storage_pool_facts:
         config: "{{ config }}"
-        name: "CPG_FC-AO"
+        name: "{{ contents.storage_pool_name }}"
       delegate_to: localhost
+
+    - name: Gather facts about all Fibre Channel Networks
+      oneview_fc_network_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=fc_networks
+
+    - name: Gather facts about all Scopes
+      oneview_scope_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=scopes
 
     - name: Gather facts about reachable storage pools
       oneview_storage_pool_facts:
         config: "{{ config }}"
         options:
           - reachableStoragePools:
-              networks: '{{ networks_query }}'
-              scope_uris: '{{ scope_uris }}'
-              scope_exclusions: '{{ scope_exclusions }}'
+              networks: '{{ fc_networks[0]['uri'] }}'
+              scope_uris: '{{ scopes[0]['uri'] }}'
+              scope_exclusions: '{{ storage_pools[0]['uri'] }}'
         params:
           filter: status='OK'
       delegate_to: localhost
