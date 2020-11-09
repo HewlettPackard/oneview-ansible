@@ -62,9 +62,11 @@
         config: "{{ config }}"
         options:
           - reachableStoragePools:
-              networks: '{{ fc_networks[0]['uri'] }}'
-              scope_uris: '{{ scopes[0]['uri'] }}'
-              scope_exclusions: '{{ storage_pools[0]['uri'] }}'
+              networks: 
+               - "{{ fc_networks[0]['uri'] }}"
+              scope_uris: "{{ scopes[0]['uri'] }}"
+              scope_exclusions: 
+               - "{{ storage_pools[0]['uri'] }}"
         params:
           filter: status='OK'
       delegate_to: localhost

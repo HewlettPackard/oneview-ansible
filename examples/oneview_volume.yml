@@ -61,8 +61,8 @@
             name: 'Volume with Storage Pool'
             description: 'Test volume with common creation: Storage Pool'
             size: 2147483648  # 2GB
-            storagePool: '{{ storage_pools[0]['uri'] }}'
-          templateUri: '{{ storage_volume_templates[0]['uri'] }}'
+            storagePool: "{{ storage_pools[0]['uri'] }}"
+          templateUri: "{{ storage_volume_templates[0]['uri'] }}"
           isPermanent: false
       delegate_to: localhost
       when: (storage_pools is not none and storage_pools is not undefined and 
@@ -91,12 +91,12 @@
             name: 'Volume with Snapshot Pool'
             description: 'Test volume with common creation: Storage System + Storage Pool + Snapshot Pool'
             size: 1073741824  # 1GB
-            storagePool: '{{ storage_pools[0]['uri'] }}'
-            snapshotPool: '{{ storage_pools[0]['uri'] }}'
-          templateUri: '{{ storage_volume_templates[0]['uri'] }}'
+            storagePool: "{{ storage_pools[0]['uri'] }}"
+            snapshotPool: "{{ storage_pools[0]['uri'] }}"
+          templateUri: "{{ storage_volume_templates[0]['uri'] }}"
           isPermanent: false
           initialScopeUris:  # This option available only with API version 600 and above
-            - '{{ scopes[0]['uri'] }}'
+            - "{{ scopes[0]['uri'] }}"
       delegate_to: localhost
       when: (storage_pools is not none and storage_pools is not undefined and 
              storage_volume_templates is not none and storage_volume_templates is not undefined and
@@ -167,8 +167,8 @@
             name: 'Volume with Storage Pool'
             description: 'Test volume with common creation: Storage Pool'
             size: 2147483648  # 2GB
-            storagePool: '{{ storage_pools[0]['uri'] }}'
-          templateUri: '{{ storage_volume_templates[0]['uri'] }}'
+            storagePool: "{{ storage_pools[0]['uri'] }}"
+          templateUri: "{{ storage_volume_templates[0]['uri'] }}"
           isPermanent: false
       delegate_to: localhost
       when: (storage_pools is not none and storage_pools is not undefined and 

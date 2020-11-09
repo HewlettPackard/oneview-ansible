@@ -103,29 +103,16 @@
         validate_etag: False
         data:
           credentials:
-              hostname: '{{ storage_system_ip }}'
+              hostname: '{{ contents.storage_system_ip }}'
       delegate_to: localhost
       when: currentVersion < '500'
 
-    - name: Do nothing when the storage system is already removed (by name) (API500 onwards)
-      oneview_storage_system:
-        config: "{{ config }}"
-        state: absent
-        data:
-            name: '{{ storage_system_name }}'
-      delegate_to: localhost
-      when: currentVersion >= '500'
+#    - name: Do nothing when the storage system is already removed (by name) (API500 onwards)
+#      oneview_storage_system:
+#        config: "{{ config }}"
+#        state: absent
+#        data:
+#            name: '{{ contents.storage_system_name }}'
+#      delegate_to: localhost
+#      when: currentVersion >= '500'
 
-    # Adding storage System to ensure continuity for automation script
-    - name: Add a StoreServ Storage System
-      oneview_storage_system:
-        config: "{{ config }}"
-        state: present
-        data:
-          credentials:
-              username: '{{ contents.storage_system_username }}'
-              password: '{{ contents.storage_system_password }}'
-          hostname: '{{ contents.storage_system_ip }}'
-          family: StoreServ
-      delegate_to: localhost
-      when: (storage_systems is undefined or storage_systems is none)

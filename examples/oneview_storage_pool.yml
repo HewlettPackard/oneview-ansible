@@ -50,17 +50,19 @@
         config: "{{ config }}"
         state: present
         data:
-           storageSystemUri: '{{ storage_systems[0]['uri'] }}'
+           storageSystemUri: "{{ storage_systems[0]['uri'] }}"
            name: '{{ contents.storage_pool_name }}'
            isManaged: False
       delegate_to: localhost
+      when: (storage_systems is not none or storage_systems is not undefined)
 
     - name: Ensure the Storage Pool '{{ contents.storage_pool_name }}' is managed
       oneview_storage_pool:
         config: "{{ config }}"
         state: present
         data:
-           storageSystemUri: '{{ storage_systems[0]['uri'] }}'
+           storageSystemUri: "{{ storage_systems[0]['uri'] }}"
            name: '{{ contents.storage_pool_name }}'
            isManaged: True
       delegate_to: localhost
+      when: (storage_systems is not none and storage_systems is not undefined)
