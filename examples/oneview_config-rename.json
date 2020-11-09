@@ -21,5 +21,7 @@
   "logical_interconnect_name": "LIG",
   "volume_template_name": "svt1",
   "scope_name": "MySampleScope",
-  "server_hardware_name": "0000A66101, bay 3"
+  "interconnect_ip": "fe80::2:0:c:1",
+  "interconnect_ip_for_update": "fe80::2:0:c:1",
+  "port_id": "748d4699-62ff-454e-8ec8-773815c4aa2f:d1"
 }

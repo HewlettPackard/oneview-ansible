@@ -69,3 +69,16 @@
         data: "{{ hyp_mgr_1.ansible_facts.hypervisor_manager }}"
       delegate_to: localhost
       register: deleted
+
+    - name: Create a Hypervisor Manager to ensure continuity for automation script
+      oneview_hypervisor_manager:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: "{{ hypervisor_manager_name }}"
+          displayName: 'vcenter'
+          hypervisorType: 'Vmware'
+          username: 'dcs'
+          password: 'dcs'
+      delegate_to: localhost
+      register: hyp_mgr_1
