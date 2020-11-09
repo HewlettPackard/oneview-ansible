@@ -98,7 +98,7 @@
     - name: Gather all facts about a Server Profile works below API Version 1200
       oneview_server_profile_facts:
        config: "{{ config }}"
-       name : "{{server_profile_name}}"
+       name : "{{contents.server_profile_name}}"
        options:
            - schema  # Supported only for API version <= 1200
            - newProfileTemplate # Supported only for API version <= 1200
@@ -109,18 +109,18 @@
     - name: Gather all facts about a Server Profile
       oneview_server_profile_facts:
        config: "{{ config }}"
-       name : "{{server_profile_name}}"
+       name : "{{contents.server_profile_name}}"
        options:
            - compliancePreview
            - profilePorts:
-              serverHardwareTypeUri: "{{server_hardware_type_uri}}"
-              enclosureGroupUri: "{{enclosure_group_uri}}"
+              serverHardwareTypeUri: "{{server_hardware_types[0]['uri']}}"
+              enclosureGroupUri: "{{enclosure_groups[0]['uri']}}"
            - transformation:
-               serverHardwareTypeUri: "{{server_hardware_type_uri}}"
-               enclosureGroupUri: "{{enclosure_group_uri}}"
+               serverHardwareTypeUri: "{{server_hardware_types[0]['uri']}}"
+               enclosureGroupUri: "{{enclosure_groups[0]['uri']}}"
            - availableNetworks:
-               serverHardwareTypeUri: "{{server_hardware_type_uri}}"
-               enclosureGroupUri: "{{enclosure_group_uri}}"
+               serverHardwareTypeUri: "{{server_hardware_types[0]['uri']}}"
+               enclosureGroupUri: "{{enclosure_groups[0]['uri']}}"
            - availableTargets
       delegate_to: localhost
 

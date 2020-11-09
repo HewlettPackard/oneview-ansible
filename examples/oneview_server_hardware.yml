@@ -56,6 +56,7 @@
              licensingIntent: "OneView"
              configurationState: "Managed"
       delegate_to: localhost
+      when: variant == 'C7000'
 
     #This task available only with OneView API version >= 600.
     - name: Add multiple rack-mount servers
@@ -71,13 +72,22 @@
              licensingIntent: "OneView"
              configurationState: "Managed"
       delegate_to: localhost
+      when: variant == 'C7000'
+
+    - name: Gather facts about all Server Hardwares
+      oneview_server_hardware_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=server_hardwares
+
 
     - name: Power Off the server hardware
       oneview_server_hardware:
         config: "{{ config }}"
         state: power_state_set
         data:
-            name : '{{ contents.server_hardware_hostname }}'
+            name : "{{ server_hardwares[0]['name'] }}"
             powerStateData:
                 powerState: "Off"
                 powerControl: "MomentaryPress"
@@ -88,7 +98,7 @@
         config: "{{ config }}"
         state: power_state_set
         data:
-            name : '{{ contents.server_hardware_hostname }}'
+            name : "{{ server_hardwares[0]['name'] }}"
             powerStateData:
                 powerState: "On"
                 powerControl: "MomentaryPress"
@@ -99,7 +109,7 @@
         config: "{{ config }}"
         state: refresh_state_set
         data:
-            name : '{{ contents.server_hardware_hostname }}'
+            name : "{{ server_hardwares[0]['name'] }}"
             refreshStateData:
                 refreshState : "RefreshPending"
       delegate_to: localhost
@@ -109,7 +119,7 @@
         config: "{{ config }}"
         state: ilo_firmware_version_updated
         data:
-            name : '{{ contents.server_hardware_hostname }}'
+            name : "{{ server_hardwares[0]['name'] }}"
       delegate_to: localhost
 
     - name: Reset the Server Hardware iLO State
@@ -117,7 +127,7 @@
         config: "{{ config }}"
         state: ilo_state_reset
         data:
-            name: '{{ contents.server_hardware_hostname }}'
+            name: "{{ server_hardwares[0]['name'] }}"
       delegate_to: localhost
 
     - name: Set the server UID state off
@@ -125,7 +135,7 @@
         config: "{{ config }}"
         state: uid_state_off
         data:
-            name: '{{ contents.server_hardware_hostname }}'
+            name: "{{ server_hardwares[0]['name'] }}"
       delegate_to: localhost
 
     # Commenting below tasks to ensure continuity for automation script

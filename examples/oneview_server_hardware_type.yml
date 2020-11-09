@@ -18,12 +18,9 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    server_hardware_type_name: 'SY 480 Gen9 1'
     server_hardware_type_name_renamed: 'DL380p Gen8 1 (new name)'
     variant: 'Synergy'
     contents: "{{lookup('file', config)}}"
-  vars_files:
-    - "{{ playbook_dir }}/vars/config.yml"
   tasks:
     # This is only supported on appliances which support rack mounted servers.
     - name: Add a Server Hardware to create a Server Hardware Type (Prerequisite)
@@ -40,12 +37,18 @@
       delegate_to: localhost
       when: variant == 'C7000'
 
+    - name: Gather facts about all Server Hardware Types
+      oneview_server_hardware_type_facts:
+         config: "{{ config }}"
+      delegate_to: localhost
+
+
     - name: Update the Server Hardware Type description
       oneview_server_hardware_type:
         config: "{{ config }}"
         state: present
         data:
-          name: '{{ server_hardware_type_name }}'
+          name: "{{ server_hardware_types[0]['name'] }}"
           description: "New Description"
       delegate_to: localhost
 
@@ -54,22 +57,32 @@
         config: "{{ config }}"
         state: present
         data:
-            name: '{{ server_hardware_type_name }}'
+            name: "{{ server_hardware_types[0]['name'] }}"
             newName: '{{ server_hardware_type_name_renamed }}'
       delegate_to: localhost
 
-    - name: Remove the Server Hardware to be able to delete the Server Hardware Type (Prerequisite)
-      oneview_server_hardware:
-        config: "{{ config }}"
-        state: absent
-        data:
-            name : '{{ server_hardware_hostname }}'
-      delegate_to: localhost
-
-    - name: Delete the Server Hardware Type
+    - name: Rename the Server Hardware Type to original
       oneview_server_hardware_type:
         config: "{{ config }}"
-        state: absent
+        state: present
         data:
-            name: '{{ server_hardware_type_name_renamed }}'
+          name: '{{ server_hardware_type_name_renamed }}'
+          newName: "{{ server_hardware_types[0]['name'] }}"
       delegate_to: localhost
+
+
+#    - name: Remove the Server Hardware to be able to delete the Server Hardware Type (Prerequisite)
+#      oneview_server_hardware:
+#        config: "{{ config }}"
+#        state: absent
+#        data:
+#            name : '{{ server_hardware_hostname }}'
+#      delegate_to: localhost
+#
+#    - name: Delete the Server Hardware Type
+#      oneview_server_hardware_type:
+#        config: "{{ config }}"
+#        state: absent
+#        data:
+#            name: '{{ server_hardware_type_name_renamed }}'
+#      delegate_to: localhost

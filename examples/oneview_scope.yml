@@ -53,7 +53,6 @@
           resourceAssignments:
             addedResourceUris: "{{ fc_networks[0]['uri'] }}"
       delegate_to: localhost
-      when: (fc_networks is none and fc_networks is undefined)
 
     - name: Update the scope resource assignments, removing two resources
       oneview_scope:

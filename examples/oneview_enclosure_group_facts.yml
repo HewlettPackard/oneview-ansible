@@ -39,7 +39,7 @@
           count: 3
           sort: 'name:descending'
           filter: 'status=OK'
-          scope_uris: '{{ scopes[0]['uri'] }}'
+          scope_uris: "{{ scopes[0]['uri'] }}"
 
     - debug: var=enclosure_groups
 

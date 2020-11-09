@@ -35,8 +35,6 @@
     certificate_data:
       type: CertificateDataV2
       base64Data: certificate
-  vars_files:
-    - "{{ playbook_dir }}/vars/config.yml"
   tasks:
    # This play is compatible with C7000 Enclosures
     - name: Ensure the Enclosure with hostname '{{ enclosure_hostname }}' is present with name 'Test-Enclosure'
