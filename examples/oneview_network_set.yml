@@ -19,9 +19,6 @@
     config: "{{ playbook_dir }}/oneview_config.json"
     contents: "{{lookup('file', config)}}"
     ethernet_network_1_name: 'test-ethernet' # Define a Name of an Ethernet Network to add on the Network Set
-    network_set_scope_uris:
-      - /rest/scopes/483d4056-03a3-4eed-a606-e1d32e14dd61
-      - /rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412
   tasks:
     - name: Get currentVersion from URL
       oneview_version_facts:
@@ -59,6 +56,11 @@
             typicalBandwidth: 3000
       delegate_to: localhost
 
+    - name: Gather facts about all Scopes
+      oneview_scope_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
     # Scope update is only supported V300 and V500
     - name: Update the Network set with two scopes
       oneview_network_set:
@@ -66,7 +68,9 @@
         state: present
         data:
           name: OneViewSDK Test Network Set
-          scopeUris: "{{ network_set_scope_uris }}"
+          scopeUris: 
+           - "{{ scopes[0]['uri'] }}"
+           - "{{ scopes[1]['uri'] }}"
       delegate_to: localhost
       when: currentVersion >= '300' and currentVersion <= '500'
 
