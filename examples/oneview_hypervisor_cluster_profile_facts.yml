@@ -48,6 +48,7 @@
         config: "{{ config }}"
         uri: "{{hypervisor_cluster_profiles[0]['uri']}}"
       delegate_to: localhost
+      when: hypervisor_cluster_profiles|length != 0
 
     - debug: var=hypervisor_cluster_profiles
 
