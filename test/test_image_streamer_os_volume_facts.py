@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -43,7 +43,8 @@ class TestOsVolumeFactsModule(ImageStreamerBaseFactsTest):
     """
 
     OS_VOLUME = {"name": "OS Volume Name",
-                 "uri": "/rest/os-volumes/a3b3c234-2ei0-b99o-jh778jsdkl2n5"}
+                 "uri": "/rest/os-volumes/a3b3c234-2ei0-b99o-jh778jsdkl2n5",
+                 "oeVolumeId": "a3b3c234-2ei0-b99o-jh778jsdkl2n5"}
 
     OS_VOLUME_STORAGE = {"name": "OS Volume Name", "snapshots": []}
 

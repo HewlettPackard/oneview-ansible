@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -13,19 +13,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+# NOTE: One capture build plan and os volume should be present before running this example
 ---
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     golden_image_name_created: 'Demo Golden Image creation'
     golden_image_name_uploaded: 'Demo Golden Image upload'
-    local_image_file_path: '~/image_file.zip'
-    image_download_path: '~/downloaded_image.zip'
-    archive_download_path: '~/archive.log'
-    os_volume_name: "OSVolume-1"
-    build_plan_name: "Demo Build Plan"
+    image_download_path: './downloaded_image.zip'
+    archive_download_path: './archive.log'
   tasks:
-    - name: Add a Golden Image from OS Volume
+    - name: Gather facts about OS Volume
+      image_streamer_os_volume_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - set_fact:
+        os_volume_name: "{{ os_volumes[0]['name']}}"
+
+    - name: Gather facts about build plan
+      image_streamer_build_plan_facts:
+        config: "{{ config }}"
+        params:
+          filter: oeBuildPlanType=capture
+      delegate_to: localhost
+
+    - set_fact:
+        build_plan_name: "{{ build_plans[0]['name']}}"
+
+    - name: Create a Golden Image from OS Volume
       image_streamer_golden_image:
         config: "{{ config }}"
         state: present
@@ -37,23 +53,23 @@
           buildPlanName: '{{ build_plan_name }}'
       delegate_to: localhost
 
-    - name: Create a Golden Image uploading from a local file
+    - name: Download the Golden Image to the file path provided
+      image_streamer_golden_image:
+        config: "{{ config }}"
+        state: downloaded
+        data:
+          name: '{{ golden_image_name_created }}'
+          destination_file_path: '{{ image_download_path }}'
+      delegate_to: localhost
+
+    - name: Add a Golden Image uploading from a local file
       image_streamer_golden_image:
         config: "{{ config }}"
         state: present
         data:
           name: '{{ golden_image_name_uploaded }}'
           description: "Test"
-          localImageFilePath: '{{ local_image_file_path }}'
-      delegate_to: localhost
-
-    - name: Download the Golden Image to the file path provided
-      image_streamer_golden_image:
-        config: "{{ config }}"
-        state: downloaded
-        data:
-          name: '{{ golden_image_name_uploaded }}'
-          destination_file_path: '{{ image_download_path }}'
+          localImageFilePath: '{{ image_download_path }}'
       delegate_to: localhost
 
     - name: Download the Golden Image archive log to the file path provided
@@ -80,7 +96,7 @@
         config: "{{ config }}"
         state: absent
         data:
-            name: 'ready to delete'
+          name: 'ready to delete'
       delegate_to: localhost
 
     - name: Remove the created Golden Image
@@ -88,5 +104,5 @@
         config: "{{ config }}"
         state: absent
         data:
-            name: '{{ golden_image_name_created }}'
+          name: '{{ golden_image_name_created }}'
       delegate_to: localhost
