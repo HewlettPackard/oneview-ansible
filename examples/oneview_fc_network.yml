@@ -22,8 +22,6 @@
     network_scope_uris:
       - '/rest/scopes/d0324c4b-56c9-485b-b7dd-8f6218a4b5bb'
       - '/rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412'
-    networkUris_to_bulkdelete:
-      - '/rest/fc-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548'
   tasks:
 
     - name: Get currentVersion from URL
@@ -49,13 +47,17 @@
         state: present
         validate_etag: False
         data:
-          name: "{{ network_name }}"
+          name: "{{ item }}"
           fabricType: 'FabricAttach'
           linkStabilityTime: '30'
           autoLoginRedistribution: true
           type: "fc-networkV4"
       delegate_to: localhost
       register: fc_network_1
+      with_items:
+         - "{{ network_name }}"
+         - "{{ network_name }} (1)"
+         - "{{ network_name }} (2)"
 
     - name: Do nothing with the Fibre Channel Network when no changes are provided
       oneview_fc_network:
@@ -87,14 +89,15 @@
         data:
           name: "{{ network_name }}"
           scopeUris: "{{ network_scope_uris }}"
-      when: currentVersion >= '300' or currentVersion <= '500'
+      when: currentVersion >= '300' and currentVersion <= '500'
       delegate_to: localhost
 
     - name: Delete the Fibre Channel Network
       oneview_fc_network:
         config: "{{ config }}"
         state: absent
-        data: "{{ fc_network_1.ansible_facts.fc_network }}"
+        data:
+          name: "{{ network_name }}"
       delegate_to: localhost
       register: deleted
 
@@ -102,9 +105,12 @@
       oneview_fc_network:
         config: "{{ config }}"
         state: absent
-        data: "{{ fc_network_1.ansible_facts.fc_network }}"
+        data:
+          name: "{{ network_name }}"
       delegate_to: localhost
       register: deleted
+
+    - debug: var=fc_network_1.results[1].ansible_facts.fc_network.uri
 
     # This feature is available only from OneView 5.20
     - name: Delete Fibre Channel Networks in bulk
@@ -112,6 +118,8 @@
         config: "{{ config }}"
         state: absent
         data:
-          networkUris: "{{ networkUris_to_bulkdelete }}"
+          networkUris:
+            - "{{ fc_network_1.results[1].ansible_facts.fc_network.uri }}"
+            - "{{ fc_network_1.results[2].ansible_facts.fc_network.uri }}"
       delegate_to: localhost
       when: currentVersion >= '1600'
