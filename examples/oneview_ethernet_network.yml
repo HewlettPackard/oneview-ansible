@@ -45,8 +45,8 @@
         config: "{{ config }}"
         state: present
         data:
-          name: '{{ network_name }}'
-          vlanId: '200'
+          name: '{{ item.name }}'
+          vlanId: '{{ item.vlanId }}'
           ethernetNetworkType: Tagged
           purpose: General
           smartLink: false
@@ -55,6 +55,9 @@
               maximumBandwidth: 2000
               typicalBandwidth: 1000
       delegate_to: localhost
+      with_items:
+       - { name: '{{ network_name }}', vlanId: '201' }
+       - { name: 'test-ethernet', vlanId: '202'}
 
     - name: Update the Ethernet Network changing bandwidth and purpose
       oneview_ethernet_network:

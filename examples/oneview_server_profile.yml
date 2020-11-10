@@ -44,7 +44,7 @@
     # Set the name of an existing server hardware type to run this example
     - server_hardware_type_name: SY 480 Gen9 4
     # Set the name of an existing ethernet network
-    - network_name: eth77
+    - network_name: test-ethernet
     - server_profile_description: test
     - inventory_hostname: sp1
   tasks:
