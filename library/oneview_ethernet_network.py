@@ -54,7 +54,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2000
+    api_version: 2200
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -65,14 +65,14 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2000
+    api_version: 2200
     state: present
     data:
       name: 'Test Ethernet Network'
       purpose: Management
       bandwidth:
           maximumBandwidth: 3000
-          typicalBandwidth: 2000
+          typicalBandwidth: 2200
   delegate_to: localhost
 
 - name: Ensure that the Ethernet Network is present with name 'Renamed Ethernet Network'
@@ -80,7 +80,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2000
+    api_version: 2200
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -91,7 +91,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2000
+    api_version: 2200
     state: absent
     data:
       name: 'New Ethernet Network'
@@ -101,7 +101,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2000
+    api_version: 2200
     state: present
     data:
       vlanIdRange: '1-10,15,17'
@@ -111,14 +111,14 @@ EXAMPLES = '''
       privateNetwork: false
       bandwidth:
         maximumBandwidth: 10000
-        typicalBandwidth: 2000
+        typicalBandwidth: 2200
 
 - name: Reset to the default network connection template
   oneview_ethernet_network:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2000
+    api_version: 2200
     state: default_bandwidth_reset
     data:
       name: 'Test Ethernet Network'
@@ -129,7 +129,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2000
+    api_version: 2200
     state: present
     data:
       name: 'Test Ethernet Network'
@@ -143,7 +143,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2000
+    api_version: 2200
     state: absent
     data:
       networkUris:

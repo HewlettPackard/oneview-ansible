@@ -2,9 +2,9 @@
 
 ## Build Status 
 
-| 5.40 Branch   | 5.30 Branch   | 5.20 Branch   | 5.00 Branch   |
+| 5.50 Branch   | 5.40 Branch   | 5.30 Branch   | 5.20 Branch   | 5.00 Branch   |
 | ------------- |:-------------:| -------------:| -------------:|
-| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)
+| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)
 
 
 ## Introduction
@@ -18,7 +18,7 @@ Each OneView resource operation is exposed through an Ansible module. Specific m
 
 ## What's New
 
-HPE OneView Ansible library extends support of the SDK to OneView REST API version 2000 (OneView v5.40)
+HPE OneView Ansible library extends support of the SDK to OneView REST API version 2200 (OneView v5.50)
 
 Please refer to [notes](https://github.com/HewlettPackard/oneview-ansible/blob/master/CHANGELOG.md) for more information on the changes , features supported and issues fixed in this version
 
@@ -62,12 +62,12 @@ The containerized version of the oneview-ansible modules is available in the [Do
 
 #### Download and store a local copy of  hpe-oneview-sdk-for-ansible and use it as a Docker image.
 ```bash
-$ docker pull hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v5.8.0-OV5.4
+$ docker pull hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v5.9.0-OV5.5
 ```
 
 #### Run docker command which in turn will create a sh session where SDK user can create files, issue commands and execute playbooks
 ```bash
-$ docker run -it hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v5.8.0-OV5.4 /bin/sh
+$ docker run -it hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v5.9.0-OV5.5 /bin/sh
 ```
 
 There is also a [how-to guide](https://github.com/HewlettPackard/oneview-ansible-samples/blob/master/oneview-ansible-in-container/oneview-ansible-in-container.md) with instructions on how to use the container without creating a sh session.
@@ -85,7 +85,7 @@ To use the Ansible OneView modules, connection properties for accessing the OneV
     "authLoginDomain": "",
     "password": "secret123"
   },
-  "api_version": 2000
+  "api_version": 2200
 }
 ```
 
@@ -118,7 +118,7 @@ export ONEVIEWSDK_USERNAME='Administrator'
 export ONEVIEWSDK_PASSWORD='secret123'
 
 # Optional
-export ONEVIEWSDK_API_VERSION='2000'
+export ONEVIEWSDK_API_VERSION='2200'
 export ONEVIEWSDK_AUTH_LOGIN_DOMAIN='authdomain'
 export ONEVIEWSDK_PROXY='<proxy_host>:<proxy_port>'
 ```
@@ -146,7 +146,7 @@ This option allows the parameters `hostname`, `username`, `password`, `api_versi
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2000
+    api_version: 2200
     state: present
     data:
       name: "{{ network_name }}"
@@ -173,7 +173,7 @@ Ansible Vault feature may be leveraged for storing the credential of the user in
 	    ```yaml
 	    # Required
 	    ip: 172.168.1.1
-	    api_version:2000
+	    api_version:2200
 	    username: Administrator
 	    password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
@@ -217,17 +217,17 @@ Note: Most of the examples provided in this repository uses OneView Credentials 
 
 ### Setting OneView API Version
 
-The Ansible modules for HPE OneView support the API endpoints for HPE OneView 4.00, 4.10, 4.20, 5.00, 5.20, 5.30, 5.40 <br/>
+The Ansible modules for HPE OneView support the API endpoints for HPE OneView 4.00, 4.10, 4.20, 5.00, 5.20, 5.30, 5.40, 5.50 <br/>
 The current `default` HPE OneView version will pick the OneView appliance version.
 
 To use a different API, you must set the API version together with your credentials, either using the JSON configuration:
 ```bash
-"api_version": 2000
+"api_version": 2200
 ```
 
 OR using the Environment variable: 
 ```bash
-export ONEVIEWSDK_API_VERSION='2000'
+export ONEVIEWSDK_API_VERSION='2200'
 ```
 
 If this property is not specified, it will fall back to the default value.

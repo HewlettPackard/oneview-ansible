@@ -58,7 +58,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2000
+    api_version: 2200
     state: present
     data:
       name: Test FCoE Network
@@ -84,7 +84,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2000
+    api_version: 2200
     state: absent
     data:
       name: New FCoE Network
@@ -95,7 +95,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2000
+    api_version: 2200
     state: absent
     data:
       networkUris:
