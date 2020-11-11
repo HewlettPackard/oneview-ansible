@@ -3,7 +3,7 @@
 ## Build Status 
 
 | 5.50 Branch   | 5.40 Branch   | 5.30 Branch   | 5.20 Branch   | 5.00 Branch   |
-| ------------- |:-------------:| -------------:| -------------:|
+| ------------- |:-------------:| -------------:| -------------:| -------------:|
 | ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)
 
 
@@ -31,7 +31,7 @@ HPE OneView SDK for Ansible can be installed from Source and Docker container in
 ## Requirements
 To run the Ansible modules provided in this project, we need the below : 
  
-	Ansible >= 2.1
+	Ansible < 2.9
 	Python >= 3.4.2
 	HPE OneView Python SDK
  
