@@ -57,7 +57,7 @@
       delegate_to: localhost
       with_items:
        - { name: '{{ network_name }}', vlanId: '201' }
-       - { name: 'test-ethernet', vlanId: '202'}
+       - { name: 'mgmt_nw', vlanId: '202'}
 
     - name: Update the Ethernet Network changing bandwidth and purpose
       oneview_ethernet_network:
