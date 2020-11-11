@@ -18,22 +18,38 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     variant: "Synergy"
+    lig_name: LIG
   tasks:
+    - name: Gather facts about logical interconnect group
+      oneview_logical_interconnect_group_facts:
+        config: "{{ config }}"
+        name: "{{ lig_name }}"
+      delegate_to: localhost
+    - set_fact:
+        lig_uri: "{{ logical_interconnect_groups[0]['uri'] }}"
+
     - name: Create an Enclosure Group
       oneview_enclosure_group:
         config: "{{ config }}"
         state: present
         data:
-            name: "Enclosure Group 1"
-            ipAddressingMode: "External"    
+            name: "{{ item.name }}"
+            ipAddressingMode: "External"
+            ipv6AddressingMode: "External"
+            enclosureCount: 3
+            osDeploymentSettings:
+              manageOSDeployment: true
+              deploymentModeSettings:
+                deploymentMode: "Internal"
             interconnectBayMappings:
-                - interconnectBay: 1
-                - interconnectBay: 2
-                - interconnectBay: 3
-                - interconnectBay: 4
-                - interconnectBay: 5
-                - interconnectBay: 6
+              - interconnectBay: 3
+                logicalInterconnectGroupUri: "{{ lig_uri }}"
+              - interconnectBay: 6
+                logicalInterconnectGroupUri: "{{ lig_uri }}"
       delegate_to: localhost
+      with_items:
+        - { name: 'EG' }
+        - { name: 'Enclosure Group 1' }
 
     - name: Do nothing with the Enclosure Group when no changes are provided
       oneview_enclosure_group:
@@ -41,14 +57,18 @@
         state: present
         data:
             name: "Enclosure Group 1"
-            stackingMode: "Enclosure" # Not supported in V600
+            ipAddressingMode: "External"
+            ipv6AddressingMode: "External"
+            enclosureCount: 3
+            osDeploymentSettings:
+              manageOSDeployment: true
+              deploymentModeSettings:
+                deploymentMode: "Internal"
             interconnectBayMappings:
-                - interconnectBay: 1
-                - interconnectBay: 2
-                - interconnectBay: 3
-                - interconnectBay: 4
-                - interconnectBay: 5
-                - interconnectBay: 6
+              - interconnectBay: 3
+                logicalInterconnectGroupUri: "{{ lig_uri }}"
+              - interconnectBay: 6
+                logicalInterconnectGroupUri: "{{ lig_uri }}"
       delegate_to: localhost
 
     - name: Update the Enclosure Group changing the name attribute
@@ -58,14 +78,6 @@
         data:
             name: "Enclosure Group 1"
             newName: "Enclosure Group 1 (renamed)"
-      delegate_to: localhost
-
-    - name: Delete the Enclosure Group
-      oneview_enclosure_group:
-        config: "{{ config }}"
-        state: absent
-        data:
-          name: "Enclosure Group 1 (renamed)"
       delegate_to: localhost
 
     # This play is compatible with C7000 Enclosures
@@ -79,10 +91,19 @@
       delegate_to: localhost
       when: variant == "C7000"
 
+    - name: Delete the Enclosure Group
+      oneview_enclosure_group:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: "Enclosure Group 1 (renamed)"
+      delegate_to: localhost
+
     - name: Do nothing when Enclosure Group is absent
       oneview_enclosure_group:
         config: "{{ config }}"
         state: absent
         data:
           name: "Enclosure Group 1 (renamed)"
+      delegate_to: localhost
       delegate_to: localhost

@@ -17,9 +17,26 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - volume_template_name: 'sample'
+    - contents: "{{lookup('file', config)}}"
     - networks: '/rest/fc-networks/53dbd1ef-a90c-498d-b015-437c87d822bd'
   tasks:
+    - name: Get currentVersion from URL
+      oneview_version_facts:
+        config: "{{ config }}" 
+      delegate_to: localhost
+      when: contents.api_version|length == 0
+      register: version
+   
+    - name: Print currentVersion if an apiVersion is not specified in config file
+      set_fact: 
+        currentVersion: "{{ version.ansible_facts.version.currentVersion|int }}"
+      when: contents.api_version|length == 0
+
+    - name: Print currentVersion if an apiVersion is specified in config file
+      set_fact: 
+        currentVersion: contents.api_version | string
+      when: contents.api_version|length != 0
+
     - name: Gather facts about all Storage Volume Templates
       oneview_storage_volume_template_facts:
         config: "{{ config }}"
@@ -41,10 +58,17 @@
     - name: Gather facts about a Storage Volume Template by name
       oneview_storage_volume_template_facts:
         config: "{{ config }}"
-        name: "{{ volume_template_name }}"
+        name: "{{ contents.volume_template_name }}"
       delegate_to: localhost
 
     - debug: var=storage_volume_templates
+
+    - name: Gather facts about all Fibre Channel Networks
+      oneview_fc_network_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=fc_networks
 
     # Only available after API500
     - name: Gather facts about the reachable Storage Volume Templates
@@ -53,14 +77,14 @@
         options:
           - reachableVolumeTemplates
         params:
-          networks: "{{ networks }}"
+          networks: "{{ fc_networks[0]['uri'] }}"
       delegate_to: localhost
       when: currentVersion >= '500'
 
     - name: Gather facts about Storage Systems compatible to the SVT
       oneview_storage_volume_template_facts:
         config: "{{ config }}"
-        name: "{{ volume_template_name }}"
+        name: "{{ contents.volume_template_name }}"
         options:
           - compatibleSystems
       delegate_to: localhost
@@ -71,7 +95,7 @@
     - name: Gather facts about the connectable Storage Volume Templates
       oneview_storage_volume_template_facts:
         config: "{{ config }}"
-        name: "{{ volume_template_name }}"
+        name: "{{ contents.volume_template_name }}"
         options:
           - connectableVolumeTemplates
       delegate_to: localhost

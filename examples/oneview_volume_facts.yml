@@ -16,9 +16,8 @@
 ---
 - hosts: all
   vars:
-    - config: "{{ playbook_dir }}/oneview_config.json"
-    - volume_name: "Testing facts"     # set a volume name to run this example
-    - snapshot_name: "Testing facts_20160823201021"  # set a snapshot name to run this example
+    config: "{{ playbook_dir }}/oneview_config.json"
+    contents: "{{lookup('file', config)}}"
   tasks:
     - name: Gather facts about all Volumes
       oneview_volume_facts:
@@ -59,7 +58,7 @@
     - name: Gather facts about a Volume by name with a list of all snapshots taken
       oneview_volume_facts:
         config: "{{ config }}"
-        name: "{{ volume_name }}"
+        name: "{{ contents.storage_volume_name }}"
         options:
             - snapshots  # optional
       delegate_to: localhost
@@ -71,11 +70,12 @@
     - name: "Gather facts about a Volume with one specific snapshot taken"
       oneview_volume_facts:
        config: "{{ config }}"
-       name : "{{ volume_name }}"
+       name : "{{ contents.storage_volume_name }}"
        options:
            - snapshots:  # optional
-                    name : "{{ snapshot_name }}"
+                    name : "{{ snapshots[0]['name'] }}"
       delegate_to: localhost
+      when: (snapshots is none and snapshots is undefined)
 
     - debug: var=storage_volumes
     - debug: var=snapshots

@@ -18,16 +18,14 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    # Set the URI of existent resources to be added to the scope resource assignments
-    resource_uri_1: '/rest/ethernet-networks/29769296-ea14-47e5-80d0-24bf7c4f5020'
-    resource_uri_2: '/rest/fc-networks/4cf6f8f9-3edb-4ddb-9df8-03b2a8ada0bb'
+    contents: "{{lookup('file', config)}}"
   tasks:
     - name: Create a scope
       oneview_scope:
         config: '{{ config }}'
         state: present
         data:
-          name: 'SampleScope'
+          name: "{{ contents.scope_name }}"
       delegate_to: localhost
 
     - name: Update the scope name
@@ -35,9 +33,16 @@
         config: '{{ config }}'
         state: present
         data:
-          name: 'SampleScope'
+          name: "{{ contents.scope_name }}"
           newName: 'SampleScopeRenamed'
       delegate_to: localhost
+
+    - name: Gather facts about all Fibre Channel Networks
+      oneview_fc_network_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=fc_networks
 
     - name: Update the scope resource assignments, adding a resource
       oneview_scope:
@@ -46,7 +51,7 @@
         data:
           name: 'SampleScopeRenamed'
           resourceAssignments:
-            addedResourceUris: '{{ resource_uri_1 }}'
+            addedResourceUris: "{{ fc_networks[0]['uri'] }}"
       delegate_to: localhost
 
     - name: Update the scope resource assignments, removing two resources
@@ -57,9 +62,10 @@
           name: 'SampleScopeRenamed'
           resourceAssignments:
             removedResourceUris:
-              - '{{ resource_uri_1 }}'
-              - '{{ resource_uri_2 }}'
+              - "{{ fc_networks[0]['uri'] }}"
+              - "{{ fc_networks[1]['uri'] }}"
       delegate_to: localhost
+      when: (fc_networks is none and fc_networks is undefined)
  
     - name: Delete the Scope
       oneview_scope:
@@ -67,4 +73,12 @@
         state: absent
         data:
           name: 'SampleScopeRenamed'
+      delegate_to: localhost
+
+    - name: Create a scope to ensure continuity for an automation script
+      oneview_scope:
+        config: '{{ config }}'
+        state: present
+        data:
+          name: "{{ contents.scope_name }}"
       delegate_to: localhost

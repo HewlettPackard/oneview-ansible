@@ -22,8 +22,6 @@
     network_scope_uris:
       - '/rest/scopes/63d1ca81-95b3-41f1-a1ee-f9e1bc2d635f'
       - '/rest/scopes/96661df3-fb4f-4617-a1fb-d6f11adf18d3'
-    networkUris_to_bulkdelete:
-      - '/rest/ethernet-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548'
   tasks:
     - name: Get currentVersion from URL
       oneview_version_facts:
@@ -47,8 +45,8 @@
         config: "{{ config }}"
         state: present
         data:
-          name: '{{ network_name }}'
-          vlanId: 200
+          name: '{{ item.name }}'
+          vlanId: '{{ item.vlanId }}'
           ethernetNetworkType: Tagged
           purpose: General
           smartLink: false
@@ -57,6 +55,9 @@
               maximumBandwidth: 2000
               typicalBandwidth: 1000
       delegate_to: localhost
+      with_items:
+       - { name: '{{ network_name }}', vlanId: '201' }
+       - { name: 'mgmt_nw', vlanId: '202'}
 
     - name: Update the Ethernet Network changing bandwidth and purpose
       oneview_ethernet_network:
@@ -85,7 +86,7 @@
         data:
           name: "{{ network_name }}"
           scopeUris: []
-      when: currentVersion >= '300' or currentVersion <= '500'
+      when: currentVersion >= '300' and currentVersion <= '500'
       delegate_to: localhost
 
     - name: Ensure Ethernet Network has two scopes
@@ -95,7 +96,7 @@
         data:
           name: "{{ network_name }}"
           scopeUris: "{{ network_scope_uris }}"
-      when: currentVersion >= '300' or currentVersion <= '500'
+      when: currentVersion >= '300' and currentVersion <= '500'
       delegate_to: localhost
 
     - name: Rename the Ethernet Network to 'Updated Ethernet Network'
@@ -130,14 +131,20 @@
               maximumBandwidth: 10000
               typicalBandwidth: 2000
       delegate_to: localhost
-    - debug: msg="{{ethernet_network_bulk | map(attribute='name') | list }}"
+      register: bulk_ethernet_create
+    - debug: msg='{{ethernet_network_bulk | map(attribute='name') | list }}'
+    - debug: msg='{{ ethernet_network_bulk }}'
 
     - name: Delete Ethernet Networks in bulk
       oneview_ethernet_network:
         config: "{{ config }}"
         state: absent
         data:
-          networkUris: "{{ networkUris_to_bulkdelete }}"
+          networkUris: 
+            - "{{ ethernet_network_bulk[0].uri }}"
+            - "{{ ethernet_network_bulk[1].uri }}"
+            - "{{ ethernet_network_bulk[2].uri }}"
+            - "{{ ethernet_network_bulk[3].uri }}"
+            - "{{ ethernet_network_bulk[4].uri }}"
       delegate_to: localhost
       when: currentVersion >= '1600'
-
