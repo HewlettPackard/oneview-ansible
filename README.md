@@ -89,7 +89,7 @@ To use the Ansible OneView modules, connection properties for accessing the OneV
 }
 ```
 
-The api_version specifies the version of the REST API to be invoked. When api_version is not specified, it will use `600` as the default value.
+The api_version specifies the version of the REST API to be invoked. When api_version is not specified, it will take provided appliance API version as `api_version`.
 
 If your environment requires a proxy, define the proxy properties in the JSON file using the following syntax:
 ```json
