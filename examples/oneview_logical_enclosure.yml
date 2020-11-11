@@ -18,8 +18,9 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     logical_enclosure_name: "LE"  # Set the name of a Logical Enclosure
-    firmware_baseline_uri: "/rest/firmware-drivers/SPP_2018_11_20190205_for_HPE_Synergy_Z7550-96592"  # Set the URI of a Firmware Driver
+    firmware_name: "SPP_2018_11_20190205_for_HPE_Synergy_Z7550-96592"  # Set the name of a Firmware Driver
     variant: "Synergy"
+    eg_name: EG
 
   tasks:
     - name: Gather facts about all Enclosures
@@ -30,6 +31,7 @@
     - name: Gather facts about all Enclosure Groups
       oneview_enclosure_group_facts:
         config: "{{ config }}"
+        name: "{{ eg_name }}"
       delegate_to: localhost
 
     - name: Gather facts about all Firmware Drivers
@@ -44,8 +46,11 @@
         config: "{{ config }}"
         state: present
         data:
-            enclosureUris: "{{ enclosures[0]['uri'] }}"
-            enclosureGroupUri: "{{ enclosure_groups[0]['uri'] }}"
+            enclosureUris:
+              - "{{ enclosures[0]['uri'] }}"
+              - "{{ enclosures[1]['uri'] }}"
+              - "{{ enclosures[2]['uri'] }}"
+            enclosureGroupUri: "{{ enclosure_groups['uri'] }}"
             name: "{{ logical_enclosure_name }}"
       ignore_errors: true
       delegate_to: localhost

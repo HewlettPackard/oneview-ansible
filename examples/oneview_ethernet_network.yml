@@ -148,4 +148,3 @@
             - "{{ ethernet_network_bulk[4].uri }}"
       delegate_to: localhost
       when: currentVersion >= '1600'
-

@@ -49,8 +49,8 @@
         data:
           name: 'OneViewSDK Test Network Set'
           networkUris:
-            - '{{ ethernet_network_1_name }}'  # can be a name
-            - '{{ ethernet_networks[0]['uri'] }}'   # or a URI
+            - "{{ ethernet_network_1_name }}"  # can be a name
+            - "{{ ethernet_networks[0]['uri'] }}"   # or a URI
           bandwidth:
             maximumBandwidth: 15000
             typicalBandwidth: 3000
@@ -100,8 +100,8 @@
         data:
           name: 'OneViewSDK Test Network Set'
           networkUris:
-            - '{{ ethernet_network_1_name }}'  # can be a name
-            - '{{ ethernet_networks[0]['uri'] }}'   # or a URI
+            - "{{ ethernet_network_1_name }}"  # can be a name
+            - "{{ ethernet_networks[0]['uri'] }}"   # or a URI
           bandwidth:
             maximumBandwidth: 15000
             typicalBandwidth: 3000

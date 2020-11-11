@@ -71,6 +71,7 @@
         config: "{{ config }}"
         uri: "{{server_profiles[0]['uri']}}"
       delegate_to: localhost
+      when: server_profiles|length != 0
 
     - debug: var=server_profiles
 

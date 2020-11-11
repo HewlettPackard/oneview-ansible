@@ -38,13 +38,13 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     # Set the name of the server profile template that will be used to provision the server profile
-    - ov_template:  example_spt1
+    - ov_template:  Test_spt-1
     # Set the name of an existing enclosure group to run this example
     - enclosure_group_name: EG
     # Set the name of an existing server hardware type to run this example
-    - server_hardware_type_name: SY 480 Gen9 4
+    - server_hardware_type_name: SY 480 Gen9 2
     # Set the name of an existing ethernet network
-    - network_name: test-ethernet
+    - network_name: mgmt_nw
     - server_profile_description: test
     - inventory_hostname: sp1
   tasks:
