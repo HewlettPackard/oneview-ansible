@@ -17,13 +17,13 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    server_profile_name: "Server Profile Attachment Demo"
+    contents: "{{lookup('file', config)}}"
   tasks:
    - name: Removes extra presentations from a specified server profile name
      oneview_storage_volume_attachment:
        config: "{{ config }}"
        state: "extra_presentations_removed"
-       server_profile: "{{ server_profile_name }}"
+       server_profile: "{{ contents.server_profile_name }}"
      delegate_to: localhost
 
    - debug: var=server_profile

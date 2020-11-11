@@ -17,6 +17,7 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
+    contents: "{{lookup('file', config)}}"
     hypervisor_manager_name: '172.18.13.11'
   tasks:
     - name: Create a Hypervisor Manager
@@ -27,8 +28,8 @@
           name: "{{ hypervisor_manager_name }}"
           displayName: 'vcenter'
           hypervisorType: 'Vmware'
-          username: 'dcs'
-          password: 'dcs'
+          username: "{{ contents.hypervisor_manager_username }}"
+          password: "{{ contents.hypervisor_manager_password }}"
       delegate_to: localhost
       register: hyp_mgr_1
 
@@ -69,3 +70,16 @@
         data: "{{ hyp_mgr_1.ansible_facts.hypervisor_manager }}"
       delegate_to: localhost
       register: deleted
+
+    - name: Create a Hypervisor Manager to ensure continuity for automation script
+      oneview_hypervisor_manager:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: "{{ hypervisor_manager_name }}"
+          displayName: 'vcenter'
+          hypervisorType: 'Vmware'
+          username: 'dcs'
+          password: 'dcs'
+      delegate_to: localhost
+      register: hyp_mgr_1

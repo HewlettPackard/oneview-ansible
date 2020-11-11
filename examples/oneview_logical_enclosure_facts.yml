@@ -18,7 +18,6 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
     - logical_enclosure_name: "LE"  # The name of an existent Logical Enclosure must be set to run this example
-    - scope_uris: "/rest/scopes/5049d3e3-0367-451d-a555-b2603f09a5d5"
     - variant: Synergy
   tasks:
     - name: Gather facts about all Logical Enclosures
@@ -28,6 +27,11 @@
 
     - debug: var=logical_enclosures
 
+    - name: Gather facts about all Scopes
+      oneview_scope_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
     - name: Gather paginated, filtered and sorted facts about Logical Enclosures
       oneview_logical_enclosure_facts:
         config: "{{ config }}"
@@ -36,7 +40,7 @@
           count: 3
           sort: 'name:descending'
           filter: 'status=OK'
-          scope_uris: "{{ scope_uris }}"
+          scope_uris: "{{ scopes[0]['uri'] }}"
 
     - debug: var=logical_enclosures
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -61,7 +61,6 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
             ],
             name="EnetUplink1",
             networkType="Ethernet",
-            networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"],
             networkNames=["TestNetwork_1"]
         )
         ],
@@ -96,8 +95,7 @@ DEFAULT_LIG_TEMPLATE_WITH_DIFFERENT_UPLINKSETS = dict(
             ],
             name="EnetUplink1",
             networkType="Ethernet",
-            networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd1"],
-            networkNames=["TestNetwork_1"]
+            networkNames=["TestNetwork_2"]
         )
         ],
         enclosureType='C7000',

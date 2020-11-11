@@ -18,52 +18,51 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     contents: "{{lookup('file', config)}}"
-    storage_system_uri: "/rest/storage-systems/TXQ1000307"
-    storage_pool_name: "cpg-growth-limit-1TiB"
-    scopes_uri: "/rest/scopes/resources/rest/storage-pools/5F9CA89B-C632-4F09-BC55-A8AA00DA5C4A"
   tasks:
-    # Below task works for only APIVersion 300
-    - name: Create a Storage Pool
-      oneview_storage_pool:
+    - name: Get currentVersion from URL
+      oneview_version_facts:
+        config: "{{ config }}" 
+      delegate_to: localhost
+      when: contents.api_version|length == 0
+      register: version
+   
+    - name: Print currentVersion if an apiVersion is not specified in config file
+      set_fact: 
+        currentVersion: "{{ version.ansible_facts.version.currentVersion|int }}"
+      when: contents.api_version|length == 0
+
+    - name: Print currentVersion if an apiVersion is specified in config file
+      set_fact: 
+        currentVersion: contents.api_version | string
+      when: contents.api_version|length != 0
+
+    - name: Gather facts about a Storage System by name
+      oneview_storage_system_facts:
         config: "{{ config }}"
-        state: present
-        data:
-           storageSystemUri: '{{ storage_system_uri }}'
-           poolName: '{{ storage_pool_name }}'
+        name: "{{ contents.storage_system_name }}"
       delegate_to: localhost
 
-    - name: Do nothing when the Storage Pool already exists
-      oneview_storage_pool:
-        config: "{{ config }}"
-        state: present
-        data:
-           storageSystemUri: '{{ storage_system_uri }}'
-           poolName: '{{ storage_pool_name }}'
-      delegate_to: localhost
+    - debug: var=storage_systems
 
     # To manage/unmanage a storage pool, issue a PUT with the isManaged attribute set as true to manage or false to unmanage.
-    - name: Update storage pool
+    - name: Ensure the Storage Pool '{{ contents.storage_pool_name }}' is not managed
       oneview_storage_pool:
         config: "{{ config }}"
         state: present
         data:
-           name: '{{ storage_pool_name }}'
-           isManaged: false
+           storageSystemUri: "{{ storage_systems[0]['uri'] }}"
+           name: '{{ contents.storage_pool_name }}'
+           isManaged: False
       delegate_to: localhost
+      when: (storage_systems is not none or storage_systems is not undefined)
 
-    # Below 2 task works for only APIVersion 300
-    - name: Delete the Storage Pool
+    - name: Ensure the Storage Pool '{{ contents.storage_pool_name }}' is managed
       oneview_storage_pool:
         config: "{{ config }}"
-        state: absent
+        state: present
         data:
-           poolName: '{{ storage_pool_name }}'
+           storageSystemUri: "{{ storage_systems[0]['uri'] }}"
+           name: '{{ contents.storage_pool_name }}'
+           isManaged: True
       delegate_to: localhost
-
-    - name: Do nothing when Storage Pool is absent
-      oneview_storage_pool:
-        config: "{{ config }}"
-        state: absent
-        data:
-           poolName: '{{ storage_pool_name }}'
-      delegate_to: localhost
+      when: (storage_systems is not none and storage_systems is not undefined)

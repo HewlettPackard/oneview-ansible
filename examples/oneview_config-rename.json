@@ -5,5 +5,25 @@
     "password": ""
   },
   "image_streamer_ip": "",
-  "api_version": 600
+  "api_version": 2200,
+  "storage_domain": "TestDomain",
+  "storage_system_name" : "ThreePAR-1",
+  "storage_system_ip" : "<storage_system_ip>",
+  "storage_system_username" : "<storage_system_username>",
+  "storage_system_password" : "<storage_system_password>",
+  "storage_pool_name": "cpg-growth-limit-1TiB",
+  "server_profile_name": "sp1",
+  "storage_volume_name": "Volume with Storage Pool",
+  "snapshot_name": "Testing facts_20160823201021",
+  "server_hardware_hostname": "<server-hardware-hostname>",
+  "server_hardware_username": "<server-hardware-username>",
+  "server_hardware_password": "<server-hardware-password>",
+  "logical_interconnect_name": "LIG",
+  "volume_template_name": "svt1",
+  "scope_name": "MySampleScope",
+  "interconnect_ip": "fe80::2:0:c:1",
+  "interconnect_ip_for_update": "fe80::2:0:c:1",
+  "port_id": "748d4699-62ff-454e-8ec8-773815c4aa2f:d1",
+  "hypervisor_manager_username": "<hypervisor_manager_username>",
+  "hypervisor_manager_password": "<hypervisor_manager_password>"
 }

@@ -18,10 +18,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    # name examples: "172.18.6.15", "Encl1, bay 1"
-    - server_hardware_name: "SYN03_Frame1, bay 1"
-    - server_hardware_uri: "/rest/server-hardware/30373737-3237-4D32-3230-333031354752"
-
+    - contents: "{{lookup('file', config)}}"
   tasks:
     - name: Gather facts about all Server Hardwares
       oneview_server_hardware_facts:
@@ -44,26 +41,26 @@
     - debug: msg="{{server_hardwares | map(attribute='name') | list }}"
 
 
+    - set_fact: server_hardware_name = "{{ server_hardwares[0]['name'] }}"
+
     - name: Gather facts about a Server Hardware by name
       oneview_server_hardware_facts:
         config: "{{ config }}"
-        name: "{{ server_hardware_name }}"
+        name: "{{ server_hardwares[0]['name'] }}"
       delegate_to: localhost
-      
-    - debug: var=server_hardwares
 
+      
     - name: Gather facts about a Server Hardware by uri
       oneview_server_hardware_facts:
         config: "{{ config }}"
-        uri: "{{ server_hardware_uri }}"
+        uri: "{{ server_hardwares[0]['uri'] }}"
       delegate_to: localhost
-
-    - debug: var=server_hardwares
+      when: (server_hardwares is none and server_hardwares is not undefined)
  
     - name: Gather BIOS facts about a Server Hardware
       oneview_server_hardware_facts:
         config: "{{ config }}"
-        name: "{{ server_hardware_name }}"
+        name: server_hardware_name
         options:
           - bios
       delegate_to: localhost
@@ -75,7 +72,7 @@
     - name: Gather all facts about a Server Hardware
       oneview_server_hardware_facts:
        config: "{{ config }}"
-       name : "{{ server_hardware_name }}"
+       name : server_hardware_name
        options:
            - bios                   # optional
            - javaRemoteConsoleUrl   # optional
@@ -102,7 +99,7 @@
     - name: Gather facts about the Server Hardware firmware
       oneview_server_hardware_facts:
        config: "{{ config }}"
-       name : "{{ server_hardware_name }}"
+       name : server_hardware_name
        options:
            - firmware
       delegate_to: localhost
@@ -113,7 +110,7 @@
     - name: Gather facts about all the firmwares inventory across all servers
       oneview_server_hardware_facts:
        config: "{{ config }}"
-       name : "{{ server_hardware_name }}"
+       name : server_hardware_name
        options:
         - firmwares
       delegate_to: localhost

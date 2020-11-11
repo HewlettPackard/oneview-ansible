@@ -18,8 +18,7 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    # Set the name of a Scope to run the playbook
-    scope_name: "MySampleScope"
+    contents: "{{lookup('file', config)}}"
 
   tasks:
     - name: Gather facts about all Scopes
@@ -36,7 +35,7 @@
           start: 0
           count: 3
           sort: name:ascending
-          query: name eq 'SampleScope'
+          query: name eq '{{ contents.scope_name}}'
       delegate_to: localhost
 
     - debug: var=scopes
@@ -44,7 +43,7 @@
     - name: Gather facts about a Scope by name
       oneview_scope_facts:
         config: "{{ config }}"
-        name: "{{ scope_name }}"
+        name: "{{ contents.scope_name }}"
       delegate_to: localhost
 
     - debug: var=scopes

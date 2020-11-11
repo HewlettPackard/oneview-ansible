@@ -18,11 +18,6 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     contents: "{{lookup('file', config)}}"
-    storage_domain: 'TestDomain'
-    storage_system_name : 'ThreePAR-2'
-    storage_system_ip : '172.18.11.12'
-    storage_system_username : 'dcs'
-    storage_system_password : 'dcs'
   tasks:
     - name: Get currentVersion from URL
       oneview_version_facts:
@@ -49,9 +44,9 @@
         state: present
         data:
           credentials:
-              username: '{{ storage_system_username }}'
-              password: '{{ storage_system_password }}'
-          hostname: '{{ storage_system_ip }}'
+              username: '{{ contents.storage_system_username }}'
+              password: '{{ contents.storage_system_password }}'
+          hostname: '{{ contents.storage_system_ip }}'
           family: StoreServ
       delegate_to: localhost
 
@@ -63,13 +58,13 @@
         state: present
         data:
             credentials:
-                username: '{{ storage_system_username }}'
-                password: '{{ storage_system_password }}'
-            name: '{{ storage_system_name }}'
+                username: '{{ contents.storage_system_username }}'
+                password: '{{ contents.storage_system_password }}'
+            name: '{{ contents.storage_system_name }}'
             family: StoreServ
-            hostname: '{{ storage_system_ip }}'
+            hostname: '{{ contents.storage_system_ip }}'
             deviceSpecificAttributes:
-                managedDomain: '{{ storage_domain }}'
+                managedDomain: '{{ contents.storage_domain }}'
                 managedPools:
                  - name: CPG-SSD
                    deviceType: SSD
@@ -83,23 +78,23 @@
       delegate_to: localhost
 
     # This is PUT operation to update port configuration by changing expectedNetworkUri. 
-    - name: Update the Storage System adding one port using name as key
-      oneview_storage_system:
-        config: "{{ config }}"
-        state: present
-        data:
-            credentials:
-                username: '{{ storage_system_username }}'
-                password: '{{ storage_system_password }}'
-            name: '{{ storage_system_name }}'
-            family: StoreServ
-            hostname: '{{ storage_system_ip }}'
-            ports: 
-              - expectedNetworkUri: '/rest/fc-networks/9141498a-9616-4512-b683-a8848be039c3'
-                name: 0:1:2
-                mode: Managed
+    # - name: Update the Storage System adding one port using name as key
+    #   oneview_storage_system:
+    #     config: "{{ config }}"
+    #     state: present
+    #     data:
+    #         credentials:
+    #             username: '{{ contents.storage_system_username }}'
+    #             password: '{{ contents.storage_system_password }}'
+    #         name: '{{ contents.storage_system_name }}'
+    #         family: StoreServ
+    #         hostname: '{{ contents.storage_system_ip }}'
+    #         ports: 
+    #           - expectedNetworkUri: '/rest/fc-networks/9141498a-9616-4512-b683-a8848be039c3'
+    #             name: 0:1:2
+    #             mode: Managed
           
-      delegate_to: localhost
+    #   delegate_to: localhost
 
     - name: Remove the storage system by its IP(before API500)
       oneview_storage_system:
@@ -108,15 +103,16 @@
         validate_etag: False
         data:
           credentials:
-              hostname: '{{ storage_system_ip }}'
+              hostname: '{{ contents.storage_system_ip }}'
       delegate_to: localhost
       when: currentVersion < '500'
 
-    - name: Do nothing when the storage system is already removed (by name) (API500 onwards)
-      oneview_storage_system:
-        config: "{{ config }}"
-        state: absent
-        data:
-            name: '{{ storage_system_name }}'
-      delegate_to: localhost
-      when: currentVersion >= '500'
+#    - name: Do nothing when the storage system is already removed (by name) (API500 onwards)
+#      oneview_storage_system:
+#        config: "{{ config }}"
+#        state: absent
+#        data:
+#            name: '{{ contents.storage_system_name }}'
+#      delegate_to: localhost
+#      when: currentVersion >= '500'
+

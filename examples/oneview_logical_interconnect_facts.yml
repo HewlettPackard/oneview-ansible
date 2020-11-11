@@ -17,7 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - name: "SYN03_LE-SYN03_LIG" # change for the desired logical interconnect name
+    - name: "LE-LIG" # change for the desired logical interconnect name
   tasks:
     - name: Gather facts about all Logical Interconnects
       oneview_logical_interconnect_facts:

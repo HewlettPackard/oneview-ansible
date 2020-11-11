@@ -25,6 +25,13 @@
 
     - debug: msg="{{uplink_sets | map(attribute='name') | list }}"
 
+    - name: Gather facts about all Logical Interconnects
+      oneview_logical_interconnect_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=logical_interconnects
+
     - name: Gather paginated, filtered and sorted facts about Uplink Sets
       oneview_uplink_set_facts:
         config: "{{ config }}"
@@ -32,7 +39,8 @@
           start: 0
           count: 2
           sort: 'name:descending'
-          filter: "logicalInterconnectUri='/rest/logical-interconnects/4a49ca0d-3782-4c11-b93e-79d8f90c5487'"
+          filter: "logicalInterconnectUri= '{{ logical_interconnects[0]['uri'] }}'"
+      when: (logical_interconnects is not none and logical_interconnects is not undefined)
 
     - debug: var=uplink_sets
 
