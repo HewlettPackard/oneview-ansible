@@ -37,33 +37,73 @@ DEFAULT_LIG_TEMPLATE = dict(
     )
 )
 DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
-    name=DEFAULT_LIG_NAME,
-    uplinkSets=[dict(
-        logicalPortConfigInfos=[dict(
-            desiredSpeed="Auto",
-            logicalLocation=dict(
-                locationEntries=[dict(
-                    relativeValue=1,
-                    type="Bay"
-                ), dict(
-                    relativeValue=21,
-                    type="Port"
-                ), dict(
-                    relativeValue=1,
-                    type="Enclosure"
+    config='config.json',
+    state='present',
+    data=dict(
+        name=DEFAULT_LIG_NAME,
+        uplinkSets=[dict(
+            logicalPortConfigInfos=[dict(
+                desiredSpeed="Auto",
+                logicalLocation=dict(
+                    locationEntries=[dict(
+                        relativeValue=1,
+                        type="Bay"
+                    ), dict(
+                        relativeValue=21,
+                        type="Port"
+                    ), dict(
+                        relativeValue=1,
+                        type="Enclosure"
+                    )
+                    ]
                 )
-                ]
             )
+            ],
+            name="EnetUplink1",
+            networkType="Ethernet",
+            networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"],
+            networkNames=["TestNetwork_1"]
         )
         ],
-        name="EnetUplink1",
-        networkType="Ethernet",
-        networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"]
+        enclosureType='C7000',
+        interconnectMapTemplate=dict(
+            interconnectMapEntryTemplates=[]
+        )
     )
-    ],
-    enclosureType='C7000',
-    interconnectMapTemplate=dict(
-        interconnectMapEntryTemplates=[]
+)
+DEFAULT_LIG_TEMPLATE_WITH_DIFFERENT_UPLINKSETS = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name=DEFAULT_LIG_NAME,
+        uplinkSets=[dict(
+            logicalPortConfigInfos=[dict(
+                desiredSpeed="Auto",
+                logicalLocation=dict(
+                    locationEntries=[dict(
+                        relativeValue=1,
+                        type="Bay"
+                    ), dict(
+                        relativeValue=21,
+                        type="Port"
+                    ), dict(
+                        relativeValue=1,
+                        type="Enclosure"
+                    )
+                    ]
+                )
+            )
+            ],
+            name="EnetUplink1",
+            networkType="Ethernet",
+            networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd1"],
+            networkNames=["TestNetwork_1"]
+        )
+        ],
+        enclosureType='C7000',
+        interconnectMapTemplate=dict(
+            interconnectMapEntryTemplates=[]
+        )
     )
 )
 PARAMS_LIG_TEMPLATE_WITH_MAP = dict(
@@ -71,7 +111,30 @@ PARAMS_LIG_TEMPLATE_WITH_MAP = dict(
     state='present',
     data=dict(
         name=DEFAULT_LIG_NAME,
-        uplinkSets=[],
+        uplinkSets=[dict(
+            logicalPortConfigInfos=[dict(
+                desiredSpeed="Auto",
+                logicalLocation=dict(
+                    locationEntries=[dict(
+                        relativeValue=1,
+                        type="Bay"
+                    ), dict(
+                        relativeValue=21,
+                        type="Port"
+                    ), dict(
+                        relativeValue=1,
+                        type="Enclosure"
+                    )
+                    ]
+                )
+            )
+            ],
+            name="EnetUplink1",
+            networkType="Ethernet",
+            networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"],
+            networkNames=["TestNetwork_1"]
+        )
+        ],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
             interconnectMapEntryTemplates=[
@@ -129,7 +192,8 @@ PARAMS_WITH_CHANGES = dict(
                   }],
                   "name": "EnetUplink1",
                   "networkType": "Ethernet",
-                  "networkUris": ["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"],
+                  "networkUris": ["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd",
+                                  "/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734869edg"],
                   "networkNames": ["TestNetwork_1"]
               }]
               )
@@ -140,6 +204,32 @@ PARAMS_FOR_ABSENT = dict(
     state='absent',
     data=dict(name=DEFAULT_LIG_NAME)
 )
+
+UPLINK_SETS = [dict(
+    uplinkSets=[{
+        "logicalPortConfigInfos": [{
+            "desiredSpeed": "Auto",
+            "logicalLocation": {
+                "locationEntries": [{
+                    "relativeValue": 1,
+                    "type": "Bay"
+                }, {
+                    "relativeValue": 21,
+                    "type": "Port"
+                }, {
+                    "relativeValue": 1,
+                    "type": "Enclosure"
+                }]
+            }
+        }],
+        "name": "EnetUplink1",
+        "networkType": "Ethernet",
+        "networkUris": ["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd",
+                        "/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734869edg"],
+        "networkNames": ["TestNetwork_1"]
+    }]
+)
+]
 
 
 @pytest.mark.resource(TestLogicalInterconnectGroupModule='logical_interconnect_groups')
@@ -163,7 +253,8 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         self.resource.get_by_name.return_value = None
         self.resource.create.return_value = self.resource
         self.resource.data = PARAMS_FOR_PRESENT
-
+        self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
+        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = UPLINK_SETS
         self.mock_ansible_module.params = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP)
 
         LogicalInterconnectGroupModule().run()
@@ -203,6 +294,19 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         self.resource.data = DEFAULT_LIG_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=LogicalInterconnectGroupModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(logical_interconnect_group=self.resource.data)
+        )
+
+    def test_update_when_data_has_modified_uplinkset_attributes(self):
+        self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_DIFFERENT_UPLINKSETS
+
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
 
         LogicalInterconnectGroupModule().run()
 
