@@ -223,7 +223,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
     def __update_existing_uplink_set(self, allUplinkSets, newUplinkSet):
         for i, ups in enumerate(allUplinkSets):
             if ups['name'] == newUplinkSet['name']:
-                if 'networkUris' in newUplinkSet :
+                if 'networkUris' in newUplinkSet:
                     newUris = set(newUplinkSet['networkUris']) - set(ups['networkUris'])
                     if newUris:
                         ups['networkUris'].extend(newUris)
