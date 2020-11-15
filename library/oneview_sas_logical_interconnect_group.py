@@ -70,7 +70,7 @@ EXAMPLES = '''
                 - type: "Enclosure"
                   relativeValue: "1"
             enclosureIndex: "1"
-            permittedInterconnectTypeUri: "/rest/sas-interconnect-types/Synergy12GbSASConnectionModule"
+            permittedInterconnectTypeName: "Synergy 12Gb SAS Connection Module"
           - logicalLocation:
               locationEntries:
                 - type: "Bay"
@@ -78,7 +78,7 @@ EXAMPLES = '''
                 - type: "Enclosure"
                   relativeValue: "1"
             enclosureIndex: "1"
-            permittedInterconnectTypeUri: "/rest/sas-interconnect-types/Synergy12GbSASConnectionModule"
+            permittedInterconnectTypeName: "Synergy 12Gb SAS Connection Module"
       enclosureType: "SY12000"
       enclosureIndexes: [1]
       interconnectBaySet: "1"
@@ -139,9 +139,38 @@ class SasLogicalInterconnectGroupModule(OneViewModule):
 
     def execute_module(self):
         if self.state == 'present':
-            return self.resource_present(self.RESOURCE_FACT_NAME)
+            return self.__present()
         elif self.state == 'absent':
             return self.resource_absent()
+    def __present(self):
+        scope_uris = self.data.pop('scopeUris', None)
+
+        self.__replace_name_by_uris()
+        result = self.resource_present(self.RESOURCE_FACT_NAME)
+
+        if scope_uris is not None:
+            result = self.resource_scopes_set(result, 'sas_logical_interconnect_group', scope_uris)
+
+        return result
+
+    def __replace_name_by_uris(self):
+        map_template = self.data.get('interconnectMapTemplate')
+
+        if map_template:
+            map_entry_templates = map_template.get('interconnectMapEntryTemplates')
+            if map_entry_templates:
+                for value in map_entry_templates:
+                    permitted_interconnect_type_name = value.pop('permittedInterconnectTypeName', None)
+                    if permitted_interconnect_type_name:
+                        value['permittedInterconnectTypeUri'] = self.__get_interconnect_type_by_name(
+                            permitted_interconnect_type_name).get('uri')
+
+    def __get_interconnect_type_by_name(self, name):
+        i_type = self.oneview_client.sas_interconnect_types.get_by('name', name)
+        if i_type:
+            return i_type[0]
+        else:
+            raise OneViewModuleResourceNotFound(self.MSG_INTERCONNECT_TYPE_NOT_FOUND)
 
 
 def main():
