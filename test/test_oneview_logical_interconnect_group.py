@@ -235,7 +235,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
     def test_should_create_new_lig(self):
         self.resource.get_by_name.return_value = None
         self.resource.create.return_value = self.resource
-        self.resource.data = DEFAULT_LIG_TEMPLATE
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
