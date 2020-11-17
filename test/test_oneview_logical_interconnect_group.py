@@ -61,9 +61,9 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
             ],
             name="EnetUplink1",
             networkType="Ethernet",
-            networkNames=["TestNetwork_1"]
-        )
-        ],
+            networkNames=["TestNetwork_1"],
+            networkSetUris=["/rest/network-set/1234"]
+        )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
             interconnectMapEntryTemplates=[]
@@ -244,7 +244,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=LogicalInterconnectGroupModule.MSG_CREATED,
-            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
+            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS)
         )
 
     def test_should_create_new_with_named_permitted_interconnect_type(self):
