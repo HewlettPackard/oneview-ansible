@@ -81,7 +81,7 @@ validate_modules () {
   elif [[ $ANSIBLE_HOME ]]; then
     local command="${ANSIBLE_HOME}/test/sanity/validate-modules/validate-modules library/*.py"
   else
-    echo "WARNING: Skipping module validation. Unable to find 'ansible-validate-modules' or 'validate-modules'."
+    local command="ansible-test sanity --test validate-modules"
   fi
 
   if [[ $command ]]; then
