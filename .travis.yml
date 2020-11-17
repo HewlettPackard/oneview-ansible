@@ -42,6 +42,7 @@ before_script:
         git clone -b $BRANCH --single-branch https://github.com/ansible/ansible.git;
         source ./ansible/hacking/env-setup;
         pip install pyyaml jinja2 nose pytest passlib pycrypto six voluptuous;
+        ansible-test sanity --test validate-modules;
       fi
 script:
   - export ANSIBLE_LIBRARY=$PWD/library
