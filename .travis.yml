@@ -15,14 +15,10 @@
 ###
 language: python
 python:
-  - 3.6
+  - 3.6.9
   - 3.7
 env:
-  - ANSIBLE=2.1 PYPI_VERSION='2.1.5.0'
-  - ANSIBLE=2.2 PYPI_VERSION='2.2.2.0'
-  - ANSIBLE=2.3 PYPI_VERSION='2.3.0.0'
-  - ANSIBLE=2.4 PYPI_VERSION='2.4.0.0'
-  - ANSIBLE=2.10 BRANCH='stable-2.10'  # source code is required to run the sanity test validate-modules
+  - ANSIBLE=2.9 PYPI_VERSION='2.9.0.0'  # source code is required to run the sanity test validate-modules
 matrix:
   exclude:
   - python: 3.6
