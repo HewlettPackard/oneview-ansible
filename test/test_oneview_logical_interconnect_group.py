@@ -163,7 +163,7 @@ PARAMS_FOR_PRESENT = dict(
 PARAMS_FOR_CREATE = dict(
     config='config.json',
     state='present',
-    data=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
+    data=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS['data'].copy()
 )
 
 PARAMS_TO_RENAME = dict(
@@ -239,17 +239,31 @@ UPLINK_SETS = [dict(
 class TestLogicalInterconnectGroupModule(OneViewBaseTest):
     def test_should_create_new_lig(self):
         self.resource.get_by_name.return_value = None
-        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
         self.resource.create.return_value = self.resource
-        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = None
+        self.resource.data = DEFAULT_LIG_TEMPLATE
 
-        self.mock_ansible_module.params = PARAMS_FOR_CREATE
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         LogicalInterconnectGroupModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=LogicalInterconnectGroupModule.MSG_CREATED,
+            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
+        )
+
+    def test_should_create_new_lig_with_uplinkset(self):
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
+        self.resource.create.return_value = self.resource
+        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = None
+        self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
+        self.mock_ansible_module.params = PARAMS_FOR_CREATE
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
             ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS)
         )
 
@@ -308,9 +322,10 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_uplinkset_attributes(self):
-        self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_DIFFERENT_UPLINKSETS
-
         self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
+        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = UPLINK_SETS
+        self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
+        self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_DIFFERENT_UPLINKSETS
 
         LogicalInterconnectGroupModule().run()
 
