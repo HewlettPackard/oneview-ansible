@@ -160,6 +160,11 @@ PARAMS_FOR_PRESENT = dict(
     state='present',
     data=dict(name=DEFAULT_LIG_NAME)
 )
+PARAMS_FOR_CREATE = dict(
+    config='config.json',
+    state='present',
+    data=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
+)
 
 PARAMS_TO_RENAME = dict(
     config='config.json',
@@ -234,10 +239,11 @@ UPLINK_SETS = [dict(
 class TestLogicalInterconnectGroupModule(OneViewBaseTest):
     def test_should_create_new_lig(self):
         self.resource.get_by_name.return_value = None
-        self.resource.create.return_value = self.resource
         self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
+        self.resource.create.return_value = self.resource
         self.mock_ov_client.logical_interconnect_groups.get_by.return_value = None
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        self.mock_ansible_module.params = PARAMS_FOR_CREATE
 
         LogicalInterconnectGroupModule().run()
 
