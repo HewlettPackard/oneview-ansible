@@ -53,7 +53,7 @@ update_doc_fragments () {
     cp -f $docfragments $DOC_FRAGMENTS_PATH
   else
     # Find site packages. If it exists, OneView doc fragment will be copied to the discovered path
-    local site_packages=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
+    local site_packages=$(python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
     if [ -d "${site_packages}/ansible/utils/module_docs_fragments/" ]; then
       cp -f $docfragments ${site_packages}/ansible/utils/module_docs_fragments/
     else
@@ -136,7 +136,7 @@ fi
 
 
 echo -e "\n${COLOR_START}Running tests${COLOR_END}"
-python -m pytest test/
+python3 -m pytest test/
 exit_code_tests=$?
 
 
