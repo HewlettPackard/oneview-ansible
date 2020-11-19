@@ -1,4 +1,9 @@
 # Ansible Modules for HPE OneView Change Log
+## v6.0.0
+
+#### Bug fixes & Enhancements
+- [#594] (https://github.com/HewlettPackard/oneview-ansible/issues/594) Updated library file for LIG Uplink Set Issue
+
 ## v5.9.0
 This release extends the planned support of the modules to OneView REST API version 2200 (OneView v5.5) and ImageStreamer REST API version 2000 (I3S v5.4)
 
