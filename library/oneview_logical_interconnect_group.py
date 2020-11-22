@@ -221,8 +221,10 @@ class LogicalInterconnectGroupModule(OneViewModule):
                 self.data['uplinkSets'][i]['networkUris'].extend(networkUris)
 
     def __update_existing_uplink_set(self, allUplinkSets, newUplinkSet):
+        temp = True
         for i, ups in enumerate(allUplinkSets):
             if ups['name'] == newUplinkSet['name']:
+                temp = False
                 if 'networkUris' in newUplinkSet:
                     newUris = set(newUplinkSet['networkUris']) - set(ups['networkUris'])
                     if newUris:
@@ -232,6 +234,8 @@ class LogicalInterconnectGroupModule(OneViewModule):
                     if newUris:
                         ups['networkSetUris'].extend(newUris)
                 allUplinkSets[i] = ups
+        if temp:
+            allUplinkSets.append(newUplinkSet)
         return allUplinkSets
 
     def __get_all_uplink_sets(self):
@@ -241,9 +245,10 @@ class LogicalInterconnectGroupModule(OneViewModule):
         return False
 
     def __get_network_uri(self, name):
-
         network_name = self.oneview_client.ethernet_networks.get_by('name', name)
-        return network_name[0]['uri']
+        if network_name:
+            return network_name[0]['uri']
+        return False
 
     def __get_interconnect_type_by_name(self, name):
         i_type = self.oneview_client.interconnect_types.get_by('name', name)
