@@ -94,7 +94,8 @@ def transform_list_to_dict(list_):
 
 
 # Makes a deep merge of 2 dictionaries and returns the merged dictionary
-def dict_merge(resource_dict, data_dict):
+def dict_merge(original_resource_dict, data_dict):
+    resource_dict = deepcopy(original_resource_dict)
     for key, val in data_dict.items():
         if not resource_dict.get(key):
             resource_dict[key] = val

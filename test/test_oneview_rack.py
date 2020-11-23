@@ -72,6 +72,14 @@ PARAMS_FOR_ABSENT = dict(
     data=dict(name=DEFAULT_RACK_TEMPLATE['name'])
 )
 
+RACK_TEMPLATE_WITH_NEWNAME = dict(
+    name='Rename Rack',
+    autoLoginRedistribution=True,
+    fabricType='FabricAttach',
+    rackMounts=[{'mountUri': '/rest/server-hardware/31393736-3831-4753-568h-30335837526F', 'topUSlot': 22}]
+)
+
+
 
 @pytest.mark.resource(TestRackModule='racks')
 class TestRackModule(OneViewBaseTest):
@@ -92,6 +100,19 @@ class TestRackModule(OneViewBaseTest):
             msg=RackModule.MSG_ADDED,
             ansible_facts=dict(rack=DEFAULT_RACK_TEMPLATE)
         )
+
+    def test_should_not_create_new_rack_if_newName_exists(self):
+        self.resource.get_by.return_value = []
+
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+
+        RackModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=RackModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(rack=RACK_TEMPLATE_WITH_NEWNAME)
+        )    
 
     def test_should_not_update_when_data_is_equals(self):
         self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
@@ -126,7 +147,7 @@ class TestRackModule(OneViewBaseTest):
 
     def test_update_when_data_has_modified_attributes_with_same_mountUris(self):
         data_merged = DEFAULT_RACK_TEMPLATE.copy()
-        DEFAULT_RACK_TEMPLATE['rackMounts'] = [{'mountUri': '/rest/server-hardware/31393736-3831-4753-569h-30335837524E', 'topUSlot': 22}]
+        DEFAULT_RACK_TEMPLATE['rackMounts'] = [{'mountUri': '/rest/server-hardware/31393736-3831-4753-568h-30335837526F', 'topUSlot': 22}]
         data_merged['name'] = 'Rename Rack'
 
         self.resource.update.return_value = data_merged
