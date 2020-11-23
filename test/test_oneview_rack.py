@@ -117,7 +117,7 @@ class TestRackModule(OneViewBaseTest):
     def test_should_not_update_when_data_is_equals(self):
         self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
 
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         RackModule().run()
 
