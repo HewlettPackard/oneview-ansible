@@ -104,7 +104,7 @@ class TestRackModule(OneViewBaseTest):
         self.resource.get_by.return_value = []
         self.resource.add.return_value = RACK_TEMPLATE_WITH_NEWNAME
 
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         RackModule().run()
 
