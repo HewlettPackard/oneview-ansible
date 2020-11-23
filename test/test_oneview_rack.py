@@ -80,7 +80,6 @@ RACK_TEMPLATE_WITH_NEWNAME = dict(
 )
 
 
-
 @pytest.mark.resource(TestRackModule='racks')
 class TestRackModule(OneViewBaseTest):
     """
@@ -101,7 +100,7 @@ class TestRackModule(OneViewBaseTest):
             ansible_facts=dict(rack=DEFAULT_RACK_TEMPLATE)
         )
 
-    def test_should_not_create_new_rack_if_newName_exists(self):
+    def test_should_create_new_rack_if_newName_not_exists(self):
         self.resource.get_by.return_value = []
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
@@ -110,9 +109,9 @@ class TestRackModule(OneViewBaseTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            msg=RackModule.MSG_ALREADY_PRESENT,
+            msg=RackModule.MSG_ADDED,
             ansible_facts=dict(rack=RACK_TEMPLATE_WITH_NEWNAME)
-        )    
+        )
 
     def test_should_not_update_when_data_is_equals(self):
         self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
