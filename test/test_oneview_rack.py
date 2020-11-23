@@ -102,13 +102,14 @@ class TestRackModule(OneViewBaseTest):
 
     def test_should_create_new_rack_if_newName_not_exists(self):
         self.resource.get_by.return_value = []
+        self.resource.add.return_value = RACK_TEMPLATE_WITH_NEWNAME
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         RackModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
+            changed=True,
             msg=RackModule.MSG_ADDED,
             ansible_facts=dict(rack=RACK_TEMPLATE_WITH_NEWNAME)
         )
