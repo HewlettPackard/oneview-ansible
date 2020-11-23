@@ -108,7 +108,7 @@ scope:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare, dict_merge
 
 
 class ScopeModule(OneViewModule):
@@ -138,11 +138,68 @@ class ScopeModule(OneViewModule):
 
     def execute_module(self):
         if self.state == 'present':
-            return self.resource_present('scope')
+            return self.__present()
         elif self.state == 'absent':
             return self.resource_absent()
         elif self.state == 'resource_assignments_updated':
             return self.__update_resource_assignments()
+
+    def __present(self):
+        changed = False
+        if "newName" in self.data:
+            self.data["name"] = self.data.pop("newName")
+
+        if self.current_resource:
+            changed, msg = self.__update()
+        else:
+            changed, msg = self.__create(self.data)
+
+        data = self.current_resource.data
+        return dict(
+            msg=msg,
+            changed=changed,
+            ansible_facts=dict(scope=self.current_resource.data)
+        )
+
+    def __create(self, data):
+        self.current_resource = self.resource_client.create(data)
+        return True, self.MSG_CREATED
+
+    def __compare_resource_assignments(self, current_dict, updated_dict):
+        changed = False
+        if updated_dict.get('removedResourceUris'):
+            common_elements = set(current_dict['addedResourceUris']).intersection(set(updated_dict['removedResourceUris']))
+            if len(common_elements) > 0:
+                changed = True
+            else:
+                updated_dict.pop('removedResourceUris')
+        if changed is True:
+            return changed, updated_dict
+
+        if current_dict.get('addedResourceUris') and updated_dict.get('addedResourceUris'):
+            all_add_elements = set(current_dict['addedResourceUris']).union(set(updated_dict['addedResourceUris']))
+            new_elements = all_add_elements - set(current_dict['addedResourceUris'])
+            if len(new_elements) > 0:
+                changed = True
+            else:
+                updated_dict['addedResourceUris'] = list(all_add_elements)
+        return changed, updated_dict
+
+    def __update(self):
+        changed = False
+        existing_data = self.current_resource.data.copy()
+        updated_data = dict_merge(existing_data, self.data)
+
+        state_change, updated_data = self.__compare_resource_assignments(existing_data, updated_data)
+
+        if compare(self.current_resource.data, updated_data) and state_change is False:
+            msg = self.MSG_ALREADY_PRESENT
+        else:
+            self.current_resource.update(updated_data)
+            changed = True
+            msg = self.MSG_UPDATED
+
+        return changed, msg
 
     def __update_resource_assignments(self):
         # returns None if scope doesn't exist
