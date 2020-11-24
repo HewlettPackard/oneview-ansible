@@ -99,16 +99,16 @@ class TestScopeModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by_name.return_value = self.resource
-        self.resource.data = PARAMS_FOR_PRESENT
+        response_data = PARAMS_FOR_PRESENT['data']
+        self.resource.data = response_data
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         ScopeModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=ScopeModule.MSG_UPDATED,
-            ansible_facts=dict(scope=PARAMS_FOR_PRESENT)
+            changed=False,
+            msg=ScopeModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(scope=response_data)
         )
 
     def test_should_not_update_when_no_new_add_remove_resources(self):
@@ -120,9 +120,9 @@ class TestScopeModule(OneViewBaseTest):
         ScopeModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            msg=ScopeModule.MSG_ALREADY_PRESENT,
-            ansible_facts=current_data
+            changed=True,
+            msg=ScopeModule.MSG_UPDATED,
+            ansible_facts=dict(scope=current_data)
         )
         
     def test_should_update_when_new_remove_resources(self):
@@ -136,7 +136,7 @@ class TestScopeModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ScopeModule.MSG_UPDATED,
-            ansible_facts=current_data
+            ansible_facts=dict(scope=current_data)
         )
 
     def test_should_update_when_new_add_resources(self):
@@ -150,7 +150,7 @@ class TestScopeModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ScopeModule.MSG_UPDATED,
-            ansible_facts=current_data
+            ansible_facts=dict(scope=current_data)
         )
 
     def test_should_update_when_data_has_changes(self):
