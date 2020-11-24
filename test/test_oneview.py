@@ -2688,7 +2688,7 @@ class TestServerProfileMerger():
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        assert []
+        assert not merged_data[SPKeys.CONNECTIONS]
 
     def test_merge_when_connection_list_is_null(self):
         data = dict(name="Profile101",
@@ -3219,7 +3219,7 @@ class TestServerProfileMerger():
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        assert []
+        assert not merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS]
 
     def test_merge_when_drives_from_embedded_controller_no_name_no_jbodid(self):
         new_drive = dict(name=None, raidLevel="RAID1", bootable=False, sasLogicalJBODId=None)
@@ -3369,7 +3369,7 @@ class TestServerProfileMerger():
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        assert []
+        assert not merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES]
 
     @mock.patch.dict('os.environ', dict(LOGFILE='/path/log.txt'))
     @mock.patch.object(logging, 'getLogger')

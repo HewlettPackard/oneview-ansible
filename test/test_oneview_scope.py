@@ -27,6 +27,8 @@ FAKE_MSG_ERROR = 'Fake message error'
 
 RESOURCE = dict(name='ScopeName', uri='/rest/scopes/id')
 RESOURCE_UPDATED = dict(name='ScopeNameRenamed', uri='/rest/scopes/id')
+RESOURCE_ASSIGNMENTS = dict(name='ScopeName',
+                            addedResourceUris=['/rest/resource/id-1', '/rest/resource/id-4'])
 
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
@@ -39,6 +41,22 @@ PARAMS_WITH_CHANGES = dict(
     state='present',
     data=dict(name='ScopeName',
               newName='ScopeNameRenamed')
+)
+
+PARAMS_WITH_CHANGES_HAVING_RESOURCES_1 = dict(
+    config='config.json',
+    state='present',
+    data=dict(name='ScopeName',
+              addedResourceUris=['/rest/resource/id-1', '/rest/resource/id-2'],
+              removedResourceUris=['/rest/resource/id-3'])
+)
+
+PARAMS_WITH_CHANGES_HAVING_RESOURCES_2 = dict(
+    config='config.json',
+    state='present',
+    data=dict(name='ScopeName',
+              addedResourceUris=['/rest/resource/id-1', '/rest/resource/id-2'],
+              removedResourceUris=['/rest/resource/id-2'])
 )
 
 PARAMS_FOR_ABSENT = dict(
@@ -91,6 +109,48 @@ class TestScopeModule(OneViewBaseTest):
             changed=True,
             msg=ScopeModule.MSG_UPDATED,
             ansible_facts=dict(scope=PARAMS_FOR_PRESENT)
+        )
+
+    def test_should_not_update_when_no_new_add_remove_resources(self):
+        self.resource.get_by_name.return_value = self.resource
+        current_data = copy.deepcopy(PARAMS_WITH_CHANGES_HAVING_RESOURCES_1['data'])
+        self.resource.data = current_data
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES_HAVING_RESOURCES_1
+
+        ScopeModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=Falsee,
+            msg=ScopeModule.MSG_ALREADY_PRESENT,
+            ansible_facts=current_data)
+        )
+
+    def test_should_update_when_new_remove_resources(self):
+        self.resource.get_by_name.return_value = self.resource
+        current_data = copy.deepcopy(PARAMS_WITH_CHANGES_HAVING_RESOURCES_2['data'])
+        self.resource.data = current_data
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES_HAVING_RESOURCES_2
+
+        ScopeModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ScopeModule.MSG_UPDATED,
+            ansible_facts=current_data)
+        )
+
+    def test_should_update_when_new_add_resources(self):
+        self.resource.get_by_name.return_value = self.resource
+        current_data = copy.deepcopy(RESOURCE_ASSIGNMENTS)
+        self.resource.data = current_data
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES_HAVING_RESOURCES_1
+
+        ScopeModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ScopeModule.MSG_UPDATED,
+            ansible_facts=current_data)
         )
 
     def test_should_update_when_data_has_changes(self):
