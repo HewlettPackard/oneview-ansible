@@ -130,7 +130,7 @@ class TestRackModule(OneViewBaseTest):
     def test_should_update(self):
         self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
         self.resource.update.return_value = DEFAULT_RACK_TEMPLATE
-
+ 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         RackModule().run()
@@ -168,9 +168,8 @@ class TestRackModule(OneViewBaseTest):
         )
 
         self.resource.update.return_value = UPDATED_RACK_TEMPLATE_WITH_MOUNTURIS
-        self.resource.data = UPDATED_RACK_TEMPLATE_WITH_MOUNTURIS
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
-        self.resource.get_by.return_value = [UPDATED_RACK_TEMPLATE_WITH_DIFFERENT_MOUNTURIS]
+        self.resource.get_by.return_value = [UPDATED_RACK_TEMPLATE_WITH_MOUNTURIS]
 
         RackModule().run()
 
