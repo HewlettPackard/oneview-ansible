@@ -132,6 +132,7 @@ class TestScopeModule(OneViewBaseTest):
         )
 
     def test_should_fail_resource_assignments_when_scope_not_found(self):
+        self.mock_ov_client.api_version = 300
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_RESOURCE_ASSIGNMENTS)
 
@@ -143,8 +144,8 @@ class TestScopeModule(OneViewBaseTest):
             msg=ScopeModule.MSG_RESOURCE_NOT_FOUND
         )
 
-    def test_should_not_update_resource_assignments_in_api500(self):
-        self.mock_ov_client.api_version = 500
+    def test_should_not_update_resource_assignments_in_api300(self):
+        self.mock_ov_client.api_version = 300
         self.resource.get_by_name.return_value = self.resource
         resource_data = PARAMS_NO_RESOURCE_ASSIGNMENTS.copy()
         self.resource.data = resource_data
@@ -159,8 +160,8 @@ class TestScopeModule(OneViewBaseTest):
             msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED
         )
 
-    def test_should_add_and_remove_resource_assignments_in_api500(self):
-        self.mock_ov_client.api_version = 500
+    def test_should_add_and_remove_resource_assignments_in_api300(self):
+        self.mock_ov_client.api_version = 300
         self.resource.get_by_name.return_value = self.resource
 
         resource_data = PARAMS_RESOURCE_ASSIGNMENTS.copy()
@@ -182,8 +183,8 @@ class TestScopeModule(OneViewBaseTest):
             msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_UPDATED
         )
 
-    def test_should_update_name_in_api500(self):
-        self.mock_ov_client.api_version = 500
+    def test_should_update_name_in_api300(self):
+        self.mock_ov_client.api_version = 300
         self.resource.get_by_name.return_value = self.resource
 
         PARAMS_RESOURCE_ASSIGNMENTS_UPDATED_NAME = dict(
@@ -212,8 +213,8 @@ class TestScopeModule(OneViewBaseTest):
             msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_UPDATED
         )
 
-    def test_should_update_description_in_api500(self):
-        self.mock_ov_client.api_version = 500
+    def test_should_update_description_in_api300(self):
+        self.mock_ov_client.api_version = 300
         self.resource.get_by_name.return_value = self.resource
 
         PARAMS_RESOURCE_ASSIGNMENTS_UPDATED_DESCRIPTION = dict(

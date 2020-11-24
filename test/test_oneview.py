@@ -2688,7 +2688,7 @@ class TestServerProfileMerger():
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        assert merged_data[SPKeys.CONNECTIONS]
+        assert []
 
     def test_merge_when_connection_list_is_null(self):
         data = dict(name="Profile101",
@@ -3036,7 +3036,7 @@ class TestServerProfileMerger():
 
         expected_os_deployment = deepcopy(self.OS_DEPLOYMENT_SETTINGS)
         expected_os_deployment[SPKeys.ATTRIBUTES].pop()
-        assert not merged_data[SPKeys.OS_DEPLOYMENT] == expected_os_deployment
+        assert merged_data[SPKeys.OS_DEPLOYMENT] == expected_os_deployment
 
     def test_merge_when_custom_attributes_are_equals_with_different_order(self):
         data = dict(name="Profile101",
@@ -3195,7 +3195,7 @@ class TestServerProfileMerger():
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_controllers = [self.CONTROLLER_MEZZ_1.copy()]
-        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS] != expected_controllers
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS] == expected_controllers
 
     def test_merge_when_controllers_have_changed_item(self):
         controller_embedded_changed = dict(deviceSlot="Embedded", initialize=True)
@@ -3219,7 +3219,7 @@ class TestServerProfileMerger():
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS]
+        assert []
 
     def test_merge_when_drives_from_embedded_controller_no_name_no_jbodid(self):
         new_drive = dict(name=None, raidLevel="RAID1", bootable=False, sasLogicalJBODId=None)
@@ -3272,7 +3272,7 @@ class TestServerProfileMerger():
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_drives = [self.CONTROLLER_EMBEDDED[SPKeys.LOGICAL_DRIVES][0]]
-        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_EMBED][SPKeys.LOGICAL_DRIVES] != expected_drives
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_EMBED][SPKeys.LOGICAL_DRIVES] == expected_drives
 
     def test_merge_when_drives_have_incomplete_data(self):
         controller_embedded = deepcopy(self.CONTROLLER_EMBEDDED)
@@ -3336,7 +3336,7 @@ class TestServerProfileMerger():
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
         expected_drives = [self.CONTROLLER_MEZZ_1[SPKeys.LOGICAL_DRIVES][0]]
-        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES] != expected_drives
+        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES] == expected_drives
 
     def test_merge_when_drives_from_mezz_controller_have_changed_item(self):
         """
@@ -3369,7 +3369,7 @@ class TestServerProfileMerger():
 
         merged_data = ServerProfileMerger().merge_data(resource, data)
 
-        assert merged_data[SPKeys.LOCAL_STORAGE][SPKeys.CONTROLLERS][self.INDEX_MEZZ][SPKeys.LOGICAL_DRIVES]
+        assert []
 
     @mock.patch.dict('os.environ', dict(LOGFILE='/path/log.txt'))
     @mock.patch.object(logging, 'getLogger')
