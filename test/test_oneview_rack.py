@@ -127,6 +127,19 @@ class TestRackModule(OneViewBaseTest):
             ansible_facts=dict(rack=DEFAULT_RACK_TEMPLATE)
         )
 
+    def test_should_update(self):
+        self.resource.get_by.return_value = [DEFAULT_RACK_TEMPLATE]
+
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+
+        RackModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=RackModule.MSG_UPDATED,
+            ansible_facts=dict(rack=DEFAULT_RACK_TEMPLATE)
+        )
+
     def test_update_when_data_has_modified_attributes_with_different_mountUris(self):
         data_merged = DEFAULT_RACK_TEMPLATE.copy()
         DEFAULT_RACK_TEMPLATE['rackMounts'] = [{'mountUri': '/rest/server-hardware/31393736-3831-4753-569h-30335837524E', 'topUSlot': 20}]
