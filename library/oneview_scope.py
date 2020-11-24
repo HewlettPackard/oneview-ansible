@@ -154,7 +154,6 @@ class ScopeModule(OneViewModule):
         else:
             changed, msg = self.__create(self.data)
 
-        data = self.current_resource.data
         return dict(
             msg=msg,
             changed=changed,
@@ -208,7 +207,7 @@ class ScopeModule(OneViewModule):
             if not self.current_resource:
                 return dict(failed=True,
                             msg=self.MSG_RESOURCE_NOT_FOUND)
-    
+
             add_resources = self.data.get('resourceAssignments').get('addedResourceUris') is not None
             remove_resources = self.data.get('resourceAssignments').get('removedResourceUris') is not None
             updated_name = self.data.get('resourceAssignments').get('name') is not None
@@ -233,7 +232,7 @@ class ScopeModule(OneViewModule):
                 return dict(changed=False,
                             msg=self.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED,
                             ansible_facts=dict(scope=self.current_resource.data))
-    
+
             return dict(changed=True,
                         msg=self.MSG_RESOURCE_ASSIGNMENTS_UPDATED,
                         ansible_facts=dict(scope=self.current_resource.data))

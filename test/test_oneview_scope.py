@@ -120,11 +120,11 @@ class TestScopeModule(OneViewBaseTest):
         ScopeModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=Falsee,
+            changed=False,
             msg=ScopeModule.MSG_ALREADY_PRESENT,
-            ansible_facts=current_data)
+            ansible_facts=current_data
         )
-
+        
     def test_should_update_when_new_remove_resources(self):
         self.resource.get_by_name.return_value = self.resource
         current_data = copy.deepcopy(PARAMS_WITH_CHANGES_HAVING_RESOURCES_2['data'])
@@ -136,7 +136,7 @@ class TestScopeModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ScopeModule.MSG_UPDATED,
-            ansible_facts=current_data)
+            ansible_facts=current_data
         )
 
     def test_should_update_when_new_add_resources(self):
@@ -150,7 +150,7 @@ class TestScopeModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ScopeModule.MSG_UPDATED,
-            ansible_facts=current_data)
+            ansible_facts=current_data
         )
 
     def test_should_update_when_data_has_changes(self):
