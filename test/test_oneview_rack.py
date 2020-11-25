@@ -125,8 +125,8 @@ class TestRackModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_attributes_with_same_mountUris(self):
-        data_merged = DEFAULT_RACK_TEMPLATE.copy()
         DEFAULT_RACK_TEMPLATE['rackMounts'] = [{'mountUri': '/rest/server-hardware/31393736-3831-4753-568h-30335837526F', 'topUSlot': 22}]
+        data_merged = deepcopy(DEFAULT_RACK_TEMPLATE)
         data_merged['name'] = 'Rename Rack'
 
         self.resource.update.return_value = data_merged
@@ -137,8 +137,8 @@ class TestRackModule(OneViewBaseTest):
         RackModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=RackModule.MSG_UPDATED,
+            changed=False,
+            msg=RackModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(rack=data_merged)
         )
 
