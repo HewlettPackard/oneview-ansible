@@ -164,7 +164,7 @@ class TestRackModule(OneViewBaseTest):
             name='Rename Rack',
             autoLoginRedistribution=True,
             fabricType='FabricAttach',
-            rackMounts=[{'mountUri': '/rest/server-hardware/31393736-3831-4753-568h-30335837526F', 'topUSlot': 22}]
+            rackMounts=[{'mountUri': '/rest/server-hardware/31393736-3831-4753-567h-30335837526F', 'topUSlot': 20}]
         )
 
         self.resource.update.return_value = UPDATED_RACK_TEMPLATE_WITH_MOUNTURIS
