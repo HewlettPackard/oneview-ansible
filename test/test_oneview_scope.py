@@ -124,7 +124,7 @@ class TestScopeModule(OneViewBaseTest):
             msg=ScopeModule.MSG_UPDATED,
             ansible_facts=dict(scope=current_data)
         )
-        
+
     def test_should_update_when_new_remove_resources(self):
         self.resource.get_by_name.return_value = self.resource
         current_data = copy.deepcopy(PARAMS_WITH_CHANGES_HAVING_RESOURCES_2['data'])
