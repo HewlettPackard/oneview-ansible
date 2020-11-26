@@ -43,11 +43,13 @@ options:
               C(ilo_state_reset) will reset the iLO state.
               C(uid_state_on) will set on the UID state, if necessary.
               C(uid_state_off) will set off the UID state, if necessary.
+              C(enable_maintenance_mode) will set true to the maintenance mode, if necessary.
+              C(disable_maintenance_mode) will set false to the maintenance mode, if necessary.
               C(environmental_configuration_set) will set the environmental configuration of the Server Hardware.
               C(multiple_servers_added) will add multiple rack-mount servers.
         choices: ['present', 'absent', 'power_state_set', 'refresh_state_set', 'ilo_firmware_version_updated',
-                  'ilo_state_reset','uid_state_on', 'uid_state_off', 'environmental_configuration_set',
-                  'multiple_servers_added']
+                  'ilo_state_reset','uid_state_on', 'uid_state_off', 'enable_maintenance_mode', 'disable_maintenance_mode',
+                  'environmental_configuration_set', 'multiple_servers_added']
         required: true
     data:
         description:
@@ -180,6 +182,28 @@ EXAMPLES = '''
     data:
         name : '0000A66102, bay 12'
   delegate_to: localhost
+
+- name: Enable Server Maintenance Mode
+  oneview_server_hardware:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    state: enable_maintenance_mode
+    data:
+        name : '0000A66102, bay 12'
+  delegate_to: localhost
+
+- name: Disable Server Maintenance Mode
+  oneview_server_hardware:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 1200
+    state: disable_maintenance_mode
+    data:
+        name : '0000A66102, bay 12'
+  delegate_to: localhost
 '''
 
 RETURN = '''
@@ -202,6 +226,7 @@ class ServerHardwareModule(OneViewModule):
     MSG_ENV_CONFIG_UPDATED = 'Server Hardware calibrated max power updated successfully.'
     MSG_SERVER_HARDWARE_NOT_FOUND = 'The provided Server Hardware was not found.'
     MSG_UID_STATE_CHANGED = 'Server Hardware UID state changed successfully.'
+    MSG_MAINTENANCE_MODE_CHANGED = 'Server Hardware Maintenance Mode changed successfully.'
     MSG_ILO_STATE_RESET = 'Server Hardware iLO state changed successfully.'
     MSG_NOTHING_TO_DO = 'Nothing to do.'
     MSG_DELETED = 'Server Hardware deleted successfully.'
@@ -212,13 +237,17 @@ class ServerHardwareModule(OneViewModule):
     patch_success_message = dict(
         ilo_state_reset=MSG_ILO_STATE_RESET,
         uid_state_on=MSG_UID_STATE_CHANGED,
-        uid_state_off=MSG_UID_STATE_CHANGED
+        uid_state_off=MSG_UID_STATE_CHANGED,
+        enable_maintenance_mode=MSG_MAINTENANCE_MODE_CHANGED,
+        disable_maintenance_mode=MSG_MAINTENANCE_MODE_CHANGED
     )
 
     patch_params = dict(
         ilo_state_reset=dict(operation='replace', path='/mpState', value='Reset'),
         uid_state_on=dict(operation='replace', path='/uidState', value='On'),
-        uid_state_off=dict(operation='replace', path='/uidState', value='Off')
+        uid_state_off=dict(operation='replace', path='/uidState', value='Off'),
+        enable_maintenance_mode=dict(operation='replace', path='/maintenanceMode', value='true'),
+        disable_maintenance_mode=dict(operation='replace', path='/maintenanceMode', value='false')
     )
 
     argument_spec = dict(
@@ -233,6 +262,8 @@ class ServerHardwareModule(OneViewModule):
                 'ilo_state_reset',
                 'uid_state_on',
                 'uid_state_off',
+                'enable_maintenance_mode',
+                'disable_maintenance_mode',
                 'environmental_configuration_set',
                 'multiple_servers_added'
             ]

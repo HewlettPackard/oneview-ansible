@@ -138,6 +138,22 @@
             name: "{{ server_hardwares[0]['name'] }}"
       delegate_to: localhost
 
+    - name: Enable Server Maintenance Mode
+      oneview_server_hardware:
+        config: "{{ config }}"
+        state: enable_maintenance_mode
+        data:
+            name: "{{ server_hardwares[0]['name'] }}"
+      delegate_to: localhost
+                           
+    - name: Disable Server Maintenance Mode
+      oneview_server_hardware:
+        config: "{{ config }}"
+        state: disable_maintenance_mode
+        data:
+            name: "{{ server_hardwares[0]['name'] }}"
+      delegate_to: localhost
+
     # Commenting below tasks to ensure continuity for automation script
     # - name: Remove the server hardware by its IP
     #   oneview_server_hardware:
