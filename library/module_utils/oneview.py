@@ -102,14 +102,7 @@ def dict_merge(original_resource_dict, data_dict):
         elif isinstance(resource_dict[key], dict) and isinstance(data_dict[key], collections.Mapping):
             resource_dict[key] = dict_merge(resource_dict[key], data_dict[key])
         elif isinstance(resource_dict[key], list) and isinstance(data_dict[key], list):
-            tmp_list1 = []
-            tmp_list2 = []
-            for index, value in enumerate(resource_dict[key]):
-                tmp_list1.append([index, value])
-            for index, value in enumerate(data_dict[key]):
-                tmp_list2.append([index, value])
-            output_dict = dict_merge(dict(tmp_list1), dict(tmp_list2))
-            resource_dict[key] = list(output_dict.values())
+            resource_dict[key] = data_dict[key]
         else:
             resource_dict[key] = val
 
@@ -547,7 +540,7 @@ class OneViewModule(object):
 
     def _update_resource(self):
         updated_data = self.current_resource.data.copy()
-        updated_data.update(self.data)
+        updated_data = dict_merge(updated_data, self.data)
         changed = False
 
         if compare(self.current_resource.data, updated_data):

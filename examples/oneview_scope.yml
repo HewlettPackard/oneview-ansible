@@ -14,18 +14,59 @@
 # limitations under the License.
 ###
 ---
-# This resource is available for API version 300 or later.
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     contents: "{{lookup('file', config)}}"
   tasks:
+    - name: Get currentVersion from URL
+      oneview_version_facts:
+        config: "{{ config }}" 
+      delegate_to: localhost
+      when: contents.api_version|length == 0
+      register: version
+   
+    - name: Print currentVersion if an apiVersion is not specified in config file
+      set_fact: 
+        currentVersion: "{{ version.ansible_facts.version.currentVersion | int }}"
+      when: contents.api_version|length == 0
+
+    - name: Print currentVersion if api version is specified in config file
+      set_fact: 
+        currentVersion: contents.api_version | string
+      when: contents.api_version|length != 0
+
+    - name: Gather facts about all Ethernet Networks
+      oneview_ethernet_network_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=ethernet_networks
+
     - name: Create a scope
       oneview_scope:
         config: '{{ config }}'
         state: present
         data:
           name: "{{ contents.scope_name }}"
+          addedResourceUris:
+            - "{{ ethernet_networks[0]['uri'] }}"
+            - "{{ ethernet_networks[1]['uri'] }}"
+          removedResourceUris:
+            - "{{ ethernet_networks[2]['uri'] }}"
+      delegate_to: localhost
+
+    - name: Create a scope when exists
+      oneview_scope:
+        config: '{{ config }}'
+        state: present
+        data:
+          name: "{{ contents.scope_name }}"
+          addedResourceUris:
+            - "{{ ethernet_networks[0]['uri'] }}"
+            - "{{ ethernet_networks[1]['uri'] }}"
+          removedResourceUris:
+            - "{{ ethernet_networks[2]['uri'] }}"
       delegate_to: localhost
 
     - name: Update the scope name
@@ -34,45 +75,45 @@
         state: present
         data:
           name: "{{ contents.scope_name }}"
-          newName: 'SampleScopeRenamed'
+          newName: "{{ contents.scope_name }}_Renamed"
+          addedResourceUris:
+            - "{{ ethernet_networks[2]['uri'] }}"
+          removedResourceUris:
+            - "{{ ethernet_networks[1]['uri'] }}"
       delegate_to: localhost
 
-    - name: Gather facts about all Fibre Channel Networks
-      oneview_fc_network_facts:
-        config: "{{ config }}"
-      delegate_to: localhost
-
-    - debug: var=fc_networks
-
+    # This method is available only for api versin 300 and is non-idempotent
     - name: Update the scope resource assignments, adding a resource
       oneview_scope:
         config: '{{ config }}'
         state: resource_assignments_updated
         data:
-          name: 'SampleScopeRenamed'
+          name: "{{ contents.scope_name }}_Renamed"
           resourceAssignments:
-            addedResourceUris: "{{ fc_networks[0]['uri'] }}"
+            addedResourceUris: "{{ ethernet_networks[0]['uri'] }}"
       delegate_to: localhost
+      when: currentVersion == '300'
 
+    # This method is available only for api versin 300 and is non-idempotent
     - name: Update the scope resource assignments, removing two resources
       oneview_scope:
         config: '{{ config }}'
         state: resource_assignments_updated
         data:
-          name: 'SampleScopeRenamed'
+          name: "{{ contents.scope_name }}_Renamed"
           resourceAssignments:
             removedResourceUris:
-              - "{{ fc_networks[0]['uri'] }}"
-              - "{{ fc_networks[1]['uri'] }}"
+              - "{{ ethernet_networks[0]['uri'] }}"
+              - "{{ ethernet_networks[1]['uri'] }}"
       delegate_to: localhost
-      when: (fc_networks is none and fc_networks is undefined)
+      when: currentVersion == '300'
  
     - name: Delete the Scope
       oneview_scope:
         config: '{{ config }}'
         state: absent
         data:
-          name: 'SampleScopeRenamed'
+          name: "{{ contents.scope_name }}_Renamed"
       delegate_to: localhost
 
     - name: Create a scope to ensure continuity for an automation script
