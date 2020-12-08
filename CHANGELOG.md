@@ -1,4 +1,9 @@
 # Ansible Modules for HPE OneView Change Log
+
+## v5.9.1(unreleased)
+#### Bug fixes & Enhancements
+- [#597] (https://github.com/HewlettPackard/oneview-ansible/issues/597) Rack rename do not work.
+
 ## v5.9.0
 This release extends the planned support of the modules to OneView REST API version 2200 (OneView v5.5) and ImageStreamer REST API version 2000 (I3S v5.4)
 
