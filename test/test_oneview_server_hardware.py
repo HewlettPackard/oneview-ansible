@@ -113,6 +113,19 @@ YAML_SERVER_HARDWARE_UID_STATE_OFF = """
         data:
             name : "172.18.6.15"
 """
+YAML_SERVER_HARDWARE_ENABLE_MAINTENANCE_MODE = """
+        config: config
+        state: enable_maintenance_mode
+        data:
+            name : "172.18.6.15"
+"""
+
+YAML_SERVER_HARDWARE_DISABLE_MAINTENANCE_MODE = """
+        config: config
+        state: disable_maintenance_mode
+        data:
+            name : "172.18.6.15"
+"""
 
 SERVER_HARDWARE_HOSTNAME = "172.18.6.15"
 
@@ -376,6 +389,74 @@ class TestServerHardwareModule(OneViewBaseTest):
         self.resource.data = server_hardware
 
         self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_UID_STATE_OFF)
+
+        ServerHardwareModule().run()
+
+        self.resource.patch.assert_not_called()
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ServerHardwareModule.MSG_NOTHING_TO_DO,
+            ansible_facts=dict(server_hardware=server_hardware)
+        )
+
+    def test_should_enable_maintenance_mode(self):
+        server_hardware_uri = "resourceuri"
+        self.resource.data = {"uri": server_hardware_uri, "maintenanceMode": "false"}
+
+        self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_ENABLE_MAINTENANCE_MODE)
+
+        ServerHardwareModule().run()
+
+        patch_params = ServerHardwareModule.patch_params['enable_maintenance_mode']
+        self.resource.patch.assert_called_once_with(**patch_params)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerHardwareModule.MSG_MAINTENANCE_MODE_CHANGED,
+            ansible_facts=dict(server_hardware=self.resource.data)
+        )
+
+    def test_should_not_set_when_the_maintenance_mode_is_already_true(self):
+        server_hardware_uri = "resourceuri"
+        server_hardware = {"uri": server_hardware_uri, "maintenanceMode": "true"}
+
+        self.resource.data = server_hardware
+
+        self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_ENABLE_MAINTENANCE_MODE)
+
+        ServerHardwareModule().run()
+
+        self.resource.patch.assert_not_called()
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ServerHardwareModule.MSG_NOTHING_TO_DO,
+            ansible_facts=dict(server_hardware=server_hardware)
+        )
+
+    def test_should_disable_maintenance_mode(self):
+        server_hardware_uri = "resourceuri"
+
+        self.resource.data = {"uri": server_hardware_uri, "maintenanceMode": "true"}
+
+        self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_DISABLE_MAINTENANCE_MODE)
+
+        ServerHardwareModule().run()
+        patch_params = ServerHardwareModule.patch_params['disable_maintenance_mode']
+        self.resource.patch.assert_called_once_with(**patch_params)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerHardwareModule.MSG_MAINTENANCE_MODE_CHANGED,
+            ansible_facts=dict(server_hardware=self.resource.data)
+        )
+
+    def test_should_not_set_when_the_maintenance_mode_is_already_false(self):
+        server_hardware_uri = "resourceuri"
+        server_hardware = {"uri": server_hardware_uri, "maintenanceMode": "false"}
+
+        self.resource.data = server_hardware
+
+        self.mock_ansible_module.params = yaml.load(YAML_SERVER_HARDWARE_DISABLE_MAINTENANCE_MODE)
 
         ServerHardwareModule().run()
 

@@ -61,15 +61,49 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
             ],
             name="EnetUplink1",
             networkType="Ethernet",
-            networkNames=["TestNetwork_1"]
-        )
-        ],
+            networkNames=["TestNetwork_1"],
+            networkSetUris=["/rest/network-set/1234"]
+        )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
             interconnectMapEntryTemplates=[]
         )
     )
 )
+DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name="NEW_UPLINK_SET",
+        uplinkSets=[dict(
+            logicalPortConfigInfos=[dict(
+                desiredSpeed="Auto",
+                logicalLocation=dict(
+                    locationEntries=[dict(
+                        relativeValue=1,
+                        type="Bay"
+                    ), dict(
+                        relativeValue=21,
+                        type="Port"
+                    ), dict(
+                        relativeValue=1,
+                        type="Enclosure"
+                    )
+                    ]
+                )
+            )
+            ],
+            name="NewEnetUplink",
+            networkType="Ethernet",
+            networkNames=["TestNetwork_1"],
+        )],
+        enclosureType='C7000',
+        interconnectMapTemplate=dict(
+            interconnectMapEntryTemplates=[]
+        )
+    )
+)
+
 DEFAULT_LIG_TEMPLATE_WITH_DIFFERENT_UPLINKSETS = dict(
     config='config.json',
     state='present',
@@ -95,7 +129,8 @@ DEFAULT_LIG_TEMPLATE_WITH_DIFFERENT_UPLINKSETS = dict(
             ],
             name="EnetUplink1",
             networkType="Ethernet",
-            networkNames=["TestNetwork_2"]
+            networkNames=["TestNetwork_2"],
+            networkSetUris=["/rest/network-set/12345"]
         )
         ],
         enclosureType='C7000',
@@ -159,6 +194,11 @@ PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
     data=dict(name=DEFAULT_LIG_NAME)
+)
+PARAMS_FOR_CREATE = dict(
+    config='config.json',
+    state='present',
+    data=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS['data'].copy()
 )
 
 PARAMS_TO_RENAME = dict(
@@ -224,7 +264,8 @@ UPLINK_SETS = [dict(
         "networkType": "Ethernet",
         "networkUris": ["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd",
                         "/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734869edg"],
-        "networkNames": ["TestNetwork_1"]
+        "networkNames": ["TestNetwork_1"],
+        "networkSetUris": ["/rest/network-set/1234"]
     }]
 )
 ]
@@ -245,6 +286,21 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
             changed=True,
             msg=LogicalInterconnectGroupModule.MSG_CREATED,
             ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
+        )
+
+    def test_should_create_new_lig_with_uplinkset(self):
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
+        self.resource.create.return_value = self.resource
+        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = None
+        self.mock_ov_client.ethernet_networks.get_by.return_value = []
+        self.mock_ansible_module.params = PARAMS_FOR_CREATE
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
+            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS)
         )
 
     def test_should_create_new_with_named_permitted_interconnect_type(self):
@@ -302,9 +358,24 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_uplinkset_attributes(self):
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
+        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = UPLINK_SETS
+        self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
         self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_DIFFERENT_UPLINKSETS
 
-        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
+            ansible_facts=dict(logical_interconnect_group=self.resource.data)
+        )
+
+    def test_update_when_data_has_new_uplinkset(self):
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS
+        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = UPLINK_SETS
+        self.mock_ov_client.ethernet_networks.get_by.return_value = [dict(uri='/rest/ethernet-networks/18')]
+        self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS
 
         LogicalInterconnectGroupModule().run()
 
