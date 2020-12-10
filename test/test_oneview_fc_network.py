@@ -381,11 +381,11 @@ class TestFcNetworkModule(OneViewBaseTest):
             config='config.json',
             state='present',
             data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'],
-                    newName="New Name",
-                    fabricType='DirectAttach',
-                    bandwidth=dict(maximumBandwidth=3000,
-                                    typicalBandwidth=2000))
-        )                                              
+                      newName="New Name",
+                      fabricType='DirectAttach',
+                      bandwidth=dict(maximumBandwidth=20,
+                                     typicalBandwidth=10))
+        )
         self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH
         self.mock_ansible_module.check_mode = False
         self.mock_ansible_module.params = PARAMS_WITH_NO_CONNECTIONTEMPLATE
