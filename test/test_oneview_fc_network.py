@@ -351,15 +351,13 @@ class TestFcNetworkModule(OneViewBaseTest):
                                                           'maximumBandwidth': 20,
                                                           'typicalBandwidth': 10
                                                       },
-                                                      'autoLoginRedistribution': 'True',
-                                                      'fabricType': 'FabricAttach',
                                                       }
         PARAMS_WITH_CONNECTIONTEMPLATE = dict(
             config='config.json',
             state='present',
             data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'],
-                      newName="New Name",
-                      connectionTemplateUri= '/rest/',
+                      newName="New FC Network 2",
+                      connectionTemplateUri='/rest/',
                       fabricType='DirectAttach',
                       bandwidth=dict(maximumBandwidth=20,
                                      typicalBandwidth=10))
