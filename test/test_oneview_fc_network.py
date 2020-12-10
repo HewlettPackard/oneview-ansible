@@ -319,18 +319,18 @@ class TestFcNetworkModule(OneViewBaseTest):
             ansible_facts=dict(fc_network_bulk_delete=None))
 
     def test_update_when_only_bandwidth_has_modified_attributes(self):
-        DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH = dict(
-            name='New FC Network 2',
-            autoLoginRedistribution=True,
-            fabricType='FabricAttach',
-            bandwidth=dict(maximumBandwidth=3000,
-                           typicalBandwidth=2000)
-        )
-        resource_data = DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH.copy()
-        self.resource.data = resource_data
+        DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH = {'name': 'New FC Network 2',
+                                                      'bandwidth': {
+                                                            'maximumBandwidth': 20,
+                                                            'typicalBandwidth': 10
+                                                      },
+                                                      'autoLoginRedistribution': 'True',
+                                                      'fabricType': 'FabricAttach',
+                                                      }
+        self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH
         self.resource.create.return_value = self.resource
         self.mock_ansible_module.check_mode = False
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = PARAMS_WITH_BANDWIDTH
         self.resource.get_by_name.return_value = []
         obj = mock.Mock()
         obj.data = {"uri": "uri"}
@@ -341,7 +341,7 @@ class TestFcNetworkModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=FcNetworkModule.MSG_CREATED,
-            ansible_facts=dict(fc_network=resource_data)
+            ansible_facts=dict(fc_network=DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH)
         )
 
 
