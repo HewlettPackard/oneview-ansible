@@ -382,19 +382,19 @@ class TestFcNetworkModule(OneViewBaseTest):
 
     def test_not_update_when_only_bandwidth_has_connectiontemplateuri_attribute(self):
         DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH = {'name': 'New FC Network 2',
+                                                      'connectionTemplateUri': '/rest/',
                                                       'bandwidth': {
                                                           'maximumBandwidth': 20,
                                                           'typicalBandwidth': 10
                                                       },
-                                                      'autoLoginRedistribution': 'True',
-                                                      'fabricType': 'FabricAttach',
+                                                      'fabricType': 'DirectAttach',
                                                       }
         PARAMS_WITH_NO_CONNECTIONTEMPLATE = dict(
             config='config.json',
             state='present',
             data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'],
-                      newName="New Name",
                       fabricType='DirectAttach',
+                      connectionTemplateUri= '/rest/',
                       bandwidth=dict(maximumBandwidth=20,
                                      typicalBandwidth=10))
         )
@@ -409,8 +409,8 @@ class TestFcNetworkModule(OneViewBaseTest):
         FcNetworkModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=FcNetworkModule.MSG_UPDATED,
+            changed=False,
+            msg=FcNetworkModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(fc_network=DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH)
         )
 
