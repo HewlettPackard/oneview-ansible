@@ -51,62 +51,85 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = '''
-- name: Ensure that the Fibre Channel Network is present using the default configuration
+- name: Create a Fibre Channel Network
   oneview_fc_network:
-    hostname: 172.16.101.48
-    username: administrator
-    password: my_password
-    api_version: 2200
+    config: "{{ config }}"
+    state: present
+    validate_etag: False
+    data:
+      name: "{{ item }}"
+      fabricType: 'FabricAttach'
+      linkStabilityTime: '30'
+      autoLoginRedistribution: true
+      bandwidth:
+        maximumBandwidth: 2000
+        typicalBandwidth: 1000
+  delegate_to: localhost
+  register: fc_network_1
+  with_items:
+    - "{{ network_name }}"
+    - "{{ network_name }} (1)"
+    - "{{ network_name }} (2)"
+
+- name: Do nothing with the Fibre Channel Network when no changes are provided
+  oneview_fc_network:
+    config: "{{ config }}"
     state: present
     data:
-      name: 'New FC Network'
+      name: "{{ network_name }}"
+      fabricType: 'FabricAttach'
+      linkStabilityTime: '30'
+      autoLoginRedistribution: true
+      bandwidth:
+        maximumBandwidth: 2000
+        typicalBandwidth: 1000
+  delegate_to: localhost
 
-- name: Ensure that the Fibre Channel Network is present with fabricType 'DirectAttach'
+- name: Update the Fibre Channel Network changing the attribute autoLoginRedistribution to True
   oneview_fc_network:
-    hostname: 172.16.101.48
-    username: administrator
-    password: my_password
-    api_version: 2200
+    config: "{{ config }}"
     state: present
     data:
-      name: 'New FC Network'
-      fabricType: 'DirectAttach'
+      name: "{{ network_name }}"
+      autoLoginRedistribution: False
+      fabricType: 'FabricAttach'
+      linkStabilityTime: '30'
+      bandwidth:
+        maximumBandwidth: 3000
+        typicalBandwidth: 2000
+  delegate_to: localhost
 
-# This feature is available only till OneView 3.10
-- name: Ensure that the Fibre Channel Network is present and is inserted in the desired scopes
+- name: Delete the Fibre Channel Network
   oneview_fc_network:
-    hostname: 172.16.101.48
-    username: administrator
-    password: my_password
-    api_version: 500
-    state: present
-    data:
-      name: 'New FC Network'
-      scopeUris:
-        - '/rest/scopes/00SC123456'
-        - '/rest/scopes/01SC123456'
-
-- name: Ensure that the Fibre Channel Network is absent
-  oneview_fc_network:
-    hostname: 172.16.101.48
-    username: administrator
-    password: my_password
-    api_version: 2200
+    config: "{{ config }}"
     state: absent
     data:
-      name: 'New FC Network'
+      name: "{{ network_name }}"
+  delegate_to: localhost
+  register: deleted
 
-- name: Delete Fibre Channel Networks in bulk(works from API1600)
+- name: Do nothing when Fibre Channel Network is absent
   oneview_fc_network:
-    hostname: 172.16.101.48
-    username: administrator
-    password: my_password
-    api_version: 2200
+    config: "{{ config }}"
+    state: absent
+    data:
+      name: "{{ network_name }}"
+  delegate_to: localhost
+  register: deleted
+
+- debug: var=fc_network_1.results[1].ansible_facts.fc_network.uri
+
+# This feature is available only from OneView 5.20
+- name: Delete Fibre Channel Networks in bulk
+  oneview_fc_network:
+    config: "{{ config }}"
     state: absent
     data:
       networkUris:
-        -  "/rest/fc-networks/e2f0031b-52bd-4223-9ac1-d91cb519d548"
+        - "{{ fc_network_1.results[1].ansible_facts.fc_network.uri }}"
+        - "{{ fc_network_1.results[2].ansible_facts.fc_network.uri }}"
   delegate_to: localhost
+  when: currentVersion >= '1600'
 '''
 
 RETURN = '''
