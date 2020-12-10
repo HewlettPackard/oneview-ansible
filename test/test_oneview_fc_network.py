@@ -320,7 +320,7 @@ class TestFcNetworkModule(OneViewBaseTest):
 
     def test_update_when_only_bandwidth_has_modified_attributes(self):
         DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH = {'name': 'New FC Network 2',
-                                                      'connectionTemplateUri': '/rest/'
+                                                      'connectionTemplateUri': '/rest/',
                                                       'bandwidth': {
                                                           'maximumBandwidth': 20,
                                                           'typicalBandwidth': 10
