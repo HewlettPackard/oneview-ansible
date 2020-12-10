@@ -319,11 +319,19 @@ class TestFcNetworkModule(OneViewBaseTest):
             ansible_facts=dict(fc_network_bulk_delete=None))
 
     def test_update_when_only_bandwidth_has_modified_attributes(self):
-        data_with_changes = PARAMS_WITH_BANDWIDTH.copy()
-        self.resource.data = data_with_changes
+        DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH = dict(
+            name='New FC Network 2',
+            autoLoginRedistribution=True,
+            fabricType='FabricAttach',
+            bandwidth=dict(maximumBandwidth=3000,
+                           typicalBandwidth=2000)
+        )
+        resource_data = DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH.copy()
+        self.resource.data = resource_data
         self.resource.update.return_value = self.resource
         self.mock_ansible_module.check_mode = False
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.resource.get_by_name.return_value = []
         obj = mock.Mock()
         obj.data = {"uri": "uri"}
         self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
@@ -333,7 +341,7 @@ class TestFcNetworkModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=FcNetworkModule.MSG_UPDATED,
-            ansible_facts=dict(fc_network=data_with_changes)
+            ansible_facts=dict(fc_network=resource_data)
         )
 
 
