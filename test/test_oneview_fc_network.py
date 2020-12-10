@@ -351,6 +351,7 @@ class TestFcNetworkModule(OneViewBaseTest):
                                                           'maximumBandwidth': 20,
                                                           'typicalBandwidth': 10
                                                       },
+                                                      'fabricType':'DirectAttach'
                                                       }
         PARAMS_WITH_CONNECTIONTEMPLATE = dict(
             config='config.json',
