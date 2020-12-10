@@ -188,7 +188,7 @@ class FcNetworkModule(OneViewModule):
             result = self.check_resource_present(self.RESOURCE_FACT_NAME)
 
         if bandwidth is not None:
-            if self.__update_connection_template(bandwidth[0]):
+            if self.__update_connection_template(bandwidth)[0]:
                 if not result['changed']:
                     result['changed'] = True
                     result['msg'] = self.MSG_UPDATED
