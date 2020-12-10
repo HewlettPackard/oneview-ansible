@@ -54,7 +54,7 @@ PARAMS_WITH_BANDWIDTH = dict(
     data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'],
               newName="New Name",
               fabricType='DirectAttach',
-              connectionTemplateUri='null',
+              connectionTemplateUri='/rest/',
               bandwidth=dict(maximumBandwidth=3000,
                              typicalBandwidth=2000))
 )
@@ -320,18 +320,18 @@ class TestFcNetworkModule(OneViewBaseTest):
 
     def test_update_when_only_bandwidth_has_modified_attributes(self):
         DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH = {'name': 'New FC Network 2',
+                                                      'connectionTemplateUri': '/rest/'
                                                       'bandwidth': {
-                                                            'maximumBandwidth': 20,
-                                                            'typicalBandwidth': 10
+                                                          'maximumBandwidth': 20,
+                                                          'typicalBandwidth': 10
                                                       },
                                                       'autoLoginRedistribution': 'True',
                                                       'fabricType': 'FabricAttach',
                                                       }
         self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH
-        self.resource.create.return_value = self.resource
         self.mock_ansible_module.check_mode = False
         self.mock_ansible_module.params = PARAMS_WITH_BANDWIDTH
-        self.resource.get_by_name.return_value = []
+        self.resource.update.return_value = self.resource
         obj = mock.Mock()
         obj.data = {"uri": "uri"}
         self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
