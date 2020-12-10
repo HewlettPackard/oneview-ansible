@@ -358,9 +358,7 @@ class TestFcNetworkModule(OneViewBaseTest):
         self.mock_ansible_module.check_mode = False
         self.mock_ansible_module.params = PARAMS_WITH_BANDWIDTH
         self.resource.update.return_value = self.resource
-        obj = mock.Mock()
-        obj.data = self.resource
-        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = self.resource
 
         FcNetworkModule().run()
 
@@ -379,9 +377,18 @@ class TestFcNetworkModule(OneViewBaseTest):
                                                       'autoLoginRedistribution': 'True',
                                                       'fabricType': 'FabricAttach',
                                                       }
+        PARAMS_WITH_NO_CONNECTIONTEMPLATE = dict(
+            config='config.json',
+            state='present',
+            data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'],
+                    newName="New Name",
+                    fabricType='DirectAttach',
+                    bandwidth=dict(maximumBandwidth=3000,
+                                    typicalBandwidth=2000))
+        )                                              
         self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH
         self.mock_ansible_module.check_mode = False
-        self.mock_ansible_module.params = PARAMS_WITH_BANDWIDTH
+        self.mock_ansible_module.params = PARAMS_WITH_NO_CONNECTIONTEMPLATE
         self.resource.update.return_value = self.resource
         obj = mock.Mock()
         obj.data = self.resource
