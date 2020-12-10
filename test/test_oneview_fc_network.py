@@ -389,12 +389,44 @@ class TestFcNetworkModule(OneViewBaseTest):
                                                       },
                                                       'fabricType': 'DirectAttach',
                                                       }
+        PARAMS_WITH_CONNECTIONTEMPLATE = dict(
+            config='config.json',
+            state='present',
+            data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'],
+                      fabricType='DirectAttach',
+                      connectionTemplateUri='/rest/',
+                      bandwidth=dict(maximumBandwidth=20,
+                                     typicalBandwidth=10))
+        )
+        self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH
+        self.mock_ansible_module.check_mode = False
+        self.mock_ansible_module.params = PARAMS_WITH_CONNECTIONTEMPLATE
+        self.resource.update.return_value = self.resource
+        obj = mock.Mock()
+        obj.data = self.resource
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
+
+        FcNetworkModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=FcNetworkModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(fc_network=DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH)
+        )
+
+    def test_not_update_when_bandwidth_has_no_connectiontemplateuri_attribute(self):
+        DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH = {'name': 'New FC Network 2',
+                                                      'bandwidth': {
+                                                          'maximumBandwidth': 20,
+                                                          'typicalBandwidth': 10
+                                                      },
+                                                      'fabricType': 'DirectAttach',
+                                                      }
         PARAMS_WITH_NO_CONNECTIONTEMPLATE = dict(
             config='config.json',
             state='present',
             data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'],
                       fabricType='DirectAttach',
-                      connectionTemplateUri= '/rest/',
                       bandwidth=dict(maximumBandwidth=20,
                                      typicalBandwidth=10))
         )
