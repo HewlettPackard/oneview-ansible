@@ -128,6 +128,11 @@ class RackModule(OneViewModuleBase):
             return self.__absent()
 
     def __present(self):
+        # for idempotence, if current doesn't exist, replace with newName one
+        if not self.current_resource:
+            if "newName" in self.data:
+                self.current_resource = self.resource_client.get_by('name', self.data['newName'])
+                self.data["name"] = self.data.pop("newName")
         if not self.current_resource:
             self.current_resource = self.resource_client.add(self.data)
             changed = True
@@ -158,7 +163,7 @@ class RackModule(OneViewModuleBase):
 
         self.current_resource = self.current_resource[0]
         merged_rack_mounts = self.__mergeRackMounts()
-        merged_data = dict_merge(self.data, self.current_resource)
+        merged_data = dict_merge(self.current_resource, self.data)
         if "rackMounts" in merged_rack_mounts:
             merged_data['rackMounts'] = merged_rack_mounts['rackMounts']
         if not compare(self.current_resource, merged_data):

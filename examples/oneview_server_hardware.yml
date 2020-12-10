@@ -11,7 +11,7 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under the License.
+# limitations under the License..
 ###
 
 ---
@@ -134,6 +134,22 @@
       oneview_server_hardware:
         config: "{{ config }}"
         state: uid_state_off
+        data:
+            name: "{{ server_hardwares[0]['name'] }}"
+      delegate_to: localhost
+
+    - name: Enable Server Maintenance Mode
+      oneview_server_hardware:
+        config: "{{ config }}"
+        state: enable_maintenance_mode
+        data:
+            name: "{{ server_hardwares[0]['name'] }}"
+      delegate_to: localhost
+                           
+    - name: Disable Server Maintenance Mode
+      oneview_server_hardware:
+        config: "{{ config }}"
+        state: disable_maintenance_mode
         data:
             name: "{{ server_hardwares[0]['name'] }}"
       delegate_to: localhost

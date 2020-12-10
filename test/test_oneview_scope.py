@@ -27,6 +27,8 @@ FAKE_MSG_ERROR = 'Fake message error'
 
 RESOURCE = dict(name='ScopeName', uri='/rest/scopes/id')
 RESOURCE_UPDATED = dict(name='ScopeNameRenamed', uri='/rest/scopes/id')
+RESOURCE_ASSIGNMENTS = dict(name='ScopeName',
+                            addedResourceUris=['/rest/resource/id-1', '/rest/resource/id-4'])
 
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
@@ -39,6 +41,22 @@ PARAMS_WITH_CHANGES = dict(
     state='present',
     data=dict(name='ScopeName',
               newName='ScopeNameRenamed')
+)
+
+PARAMS_WITH_CHANGES_HAVING_RESOURCES_1 = dict(
+    config='config.json',
+    state='present',
+    data=dict(name='ScopeName',
+              addedResourceUris=['/rest/resource/id-1', '/rest/resource/id-2'],
+              removedResourceUris=['/rest/resource/id-3'])
+)
+
+PARAMS_WITH_CHANGES_HAVING_RESOURCES_2 = dict(
+    config='config.json',
+    state='present',
+    data=dict(name='ScopeName',
+              addedResourceUris=['/rest/resource/id-1', '/rest/resource/id-2'],
+              removedResourceUris=['/rest/resource/id-2'])
 )
 
 PARAMS_FOR_ABSENT = dict(
@@ -81,16 +99,58 @@ class TestScopeModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by_name.return_value = self.resource
-        self.resource.data = PARAMS_FOR_PRESENT
+        response_data = PARAMS_FOR_PRESENT['data']
+        self.resource.data = response_data
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        ScopeModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ScopeModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(scope=response_data)
+        )
+
+    def test_should_not_update_when_no_new_add_remove_resources(self):
+        self.resource.get_by_name.return_value = self.resource
+        current_data = copy.deepcopy(PARAMS_WITH_CHANGES_HAVING_RESOURCES_1['data'])
+        self.resource.data = current_data
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES_HAVING_RESOURCES_1
 
         ScopeModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ScopeModule.MSG_UPDATED,
-            ansible_facts=dict(scope=PARAMS_FOR_PRESENT)
+            ansible_facts=dict(scope=current_data)
+        )
+
+    def test_should_update_when_new_remove_resources(self):
+        self.resource.get_by_name.return_value = self.resource
+        current_data = copy.deepcopy(PARAMS_WITH_CHANGES_HAVING_RESOURCES_2['data'])
+        self.resource.data = current_data
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES_HAVING_RESOURCES_2
+
+        ScopeModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ScopeModule.MSG_UPDATED,
+            ansible_facts=dict(scope=current_data)
+        )
+
+    def test_should_update_when_new_add_resources(self):
+        self.resource.get_by_name.return_value = self.resource
+        current_data = copy.deepcopy(RESOURCE_ASSIGNMENTS)
+        self.resource.data = current_data
+        self.mock_ansible_module.params = PARAMS_WITH_CHANGES_HAVING_RESOURCES_1
+
+        ScopeModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ScopeModule.MSG_UPDATED,
+            ansible_facts=dict(scope=current_data)
         )
 
     def test_should_update_when_data_has_changes(self):
@@ -132,6 +192,7 @@ class TestScopeModule(OneViewBaseTest):
         )
 
     def test_should_fail_resource_assignments_when_scope_not_found(self):
+        self.mock_ov_client.api_version = 300
         self.resource.get_by_name.return_value = None
         self.mock_ansible_module.params = copy.deepcopy(PARAMS_RESOURCE_ASSIGNMENTS)
 
@@ -143,8 +204,8 @@ class TestScopeModule(OneViewBaseTest):
             msg=ScopeModule.MSG_RESOURCE_NOT_FOUND
         )
 
-    def test_should_not_update_resource_assignments_in_api500(self):
-        self.mock_ov_client.api_version = 500
+    def test_should_not_update_resource_assignments_in_api300(self):
+        self.mock_ov_client.api_version = 300
         self.resource.get_by_name.return_value = self.resource
         resource_data = PARAMS_NO_RESOURCE_ASSIGNMENTS.copy()
         self.resource.data = resource_data
@@ -159,8 +220,8 @@ class TestScopeModule(OneViewBaseTest):
             msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_NOT_UPDATED
         )
 
-    def test_should_add_and_remove_resource_assignments_in_api500(self):
-        self.mock_ov_client.api_version = 500
+    def test_should_add_and_remove_resource_assignments_in_api300(self):
+        self.mock_ov_client.api_version = 300
         self.resource.get_by_name.return_value = self.resource
 
         resource_data = PARAMS_RESOURCE_ASSIGNMENTS.copy()
@@ -182,8 +243,8 @@ class TestScopeModule(OneViewBaseTest):
             msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_UPDATED
         )
 
-    def test_should_update_name_in_api500(self):
-        self.mock_ov_client.api_version = 500
+    def test_should_update_name_in_api300(self):
+        self.mock_ov_client.api_version = 300
         self.resource.get_by_name.return_value = self.resource
 
         PARAMS_RESOURCE_ASSIGNMENTS_UPDATED_NAME = dict(
@@ -212,8 +273,8 @@ class TestScopeModule(OneViewBaseTest):
             msg=ScopeModule.MSG_RESOURCE_ASSIGNMENTS_UPDATED
         )
 
-    def test_should_update_description_in_api500(self):
-        self.mock_ov_client.api_version = 500
+    def test_should_update_description_in_api300(self):
+        self.mock_ov_client.api_version = 300
         self.resource.get_by_name.return_value = self.resource
 
         PARAMS_RESOURCE_ASSIGNMENTS_UPDATED_DESCRIPTION = dict(

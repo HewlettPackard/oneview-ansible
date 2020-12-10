@@ -1,7 +1,8 @@
 # Ansible Modules for HPE OneView Change Log
-## v6.0.0
 
+## v5.9.1(unreleased)
 #### Bug fixes & Enhancements
+- [#597] (https://github.com/HewlettPackard/oneview-ansible/issues/597) Rack rename do not work.
 - [#594] (https://github.com/HewlettPackard/oneview-ansible/issues/594) Updated library file for LIG Uplink Set Issue
 
 ## v5.9.0
@@ -9,7 +10,8 @@ This release extends the planned support of the modules to OneView REST API vers
 
 #### Bug fixes & Enhancements
 - [#581] (https://github.com/HewlettPackard/oneview-ansible/issues/581) Updating single uplinkSet in LIG removes other uplinkSet.
-- [#582] (https://github.com/HewlettPackard/oneview-ansible/issues/582) description field is empty after server profile creation
+- [#582] (https://github.com/HewlettPackard/oneview-ansible/issues/582) Description field is empty after server profile creation.
+- [#599] (https://github.com/HewlettPackard/oneview-ansible/issues/599) Server maintenance mode..
 
 ### Modules supported in this release
 - image_streamer_artifact_bundle
