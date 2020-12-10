@@ -328,7 +328,7 @@ class TestFcNetworkModule(OneViewBaseTest):
         )
         resource_data = DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH.copy()
         self.resource.data = resource_data
-        self.resource.update.return_value = self.resource
+        self.resource.create.return_value = self.resource
         self.mock_ansible_module.check_mode = False
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
         self.resource.get_by_name.return_value = []
@@ -340,7 +340,7 @@ class TestFcNetworkModule(OneViewBaseTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=FcNetworkModule.MSG_UPDATED,
+            msg=FcNetworkModule.MSG_CREATED,
             ansible_facts=dict(fc_network=resource_data)
         )
 
