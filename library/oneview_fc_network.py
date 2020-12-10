@@ -116,7 +116,7 @@ fc_network:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule
+from ansible.module_utils.oneview import OneViewModule, compare
 
 
 class FcNetworkModule(OneViewModule):
@@ -139,6 +139,7 @@ class FcNetworkModule(OneViewModule):
                                               validate_etag_support=True)
 
         self.set_resource_object(self.oneview_client.fc_networks)
+        self.connection_templates = self.oneview_client.connection_templates
 
     def execute_module(self):
         changed, msg, ansible_facts = False, '', {}
@@ -157,16 +158,24 @@ class FcNetworkModule(OneViewModule):
 
     def _present(self):
         scope_uris = self.data.pop('scopeUris', None)
+        bandwidth = self.data.pop('bandwidth', None)
         if not self.module.check_mode:
             result = self.resource_present(self.RESOURCE_FACT_NAME)
         else:
             result = self.check_resource_present(self.RESOURCE_FACT_NAME)
+
+        if bandwidth:
+            if self.__update_connection_template(bandwidth)[0]:
+                if not result['changed']:
+                    result['changed'] = True
+                    result['msg'] = self.MSG_UPDATED
 
         if scope_uris is not None:
             if not self.module.check_mode:
                 result = self.resource_scopes_set(result, 'fc_network', scope_uris)
             else:
                 result = self.check_resource_scopes_set(result, 'fc_network', scope_uris)
+
         return result
 
     def __bulk_absent(self):
@@ -178,6 +187,23 @@ class FcNetworkModule(OneViewModule):
             msg = self.BULK_MSG_DELETED
 
         return changed, msg, dict(fc_network_bulk_delete=None)
+
+    def __update_connection_template(self, bandwidth):
+
+        if 'connectionTemplateUri' not in self.current_resource.data:
+            return False, None
+
+        connection_template = self.connection_templates.get_by_uri(
+            self.current_resource.data['connectionTemplateUri'])
+
+        merged_data = connection_template.data.copy()
+        merged_data.update({'bandwidth': bandwidth})
+
+        if not compare(connection_template.data, merged_data):
+            connection_template.update(merged_data)
+            return True, connection_template.data
+        else:
+            return False, None
 
 
 def main():
