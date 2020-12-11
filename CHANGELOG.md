@@ -4,6 +4,8 @@
 #### Bug fixes & Enhancements
 - [#597] (https://github.com/HewlettPackard/oneview-ansible/issues/597) Rack rename do not work.
 - [#594] (https://github.com/HewlettPackard/oneview-ansible/issues/594) Updated library file for LIG Uplink Set Issue
+- [#609] (https://github.com/HewlettPackard/oneview-ansible/issues/609) Enclosure Group creation using an address pool for interconnect configuration
+- [#611] (https://github.com/HewlettPackard/oneview-ansible/issues/611) IPv4 range creation fails with "Invalid Pool Range IPv4"
 
 ## v5.9.0
 This release extends the planned support of the modules to OneView REST API version 2200 (OneView v5.5) and ImageStreamer REST API version 2000 (I3S v5.4)
