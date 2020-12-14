@@ -1,11 +1,22 @@
 # Ansible Modules for HPE OneView Change Log
+
+## v5.9.1(unreleased)
+This release extends the planned support of the modules to OneView REST API version 2200 (OneView v5.5) and ImageStreamer REST API version 2000 (I3S v5.4)
+
+#### Bug fixes & Enhancements
+- [#597] (https://github.com/HewlettPackard/oneview-ansible/issues/597) Rack rename do not work.
+- [#594] (https://github.com/HewlettPackard/oneview-ansible/issues/594) Updated library file for LIG Uplink Set Issue
+- [#599] (https://github.com/HewlettPackard/oneview-ansible/issues/599) Server maintenance mode.
+- [#612] (https://github.com/HewlettPackard/oneview-ansible/issues/612) FC network bandwidth
+- [#614] (https://github.com/HewlettPackard/oneview-ansible/issues/614) Typo in oneview_server_profile_template_with_resource_name.yml
+- [#620] (https://github.com/HewlettPackard/oneview-ansible/issues/620) git installed ansible oneview container image.
+
 ## v5.9.0
 This release extends the planned support of the modules to OneView REST API version 2200 (OneView v5.5) and ImageStreamer REST API version 2000 (I3S v5.4)
 
 #### Bug fixes & Enhancements
 - [#581] (https://github.com/HewlettPackard/oneview-ansible/issues/581) Updating single uplinkSet in LIG removes other uplinkSet.
 - [#582] (https://github.com/HewlettPackard/oneview-ansible/issues/582) description field is empty after server profile creation
-- [#612] (https://github.com/HewlettPackard/oneview-ansible/issues/612) FC network bandwidth
 
 ### Modules supported in this release
 - image_streamer_artifact_bundle
