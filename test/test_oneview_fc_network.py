@@ -17,6 +17,7 @@
 ###
 
 import pytest
+import mock
 
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import FcNetworkModule
@@ -45,6 +46,17 @@ PARAMS_WITH_CHANGES = dict(
     data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'],
               newName="New Name",
               fabricType='DirectAttach')
+)
+
+PARAMS_WITH_BANDWIDTH = dict(
+    config='config.json',
+    state='present',
+    data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'],
+              newName="New Name",
+              fabricType='DirectAttach',
+              connectionTemplateUri='/rest/',
+              bandwidth=dict(maximumBandwidth=3000,
+                             typicalBandwidth=2000))
 )
 
 CHECK_MODE_PARAMS_WITH_CHANGES = dict(
@@ -305,6 +317,134 @@ class TestFcNetworkModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True, msg=FcNetworkModule.BULK_MSG_DELETED,
             ansible_facts=dict(fc_network_bulk_delete=None))
+
+    def test_update_when_only_bandwidth_has_modified_attributes(self):
+        DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH = {'name': 'New FC Network 2',
+                                                      'connectionTemplateUri': '/rest/',
+                                                      'bandwidth': {
+                                                          'maximumBandwidth': 20,
+                                                          'typicalBandwidth': 10
+                                                      },
+                                                      'autoLoginRedistribution': 'True',
+                                                      'fabricType': 'FabricAttach',
+                                                      }
+        self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH
+        self.mock_ansible_module.check_mode = False
+        self.mock_ansible_module.params = PARAMS_WITH_BANDWIDTH
+        self.resource.update.return_value = self.resource
+        obj = mock.Mock()
+        obj.data = {"uri": "uri"}
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
+
+        FcNetworkModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=FcNetworkModule.MSG_UPDATED,
+            ansible_facts=dict(fc_network=DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH)
+        )
+
+    def test_not_update_when_only_bandwidth_has_modified_attributes(self):
+        DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH = {'name': 'New FC Network 2',
+                                                      'connectionTemplateUri': '/rest/',
+                                                      'bandwidth': {
+                                                          'maximumBandwidth': 20,
+                                                          'typicalBandwidth': 10
+                                                      },
+                                                      'fabricType': 'DirectAttach'
+                                                      }
+        PARAMS_WITH_CONNECTIONTEMPLATE = dict(
+            config='config.json',
+            state='present',
+            data=dict(name="New FC Network 2",
+                      connectionTemplateUri='/rest/',
+                      fabricType='DirectAttach',
+                      bandwidth=dict(maximumBandwidth=20,
+                                     typicalBandwidth=10))
+        )
+        self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH
+        self.mock_ansible_module.check_mode = False
+        self.mock_ansible_module.params = PARAMS_WITH_CONNECTIONTEMPLATE
+        self.resource.update.return_value = self.resource
+        obj = mock.Mock()
+        get_by_uri_data = DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH.copy()
+        get_by_uri_data['bandwidth']['maximumBandwidth'] = 21
+        obj.data = get_by_uri_data
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
+
+        FcNetworkModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=FcNetworkModule.MSG_UPDATED,
+            ansible_facts=dict(fc_network=DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH)
+        )
+
+    def test_not_update_when_only_bandwidth_has_connectiontemplateuri_attribute(self):
+        DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH = {'name': 'New FC Network 2',
+                                                      'connectionTemplateUri': '/rest/',
+                                                      'bandwidth': {
+                                                          'maximumBandwidth': 20,
+                                                          'typicalBandwidth': 10
+                                                      },
+                                                      'fabricType': 'DirectAttach',
+                                                      }
+        PARAMS_WITH_CONNECTIONTEMPLATE = dict(
+            config='config.json',
+            state='present',
+            data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'],
+                      fabricType='DirectAttach',
+                      connectionTemplateUri='/rest/',
+                      bandwidth=dict(maximumBandwidth=20,
+                                     typicalBandwidth=10))
+        )
+        self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH
+        self.mock_ansible_module.check_mode = False
+        self.mock_ansible_module.params = PARAMS_WITH_CONNECTIONTEMPLATE
+        self.resource.update.return_value = self.resource
+        obj = mock.Mock()
+        obj.data = self.resource
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
+
+        FcNetworkModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=FcNetworkModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(fc_network=DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH)
+        )
+
+    def test_not_update_when_bandwidth_has_no_connectiontemplateuri_attribute(self):
+        DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH = {'name': 'New FC Network 2',
+                                                      'bandwidth': {
+                                                          'maximumBandwidth': 20,
+                                                          'typicalBandwidth': 10
+                                                      },
+                                                      'fabricType': 'DirectAttach',
+                                                      }
+        PARAMS_WITH_NO_CONNECTIONTEMPLATE = dict(
+            config='config.json',
+            state='present',
+            data=dict(name=DEFAULT_FC_NETWORK_TEMPLATE['name'],
+                      fabricType='DirectAttach',
+                      bandwidth=dict(maximumBandwidth=20,
+                                     typicalBandwidth=10))
+        )
+        self.resource.data = DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH
+        self.mock_ansible_module.check_mode = False
+        self.mock_ansible_module.params = PARAMS_WITH_NO_CONNECTIONTEMPLATE
+        self.resource.update.return_value = self.resource
+        obj = mock.Mock()
+        obj.data = self.resource
+        self.mock_ov_client.connection_templates.get_by_uri.return_value = obj
+
+        FcNetworkModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=FcNetworkModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(fc_network=DEFAULT_FC_NETWORK_TEMPLATE_WITH_BANDWIDTH)
+        )
 
 
 if __name__ == '__main__':
