@@ -10,7 +10,8 @@ RUN DEBIAN_FRONTEND=noninteractive \
     && apt-get install --no-install-recommends -y \
     vim \
     curl \
-    ansible
+    ansible \
+    git
 
 RUN python -m pip install --upgrade pip
 RUN pip install pyOpenSSL hpeOneView
