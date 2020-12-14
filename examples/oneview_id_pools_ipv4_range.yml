@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -47,8 +47,9 @@
           subnetUri: '{{ subnet_uri }}'
           type: Range
           rangeCategory: Custom
-          startAddress: 10.10.4.2
-          endAddress: 10.10.4.100
+          startStopFragments:
+            - startAddress: 10.10.4.2
+              endAddress: 10.10.4.100
       delegate_to: localhost
 
     - name: Do nothing with the ID Pools IPV4 Range when no changes are provided
