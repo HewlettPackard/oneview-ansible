@@ -52,6 +52,9 @@
           linkStabilityTime: '30'
           autoLoginRedistribution: true
           type: "fc-networkV4"
+          bandwidth:
+              maximumBandwidth: 2000
+              typicalBandwidth: 1000
       delegate_to: localhost
       register: fc_network_1
       with_items:
@@ -68,6 +71,9 @@
           fabricType: 'FabricAttach'
           linkStabilityTime: '30'
           autoLoginRedistribution: true
+          bandwidth:
+              maximumBandwidth: 2000
+              typicalBandwidth: 1000
       delegate_to: localhost
 
     - name: Update the Fibre Channel Network changing the attribute autoLoginRedistribution to True
@@ -79,6 +85,9 @@
           autoLoginRedistribution: False
           fabricType: 'FabricAttach'
           linkStabilityTime: '30'
+          bandwidth:
+              maximumBandwidth: 3000
+              typicalBandwidth: 2000
       delegate_to: localhost
      
     # This feature is available only till OneView 3.10
