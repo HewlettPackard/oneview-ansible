@@ -38,10 +38,10 @@ logging.basicConfig(
               logging.StreamHandler()])
 
 config = {
-    "ip": "10.1.19.63",
+    "ip": "<ip_address>",
     "credentials": {
-        "userName": "Administrator",
-        "password": "admin123"
+        "userName": "<username>",
+        "password": "<password>"
     },
     "image_streamer_ip": "",
     "api_version": 2200
