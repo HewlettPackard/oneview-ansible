@@ -344,8 +344,10 @@ class ServerProfileModule(OneViewModule):
             merged_data = ServerProfileMerger().merge_data(self.current_resource.data, self.data)
 
             self.__validations_for_os_custom_attributes(merged_data, self.current_resource.data)
+            updated_data = deepcopy(merged_data)
+            updated_data.pop('initialScopeUris', None)
 
-            if not compare(self.current_resource.data, merged_data):
+            if not compare(self.current_resource.data, updated_data):
                 self.__update_server_profile(merged_data)
                 changed = True
                 msg = self.MSG_UPDATED

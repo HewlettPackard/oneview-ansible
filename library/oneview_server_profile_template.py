@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -117,6 +117,7 @@ server_profile_template:
     type: dict
 '''
 
+from copy import deepcopy
 from ansible.module_utils.oneview import OneViewModule, ServerProfileReplaceNamesByUris, ServerProfileMerger, compare
 
 
@@ -193,8 +194,9 @@ class ServerProfileTemplateModule(OneViewModule):
 
     def __update(self, data):
         merged_data = ServerProfileMerger().merge_data(self.current_resource.data, data)
-
-        equal = compare(merged_data, self.current_resource.data)
+        updated_data = deepcopy(merged_data)
+        updated_data.pop('initialScopeUris', None)
+        equal = compare(updated_data, self.current_resource.data)
 
         if equal:
             msg = self.MSG_ALREADY_PRESENT
