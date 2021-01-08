@@ -28,7 +28,7 @@ TEMPLATE_NAME = 'ProfileTemplate101'
 SHT_URI = '/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B'
 ENCLOSURE_GROUP_URI = '/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89'
 
-CONNECTION_1 = {"connections":[{'id':1, 'name':"connection-1", 'mac':"E2:4B:0D:30:00:29", 'boot':BOOT_CONN, 'portId':"Auto"}]}
+CONNECTION_1 = {"connections": [{'id': 1, 'name': "connection-1", 'mac': "E2:4B:0D:30:00:29", 'portId': "Auto"}]}
 
 BASIC_TEMPLATE = dict(
     name=TEMPLATE_NAME,
