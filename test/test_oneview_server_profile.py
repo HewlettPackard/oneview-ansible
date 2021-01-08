@@ -143,8 +143,8 @@ AVAILABLE_TARGETS = dict(targets=[
 
 BOOT_CONN = dict(priority="NotBootable", chapLevel="none")
 
-CONNECTION_1 = dict(id=1, name="connection-1", mac="E2:4B:0D:30:00:29", boot=BOOT_CONN)
-CONNECTION_2 = dict(id=2, name="connection-2", mac="E2:4B:0D:30:00:2A", boot=BOOT_CONN)
+CONNECTION_1 = dict(id=1, name="connection-1", mac="E2:4B:0D:30:00:29", boot=BOOT_CONN, portId="Auto")
+CONNECTION_2 = dict(id=2, name="connection-2", mac="E2:4B:0D:30:00:2A", boot=BOOT_CONN, portId="Auto")
 
 CONNECTION_1_WITH_WWPN = dict(name="connection-1", wwpnType="Virtual",
                               wwnn="10:00:3a:43:88:50:00:01", wwpn="10:00:3a:43:88:50:00:00")
