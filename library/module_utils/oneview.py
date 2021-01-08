@@ -934,7 +934,7 @@ class ServerProfileMerger(object):
         if data.get(SPKeys.CONNECTION_SETTINGS) and SPKeys.CONNECTIONS in data.get(SPKeys.CONNECTION_SETTINGS):
             existing_connections = resource[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS]
             params_connections = data[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS]
-            merged_data[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS] = merge_list_by_key(existing_connections, 
+            merged_data[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS] = merge_list_by_key(existing_connections,
                 params_connections, key=SPKeys.ID, replace_key='portId', replace_value='Auto')
 
             merged_data[SPKeys.CONNECTION_SETTINGS] = self._merge_connections_boot(merged_data[SPKeys.CONNECTION_SETTINGS],
