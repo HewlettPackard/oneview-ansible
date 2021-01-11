@@ -141,7 +141,7 @@ def merge_list_by_key(original_list, updated_list, key, ignore_when_null=None, r
             for ignored_key in ignore_when_null:
                 if ignored_key in item and item[ignored_key] is None:
                     item.pop(ignored_key)
-            if item.get(replace_key) == replace_value:
+            if replace_key and item.get(replace_key) == replace_value:
                 item[replace_key] = items_map[item_key][replace_key]
             merged_items[item_key] = items_map[item_key]
             merged_items[item_key].update(item)
