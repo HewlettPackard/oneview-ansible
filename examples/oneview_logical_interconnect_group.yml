@@ -23,9 +23,26 @@
     permitted_interconnect_type_name_1: 'Virtual Connect SE 40Gb F8 Module for Synergy'
     permitted_interconnect_type_name_2: 'Synergy 20Gb Interconnect Link Module'
     scope_uris:
-            #      - '/rest/scopes/d0324c4b-56c9-485b-b7dd-8f6218a4b5bb'
-        #      - '/rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412'
+      - '/rest/scopes/d0324c4b-56c9-485b-b7dd-8f6218a4b5bb'
+      - '/rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412'
   tasks:
+    - name: Get currentVersion from URL
+      oneview_version_facts:
+        config: "{{ config }}" 
+      delegate_to: localhost
+      when: contents.api_version|length == 0
+      register: version
+   
+    - name: Print currentVersion if an apiVersion is not specified in config file
+      set_fact: 
+        currentVersion: "{{ version.ansible_facts.version.currentVersion | int }}"
+      when: contents.api_version|length == 0
+
+    - name: Print currentVersion if api version is specified in config file
+      set_fact: 
+        currentVersion: contents.api_version | string
+      when: contents.api_version|length != 0
+
     # Below task creates a Logical Interconnect Group with Interconnects, upLinkPorts, uplinkSets containing EthernetNetworks
     - name: Create a Logical Interconnect Group
       oneview_logical_interconnect_group:
@@ -41,7 +58,7 @@
               ethernetNetworkType: 'Tagged'
               networkNames:
                 - 'TestNetwork_1'
-              networkSetNames: ['test0']
+                - 'TestNetwork_2'
               logicalPortConfigInfos:
                - desiredSpeed: 'Auto'
                  logicalLocation:
@@ -82,7 +99,7 @@
             - name: 'e23 uplink set1'
               mode: 'Auto'
               networkType: 'Ethernet'
-              ethernetNetworkType: 'Tagged'
+              ethernetNetworkType: 'Untagged'
               networkNames:
                 - 'mgmt_nw'
               logicalPortConfigInfos:
@@ -186,38 +203,37 @@
               networkNames:
                 - 'TestNetwork_3'
                   #                - '/rest/ethernet-networks/5cca6ddc-49b1-4c7c-9022-eadb2630d42b'
-              networkSetNames: ['test']
               logicalPortConfigInfos:
                 - desiredSpeed: 'Auto'
                   logicalLocation:
                       locationEntries:
                         - relativeValue: 3
                           type: "Bay"
-                        - relativeValue: 63
+                        - relativeValue: 62
                           type: "Port"
                         - relativeValue: 1
                           type: "Enclosure"
       delegate_to: localhost
 
     # Below task is supported only with OneView 3.10
+    - name: Update the Logical Interconnect Group with two scopes
+      oneview_logical_interconnect_group:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test Logical Interconnect Group'
+          scopeUris: "{{ scope_uris }}"
+      delegate_to: localhost
+      when: currentVersion >= '300' and currentVersion <= '500'
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    - name: Rename the Logical Interconnect Group to 'Updated Logical Interconnect Group'
+      oneview_logical_interconnect_group:
+        config: "{{ config }}"
+        state: present
+        data:
+          name: 'Test Logical Interconnect Group'
+          newName: 'Updated Logical Interconnect Group'
+      delegate_to: localhost
 
     - name: Delete the Logical Interconnect Group
       oneview_logical_interconnect_group:

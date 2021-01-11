@@ -12,6 +12,7 @@ This release extends the planned support of the modules to OneView REST API vers
 - [#612] (https://github.com/HewlettPackard/oneview-ansible/issues/612) FC network bandwidth
 - [#614] (https://github.com/HewlettPackard/oneview-ansible/issues/614) Typo in oneview_server_profile_template_with_resource_name.yml
 - [#620] (https://github.com/HewlettPackard/oneview-ansible/issues/620) git installed ansible oneview container image.
+- [#622] (https://github.com/HewlettPackard/oneview-ansible/issues/622) Updating LIG with network set uri with mentioning networkset names.
 
 ## v5.9.0
 This release extends the planned support of the modules to OneView REST API version 2200 (OneView v5.5) and ImageStreamer REST API version 2000 (I3S v5.4)
