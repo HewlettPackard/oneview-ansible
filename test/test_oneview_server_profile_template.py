@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019 Hewlett Packard Enterprise Development LP
+# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -28,10 +28,19 @@ TEMPLATE_NAME = 'ProfileTemplate101'
 SHT_URI = '/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B'
 ENCLOSURE_GROUP_URI = '/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89'
 
+CONNECTION_1 = {"connections": [{'id': 1, 'name': "connection-1", 'mac': "E2:4B:0D:30:00:29", 'portId': "Auto"}]}
+
 BASIC_TEMPLATE = dict(
     name=TEMPLATE_NAME,
     serverHardwareTypeUri=SHT_URI,
     enclosureGroupUri=ENCLOSURE_GROUP_URI
+)
+
+BASIC_TEMPLATE_WITH_CONNECTIONS = dict(
+    name=TEMPLATE_NAME,
+    serverHardwareTypeUri=SHT_URI,
+    enclosureGroupUri=ENCLOSURE_GROUP_URI,
+    connectionSettings=CONNECTION_1
 )
 
 BASIC_TEMPLATE_MODIFIED = dict(
@@ -57,10 +66,33 @@ CREATED_BASIC_TEMPLATE = dict(
     wwnType="Virtual"
 )
 
+CREATED_BASIC_TEMPLATE_WITH_CONNECTIONS = dict(
+    affinity="Bay",
+    bios=dict(manageBios=False, overriddenSettings=[]),
+    boot=dict(manageBoot=False, order=[]),
+    bootMode=dict(manageMode=False, mode=None, pxeBootPolicy=None),
+    category="server-profile-templates",
+    connectionSettings=CONNECTION_1,
+    enclosureGroupUri="/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89",
+    name="ProfileTemplate101",
+    serialNumberType="Virtual",
+    serverHardwareTypeUri="/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B",
+    status="OK",
+    type="ServerProfileTemplateV1",
+    uri="/rest/server-profile-templates/9a156b04-fce8-40b0-b0cd-92ced1311dda",
+    wwnType="Virtual"
+)
+
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
     data=BASIC_TEMPLATE
+)
+
+PARAMS_FOR_PRESENT_WITH_CONNECTIONS = dict(
+    config='config.json',
+    state='present',
+    data=BASIC_TEMPLATE_WITH_CONNECTIONS
 )
 
 PARAMS_FOR_UPDATE = dict(
@@ -117,6 +149,20 @@ class TestServerProfileTemplateModule(OneViewBaseTest):
             changed=False,
             msg=ServerProfileTemplateModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE)
+        )
+
+    def test_should_not_modify_connections_when_template_already_exists(self):
+        self.resource.data = CREATED_BASIC_TEMPLATE_WITH_CONNECTIONS
+        self.resource.create.return_value = CREATED_BASIC_TEMPLATE_WITH_CONNECTIONS
+
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT_WITH_CONNECTIONS
+
+        ServerProfileTemplateModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ServerProfileTemplateModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(server_profile_template=CREATED_BASIC_TEMPLATE_WITH_CONNECTIONS)
         )
 
     def test_should_update_when_data_has_modified_attributes(self):

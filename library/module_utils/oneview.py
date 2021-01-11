@@ -109,7 +109,7 @@ def dict_merge(original_resource_dict, data_dict):
     return resource_dict
 
 
-def merge_list_by_key(original_list, updated_list, key, ignore_when_null=None):
+def merge_list_by_key(original_list, updated_list, key, ignore_when_null=None, replace_key=None, replace_value=None):
     """
     Merge two lists by the key. It basically:
 
@@ -141,6 +141,8 @@ def merge_list_by_key(original_list, updated_list, key, ignore_when_null=None):
             for ignored_key in ignore_when_null:
                 if ignored_key in item and item[ignored_key] is None:
                     item.pop(ignored_key)
+            if replace_key and item.get(replace_key) == replace_value:
+                item[replace_key] = items_map[item_key][replace_key]
             merged_items[item_key] = items_map[item_key]
             merged_items[item_key].update(item)
         else:
@@ -932,10 +934,18 @@ class ServerProfileMerger(object):
         if data.get(SPKeys.CONNECTION_SETTINGS) and SPKeys.CONNECTIONS in data.get(SPKeys.CONNECTION_SETTINGS):
             existing_connections = resource[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS]
             params_connections = data[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS]
-            merged_data[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS] = merge_list_by_key(existing_connections, params_connections, key=SPKeys.ID)
+            merged_data[SPKeys.CONNECTION_SETTINGS][SPKeys.CONNECTIONS] = merge_list_by_key(
+                existing_connections,
+                params_connections,
+                key=SPKeys.ID,
+                replace_key='portId',
+                replace_value='Auto'
+            )
 
-            merged_data[SPKeys.CONNECTION_SETTINGS] = self._merge_connections_boot(merged_data[SPKeys.CONNECTION_SETTINGS], resource[
-                SPKeys.CONNECTION_SETTINGS])
+            merged_data[SPKeys.CONNECTION_SETTINGS] = self._merge_connections_boot(
+                merged_data[SPKeys.CONNECTION_SETTINGS],
+                resource[SPKeys.CONNECTION_SETTINGS]
+            )
 
         if self._should_merge(data, resource, key=SPKeys.CONNECTIONS):
             existing_connections = resource[SPKeys.CONNECTIONS]
