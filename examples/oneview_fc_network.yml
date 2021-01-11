@@ -24,22 +24,22 @@
       - '/rest/scopes/9422ce05-dc39-4358-b723-c8c825eae412'
   tasks:
 
+    - name: Get currentVersion from URL
+      oneview_version_facts:
+        config: "{{ config }}" 
+      delegate_to: localhost
+      when: contents.api_version|length == 0
+      register: version
 
+    - name: Print currentVersion if api version is not specified in config file
+      set_fact: 
+        currentVersion: "{{ version.ansible_facts.version.currentVersion | int }}"
+      when: contents.api_version|length == 0
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    - name: Print currentVersion if api version is specified in config file
+      set_fact: 
+        currentVersion: contents.api_version | string
+      when: contents.api_version|length != 0
 
     - name: Create a Fibre Channel Network
       oneview_fc_network:
