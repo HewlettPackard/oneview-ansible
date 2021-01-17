@@ -91,6 +91,8 @@
                 portId: Auto
                 requestedMbps: 2500
                 networkName: "{{ network_name }}"
+                macType: "UserDefined"
+                mac: "12:11:11:11:00:00"
       delegate_to: localhost
 
     - debug: msg="{{ server_profile }}"
