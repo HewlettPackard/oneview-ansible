@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -209,7 +209,7 @@
                       locationEntries:
                         - relativeValue: 3
                           type: "Bay"
-                        - relativeValue: 62
+                        - relativeValue: 67
                           type: "Port"
                         - relativeValue: 1
                           type: "Enclosure"

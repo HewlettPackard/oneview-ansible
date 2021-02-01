@@ -1,18 +1,18 @@
 {
-  "ip": "",
+  "ip": "<oneview_ip>",
   "credentials": {
-    "userName": "",
-    "password": ""
+    "userName": "<username>",
+    "password": "<password>"
   },
-  "image_streamer_ip": "",
-  "api_version": 2200,
+  "image_streamer_ip": "<i3s_ip>",
+  "api_version": 2400,
   "storage_domain": "TestDomain",
   "storage_system_name" : "ThreePAR-1",
   "storage_system_ip" : "<storage_system_ip>",
   "storage_system_username" : "<storage_system_username>",
   "storage_system_password" : "<storage_system_password>",
   "storage_pool_name": "cpg-growth-limit-1TiB",
-  "server_profile_name": "sp1",
+  "server_profile_name": "TestProfile",
   "storage_volume_name": "Volume with Storage Pool",
   "snapshot_name": "Testing facts_20160823201021",
   "server_hardware_hostname": "<server-hardware-hostname>",
