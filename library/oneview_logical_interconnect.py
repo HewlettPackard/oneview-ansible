@@ -55,7 +55,7 @@ options:
               non-idempotent.
               C(telemetry_configuration_updated) updates the telemetry configuration of a logical interconnect.
               C(scopes_updated) updates the scopes associated with the logical interconnect.
-              C(bulk_inconsistency_validated) Validates the bulk update from group operation and gets the 
+              C(bulk_inconsistency_validated) Validates the bulk update from group operation and gets the
               consolidated inconsistency report.
               C(port_flap_settings_updated) updates the port flap settings of a logical interconnect.
         choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
