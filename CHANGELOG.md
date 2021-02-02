@@ -86,7 +86,7 @@ This release extends the planned support of the modules to OneView REST API vers
 
 #### Bug fixes & Enhancements
 - [#581] (https://github.com/HewlettPackard/oneview-ansible/issues/581) Updating single uplinkSet in LIG removes other uplinkSet.
-- [#582] (https://github.com/HewlettPackard/oneview-ansible/issues/582) description field is empty after server profile creation
+- [#582] (https://github.com/HewlettPackard/oneview-ansible/issues/582) description field is empty after server profile creation.
 
 ### Modules supported in this release
 - image_streamer_artifact_bundle
