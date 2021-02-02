@@ -61,7 +61,7 @@ options:
         choices: ['compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',
                   'forwarding_information_base_generated', 'qos_aggregated_configuration_updated',
                   'snmp_configuration_updated', 'port_monitor_updated', 'configuration_updated', 'firmware_installed',
-                  'telemetry_configuration_updated', 'igmp_settings_updated', 'bulk_inconsistency_validated',
+                  'telemetry_configuration_updated', 'scopes_updated', 'igmp_settings_updated', 'bulk_inconsistency_validated',
                   'port_flap_settings_updated']
     data:
         description:
