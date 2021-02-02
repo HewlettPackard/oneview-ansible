@@ -642,7 +642,7 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
 
     def test_should_update_bulk_inconsistency(self):
         self.resource.data = LOGICAL_INTERCONNECT
-        self.resource.bulk_inconsistency_validate.return_value = self.response
+        self.resource.bulk_inconsistency_validate.return_value = self.li_inconsistency_data
 
         self.mock_ansible_module.params = PARAMS_BULK_INCONSISTENCY
 
