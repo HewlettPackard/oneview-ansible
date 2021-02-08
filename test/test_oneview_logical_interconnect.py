@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -40,6 +40,9 @@ LOGICAL_INTERCONNECT = {'uri': '/rest/logical-interconnects/id',
                             'sampleCount': 10,
                             'sampleInterval': 250,
                             'uri': '/rest/logical-interconnects/123/telemetry-configurations/abc'
+                        },
+                        'portFlapProtection': {
+                            'enabled': False
                         },
                         'scopeUris': 'rest/scopes/test'
                         }
@@ -146,6 +149,20 @@ PARAMS_SNMP_CONFIG_NO_CHANGES = dict(
               snmpConfiguration=dict(enabled=False))
 )
 
+PARAMS_IGMP_SETTINGS = dict(
+    config='config.json',
+    state='igmp_settings_updated',
+    data=dict(name='Name of the Logical Interconnect',
+              igmpSettings=dict(enabled=True))
+)
+
+PARAMS_IGMP_SETTINGS_NO_CHANGES = dict(
+    config='config.json',
+    state='igmp_settings_updated',
+    data=dict(name='Name of the Logical Interconnect',
+              igmpSettings=dict(enabled=False))
+)
+
 PARAMS_PORT_MONITOR_CONFIGURATION = dict(
     config='config.json',
     state='port_monitor_updated',
@@ -160,6 +177,20 @@ PARAMS_PORT_MONITOR_CONFIGURATION_NO_CHANGES = dict(
               portMonitor=dict(enablePortMonitor=True))
 )
 
+PARAMS_PORT_FLAP_SETTINGS = dict(
+    config='config.json',
+    state='port_flap_settings_updated',
+    data=dict(name='Name of the Logical Interconnect',
+              portFlapProtection=dict(enabled=True))
+)
+
+PARAMS_PORT_FLAP_SETTINGS_NO_CHANGES = dict(
+    config='config.json',
+    state='port_flap_settings_updated',
+    data=dict(name='Name of the Logical Interconnect',
+              portFlapProtection=dict(enabled=False))
+)
+
 PARAMS_CONFIGURATION = dict(
     config='config.json',
     state='configuration_updated',
@@ -172,6 +203,12 @@ PARAMS_FIRMWARE_WITH_SPP_NAME = dict(
     data=dict(name='Name of the Logical Interconnect',
               firmware=dict(command='Update',
                             spp='filename-of-the-firmware-to-install')))
+
+PARAMS_BULK_INCONSISTENCY = dict(
+    config='config.json',
+    state='bulk_inconsistency_validated',
+    data=dict(name='Name of the Logical Interconnect',
+              bulk_update=dict(logicalInterconnectUris=['/rest/fake/1'])))
 
 PARAMS_SCOPES = dict(
     config='config.json',
@@ -212,10 +249,15 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         }
     }
     snmp_config = {'enabled': False}
+    igmp_settings = {'enabled': False}
     monitor_config = {'enablePortMonitor': True}
+    port_flap_config = {'enabled': False}
     expected_data = {
         'command': 'Update',
         'sppUri': '/rest/firmware-drivers/filename-of-the-firmware-to-install'
+    }
+    li_inconsistency_data = {
+        'logicalInterconnectUris': '/rest/fake/1'
     }
     response = {
         "response": "data"
@@ -488,6 +530,34 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
             changed=False,
             msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED)
 
+    def test_should_update_igmp_settings(self):
+        self.resource.data = LOGICAL_INTERCONNECT
+        self.resource.get_igmp_settings.return_value = self.igmp_settings
+        self.resource.update_igmp_settings.return_value = self.igmp_settings
+
+        self.mock_ansible_module.params = PARAMS_IGMP_SETTINGS
+
+        LogicalInterconnectModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectModule.MSG_IGMP_UPDATED,
+            ansible_facts=dict(igmp_settings=self.igmp_settings)
+        )
+
+    def test_should_do_nothing_when_no_changes_igmp(self):
+        self.resource.data = LOGICAL_INTERCONNECT
+        self.resource.get_igmp_settings.return_value = self.igmp_settings
+        self.resource.update_igmp_settings.return_value = self.igmp_settings
+
+        self.mock_ansible_module.params = PARAMS_IGMP_SETTINGS_NO_CHANGES
+
+        LogicalInterconnectModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED)
+
     def test_should_update_port_monitor_configuration(self):
         self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_port_monitor.return_value = self.monitor_config
@@ -509,6 +579,32 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
         self.resource.update_port_monitor.return_value = self.monitor_config
 
         self.mock_ansible_module.params = PARAMS_PORT_MONITOR_CONFIGURATION_NO_CHANGES
+
+        LogicalInterconnectModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=LogicalInterconnectModule.MSG_NO_CHANGES_PROVIDED)
+
+    def test_should_update_port_flap_settings(self):
+        self.resource.data = LOGICAL_INTERCONNECT
+        self.resource.update_port_flap_settings.return_value = self.port_flap_config
+
+        self.mock_ansible_module.params = PARAMS_PORT_FLAP_SETTINGS
+
+        LogicalInterconnectModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectModule.MSG_PORT_FLAP_SETTINGS_UPDATED,
+            ansible_facts=dict(port_flap_settings=self.port_flap_config)
+        )
+
+    def test_should_do_nothing_when_no_changes_port_flap_settings(self):
+        self.resource.data = LOGICAL_INTERCONNECT
+        self.resource.update_port_flap_settings.return_value = self.port_flap_config
+
+        self.mock_ansible_module.params = PARAMS_PORT_FLAP_SETTINGS_NO_CHANGES
 
         LogicalInterconnectModule().run()
 
@@ -542,6 +638,20 @@ class TestLogicalInterconnectModule(OneViewBaseTest):
             changed=True,
             msg=LogicalInterconnectModule.MSG_FIRMWARE_INSTALLED,
             ansible_facts=dict(li_firmware=self.response)
+        )
+
+    def test_should_update_bulk_inconsistency(self):
+        self.resource.data = LOGICAL_INTERCONNECT
+        self.resource.bulk_inconsistency_validate.return_value = self.li_inconsistency_data
+
+        self.mock_ansible_module.params = PARAMS_BULK_INCONSISTENCY
+
+        LogicalInterconnectModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectModule.MSG_INCONSISTENCY_VALIDATED,
+            ansible_facts=dict(li_inconsistency_report=self.li_inconsistency_data)
         )
 
     def test_should_install_firmware_when_spp_name_set(self):

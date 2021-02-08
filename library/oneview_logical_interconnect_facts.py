@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpeOneView >= 5.4.0"
+    - "hpeOneView >= 5.6.0"
 author:
     - "Bruno Souza (@bsouza)"
     - "Mariana Kreisig (@marikrg)"
@@ -45,6 +45,7 @@ options:
           Options allowed:
           C(qos_aggregated_configuration) gets the QoS aggregated configuration for the logical interconnect.
           C(snmp_configuration) gets the SNMP configuration for a logical interconnect.
+          C(igmp_settings) gets the Igmp settings for the Logical Interconnect.
           C(port_monitor) gets the port monitor configuration of a logical interconnect.
           C(internal_vlans) gets the internal VLAN IDs for the provisioned networks on a logical interconnect.
           C(forwarding_information_base) gets the forwarding information base data for a logical interconnect.
@@ -109,6 +110,7 @@ EXAMPLES = '''
     options:
       - qos_aggregated_configuration
       - snmp_configuration
+      - igmp_settings
       - port_monitor
       - internal_vlans
       - forwarding_information_base
@@ -121,6 +123,7 @@ EXAMPLES = '''
 - debug: var=logical_interconnects
 - debug: var=qos_aggregated_configuration
 - debug: var=snmp_configuration
+- debug: var=igmp_settings
 - debug: var=port_monitor
 - debug: var=internal_vlans
 - debug: var=forwarding_information_base
@@ -144,6 +147,11 @@ qos_aggregated_configuration:
 
 snmp_configuration:
     description: The SNMP configuration for a logical interconnect.
+    returned: When requested, but can be null.
+    type: dict
+
+igmp_settings:
+    description: The IGMP settings for a logical interconnect.
     returned: When requested, but can be null.
     type: dict
 
@@ -230,6 +238,7 @@ class LogicalInterconnectFactsModule(OneViewModule):
             self.options = dict(
                 qos_aggregated_configuration=self.current_resource.get_qos_aggregated_configuration,
                 snmp_configuration=self.current_resource.get_snmp_configuration,
+                igmp_settings=self.current_resource.get_igmp_settings,
                 port_monitor=self.current_resource.get_port_monitor,
                 internal_vlans=self.current_resource.get_internal_vlans,
                 forwarding_information_base=self.current_resource.get_forwarding_information_base,

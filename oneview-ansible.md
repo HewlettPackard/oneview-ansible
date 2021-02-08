@@ -6096,7 +6096,7 @@ Manage OneView Logical Interconnect resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpeOneView >= 5.4.0
+  * hpeOneView >= 5.6.0
 
 #### Options
 
@@ -6201,6 +6201,18 @@ Manage OneView Logical Interconnect resources.
       snmpConfiguration:
         enabled: True
 
+- name: Update the IGMP settings for the logical interconnect
+  oneview_logical_interconnect:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 2400
+    state: igmp_settings_updated
+    data:
+      name: "Name of the Logical Interconnect"
+      igmpSettings:
+        igmpIdleTimeoutInterval: 200
+
 - name: Update the port monitor configuration of the logical interconnect
   oneview_logical_interconnect:
     hostname: 172.16.101.48
@@ -6212,6 +6224,18 @@ Manage OneView Logical Interconnect resources.
       name: "Name of the Logical Interconnect"
       portMonitor:
         enablePortMonitor: False
+
+- name: Update the port flap settings of the logical interconnect
+  oneview_logical_interconnect:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 2400
+    state: port_flap_settings_updated
+    data:
+      name: "Name of the Logical Interconnect"
+      portFlapProtection:
+        portFlapThresholdPerInterval: 5
 
 - name: Update the configuration on the logical interconnect
   oneview_logical_interconnect:
@@ -6235,6 +6259,19 @@ Manage OneView Logical Interconnect resources.
       firmware:
         command: Stage
         spp: "filename"  # could also be sppUri: '/rest/firmware-drivers/<filename>'
+
+- name: Validates the bulk update from group operation of the given LI URLs
+  oneview_logical_interconnect:
+    hostname: 172.16.101.48
+    username: administrator
+    password: my_password
+    api_version: 2400
+    state: bulk_inconsistency_validated
+    data:
+      name: "Name of the Logical Interconnect"
+      bulk_update:
+        logicalInterconnectUris:
+          - /rest/logical-interconnects/d0432852-28a7-4060-ba49-57ca973ef6c2
 
 - name: Updates the telemetry configuration of a logical interconnect.
   oneview_logical_interconnect:
@@ -6280,6 +6317,9 @@ Manage OneView Logical Interconnect resources.
 | qos_configuration   | Has the OneView facts about the QoS Configuration. |  On 'qos_aggregated_configuration_updated' state, but can be null. |  dict |
 | scope_uris   | Has the scope URIs the specified logical interconnect is inserted into. |  On 'scopes_updated' state, but can be null. |  dict |
 | snmp_configuration   | Has the OneView facts about the SNMP Configuration. |  On 'snmp_configuration_updated' state, but can be null. |  dict |
+| igmp_settings   | Has the OneView facts about the IGMP settings. |  On 'igmp_settings_updated' state, but can be null. |  dict |
+| port_flap_settings   | Has the OneView facts about the port flap settings. |  On 'port_flap_settings_updated' state, but can be null. |  dict |
+| li_inconsistency_report   | Has the OneView facts about the bulk inconsistency report. |  On 'bulk_inconsistency_validated' state, but can be null. |  dict |
 | storage_volume_template   | Has the OneView facts about the Logical Interconnect. |  On 'compliant', 'ethernet_settings_updated', 'internal_networks_updated', 'settings_updated',               and 'configuration_updated' states, but can be null. |  dict |
 | telemetry_configuration   | Has the OneView facts about the Telemetry Configuration. |  On 'telemetry_configuration_updated' state, but can be null. |  dict |
 
@@ -6304,7 +6344,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 
 #### Requirements (on the host that executes the module)
   * python >= 2.7.9
-  * hpeOneView >= 5.4.0
+  * hpeOneView >= 5.6.0
 
 #### Options
 
@@ -6366,6 +6406,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
     options:
       - qos_aggregated_configuration
       - snmp_configuration
+      - igmp_settings
       - port_monitor
       - internal_vlans
       - forwarding_information_base
@@ -6378,6 +6419,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 - debug: var=logical_interconnects
 - debug: var=qos_aggregated_configuration
 - debug: var=snmp_configuration
+- debug: var=igmp_settings
 - debug: var=port_monitor
 - debug: var=internal_vlans
 - debug: var=forwarding_information_base
@@ -6403,6 +6445,7 @@ Retrieve facts about one or more of the OneView Logical Interconnects.
 | port_monitor   | The port monitor configuration of a logical interconnect. |  When requested, but can be null. |  dict |
 | qos_aggregated_configuration   | The QoS aggregated configuration for the logical interconnect. |  When requested, but can be null. |  dict |
 | snmp_configuration   | The SNMP configuration for a logical interconnect. |  When requested, but can be null. |  dict |
+| igmp_settings   | The IGMP settings for a logical interconnect. |  When requested, but can be null. |  dict |
 | telemetry_configuration   | The telemetry configuration of the logical interconnect. |  When requested, but can be null. |  dict |
 | unassigned_ports   | A collection of ports from the member interconnects which are eligible for assignment to an analyzer port on a logical interconnect. |  When requested, but can be null. |  dict |
 | unassigned_uplink_ports   | A collection of uplink ports from the member interconnects which are eligible for assignment to an analyzer port on a logical interconnect. |  When requested, but can be null. |  dict |

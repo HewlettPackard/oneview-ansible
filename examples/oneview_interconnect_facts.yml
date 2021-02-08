@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -20,10 +20,6 @@
     - port_name: 'd3' # provide your interconnect port_name
     - subport_number: 1 # provide a subport_number
   tasks:
-    - name: Fail if interconnect_name is undefined
-      fail: msg="To run this example you must define the vars first"
-      when: not interconnect_name
-
     - name: Gather facts about all interconnects
       oneview_interconnect_facts:
         config: "{{ config }}"
@@ -42,12 +38,12 @@
 
     - debug: var=interconnects
 
-    - set_fact: interconnect_name = "{{ interconnects[0]['name'] }}"
+    - set_fact: interconnect_name="{{ interconnects[0]['name'] }}"
 
     - name: Gather facts about the interconnect that matches the specified name
       oneview_interconnect_facts:
         config: "{{ config }}"
-        name: interconnect_name
+        name: "{{ interconnect_name }}"
       delegate_to: localhost
 
     - debug: var=interconnects
@@ -56,7 +52,7 @@
     - name: Gather facts about the interconnect that matches the specified name and its name servers
       oneview_interconnect_facts:
         config: "{{ config }}"
-        name: interconnect_name
+        name: "{{ interconnect_name }}"
         options:
             - nameServers
       delegate_to: localhost
@@ -67,7 +63,7 @@
     - name: Gather facts about statistics for the Interconnect that matches the specified name
       oneview_interconnect_facts:
         config: "{{ config }}"
-        name: interconnect_name
+        name: "{{ interconnect_name }}"
         options:
             - statistics
 
@@ -77,7 +73,7 @@
     - name: Get the port statistics for the specified interconnect name and port name
       oneview_interconnect_facts:
         config: "{{ config }}"
-        name: interconnect_name
+        name: "{{ interconnect_name }}"
         options:
             - portStatistics: "{{ port_name }}"
 
@@ -87,7 +83,7 @@
     - name: Get the subport statistics
       oneview_interconnect_facts:
         config: "{{ config }}"
-        name: interconnect_name
+        name: "{{ interconnect_name }}"
         options:
             - subPortStatistics:
                 portName: "{{ port_name }}"
@@ -99,7 +95,7 @@
     - name: Gather facts about all the Interconnect ports
       oneview_interconnect_facts:
         config: "{{ config }}"
-        name: interconnect_name
+        name: "{{ interconnect_name }}"
         options:
             - ports
 
@@ -109,7 +105,7 @@
     - name: Gather facts about an Interconnect port
       oneview_interconnect_facts:
         config: "{{ config }}"
-        name: interconnect_name
+        name: "{{ interconnect_name }}"
         options:
             - port: "{{ port_name }}"
 
@@ -119,7 +115,7 @@
     - name: Gather facts about the small-form pluggable modules
       oneview_interconnect_facts:
         config: "{{ config }}"
-        name: interconnect_name
+        name: "{{ interconnect_name }}"
         options:
             - pluggableModuleInformation
 
