@@ -70,7 +70,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
 
 - debug: var=logical_interconnects
 
@@ -79,7 +79,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
     params:
       start: 0
       count: 3
@@ -92,7 +92,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
     name: "Name of the Logical Interconnect"
     options:
       - qos_aggregated_configuration
@@ -105,7 +105,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
     name: "Name of the Logical Interconnect"
     options:
       - qos_aggregated_configuration
