@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -46,6 +46,12 @@ QOS_CONFIGURATION = dict(
 SNMP_CONFIGURATION = dict(
     category="snmp-configuration",
     type="snmp-configuration",
+    uri=None
+)
+
+IGMP_SETTINGS = dict(
+    category="igmp-settings",
+    type="igmp-settings",
     uri=None
 )
 
@@ -163,6 +169,23 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
             ansible_facts=dict(
                 logical_interconnects=LOGICAL_INTERCONNECT,
                 snmp_configuration=SNMP_CONFIGURATION
+            )
+        )
+
+    def test_should_get_a_logical_interconnects_by_name_with_igmp_settings(self):
+        self.resource.data = LOGICAL_INTERCONNECT
+        self.resource.get_igmp_settings.return_value = IGMP_SETTINGS
+        self.mock_ansible_module.params = create_params(['igmp_settings'])
+
+        LogicalInterconnectFactsModule().run()
+
+        self.resource.get_igmp_settings.assert_called_once_with()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(
+                logical_interconnects=LOGICAL_INTERCONNECT,
+                igmp_settings=IGMP_SETTINGS
             )
         )
 
@@ -313,11 +336,13 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
 
     def test_should_get_a_logical_interconnects_by_name_with_multiple_options(self):
         params = create_params(['qos_aggregated_configuration', 'snmp_configuration', 'port_monitor',
-                                'unassigned_uplink_ports', 'unassigned_ports', 'telemetry_configuration'])
+                                'unassigned_uplink_ports', 'unassigned_ports', 'telemetry_configuration',
+                                'igmp_settings'])
 
         self.resource.data = LOGICAL_INTERCONNECT
         self.resource.get_qos_aggregated_configuration.return_value = QOS_CONFIGURATION
         self.resource.get_snmp_configuration.return_value = SNMP_CONFIGURATION
+        self.resource.get_igmp_settings.return_value = IGMP_SETTINGS
         self.resource.get_port_monitor.return_value = PORT_MONITOR
         self.resource.get_unassigned_uplink_ports.return_value = UNASSIGNED_UPLINK_PORTS
         self.resource.get_unassigned_ports.return_value = UNASSIGNED_PORTS
@@ -330,6 +355,7 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
         self.resource.get_by_name.assert_called_once_with(LOGICAL_INTERCONNECT_NAME)
         self.resource.get_qos_aggregated_configuration.assert_called_once_with()
         self.resource.get_snmp_configuration.assert_called_once_with()
+        self.resource.get_igmp_settings.assert_called_once_with()
         self.resource.get_port_monitor.assert_called_once_with()
         self.resource.get_unassigned_uplink_ports.assert_called_once_with()
         self.resource.get_unassigned_ports.assert_called_once_with()
@@ -342,6 +368,7 @@ class TestLogicalInterconnectFactsModule(OneViewBaseFactsTest):
                 logical_interconnects=LOGICAL_INTERCONNECT,
                 qos_aggregated_configuration=QOS_CONFIGURATION,
                 snmp_configuration=SNMP_CONFIGURATION,
+                igmp_settings=IGMP_SETTINGS,
                 port_monitor=PORT_MONITOR,
                 unassigned_uplink_ports=UNASSIGNED_UPLINK_PORTS,
                 unassigned_ports=UNASSIGNED_PORTS,

@@ -60,8 +60,7 @@ name and email address (git commit -s will do this for you):
 
     Signed-off-by: Jane Example <jane@example.com>
 
-For legal reasons, no anonymous or pseudonymous contributions are
-accepted.
+For legal reasons, no anonymous or pseudonymous contributions are accepted.
 
 ## Submitting Code Pull Requests
 

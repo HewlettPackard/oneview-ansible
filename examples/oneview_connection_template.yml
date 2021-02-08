@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -18,12 +18,19 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
+    - name: Gather facts about all connection templates
+      oneview_connection_template_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - set_fact: ct_name={{ connection_templates[0]['name'] }}
+
     - name: Update the Connection Template
       oneview_connection_template:
         config: "{{ config }}"
         state: present
         data:
-            name: "name-2103368852-1550154575021"
+            name: "{{ ct_name }}"
             type : "connection-template"
             bandwidth :
                 maximumBandwidth : 10000
@@ -41,5 +48,5 @@
             bandwidth :
                 maximumBandwidth : 10000
                 typicalBandwidth : 2000
-            newName : "name-2103368852-1550154575021"
+            newName : "{{ ct_name }}"
       delegate_to: localhost

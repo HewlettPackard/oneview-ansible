@@ -32,7 +32,7 @@ All unit tests are inside the test folder. You can execute them manually by usin
 All code must have associated tests, be it the already implemented or newly submitted, and this section covers what tests need to be implemented.
 
 ### Implementing the unit tests
-The unit tests are required for each new resource, bug fix, or enhancement. They must cover what is being submitted and if necessary use the `mock` to mock OneView appliance communication.
+The unit tests are required for each new resource, bug fix or enhancement. They must cover what is being submitted and if necessary use the `mock` to mock OneView appliance communication.
 
 ### Acceptance criteria
 The necessary amount of testing is defined by who is implementing and by who is reviewing and accepting the code, however, the unit test coverage is inspected by the coveralls and it won't allow it to drop.

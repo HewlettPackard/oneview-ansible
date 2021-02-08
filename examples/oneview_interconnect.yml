@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -30,27 +30,27 @@
 
     - debug: var=interconnects
 
-    - set_fact: interconnect_name = "{{ interconnects[0]['name'] }}"
+    - set_fact: interconnect_name="{{ interconnects[0]['name'] }}"
 
     - name: Turn the power on for interconnect that matches the specified name
       oneview_interconnect:
         config: "{{ config }}"
         state: 'powered_on'
-        name: interconnect_name
+        name: "{{ interconnect_name }}"
       delegate_to: localhost
 
     - name: Turn the UID light to 'On' for interconnect that matches the specified name
       oneview_interconnect:
         config: "{{ config }}"
         state: 'uid_on'
-        name: interconnect_name
+        name: "{{ interconnect_name }}"
       delegate_to: localhost
 
     - name: Perform a device reset for interconnect that matches the specified name
       oneview_interconnect:
         config: "{{ config }}"
         state: 'device_reset'
-        name: interconnect_name
+        name: "{{ interconnect_name }}"
       delegate_to: localhost
 
     - name: Turn the power off for interconnect that matches the specified ip
@@ -64,7 +64,7 @@
       oneview_interconnect:
         config: "{{ config }}"
         state: 'update_ports'
-        ip: '{{ contents.interconnect_ip_for_update }}'
+        ip: '{{ contents.interconnect_ip }}'
         ports: [
           {
               "type": "portV6",
@@ -81,12 +81,12 @@
       oneview_interconnect:
         config: "{{ config }}"
         state: 'reset_port_protection'
-        name: interconnect_name
+        name: "{{ interconnect_name }}"
       delegate_to: localhost
 
     - name: Reapplies the interconnect configuration
       oneview_interconnect:
         config: "{{ config }}"
         state: reconfigured
-        name: interconnect_name
+        name: "{{ interconnect_name }}"
       delegate_to: localhost
