@@ -12,7 +12,7 @@ This release extends the planned support of the modules to OneView REST API vers
 - [#612] (https://github.com/HewlettPackard/oneview-ansible/issues/612) FC network bandwidth
 - [#614] (https://github.com/HewlettPackard/oneview-ansible/issues/614) Typo in oneview_server_profile_template_with_resource_name.yml
 - [#620] (https://github.com/HewlettPackard/oneview-ansible/issues/620) git installed ansible oneview container image.
-- [#624] (https://github.com/HewlettPackard/oneview-ansible/issues/624) Assign static MAC address from pool ID in SP template creation #624
+- [#624] (https://github.com/HewlettPackard/oneview-ansible/issues/624) Assign static MAC address from pool ID in SP template creation.
 
 
 ## v5.9.0
