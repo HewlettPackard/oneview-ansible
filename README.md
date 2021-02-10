@@ -119,7 +119,7 @@ export ONEVIEWSDK_USERNAME='Administrator'
 export ONEVIEWSDK_PASSWORD='secret123'
 
 # Optional
-export ONEVIEWSDK_API_VERSION='2200'
+export ONEVIEWSDK_API_VERSION='2400'
 export ONEVIEWSDK_AUTH_LOGIN_DOMAIN='authdomain'
 export ONEVIEWSDK_PROXY='<proxy_host>:<proxy_port>'
 ```
