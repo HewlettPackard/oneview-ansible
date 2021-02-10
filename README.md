@@ -4,7 +4,7 @@
 
 OV Version | 5.60 | 5.50 | 5.40 | 5.30 |
 | ------------- |:-------------:| -------------:| -------------:| -------------:|
-SDK Version/Tag | [Master](https://github.com/HewlettPackard/oneview-ansible/tree/master) | [v5.9.0](https://github.com/HewlettPackard/oneview-ansible/releases/tag/v5.9.0) | [v5.8.0](https://github.com/HewlettPackard/oneview-ansible/releases/tag/v5.8.0) | [v5.7.0](https://github.com/HewlettPackard/oneview-ansible/releases/tag/v5.7.0) |
+SDK Version/Tag | [v5.10.0](https://github.com/HewlettPackard/oneview-ansible/releases/tag/v5.10.0) | [v5.9.0](https://github.com/HewlettPackard/oneview-ansible/releases/tag/v5.9.0) | [v5.8.0](https://github.com/HewlettPackard/oneview-ansible/releases/tag/v5.8.0) | [v5.7.0](https://github.com/HewlettPackard/oneview-ansible/releases/tag/v5.7.0) |
 Build Status | ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)| ![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true)|
 
 
@@ -119,7 +119,7 @@ export ONEVIEWSDK_USERNAME='Administrator'
 export ONEVIEWSDK_PASSWORD='secret123'
 
 # Optional
-export ONEVIEWSDK_API_VERSION='2200'
+export ONEVIEWSDK_API_VERSION='2400'
 export ONEVIEWSDK_AUTH_LOGIN_DOMAIN='authdomain'
 export ONEVIEWSDK_PROXY='<proxy_host>:<proxy_port>'
 ```

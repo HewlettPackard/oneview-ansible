@@ -79,7 +79,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
     state: compliant
     data:
       name: "Name of the Logical Interconnect"
@@ -89,7 +89,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
     state: ethernet_settings_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -101,7 +101,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
     state: internal_networks_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -115,7 +115,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
     state: settings_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -127,7 +127,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
     state: forwarding_information_base_generated
     data:
       name: "Name of the Logical Interconnect"  # could also be 'uri'
@@ -137,7 +137,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
     state: qos_aggregated_configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -155,7 +155,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
     state: snmp_configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -179,7 +179,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
     state: port_monitor_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -203,7 +203,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
     state: configuration_updated
     data:
       name: "Name of the Logical Interconnect"
@@ -213,7 +213,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
     state: firmware_installed
     data:
       name: "Name of the Logical Interconnect"
@@ -239,7 +239,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 1200
+    api_version: 2400
     state: telemetry_configuration_updated
     data:
       name: "Name of the Logical Interconnect"
