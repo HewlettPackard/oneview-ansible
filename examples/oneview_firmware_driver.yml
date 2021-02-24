@@ -17,9 +17,9 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    firmware_name: "<custom_firmware_name>" # provide your firwmare name here
-    baseline_firmware_name: "<SPP_baseline_name>" # provide the name of the SPP to be used as base for the custom SPP creation
-    hotfix_firmware_list: [<list_containing_URIs_to_hotfixes_desired>] # provide array containing list of hotfixes to be included in the custom SPP
+    firmware_name: "custom_ansible_firmware" # provide your firwmare name here
+    baseline_firmware_name: "Service Pack for Synergy" # provide the name of the SPP to be used as base for the custom SPP creation
+    hotfix_firmware_list: ["hotfix1", "hotfix2"] # provide array containing list of hotfixes to be included in the custom SPP
   tasks:
     - name: Create the Firmware Driver
       oneview_firmware_driver:

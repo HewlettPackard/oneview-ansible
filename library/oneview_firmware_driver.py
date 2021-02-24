@@ -98,7 +98,7 @@ class FirmwareDriverModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(state=dict(required=True, choices=['absent', 'present']),
                              name=dict(required=False, type='str'),
-                             data=dict(required=True, type='dict'))
+                             data=dict(required=False, type='dict'))
 
         super(FirmwareDriverModule, self).__init__(additional_arg_spec=argument_spec)
         self.set_resource_object(self.oneview_client.firmware_drivers)
@@ -106,13 +106,13 @@ class FirmwareDriverModule(OneViewModule):
     def execute_module(self):
         data = deepcopy(self.data) or {}
         # Checks for the name and data['customBaselineName'] params for a name attribute to the Firmware Driver.
-        if not data.get('customBaselineName') and not self.current_resource:
+        if not data.get('customBaselineName') and not self.module.params.get('name'):
             msg = "A \"name\" parameter or a \"customBaselineName\" field inside the \"data\" parameter\
                   is required for this operation."
             raise OneViewModuleException(msg)
 
         # name parameter takes priority over customBaselineName
-        if data.get('customBaselineName') and not self.current_resource:
+        if data.get('customBaselineName') and not self.module.params.get('name'):
             self.current_resource = self.resource_client.get_by_name(data['customBaselineName'])
 
         if self.state == 'present':
