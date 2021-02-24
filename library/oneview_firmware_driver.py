@@ -52,29 +52,39 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = '''
-- name: Create the Firmware Driver using names to find the baseline and hotfix firmwares.
+- name: Create the Firmware Driver
   oneview_firmware_driver:
-    config: "{{ config_file_path }}"
+    config: "{{ config }}"
     state: present
     data:
-      customBaselineName: "Service Pack for ProLiant - Custom"
-      baselineName: "Service Pack for ProLiant"
-      hotfixNames: ['hotfix 1', 'hotfix 2']
+      customBaselineName: "{{ firmware_name }}"
+      baselineName: "{{ baseline_firmware_name }}"
+      hotfixNames: "{{ hotfix_firmware_list }}"
+  delegate_to: localhost
 
-- name: Create the Firmware Driver using URIs to find the baseline and hotfix firmwares.
+- name: Create the Firmware Driver if already present
   oneview_firmware_driver:
-    config: "{{ config_file_path }}"
+    config: "{{ config }}"
     state: present
     data:
-      customBaselineName: "Service Pack for ProLiant - Custom"
-      baselineUri: "/rest/firmware-driver/SPP1"
-      hotfixUris: ['/rest/firmware-driver/hotfix1', '/rest/firmware-driver/hotfix2']
+      customBaselineName: "{{ firmware_name }}"
+      baselineName: "{{ baseline_firmware_name }}"
+      hotfixNames: "{{ hotfix_firmware_list }}"
+  delegate_to: localhost
 
-- name: Ensure that Firmware Driver is absent
+- name: Delete the Firmware Driver
   oneview_firmware_driver:
-    config: "{{ config_file_path }}"
+    config: "{{ config }}"
     state: absent
-    name: "Service Pack for ProLiant.iso"
+    name: "{{ firmware_name }}"
+  delegate_to: localhost
+
+- name: Do nothing when Firmware Driver is absent
+  oneview_firmware_driver:
+    config: "{{ config }}"
+    state: absent
+    name: "{{ firmware_name }}"
+  delegate_to: localhost
 '''
 
 RETURN = '''

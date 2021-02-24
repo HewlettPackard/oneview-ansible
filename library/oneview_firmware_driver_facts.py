@@ -81,7 +81,7 @@ EXAMPLES = '''
 - name: Gather facts about a Firmware Driver by name
   oneview_firmware_driver_facts:
     config: "{{ config }}"
-    name: "{{ firmware_drivers[0]['name'] }}"
+    name: "custom_firmware_bundle"
   delegate_to: localhost
 
 - debug: var=firmware_drivers

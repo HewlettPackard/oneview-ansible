@@ -18,28 +18,28 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
-#     - name: Gather facts about all Firmware Drivers
-#       oneview_firmware_driver_facts:
-#         config: "{{ config }}"
-#       delegate_to: localhost
-# 
-#     - debug: var=firmware_drivers
-# 
-#     - name: Gather paginated, filtered and sorted facts about Firmware Drivers
-#       oneview_firmware_driver_facts:
-#         config: "{{ config }}"
-#         params:
-#           start: 0
-#           count: 3
-#           sort: 'name:descending'
-#       delegate_to: localhost
-# 
-#     - debug: var=firmware_drivers
-# 
+    - name: Gather facts about all Firmware Drivers
+      oneview_firmware_driver_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
+    - debug: var=firmware_drivers
+
+    - name: Gather paginated, filtered and sorted facts about Firmware Drivers
+      oneview_firmware_driver_facts:
+        config: "{{ config }}"
+        params:
+          start: 0
+          count: 3
+          sort: 'name:descending'
+      delegate_to: localhost
+
+    - debug: var=firmware_drivers
+
     - name: Gather facts about a Firmware Driver by name
       oneview_firmware_driver_facts:
         config: "{{ config }}"
-        name: "custom_firmware_bundle1"
+        name: "custom_firmware_bundle"
       delegate_to: localhost
 
     - debug: var=firmware_drivers
