@@ -117,8 +117,8 @@ class FirmwareDriverModule(OneViewModule):
         data = deepcopy(self.data) or {}
         # Checks for the name and data['customBaselineName'] params for a name attribute to the Firmware Driver.
         if not data.get('customBaselineName') and not self.module.params.get('name'):
-            msg = "A \"name\" parameter or a \"customBaselineName\" field inside the \"data\" parameter\
-                  is required for this operation."
+            msg = "A 'name' parameter or a 'customBaselineName' field inside the 'data' parameter "
+            msg += "is required for this operation."
             raise OneViewModuleException(msg)
 
         # name parameter takes priority over customBaselineName

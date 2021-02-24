@@ -108,8 +108,8 @@ class TestFirmwareDriverModule(OneViewBaseTest):
         fake_data.pop('customBaselineName')
         params_missing_name = PARAMS_FOR_PRESENT.copy()
         params_missing_name['data'] = fake_data
-        msg = "A \"name\" parameter or a \"customBaselineName\" field inside the \"data\" parameter\
-              is required for this operation."
+        msg = "A 'name' parameter or a 'customBaselineName' field inside the 'data' parameter "
+        msg += "is required for this operation."
         self.mock_ansible_module.params = params_missing_name
 
         FirmwareDriverModule().run()
