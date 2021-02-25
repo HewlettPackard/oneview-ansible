@@ -1,5 +1,11 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v6.0.0(unreleased)
+This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0).
+
+#### Bug fixes & Enhancements
+- [#633] (https://github.com/HewlettPackard/oneview-ansible/issues/633) Internal network in LogicalInterconnectGroup
+
 ## v5.10.0
 This release extends the planned support of the modules to OneView REST API version 2400 (OneView v5.6).
 

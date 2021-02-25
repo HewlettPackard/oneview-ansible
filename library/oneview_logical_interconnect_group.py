@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -184,6 +184,14 @@ class LogicalInterconnectGroupModule(OneViewModule):
         return result
 
     def __replace_name_by_uris(self):
+        # replace internalNetworkNames with internalNetworkUris
+        internalNetworkUris = self.data.get('internalNetworkUris', [])
+        internalNetworkNames = self.data.pop('internalNetworkNames', None)
+        if internalNetworkNames:
+            int_networkUris = [self.__get_network_uri(x) for x in internalNetworkNames]
+            internalNetworkUris.extend(int_networkUris)
+        self.data['internalNetworkUris'] = internalNetworkUris
+
         map_template = self.data.get('interconnectMapTemplate')
         if map_template:
             map_entry_templates = map_template.get('interconnectMapEntryTemplates')

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
     state='present',
     data=dict(
         name=DEFAULT_LIG_NAME,
+        internalNetworkNames=["test1"],
         uplinkSets=[dict(
             logicalPortConfigInfos=[dict(
                 desiredSpeed="Auto",
