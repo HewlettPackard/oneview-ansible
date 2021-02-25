@@ -1,5 +1,9 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v5.10.1
+#### Bug fixes & Enhancements
+- [#634] (https://github.com/HewlettPackard/oneview-ansible/issues/634) Create Uplink Set with FC network - Cannot use name but URI
+
 ## v5.10.0
 This release extends the planned support of the modules to OneView REST API version 2400 (OneView v5.6).
 
