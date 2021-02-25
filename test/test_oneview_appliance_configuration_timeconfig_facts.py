@@ -18,31 +18,30 @@
 
 import pytest
 
-from hpe_test_utils import OneViewBaseTest
-from oneview_module_loader import ApplianceTimeAndLocaleConfigurationFactsModule
+from hpe_test_utils import OneViewBaseFactsTest
+from oneview_module_loader import ApplianceConfigurationTimeconfigFactsModule
 
-PARAMS_GET = dict(
+PARAMS_GET_ALL = dict(
     config='config.json',
     name=None
 )
 
-PRESENT_CONFIGURATION = [{
+PRESENT_TIMECONFIG = [{
     "locale": "en_US.UTF-8",
-    "localeDisplayName": "English (United States)"
+    "displayName": "English (United States)"
 }]
 
+@pytest.mark.resource(TestApplianceConfigurationTimeconfigFactsModule='appliance_configuration_timeconfig')
+class TestApplianceConfigurationTimeconfigFactsModule(OneViewBaseFactsTest):
+    def test_should_get_all_timeconfiguration(self):
+        self.resource.get_all.return_value = PRESENT_TIMECONFIG
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
-@pytest.mark.resource(TestApplianceTimeAndLocaleConfigurationFactsModule='appliance_time_and_locale_configuration')
-class TestApplianceTimeAndLocaleConfigurationFactsModule(OneViewBaseTest):
-    def test_should_get_appliance_time_and_locale_configuration(self):
-        self.resource.get_all.return_value = PRESENT_CONFIGURATION
-        self.mock_ansible_module.params = PARAMS_GET
-
-        ApplianceTimeAndLocaleConfigurationFactsModule().run()
+        ApplianceConfigurationTimeconfigFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(appliance_time_and_locale_configuration=PRESENT_CONFIGURATION)
+            ansible_facts=dict(appliance_configuration_timeconfig=PRESENT_TIMECONFIG)
         )
 
 

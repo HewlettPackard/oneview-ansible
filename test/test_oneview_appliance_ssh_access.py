@@ -19,24 +19,14 @@
 import pytest
 
 from hpe_test_utils import OneViewBaseTest
-from oneview_module_loader import ApplianceTimeAndLocaleConfigurationModule
+from oneview_module_loader import ApplianceSshAccessModule
 
 DEFAULT_CONFIGURATION_TEMPLATE = dict(
-    locale='en_US.UTF-8',
-    localeDisplayName='English (United States)',
-    timezone='UTC'
+    'allowSshAccess': True
 )
 
 CHANGED_CONFIGURATION_TEMPLATE = dict(
-    locale='en_US.UTF-8',
-    localeDisplayName='English (United States)',
-    timezone='GMT'
-)
-
-PARAMS_FOR_PRESENT = dict(
-    config='config.json',
-    state='present',
-    data=DEFAULT_CONFIGURATION_TEMPLATE
+    'allowSshAccess': False
 )
 
 PARAMS_WITH_CHANGES = dict(
@@ -46,24 +36,11 @@ PARAMS_WITH_CHANGES = dict(
 )
 
 
-@pytest.mark.resource(TestApplianceTimeAndLocaleConfigurationModule='appliance_time_and_locale_configuration')
-class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
+@pytest.mark.resource(TestApplianceSshAccessModule='appliance_ssh_access')
+class TestApplianceSshAccessModule(OneViewBaseTest):
     """
     OneViewBaseTestCase provides the mocks used in this test case
     """
-
-    def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_all.return_value = DEFAULT_CONFIGURATION_TEMPLATE
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        ApplianceTimeAndLocaleConfigurationModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            msg=ApplianceTimeAndLocaleConfigurationModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(appliance_time_and_locale_configuration=DEFAULT_CONFIGURATION_TEMPLATE)
-        )
 
     def test_update_when_data_has_modified_attributes(self):
         self.resource.get_all.return_value = DEFAULT_CONFIGURATION_TEMPLATE
@@ -71,12 +48,12 @@ class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
-        ApplianceTimeAndLocaleConfigurationModule().run()
+        ApplianceSshAccessModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ApplianceTimeAndLocaleConfigurationModule.MSG_UPDATED,
-            ansible_facts=dict(appliance_time_and_locale_configuration=CHANGED_CONFIGURATION_TEMPLATE)
+            msg=ApplianceSshAccessModule.MSG_UPDATED,
+            ansible_facts=dict(appliance_ssh_access=CHANGED_CONFIGURATION_TEMPLATE)
         )
 
 

@@ -8,7 +8,7 @@
 # http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS
+# distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
@@ -18,13 +18,9 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
-    - name: Ensures the Appliance time and locale configuration locale is en_US.UTF-8
-      oneview_appliance_time_and_locale_configuration:
+    - name: Gather facts about the Appliance configuration Timeconfig
+      oneview_appliance_configuration_timeconfig_facts:
         config: "{{ config }}"
-        state: present
-        data:
-          locale: en_US.UTF-8
-          ntpServers: [16.110.135.123]
-          timezone: UTC
-          type: TimeAndLocale
       delegate_to: localhost
+
+    - debug: var=appliance_configuration_timeconfig

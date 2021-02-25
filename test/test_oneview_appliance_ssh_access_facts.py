@@ -18,31 +18,29 @@
 
 import pytest
 
-from hpe_test_utils import OneViewBaseTest
-from oneview_module_loader import ApplianceTimeAndLocaleConfigurationFactsModule
+from hpe_test_utils import OneViewBaseFactsTest
+from oneview_module_loader import ApplianceSshAccessFactsModule
 
-PARAMS_GET = dict(
+PARAMS_GET_ALL = dict(
     config='config.json',
     name=None
 )
-
-PRESENT_CONFIGURATION = [{
-    "locale": "en_US.UTF-8",
-    "localeDisplayName": "English (United States)"
+PRESENT_SSHACCESS = [{
+    "type": "SshAccess",
+    "allowSshAccess": "True"
 }]
 
+@pytest.mark.resource(TestApplianceSshAccessFactsModule='appliance_ssh_access')
+class TestApplianceSshAccessFactsModule(OneViewBaseFactsTest):
+    def test_should_get_all_timeconfiguration(self):
+        self.resource.get_all.return_value = PRESENT_SSHACCESS
+        self.mock_ansible_module.params = PARAMS_GET_ALL
 
-@pytest.mark.resource(TestApplianceTimeAndLocaleConfigurationFactsModule='appliance_time_and_locale_configuration')
-class TestApplianceTimeAndLocaleConfigurationFactsModule(OneViewBaseTest):
-    def test_should_get_appliance_time_and_locale_configuration(self):
-        self.resource.get_all.return_value = PRESENT_CONFIGURATION
-        self.mock_ansible_module.params = PARAMS_GET
-
-        ApplianceTimeAndLocaleConfigurationFactsModule().run()
+        ApplianceSshAccessFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(appliance_time_and_locale_configuration=PRESENT_CONFIGURATION)
+            ansible_facts=dict(appliance_ssh_access=PRESENT_SSHACCESS)
         )
 
 

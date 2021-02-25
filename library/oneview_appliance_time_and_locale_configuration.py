@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -26,11 +26,12 @@ module: oneview_appliance_time_and_locale_configuration
 short_description: Manage OneView Appliance Locale and Time Configuration.
 description:
     - Provides an interface to manage Appliance Locale and Time Configuration. It can only update it.
-version_added: "2.3"
+version_added: "2.4"
 requirements:
-    - "python >= 2.7.9"
-    - "hpeOneView >= 3.2.0"
-author: "Thiago Miotto (@tmiotto)"
+    - "python >= 3.6.9"
+    - "hpeOneView >= 5.6.0"
+author:
+    "Shanmugam M (@SHANDCRUZ)"
 options:
     state:
         description:
@@ -62,10 +63,10 @@ appliance_time_and_locale_configuration:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class ApplianceTimeAndLocaleConfigurationModule(OneViewModuleBase):
+class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
     MSG_UPDATED = 'Appliance Locale and Time Configuration updated successfully.'
     MSG_ALREADY_PRESENT = 'Appliance Locale and Time Configuration is already configured.'
     RESOURCE_FACT_NAME = 'appliance_time_and_locale_configuration'
@@ -77,11 +78,14 @@ class ApplianceTimeAndLocaleConfigurationModule(OneViewModuleBase):
                                        choices=['present']))
 
         super(ApplianceTimeAndLocaleConfigurationModule, self).__init__(additional_arg_spec=additional_arg_spec)
-        self.resource_client = self.oneview_client.appliance_time_and_locale_configuration
+        self.set_resource_object(self.oneview_client.appliance_time_and_locale_configuration)
 
     def execute_module(self):
-        resource = self.resource_client.get()
-        return self.resource_present(resource, self.RESOURCE_FACT_NAME)
+        if not self.module.check_mode:
+            result = self.resource_present(self.RESOURCE_FACT_NAME)
+        else:
+            result = self.check_resource_present(self.RESOURCE_FACT_NAME)
+        return result
 
 
 def main():

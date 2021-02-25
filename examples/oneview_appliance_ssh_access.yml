@@ -18,13 +18,20 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
-    - name: Ensures the Appliance time and locale configuration locale is en_US.UTF-8
-      oneview_appliance_time_and_locale_configuration:
+    - name: Ensures the Appliance SSH Access is false
+      oneview_appliance_ssh_access:
         config: "{{ config }}"
         state: present
         data:
-          locale: en_US.UTF-8
-          ntpServers: [16.110.135.123]
-          timezone: UTC
-          type: TimeAndLocale
+          allowSshAccess: false
       delegate_to: localhost
+    - debug: var=appliance_ssh_access
+
+    - name: Ensures the Appliance SSH Access is true
+      oneview_appliance_ssh_access:
+        config: "{{ config }}"
+        state: present
+        data:
+          allowSshAccess: true
+      delegate_to: localhost
+    - debug: var=appliance_ssh_access
