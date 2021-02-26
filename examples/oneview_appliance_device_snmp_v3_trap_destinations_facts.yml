@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -39,10 +39,19 @@
     - debug:
         var: appliance_device_snmp_v3_trap_destinations
 
-    - name: Gather facts about a Trap Destination by ID
+    - name: Gather facts about a Trap Destination by ip address
       oneview_appliance_device_snmp_v3_trap_destinations_facts:
         config: "{{ config }}"
-        id: "19dc6a96-bd04-4724-819b-32bc660fcefc"
+        name: "1.1.1.1"
+      delegate_to: localhost
+
+    - debug:
+        var: appliance_device_snmp_v3_trap_destinations
+
+    - name: Gather facts about a Trap Destination by uri
+      oneview_appliance_device_snmp_v3_trap_destinations_facts:
+        config: "{{ config }}"
+        uri: "{{ appliance_device_snmp_v3_trap_destinations['uri'] }}"
       delegate_to: localhost
 
     - debug:
