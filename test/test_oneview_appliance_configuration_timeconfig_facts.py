@@ -31,6 +31,7 @@ PRESENT_TIMECONFIG = [{
     "displayName": "English (United States)"
 }]
 
+
 @pytest.mark.resource(TestApplianceConfigurationTimeconfigFactsModule='appliance_configuration_timeconfig')
 class TestApplianceConfigurationTimeconfigFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_timeconfiguration(self):

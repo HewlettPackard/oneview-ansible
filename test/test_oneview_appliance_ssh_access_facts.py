@@ -30,6 +30,7 @@ PRESENT_SSHACCESS = [{
     "allowSshAccess": "True"
 }]
 
+
 @pytest.mark.resource(TestApplianceSshAccessFactsModule='appliance_ssh_access')
 class TestApplianceSshAccessFactsModule(OneViewBaseFactsTest):
     def test_should_get_all_timeconfiguration(self):
