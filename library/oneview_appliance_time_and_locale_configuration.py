@@ -28,7 +28,7 @@ description:
     - Provides an interface to manage Appliance Locale and Time Configuration. It can only update it.
 version_added: "2.4"
 requirements:
-    - "python >= 3.6.9"
+    - "python >= 3.4.2"
     - "hpeOneView >= 5.6.0"
 author:
     "Shanmugam M (@SHANDCRUZ)"

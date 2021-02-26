@@ -28,7 +28,7 @@ description:
     - Retrieve the facts about the OneView appliance time configuration.
 version_added: "2.4"
 requirements:
-    - "python >= 3.6.9"
+    - "python >= 3.4.2"
     - "hpeOneView >= 5.6.0"
 author:
     "Shanmugam M (@SHANDCRUZ)"
@@ -57,7 +57,7 @@ from ansible.module_utils.oneview import OneViewModule
 class ApplianceConfigurationTimeconfigFactsModule(OneViewModule):
     def __init__(self):
         super(ApplianceConfigurationTimeconfigFactsModule, self).__init__(additional_arg_spec=dict())
-        self.resource_client = self.oneview_client.appliance_configuration_timeconfig
+        self.set_resource_object(self.oneview_client.appliance_configuration_timeconfig)
 
     def execute_module(self):
         appliance_configuration_timeconfig = self.resource_client.get_all()
