@@ -22,9 +22,9 @@ from hpe_test_utils import OneViewBaseFactsTest
 from oneview_module_loader import ApplianceSshAccessFactsModule
 
 PARAMS_GET_ALL = dict(
-    config='config.json',
-    name=None
+    config='config.json'
 )
+
 PRESENT_SSHACCESS = [{
     "type": "SshAccess",
     "allowSshAccess": "True"
