@@ -123,12 +123,11 @@ class FirmwareDriverFactsModule(OneViewModule):
         firmware_drivers = []
 
         if self.current_resource:
-            #obj_firmware_driver = self.resource_client.get_by_name(self.module.params['name'])
             firmware_drivers = self.current_resource.data
         elif self.options:
             if self.options.get('schema'):
                 ansible_facts['schema'] = self.resource_client.get_schema()
-        else:
+        elif not self.module.params.get("name") and not self.module.params.get('uri'):
             firmware_drivers = self.resource_client.get_all(**self.facts_params)
 
         ansible_facts['firmware_drivers'] = firmware_drivers

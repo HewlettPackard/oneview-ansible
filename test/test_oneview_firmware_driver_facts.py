@@ -83,7 +83,7 @@ class TestFirmwareDriverFactsModule(OneViewBaseFactsTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(schema="schema")
+            ansible_facts=dict(firmware_drivers=[], schema="schema")
         )
 
 
