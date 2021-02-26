@@ -28,7 +28,7 @@ description:
     - Retrieve the facts about one or more of the Firmware Drivers from OneView.
 version_added: "2.4"
 requirements:
-    - "python >= 3.6.9"
+    - "python >= 3.4.2"
     - "hpeOneView >= 5.6.0"
 author: "Venkatesh Ravula (@VenkateshRavula)"
 options:
