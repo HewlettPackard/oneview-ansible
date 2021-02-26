@@ -80,11 +80,16 @@ class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
         self.set_resource_object(self.oneview_client.appliance_time_and_locale_configuration)
 
     def execute_module(self):
-        if not self.module.check_mode:
-            result = self.resource_present(self.RESOURCE_FACT_NAME)
+        if self.state == 'present':
+            changed, msg, appliance_time_and_locale_configuration = self.__present()
+            return dict(changed=changed, msg=msg, ansible_facts=appliance_time_and_locale_configuration)
+
+   def __present(self):
+        if not self.current_resource:
+            self.current_resource = self.resource_client.create(self.data)
+            return True, self.MSG_CREATED, dict(appliance_time_and_locale_configuration=self.current_resource.data)
         else:
-            result = self.check_resource_present(self.RESOURCE_FACT_NAME)
-        return result
+            return False, self.MSG_ALREADY_PRESENT, dict(appliance_time_and_locale_configuration=self.current_resource.data)
 
 
 def main():
