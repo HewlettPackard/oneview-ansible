@@ -83,7 +83,7 @@ class ApplianceSshAccessModule(OneViewModule):
 
     def __init__(self):
         additional_arg_spec = dict(data=dict(required=True, type='dict'),
-                                  state=dict(required=True, choices=['present']))
+                                   state=dict(required=True, choices=['present']))
         super(ApplianceSshAccessModule, self).__init__(additional_arg_spec=additional_arg_spec)
         self.set_resource_object(self.oneview_client.appliance_ssh_access)
 

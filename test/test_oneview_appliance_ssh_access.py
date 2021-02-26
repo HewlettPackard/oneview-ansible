@@ -22,11 +22,11 @@ from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ApplianceSshAccessModule
 
 DEFAULT_CONFIGURATION_TEMPLATE = dict(
-    'allowSshAccess'=True
+    allowSshAccess=True
 )
 
 CHANGED_CONFIGURATION_TEMPLATE = dict(
-    'allowSshAccess'=False
+    allowSshAccess=False
 )
 
 PARAMS_WITH_CHANGES = dict(
