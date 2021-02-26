@@ -68,7 +68,7 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-appliance_configuration_timeconfig:
+appliance_ssh_access:
     description: Has all the OneView facts about the Appliance time and locale configuration.
     returned: Always.
     type: dict
