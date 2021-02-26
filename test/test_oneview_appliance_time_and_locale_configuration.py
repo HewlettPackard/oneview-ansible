@@ -54,7 +54,7 @@ class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
 
     def test_should_not_update_when_data_is_equals(self):
         self.resource.get_all.return_value = DEFAULT_CONFIGURATION_TEMPLATE
-        self.resource.update.return_value = DEFAULT_CONFIGURATION_TEMPLATE
+        self.resource.data = DEFAULT_CONFIGURATION_TEMPLATE
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         ApplianceTimeAndLocaleConfigurationModule().run()
