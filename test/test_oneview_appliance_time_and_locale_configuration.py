@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
     """
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get.return_value = DEFAULT_CONFIGURATION_TEMPLATE
+        self.resource.get_all.return_value = DEFAULT_CONFIGURATION_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -66,7 +66,7 @@ class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_modified_attributes(self):
-        self.resource.get.return_value = DEFAULT_CONFIGURATION_TEMPLATE
+        self.resource.get_all.return_value = DEFAULT_CONFIGURATION_TEMPLATE
         self.resource.update.return_value = CHANGED_CONFIGURATION_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
