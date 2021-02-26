@@ -121,8 +121,7 @@ else
 fi
 
 #Documentation is generated only in local builds
-#if [ -z "$TRAVIS" ]; then
-if [ "$GITHUB_ACTIONS" = false ]; then
+if [ -z "$TRAVIS" ]; then
   echo -e "\n${COLOR_START}Generating markdown documentation${COLOR_END}"
   build-doc/run-doc-generation.sh
   exit_code_doc_generation=$?
