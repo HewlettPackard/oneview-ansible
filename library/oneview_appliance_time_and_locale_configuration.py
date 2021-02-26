@@ -42,7 +42,6 @@ options:
         description:
             - List with the Appliance Locale and Time Configuration properties.
         required: true
-
 extends_documentation_fragment:
     - oneview
 '''
@@ -81,16 +80,11 @@ class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
         self.set_resource_object(self.oneview_client.appliance_time_and_locale_configuration)
 
     def execute_module(self):
-        if self.state == 'present':
-            changed, msg, appliance_time_and_locale_configuration = self.__present()
-        return dict(changed=changed, msg=msg, ansible_facts=appliance_time_and_locale_configuration)
-
-    def __present():
-        if not self.current_resource:
-            self.current_resource = self.resource_client.create(self.data)
-            return True, self.MSG_CREATED, dict(appliance_time_and_locale_configuration=self.current_resource.data)
+        if not self.module.check_mode:
+            result = self.resource_present(self.RESOURCE_FACT_NAME)
         else:
-            return False, self.MSG_ALREADY_PRESENT, dict(appliance_time_and_locale_configuration=self.current_resource.data)
+            result = self.check_resource_present(self.RESOURCE_FACT_NAME)
+        return result
 
 
 def main():
