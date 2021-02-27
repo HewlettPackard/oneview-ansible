@@ -117,10 +117,10 @@ class TestFirmwareDriverModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=msg)
 
     def test_should_fail_if_spp_does_not_exist(self):
-        msg = 'Baseline SPP named "SPP1" '
-        msg += 'not found in OneView Appliance.'
+        msg = "Baseline SPP named 'SPP1' not found in OneView Appliance."
+        self.resource.get_by_name.return_value = None
 
-        self.resource.get_by_name.side_effect = None
+#        self.resource.get_by_name.side_effect = None
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -129,8 +129,8 @@ class TestFirmwareDriverModule(OneViewBaseTest):
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=msg)
 
     def test_should_fail_if_hotfix_does_not_exist(self):
-        msg = 'Hotfix named "hotfix1" '
-        msg += 'not found in OneView Appliance.'
+        msg = "Hotfix named 'hotfix1' not found in OneView Appliance."
+        self.resource.get_by_name.return_value = None
 
         self.resource.get_by_name.side_effect = None
 
