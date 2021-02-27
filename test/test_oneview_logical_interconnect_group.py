@@ -41,7 +41,6 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
     state='present',
     data=dict(
         name=DEFAULT_LIG_NAME,
-        internalNetworkNames=["test1"],
         uplinkSets=[dict(
             logicalPortConfigInfos=[dict(
                 desiredSpeed="Auto",
@@ -71,6 +70,35 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
         )
     )
 )
+DEFAULT_LIG_TEMPLATE_WITH_INTERNAL_NETWORKS = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name=DEFAULT_LIG_NAME,
+        internalNetworkNames=["test1"],
+        uplinkSets=[dict(
+            logicalPortConfigInfos=[dict(
+                desiredSpeed="Auto",
+                logicalLocation=dict(
+                    locationEntries=[dict(
+                        relativeValue=1,
+                        type="Bay"
+                    )]
+                )
+            )
+            ],
+            name="EnetUplink1",
+            networkType="Ethernet",
+            networkNames=["TestNetwork_1"],
+            networkSetNames=["test_1"]
+        )],
+        enclosureType='C7000',
+        interconnectMapTemplate=dict(
+            interconnectMapEntryTemplates=[]
+        )
+    )
+)
+
 DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
     config='config.json',
     state='present',
@@ -202,7 +230,11 @@ PARAMS_FOR_CREATE = dict(
     state='present',
     data=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS['data'].copy()
 )
-
+PARAMS_FOR_CREATE_WITH_INTERNAL_NETWORKS = dict(
+    config='config.json',
+    state='present',
+    data=DEFAULT_LIG_TEMPLATE_WITH_INTERNAL_NETWORKS['data'].copy()
+)
 PARAMS_TO_RENAME = dict(
     config='config.json',
     state='present',
@@ -304,6 +336,22 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
             changed=True,
             msg=LogicalInterconnectGroupModule.MSG_UPDATED,
             ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS)
+        )
+
+    def test_should_create_new_lig_with_internal_networks(self):
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_INTERNAL_NETWORKS
+        self.resource.create.return_value = self.resource
+        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = None
+        self.mock_ov_client.ethernet_networks.get_by.return_value = []
+        self.mock_ov_client.network_sets.get_by.return_value = []
+        self.mock_ansible_module.params = PARAMS_FOR_CREATE_WITH_INTERNAL_NETWORKS
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
+            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_INTERNAL_NETWORKS)
         )
 
     def test_should_create_new_with_named_permitted_interconnect_type(self):
