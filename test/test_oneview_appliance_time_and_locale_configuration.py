@@ -53,22 +53,7 @@ class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
     """
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_all.return_value = DEFAULT_CONFIGURATION_TEMPLATE
-        self.resource.data = DEFAULT_CONFIGURATION_TEMPLATE
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        ApplianceTimeAndLocaleConfigurationModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            msg=ApplianceTimeAndLocaleConfigurationModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(appliance_time_and_locale_configuration=DEFAULT_CONFIGURATION_TEMPLATE)
-        )
-
-    def test_update_when_data_has_modified_attributes(self):
-        self.resource.get_all.return_value = DEFAULT_CONFIGURATION_TEMPLATE
-        self.resource.update.return_value = CHANGED_CONFIGURATION_TEMPLATE
-
+        self.resource.create.return_value = CHANGED_CONFIGURATION_TEMPLATE
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         ApplianceTimeAndLocaleConfigurationModule().run()
@@ -76,6 +61,20 @@ class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ApplianceTimeAndLocaleConfigurationModule.MSG_CREATED,
+            ansible_facts=dict(appliance_time_and_locale_configuration=CHANGED_CONFIGURATION_TEMPLATE)
+        )
+
+    def test_update_when_data_has_modified_attributes(self):
+        self.resource.data = DEFAULT_CONFIGURATION_TEMPLATE
+        self.resource.update.return_value = DEFAULT_CONFIGURATION_TEMPLATE
+
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        ApplianceTimeAndLocaleConfigurationModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ApplianceTimeAndLocaleConfigurationModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(appliance_time_and_locale_configuration=CHANGED_CONFIGURATION_TEMPLATE)
         )
 
