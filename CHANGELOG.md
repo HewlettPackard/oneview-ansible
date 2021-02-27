@@ -1,5 +1,15 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v6.0.0(unreleased)
+This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0)
+
+### Modules supported in this release
+- oneview_appliance_configuration_timeconfig
+- oneview_appliance_ssh_access
+- oneview_appliance_ssh_access_facts
+- oneview_appliance_time_and_locale_configuration
+- oneview_appliance_time_and_locale_configuration_facts
+
 ## v5.10.0
 This release extends the planned support of the modules to OneView REST API version 2400 (OneView v5.6).
 
