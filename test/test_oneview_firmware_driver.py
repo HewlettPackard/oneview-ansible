@@ -53,11 +53,11 @@ FIRMWARE_DRIVER = dict(name=FIRMWARE_DRIVER_NAME)
 @pytest.mark.resource(TestFirmwareDriverModule='firmware_drivers')
 class TestFirmwareDriverModule(OneViewBaseTest):
     def test_should_create_new_firmware_driver(self):
-        self.resource.data = FIRMWARE_DRIVER_TEMPLATE
-        self.resource.get_by_name.return_value = [None, self.resource, self.resource]
+        self.resource.data = {'uri':'/rest/fake'}
+        self.resource.get_by_name.side_effect = [None, self.resource, self.resource]
 
-        self.resource.create.return_value = self.resource
-#        self.resource.create.return_value = PARAMS_FOR_PRESENT
+#        self.resource.create.return_value = self.resource
+        self.resource.create.return_value = PARAMS_FOR_PRESENT
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -120,7 +120,7 @@ class TestFirmwareDriverModule(OneViewBaseTest):
 
     def test_should_fail_if_spp_does_not_exist(self):
         msg = "Baseline SPP named 'SPP1' not found in OneView Appliance."
-        self.resource.get_by_name.return_value = [None, None, None]
+        self.resource.get_by_name.side_effect = [None, None, None]
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -130,8 +130,8 @@ class TestFirmwareDriverModule(OneViewBaseTest):
 
     def test_should_fail_if_hotfix_does_not_exist(self):
         msg = "Hotfix named 'hotfix1' not found in OneView Appliance."
-        self.resource.data = FIRMWARE_DRIVER_TEMPLATE
-        self.resource.get_by_name.return_value = [self.resource, None]
+        self.resource.data = {'uri':'/rest/fake'}
+        self.resource.get_by_name.side_effect = [None, self.resource, None]
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
