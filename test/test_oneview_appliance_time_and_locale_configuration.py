@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -53,29 +53,15 @@ class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
     """
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get.return_value = DEFAULT_CONFIGURATION_TEMPLATE
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
-
-        ApplianceTimeAndLocaleConfigurationModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            msg=ApplianceTimeAndLocaleConfigurationModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(appliance_time_and_locale_configuration=DEFAULT_CONFIGURATION_TEMPLATE)
-        )
-
-    def test_update_when_data_has_modified_attributes(self):
-        self.resource.get.return_value = DEFAULT_CONFIGURATION_TEMPLATE
-        self.resource.update.return_value = CHANGED_CONFIGURATION_TEMPLATE
-
+        self.resource.create.return_value = self.resource
+        self.resource.data = CHANGED_CONFIGURATION_TEMPLATE
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         ApplianceTimeAndLocaleConfigurationModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=ApplianceTimeAndLocaleConfigurationModule.MSG_UPDATED,
+            msg=ApplianceTimeAndLocaleConfigurationModule.MSG_CREATED,
             ansible_facts=dict(appliance_time_and_locale_configuration=CHANGED_CONFIGURATION_TEMPLATE)
         )
 
