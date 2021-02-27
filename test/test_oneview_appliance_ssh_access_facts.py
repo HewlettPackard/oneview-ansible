@@ -33,8 +33,8 @@ PRESENT_SSHACCESS = [{
 
 @pytest.mark.resource(TestApplianceSshAccessFactsModule='appliance_ssh_access')
 class TestApplianceSshAccessFactsModule(OneViewBaseFactsTest):
-    def test_should_get_all_timeconfiguration(self):
-        self.resource.get_by_uri.return_value = self.resource
+    def test_should_get_all_ssh_configuration(self):
+        self.resource.get_all.return_value = self.resource
         self.resource.data = PRESENT_SSHACCESS
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
