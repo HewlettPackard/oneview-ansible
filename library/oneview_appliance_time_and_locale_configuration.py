@@ -68,6 +68,7 @@ from ansible.module_utils.oneview import OneViewModule
 class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
     MSG_CREATED = 'Appliance Locale and Time Configuration created successfully.'
     MSG_ALREADY_PRESENT = 'Appliance Locale and Time Configuration is already configured.'
+    MSG_UPDATED = 'Appliance Locale and Time Configuration updated successfully.'
     RESOURCE_FACT_NAME = 'appliance_time_and_locale_configuration'
 
     def __init__(self):
@@ -81,15 +82,8 @@ class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
 
     def execute_module(self):
         if self.state == 'present':
-            changed, msg, appliance_time_and_locale_configuration = self.__present()
-            return dict(changed=changed, msg=msg, ansible_facts=appliance_time_and_locale_configuration)
-
-    def __present(self):
-        if not self.current_resource:
-            self.current_resource = self.resource_client.create(self.data)
-            return True, self.MSG_CREATED, dict(appliance_time_and_locale_configuration=self.current_resource.data)
-        else:
-            return False, self.MSG_ALREADY_PRESENT, dict(appliance_time_and_locale_configuration=self.current_resource.data)
+            result = self.resource_present(self.RESOURCE_FACT_NAME)
+            return result
 
 
 def main():
