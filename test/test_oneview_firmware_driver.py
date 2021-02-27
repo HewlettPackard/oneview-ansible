@@ -54,7 +54,7 @@ FIRMWARE_DRIVER = dict(name=FIRMWARE_DRIVER_NAME)
 class TestFirmwareDriverModule(OneViewBaseTest):
     def test_should_create_new_firmware_driver(self):
         self.resource.data = {'uri':'/rest/fake'}
-        self.resource.get_by_name.side_effect = [None, self.resource, self.resource]
+        self.resource.get_by_name.side_effect = [None, self.resource, self.resource, self.resource]
 
 #        self.resource.create.return_value = self.resource
         self.resource.create.return_value = PARAMS_FOR_PRESENT
