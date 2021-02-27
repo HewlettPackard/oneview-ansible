@@ -120,7 +120,7 @@ class TestFirmwareDriverModule(OneViewBaseTest):
         msg = 'Baseline SPP named "SPP1" '
         msg += 'not found in OneView Appliance.'
 
-        self.resource.get_by_name.side_effect = [[], []]
+        self.resource.get_by_name.side_effect = None
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -132,7 +132,7 @@ class TestFirmwareDriverModule(OneViewBaseTest):
         msg = 'Hotfix named "hotfix1" '
         msg += 'not found in OneView Appliance.'
 
-        self.resource.get_by_name.side_effect = [[], [dict(uri='/rest/fake1')], []]
+        self.resource.get_by_name.side_effect = None
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
