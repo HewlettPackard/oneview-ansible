@@ -52,7 +52,7 @@ class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
     OneViewBaseTestCase provides the mocks used in this test case
     """
 
-    def test_should_not_update_when_data_is_equals(self):
+    def test_should_create_data(self):
         self.resource.create.return_value = self.resource
         self.resource.data = CHANGED_CONFIGURATION_TEMPLATE
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
