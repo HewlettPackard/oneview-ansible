@@ -84,7 +84,7 @@ class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
             changed, msg, appliance_time_and_locale_configuration = self.__present()
             return dict(changed=changed, msg=msg, ansible_facts=appliance_time_and_locale_configuration)
 
-   def __present(self):
+    def __present(self):
         if not self.current_resource:
             self.current_resource = self.resource_client.create(self.data)
             return True, self.MSG_CREATED, dict(appliance_time_and_locale_configuration=self.current_resource.data)
