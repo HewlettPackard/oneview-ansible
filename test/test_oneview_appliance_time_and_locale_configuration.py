@@ -65,6 +65,18 @@ class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
             ansible_facts=dict(appliance_time_and_locale_configuration=CHANGED_CONFIGURATION_TEMPLATE)
         )
 
+    def test_should_not_update_when_data_is_equal(self):
+        self.resource.data = DEFAULT_CONFIGURATION_TEMPLATE
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        ApplianceTimeAndLocaleConfigurationModule().run()     
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ApplianceTimeAndLocaleConfigurationModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(appliance_time_and_locale_configuration=DEFAULT_CONFIGURATION_TEMPLATE)
+        )
+
 
 if __name__ == '__main__':
     pytest.main([__file__])
