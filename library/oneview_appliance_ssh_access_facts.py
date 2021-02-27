@@ -64,7 +64,7 @@ class ApplianceSshAccessFactsModule(OneViewModule):
         appliance_ssh_access = self.resource_client.get_all()
         appliance_ssh_access = appliance_ssh_access.data
         return dict(changed=False,
-                    ansible_facts=dict(appliance_sh_access=appliance_ssh_access))
+                    ansible_facts=dict(appliance_ssh_access=appliance_ssh_access))
 
 
 def main():
