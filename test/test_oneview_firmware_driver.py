@@ -56,8 +56,7 @@ class TestFirmwareDriverModule(OneViewBaseTest):
         self.resource.data = {'uri':'/rest/fake'}
         self.resource.get_by_name.side_effect = [None, self.resource, self.resource, self.resource]
 
-#        self.resource.create.return_value = self.resource
-        self.resource.create.return_value = PARAMS_FOR_PRESENT
+        self.resource.create.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -66,7 +65,7 @@ class TestFirmwareDriverModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=FirmwareDriverModule.MSG_CREATED,
-            ansible_facts=dict(firmware_driver=FIRMWARE_DRIVER_TEMPLATE)
+            ansible_facts=dict(firmware_driver={'uri':'/rest/fake'})
         )
 
     def test_should_not_update_when_data_is_equals(self):
