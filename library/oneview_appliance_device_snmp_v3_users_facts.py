@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 2400
 
 - debug:
     var: appliance_device_snmp_v3_users
@@ -85,33 +85,33 @@ appliance_device_snmp_v3_users:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class ApplianceDeviceSnmpV3UsersFactsModule(OneViewModuleBase):
+class ApplianceDeviceSnmpV3UsersFactsModule(OneViewModule):
     argument_spec = dict(
-        id=dict(required=False, type='str'),
+        #id=dict(required=False, type='str'),
+        username=dict(required=False, type='str'),
+        uri=dict(required=False, type='str'),
         params=dict(required=False, type='dict')
     )
 
     def __init__(self):
         super(ApplianceDeviceSnmpV3UsersFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.set_resource_object(self.oneview_client.appliance_device_snmp_v3_users)
 
     def execute_module(self):
-        client = self.oneview_client.appliance_device_snmp_v3_users
-        ansible_facts = {}
-
-        if self.module.params.get('id'):
-            ansible_facts['appliance_device_snmp_v3_users'] = self._get_by_id(self.module.params['id'])
+       
+        if self.module.params['username']:
+            obj_appliance_device_snmp_v3_users = self.resource_client.get_by_name(self.module.params['username'])
+            appliance_device_snmp_v3_users = obj_appliance_device_snmp_v3_users.data if obj_appliance_device_snmp_v3_users else None
+        elif self.module.params['uri']:
+            obj_appliance_device_snmp_v3_users = self.resource_client.get_by_uri(self.module.params['uri'])
+            appliance_device_snmp_v3_users = obj_appliance_device_snmp_v3_users.data if obj_appliance_device_snmp_v3_users else None
         else:
-            ansible_facts['appliance_device_snmp_v3_users'] = client.get_all(**self.facts_params)
-
-        return dict(changed=False,
-                    ansible_facts=ansible_facts)
-
-    def _get_by_id(self, id):
-        return self.oneview_client.appliance_device_snmp_v3_users.get_by_id(id)
-
+            appliance_device_snmp_v3_users = self.resource_client.get_all(**self.facts_params)
+        
+        return dict(changed=False, ansible_facts=dict(appliance_device_snmp_v3_users=appliance_device_snmp_v3_users))
 
 def main():
     ApplianceDeviceSnmpV3UsersFactsModule().run()
