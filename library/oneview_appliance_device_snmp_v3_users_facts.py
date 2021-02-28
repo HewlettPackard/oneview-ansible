@@ -90,7 +90,6 @@ from ansible.module_utils.oneview import OneViewModule
 
 class ApplianceDeviceSnmpV3UsersFactsModule(OneViewModule):
     argument_spec = dict(
-        #id=dict(required=False, type='str'),
         username=dict(required=False, type='str'),
         uri=dict(required=False, type='str'),
         params=dict(required=False, type='dict')
@@ -101,7 +100,6 @@ class ApplianceDeviceSnmpV3UsersFactsModule(OneViewModule):
         self.set_resource_object(self.oneview_client.appliance_device_snmp_v3_users)
 
     def execute_module(self):
-       
         if self.module.params['username']:
             obj_appliance_device_snmp_v3_users = self.resource_client.get_by_name(self.module.params['username'])
             appliance_device_snmp_v3_users = obj_appliance_device_snmp_v3_users.data if obj_appliance_device_snmp_v3_users else None
@@ -110,8 +108,9 @@ class ApplianceDeviceSnmpV3UsersFactsModule(OneViewModule):
             appliance_device_snmp_v3_users = obj_appliance_device_snmp_v3_users.data if obj_appliance_device_snmp_v3_users else None
         else:
             appliance_device_snmp_v3_users = self.resource_client.get_all(**self.facts_params)
-        
+
         return dict(changed=False, ansible_facts=dict(appliance_device_snmp_v3_users=appliance_device_snmp_v3_users))
+
 
 def main():
     ApplianceDeviceSnmpV3UsersFactsModule().run()
