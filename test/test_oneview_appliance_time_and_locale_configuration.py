@@ -71,7 +71,7 @@ class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
         self.resource.data = DEFAULT_CONFIGURATION_TEMPLATE
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
         obj = mock.Mock()
-        obj.data = {"locale"="ja_JP.UTF-8", "type"="TimeAndLocale", "timezone"="UTC"}
+        obj.data = {"locale": "ja_JP.UTF-8", "type": "TimeAndLocale", "timezone": "UTC"}
         self.mock_ov_client.appliance_time_and_locale_configuration.create.return_value = obj
 
         ApplianceTimeAndLocaleConfigurationModule().run()
