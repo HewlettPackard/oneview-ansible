@@ -23,7 +23,7 @@
         config: "{{ config }}"
         state: present
         data:
-          allowSshAccess: 'false'
+          allowSshAccess: "false"
       delegate_to: localhost
 
     - debug:
@@ -34,7 +34,7 @@
         config: "{{ config }}"
         state: present
         data:
-          allowSshAccess: 'true'
+          allowSshAccess: "true"
       delegate_to: localhost
 
     - debug:
