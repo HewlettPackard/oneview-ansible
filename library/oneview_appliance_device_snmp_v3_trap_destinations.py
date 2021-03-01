@@ -137,7 +137,7 @@ class ApplianceDeviceSnmpV3TrapDestinationsModule(OneViewModule):
     def __replace_snmpv3_username_by_userid(self):
         if self.data and self.data.get('userName'):
             username = self.data.pop('userName', None)
-    
+
             result = self.oneview_client.appliance_device_snmp_v3_users.get_by('userName', username)
             if result:
                 self.data['userId'] = result[0]['id']

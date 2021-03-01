@@ -169,12 +169,13 @@ class TestApplianceDeviceSnmpV3TrapDestinationsModule(OneViewBaseTest):
         )
 
     def test_should_raise_exception_when_snmpv3_user_not_found(self):
-        self.resource.get_by.side_effect = OneViewModuleException(ERROR_MSG)
+        # self.resource.get_by.side_effect = OneViewModuleException(ERROR_MSG)
         self.resource.get_by_name.return_value = None
 
-        self.mock_ov_client.appliance_device_snmp_v3_users.get_by.return_value = []
+        # self.mock_ov_client.appliance_device_snmp_v3_users.get_by.return_value = []
+        self.mock_ov_client.appliance_device_snmp_v3_users.get_by.side_effect = []
 
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT_USING_USERNAME.copy()
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT_USING_USERNAME
 
         ApplianceDeviceSnmpV3TrapDestinationsModule().run()
 
