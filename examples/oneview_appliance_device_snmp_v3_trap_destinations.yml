@@ -30,7 +30,18 @@
       delegate_to: localhost
 
     - debug:
-        var: oneview_appliance_device_snmp_v3_trap_destinations
+        var: appliance_device_snmp_v3_trap_destinations
+
+    - name: Ensure that the SNMPv3 Trap Destination is already present
+      oneview_appliance_device_snmp_v3_trap_destinations:
+        config: "{{ config }}"
+        state: present
+        name: 10.0.0.1
+        data:
+            destinationAddress: "10.0.0.1"
+            port: 162
+            userName: "test1"
+      delegate_to: localhost
 
     - name: Update the userId of specified SNMPv3 Trap Destination
       oneview_appliance_device_snmp_v3_trap_destinations:
@@ -39,11 +50,11 @@
         name: 10.0.0.1
         data:
           destinationAddress: "10.0.0.1"
-          userId: "test2"
+          userName: "test2"
       delegate_to: localhost
 
     - debug:
-        var: oneview_appliance_device_snmp_v3_trap_destinations
+        var: appliance_device_snmp_v3_trap_destinations
 
     - name: Ensure that the SNMPv3 Trap Destination is absent
       oneview_appliance_device_snmp_v3_trap_destinations:

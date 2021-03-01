@@ -107,7 +107,7 @@ oneview_appliance_device_snmp_v3_trap_destinations:
 from ansible.module_utils.oneview import OneViewModule, OneViewModuleException, OneViewModuleValueError, OneViewModuleResourceNotFound
 
 
-class ApplianceDeviceSnmpV3TrapDestinationsModule(OneViewModuleBase):
+class ApplianceDeviceSnmpV3TrapDestinationsModule(OneViewModule):
     MSG_CREATED = 'Appliance Device SNMPv3 Trap Destination created successfully.'
     MSG_UPDATED = 'Appliance Device SNMPv3 Trap Destination updated successfully.'
     MSG_DELETED = 'Appliance Device SNMPv3 Trap Destination deleted successfully.'
@@ -118,7 +118,7 @@ class ApplianceDeviceSnmpV3TrapDestinationsModule(OneViewModuleBase):
     RESOURCE_FACT_NAME = 'appliance_device_snmp_v3_trap_destinations'
 
     argument_spec = dict(
-        data=dict(required=True, type='dict'),
+        data=dict(required=False, type='dict'),
         name=dict(required=True, type='str'),
         state=dict(
             required=True,
@@ -133,21 +133,22 @@ class ApplianceDeviceSnmpV3TrapDestinationsModule(OneViewModuleBase):
         if self.oneview_client.api_version < 600:
             raise OneViewModuleValueError(self.MSG_API_VERSION_ERROR)
 
-        self.__replace_snmpv3_username_by_uri()
+        self.__replace_snmpv3_username_by_userid()
 
         if self.state == 'present':
             return self.resource_present(self.RESOURCE_FACT_NAME)
         elif self.state == 'absent':
             return self.resource_absent()
 
-    def __replace_snmpv3_username_by_uri(self):
-        username = self.data.pop('userName', None)
-
-        result = self.oneview_client.appliance_device_snmp_v3_users.get_by('userName', username)
-        if result:
-            self.data['uri'] = result[0]['uri']
-        else:
-            raise OneViewModuleResourceNotFound(self.MSG_USER_NOT_FOUND)
+    def __replace_snmpv3_username_by_userid(self):
+        if self.data:
+            username = self.data.pop('userName', None)
+    
+            result = self.oneview_client.appliance_device_snmp_v3_users.get_by('userName', username)
+            if result:
+                self.data['userId'] = result[0]['id']
+            else:
+                raise OneViewModuleResourceNotFound(self.MSG_USER_NOT_FOUND)
 
 
 def main():
