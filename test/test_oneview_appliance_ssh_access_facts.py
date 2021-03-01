@@ -18,7 +18,7 @@
 
 import pytest
 
-from hpe_test_utils import OneViewBaseFactsTest
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ApplianceSshAccessFactsModule
 
 PARAMS_GET_ALL = dict(
@@ -32,7 +32,7 @@ PRESENT_SSHACCESS = [{
 
 
 @pytest.mark.resource(TestApplianceSshAccessFactsModule='appliance_ssh_access')
-class TestApplianceSshAccessFactsModule(OneViewBaseFactsTest):
+class TestApplianceSshAccessFactsModule(OneViewBaseTest):
     def test_should_get_all_ssh_configuration(self):
         self.resource.get_all.return_value = self.resource
         self.resource.data = PRESENT_SSHACCESS
