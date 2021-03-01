@@ -32,6 +32,16 @@ DEFAULT_RANGE_TEMPLATE = dict(
     gateway='10.10.0.1'
 )
 
+DEFAULT_RANGE_TEMPLATE_Alocator_and_Collector = dict(
+    name='Ipv4Range',
+    uri='rest/range/test',
+    subnetUri='rest/subnet/test',
+    idList=['10.0.0.0', '10.1.1.1'],
+    type='Range',
+    enabled=True,
+    gateway='10.10.0.1'
+)
+
 DEFAULT_NOT_RANGE_TEMPLATE = dict(
     name='NOTIpv4Range',
     uri='rest/range/useless',
@@ -77,6 +87,23 @@ PARAMS_FOR_ENABLE_NO_CHANGE = dict(
     state='present',
     data=dict(uri=DEFAULT_RANGE_TEMPLATE['uri'],
               enabled=True)
+)
+
+PARAMS_FOR_COLLECTOR = dict(
+    config='config.json',
+    state='present',
+    data=dict(uri=DEFAULT_RANGE_TEMPLATE_Alocator_and_Collector['uri'],
+              idList=['10.0.0.0', '10.1.1.1'],
+              update_collector=True)
+)
+
+PARAMS_FOR_ALLOCATOR = dict(
+    config='config.json',
+    state='present',
+    data=dict(uri=DEFAULT_RANGE_TEMPLATE_Alocator_and_Collector['uri'],
+              idList=['10.0.0.0', '10.1.1.1'],
+              count=2,
+              update_allocator=True)
 )
 
 PARAMS_FOR_ENABLE_EDIT = dict(
@@ -176,6 +203,36 @@ class TestIdPoolsIpv4RangeModule(OneViewBaseTest):
             changed=True,
             msg=IdPoolsIpv4RangeModule.MSG_UPDATED,
             ansible_facts=dict(id_pools_ipv4_range=new_data)
+        )
+
+    def test_should_collect_id_back_from_ip_range(self):
+        self.resource.get_by_uri().data = DEFAULT_RANGE_TEMPLATE_Alocator_and_Collector
+        self.resource.update_collector.return_value = DEFAULT_RANGE_TEMPLATE_Alocator_and_Collector
+        self.mock_ansible_module.params = PARAMS_FOR_COLLECTOR
+
+        IdPoolsIpv4RangeModule().run()
+
+        self.resource.update_collector.assert_called_once_with(dict(idList=['10.0.0.0', '10.1.1.1']), DEFAULT_RANGE_TEMPLATE['uri'])
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=IdPoolsIpv4RangeModule.MSG_UPDATED,
+            ansible_facts=dict(id_pools_ipv4_range=DEFAULT_RANGE_TEMPLATE_Alocator_and_Collector)
+        )
+
+    def test_should_allocate_id_to_ip_range(self):
+        self.resource.get_by_uri().data = DEFAULT_RANGE_TEMPLATE_Alocator_and_Collector
+        self.resource.update_allocator.return_value = DEFAULT_RANGE_TEMPLATE_Alocator_and_Collector
+        self.mock_ansible_module.params = PARAMS_FOR_ALLOCATOR
+
+        IdPoolsIpv4RangeModule().run()
+
+        self.resource.update_allocator.assert_called_once_with(dict(idList=['10.0.0.0', '10.1.1.1'], count=2), DEFAULT_RANGE_TEMPLATE['uri'])
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=IdPoolsIpv4RangeModule.MSG_UPDATED,
+            ansible_facts=dict(id_pools_ipv4_range=DEFAULT_RANGE_TEMPLATE_Alocator_and_Collector)
         )
 
     def test_should_delete_the_ipv4_range_when_it_exists(self):

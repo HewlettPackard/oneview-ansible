@@ -1,5 +1,12 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v6.0.0(unreleased)
+This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0)
+
+### Modules supported in this release
+- oneview_id_pools_ipv4_range
+- oneview_id_pools_ipv4_range_facts
+
 ## v5.10.0
 This release extends the planned support of the modules to OneView REST API version 2400 (OneView v5.6).
 

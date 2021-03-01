@@ -30,6 +30,13 @@
 
     - set_fact: subnet_uri="{{ id_pools_ipv4_subnets[0]['uri'] }}"
 
+    - name: Get ID Pools IPv4 Range Schema 
+      oneview_id_pools_ipv4_range_facts:
+        config: "{{ config }}"
+        options:
+          - schema
+      delegate_to: localhost
+
     - name: Get facts about all the ranges
       oneview_id_pools_ipv4_range_facts:
         config: "{{ config }}"

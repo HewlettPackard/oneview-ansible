@@ -125,6 +125,11 @@ class IdPoolsIpv4RangeModule(OneViewModule):
             self.current_resource = resource
             # Enabled can be True, False or None. Using not found default 'X' for comparison purposes.
             enabled = self.data.pop('enabled', 'X')
+            # sets update_collector/update_allocator if Given to True.
+            update_collector = self.data.pop('update_collector', 'X')
+            update_allocator = self.data.pop('update_allocator', 'X')
+            id_list = self.data.pop('idList', 'X')
+            count = self.data.pop('count', 'X')
             # In case newName is given it sets it correctly
             if self.data.get('newName'):
                 self.data['name'] = self.data.pop('newName')
@@ -137,6 +142,21 @@ class IdPoolsIpv4RangeModule(OneViewModule):
                 response['ansible_facts']['id_pools_ipv4_range'] = \
                     self.resource_client.enable(dict(enabled=enabled, type='Range'), resource.data['uri'])
                 self.data['enabled'] = enabled
+                return response
+            elif update_collector is True:
+                response['msg'] = self.MSG_UPDATED
+                response['changed'] = True
+                self.data['idList'] = id_list
+                response['ansible_facts']['id_pools_ipv4_range'] = \
+                    self.resource_client.update_collector(dict(idList=id_list), self.data.get('uri'))
+                return response
+            elif update_allocator is True:
+                self.data['idList'] = id_list
+                self.data['count'] = count
+                response['msg'] = self.MSG_UPDATED
+                response['changed'] = True
+                response['ansible_facts']['id_pools_ipv4_range'] = \
+                    self.resource_client.update_allocator(dict(idList=id_list, count=count), self.data.get('uri'))
         return response
 
 

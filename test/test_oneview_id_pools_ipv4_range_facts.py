@@ -80,6 +80,12 @@ PARAMS_GET_ALLOCATED_FRAGMENTS = dict(
     uri='/rest/ipv4-range/test'
 )
 
+PARAMS_GET_SCHEMA = dict(
+    config='config.json',
+    options=['schema']
+)
+
+
 PARAMS_GET_FREE_FRAGMENTS = dict(
     config='config.json',
     options=['freeFragments'],
@@ -160,6 +166,18 @@ class TestIdPoolsIpv4RangeFactsModule(OneViewBaseTest):
             changed=False,
             ansible_facts=dict(id_pools_ipv4_ranges=[DEFAULT_RANGE_TEMPLATE.copy()],
                                id_pools_ipv4_ranges_allocated_fragments=[{'frag': 'test'}])
+        )
+
+    def test_should_get_id_pools_ipv4_ranges_schema(self):
+        self.resource.get_schema.return_value = [{'schema': 'schema'}]
+        self.mock_ansible_module.params = PARAMS_GET_SCHEMA
+
+        IdPoolsIpv4RangeFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(id_pools_ipv4_ranges_schema=[{'schema': 'schema'}],
+                               id_pools_ipv4_ranges=[])
         )
 
     def test_should_get_id_pools_ipv4_ranges_free_fragments(self):

@@ -58,8 +58,14 @@ EXAMPLES = '''
 - name: Gather facts about all ID Pools IPV4 Ranges
   oneview_id_pools_ipv4_range_facts:
     config: "{{ config_file_path }}"
-
 - debug: var=id_pools_ipv4_ranges
+
+- name: Gather all facts about a Server Profile
+  oneview_id_pools_ipv4_range_facts:
+    config: "{{ config_file_path }}"
+    options:
+        - schema
+-  debug: var=id_pools_ipv4_ranges
 
 - name: Gather paginated, filtered and sorted facts about ID Pools IPV4 Ranges
   oneview_id_pools_ipv4_range_facts:
@@ -177,6 +183,10 @@ class IdPoolsIpv4RangeFactsModule(OneViewModule):
             if self.options.get('freeFragments'):
                 facts['id_pools_ipv4_ranges_free_fragments'] = \
                     self.oneview_client.id_pools_ipv4_ranges.get_free_fragments(range_uri, **query_params)
+        elif self.options and not(is_specific_resource):
+            if self.options.get('schema'):
+                facts['id_pools_ipv4_ranges_schema'] = \
+                    self.oneview_client.id_pools_ipv4_ranges.get_schema()
 
 
 def main():

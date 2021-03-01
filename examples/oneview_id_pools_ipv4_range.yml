@@ -59,6 +59,30 @@
           enabled: True
       delegate_to: localhost
 
+    - name: Allocates ID from an IPV4 Range
+      oneview_id_pools_ipv4_range:
+        config: "{{ config }}"
+        state: present
+        data:
+          uri: ""
+          count: 2
+          update_allocator: True
+          idList:
+            - ""
+      delegate_to: localhost
+
+    - name: Collects set of ID from an IPV4 Range
+      oneview_id_pools_ipv4_range:
+        config: "{{ config }}"
+        state: present
+        data:
+          uri: ""
+          update_collector: True
+          idList:
+            - ""
+      delegate_to: localhost
+
+
     - name: Ensure the IPV4 Range is disabled with DISABLED tag in the name
       oneview_id_pools_ipv4_range:
         config: "{{ config }}"
