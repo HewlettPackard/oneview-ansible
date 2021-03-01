@@ -25,6 +25,7 @@
         data:
           allowSshAccess: false
       delegate_to: localhost
+
     - debug: var=appliance_ssh_access
 
     - name: Ensures the Appliance SSH Access is true
@@ -34,4 +35,5 @@
         data:
           allowSshAccess: true
       delegate_to: localhost
+
     - debug: var=appliance_ssh_access
