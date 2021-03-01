@@ -17,6 +17,7 @@
 ###
 
 import pytest
+import mock
 
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ApplianceTimeAndLocaleConfigurationModule
