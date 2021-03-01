@@ -33,7 +33,7 @@ PRESENT_TIMECONFIG = [{
 
 
 @pytest.mark.resource(TestApplianceConfigurationTimeconfigFactsModule='appliance_configuration_timeconfig')
-class TestApplianceConfigurationTimeconfigFactsModule(OneViewBaseFactsTest):
+class TestApplianceConfigurationTimeconfigFactsModule(OneViewBaseTest):
     def test_should_get_all_timeconfiguration(self):
         self.resource.get_all.return_value = PRESENT_TIMECONFIG
         self.mock_ansible_module.params = PARAMS_GET_ALL
