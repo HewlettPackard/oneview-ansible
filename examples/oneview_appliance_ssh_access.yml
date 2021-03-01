@@ -23,6 +23,15 @@
         config: "{{ config }}"
         state: present
         data:
-          allowSshAccess: false
+          allowSshAccess: False
+      delegate_to: localhost
+    - debug: var=appliance_ssh_access
+
+    - name: Ensures the Appliance SSH Access is true
+      oneview_appliance_ssh_access:
+        config: "{{ config }}"
+        state: present
+        data:
+          allowSshAccess: True
       delegate_to: localhost
     - debug: var=appliance_ssh_access
