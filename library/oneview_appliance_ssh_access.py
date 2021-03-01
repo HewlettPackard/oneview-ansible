@@ -69,7 +69,7 @@ EXAMPLES = '''
 
 RETURN = '''
 appliance_ssh_access:
-    description: Has all the OneView facts about the Appliance time and locale configuration.
+    description: Has all the OneView facts about the Appliance SSH Access.
     returned: Always.
     type: dict
 '''
