@@ -168,21 +168,6 @@ class TestApplianceDeviceSnmpV3TrapDestinationsModule(OneViewBaseTest):
             ansible_facts=dict(appliance_device_snmp_v3_trap_destinations=data_merged)
         )
 
-    def test_should_raise_exception_when_snmpv3_user_not_found(self):
-        self.resource.data = DEFAULT_PARAMS_WITH_USERNAME
-        self.resource.get_by_name.return_value = None
-        self.resource.create.return_value = self.resource
-
-        self.resource.get_by.side_effect = OneViewModuleException(ERROR_MSG)
-        self.mock_ov_client.appliance_device_snmp_v3_users.get_by.return_value = []
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT_USING_USERNAME.copy()
-
-        ApplianceDeviceSnmpV3TrapDestinationsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            exception=mock.ANY, msg=ApplianceDeviceSnmpV3TrapDestinationsModule.MSG_USER_NOT_FOUND)
-
     def test_should_remove_snmp_v3_trap_destination(self):
         self.resource.data = DEFAULT_PARAMS
         self.resource.get_by_name.return_value = self.resource

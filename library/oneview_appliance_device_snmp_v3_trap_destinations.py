@@ -46,7 +46,7 @@ options:
     data:
       description:
             - List with the SNMPv3 Trap Destinations properties
-      required: True
+      required: False
 extends_documentation_fragment:
     - oneview
     - oneview.validateetag
