@@ -121,13 +121,11 @@ class ApplianceDeviceSnmpV3TrapDestinationsFactsModule(OneViewModule):
         self.set_resource_object(self.oneview_client.appliance_device_snmp_v3_trap_destinations)
 
     def execute_module(self):
-        if self.module.params['name']:
-            obj_appliance_device_snmp_v3_trap = self.resource_client.get_by_name(self.module.params['name'])
-            appliance_device_snmp_v3_trap_destinations = obj_appliance_device_snmp_v3_trap.data if obj_appliance_device_snmp_v3_trap else None
-        elif self.module.params['uri']:
-            obj_appliance_device_snmp_v3_trap = self.resource_client.get_by_uri(self.module.params['uri'])
-            appliance_device_snmp_v3_trap_destinations = obj_appliance_device_snmp_v3_trap.data if obj_appliance_device_snmp_v3_trap else None
-        else:
+        appliance_device_snmp_v3_trap_destinations = []
+
+        if self.current_resource:
+            appliance_device_snmp_v3_trap_destinations = self.current_resource.data
+        elif not self.module.params.get("name") and not self.module.params.get('uri'):
             appliance_device_snmp_v3_trap_destinations = self.resource_client.get_all(**self.facts_params)
 
         return dict(changed=False, ansible_facts=dict(appliance_device_snmp_v3_trap_destinations=appliance_device_snmp_v3_trap_destinations))
