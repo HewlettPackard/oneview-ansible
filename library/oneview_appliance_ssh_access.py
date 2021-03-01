@@ -53,7 +53,7 @@ EXAMPLES = '''
     config: "{{ config }}"
     state: present
     data:
-      allowSshAccess: false
+      allowSshAccess: 'false'
   delegate_to: localhost
 - debug: var=appliance_ssh_access
 
@@ -62,7 +62,7 @@ EXAMPLES = '''
     config: "{{ config }}"
     state: present
     data:
-      allowSshAccess: true
+      allowSshAccess: 'true'
    delegate_to: localhost
 - debug: var=appliance_ssh_access
 '''
