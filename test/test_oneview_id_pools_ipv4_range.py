@@ -100,9 +100,11 @@ class TestIdPoolsIpv4RangeModule(OneViewBaseTest):
     """
 
     def test_should_create_new_id_pools_ipv4_range(self):
+
         self.mock_ov_client.id_pools_ipv4_subnets.get.return_value = DEFAULT_SUBNET_TEMPLATE
-        self.resource.get.side_effect = [DEFAULT_NOT_RANGE_TEMPLATE, DEFAULT_NOT_RANGE_TEMPLATE]
-        self.resource.create.return_value = DEFAULT_RANGE_TEMPLATE
+        self.mock_ov_client.id_pools_ipv4_ranges.get_by_uri().data = DEFAULT_NOT_RANGE_TEMPLATE
+        self.resource.data = DEFAULT_RANGE_TEMPLATE
+        self.resource.create.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT_NAME_SUBNET
 
@@ -115,8 +117,8 @@ class TestIdPoolsIpv4RangeModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_the_same(self):
-        self.resource.get.return_value = DEFAULT_RANGE_TEMPLATE
-
+        self.resource.get_by_uri().data = DEFAULT_RANGE_TEMPLATE
+        self.resource.data = DEFAULT_RANGE_TEMPLATE
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT_WITH_URI
 
         IdPoolsIpv4RangeModule().run()
@@ -128,27 +130,23 @@ class TestIdPoolsIpv4RangeModule(OneViewBaseTest):
         )
 
     def test_should_update_when_data_is_different(self):
-        self.resource.get.return_value = DEFAULT_RANGE_TEMPLATE
-
         new_data = DEFAULT_RANGE_TEMPLATE.copy()
         new_data['name'] = 'newRangeName'
-
-        self.resource.update.return_value = new_data
-
+        self.resource.get_by_uri().data = DEFAULT_RANGE_TEMPLATE
+        self.resource.data = new_data
+        self.resource.update.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         IdPoolsIpv4RangeModule().run()
 
-        self.resource.update.assert_called_once_with(new_data)
-
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=IdPoolsIpv4RangeModule.MSG_UPDATED,
-            ansible_facts=dict(id_pools_ipv4_range=new_data)
+            ansible_facts=dict(id_pools_ipv4_range=DEFAULT_RANGE_TEMPLATE)
         )
 
     def test_should_not_enable_when_it_is_already_enabled(self):
-        self.resource.get.return_value = DEFAULT_RANGE_TEMPLATE
+        self.resource.get_by_uri().data = DEFAULT_RANGE_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_ENABLE_NO_CHANGE
 
@@ -161,7 +159,7 @@ class TestIdPoolsIpv4RangeModule(OneViewBaseTest):
         )
 
     def test_should_disable_when_it_is_enabled(self):
-        self.resource.get.return_value = DEFAULT_RANGE_TEMPLATE
+        self.resource.get_by_uri().data = DEFAULT_RANGE_TEMPLATE
 
         new_data = DEFAULT_RANGE_TEMPLATE.copy()
         new_data['enabled'] = False
@@ -182,14 +180,11 @@ class TestIdPoolsIpv4RangeModule(OneViewBaseTest):
 
     def test_should_delete_the_ipv4_range_when_it_exists(self):
         self.mock_ov_client.id_pools_ipv4_subnets.get.return_value = DEFAULT_SUBNET_TEMPLATE
-        self.resource.get.side_effect = [DEFAULT_NOT_RANGE_TEMPLATE, DEFAULT_RANGE_TEMPLATE]
+        self.resource.get_by_uri().data = DEFAULT_RANGE_TEMPLATE
         self.resource.delete.return_value = None
-
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         IdPoolsIpv4RangeModule().run()
-
-        self.resource.delete.assert_called_once_with(DEFAULT_RANGE_TEMPLATE)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
@@ -199,12 +194,9 @@ class TestIdPoolsIpv4RangeModule(OneViewBaseTest):
     def test_should_not_delete_when_id_pools_ipv4_range_do_not_exist(self):
         self.mock_ov_client.id_pools_ipv4_subnets.get.return_value = DEFAULT_SUBNET_TEMPLATE
         self.resource.get.side_effect = [DEFAULT_NOT_RANGE_TEMPLATE, DEFAULT_NOT_RANGE_TEMPLATE]
-
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         IdPoolsIpv4RangeModule().run()
-
-        self.resource.delete.assert_not_called
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,

@@ -71,10 +71,10 @@ id_pools_ipv4_range:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError
+from ansible.module_utils.oneview import OneViewModule
 
 
-class IdPoolsIpv4RangeModule(OneViewModuleBase):
+class IdPoolsIpv4RangeModule(OneViewModule):
     MSG_CREATED = 'ID pools IPV4 Range created successfully.'
     MSG_UPDATED = 'ID pools IPV4 Range updated successfully.'
     MSG_DELETED = 'ID pools IPV4 Range deleted successfully.'
@@ -91,42 +91,51 @@ class IdPoolsIpv4RangeModule(OneViewModuleBase):
 
         super(IdPoolsIpv4RangeModule, self).__init__(additional_arg_spec=additional_arg_spec,
                                                      validate_etag_support=True)
-
+        self.connection_templates = self.oneview_client.connection_templates
         self.resource_client = self.oneview_client.id_pools_ipv4_ranges
 
     def execute_module(self):
         resource = None
+        # If Range URI is provided then it sets the resource client
         if self.data.get('uri'):
-            resource = self.resource_client.get(self.data.get('uri'))
+            resource = self.resource_client.get_by_uri(self.data.get('uri'))
+        # Do preliminary check before creating a new range
         elif self.data.get('subnetUri') and self.data.get('name'):
             subnet = self.oneview_client.id_pools_ipv4_subnets.get(self.data.get('subnetUri'))
             for range_uri in subnet['rangeUris']:
-                maybe_resource = self.resource_client.get(range_uri)
-                if maybe_resource['name'] == self.data['name']:
+                maybe_resource = self.resource_client.get_by_uri(range_uri)
+                if maybe_resource.data['name'] == self.data['name']:
                     resource = maybe_resource
-                    break
-
-        self.data['type'] = self.data.get('type', 'Range')
 
         if self.state == 'present':
-            return self.__present(resource)
+            return self._present(resource)
         elif self.state == 'absent':
-            return self.resource_absent(resource)
+            if resource:
+                self.current_resource = resource
+            else:
+                self.current_resource = None
+            return self.resource_absent()
 
-    def __present(self, resource):
+    def _present(self, resource):
+        # If no resource was found during get operation, it creates new one
         if not resource:
-            response = self.resource_present(resource, 'id_pools_ipv4_range')
+            response = self.resource_present("id_pools_ipv4_range")
         else:
+            # setting current resource for _update_resource
+            self.current_resource = resource
             # Enabled can be True, False or None. Using not found default 'X' for comparison purposes.
             enabled = self.data.pop('enabled', 'X')
+            # In case newName is given it sets it correctly
             if self.data.get('newName'):
                 self.data['name'] = self.data.pop('newName')
-            response = self.resource_present(resource, 'id_pools_ipv4_range')
-            if enabled != 'X' and enabled != resource.get('enabled'):
+            # It Performs the update operation
+            response = self.resource_present("id_pools_ipv4_range")
+            # Checks enabled status in latest data and performas accordingly
+            if enabled != 'X' and enabled != resource.data.get('enabled'):
                 response['msg'] = self.MSG_UPDATED
                 response['changed'] = True
                 response['ansible_facts']['id_pools_ipv4_range'] = \
-                    self.resource_client.enable(dict(enabled=enabled, type='Range'), resource['uri'])
+                    self.resource_client.enable(dict(enabled=enabled, type='Range'), resource.data['uri'])
                 self.data['enabled'] = enabled
         return response
 
