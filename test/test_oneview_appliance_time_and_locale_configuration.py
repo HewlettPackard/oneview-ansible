@@ -21,10 +21,16 @@ import pytest
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ApplianceTimeAndLocaleConfigurationModule
 
-CHANGED_CONFIGURATION_TEMPLATE = dict(
+DEFAULT_CONFIGURATION_TEMPLATE = dict(
     locale='en_US.UTF-8',
-    localeDisplayName='English (United States)',
-    timezone='GMT'
+    type= 'TimeAndLocale',
+    timezone='UTC'
+)
+
+CHANGED_CONFIGURATION_TEMPLATE = dict(
+    locale='ja_JP.UTF-8',
+    type= 'TimeAndLocale',
+    timezone='UTC'
 )
 
 PARAMS_WITH_CHANGES = dict(
@@ -33,6 +39,11 @@ PARAMS_WITH_CHANGES = dict(
     data=CHANGED_CONFIGURATION_TEMPLATE
 )
 
+PARAMS_FOR_PRESENT = dict(
+    config='config.json',
+    state='present',
+    data=DEFAULT_CONFIGURATION_TEMPLATE
+}
 
 @pytest.mark.resource(TestApplianceTimeAndLocaleConfigurationModule='appliance_time_and_locale_configuration')
 class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
@@ -40,9 +51,22 @@ class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
     OneViewBaseTestCase provides the mocks used in this test case
     """
 
-    def test_should_create_data(self):
-        self.resource.create.return_value = self.resource
-        self.resource.data = CHANGED_CONFIGURATION_TEMPLATE
+    def test_should_not_update_when_data_is_equal(self):
+        self.resource.get_all.return_value = self.resource
+        self.resource.data = DEFAULT_CONFIGURATION_TEMPLATE
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        ApplianceTimeAndLocaleConfigurationModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=ApplianceTimeAndLocaleConfigurationModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(appliance_time_and_locale_configuration=DEFAULT_CONFIGURATION_TEMPLATE)
+        )
+
+    def test_should_update_when_data_is_modified(self):
+        self.resource.get_all.return_value = self.resource
+        self.resource.data = DEFAULT_CONFIGURATION_TEMPLATE
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         ApplianceTimeAndLocaleConfigurationModule().run()

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2021) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -26,12 +26,11 @@ module: oneview_appliance_time_and_locale_configuration
 short_description: Manage OneView Appliance Locale and Time Configuration.
 description:
     - Provides an interface to manage Appliance Locale and Time Configuration. It can only update it.
-version_added: "2.4"
+version_added: "2.3"
 requirements:
-    - "python >= 3.4.2"
-    - "hpeOneView >= 5.6.0"
-author:
-    "Shanmugam M (@SHANDCRUZ)"
+    - "python >= 2.7.9"
+    - "hpeOneView >= 3.2.0"
+author: "Thiago Miotto (@tmiotto)"
 options:
     state:
         description:
@@ -64,7 +63,7 @@ appliance_time_and_locale_configuration:
 '''
 
 from ansible.module_utils.oneview import OneViewModule
-
+from ansible.module_utils.oneview import compare
 
 class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
     MSG_CREATED = 'Appliance Locale and Time Configuration created successfully.'
@@ -78,7 +77,7 @@ class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
                                        choices=['present']))
 
         super(ApplianceTimeAndLocaleConfigurationModule, self).__init__(additional_arg_spec=additional_arg_spec)
-        self.set_resource_object(self.oneview_client.appliance_time_and_locale_configuration)
+        self.resource_client = self.oneview_client.appliance_time_and_locale_configuration
 
     def execute_module(self):
         if self.state == 'present':
@@ -86,13 +85,16 @@ class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
         return dict(changed=changed, msg=msg, ansible_facts=appliance_time_and_locale_configuration)
 
     def __present(self):
-        if not self.current_resource:
+        self.current_resource = self.resource_client.get_all()
+        merged_data = self.current_resource.data.copy()
+        merged_data.update(self.data)
+        if not compare(self.current_resource.data, merged_data):
             self.current_resource = self.resource_client.create(self.data)
             return True, self.MSG_CREATED, dict(appliance_time_and_locale_configuration=self.current_resource.data)
         else:
             return False, self.MSG_ALREADY_PRESENT, dict(appliance_time_and_locale_configuration=self.current_resource.data)
 
-
+ 
 def main():
     ApplianceTimeAndLocaleConfigurationModule().run()
 
