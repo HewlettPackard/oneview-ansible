@@ -165,7 +165,7 @@ def format_doc(data):
 
 def format_dict(ancestor):
     if isinstance(ancestor, dict):
-        for (key, value) in iteritems(ancestor):
+        for (key, value) in ancestor.items():
             ancestor[key] = format_dict(value)
     elif isinstance(ancestor, list):
         ancestor = list(map(format_dict, ancestor))

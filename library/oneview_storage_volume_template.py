@@ -92,7 +92,7 @@ from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError,
 
 
 def _update_dict_with_depth(ov_resource, user_resource):
-    for key, value in iteritems(user_resource):
+    for key, value in user_resource.items():
         if isinstance(value, collections.Mapping):
             ov_resource[key] = _update_dict_with_depth(ov_resource.get(key, {}), value)
         else:
