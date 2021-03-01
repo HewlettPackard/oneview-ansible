@@ -66,10 +66,9 @@ class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
         )
 
     def test_should_update_when_data_is_modified(self):
-        self.resource.get_all.return_value = self.resource
-        self.resource.data = DEFAULT_CONFIGURATION_TEMPLATE
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
         self.resource.create.return_value = self.resource
+        self.resource.data = CHANGED_CONFIGURATION_TEMPLATE
 
         ApplianceTimeAndLocaleConfigurationModule().run()
 
