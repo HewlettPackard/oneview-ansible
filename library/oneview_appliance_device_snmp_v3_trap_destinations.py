@@ -58,42 +58,36 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 2600
     state: present
+    name: 10.0.0.1
     data:
-        type: "Destination"
         destinationAddress: "10.0.0.1"
         port: 162
-        userId: "8e57d829-2f17-4167-ae23-8fb46607c76c"
+        userName: "test1"
   delegate_to: localhost
-
-- debug:
-    var: oneview_appliance_device_snmp_v3_trap_destinations
 
 - name: Update the userId of specified SNMPv3 Trap Destination
   oneview_appliance_device_snmp_v3_trap_destinations:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 2600
     state: present
+    name: 10.0.0.1
     data:
       destinationAddress: "10.0.0.1"
       userId: "3953867c-5283-4059-a9ae-33487f901e85"
   delegate_to: localhost
-
-- debug:
-    var: oneview_appliance_device_snmp_v3_trap_destinations
 
 - name: Ensure that the SNMPv3 Trap Destination is absent
   oneview_appliance_device_snmp_v3_trap_destinations:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 2600
     state: absent
-    data:
-        destinationAddress: "10.0.0.1"
+    name: 10.0.0.1
   delegate_to: localhost
 '''
 
@@ -141,7 +135,7 @@ class ApplianceDeviceSnmpV3TrapDestinationsModule(OneViewModule):
             return self.resource_absent()
 
     def __replace_snmpv3_username_by_userid(self):
-        if self.data:
+        if self.data and self.data.get('userName'):
             username = self.data.pop('userName', None)
     
             result = self.oneview_client.appliance_device_snmp_v3_users.get_by('userName', username)

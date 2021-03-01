@@ -1815,15 +1815,16 @@ Manage the Appliance Device SNMPv3 Trap Destinations.
  Provides an interface to manage the Appliance Device SNMPv3 Trap Destinations.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpeOneView >= 5.4.0
+  * python >= 3.4.2
+  * hpeOneView >= 5.6.0
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| data  |   Yes  |  | |  List with the SNMPv3 Trap Destinations properties  |
+| name  |   Yes  |  | |  SNMPv3 Trap Destination Address  |
+| data  |   No  |  | |  List with the SNMPv3 Trap Destinations properties  |
 | state  |   |  | <ul> <li>present</li>  <li>absent</li> </ul> |  Indicates the desired state for the Appliance Device SNMPv3 Trap Destinations. `present` ensures data properties are compliant with OneView. `absent` removes the resource from OneView, if it exists.  |
 
 
@@ -1837,24 +1838,25 @@ Manage the Appliance Device SNMPv3 Trap Destinations.
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2200
+    api_version: 2600
     state: present
+    name: 10.0.0.1
     data:
-        type: "Destination"
         destinationAddress: "10.0.0.1"
         port: 162
-        userId: "8e57d829-2f17-4167-ae23-8fb46607c76c"
+        userName: "test1"
   delegate_to: localhost
 
 - debug:
-    var: oneview_appliance_device_snmp_v3_trap_destinations
+    var: appliance_device_snmp_v3_trap_destinations
 
 - name: Update the userId of specified SNMPv3 Trap Destination
   oneview_appliance_device_snmp_v3_trap_destinations:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2200
+    api_version: 2600
+    name: 10.0.0.1
     state: present
     data:
       destinationAddress: "10.0.0.1"
@@ -1862,17 +1864,16 @@ Manage the Appliance Device SNMPv3 Trap Destinations.
   delegate_to: localhost
 
 - debug:
-    var: oneview_appliance_device_snmp_v3_trap_destinations
+    var: appliance_device_snmp_v3_trap_destinations
 
 - name: Ensure that the SNMPv3 Trap Destination is absent
   oneview_appliance_device_snmp_v3_trap_destinations:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2200
+    api_version: 2600
     state: absent
-    data:
-        destinationAddress: "10.0.0.1"
+    name: 10.0.0.1
   delegate_to: localhost
 
 ```
@@ -1883,7 +1884,7 @@ Manage the Appliance Device SNMPv3 Trap Destinations.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| oneview_appliance_device_snmp_v3_trap_destinations   | Has all the OneView facts about the OneView appliance SNMPv3 Trap Destination. |  On state 'present'. Can be null. |  dict |
+| appliance_device_snmp_v3_trap_destinations   | Has all the OneView facts about the OneView appliance SNMPv3 Trap Destination. |  On state 'present'. Can be null. |  dict |
 
 
 #### Notes
@@ -1905,8 +1906,8 @@ Retrieve the facts about the OneView appliance SNMPv3 trap forwarding destinatio
  The appliance has the ability to forward events received from monitored or managed server hardware to the specified destinations as SNMPv3 traps. This module retrives the facts about the appliance SNMPv3 trap forwarding destinations.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpeOneView >= 5.4.0
+  * python >= 3.4.2
+  * hpeOneView >= 5.6.0
 
 #### Options
 
@@ -1925,7 +1926,7 @@ Retrieve the facts about the OneView appliance SNMPv3 trap forwarding destinatio
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2200
+    api_version: 2600
   delegate_to: localhost
 
 - debug:
@@ -1936,7 +1937,7 @@ Retrieve the facts about the OneView appliance SNMPv3 trap forwarding destinatio
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2200
+    api_version: 2600
     params:
       start: 0
       count: 3
@@ -1947,13 +1948,13 @@ Retrieve the facts about the OneView appliance SNMPv3 trap forwarding destinatio
 - debug:
     var: appliance_device_snmp_v3_trap_destinations
 
-- name: Gather facts about a Trap Destination by ID
+- name: Gather facts about a Trap Destination by Name
   oneview_appliance_device_snmp_v3_trap_destinations_facts:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2200
-    id: "19dc6a96-bd04-4724-819b-32bc660fcefc"
+    api_version: 2600
+    name: "test_user"
   delegate_to: localhost
 
 - debug:
