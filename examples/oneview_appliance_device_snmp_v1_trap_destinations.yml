@@ -22,6 +22,7 @@
       oneview_appliance_device_snmp_v1_trap_destinations:
         config: "{{ config }}"
         state: present
+        name: 10.0.0.1
         data:
           communityString: "public"
           destination: "10.0.0.1"
@@ -35,6 +36,7 @@
       oneview_appliance_device_snmp_v1_trap_destinations:
         config: "{{ config }}"
         state: present
+        name: 10.0.0.1
         data:
           communityString: "public"
           destination: "10.0.0.1"
@@ -45,24 +47,12 @@
       oneview_appliance_device_snmp_v1_trap_destinations:
         config: "{{ config }}"
         state: present
+        name: 10.0.0.1
         data:
           communityString: "public"
           destination: "10.0.0.1"
           port: 165
       delegate_to: localhost
-
-    - name: Create or Update an Appliance Device SNMPv1 Trap Destination by URI
-      oneview_appliance_device_snmp_v1_trap_destinations:
-        config: "{{ config }}"
-        state: present
-        data:
-          communityString: "private"
-          uri: "/rest/appliance/trap-destinations/1"
-          port: 162
-      delegate_to: localhost
-
-    - debug:
-        var: appliance_device_snmp_v1_trap_destinations
 
     - name: Delete an Appliance Device SNMPv1 Trap Destination by Destination Address
       oneview_appliance_device_snmp_v1_trap_destinations:

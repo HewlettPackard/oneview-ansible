@@ -32,7 +32,6 @@
         params:
           start: 0
           count: 3
-          sort: 'destination:descending'
           filter: "port='162'"
       delegate_to: localhost
 
