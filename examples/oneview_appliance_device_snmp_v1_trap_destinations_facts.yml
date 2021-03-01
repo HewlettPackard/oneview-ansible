@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
   tasks:
     - name: Gather facts about all appliance SNMPv1 trap forwarding destinations.
       oneview_appliance_device_snmp_v1_trap_destinations_facts:
-        config: "{{ config_file_path }}"
+        config: "{{ config }}"
       delegate_to: localhost
 
     - debug: 
@@ -39,19 +39,19 @@
     - debug: 
         var: appliance_device_snmp_v1_trap_destinations
 
-    - name: Gather facts about a Trap Destination by ID
+    - name: Gather facts about a Trap Destination by name
       oneview_appliance_device_snmp_v1_trap_destinations_facts:
         config: "{{ config }}"
-        id: "1"
+        name: "1.1.1.1"
       delegate_to: localhost
 
     - debug: 
         var: appliance_device_snmp_v1_trap_destinations
 
-    - name: Gather facts about a Trap Destination by Destination
+    - name: Gather facts about a Trap Destination by Uri
       oneview_appliance_device_snmp_v1_trap_destinations_facts:
         config: "{{ config }}"
-        destination: "1.1.1.1"
+        uri: "{{ appliance_device_snmp_v1_trap_destinations['uri'] }}"
       delegate_to: localhost
 
     - debug: 

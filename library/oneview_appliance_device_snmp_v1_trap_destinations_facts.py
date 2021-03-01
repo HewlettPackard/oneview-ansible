@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -30,16 +30,28 @@ description:
        This module retrives the facts about the appliance SNMPv1 trap forwarding destinations.
 version_added: "2.5"
 requirements:
-    - "python >= 2.7.9"
-    - "hpeOneView >= 4.8.0"
+    - "python >= 3.4.2"
+    - "hpeOneView >= 5.6.0"
 author:
-    "Gianluca Zecchi (@gzecchi)"
+    "Venkatesh Ravula (@VenkateshRavula)"
 options:
-    id:
+    name:
       description:
-        - ID or URI of trap destination.
+        -  destination address of snmpv1 trap.
       required: false
-
+    uri:
+      description:
+        - snmpv1 trap uri.
+      required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          C(start): The first item to return, using 0-based indexing.
+          C(count): The number of resources to return.
+          C(sort): The sort order of the returned data set."
+          C(query): A general query string to narrow the list of resources returned.
+      required: false
 extends_documentation_fragment:
     - oneview
     - oneview.factsparams
@@ -51,7 +63,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 2600
   delegate_to: localhost
 
 - debug:
@@ -62,7 +74,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 2600
     params:
       start: 0
       count: 3
@@ -78,8 +90,8 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
-    destination: '1.1.1.1'
+    api_version: 2600
+    name: '1.1.1.1'
   delegate_to: localhost
 
 - debug:
@@ -93,32 +105,29 @@ appliance_device_snmp_v1_trap_destinations:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class ApplianceDeviceSnmpV1TrapDestinationsFactsModule(OneViewModuleBase):
+class ApplianceDeviceSnmpV1TrapDestinationsFactsModule(OneViewModule):
     argument_spec = dict(
-        destination=dict(required=False, type='str'),
+        name=dict(required=False, type='str'),
+        uri=dict(required=False, type='str'),
         params=dict(required=False, type='dict')
     )
 
     def __init__(self):
         super(ApplianceDeviceSnmpV1TrapDestinationsFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.set_resource_object(self.oneview_client.appliance_device_snmp_v1_trap_destinations)
 
     def execute_module(self):
-        client = self.oneview_client.appliance_device_snmp_v1_trap_destinations
-        ansible_facts = {}
+        appliance_device_snmp_v1_trap_destinations = []
 
-        if self.module.params.get('destination'):
-            ansible_facts['appliance_device_snmp_v1_trap_destinations'] = self._get_by('destination', self.module.params['destination'])
-        else:
-            ansible_facts['appliance_device_snmp_v1_trap_destinations'] = client.get_all(**self.facts_params)
+        if self.current_resource:
+            appliance_device_snmp_v1_trap_destinations = self.current_resource.data
+        elif not self.module.params.get("name") and not self.module.params.get('uri'):
+            appliance_device_snmp_v1_trap_destinations = self.resource_client.get_all(**self.facts_params)
 
-        return dict(changed=False,
-                    ansible_facts=ansible_facts)
-
-    def _get_by(self, key, value):
-        return self.oneview_client.appliance_device_snmp_v1_trap_destinations.get_by(key, value)
+        return dict(changed=False, ansible_facts=dict(appliance_device_snmp_v1_trap_destinations=appliance_device_snmp_v1_trap_destinations))
 
 
 def main():
