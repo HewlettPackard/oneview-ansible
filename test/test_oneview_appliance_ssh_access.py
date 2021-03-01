@@ -43,7 +43,7 @@ class TestApplianceSshAccessModule(OneViewBaseTest):
     """
 
     def test_update_when_data_has_modified_attributes(self):
-        self.resource.get_by_uri.return_value = self.resource
+        self.resource.get_all.return_value = self.resource
         self.resource.data = DEFAULT_CONFIGURATION_TEMPLATE
         self.resource.update.return_value = CHANGED_CONFIGURATION_TEMPLATE
 
