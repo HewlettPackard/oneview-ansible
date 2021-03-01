@@ -18,7 +18,7 @@
 
 import pytest
 
-from hpe_test_utils import OneViewBaseFactsTest
+from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ApplianceConfigurationTimeconfigFactsModule
 
 PARAMS_GET_ALL = dict(
