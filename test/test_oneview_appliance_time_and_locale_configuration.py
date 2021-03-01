@@ -23,13 +23,13 @@ from oneview_module_loader import ApplianceTimeAndLocaleConfigurationModule
 
 DEFAULT_CONFIGURATION_TEMPLATE = dict(
     locale='en_US.UTF-8',
-    type= 'TimeAndLocale',
+    type='TimeAndLocale',
     timezone='UTC'
 )
 
 CHANGED_CONFIGURATION_TEMPLATE = dict(
     locale='ja_JP.UTF-8',
-    type= 'TimeAndLocale',
+    type='TimeAndLocale',
     timezone='UTC'
 )
 
@@ -43,7 +43,8 @@ PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
     data=DEFAULT_CONFIGURATION_TEMPLATE
-}
+)
+
 
 @pytest.mark.resource(TestApplianceTimeAndLocaleConfigurationModule='appliance_time_and_locale_configuration')
 class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):

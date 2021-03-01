@@ -65,6 +65,7 @@ appliance_time_and_locale_configuration:
 from ansible.module_utils.oneview import OneViewModule
 from ansible.module_utils.oneview import compare
 
+
 class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
     MSG_CREATED = 'Appliance Locale and Time Configuration created successfully.'
     MSG_ALREADY_PRESENT = 'Appliance Locale and Time Configuration is already configured.'
@@ -94,7 +95,7 @@ class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
         else:
             return False, self.MSG_ALREADY_PRESENT, dict(appliance_time_and_locale_configuration=self.current_resource.data)
 
- 
+
 def main():
     ApplianceTimeAndLocaleConfigurationModule().run()
 
