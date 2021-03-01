@@ -18,12 +18,12 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
-    - name: Ensures the Appliance SSH Access is false
+    - name: Ensures the SSH Access is false
       oneview_appliance_ssh_access:
         config: "{{ config }}"
         state: present
         data:
-          allowSshAccess: "false"
+          allowSshAccess: false
       delegate_to: localhost
     - debug: var=appliance_ssh_access
 
@@ -32,6 +32,6 @@
         config: "{{ config }}"
         state: present
         data:
-          allowSshAccess: "true"
+          allowSshAccess: true
       delegate_to: localhost
     - debug: var=appliance_ssh_access
