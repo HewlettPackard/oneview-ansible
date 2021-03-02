@@ -17,16 +17,17 @@
 ---
 - hosts: all
   vars:
-    - config: "{{ playbook_dir }}/oneview_config.json"
+    config: "{{ playbook_dir }}/oneview_config.json"
+    destination_address: "<ip_address>"
   tasks:
     - name: Create or Update an Appliance Device SNMPv1 Trap Destination by Destination Address
       oneview_appliance_device_snmp_v1_trap_destinations:
         config: "{{ config }}"
         state: present
-        name: 10.0.0.1
+        name: "{{ destination_address }}"
         data:
           communityString: "public"
-          destination: "10.0.0.1"
+          destination: "{{ destination_address }}"
           port: 162
       delegate_to: localhost
 
@@ -37,10 +38,10 @@
       oneview_appliance_device_snmp_v1_trap_destinations:
         config: "{{ config }}"
         state: present
-        name: 10.0.0.1
+        name: "{{ destination_address }}"
         data:
           communityString: "public"
-          destination: "10.0.0.1"
+          destination: "{{ destination_address }}"
           port: 162
       delegate_to: localhost
 
@@ -48,10 +49,10 @@
       oneview_appliance_device_snmp_v1_trap_destinations:
         config: "{{ config }}"
         state: present
-        name: 10.0.0.1
+        name: "{{ destination_address }}"
         data:
           communityString: "public"
-          destination: "10.0.0.1"
+          destination: "{{ destination_address }}"
           port: 165
       delegate_to: localhost
 
@@ -59,12 +60,12 @@
       oneview_appliance_device_snmp_v1_trap_destinations:
         config: "{{ config }}"
         state: absent
-        name: "10.0.0.1"
+        name: "{{ destination_address }}"
       delegate_to: localhost
 
     - name: Delete an Appliance Device SNMPv1 Trap Destination when already absent
       oneview_appliance_device_snmp_v1_trap_destinations:
         config: "{{ config }}"
         state: absent
-        name: "10.0.0.1"
+        name: "{{ destination_address }}"
       delegate_to: localhost

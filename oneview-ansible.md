@@ -4443,8 +4443,8 @@ Provides an interface to remove Firmware Driver resources.
  Provides an interface to remove Firmware Driver resources.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpeOneView >= 5.4.0
+  * python >= 3.4.2
+  * hpeOneView >= 6.0.0
 
 #### Options
 
@@ -4483,7 +4483,7 @@ Provides an interface to remove Firmware Driver resources.
   oneview_firmware_driver:
     config: "{{ config_file_path }}"
     state: absent
-    name: "Service Pack for ProLiant.iso"
+    name: "Service Pack for ProLiant"
 
 ```
 
@@ -4508,8 +4508,8 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
  Retrieve the facts about one or more of the Firmware Drivers from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpeOneView >= 5.4.0
+  * python >= 3.4.2
+  * hpeOneView >= 6.0.0
 
 #### Options
 
@@ -4517,6 +4517,8 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | name  |   No  |  | |  Firmware driver name.  |
+| uri  |   No  |  | |  Firmware driver uri.  |
+| options  |   No  |  | |  List with options to gather additional facts about the Firmware Drivers. Options allowed: `schema` gets the schema of Firmware Drivers  |
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `sort`: The sort order of the returned data set.  |
 
 
@@ -4533,7 +4535,7 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 
 - name: Gather paginated, filtered and sorted facts about Firmware Drivers
   oneview_firmware_driver_facts:
-    config: "{{ config }}"
+    config: "{{ config_file_path }}"
     params:
       start: 0
       count: 3
@@ -4544,10 +4546,17 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 - name: Gather facts about a Firmware Driver by name
   oneview_firmware_driver_facts:
     config: "{{ config_file_path }}"
-    name: "Service Pack for ProLiant.iso"
+    name: "Service Pack for ProLiant"
 
 - debug: var=firmware_drivers
 
+- name: Gather facts about Firmware Driver with options
+  oneview_firmware_driver_facts:
+    config: "{{ config_file_path }}"
+    options:
+      - schema
+
+- debug: var=schema
 ```
 
 
@@ -4557,6 +4566,7 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | firmware_drivers   | Has all the OneView facts about the Firmware Drivers. |  Always, but can be null. |  dict |
+| schema   | Has all the OneView facts about the Firmware Drivers schema. |  Always, but can be null. |  dict |
 
 
 #### Notes
