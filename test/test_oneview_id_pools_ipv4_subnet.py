@@ -59,8 +59,7 @@ PARAMS_FOR_ABSENT = dict(
 PARAMS_FOR_COLLECT = dict(
     config='config.json',
     state='collect',
-    data=dict(name=DEFAULT_SUBNET_TEMPLATE['name'],
-              idList=['10.1.1.1', '10.1.1.2'])
+    data=dict(name=DEFAULT_SUBNET_TEMPLATE['name'])
 )
 
 PARAMS_FOR_ALLOCATE = dict(
@@ -118,16 +117,6 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
             ansible_facts=dict(id_pools_ipv4_subnet=DEFAULT_SUBNET_TEMPLATE)
         )
 
-    def test_should_fail_with_missing_required_attributes(self):
-        self.mock_ansible_module.params = PARAMS_FOR_INVALID
-
-        IdPoolsIpv4SubnetModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            exception=mock.ANY,
-            msg=IdPoolsIpv4SubnetModule.MSG_VALUE_ERROR
-        )
-
     def test_update_when_data_has_modified_attributes(self):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
         data_merged['domain'] = 'diffdomain.com'
@@ -167,6 +156,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
     def test_should_fail_when_ids_not_available(self):
         self.resource.get_all.return_value = []
 
+        self.resource.get_by_name.return_value = self.resource
+
         self.mock_ansible_module.params = PARAMS_FOR_ALLOCATE
 
         IdPoolsIpv4SubnetModule().run()
@@ -178,8 +169,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
 
     def test_should_collect_when_valid_ids_allocated(self):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
-        data_merged['idList'] = ['10.1.1.1', '10.1.1.2']
 
+        data_merged['idList'] = ['10.1.1.1', '10.1.1.2']
         self.resource.data = data_merged
         self.resource.get_by_name.return_value = self.resource
         self.resource.collect.return_value = {'idList': ['10.1.1.1', '10.1.1.2']}
