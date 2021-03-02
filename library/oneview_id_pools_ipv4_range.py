@@ -42,7 +42,7 @@ options:
     data:
         description:
             - List with ID pools IPV4 Range properties.
-        equired: true
+        required: true
 
 extends_documentation_fragment:
     - oneview
@@ -95,34 +95,29 @@ class IdPoolsIpv4RangeModule(OneViewModule):
         self.resource_client = self.oneview_client.id_pools_ipv4_ranges
 
     def execute_module(self):
-        resource = None
+        self.current_resource = None
         # If Range URI is provided then it sets the resource client
         if self.data.get('uri'):
-            resource = self.resource_client.get_by_uri(self.data.get('uri'))
+            self.current_resource = self.resource_client.get_by_uri(self.data.get('uri'))
         # Do preliminary check before creating a new range
         elif self.data.get('subnetUri') and self.data.get('name'):
             subnet = self.oneview_client.id_pools_ipv4_subnets.get(self.data.get('subnetUri'))
             for range_uri in subnet['rangeUris']:
                 maybe_resource = self.resource_client.get_by_uri(range_uri)
                 if maybe_resource.data['name'] == self.data['name']:
-                    resource = maybe_resource
+                    self.current_resource = maybe_resource
 
         if self.state == 'present':
             return self._present(resource)
         elif self.state == 'absent':
-            if resource:
-                self.current_resource = resource
-            else:
-                self.current_resource = None
             return self.resource_absent()
 
-    def _present(self, resource):
+    def _present(self):
         # If no resource was found during get operation, it creates new one
-        if not resource:
+        if not self.current_resource:
             response = self.resource_present("id_pools_ipv4_range")
         else:
             # setting current resource for _update_resource
-            self.current_resource = resource
             # Enabled can be True, False or None. Using not found default to false for comparison purposes.
             enabled = self.data.pop('enabled', 'not_given')
             # sets update_collector/update_allocator if Given to True.
@@ -136,11 +131,11 @@ class IdPoolsIpv4RangeModule(OneViewModule):
             # It Performs the update operation
             response = self.resource_present("id_pools_ipv4_range")
             # Checks enabled status in latest data and performas accordingly
-            if enabled != 'not_given' and enabled != resource.data.get('enabled'):
+            if enabled != 'not_given' and enabled != self.current_resource.data.get('enabled'):
                 response['msg'] = self.MSG_UPDATED
                 response['changed'] = True
                 response['ansible_facts']['id_pools_ipv4_range'] = \
-                    self.resource_client.enable(dict(enabled=enabled, type='Range'), resource.data['uri'])
+                    self.resource_client.enable(dict(enabled=enabled, type='Range'), self.current_resource.data['uri'])
                 self.data['enabled'] = enabled
                 return response
             elif update_collector:
