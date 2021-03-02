@@ -17,15 +17,16 @@
 ---
 - hosts: all
   vars:
-    - config: "{{ playbook_dir }}/oneview_config.json"
+    config: "{{ playbook_dir }}/oneview_config.json"
+    destination_address: "<ip_address>"
   tasks:
     - name: Ensure that the SNMPv3 Trap Destination is present
       oneview_appliance_device_snmp_v3_trap_destinations:
         config: "{{ config }}"
         state: present
-        name: 10.0.0.1
+        name: "{{ destination_address }}"
         data:
-            destinationAddress: "10.0.0.1"
+            destinationAddress: "{{ destination_address }}"
             port: 162
             userName: "test1"
       delegate_to: localhost
@@ -37,9 +38,9 @@
       oneview_appliance_device_snmp_v3_trap_destinations:
         config: "{{ config }}"
         state: present
-        name: 10.0.0.1
+        name: "{{ destination_address }}"
         data:
-            destinationAddress: "10.0.0.1"
+            destinationAddress: "{{ destination_address }}"
             port: 162
             userName: "test1"
       delegate_to: localhost
@@ -48,9 +49,9 @@
       oneview_appliance_device_snmp_v3_trap_destinations:
         config: "{{ config }}"
         state: present
-        name: 10.0.0.1
+        name: "{{ destination_address }}"
         data:
-          destinationAddress: "10.0.0.1"
+          destinationAddress: "{{ destination_address }}"
           userName: "test2"
       delegate_to: localhost
 
@@ -61,12 +62,12 @@
       oneview_appliance_device_snmp_v3_trap_destinations:
         config: "{{ config }}"
         state: absent
-        name: 10.0.0.1
+        name: "{{ destination_address }}"
       delegate_to: localhost
 
     - name: Ensure that the SNMPv3 Trap Destination is already absent
       oneview_appliance_device_snmp_v3_trap_destinations:
         config: "{{ config }}"
         state: absent
-        name: 10.0.0.1
+        name: "{{ destination_address }}"
       delegate_to: localhost
