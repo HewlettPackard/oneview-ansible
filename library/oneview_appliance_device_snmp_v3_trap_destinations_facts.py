@@ -28,10 +28,10 @@ description:
     - The appliance has the ability to forward events received from monitored or managed server hardware
       to the specified destinations as SNMPv3 traps.
       This module retrives the facts about the appliance SNMPv3 trap forwarding destinations.
-version_added: "2.5"
+version_added: "2.9"
 requirements:
     - "python >= 3.4.2"
-    - "hpeOneView >= 5.6.0"
+    - "hpeOneView >= 6.0.0"
 author:
     "Venkatesh Ravula (@VenkateshRavula)"
 options:
