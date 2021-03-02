@@ -17,7 +17,6 @@
 ###
 
 import pytest
-import mock
 
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ApplianceTimeAndLocaleConfigurationModule
@@ -67,19 +66,17 @@ class TestApplianceTimeAndLocaleConfigurationModule(OneViewBaseTest):
         )
 
     def test_should_update_when_data_is_modified(self):
-        self.resource.get_all.return_value = self.resource
         self.resource.data = DEFAULT_CONFIGURATION_TEMPLATE
+        self.resource.get_all.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
-        obj = mock.Mock()
-        obj.data = {"locale": "ja_JP.UTF-8", "type": "TimeAndLocale", "timezone": "UTC"}
-        self.mock_ov_client.appliance_time_and_locale_configuration.create.return_value = obj
+        self.resource.create.return_value = self.resource
 
         ApplianceTimeAndLocaleConfigurationModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ApplianceTimeAndLocaleConfigurationModule.MSG_CREATED,
-            ansible_facts=dict(appliance_time_and_locale_configuration=CHANGED_CONFIGURATION_TEMPLATE)
+            ansible_facts=dict(appliance_time_and_locale_configuration=DEFAULT_CONFIGURATION_TEMPLATE)
         )
 
 
