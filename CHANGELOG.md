@@ -4,7 +4,7 @@
 This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0)
 
 ### Modules supported in this release
-- oneview_appliance_configuration_timeconfig
+- oneview_appliance_configuration_timeconfig_facts
 - oneview_appliance_device_snmpv1_trap_destions
 - oneview_appliance_device_snmpv1_trap_destions_facts
 - oneview_appliance_device_snmpv3_trap_destions
