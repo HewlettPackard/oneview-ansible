@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ version_added: "2.9"
 requirements:
     - "python >= 3.4.2"
     - "hpeOneView >= 6.0.0"
-author: "Thiago Miotto (@tmiotto)"
+author: "Shanmugam M (@SHANDCRUZ)"
 options:
     state:
         description:
@@ -87,10 +87,13 @@ class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
         return dict(changed=changed, msg=msg, ansible_facts=appliance_time_and_locale_configuration)
 
     def __present(self):
+        resource_data = {}
         self.current_resource = self.resource_client.get_all()
-        merged_data = self.current_resource.data.copy()
+        if self.current_resource:
+             resource_data = self.current_resource.data.copy()
+        merged_data = resource_data.copy()
         merged_data.update(self.data)
-        if not compare(self.current_resource.data, merged_data):
+        if not compare(resource_data, merged_data):
             self.current_resource = self.resource_client.create(self.data)
             return True, self.MSG_CREATED, dict(appliance_time_and_locale_configuration=self.current_resource.data)
         else:
