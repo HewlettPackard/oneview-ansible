@@ -26,10 +26,10 @@ module: oneview_logical_interconnect_group
 short_description: Manage OneView Logical Interconnect Group resources.
 description:
     - Provides an interface to manage Logical Interconnect Group resources. Can create, update, or delete.
-version_added: "2.3"
+version_added: "2.9"
 requirements:
-    - "python >= 2.7.9"
-    - "hpeOneView >= 5.4.0"
+    - "python >= 3.4.2"
+    - "hpeOneView >= 6.0.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     state:
