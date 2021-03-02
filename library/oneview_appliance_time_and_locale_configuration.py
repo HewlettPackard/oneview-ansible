@@ -26,10 +26,10 @@ module: oneview_appliance_time_and_locale_configuration
 short_description: Manage OneView Appliance Locale and Time Configuration.
 description:
     - Provides an interface to manage Appliance Locale and Time Configuration. It can only update it.
-version_added: "2.3"
+version_added: "2.9"
 requirements:
-    - "python >= 2.7.9"
-    - "hpeOneView >= 3.2.0"
+    - "python >= 3.4.2"
+    - "hpeOneView >= 6.0.0"
 author: "Thiago Miotto (@tmiotto)"
 options:
     state:
