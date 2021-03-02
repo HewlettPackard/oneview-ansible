@@ -92,11 +92,9 @@ class IdPoolsIpv4SubnetFactsModule(OneViewModule):
         self.set_resource_object(self.oneview_client.id_pools_ipv4_subnets)
 
     def execute_module(self):
-        if self.module.params.get('name'):
-            query = self.resource_client.get_all(filter="name='{}'".format(self.module.params['name']))
-            id_pools_ipv4_subnets = [query[0]] if query and query[0].get('name') == self.module.params['name'] else None
-        elif self.module.params.get('uri'):
-            id_pools_ipv4_subnets = [self.resource_client.get_by('uri', self.module.params['uri'])]
+        id_pools_ipv4_subnets = []
+        if self.current_resource:
+            id_pools_ipv4_subnets = self.current_resource.data
         else:
             id_pools_ipv4_subnets = self.resource_client.get_all(**self.facts_params)
 

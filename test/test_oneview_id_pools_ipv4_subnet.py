@@ -150,9 +150,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
 
         data_merged['count'] = 2
-        data_merged['idList'] = ['172.9.0.1', '172.9.0.2']
         self.resource.data = data_merged
-        self.resource.update.return_value = self.resource
+        self.resource.update.return_value = {'idList': ['172.9.0.1', '172.9.0.2']}
 
         self.mock_ansible_module.params = PARAMS_FOR_ALLOCATE
 
@@ -161,7 +160,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=IdPoolsIpv4SubnetModule.MSG_ALLOCATE,
-            ansible_facts=dict(id_pools_ipv4_subnet=data_merged)
+            ansible_facts=dict(id_pools_ipv4_subnet={'idList': ['172.9.0.1', '172.9.0.2']})
         )
 
     def test_should_fail_when_ids_not_available(self):
@@ -178,11 +177,10 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
 
     def test_should_collect_when_valid_ids_allocated(self):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
+        data_merged['idList'] = ['10.1.1.1', '10.1.1.2']
 
         self.resource.data = data_merged
-        data_merged['idList'] = ['10.1.1.1', '10.1.1.2']
         self.resource.collect.return_value = self.resource
-
         self.mock_ansible_module.params = data_merged
 
         IdPoolsIpv4SubnetModule().run()
