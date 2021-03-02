@@ -97,7 +97,7 @@ from ansible.module_utils.oneview import compare
 
 
 class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
-    MSG_CREATED = 'Appliance Locale and Time Configuration created successfully.'
+    MSG_CREATED = 'Appliance Locale and Time Configuration configured successfully.'
     MSG_ALREADY_PRESENT = 'Appliance Locale and Time Configuration is already configured.'
     RESOURCE_FACT_NAME = 'appliance_time_and_locale_configuration'
 
