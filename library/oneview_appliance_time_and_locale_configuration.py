@@ -48,12 +48,41 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = '''
-- name: Ensure that the Appliance Locale and Time Configuration is present with locale 'en_US.UTF-8'
+- name: Add the Appliance time and locale configuration locale is ja_JP.UTF-8
   oneview_appliance_time_and_locale_configuration:
-    config: "{{ config_file_path }}"
+    config: "{{ config }}"
     state: present
     data:
-      locale: 'en_US.UTF-8'
+      locale: ja_JP.UTF-8
+      ntpServers: [16.110.135.123]
+      timezone: UTC
+      type: TimeAndLocale
+  delegate_to: localhost
+- debug: var=appliance_time_and_locale_configuration
+
+- name: Ensures the Appliance time and locale configuration locale is ja_JP.UTF-8 is already present
+  oneview_appliance_time_and_locale_configuration:
+    config: "{{ config }}"
+    state: present
+    data:
+      locale: ja_JP.UTF-8
+      ntpServers: [16.110.135.123]
+      timezone: UTC
+      type: TimeAndLocale
+  delegate_to: localhost
+- debug: var=appliance_time_and_locale_configuration
+
+- name: Change the Appliance time and locale configuration locale to en_US.UTF-8
+  oneview_appliance_time_and_locale_configuration:
+    config: "{{ config }}"
+    state: present
+    data:
+      locale: en_US.UTF-8
+      ntpServers: [16.110.135.123]
+      timezone: UTC
+      type: TimeAndLocale
+  delegate_to: localhost
+- debug: var=appliance_time_and_locale_configuration
 '''
 
 RETURN = '''
