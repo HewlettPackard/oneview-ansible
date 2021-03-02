@@ -26,10 +26,10 @@ module: oneview_firmware_driver_facts
 short_description: Retrieve the facts about one or more of the OneView Firmware Drivers.
 description:
     - Retrieve the facts about one or more of the Firmware Drivers from OneView.
-version_added: "2.4"
+version_added: "2.9"
 requirements:
     - "python >= 3.4.2"
-    - "hpeOneView >= 5.6.0"
+    - "hpeOneView >= 6.0.0"
 author: "Venkatesh Ravula (@VenkateshRavula)"
 options:
     name:

@@ -24,12 +24,12 @@ DOCUMENTATION = '''
 ---
 module: oneview_firmware_driver
 short_description: Provides an interface to remove Firmware Driver resources.
-version_added: "2.4"
+version_added: "2.9"
 description:
     - Provides an interface to remove Firmware Driver resources.
 requirements:
     - "python >= 3.4.2"
-    - "hpeOneView >= 5.6.0"
+    - "hpeOneView >= 6.0.0"
 author: "Venkatesh Ravula (@VenkateshRavula)"
 options:
     state:

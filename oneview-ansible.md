@@ -4457,7 +4457,7 @@ Provides an interface to remove Firmware Driver resources.
 
 #### Requirements (on the host that executes the module)
   * python >= 3.4.2
-  * hpeOneView >= 5.6.0
+  * hpeOneView >= 6.0.0
 
 #### Options
 
@@ -4522,7 +4522,7 @@ Retrieve the facts about one or more of the OneView Firmware Drivers.
 
 #### Requirements (on the host that executes the module)
   * python >= 3.4.2
-  * hpeOneView >= 5.6.0
+  * hpeOneView >= 6.0.0
 
 #### Options
 
