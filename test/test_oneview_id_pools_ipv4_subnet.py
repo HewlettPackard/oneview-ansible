@@ -151,7 +151,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
 
         data_merged['count'] = 2
         self.resource.data = data_merged
-        self.resource.update.return_value = {'idList': ['172.9.0.1', '172.9.0.2']}
+        self.resource.allocate.return_value = {'idList': ['172.9.0.1', '172.9.0.2']}
 
         self.mock_ansible_module.params = PARAMS_FOR_ALLOCATE
 
@@ -180,7 +180,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         data_merged['idList'] = ['10.1.1.1', '10.1.1.2']
 
         self.resource.data = data_merged
-        self.resource.collect.return_value = self.resource
+        self.resource.collect.return_value = {'idList': ['10.1.1.1', '10.1.1.2']}
         self.mock_ansible_module.params = data_merged
 
         IdPoolsIpv4SubnetModule().run()
@@ -188,7 +188,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=IdPoolsIpv4SubnetModule.MSG_COLLECT,
-            ansible_facts=dict(id_pools_ipv4_subnet=data_merged)
+            ansible_facts=dict(id_pools_ipv4_subnet={'idList': ['10.1.1.1', '10.1.1.2']})
         )
 
     def test_should_remove_id_pools_ipv4_subnet(self):
