@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ requirements:
     - "python >= 2.7.9"
     - "hpeOneView >= 4.8.0"
 author:
-    "Gianluca Zecchi (@gzecchi)"
+    "Nabhajit Ray (@nabhajit-ray)"
 options:
     state:
         description:
@@ -69,15 +69,13 @@ EXAMPLES = '''
 
 - name: Set the password of specified SNMPv3 user
   oneview_appliance_device_snmp_v3_users:
-    hostname: 172.16.101.48
-    username: administrator
-    password: my_password
-    api_version: 800
-    state: set_password
-    data:
-      userName: "testUser"
-      authenticationPassphrase: "NewPass1234"
-  delegate_to: localhost
+   config: "{{ config }}"
+   state: present
+   name: "testUser"
+   data:
+     userName: "testUser"
+    authenticationPassphrase: "NewPass1234"
+    delegate_to: localhost
 
 - debug:
     var: appliance_device_snmp_v3_users
@@ -101,10 +99,10 @@ appliance_device_snmp_v3_users:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleException, OneViewModuleValueError
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleException, OneViewModuleValueError, OneViewModuleResourceNotFound
 
 
-class ApplianceDeviceSnmpV3UsersModule(OneViewModuleBase):
+class ApplianceDeviceSnmpV3UsersModule(OneViewModule):
     MSG_CREATED = 'Appliance Device SNMPv3 User created successfully.'
     MSG_UPDATED = 'Appliance Device SNMPv3 User updated successfully.'
     MSG_DELETED = 'Appliance Device SNMPv3 User deleted successfully.'
@@ -118,6 +116,7 @@ class ApplianceDeviceSnmpV3UsersModule(OneViewModuleBase):
 
     argument_spec = dict(
         data=dict(required=True, type='dict'),
+        name=dict(required=True, type='str'),
         state=dict(
             required=True,
             choices=['present', 'absent', 'set_password'])
@@ -125,39 +124,15 @@ class ApplianceDeviceSnmpV3UsersModule(OneViewModuleBase):
 
     def __init__(self):
         super(ApplianceDeviceSnmpV3UsersModule, self).__init__(additional_arg_spec=self.argument_spec, validate_etag_support=True)
-        self.resource_client = self.oneview_client.appliance_device_snmp_v3_users
+        self.set_resource_object(self.oneview_client.appliance_device_snmp_v3_users)
 
     def execute_module(self):
         if self.oneview_client.api_version < 600:
             raise OneViewModuleValueError(self.MSG_API_VERSION_ERROR)
-
-        if self.data.get('id'):
-            query = self.resource_client.get_by_id(self.data.get('id'))
-            resource = query[0] if query and query[0].get('id') == self.data['id'] else None
-        elif self.data.get('userName'):
-            query = self.resource_client.get_by('userName', self.data.get('userName'))
-            resource = query[0] if query and query[0].get('userName') == self.data['userName'] else None
-        else:
-            raise OneViewModuleValueError(self.MSG_VALUE_ERROR)
-
         if self.state == 'present':
-            return self.resource_present(resource, self.RESOURCE_FACT_NAME)
+            return self.resource_present(self.RESOURCE_FACT_NAME)
         elif self.state == 'absent':
-            return self.resource_absent(resource)
-        elif self.state == 'set_password':
-            return self.__set_password(resource)
-
-    def __set_password(self, resource):
-        if not resource:
-            raise OneViewModuleException('The specified user does not exist.')
-        if 'authenticationPassphrase' not in self.data:
-            raise OneViewModuleException('This state requires an authenticationPassphrase to be declared.')
-
-        data_merged = resource.copy()
-        data_merged['authenticationPassphrase'] = self.data['authenticationPassphrase']
-        resource = self.resource_client.update(data_merged)
-
-        return dict(changed=True, msg=self.MSG_PASSWORD_UPDATED, ansible_facts=dict(appliance_device_snmp_v3_users=resource))
+            return self.resource_absent()
 
 
 def main():

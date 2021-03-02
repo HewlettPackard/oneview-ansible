@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ class TestApplianceDeviceSnmpV3UsersFactsModule(OneViewBaseFactsTest):
             ansible_facts=dict(appliance_device_snmp_v3_users=(PRESENT_CONFIGURATION))
         )
 
-    def test_should_get_by_id_snmp_v3_users(self):
+    def test_should_get_by_name_snmp_v3_users(self):
         self.resource.data = PRESENT_CONFIGURATION
         self.resource.get_by_name.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME

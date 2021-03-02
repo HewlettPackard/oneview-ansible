@@ -30,8 +30,8 @@
         config: "{{ config }}"
         params:
           start: 0
-          count: 3
-          sort: 'name:descending'
+          count: 4
+          sort: 'userName:ascending'         
           filter: "securityLevel='Authentication and privacy'"
       delegate_to: localhost
 
@@ -41,7 +41,7 @@
     - name: Gather facts about a snmp users by Username
       oneview_appliance_device_snmp_v3_users_facts:
         config: "{{ config }}"
-        username: "user123456"
+        name: "user123456"
       delegate_to: localhost
     
     - debug:

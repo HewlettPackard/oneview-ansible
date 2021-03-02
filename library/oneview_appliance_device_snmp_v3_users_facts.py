@@ -90,7 +90,7 @@ from ansible.module_utils.oneview import OneViewModule
 
 class ApplianceDeviceSnmpV3UsersFactsModule(OneViewModule):
     argument_spec = dict(
-        username=dict(required=False, type='str'),
+        name=dict(required=False, type='str'),
         uri=dict(required=False, type='str'),
         params=dict(required=False, type='dict')
     )
