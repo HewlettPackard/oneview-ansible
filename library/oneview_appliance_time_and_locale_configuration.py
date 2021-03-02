@@ -90,7 +90,7 @@ class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
         resource_data = {}
         self.current_resource = self.resource_client.get_all()
         if self.current_resource:
-             resource_data = self.current_resource.data.copy()
+            resource_data = self.current_resource.data.copy()
         merged_data = resource_data.copy()
         merged_data.update(self.data)
         if not compare(resource_data, merged_data):
