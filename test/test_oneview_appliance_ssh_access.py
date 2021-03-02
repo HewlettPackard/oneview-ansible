@@ -44,20 +44,17 @@ class TestApplianceSshAccessModule(OneViewBaseTest):
     """
 
     def test_update_when_data_has_modified_attributes(self):
-        obj = mock.Mock()
-        obj.data = DEFAULT_CONFIGURATION_TEMPLATE
-        self.mock_ov_client.appliance_ssh_access.get_all.return_value = obj
+        self.resource.data = DEFAULT_CONFIGURATION_TEMPLATE
+        self.resource.get_all.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
         self.resource.update.return_value = self.resource
-        self.resource.data = CHANGED_CONFIGURATION_TEMPLATE
-
 
         ApplianceSshAccessModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=ApplianceSshAccessModule.MSG_UPDATED,
-            ansible_facts=dict(appliance_ssh_access=CHANGED_CONFIGURATION_TEMPLATE)
+            ansible_facts=dict(appliance_ssh_access=DEFAULT_CONFIGURATION_TEMPLATE)
         )
 
 
