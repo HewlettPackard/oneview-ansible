@@ -17,6 +17,7 @@
 ###
 
 import pytest
+import mock
 
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ApplianceSshAccessModule
@@ -48,7 +49,6 @@ class TestApplianceSshAccessModule(OneViewBaseTest):
         obj = mock.Mock()
         obj.data = CHANGED_CONFIGURATION_TEMPLATE
         self.mock_ov_client.appliance_ssh_access.update.return_value = obj
-
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         ApplianceSshAccessModule().run()
