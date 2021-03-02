@@ -45,6 +45,7 @@ options:
 
 extends_documentation_fragment:
     - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
