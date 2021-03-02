@@ -112,7 +112,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
 
     def test_should_get_the_same_resource_by_uri(self):
         self.resource.data = DEFAULT_SUBNET_TEMPLATE
-        self.resource.get_by_uri.return_value = self.resource
+        self.resource.get_all.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT_WITH_URI
 
@@ -156,12 +156,10 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
     def test_should_allocate_when_valid_ids_present(self):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
 
-        self.resource.data = data_merged
-        self.resource.get_all.return_value = self.resource
-        self.resource.update.return_value = data_merged
-        
         data_merged['count'] = 2
-
+        self.resource.data = data_merged
+        self.resource.allocate.return_value = self.resource
+        
         self.mock_ansible_module.params = PARAMS_FOR_ALLOCATE
 
         IdPoolsIpv4SubnetModule().run()
@@ -175,7 +173,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
     def test_should_fail_when_ids_not_available(self):
         self.resource.get_all.return_value = []
 
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+        self.mock_ansible_module.params = PARAMS_FOR_ALLOCATE
 
         IdPoolsIpv4SubnetModule().run()
 
@@ -187,8 +185,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
     def test_should_collect_when_valid_ids_allocated(self):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
 
-        self.resource.data = DEFAULT_SUBNET_TEMPLATE
-        self.resource.update.return_value = data_merged
+        self.resource.data = data_merged
+        self.resource.collect.return_value = self.resource
 
         data_merged['idList'] = ['10.1.1.1', '10.1.1.2']
 

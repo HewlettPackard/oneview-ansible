@@ -81,8 +81,6 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
     MSG_CREATED = 'ID pools IPV4 Subnet created successfully.'
     MSG_UPDATED = 'ID pools IPV4 Subnet updated successfully.'
     MSG_DELETED = 'ID pools IPV4 Subnet deleted successfully.'
-    MSG_ALREADY_PRESENT = 'ID pools IPV4 Subnet is already present.'
-    MSG_ALREADY_ABSENT = 'ID pools IPV4 Subnet deleted successfully.'
     MSG_VALUE_ERROR = "The name or the uri attrbiutes must be specfied"
     MSG_ALLOCATE = 'IDs found and have been allocated'
     MSG_NO_ALLOCATE = 'No ids found for allocation'
@@ -122,7 +120,7 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
             changed, msg, ipv4_subnet = self.__collector(resource)
             return dict(changed=changed, msg=msg, ansible_facts=dict(id_pools_ipv4_subnet=ipv4_subnet))
         elif self.state == 'absent':
-            return self.resource_absent()
+            return self.resource_absent(resource)
 
     def __allocator(self, resource):
         try:
