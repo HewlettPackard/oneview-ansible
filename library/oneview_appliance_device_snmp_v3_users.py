@@ -29,7 +29,7 @@ description:
 version_added: "2.5"
 requirements:
     - "python >= 2.7.9"
-    - "hpeOneView >= 4.8.0"
+    - "hpeOneView >= 6.0.0"
 author:
     "Nabhajit Ray (@nabhajit-ray)"
 options:
@@ -73,7 +73,7 @@ EXAMPLES = '''
    state: present
    name: "testUser"
    data:
-     userName: "testUser"
+    userName: "testUser"
     authenticationPassphrase: "NewPass1234"
     delegate_to: localhost
 
@@ -115,11 +115,11 @@ class ApplianceDeviceSnmpV3UsersModule(OneViewModule):
     RESOURCE_FACT_NAME = 'appliance_device_snmp_v3_users'
 
     argument_spec = dict(
-        data=dict(required=True, type='dict'),
-        name=dict(required=True, type='str'),
+        data=dict(required=False, type='dict'),
+        name=dict(required=False, type='str'),
         state=dict(
             required=True,
-            choices=['present', 'absent', 'set_password'])
+            choices=['present', 'absent'])
     )
 
     def __init__(self):

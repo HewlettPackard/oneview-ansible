@@ -20,7 +20,7 @@ import mock
 import pytest
 
 from hpe_test_utils import OneViewBaseTest
-from oneview_module_loader import ApplianceDeviceSnmpV3UsersModule
+from oneview_module_loader import ApplianceDeviceSnmpV3UsersModule, OneViewModuleException
 
 ERROR_MSG = 'Fake message error'
 
@@ -34,7 +34,7 @@ PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
     name=DEFAULT_PARAMS['userName'],
-    data=DEFAULT_PARAMS
+    data=DEFAULT_PARAMS,
 )
 
 PARAMS_WITH_CHANGES = dict(
@@ -42,7 +42,7 @@ PARAMS_WITH_CHANGES = dict(
     state='present',
     name=DEFAULT_PARAMS['userName'],
     data=dict(userName=DEFAULT_PARAMS['userName'],
-              authenticationProtocol='SHA512')
+              authenticationProtocol='SHA512'),
 )
 
 PARAMS_FOR_SET_PASSWORD = dict(
@@ -61,6 +61,7 @@ PARAMS_FOR_ABSENT = dict(
 
 @pytest.mark.resource(TestApplianceDeviceSnmpV3UsersModule='appliance_device_snmp_v3_users')
 class TestApplianceDeviceSnmpV3UsersModule(OneViewBaseTest):
+
     def test_should_raise_exception_when_api_is_lower_than_600(self):
         self.mock_ov_client.api_version = 400
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
