@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -28,10 +28,10 @@ description:
     - SNMPv3 user will be used for sending the SNMPv3 trap to the associated destinations.
       One user can be assigned to multiple destinations.
       This module retrives the facts about the appliance SNMPv3 users.
-version_added: "2.5"
+version_added: "2.5.0"
 requirements:
     - "python >= 2.7.9"
-    - "hpeOneView >= 4.8.0"
+    - "hpeOneView >= 6.0.0"
 author:
     "Gianluca Zecchi (@gzecchi)"
 extends_documentation_fragment:
@@ -44,7 +44,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 2400
 
 - debug:
     var: appliance_device_snmp_v3_users
@@ -85,32 +85,29 @@ appliance_device_snmp_v3_users:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class ApplianceDeviceSnmpV3UsersFactsModule(OneViewModuleBase):
+class ApplianceDeviceSnmpV3UsersFactsModule(OneViewModule):
     argument_spec = dict(
-        id=dict(required=False, type='str'),
+        name=dict(required=False, type='str'),
+        uri=dict(required=False, type='str'),
         params=dict(required=False, type='dict')
     )
 
     def __init__(self):
         super(ApplianceDeviceSnmpV3UsersFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.set_resource_object(self.oneview_client.appliance_device_snmp_v3_users)
 
     def execute_module(self):
-        client = self.oneview_client.appliance_device_snmp_v3_users
-        ansible_facts = {}
+        appliance_device_snmp_v3_users = []
 
-        if self.module.params.get('id'):
-            ansible_facts['appliance_device_snmp_v3_users'] = self._get_by_id(self.module.params['id'])
-        else:
-            ansible_facts['appliance_device_snmp_v3_users'] = client.get_all(**self.facts_params)
+        if self.current_resource:
+            appliance_device_snmp_v3_users = self.current_resource.data
+        elif not self.module.params.get("name") and not self.module.params.get('uri'):
+            appliance_device_snmp_v3_users = self.resource_client.get_all(**self.facts_params)
 
-        return dict(changed=False,
-                    ansible_facts=ansible_facts)
-
-    def _get_by_id(self, id):
-        return self.oneview_client.appliance_device_snmp_v3_users.get_by_id(id)
+        return dict(changed=False, ansible_facts=dict(appliance_device_snmp_v3_users=appliance_device_snmp_v3_users))
 
 
 def main():

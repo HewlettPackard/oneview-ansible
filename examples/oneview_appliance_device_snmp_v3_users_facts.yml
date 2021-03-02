@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -30,18 +30,27 @@
         config: "{{ config }}"
         params:
           start: 0
-          count: 3
-          sort: 'name:descending'
+          count: 4
+          sort: 'userName:ascending'         
           filter: "securityLevel='Authentication and privacy'"
       delegate_to: localhost
 
     - debug:
         var: appliance_device_snmp_v3_users
-
-    - name: Gather facts about a SNMPv3 user by ID
+    
+    - name: Gather facts about a snmp users by Username
       oneview_appliance_device_snmp_v3_users_facts:
         config: "{{ config }}"
-        id: "2af33d0c-dc1f-4b5f-ba3e-e4a0b1acb899"
+        name: "user123456"
+      delegate_to: localhost
+    
+    - debug:
+        var: appliance_device_snmp_v3_users
+
+    - name: Gather facts about a SNMPv3 user by Uri
+      oneview_appliance_device_snmp_v3_users_facts:
+        config: "{{ config }}"        
+        uri: "{{ appliance_device_snmp_v3_users['uri'] }}"        
       delegate_to: localhost
 
     - debug:
