@@ -339,15 +339,14 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
 
     def test_should_not_update_when_data_is_equals(self):
         self.resource.data = DEFAULT_LIG_TEMPLATE
-        self.resource.get_by_name.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
         LogicalInterconnectGroupModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            msg=LogicalInterconnectGroupModule.MSG_ALREADY_PRESENT,
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
             ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
         )
 
@@ -479,7 +478,6 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         resource_data = DEFAULT_LIG_TEMPLATE.copy()
         resource_data['scopeUris'] = ['test']
         self.resource.data = resource_data
-        self.resource.get_by_name.return_value = self.resource
 
         params_to_scope = PARAMS_FOR_PRESENT.copy()
         params_to_scope['data']['scopeUris'] = ['test']
@@ -490,9 +488,9 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         self.resource.patch.not_been_called()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
+            changed=True,
             ansible_facts=dict(logical_interconnect_group=resource_data),
-            msg=LogicalInterconnectGroupModule.MSG_ALREADY_PRESENT
+            msg=LogicalInterconnectGroupModule.MSG_UPDATED
         )
 
 
