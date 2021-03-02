@@ -81,7 +81,6 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
     MSG_CREATED = 'ID pools IPV4 Subnet created successfully.'
     MSG_UPDATED = 'ID pools IPV4 Subnet updated successfully.'
     MSG_DELETED = 'ID pools IPV4 Subnet deleted successfully.'
-    MSG_VALUE_ERROR = "The name or the uri attrbiutes must be specfied"
     MSG_ALLOCATE = 'IDs found and have been allocated'
     MSG_NO_ALLOCATE = 'No ids found for allocation'
     MSG_COLLECT = 'Collected the ids allocated'
@@ -91,7 +90,7 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
 
         additional_arg_spec = dict(data=dict(required=True, type='dict'),
                                    state=dict(required=True,
-                                       choices=['present', 'absent', 'allocate', 'collect']))
+                                   choices=['present', 'absent', 'allocate', 'collect']))
 
         super(IdPoolsIpv4SubnetModule, self).__init__(additional_arg_spec=additional_arg_spec,
                                                       validate_etag_support=True)
@@ -99,25 +98,17 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
         self.set_resource_object(self.oneview_client.id_pools_ipv4_subnets)
 
     def execute_module(self):
-        changed, msg, ansible_facts = False, '', {}
-
-        if self.data.get('uri'):
-            resource = self.resource_client.get(self.data.get('uri'))
-        elif self.data.get('name'):
-            query = self.resource_client.get_all(filter="name='{}'".format(self.data.get('name')))
-            resource = query[0] if query and query[0].get('name') == self.data['name'] else None
-        else:
-            raise OneViewModuleValueError(self.MSG_VALUE_ERROR)
+        changed, msg, ipv4_subnet = False, '', {}
 
         self.data['type'] = self.data.get('type', 'Subnet')
 
         if self.state == 'present':
             return self.resource_present(self.RESOURCE_FACT_NAME)
         elif self.state == 'allocate':
-            changed, msg, ipv4_subnet = self.__allocator(resource)
+            changed, msg, ipv4_subnet = self.__allocator(self.current_resource)
             return dict(changed=changed, msg=msg, ansible_facts=dict(id_pools_ipv4_subnet=ipv4_subnet))
         elif self.state == 'collector':
-            changed, msg, ipv4_subnet = self.__collector(resource)
+            changed, msg, ipv4_subnet = self.__collector(self.current_resource)
             return dict(changed=changed, msg=msg, ansible_facts=dict(id_pools_ipv4_subnet=ipv4_subnet))
         elif self.state == 'absent':
             return self.resource_absent()
@@ -133,7 +124,8 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
     def __collector(self, resource):
         subnet_id = resource['allocatorUri'].split('/')[-2]
         collect = self.resource_client.collect({'idList': self.data['idList']}, subnet_id)
-        return True, self.MSG_COLLECT, self.data['idList']
+        return True, self.MSG_COLLECT, collect
+
 
 def main():
     IdPoolsIpv4SubnetModule().run()
