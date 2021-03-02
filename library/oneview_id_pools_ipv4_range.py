@@ -41,7 +41,7 @@ options:
     data:
         description:
             - List with ID pools IPV4 Range properties.
-        required: true
+        equired: true
 
 extends_documentation_fragment:
     - oneview
@@ -122,34 +122,34 @@ class IdPoolsIpv4RangeModule(OneViewModule):
         else:
             # setting current resource for _update_resource
             self.current_resource = resource
-            # Enabled can be True, False or None. Using not found default 'X' for comparison purposes.
-            enabled = self.data.pop('enabled', 'X')
+            # Enabled can be True, False or None. Using not found default to false for comparison purposes.
+            enabled = self.data.pop('enabled', 'not_given')
             # sets update_collector/update_allocator if Given to True.
-            update_collector = self.data.pop('update_collector', 'X')
-            update_allocator = self.data.pop('update_allocator', 'X')
-            id_list = self.data.pop('idList', 'X')
-            count = self.data.pop('count', 'X')
+            update_collector = self.data.pop('update_collector', False)
+            update_allocator = self.data.pop('update_allocator', False)
+            id_list = self.data.pop('idList', False)
+            count = self.data.pop('count', False)
             # In case newName is given it sets it correctly
             if self.data.get('newName'):
                 self.data['name'] = self.data.pop('newName')
             # It Performs the update operation
             response = self.resource_present("id_pools_ipv4_range")
             # Checks enabled status in latest data and performas accordingly
-            if enabled != 'X' and enabled != resource.data.get('enabled'):
+            if enabled != 'not_given' and enabled != resource.data.get('enabled'):
                 response['msg'] = self.MSG_UPDATED
                 response['changed'] = True
                 response['ansible_facts']['id_pools_ipv4_range'] = \
                     self.resource_client.enable(dict(enabled=enabled, type='Range'), resource.data['uri'])
                 self.data['enabled'] = enabled
                 return response
-            elif update_collector is True:
+            elif update_collector:
                 response['msg'] = self.MSG_UPDATED
                 response['changed'] = True
                 self.data['idList'] = id_list
                 response['ansible_facts']['id_pools_ipv4_range'] = \
                     self.resource_client.update_collector(dict(idList=id_list), self.data.get('uri'))
                 return response
-            elif update_allocator is True:
+            elif update_allocator:
                 self.data['idList'] = id_list
                 self.data['count'] = count
                 response['msg'] = self.MSG_UPDATED
