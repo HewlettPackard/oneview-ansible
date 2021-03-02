@@ -2087,7 +2087,7 @@ Manage the Appliance Device SNMPv3 Users.
     username: administrator
     password: my_password
     api_version: 2200
-    state: set_password
+    state: present
     data:
       userName: "testUser"
       authenticationPassphrase: "NewPass1234"
@@ -2178,13 +2178,13 @@ Retrieve the facts about the OneView appliance SNMPv3 users.
 - debug:
     var: appliance_device_snmp_v3_users
 
-- name: Gather facts about a SNMPv3 user by ID
+- name: Gather facts about a SNMPv3 user by username
   oneview_appliance_device_snmp_v3_users_facts:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
     api_version: 2200
-    id: "2af33d0c-dc1f-4b5f-ba3e-e4a0b1acb899"
+    name: "testUser"
   delegate_to: localhost
 
 - debug:
