@@ -1,5 +1,5 @@
 ###
-# Copyright (2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -18,7 +18,31 @@
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
   tasks:
-    - name: Ensures the Appliance time and locale configuration locale is en_US.UTF-8
+    - name: Add the Appliance time and locale configuration locale is ja_JP.UTF-8
+      oneview_appliance_time_and_locale_configuration:
+        config: "{{ config }}"
+        state: present
+        data:
+          locale: ja_JP.UTF-8
+          ntpServers: [16.110.135.123]
+          timezone: UTC
+          type: TimeAndLocale
+      delegate_to: localhost
+    - debug: var=appliance_time_and_locale_configuration
+
+    - name: Ensures the Appliance time and locale configuration locale is ja_JP.UTF-8 is already present
+      oneview_appliance_time_and_locale_configuration:
+        config: "{{ config }}"
+        state: present
+        data:
+          locale: ja_JP.UTF-8
+          ntpServers: [16.110.135.123]
+          timezone: UTC
+          type: TimeAndLocale
+      delegate_to: localhost
+    - debug: var=appliance_time_and_locale_configuration
+
+    - name: Change the Appliance time and locale configuration locale to en_US.UTF-8
       oneview_appliance_time_and_locale_configuration:
         config: "{{ config }}"
         state: present
@@ -28,3 +52,4 @@
           timezone: UTC
           type: TimeAndLocale
       delegate_to: localhost
+    - debug: var=appliance_time_and_locale_configuration

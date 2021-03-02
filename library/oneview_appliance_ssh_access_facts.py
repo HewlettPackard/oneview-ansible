@@ -26,10 +26,10 @@ module: oneview_appliance_ssh_access_facts
 short_description: Retrieve the facts about the OneView appliance SSH access configuration.
 description:
     - Retrieve the facts about the OneView appliance SSH access configuration.
-version_added: "2.4"
+version_added: "2.9"
 requirements:
     - "python >= 3.4.2"
-    - "hpeOneView >= 5.6.0"
+    - "hpeOneView >= 6.0.0"
 author:
     "Shanmugam M (@SHANDCRUZ)"
 extends_documentation_fragment:

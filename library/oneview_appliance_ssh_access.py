@@ -26,10 +26,10 @@ module: oneview_appliance_ssh_access
 short_description: Retrieve the facts about the OneView appliance ssh access configuration.
 description:
     - Retrieve the facts about the OneView appliance ssh access configuration.
-version_added: "2.4"
+version_added: "2.9"
 requirements:
     - "python >= 3.4.2"
-    - "hpeOneView >= 5.6.0"
+    - "hpeOneView >= 6.0.0"
 author:
     "Shanmugam M (@SHANDCRUZ)"
 options:
@@ -91,8 +91,7 @@ class ApplianceSshAccessModule(OneViewModule):
 
     def execute_module(self):
         changed, msg, ansible_facts = False, '', {}
-        appliance_ssh_access = self.resource_client.get_all()
-        self.current_resource = appliance_ssh_access
+        self.current_resource = self.resource_client.get_all()
         changed, msg = self._update_resource()
         ansible_facts = dict(appliance_ssh_access=self.current_resource.data)
         return dict(changed=changed,
