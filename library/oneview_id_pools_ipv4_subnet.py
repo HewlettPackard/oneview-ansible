@@ -120,7 +120,7 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
             changed, msg, ipv4_subnet = self.__collector(resource)
             return dict(changed=changed, msg=msg, ansible_facts=dict(id_pools_ipv4_subnet=ipv4_subnet))
         elif self.state == 'absent':
-            return self.resource_absent(resource)
+            return self.resource_absent()
 
     def __allocator(self, resource):
         try:
