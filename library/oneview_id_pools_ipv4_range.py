@@ -29,7 +29,8 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpeOneView >= 4.0.0"
+    - "hpeOneView >= 6.0.0"
+    - "ansible >= 2.9"
 author: "Thiago Miotto (@tmiotto)"
 options:
     state:
