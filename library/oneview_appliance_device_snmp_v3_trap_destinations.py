@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -26,26 +26,30 @@ module: oneview_appliance_device_snmp_v3_trap_destinations
 short_description: Manage the Appliance Device SNMPv3 Trap Destinations.
 description:
     - Provides an interface to manage the Appliance Device SNMPv3 Trap Destinations.
-version_added: "2.5"
+version_added: "2.9"
 requirements:
-    - "python >= 2.7.9"
-    - "hpeOneView >= 4.8.0"
+    - "python >= 3.4.2"
+    - "hpeOneView >= 6.0.0"
 author:
-    "Gianluca Zecchi (@gzecchi)"
+    "Venkatesh Ravula (@VenkateshRavula)"
 options:
     state:
-        description:
-          - Indicates the desired state for the Appliance Device SNMPv3 Trap Destinations.
-            C(present) ensures data properties are compliant with OneView.
-            C(absent) removes the resource from OneView, if it exists.
-        choices: ['present', 'absent']
+      description:
+        - Indicates the desired state for the Appliance Device SNMPv3 Trap Destinations.
+          C(present) will ensure data properties are compliant with OneView.
+          C(absent) will remove the resource from OneView, if it exists.
+      choices: ['present', 'absent']
+    name:
+      description:
+        - Appliance Device snmpv3 trap destination address.
+      required: True
     data:
-        description:
+      description:
             - List with the SNMPv3 Trap Destinations properties
-        required: true
-
+      required: False
 extends_documentation_fragment:
     - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -54,42 +58,36 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 2600
     state: present
+    name: 10.0.0.1
     data:
-        type: "Destination"
         destinationAddress: "10.0.0.1"
         port: 162
-        userId: "8e57d829-2f17-4167-ae23-8fb46607c76c"
+        userName: "test1"
   delegate_to: localhost
-
-- debug:
-    var: oneview_appliance_device_snmp_v3_trap_destinations
 
 - name: Update the userId of specified SNMPv3 Trap Destination
   oneview_appliance_device_snmp_v3_trap_destinations:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 2600
     state: present
+    name: 10.0.0.1
     data:
       destinationAddress: "10.0.0.1"
       userId: "3953867c-5283-4059-a9ae-33487f901e85"
   delegate_to: localhost
-
-- debug:
-    var: oneview_appliance_device_snmp_v3_trap_destinations
 
 - name: Ensure that the SNMPv3 Trap Destination is absent
   oneview_appliance_device_snmp_v3_trap_destinations:
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 2600
     state: absent
-    data:
-        destinationAddress: "10.0.0.1"
+    name: 10.0.0.1
   delegate_to: localhost
 '''
 
@@ -100,22 +98,22 @@ oneview_appliance_device_snmp_v3_trap_destinations:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleException, OneViewModuleValueError, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleException, OneViewModuleValueError, OneViewModuleResourceNotFound
 
 
-class ApplianceDeviceSnmpV3TrapDestinationsModule(OneViewModuleBase):
+class ApplianceDeviceSnmpV3TrapDestinationsModule(OneViewModule):
     MSG_CREATED = 'Appliance Device SNMPv3 Trap Destination created successfully.'
     MSG_UPDATED = 'Appliance Device SNMPv3 Trap Destination updated successfully.'
     MSG_DELETED = 'Appliance Device SNMPv3 Trap Destination deleted successfully.'
     MSG_USER_NOT_FOUND = 'Appliance Device SNMPv3 User not found.'
     MSG_ALREADY_PRESENT = 'Appliance Device SNMPv3 Trap Destination is already present.'
     MSG_ALREADY_ABSENT = 'Appliance Device SNMPv3 Trap Destination is already absent.'
-    MSG_VALUE_ERROR = 'The destinationAddress or the id attrbiutes must be specfied'
     MSG_API_VERSION_ERROR = 'This module requires at least OneView 4.0 (API >= 600)'
     RESOURCE_FACT_NAME = 'appliance_device_snmp_v3_trap_destinations'
 
     argument_spec = dict(
-        data=dict(required=True, type='dict'),
+        data=dict(required=False, type='dict'),
+        name=dict(required=True, type='str'),
         state=dict(
             required=True,
             choices=['present', 'absent'])
@@ -123,45 +121,28 @@ class ApplianceDeviceSnmpV3TrapDestinationsModule(OneViewModuleBase):
 
     def __init__(self):
         super(ApplianceDeviceSnmpV3TrapDestinationsModule, self).__init__(additional_arg_spec=self.argument_spec, validate_etag_support=True)
-        self.resource_client = self.oneview_client.appliance_device_snmp_v3_trap_destinations
+        self.set_resource_object(self.oneview_client.appliance_device_snmp_v3_trap_destinations)
 
     def execute_module(self):
         if self.oneview_client.api_version < 600:
             raise OneViewModuleValueError(self.MSG_API_VERSION_ERROR)
 
-        self.__replace_snmpv3_username_by_uri(self.data)
-
-        if self.data.get('id'):
-            query = self.resource_client.get_by_id(self.data.get('id'))
-            resource = query[0] if query and query[0].get('id') == self.data['id'] else None
-        elif self.data.get('destinationAddress'):
-            query = self.resource_client.get_by('destinationAddress', self.data.get('destinationAddress'))
-            resource = query[0] if query and query[0].get('destinationAddress') == self.data['destinationAddress'] else None
-        else:
-            raise OneViewModuleValueError(self.MSG_VALUE_ERROR)
+        self.__replace_snmpv3_username_by_userid()
 
         if self.state == 'present':
-            return self.resource_present(resource, self.RESOURCE_FACT_NAME)
+            return self.resource_present(self.RESOURCE_FACT_NAME)
         elif self.state == 'absent':
-            return self.resource_absent(resource)
+            return self.resource_absent()
 
-    def __get_snmpv3_user_by_username(self, username):
-        result = self.oneview_client.appliance_device_snmp_v3_users.get_by('userName', username)
-        return result[0] if result else None
+    def __replace_snmpv3_username_by_userid(self):
+        if self.data and self.data.get('userName'):
+            username = self.data.pop('userName', None)
 
-    def __get_snmpv3_user_by_uri(self, snmpv3_user_name_or_uri):
-        if snmpv3_user_name_or_uri.startswith('/rest/appliance/snmpv3-trap-forwarding/users'):
-            return snmpv3_user_name_or_uri
-        else:
-            snmpv3_user = self.__get_snmpv3_user_by_username(snmpv3_user_name_or_uri)
-            if snmpv3_user:
-                return snmpv3_user['uri']
+            result = self.oneview_client.appliance_device_snmp_v3_users.get_by('userName', username)
+            if result:
+                self.data['userId'] = result[0]['id']
             else:
                 raise OneViewModuleResourceNotFound(self.MSG_USER_NOT_FOUND)
-
-    def __replace_snmpv3_username_by_uri(self, data):
-        if 'userUri' in data:
-            data['userUri'] = self.__get_snmpv3_user_by_uri(data['userUri'])
 
 
 def main():

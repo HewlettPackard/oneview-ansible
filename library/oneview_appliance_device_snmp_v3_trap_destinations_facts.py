@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -28,14 +28,34 @@ description:
     - The appliance has the ability to forward events received from monitored or managed server hardware
       to the specified destinations as SNMPv3 traps.
       This module retrives the facts about the appliance SNMPv3 trap forwarding destinations.
-version_added: "2.5"
+version_added: "2.9"
 requirements:
-    - "python >= 2.7.9"
-    - "hpeOneView >= 4.8.0"
+    - "python >= 3.4.2"
+    - "hpeOneView >= 6.0.0"
 author:
-    "Gianluca Zecchi (@gzecchi)"
+    "Venkatesh Ravula (@VenkateshRavula)"
+options:
+    name:
+      description:
+        -  destination address of snmpv3 trap.
+      required: false
+    uri:
+      description:
+        - snmpv3 trap uri.
+      required: false
+    params:
+      description:
+        - List of params to delimit, filter and sort the list of resources.
+        - "params allowed:
+          C(start): The first item to return, using 0-based indexing.
+          C(count): The number of resources to return.
+          C(sort): The sort order of the returned data set."
+          C(filter): A general filter to narrow the list of resources returned.
+          C(query): A general query string to narrow the list of resources returned.
+      required: false
 extends_documentation_fragment:
     - oneview
+    - oneview.factsparams
 '''
 
 EXAMPLES = '''
@@ -44,7 +64,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 2600
   delegate_to: localhost
 
 - debug:
@@ -55,7 +75,7 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
+    api_version: 2600
     params:
       start: 0
       count: 3
@@ -71,8 +91,8 @@ EXAMPLES = '''
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 800
-    id: "19dc6a96-bd04-4724-819b-32bc660fcefc"
+    api_version: 2600
+    name: "1.1.1.1"
   delegate_to: localhost
 
 - debug:
@@ -86,32 +106,29 @@ appliance_device_snmp_v3_trap_destinations:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class ApplianceDeviceSnmpV3TrapDestinationsFactsModule(OneViewModuleBase):
+class ApplianceDeviceSnmpV3TrapDestinationsFactsModule(OneViewModule):
     argument_spec = dict(
-        id=dict(required=False, type='str'),
+        name=dict(required=False, type='str'),
+        uri=dict(required=False, type='str'),
         params=dict(required=False, type='dict')
     )
 
     def __init__(self):
         super(ApplianceDeviceSnmpV3TrapDestinationsFactsModule, self).__init__(additional_arg_spec=self.argument_spec)
+        self.set_resource_object(self.oneview_client.appliance_device_snmp_v3_trap_destinations)
 
     def execute_module(self):
-        client = self.oneview_client.appliance_device_snmp_v3_trap_destinations
-        ansible_facts = {}
+        appliance_device_snmp_v3_trap_destinations = []
 
-        if self.module.params.get('id'):
-            ansible_facts['appliance_device_snmp_v3_trap_destinations'] = self._get_by_id(self.module.params['id'])
+        if self.current_resource:
+            appliance_device_snmp_v3_trap_destinations = self.current_resource.data
         else:
-            ansible_facts['appliance_device_snmp_v3_trap_destinations'] = client.get_all(**self.facts_params)
+            appliance_device_snmp_v3_trap_destinations = self.resource_client.get_all(**self.facts_params)
 
-        return dict(changed=False,
-                    ansible_facts=ansible_facts)
-
-    def _get_by_id(self, id):
-        return self.oneview_client.appliance_device_snmp_v3_trap_destinations.get_by_id(id)
+        return dict(changed=False, ansible_facts=dict(appliance_device_snmp_v3_trap_destinations=appliance_device_snmp_v3_trap_destinations))
 
 
 def main():

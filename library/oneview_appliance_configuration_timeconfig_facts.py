@@ -26,14 +26,15 @@ module: oneview_appliance_configuration_timeconfig_facts
 short_description: Retrieve the facts about the OneView appliance time configuration.
 description:
     - Retrieve the facts about the OneView appliance time configuration.
-version_added: "2.4"
+version_added: "2.9"
 requirements:
     - "python >= 3.4.2"
-    - "hpeOneView >= 5.6.0"
+    - "hpeOneView >= 6.0.0"
 author:
     "Shanmugam M (@SHANDCRUZ)"
 extends_documentation_fragment:
     - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''

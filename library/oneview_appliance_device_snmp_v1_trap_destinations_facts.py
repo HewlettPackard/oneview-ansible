@@ -124,7 +124,7 @@ class ApplianceDeviceSnmpV1TrapDestinationsFactsModule(OneViewModule):
 
         if self.current_resource:
             appliance_device_snmp_v1_trap_destinations = self.current_resource.data
-        elif not self.module.params.get("name") and not self.module.params.get('uri'):
+        else:
             appliance_device_snmp_v1_trap_destinations = self.resource_client.get_all(**self.facts_params)
 
         return dict(changed=False, ansible_facts=dict(appliance_device_snmp_v1_trap_destinations=appliance_device_snmp_v1_trap_destinations))
