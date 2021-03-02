@@ -136,12 +136,11 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
 
     def test_update_when_data_has_modified_attributes(self):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
+        data_merged['domain'] = 'newdomain.com'
 
         self.resource.data = data_merged
         self.resource.update.return_value = self.resource
         self.mock_ansible_module.check_mode = True
-
-        data_merged['domain'] = 'newdomain.com'
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
@@ -158,8 +157,9 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
 
         data_merged['count'] = 2
         self.resource.data = data_merged
-        self.resource.allocate.return_value = self.resource
-        
+        self.resource.update.return_value = self.resource
+        self.mock_ansible_module.check_mode = True
+
         self.mock_ansible_module.params = PARAMS_FOR_ALLOCATE
 
         IdPoolsIpv4SubnetModule().run()
@@ -217,6 +217,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         self.resource.get_all.return_value = []
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
+        self.mock_ansible_module.check_mode = True
 
         IdPoolsIpv4SubnetModule().run()
 
