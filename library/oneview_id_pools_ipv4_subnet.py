@@ -114,7 +114,11 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
         self.data['type'] = self.data.get('type', 'Subnet')
 
         if self.state == 'present':
+<<<<<<< HEAD
             return self.resource_present(self.RESOURCE_FACT_NAME)
+=======
+            return self.resource_present(RESOURCE_FACT_NAME)
+>>>>>>> 259f6b63bd3ea826a8964f0101d1292fb084214c
         elif self.state == 'allocate':
             changed, msg, ipv4_subnet = self.__allocator(resource)
             return dict(changed=changed, msg=msg, ansible_facts=dict(id_pools_ipv4_subnet=ipv4_subnet))
