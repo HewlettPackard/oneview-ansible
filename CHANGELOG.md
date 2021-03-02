@@ -3,6 +3,10 @@
 ## v6.0.0 (unreleased)
 This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0).
 
+### Modules supported in this release
+- oneview_firmware_driver
+- oneview_firmware_driver_facts
+
 #### Bug fixes & Enhancements
 - [#633] (https://github.com/HewlettPackard/oneview-ansible/issues/633) Internal network in LogicalInterconnectGroup
 

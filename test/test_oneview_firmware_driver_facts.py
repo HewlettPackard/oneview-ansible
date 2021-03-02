@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -33,6 +33,11 @@ PARAMS_GET_ALL = dict(
     name=None
 )
 
+PARAMS_GET_WITH_OPTIONS = dict(
+    config='config.json',
+    options=['schema']
+)
+
 FIRMWARE_DRIVER = dict(
     category='firmware-drivers',
     name=FIRMWARE_DRIVER_NAME,
@@ -55,9 +60,9 @@ class TestFirmwareDriverFactsModule(OneViewBaseFactsTest):
             ansible_facts=dict(firmware_drivers=firmwares)
         )
 
-    def test_should_get_by_name(self):
-        firmwares = [FIRMWARE_DRIVER]
-        self.resource.get_by.return_value = firmwares
+    def test_should_get_firmware_drivers_by_name(self):
+        self.resource.data = FIRMWARE_DRIVER
+        self.resource.get_by_name.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
@@ -65,7 +70,20 @@ class TestFirmwareDriverFactsModule(OneViewBaseFactsTest):
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(firmware_drivers=firmwares)
+            ansible_facts=dict(firmware_drivers=FIRMWARE_DRIVER)
+        )
+
+    def test_should_get_firmware_drivers_with_options(self):
+        self.resource.data = FIRMWARE_DRIVER
+        self.resource.get_schema.return_value = "schema"
+
+        self.mock_ansible_module.params = PARAMS_GET_WITH_OPTIONS
+
+        FirmwareDriverFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(firmware_drivers=[], schema="schema")
         )
 
 

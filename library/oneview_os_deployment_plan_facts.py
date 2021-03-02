@@ -175,7 +175,7 @@ class OsDeploymentPlanFactsModule(OneViewModuleBase):
 
         for nic_name in nic_names:
             expected_attr_for_nic.pop("parameters", None)
-            for ckey, cvalue in iteritems(expected_attr_for_nic):
+            for ckey, cvalue in expected_attr_for_nic.items():
 
                 if ckey not in names_added_to_ca:
                     custom_attributes.append({
