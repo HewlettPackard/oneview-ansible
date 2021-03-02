@@ -37,12 +37,6 @@ PARAMS_FOR_PRESENT = dict(
     data=dict(name=DEFAULT_SUBNET_TEMPLATE['name'])
 )
 
-PARAMS_FOR_PRESENT_WITH_URI = dict(
-    config='config.json',
-    state='present',
-    data=dict(uri=DEFAULT_SUBNET_TEMPLATE['uri'])
-)
-
 PARAMS_FOR_INVALID = dict(
     config='config.json',
     state='present',
@@ -110,11 +104,11 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
             ansible_facts=dict(id_pools_ipv4_subnet=DEFAULT_SUBNET_TEMPLATE)
         )
 
-    def test_should_get_the_same_resource_by_uri(self):
+    def test_should_get_the_same_resource_by_name(self):
         self.resource.data = DEFAULT_SUBNET_TEMPLATE
-        self.resource.get_all.return_value = self.resource
+        self.resource.get_by_name.return_value = self.resource
 
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT_WITH_URI
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT_WITH
 
         IdPoolsIpv4SubnetModule().run()
 
@@ -214,7 +208,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_id_pools_ipv4_subnet_not_exist(self):
-        self.resource.get_all.return_value = []
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
         self.mock_ansible_module.check_mode = True
