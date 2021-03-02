@@ -45,7 +45,9 @@ class TestApplianceSshAccessModule(OneViewBaseTest):
     def test_update_when_data_has_modified_attributes(self):
         self.resource.get_all.return_value = self.resource
         self.resource.data = DEFAULT_CONFIGURATION_TEMPLATE
-        self.resource.update.return_value = CHANGED_CONFIGURATION_TEMPLATE
+        obj = mock.Mock()
+        obj.data = CHANGED_CONFIGURATION_TEMPLATE
+        self.mock_ov_client.appliance_ssh_access.update.return_value = obj
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
