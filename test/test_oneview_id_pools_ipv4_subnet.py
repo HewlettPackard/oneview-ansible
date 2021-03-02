@@ -140,7 +140,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
 
         self.resource.data = data_merged
         self.resource.update.return_value = self.resource
-        self.mock_ansible_module.check_mode = True
+        self.mock_ansible_module.check_mode = False
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
