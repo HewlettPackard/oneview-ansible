@@ -60,7 +60,6 @@
           name: '{{ subnet_name }}'
           count: 3
       delegate_to: localhost
-      register: allocatedIds
     - debug: msg="{{allocatedIds}}" 
 
     - name: Get the allocated ID's List
