@@ -22,9 +22,9 @@ from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import ApplianceSshAccessFactsModule
 
 PARAMS_GET_ALL = dict(
-    config='config.json',
-    name=None
+    config='config.json'
 )
+
 PRESENT_SSHACCESS = [{
     "type": "SshAccess",
     "allowSshAccess": "True"
@@ -33,8 +33,9 @@ PRESENT_SSHACCESS = [{
 
 @pytest.mark.resource(TestApplianceSshAccessFactsModule='appliance_ssh_access')
 class TestApplianceSshAccessFactsModule(OneViewBaseTest):
-    def test_should_get_all_timeconfiguration(self):
-        self.resource.get_all.return_value = PRESENT_SSHACCESS
+    def test_should_get_all_ssh_configuration(self):
+        self.resource.get_all.return_value = self.resource
+        self.resource.data = PRESENT_SSHACCESS
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         ApplianceSshAccessFactsModule().run()
