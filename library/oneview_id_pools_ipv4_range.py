@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -91,7 +91,6 @@ class IdPoolsIpv4RangeModule(OneViewModule):
 
         super(IdPoolsIpv4RangeModule, self).__init__(additional_arg_spec=additional_arg_spec,
                                                      validate_etag_support=True)
-        self.connection_templates = self.oneview_client.connection_templates
         self.resource_client = self.oneview_client.id_pools_ipv4_ranges
 
     def execute_module(self):
