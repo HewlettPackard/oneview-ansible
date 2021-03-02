@@ -44,6 +44,7 @@ options:
 
 extends_documentation_fragment:
     - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -62,11 +63,12 @@ appliance_time_and_locale_configuration:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
+from ansible.module_utils.oneview import compare
 
 
-class ApplianceTimeAndLocaleConfigurationModule(OneViewModuleBase):
-    MSG_UPDATED = 'Appliance Locale and Time Configuration updated successfully.'
+class ApplianceTimeAndLocaleConfigurationModule(OneViewModule):
+    MSG_CREATED = 'Appliance Locale and Time Configuration created successfully.'
     MSG_ALREADY_PRESENT = 'Appliance Locale and Time Configuration is already configured.'
     RESOURCE_FACT_NAME = 'appliance_time_and_locale_configuration'
 
@@ -80,8 +82,19 @@ class ApplianceTimeAndLocaleConfigurationModule(OneViewModuleBase):
         self.resource_client = self.oneview_client.appliance_time_and_locale_configuration
 
     def execute_module(self):
-        resource = self.resource_client.get()
-        return self.resource_present(resource, self.RESOURCE_FACT_NAME)
+        if self.state == 'present':
+            changed, msg, appliance_time_and_locale_configuration = self.__present()
+        return dict(changed=changed, msg=msg, ansible_facts=appliance_time_and_locale_configuration)
+
+    def __present(self):
+        self.current_resource = self.resource_client.get_all()
+        merged_data = self.current_resource.data.copy()
+        merged_data.update(self.data)
+        if not compare(self.current_resource.data, merged_data):
+            self.current_resource = self.resource_client.create(self.data)
+            return True, self.MSG_CREATED, dict(appliance_time_and_locale_configuration=self.current_resource.data)
+        else:
+            return False, self.MSG_ALREADY_PRESENT, dict(appliance_time_and_locale_configuration=self.current_resource.data)
 
 
 def main():

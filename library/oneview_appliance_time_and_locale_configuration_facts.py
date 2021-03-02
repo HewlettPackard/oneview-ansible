@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -26,14 +26,15 @@ module: oneview_appliance_time_and_locale_configuration_facts
 short_description: Retrieve the facts about the OneView appliance time and locale configuration.
 description:
     - Retrieve the facts about the OneView appliance time and locale configuration.
-version_added: "2.3"
+version_added: "2.4"
 requirements:
-    - "python >= 2.7.9"
-    - "hpeOneView >= 3.2.0"
+    - "python >= 3.4.2"
+    - "hpeOneView >= 5.6.0"
 author:
-    "Thiago Miotto (@tmiotto)"
+    "Shanmugam M (@SHANDCRUZ)"
 extends_documentation_fragment:
     - oneview
+    - oneview.validateetag
 '''
 
 EXAMPLES = '''
@@ -51,15 +52,16 @@ appliance_time_and_locale_configuration:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class ApplianceTimeAndLocaleConfigurationFactsModule(OneViewModuleBase):
+class ApplianceTimeAndLocaleConfigurationFactsModule(OneViewModule):
     def __init__(self):
         super(ApplianceTimeAndLocaleConfigurationFactsModule, self).__init__(additional_arg_spec=dict())
+        self.set_resource_object(self.oneview_client.appliance_time_and_locale_configuration)
 
     def execute_module(self):
-        appliance_time_and_locale_configuration = self.oneview_client.appliance_time_and_locale_configuration.get()
+        appliance_time_and_locale_configuration = self.resource_client.get_all()
         return dict(changed=False,
                     ansible_facts=dict(appliance_time_and_locale_configuration=appliance_time_and_locale_configuration))
 
