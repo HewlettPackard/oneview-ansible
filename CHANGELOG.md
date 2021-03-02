@@ -5,6 +5,8 @@ This release extends the planned support of the modules to OneView REST API vers
 
 ### Modules supported in this release
 - oneview_appliance_configuration_timeconfig
+- oneview_appliance_device_snmpv3_trap_destions
+- oneview_appliance_device_snmpv3_trap_destions_facts
 - oneview_appliance_ssh_access
 - oneview_appliance_ssh_access_facts
 - oneview_appliance_time_and_locale_configuration
