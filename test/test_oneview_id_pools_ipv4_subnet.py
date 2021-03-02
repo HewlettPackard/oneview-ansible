@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -60,6 +60,20 @@ PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
     data=dict(name=DEFAULT_SUBNET_TEMPLATE['name'])
+)
+
+PARAMS_FOR_COLLECT = dict(
+    config='config.json',
+    state='collect',
+    data=dict(name=DEFAULT_SUBNET_TEMPLATE['name'],
+              idList=['10.1.1.1', '10.1.1.2'])
+)
+
+PARAMS_FOR_ALLOCATE = dict(
+    config='config.json',
+    state='allocate',
+    data=dict(name=DEFAULT_SUBNET_TEMPLATE['name'],
+              count=2)
 )
 
 
@@ -133,6 +147,52 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=IdPoolsIpv4SubnetModule.MSG_UPDATED,
+            ansible_facts=dict(id_pools_ipv4_subnet=data_merged)
+        )
+
+    def test_should_allocate_when_valid_ids_present(self):
+        data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
+        data_merged['count'] = 2
+
+        self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
+        self.resource.update.return_value = data_merged
+
+        self.mock_ansible_module.params = PARAMS_FOR_ALLOCATE
+
+        IdPoolsIpv4SubnetModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=IdPoolsIpv4SubnetModule.MSG_ALLOCATE,
+            ansible_facts=dict(id_pools_ipv4_subnet=data_merged)
+        )
+
+    def test_should_fail_when_ids_not_available(self):
+        self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
+
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+
+        IdPoolsIpv4SubnetModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY,
+            msg=IdPoolsIpv4SubnetModule.MSG_NO_ALLOCATE
+        )
+
+    def test_should_collect_when_valid_ids_allocated(self):
+        data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
+        data_merged['idList'] = ['10.1.1.1', '10.1.1.2']
+
+        self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
+        self.resource.update.return_value = data_merged
+
+        self.mock_ansible_module.params = PARAMS_FOR_COLLECT
+
+        IdPoolsIpv4SubnetModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=IdPoolsIpv4SubnetModule.MSG_COLLECT,
             ansible_facts=dict(id_pools_ipv4_subnet=data_merged)
         )
 
