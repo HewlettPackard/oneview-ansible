@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -13,41 +13,61 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+# "name" attribute is mandatory in module params and user should provide destination address for name
 ---
 - hosts: all
   vars:
-    - config: "{{ playbook_dir }}/oneview_config.json"
+    config: "{{ playbook_dir }}/oneview_config.json"
+    destination_address: "<ip_address>"
   tasks:
     - name: Ensure that the SNMPv3 Trap Destination is present
       oneview_appliance_device_snmp_v3_trap_destinations:
         config: "{{ config }}"
         state: present
+        name: "{{ destination_address }}"
         data:
-            type: "Destination"
-            destinationAddress: "10.0.0.1"
+            destinationAddress: "{{ destination_address }}"
             port: 162
-            userId: "8e57d829-2f17-4167-ae23-8fb46607c76c"
+            userName: "test1"
       delegate_to: localhost
 
     - debug:
-        var: oneview_appliance_device_snmp_v3_trap_destinations
+        var: appliance_device_snmp_v3_trap_destinations
+
+    - name: Ensure that the SNMPv3 Trap Destination is already present
+      oneview_appliance_device_snmp_v3_trap_destinations:
+        config: "{{ config }}"
+        state: present
+        name: "{{ destination_address }}"
+        data:
+            destinationAddress: "{{ destination_address }}"
+            port: 162
+            userName: "test1"
+      delegate_to: localhost
 
     - name: Update the userId of specified SNMPv3 Trap Destination
       oneview_appliance_device_snmp_v3_trap_destinations:
         config: "{{ config }}"
         state: present
+        name: "{{ destination_address }}"
         data:
-          destinationAddress: "10.0.0.1"
-          userId: "3953867c-5283-4059-a9ae-33487f901e85"
+          destinationAddress: "{{ destination_address }}"
+          userName: "test2"
       delegate_to: localhost
 
     - debug:
-        var: oneview_appliance_device_snmp_v3_trap_destinations
+        var: appliance_device_snmp_v3_trap_destinations
 
     - name: Ensure that the SNMPv3 Trap Destination is absent
       oneview_appliance_device_snmp_v3_trap_destinations:
         config: "{{ config }}"
         state: absent
-        data:
-            destinationAddress: "10.0.0.1"
+        name: "{{ destination_address }}"
+      delegate_to: localhost
+
+    - name: Ensure that the SNMPv3 Trap Destination is already absent
+      oneview_appliance_device_snmp_v3_trap_destinations:
+        config: "{{ config }}"
+        state: absent
+        name: "{{ destination_address }}"
       delegate_to: localhost

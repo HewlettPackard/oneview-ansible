@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -31,12 +31,12 @@ PARAMS_GET_ALL = dict(
     config='config.json'
 )
 
-PARAMS_GET_BY_ID = dict(
+PARAMS_GET_BY_NAME = dict(
     config='config.json',
-    id='abe0c97f-e8fc-4083-8dad-d22742b1c2af'
+    name='1.1.1.1'
 )
 
-PRESENT_CONFIGURATION = [{
+PRESENT_CONFIGURATION = {
     "category": "SnmpV3Destination",
     "destinationAddress": "1.1.1.1",
     "id": "abe0c97f-e8fc-4083-8dad-d22742b1c2af",
@@ -46,7 +46,7 @@ PRESENT_CONFIGURATION = [{
     "uri": "/rest/appliance/snmpv3-trap-forwarding/destinations/abe0c97f-e8fc-4083-8dad-d22742b1c2af",
     "userId": "3953867c-5283-4059-a9ae-33487f901e85",
     "userUri": "/rest/appliance/snmpv3-trap-forwarding/users/3953867c-5283-4059-a9ae-33487f901e85"
-}]
+}
 
 
 @pytest.mark.resource(TestApplianceDeviceSnmpV3TrapDestinationsFactsModule='appliance_device_snmp_v3_trap_destinations')
@@ -56,25 +56,27 @@ class TestApplianceDeviceSnmpV3TrapDestinationsFactsModule(OneViewBaseFactsTest)
         self.mock_ov_client.api_version = 600
 
     def test_should_get_all_snmp_v3_trap_destinations(self):
-        self.resource.get_all.return_value = PRESENT_CONFIGURATION
+        ALL_TRAPS = [PRESENT_CONFIGURATION]
+        self.resource.get_all.return_value = ALL_TRAPS
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         ApplianceDeviceSnmpV3TrapDestinationsFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(appliance_device_snmp_v3_trap_destinations=(PRESENT_CONFIGURATION))
+            ansible_facts=dict(appliance_device_snmp_v3_trap_destinations=ALL_TRAPS)
         )
 
     def test_should_get_by_id_snmp_v3_trap_destinations(self):
-        self.resource.get_by_id.return_value = PRESENT_CONFIGURATION
-        self.mock_ansible_module.params = PARAMS_GET_BY_ID
+        self.resource.data = PRESENT_CONFIGURATION
+        self.resource.get_by_name.return_value = self.resource
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         ApplianceDeviceSnmpV3TrapDestinationsFactsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
-            ansible_facts=dict(appliance_device_snmp_v3_trap_destinations=(PRESENT_CONFIGURATION))
+            ansible_facts=dict(appliance_device_snmp_v3_trap_destinations=PRESENT_CONFIGURATION)
         )
 
 
