@@ -59,7 +59,8 @@ PARAMS_FOR_ABSENT = dict(
 PARAMS_FOR_COLLECT = dict(
     config='config.json',
     state='collect',
-    data=dict(name=DEFAULT_SUBNET_TEMPLATE['name'])
+    data=dict(name=DEFAULT_SUBNET_TEMPLATE['name'],
+              idList=['10.1.1.1', '10.1.1.2'])
 )
 
 PARAMS_FOR_ALLOCATE = dict(
@@ -155,7 +156,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
 
     def test_should_collect_when_valid_ids_allocated(self):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
-
+        
+        data_merged['idList'] = ['10.1.1.1', '10.1.1.2']
         self.resource.data = data_merged
         self.resource.get_by_name.return_value = self.resource
         self.resource.collect.return_value = {'idList': ['10.1.1.1', '10.1.1.2']}
