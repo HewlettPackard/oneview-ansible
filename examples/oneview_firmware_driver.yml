@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,11 +17,21 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    firmware_name: "<custom_firmware_name>" # provide your firwmare name here
-    baseline_firmware_name: "<SPP_baseline_name>" # provide the name of the SPP to be used as base for the custom SPP creation
-    hotfix_firmware_list: [<list_containing_URIs_to_hotfixes_desired>] # provide array containing list of hotfixes to be included in the custom SPP
+    firmware_name: "custom_ansible_firmware" # provide your firwmare name here
+    baseline_firmware_name: "Service Pack for Synergy" # provide the name of the SPP to be used as base for the custom SPP creation
+    hotfix_firmware_list: ["hotfix1", "hotfix2"] # provide array containing list of hotfixes to be included in the custom SPP
   tasks:
     - name: Create the Firmware Driver
+      oneview_firmware_driver:
+        config: "{{ config }}"
+        state: present
+        data:
+          customBaselineName: "{{ firmware_name }}"
+          baselineName: "{{ baseline_firmware_name }}"
+          hotfixNames: "{{ hotfix_firmware_list }}"
+      delegate_to: localhost
+
+    - name: Create the Firmware Driver if already present
       oneview_firmware_driver:
         config: "{{ config }}"
         state: present

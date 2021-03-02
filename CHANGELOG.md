@@ -4,6 +4,13 @@
 This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0)
 
 ### Modules supported in this release
+- oneview_appliance_configuration_timeconfig
+- oneview_appliance_ssh_access
+- oneview_appliance_ssh_access_facts
+- oneview_appliance_time_and_locale_configuration
+- oneview_appliance_time_and_locale_configuration_facts
+- oneview_firmware_driver
+- oneview_firmware_driver_facts
 - oneview_id_pools_ipv4_range
 - oneview_id_pools_ipv4_range_facts
 
