@@ -153,24 +153,9 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
             ansible_facts=dict(id_pools_ipv4_subnet={'idList': ['172.9.0.1', '172.9.0.2']})
         )
 
-    def test_should_fail_when_ids_not_available(self):
-        self.resource.get_all.return_value = []
-
-        self.resource.get_by_name.return_value = self.resource
-
-        self.mock_ansible_module.params = PARAMS_FOR_ALLOCATE
-
-        IdPoolsIpv4SubnetModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            exception=mock.ANY,
-            msg=IdPoolsIpv4SubnetModule.MSG_NO_ALLOCATE
-        )
-
     def test_should_collect_when_valid_ids_allocated(self):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
 
-        data_merged['idList'] = ['10.1.1.1', '10.1.1.2']
         self.resource.data = data_merged
         self.resource.get_by_name.return_value = self.resource
         self.resource.collect.return_value = {'idList': ['10.1.1.1', '10.1.1.2']}

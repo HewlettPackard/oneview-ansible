@@ -114,12 +114,9 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
             return self.resource_absent()
 
     def __allocator(self, resource):
-        try:
-            subnet_id = resource['allocatorUri'].split('/')[-2]
-            allocate = self.resource_client.allocate({'count': self.data['count']}, subnet_id)
-            return True, self.MSG_ALLOCATE, allocate
-        except:
-            raise OneViewModuleValueError(self.MSG_NO_ALLOCATE)
+        subnet_id = resource['allocatorUri'].split('/')[-2]
+        allocate = self.resource_client.allocate({'count': self.data['count']}, subnet_id)
+        return True, self.MSG_ALLOCATE, allocate
 
     def __collector(self, resource):
         subnet_id = resource['allocatorUri'].split('/')[-2]
