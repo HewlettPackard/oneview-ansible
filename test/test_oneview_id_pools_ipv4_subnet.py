@@ -26,7 +26,7 @@ FAKE_MSG_ERROR = 'Fake message error'
 
 DEFAULT_SUBNET_TEMPLATE = dict(
     name='Ipv4Subnet',
-    uri='rest/subnet/test',
+    uri='/rest/subnet/test',
     type='Subnet',
     domain='example.com'
 )
@@ -84,8 +84,9 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
     """
 
     def test_should_create_new_id_pools_ipv4_subnet(self):
+        self.resource = '/rest/fake'
         self.resource.get_all.return_value = []
-        self.resource.create.return_value = DEFAULT_SUBNET_TEMPLATE
+        self.resource.create.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -94,11 +95,12 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=IdPoolsIpv4SubnetModule.MSG_CREATED,
-            ansible_facts=dict(id_pools_ipv4_subnet=DEFAULT_SUBNET_TEMPLATE)
+            ansible_facts=dict(id_pools_ipv4_subnet={'uri': '/rest/fake'})
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
+        self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        self.resource.get_all.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -111,7 +113,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         )
 
     def test_should_get_the_same_resource_by_uri(self):
-        self.resource.get.return_value = DEFAULT_SUBNET_TEMPLATE
+        self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        self.resource.get_by_uri.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT_WITH_URI
 
@@ -137,7 +140,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
         data_merged['domain'] = 'newdomain.com'
 
-        self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
+        self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        self.resource.get_all.return_value = self.resource
         self.resource.update.return_value = data_merged
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
@@ -154,7 +158,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
         data_merged['count'] = 2
 
-        self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
+        self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        self.resource.get_all.return_value = self.resource
         self.resource.update.return_value = data_merged
 
         self.mock_ansible_module.params = PARAMS_FOR_ALLOCATE
@@ -168,7 +173,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         )
 
     def test_should_fail_when_ids_not_available(self):
-        self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
+        self.resource.get_all.return_value = []
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -183,7 +188,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
         data_merged['idList'] = ['10.1.1.1', '10.1.1.2']
 
-        self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
+        self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        self.resource.get_all.return_value = self.resource
         self.resource.update.return_value = data_merged
 
         self.mock_ansible_module.params = PARAMS_FOR_COLLECT
@@ -197,7 +203,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         )
 
     def test_should_remove_id_pools_ipv4_subnet(self):
-        self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
+        self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        self.resource.get_all.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
