@@ -33,11 +33,6 @@ PARAMS_GET_BY_NAME = dict(
     name="Test IPV4 Subnet"
 )
 
-PARAMS_GET_BY_URI = dict(
-    config='config.json',
-    uri='/rest/ipv4-subnet/test'
-)
-
 DEFAULT_SUBNET = {
     "name": "Test IPV4 Subnet",
     "uri": '/rest/ipv4-subnet/test'
@@ -60,7 +55,7 @@ class TestIdPoolsIpv4SubnetFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_id_pools_ipv4_subnet_by_name(self):
-        self.resource.get_all.return_value = PRESENT_SUBNETS
+        self.resource.get_by_name.return_value = PRESENT_SUBNETS
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         IdPoolsIpv4SubnetFactsModule().run()
