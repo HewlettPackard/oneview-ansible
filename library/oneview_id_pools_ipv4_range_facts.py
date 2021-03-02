@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,8 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpeOneView >= 4.0.0"
+    - "hpeOneView >= 6.0.0"
+    - "ansible >= 2.9"
 author:
     "Thiago Miotto (@tmiotto)"
 options:
@@ -58,8 +59,14 @@ EXAMPLES = '''
 - name: Gather facts about all ID Pools IPV4 Ranges
   oneview_id_pools_ipv4_range_facts:
     config: "{{ config_file_path }}"
-
 - debug: var=id_pools_ipv4_ranges
+
+- name: Gather all facts about a Server Profile
+  oneview_id_pools_ipv4_range_facts:
+    config: "{{ config_file_path }}"
+    options:
+        - schema
+-  debug: var=id_pools_ipv4_ranges
 
 - name: Gather paginated, filtered and sorted facts about ID Pools IPV4 Ranges
   oneview_id_pools_ipv4_range_facts:
@@ -117,10 +124,10 @@ id_pools_ipv4_ranges_allocated_fragments:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class IdPoolsIpv4RangeFactsModule(OneViewModuleBase):
+class IdPoolsIpv4RangeFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(
             name=dict(required=False, type='str'),
@@ -137,25 +144,26 @@ class IdPoolsIpv4RangeFactsModule(OneViewModuleBase):
         id_pools_ipv4_ranges = []
         is_specific_resource = True
         if self.module.params.get('uri'):
-            id_pools_ipv4_ranges = self.resource_client.get(self.module.params['uri'])
+            id_pools_ipv4_ranges = self.resource_client.get_by_uri(self.module.params['uri']).data
         elif self.module.params.get('subnetUri'):
             subnet = self.oneview_client.id_pools_ipv4_subnets.get(self.module.params.get('subnetUri'))
             if self.module.params.get('name'):
                 for range_uri in subnet['rangeUris']:
-                    maybe_resource = self.resource_client.get(range_uri)
+                    maybe_resource = self.resource_client.get_by_uri(range_uri).data
                     if maybe_resource['name'] == self.module.params.get('name'):
                         id_pools_ipv4_ranges = maybe_resource
                         break
             else:
                 is_specific_resource = False
                 for range_uri in subnet['rangeUris']:
-                    id_pools_ipv4_ranges.append(self.resource_client.get(range_uri))
+                    id_pools_ipv4_ranges.append(self.resource_client.get_by_uri(range_uri).data)
         else:
             is_specific_resource = False
             subnets = self.oneview_client.id_pools_ipv4_subnets.get_all()
             for subnet in subnets:
                 for range_uri in subnet['rangeUris']:
-                    id_pools_ipv4_ranges.append(self.resource_client.get(range_uri))
+                    range_data = self.resource_client.get_by_uri(range_uri).data
+                    id_pools_ipv4_ranges.append(range_data)
 
         self.__get_options(facts, id_pools_ipv4_ranges, is_specific_resource)
 
@@ -176,6 +184,10 @@ class IdPoolsIpv4RangeFactsModule(OneViewModuleBase):
             if self.options.get('freeFragments'):
                 facts['id_pools_ipv4_ranges_free_fragments'] = \
                     self.oneview_client.id_pools_ipv4_ranges.get_free_fragments(range_uri, **query_params)
+        elif self.options and not(is_specific_resource):
+            if self.options.get('schema'):
+                facts['id_pools_ipv4_ranges_schema'] = \
+                    self.oneview_client.id_pools_ipv4_ranges.get_schema()
 
 
 def main():

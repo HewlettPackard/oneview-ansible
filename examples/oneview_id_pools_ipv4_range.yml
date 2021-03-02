@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -20,24 +20,8 @@
     subnet_name: Range Test IPv4 Subnet
     range_name: Experts Range
     disabled_range_name: DISABLED - Experts Range
+    subnet_uri: "/rest/id-pools/ipv4/subnets/8e382eba-6731-4980-88de-ef1278eaf8d6"
   tasks:
-    - name: Ensure an IPv4 Subnet exists for the IPv4 Range
-      oneview_id_pools_ipv4_subnet:
-        config: "{{ config }}"
-        state: present
-        data:
-          name: '{{ subnet_name }}'
-          type: Subnet
-          networkId: 10.10.4.0
-          subnetmask: 255.255.255.0
-          gateway: 10.10.4.1
-          domain: ipv4.subnet.example.com
-          dnsServers:
-            - 10.10.10.215
-      delegate_to: localhost
-
-    - set_fact: subnet_uri="{{ id_pools_ipv4_subnet['uri'] }}"
-
     - name: Ensure the IPV4 Range '{{ range_name }}' exists
       oneview_id_pools_ipv4_range:
         config: "{{ config }}"
@@ -45,22 +29,13 @@
         data:
           name: '{{ range_name }}'
           subnetUri: '{{ subnet_uri }}'
-          type: Range
           rangeCategory: Custom
           startStopFragments:
-            - startAddress: 10.10.4.2
-              endAddress: 10.10.4.100
+            - startAddress: 192.168.1.51
+              endAddress: 192.168.1.54
       delegate_to: localhost
 
-    - name: Do nothing with the ID Pools IPV4 Range when no changes are provided
-      oneview_id_pools_ipv4_range:
-        config: "{{ config }}"
-        state: present
-        data:
-          name: '{{ range_name }}'
-          subnetUri: '{{ subnet_uri }}'
-          rangeCategory: Custom
-      delegate_to: localhost
+    - set_fact: uri="{{ id_pool_ipv4_range['uri'] }}"
 
     - name: Update the ID Pools IPV4 Range with end address 101
       oneview_id_pools_ipv4_range:
@@ -68,8 +43,10 @@
         state: present
         data:
           name: '{{ range_name }}'
-          subnetUri: '{{ subnet_uri }}'
-          endAddress: 10.10.4.101
+          uri: '{{ uri }}'
+          startStopFragments:
+            - startAddress: 192.168.1.51
+              endAddress: 192.168.1.60
       delegate_to: localhost
 
     - name: Ensure the IPV4 Range is enabled
@@ -82,6 +59,30 @@
           enabled: True
       delegate_to: localhost
 
+    - name: Allocates ID from an IPV4 Range
+      oneview_id_pools_ipv4_range:
+        config: "{{ config }}"
+        state: present
+        data:
+          uri: ""
+          count: 2
+          update_allocator: True
+          idList:
+            - ""
+      delegate_to: localhost
+
+    - name: Collects set of ID from an IPV4 Range
+      oneview_id_pools_ipv4_range:
+        config: "{{ config }}"
+        state: present
+        data:
+          uri: ""
+          update_collector: True
+          idList:
+            - ""
+      delegate_to: localhost
+
+
     - name: Ensure the IPV4 Range is disabled with DISABLED tag in the name
       oneview_id_pools_ipv4_range:
         config: "{{ config }}"
@@ -90,7 +91,7 @@
           name: '{{ range_name }}'
           newName: '{{ disabled_range_name }}'
           subnetUri: '{{ subnet_uri }}'
-          enabled: False
+          enabled: True
       delegate_to: localhost
 
     - name: Delete the ID Pools IPV4 Range
