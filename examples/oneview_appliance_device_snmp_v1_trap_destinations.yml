@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+# "name" attribute is mandatory in module params and user should provide destination address for name
 ---
 - hosts: all
   vars:

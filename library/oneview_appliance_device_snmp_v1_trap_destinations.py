@@ -26,10 +26,10 @@ module: oneview_appliance_device_snmp_v1_trap_destinations
 short_description: Manage the Appliance Device SNMPv1 Trap Destinations.
 description:
     - Provides an interface to manage the Appliance Device SNMPv1 Trap Destinations.
-version_added: "2.5"
+version_added: "2.9"
 requirements:
     - "python >= 3.4.2"
-    - "hpeOneView >= 5.6.0"
+    - "hpeOneView >= 6.0.0"
 author:
     "Venkatesh Ravula (@VenkateshRavula)"
 options:
