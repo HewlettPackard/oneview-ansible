@@ -108,7 +108,7 @@ class IdPoolsIpv4RangeModule(OneViewModule):
                     self.current_resource = maybe_resource
 
         if self.state == 'present':
-            return self._present(resource)
+            return self._present()
         elif self.state == 'absent':
             return self.resource_absent()
 
