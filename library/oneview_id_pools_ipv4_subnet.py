@@ -127,5 +127,6 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
 def main():
     IdPoolsIpv4SubnetModule().run()
 
+
 if __name__ == '__main__':
     main()
