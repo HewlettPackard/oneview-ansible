@@ -162,7 +162,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         data_merged['allocatorUri'] = '/rest/fake'
         self.resource.data = data_merged
         self.resource.get_by_name.return_value = self.resource
-        self.resource.collect.return_value = self.resource
+        self.resource.collect.return_value = {'idList': ['10.1.1.1', '10.1.1.1']}
+
         self.mock_ansible_module.params = PARAMS_FOR_COLLECT
 
         IdPoolsIpv4SubnetModule().run()
