@@ -78,8 +78,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
     """
     def test_should_create_new_id_pools_ipv4_subnet(self):
         self.resource.get_all.return_value = []
-        self.resource.create.return_value = self.resource
         self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        self.resource.create.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -105,8 +105,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         )
 
     def test_should_get_the_same_resource_by_name(self):
-        self.resource.data = [DEFAULT_SUBNET_TEMPLATE]
-        self.resource.get_all.return_value = self.resource
+        self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        self.resource.get_all.return_value = [self.resource]
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -185,7 +185,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_id_pools_ipv4_subnet_not_exist(self):
-        self.resource.get_all.return_value = None
+        self.resource.get_all.return_value = []
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
         self.mock_ansible_module.check_mode = True
