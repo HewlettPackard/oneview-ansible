@@ -95,7 +95,7 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
         super(IdPoolsIpv4SubnetModule, self).__init__(additional_arg_spec=additional_arg_spec,
                                                       validate_etag_support=True)
 
-        self.resource_client = self.oneview_client.id_pools_ipv4_subnets
+        self.set_resource_object(self.oneview_client.id_pools_ipv4_subnets)
 
     def execute_module(self):
         changed, msg, ipv4_subnet = False, '', {}
