@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,8 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - subnet_name: Test ID Pools IPV4 Subnet
-    - subnet_uri: /rest/id-pools/ipv4/subnets/5a4e8f5c-9283-4409-80b2-0c599866d134
+    - subnet_name: IPV4Subnet
   tasks:
     - name: Gather facts about all ID Pools IPV4 Subnets
       oneview_id_pools_ipv4_subnet_facts:
@@ -37,18 +36,10 @@
 
     - debug: var=id_pools_ipv4_subnets
 
-    - name: Gather facts about ID Pools IPV4 Subnets by name
+    - name: Gather facts about ID Pools IPV4 Subnets by networkId
       oneview_id_pools_ipv4_subnet_facts:
         config: "{{ config }}"
-        name: '{{ subnet_name }}'
-      delegate_to: localhost
-
-    - debug: var=id_pools_ipv4_subnets
-
-    - name: Gather facts about ID Pools IPV4 Subnets by ID or uri
-      oneview_id_pools_ipv4_subnet_facts:
-        config: "{{ config }}"
-        uri: '{{ subnet_uri }}'
+        networkId: '{{ id_pools_ipv4_subnets[0]["networkId"] }}'
       delegate_to: localhost
 
     - debug: var=id_pools_ipv4_subnets
