@@ -156,7 +156,6 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
 
     def test_should_collect_when_valid_ids_allocated(self):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
- 
         data_merged['idList'] = ['10.1.1.1', '10.1.1.2']
         self.resource.data = data_merged
         self.resource.get_by_name.return_value = self.resource
