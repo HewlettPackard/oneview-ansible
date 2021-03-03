@@ -103,17 +103,17 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
 
         if self.data.get('name', ''):
             query = self.resource_client.get_all(filter="name='{}'".format(self.data.get('name')))
-            resource = query[0] if query and query[0].get('name') == self.data['name'] else None
+            self.current_resource = query[0] if query and query[0].get('name') == self.data['name'] else None
         elif self.data.get('uri', ''):
-            resource = self.resource_client.get_by_uri(self.data.get('uri'))
+            self.current_resource = self.resource_client.get_by_uri(self.data.get('uri'))
 
         if self.state == 'present':
             return self.resource_present(self.RESOURCE_FACT_NAME)
         elif self.state == 'allocate':
-            changed, msg, ipv4_subnet = self.__allocator(resource)
+            changed, msg, ipv4_subnet = self.__allocator(self.current_resource)
             return dict(changed=changed, msg=msg, ansible_facts=dict(id_pools_ipv4_subnet=ipv4_subnet))
         elif self.state == 'collect':
-            changed, msg, ipv4_subnet = self.__collector(resource)
+            changed, msg, ipv4_subnet = self.__collector(self.current_resource)
             return dict(changed=changed, msg=msg, ansible_facts=dict(id_pools_ipv4_subnet=ipv4_subnet))
         elif self.state == 'absent':
             return self.resource_absent()
