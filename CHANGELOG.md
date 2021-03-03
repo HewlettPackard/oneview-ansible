@@ -1,7 +1,7 @@
 # Ansible Modules for HPE OneView Change Log
 
-## v6.0.0(unreleased)
-This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0)
+## v6.0.0 (unreleased)
+This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0).
 
 ### Modules supported in this release
 - oneview_appliance_configuration_timeconfig
@@ -19,6 +19,9 @@ This release extends the planned support of the modules to OneView REST API vers
 - oneview_firmware_driver_facts
 - oneview_id_pools_ipv4_range
 - oneview_id_pools_ipv4_range_facts
+
+#### Bug fixes & Enhancements
+- [#633] (https://github.com/HewlettPackard/oneview-ansible/issues/633) Internal network in LogicalInterconnectGroup
 
 ## v5.10.0
 This release extends the planned support of the modules to OneView REST API version 2400 (OneView v5.6).

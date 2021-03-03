@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ RENAMED_LIG = 'Renamed Logical Interconnect Group'
 
 DEFAULT_LIG_TEMPLATE = dict(
     name=DEFAULT_LIG_NAME,
+    internalNetworkNames=["test1"],
     uplinkSets=[],
     enclosureType='C7000',
     interconnectMapTemplate=dict(
@@ -41,6 +42,7 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
     state='present',
     data=dict(
         name=DEFAULT_LIG_NAME,
+        internalNetworkNames=["test1"],
         uplinkSets=[dict(
             logicalPortConfigInfos=[dict(
                 desiredSpeed="Auto",
@@ -75,6 +77,7 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
     state='present',
     data=dict(
         name="NEW_UPLINK_SET",
+        internalNetworkNames=["test1"],
         uplinkSets=[dict(
             logicalPortConfigInfos=[dict(
                 desiredSpeed="Auto",
@@ -110,6 +113,7 @@ DEFAULT_LIG_TEMPLATE_WITH_DIFFERENT_UPLINKSETS = dict(
     state='present',
     data=dict(
         name=DEFAULT_LIG_NAME,
+        internalNetworkNames=["test1"],
         uplinkSets=[dict(
             logicalPortConfigInfos=[dict(
                 desiredSpeed="Auto",
@@ -145,6 +149,7 @@ PARAMS_LIG_TEMPLATE_WITH_MAP = dict(
     state='present',
     data=dict(
         name=DEFAULT_LIG_NAME,
+        internalNetworkNames=["test1"],
         uplinkSets=[dict(
             logicalPortConfigInfos=[dict(
                 desiredSpeed="Auto",
@@ -201,7 +206,6 @@ PARAMS_FOR_CREATE = dict(
     state='present',
     data=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS['data'].copy()
 )
-
 PARAMS_TO_RENAME = dict(
     config='config.json',
     state='present',
@@ -341,8 +345,8 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         LogicalInterconnectGroupModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            msg=LogicalInterconnectGroupModule.MSG_ALREADY_PRESENT,
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
             ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
         )
 
@@ -354,8 +358,8 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         LogicalInterconnectGroupModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            msg=LogicalInterconnectGroupModule.MSG_ALREADY_PRESENT,
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
             ansible_facts=dict(logical_interconnect_group=self.resource.data)
         )
 
@@ -392,6 +396,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
     def test_rename_when_resource_exists(self):
         data_merged = DEFAULT_LIG_TEMPLATE.copy()
         data_merged['name'] = RENAMED_LIG
+        data_merged['internalNetworkUris'] = []
         params_to_rename = PARAMS_TO_RENAME.copy()
 
         self.resource.data = DEFAULT_LIG_TEMPLATE
@@ -470,22 +475,22 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_should_do_nothing_when_scopes_are_the_same(self):
-        params_to_scope = PARAMS_FOR_PRESENT.copy()
-        params_to_scope['data']['scopeUris'] = ['test']
-        self.mock_ansible_module.params = params_to_scope
-
         resource_data = DEFAULT_LIG_TEMPLATE.copy()
         resource_data['scopeUris'] = ['test']
         self.resource.data = resource_data
+
+        params_to_scope = PARAMS_FOR_PRESENT.copy()
+        params_to_scope['data']['scopeUris'] = ['test']
+        self.mock_ansible_module.params = params_to_scope
 
         LogicalInterconnectGroupModule().run()
 
         self.resource.patch.not_been_called()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
+            changed=True,
             ansible_facts=dict(logical_interconnect_group=resource_data),
-            msg=LogicalInterconnectGroupModule.MSG_ALREADY_PRESENT
+            msg=LogicalInterconnectGroupModule.MSG_UPDATED
         )
 
 

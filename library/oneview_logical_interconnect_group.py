@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -26,10 +26,10 @@ module: oneview_logical_interconnect_group
 short_description: Manage OneView Logical Interconnect Group resources.
 description:
     - Provides an interface to manage Logical Interconnect Group resources. Can create, update, or delete.
-version_added: "2.3"
+version_added: "2.9"
 requirements:
-    - "python >= 2.7.9"
-    - "hpeOneView >= 5.4.0"
+    - "python >= 3.4.2"
+    - "hpeOneView >= 6.0.0"
 author: "Camila Balestrin (@balestrinc)"
 options:
     state:
@@ -184,6 +184,14 @@ class LogicalInterconnectGroupModule(OneViewModule):
         return result
 
     def __replace_name_by_uris(self):
+        # replace internalNetworkNames with internalNetworkUris
+        internalNetworkUris = self.data.get('internalNetworkUris', [])
+        internalNetworkNames = self.data.pop('internalNetworkNames', None)
+        if internalNetworkNames:
+            int_networkUris = [self.__get_network_uri(x) for x in internalNetworkNames]
+            internalNetworkUris.extend(int_networkUris)
+        self.data['internalNetworkUris'] = internalNetworkUris
+
         map_template = self.data.get('interconnectMapTemplate')
         if map_template:
             map_entry_templates = map_template.get('interconnectMapEntryTemplates')
