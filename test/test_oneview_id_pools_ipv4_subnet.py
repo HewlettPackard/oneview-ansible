@@ -31,10 +31,23 @@ DEFAULT_SUBNET_TEMPLATE = dict(
     domain='example.com'
 )
 
+CREATE_SUBNET_TEMPLATE = dict(
+    name='Ipv4',
+    uri='/rest/subnet/test',
+    type='Subnet',
+    domain='example.com'
+)
+
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
     data=dict(name=DEFAULT_SUBNET_TEMPLATE['name'])
+)
+
+PARAMS_FOR_CREATE = dict(
+    config='config.json',
+    state='present',
+    data=dict(name='Ipv4')
 )
 
 PARAMS_FOR_INVALID = dict(
@@ -76,12 +89,11 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
     """
     OneViewBaseTestCase provides the mocks used in this test case
     """
-    def test_should_create_new_id_pools_ipv4_subnet(self):
-        self.resource.get_all.return_value = []        
+    def test_should_create_new_id_pools_ipv4_subnet(self):        
         self.resource.create.return_value = self.resource
-        self.resource.data = DEFAULT_SUBNET_TEMPLATE 
+        self.resource.data = CREATE_SUBNET_TEMPLATE 
 
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT
+        self.mock_ansible_module.params = PARAMS_FOR_CREATE
 
         IdPoolsIpv4SubnetModule().run()
 
