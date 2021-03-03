@@ -32,10 +32,7 @@ DEFAULT_SUBNET_TEMPLATE = dict(
 )
 
 CREATE_SUBNET_TEMPLATE = dict(
-    name='Ipv4',
-    uri='/rest/subnet/test',
-    type='Subnet',
-    domain='example.com'
+    name='Ip'
 )
 
 PARAMS_FOR_PRESENT = dict(
@@ -47,7 +44,7 @@ PARAMS_FOR_PRESENT = dict(
 PARAMS_FOR_CREATE = dict(
     config='config.json',
     state='present',
-    data=dict(name='Ipv4')
+    data=dict(name='Ip')
 )
 
 PARAMS_FOR_INVALID = dict(
