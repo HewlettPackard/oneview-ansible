@@ -28,13 +28,14 @@ DEFAULT_SUBNET_TEMPLATE = dict(
     name='Ipv4Subnet',
     uri='/rest/subnet/test',
     type='Subnet',
+    networkId='10.1.0.0',
     domain='example.com'
 )
 
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
-    data=dict(name=DEFAULT_SUBNET_TEMPLATE['name'])
+    data=dict(networkId=DEFAULT_SUBNET_TEMPLATE['networkId'])
 )
 
 PARAMS_FOR_INVALID = dict(
@@ -46,27 +47,27 @@ PARAMS_FOR_INVALID = dict(
 PARAMS_WITH_CHANGES = dict(
     config='config.json',
     state='present',
-    data=dict(name=DEFAULT_SUBNET_TEMPLATE['name'],
+    data=dict(networkId=DEFAULT_SUBNET_TEMPLATE['networkId'],
               domain='newdomain.com')
 )
 
 PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
-    data=dict(name=DEFAULT_SUBNET_TEMPLATE['name'])
+    data=dict(networkId=DEFAULT_SUBNET_TEMPLATE['networkId'])
 )
 
 PARAMS_FOR_COLLECT = dict(
     config='config.json',
     state='collect',
-    data=dict(name=DEFAULT_SUBNET_TEMPLATE['name'],
+    data=dict(networkId=DEFAULT_SUBNET_TEMPLATE['networkId'],
               idList=['10.1.1.1', '10.1.1.2'])
 )
 
 PARAMS_FOR_ALLOCATE = dict(
     config='config.json',
     state='allocate',
-    data=dict(name=DEFAULT_SUBNET_TEMPLATE['name'],
+    data=dict(networkId=DEFAULT_SUBNET_TEMPLATE['networkId'],
               count=2)
 )
 
@@ -106,7 +107,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
             ansible_facts=dict(id_pools_ipv4_subnet=DEFAULT_SUBNET_TEMPLATE)
         )
 
-    def test_should_get_the_same_resource_by_name(self):
+    def test_should_get_the_same_resource_by_networkid(self):
         self.resource.data = DEFAULT_SUBNET_TEMPLATE
         self.resource.get_by_field.return_value = self.resource
 
