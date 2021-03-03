@@ -92,9 +92,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.set_resource_object.return_value = self.resource
         self.resource.data = DEFAULT_SUBNET_TEMPLATE
-        self.resource.update.return_value = self.resource
+        self.resource.create.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
