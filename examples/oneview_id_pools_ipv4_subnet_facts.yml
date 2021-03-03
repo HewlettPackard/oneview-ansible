@@ -17,8 +17,7 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - subnet_name: Test ID Pools IPV4 Subnet
-    - subnet_uri: /rest/id-pools/ipv4/subnets/5a4e8f5c-9283-4409-80b2-0c599866d134
+    - subnet_name: IPV4Subnet
   tasks:
     - name: Gather facts about all ID Pools IPV4 Subnets
       oneview_id_pools_ipv4_subnet_facts:
@@ -48,7 +47,7 @@
     - name: Gather facts about ID Pools IPV4 Subnets by ID or uri
       oneview_id_pools_ipv4_subnet_facts:
         config: "{{ config }}"
-        uri: '{{ subnet_uri }}'
+        uri: '{{ id_pools_ipv4_subnets[0]["uri"] }}'
       delegate_to: localhost
 
     - debug: var=id_pools_ipv4_subnets

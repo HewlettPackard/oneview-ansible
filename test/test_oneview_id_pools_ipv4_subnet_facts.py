@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -33,11 +33,6 @@ PARAMS_GET_BY_NAME = dict(
     name="Test IPV4 Subnet"
 )
 
-PARAMS_GET_BY_URI = dict(
-    config='config.json',
-    uri='/rest/ipv4-subnet/test'
-)
-
 DEFAULT_SUBNET = {
     "name": "Test IPV4 Subnet",
     "uri": '/rest/ipv4-subnet/test'
@@ -60,19 +55,9 @@ class TestIdPoolsIpv4SubnetFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_id_pools_ipv4_subnet_by_name(self):
-        self.resource.get_all.return_value = PRESENT_SUBNETS
+        self.resource.data = PRESENT_SUBNETS
+        self.resource.get_by_name.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
-
-        IdPoolsIpv4SubnetFactsModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            ansible_facts=dict(id_pools_ipv4_subnets=PRESENT_SUBNETS)
-        )
-
-    def test_should_get_id_pools_ipv4_subnet_by_uri(self):
-        self.resource.get.return_value = DEFAULT_SUBNET
-        self.mock_ansible_module.params = PARAMS_GET_BY_URI
 
         IdPoolsIpv4SubnetFactsModule().run()
 

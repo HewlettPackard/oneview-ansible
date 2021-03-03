@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -26,12 +26,12 @@ module: oneview_id_pools_ipv4_subnet_facts
 short_description: Retrieve the facts about one or more of the OneView ID Pools IPV4 Subnets.
 description:
     - Retrieve the facts about one or more of the ID Pools IPV4 Subnets from OneView.
-version_added: "2.3"
+version_added: "2.4"
 requirements:
-    - "python >= 2.7.9"
-    - "hpeOneView >= 2.0.1"
+    - "python >= 3.4.2"
+    - "hpeOneView >= 5.6.0"
 author:
-    "Thiago Miotto (@tmiotto)"
+    "Yuvarani Chidambaram(@yuvirani)"
 options:
     name:
       description:
@@ -78,10 +78,10 @@ id_pools_ipv4_subnets:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError
 
 
-class IdPoolsIpv4SubnetFactsModule(OneViewModuleBase):
+class IdPoolsIpv4SubnetFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(
             name=dict(required=False, type='str'),
@@ -89,16 +89,14 @@ class IdPoolsIpv4SubnetFactsModule(OneViewModuleBase):
             params=dict(required=False, type='dict')
         )
         super(IdPoolsIpv4SubnetFactsModule, self).__init__(additional_arg_spec=argument_spec)
-        self.resource_client = self.oneview_client.id_pools_ipv4_subnets
+        self.set_resource_object(self.oneview_client.id_pools_ipv4_subnets)
 
     def execute_module(self):
-        if self.module.params.get('name'):
-            query = self.resource_client.get_all(filter="name='{}'".format(self.module.params['name']))
-            id_pools_ipv4_subnets = [query[0]] if query and query[0].get('name') == self.module.params['name'] else None
-        elif self.module.params.get('uri'):
-            id_pools_ipv4_subnets = [self.resource_client.get(self.module.params['uri'])]
+        id_pools_ipv4_subnets = []
+        if self.current_resource:
+            id_pools_ipv4_subnets = self.current_resource.data
         else:
-            id_pools_ipv4_subnets = self.oneview_client.id_pools_ipv4_subnets.get_all(**self.facts_params)
+            id_pools_ipv4_subnets = self.resource_client.get_all(**self.facts_params)
 
         return dict(changed=False, ansible_facts=dict(id_pools_ipv4_subnets=id_pools_ipv4_subnets))
 
