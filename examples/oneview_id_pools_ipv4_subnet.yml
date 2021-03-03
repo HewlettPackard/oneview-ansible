@@ -18,6 +18,7 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     subnet_name: IPV4Subnet
+    networkId: '10.1.0.0'
   tasks:
     - name: Ensure the ID Pools IPV4 Subnet exists
       oneview_id_pools_ipv4_subnet:
@@ -39,7 +40,7 @@
         config: "{{ config }}"
         state: present
         data:
-          name: '{{ subnet_name }}'
+          networkId: '{{ network_id }}'
           type: Subnet
       delegate_to: localhost
 
@@ -48,7 +49,7 @@
         config: "{{ config }}"
         state: present
         data:
-          name: '{{ subnet_name }}'
+          networkId: '{{ network_id }}'
           domain: awesome.com
       delegate_to: localhost
 
@@ -57,7 +58,7 @@
         config: "{{ config }}"
         state: allocate
         data:
-          name: '{{ subnet_name }}'
+          networkId: '{{ network_id }}'
           count: 3
       delegate_to: localhost
 
@@ -66,7 +67,7 @@
         config: "{{ config }}"
         state: collect
         data:
-          name: '{{ subnet_name }}'
+          networkId: '{{ network_id }}'
           idList: '{{ id_pools_ipv4_subnet["idList"] }}'
       delegate_to: localhost
 
@@ -75,7 +76,7 @@
         config: "{{ config }}"
         state: absent
         data:
-          name: '{{ subnet_name }}'
+          networkId: '{{ network_id }}'
       delegate_to: localhost
 
     - name: Do nothing when ID Pools IPV4 Subnet is absent
@@ -83,5 +84,5 @@
         config: "{{ config }}"
         state: absent
         data:
-          name: '{{ subnet_name }}'
+          networkId: '{{ network_id }}'
       delegate_to: localhost
