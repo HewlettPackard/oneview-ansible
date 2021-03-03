@@ -33,9 +33,9 @@ requirements:
 author:
     "Yuvarani Chidambaram(@yuvirani)"
 options:
-    name:
+    networkId:
       description:
-        - ID Pools IPV4 Subnet name.
+        - ID Pools IPV4 Subnet network id.
       required: false
     uri:
       description:
@@ -84,7 +84,7 @@ from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError
 class IdPoolsIpv4SubnetFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(
-            name=dict(required=False, type='str'),
+            networkId=dict(required=False, type='str'),
             uri=dict(required=False, type='str'),
             params=dict(required=False, type='dict')
         )
@@ -95,6 +95,8 @@ class IdPoolsIpv4SubnetFactsModule(OneViewModule):
         id_pools_ipv4_subnets = []
         if self.current_resource:
             id_pools_ipv4_subnets = self.current_resource.data
+        elif self.module.params.get('networkId', ''):
+            id_pools_ipv4_subnets = [self.resource_client.get_by_field('networkId', self.module.params['networkId']).data]
         else:
             id_pools_ipv4_subnets = self.resource_client.get_all(**self.facts_params)
 

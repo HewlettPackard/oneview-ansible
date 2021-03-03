@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -36,18 +36,10 @@
 
     - debug: var=id_pools_ipv4_subnets
 
-    - name: Gather facts about ID Pools IPV4 Subnets by name
+    - name: Gather facts about ID Pools IPV4 Subnets by networkId
       oneview_id_pools_ipv4_subnet_facts:
         config: "{{ config }}"
-        name: '{{ subnet_name }}'
-      delegate_to: localhost
-
-    - debug: var=id_pools_ipv4_subnets
-
-    - name: Gather facts about ID Pools IPV4 Subnets by ID or uri
-      oneview_id_pools_ipv4_subnet_facts:
-        config: "{{ config }}"
-        uri: '{{ id_pools_ipv4_subnets[0]["uri"] }}'
+        networkId: '{{ id_pools_ipv4_subnets[0]["networkId"] }}'
       delegate_to: localhost
 
     - debug: var=id_pools_ipv4_subnets

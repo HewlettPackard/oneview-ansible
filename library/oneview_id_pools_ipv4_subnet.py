@@ -74,7 +74,7 @@ id_pools_ipv4_subnet:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError
+from ansible.module_utils.oneview import OneViewModule
 
 
 class IdPoolsIpv4SubnetModule(OneViewModule):
@@ -99,7 +99,6 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
 
     def execute_module(self):
         changed, msg, ipv4_subnet = False, '', {}
-        self.data['type'] = self.data.get('type', 'Subnet')
 
         if self.data.get('networkId', ''):
             self.current_resource = self.resource_client.get_by_field('networkId', self.data.get('networkId'))
