@@ -101,7 +101,8 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
         changed, msg, ipv4_subnet = False, '', {}
         self.data['type'] = self.data.get('type', 'Subnet')
         if self.data.get('name', ''):
-            self.current_resource = self.resource_client.get_all(filter="name='{}'".format(self.data.get('name')))[0]
+            query = self.resource_client.get_all(filter="name='{}'".format(self.data.get('name')))
+            resource = query[0] if query and query[0].get('name') == self.data['name'] else None
         elif self.data.get('uri', ''):
             self.current_resource = self.resource_client.get_by_uri(self.data.get('uri'))
 
