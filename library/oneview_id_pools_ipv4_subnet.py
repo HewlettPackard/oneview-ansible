@@ -95,7 +95,7 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
         super(IdPoolsIpv4SubnetModule, self).__init__(additional_arg_spec=additional_arg_spec,
                                                       validate_etag_support=True)
 
-        self.set_resource_object(self.oneview_client.id_pools_ipv4_subnets)
+        self.resource_client = self.oneview_client.id_pools_ipv4_subnets
 
     def execute_module(self):
         changed, msg, ipv4_subnet = False, '', {}
@@ -108,6 +108,7 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
             resource = self.resource_client.get_by_uri(self.data.get('uri'))
 
         if self.state == 'present':
+            self.set_resource_object(self.oneview_client.id_pools_ipv4_subnets)
             return self.resource_present(self.RESOURCE_FACT_NAME)
         elif self.state == 'allocate':
             changed, msg, ipv4_subnet = self.__allocator(resource)
