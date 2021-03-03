@@ -151,7 +151,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         data_merged['count'] = 2
         data_merged['allocatorUri'] = '/rest/fake'
         self.resource.data = data_merged
-        self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
+        self.resource.get_all.return_value = [data_merged]
         self.resource.allocate.return_value = {'idList': ['172.9.0.1', '172.9.0.2']}
 
         self.mock_ansible_module.params = PARAMS_FOR_ALLOCATE
@@ -169,7 +169,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         data_merged['idList'] = ['10.1.1.1', '10.1.1.2']
         data_merged['allocatorUri'] = '/rest/fake'
         self.resource.data = data_merged
-        self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
+        self.resource.get_all.return_value = [data_merged]
         self.resource.collect.return_value = {'idList': ['10.1.1.1', '10.1.1.1']}
 
         self.mock_ansible_module.params = PARAMS_FOR_COLLECT
