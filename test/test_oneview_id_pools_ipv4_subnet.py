@@ -123,7 +123,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
 
     def test_update_when_data_has_modified_attributes(self):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
-        data_merged['domain'] = 'newdomain.com'
+        data_merged['domain'] = 'diffdomain.com'
 
         self.resource.data = data_merged
         self.resource.get_by_field.return_value = self.resource
