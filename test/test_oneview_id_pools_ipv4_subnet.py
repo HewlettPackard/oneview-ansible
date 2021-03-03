@@ -77,9 +77,9 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
     OneViewBaseTestCase provides the mocks used in this test case
     """
     def test_should_create_new_id_pools_ipv4_subnet(self):
-        self.resource.get_all.return_value = []
-        
-        self.resource.create.return_value = DEFAULT_SUBNET_TEMPLATE
+        self.resource.get_all.return_value = []        
+        self.resource.create.return_value = self.resource
+        self.resource.data = DEFAULT_SUBNET_TEMPLATE 
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -93,6 +93,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
 
     def test_should_not_update_when_data_is_equals(self):
         self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        self.resource.get_all.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
