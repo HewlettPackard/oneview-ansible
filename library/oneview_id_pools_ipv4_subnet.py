@@ -89,7 +89,6 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
     def __init__(self):
 
         additional_arg_spec = dict(data=dict(required=True, type='dict'),
-                                   name=dict(required=True, type='str'),
                                    state=dict(required=True,
                                    choices=['present', 'absent', 'allocate', 'collect']))
 
@@ -100,8 +99,12 @@ class IdPoolsIpv4SubnetModule(OneViewModule):
 
     def execute_module(self):
         changed, msg, ipv4_subnet = False, '', {}
-
         self.data['type'] = self.data.get('type', 'Subnet')
+        if self.data.get('name', ''):
+            self.current_resource = self.resource_client.get_all(filter="name='{}'".format(self.data.get('name')))[0]
+        elif self.data.get('uri', ''):
+            self.current_resource = self.resource_client.get_by_uri(self.data.get('uri'))
+
         if self.state == 'present':
             return self.resource_present(self.RESOURCE_FACT_NAME)
         elif self.state == 'allocate':

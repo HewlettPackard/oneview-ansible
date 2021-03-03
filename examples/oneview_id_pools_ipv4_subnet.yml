@@ -60,7 +60,6 @@
           name: '{{ subnet_name }}'
           count: 3
       delegate_to: localhost
-    - debug: msg="{{allocatedIds}}" 
 
     - name: Get the allocated ID's List
       oneview_id_pools_ipv4_subnet:
@@ -68,6 +67,7 @@
         state: collect
         data:
           name: '{{ subnet_name }}'
+          idList: '{{ id_pools_ipv4_subnet["idList"] }}'
       delegate_to: localhost
 
     - name: Delete the ID Pools IPV4 Subnet
