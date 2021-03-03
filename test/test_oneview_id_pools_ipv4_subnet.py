@@ -94,7 +94,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -107,8 +107,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         )
 
     def test_should_get_the_same_resource_by_name(self):
-        self.resource.data = DEFAULT_SUBNET_TEMPLATE
-        self.resource.get_all.return_value = [self.resource]
+        self.resource.get_by_name.return_value = DEFAULT_SUBNET_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -122,10 +121,10 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
 
     def test_update_when_data_has_modified_attributes(self):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
+	data_merged['domain'] = 'newdomain.com'
 
-        self.resource.data = data_merged
-        self.resource.update.return_value = self.resource
-        self.mock_ansible_module.check_mode = False
+        self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
+        self.resource.update.return_value = data_merged
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
@@ -141,8 +140,9 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
 
         data_merged['count'] = 2
+        data_merged['allocatorUri'] = '/rest/fake'
         self.resource.data = data_merged
-        self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
+        self.resource.get_all.return_value = [data_merged]
         self.resource.allocate.return_value = {'idList': ['172.9.0.1', '172.9.0.2']}
 
         self.mock_ansible_module.params = PARAMS_FOR_ALLOCATE
@@ -158,7 +158,10 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
     def test_should_collect_when_valid_ids_allocated(self):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
         data_merged['idList'] = ['10.1.1.1', '10.1.1.2']
+        
+        data_merged['allocatorUri'] = '/rest/fake'
         self.resource.data = data_merged
+
         self.resource.get_all.return_value = [DEFAULT_SUBNET_TEMPLATE]
         self.resource.collect.return_value = {'idList': ['10.1.1.1', '10.1.1.1']}
 
@@ -188,7 +191,6 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         self.resource.get_all.return_value = []
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
-        self.mock_ansible_module.check_mode = True
 
         IdPoolsIpv4SubnetModule().run()
 
