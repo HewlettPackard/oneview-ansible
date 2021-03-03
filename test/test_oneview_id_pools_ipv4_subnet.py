@@ -125,7 +125,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
         data_merged['domain'] = 'newdomain.com'
 
-        self.resource.get_by_field.return_value = DEFAULT_SUBNET_TEMPLATE
+        self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        self.resource.get_by_field.return_value = self.resource
         self.resource.update.return_value = data_merged
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
@@ -144,7 +145,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         data_merged['count'] = 2
         data_merged['allocatorUri'] = '/rest/fake'
         self.resource.data = data_merged
-        self.resource.get_by_field.return_value = data_merged
+        self.resource.get_by_field.return_value = self.resource
         self.resource.allocate.return_value = {'idList': ['172.9.0.1', '172.9.0.2']}
 
         self.mock_ansible_module.params = PARAMS_FOR_ALLOCATE
@@ -164,7 +165,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         data_merged['allocatorUri'] = '/rest/fake'
         self.resource.data = data_merged
 
-        self.resource.get_by_field.return_value = data_merged
+        self.resource.get_by_field.return_value = self.resource
         self.resource.collect.return_value = {'idList': ['10.1.1.1', '10.1.1.1']}
 
         self.mock_ansible_module.params = PARAMS_FOR_COLLECT
@@ -178,7 +179,8 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         )
 
     def test_should_remove_id_pools_ipv4_subnet(self):
-        self.resource.get_by_field.return_value = DEFAULT_SUBNET_TEMPLATE
+        self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        self.resource.get_by_field.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
