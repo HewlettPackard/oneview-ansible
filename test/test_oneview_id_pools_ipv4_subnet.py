@@ -32,7 +32,7 @@ DEFAULT_SUBNET_TEMPLATE = dict(
 )
 
 CREATE_SUBNET_TEMPLATE = dict(
-    name='Ip'
+    domain='hello.com'
 )
 
 PARAMS_FOR_PRESENT = dict(
@@ -44,7 +44,7 @@ PARAMS_FOR_PRESENT = dict(
 PARAMS_FOR_CREATE = dict(
     config='config.json',
     state='present',
-    data=dict(name='Ip')
+    data=dict(CREATE_SUBNET_TEMPLATE)
 )
 
 PARAMS_FOR_INVALID = dict(
@@ -86,10 +86,9 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
     """
     OneViewBaseTestCase provides the mocks used in this test case
     """
-    def test_should_create_new_id_pools_ipv4_subnet(self):        
+    def test_should_create_new_id_pools_ipv4_subnet(self):
+        self.resource.data = CREATE_SUBNET_TEMPLATE
         self.resource.create.return_value = self.resource
-        self.resource.data = CREATE_SUBNET_TEMPLATE 
-
         self.mock_ansible_module.params = PARAMS_FOR_CREATE
 
         IdPoolsIpv4SubnetModule().run()
@@ -97,7 +96,7 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=IdPoolsIpv4SubnetModule.MSG_CREATED,
-            ansible_facts=dict(id_pools_ipv4_subnet=DEFAULT_SUBNET_TEMPLATE)
+            ansible_facts=dict(id_pools_ipv4_subnet=CREATE_SUBNET_TEMPLATE)
         )
 
     def test_should_not_update_when_data_is_equals(self):
