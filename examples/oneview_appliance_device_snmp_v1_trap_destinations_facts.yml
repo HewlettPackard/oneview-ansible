@@ -52,6 +52,7 @@
         config: "{{ config }}"
         uri: "{{ appliance_device_snmp_v1_trap_destinations['uri'] }}"
       delegate_to: localhost
+      when: appliance_device_snmp_v1_trap_destinations == True
 
     - debug: 
         var: appliance_device_snmp_v1_trap_destinations

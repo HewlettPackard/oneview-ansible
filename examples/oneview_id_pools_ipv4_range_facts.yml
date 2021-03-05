@@ -17,13 +17,13 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    subnet_name: subnet
+    subnet_name: 10.1.0.0
     range_name: 10.1.0.0 Range 1
   tasks:
     - name: Get facts about the IPv4 Subnet
       oneview_id_pools_ipv4_subnet_facts:
         config: "{{ config }}"
-        name: '{{ subnet_name }}'
+        networkId: '{{ subnet_name }}'
       delegate_to: localhost
 
     - debug: var=id_pools_ipv4_subnets
@@ -62,12 +62,14 @@
     - debug: var=id_pools_ipv4_ranges
 
     - set_fact: range_uri='{{ id_pools_ipv4_ranges[0]['uri'] }}'
+      when: id_pools_ipv4_ranges == True
 
     - name: Get facts about the range '{{ range_uri }}'
       oneview_id_pools_ipv4_range_facts:
         config: "{{ config }}"
         uri: '{{ range_uri }}'
       delegate_to: localhost
+      when: range_uri is defined
 
     - debug: var=id_pools_ipv4_ranges
 
@@ -79,6 +81,7 @@
           - allocatedFragments
         uri: '{{ range_uri }}'
       delegate_to: localhost
+      when: range_uri is defined
 
     - debug: var=id_pools_ipv4_ranges
     - debug: var=id_pools_ipv4_ranges_free_fragments
