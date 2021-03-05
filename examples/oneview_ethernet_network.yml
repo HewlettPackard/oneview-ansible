@@ -148,3 +148,21 @@
             - "{{ ethernet_network_bulk[4].uri }}"
       delegate_to: localhost
       when: currentVersion >= '1600'
+
+    - name: Create Ethernet Networks in bulk for automation
+      oneview_ethernet_network:
+        config: "{{ config }}"
+        state: present
+        data:
+          vlanIdRange: '1-3,5,7'
+          purpose: General
+          namePrefix: TestNetwork
+          smartLink: false
+          privateNetwork: false
+          bandwidth:
+              maximumBandwidth: 10000
+              typicalBandwidth: 2000
+      delegate_to: localhost
+      register: bulk_ethernet_create
+    - debug: msg='{{ethernet_network_bulk | map(attribute='name') | list }}'
+    - debug: msg='{{ ethernet_network_bulk }}'
