@@ -104,7 +104,8 @@ class TestIdPoolsIpv4RangeFactsModule(OneViewBaseTest):
         range_3 = DEFAULT_RANGE_TEMPLATE.copy()
         range_4 = DEFAULT_RANGE_TEMPLATE.copy()
         ranges = [range_2, range_3, range_1, range_4]
-        self.resource.get_by_uri().data = range_1
+        self.resource.get_by_uri().return_value = self.resource
+        self.resource.data = range_1
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         IdPoolsIpv4RangeFactsModule().run()
@@ -115,13 +116,12 @@ class TestIdPoolsIpv4RangeFactsModule(OneViewBaseTest):
         )
 
     def test_should_get_all_id_pools_ipv4_ranges_from_subnet(self):
-        obj = mock.Mock()
-        obj.data = DEFAULT_SUBNET_TEMPLATE_2
-        self.mock_ov_client.id_pools_ipv4_subnets.get.return_value = obj
+        self.mock_ov_client.id_pools_ipv4_subnets.get_by_uri.return_value = self.resource
         range_1 = DEFAULT_RANGE_TEMPLATE.copy()
         range_4 = DEFAULT_RANGE_TEMPLATE.copy()
         ranges = [range_1, range_4]
-        self.resource.get_by_uri().data = range_1
+        self.resource.get_by_uri().return_value = self.resource
+        self.resource.data = range_1
         self.mock_ansible_module.params = PARAMS_GET_ALL_FROM_SUBNET
 
         IdPoolsIpv4RangeFactsModule().run()
@@ -135,7 +135,8 @@ class TestIdPoolsIpv4RangeFactsModule(OneViewBaseTest):
         self.mock_ov_client.id_pools_ipv4_subnets.get.return_value = DEFAULT_SUBNET_TEMPLATE_2
 
         range_1 = DEFAULT_RANGE_TEMPLATE.copy()
-        self.resource.get_by_uri().data = range_1
+        self.resource.get_by_uri().return_value = self.resource
+        self.resource.data = range_1
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME_AND_SUBNET_URI
 
         IdPoolsIpv4RangeFactsModule().run()
@@ -147,7 +148,8 @@ class TestIdPoolsIpv4RangeFactsModule(OneViewBaseTest):
 
     def test_should_get_id_pools_ipv4_range_from_uri(self):
 
-        self.resource.get_by_uri().data = DEFAULT_RANGE_TEMPLATE.copy()
+        self.resource.get_by_uri().return_value = self.resource
+        self.resource.data = DEFAULT_RANGE_TEMPLATE.copy()
         self.mock_ansible_module.params = PARAMS_GET_BY_URI
 
         IdPoolsIpv4RangeFactsModule().run()
