@@ -237,8 +237,10 @@ class TestIdPoolsIpv4RangeModule(OneViewBaseTest):
 
     def test_should_delete_the_ipv4_range_when_it_exists(self):
         self.resource.get_by_uri.return_value = self.resource
-        self.resource.data = DEFAULT_RANGE_TEMPLATE
-        self.resource.delete.return_value = None
+        self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        obj = mock.Mock()
+        obj.data = DEFAULT_RANGE_TEMPLATE
+        self.mock_ov_client.id_pools_ipv4_subnets.get_by_uri.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         IdPoolsIpv4RangeModule().run()
