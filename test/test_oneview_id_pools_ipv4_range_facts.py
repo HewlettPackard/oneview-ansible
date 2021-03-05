@@ -99,9 +99,7 @@ ALL_SUBNETS = [DEFAULT_SUBNET_TEMPLATE_1.copy(), DEFAULT_SUBNET_TEMPLATE_2.copy(
 @pytest.mark.resource(TestIdPoolsIpv4RangeFactsModule='id_pools_ipv4_ranges')
 class TestIdPoolsIpv4RangeFactsModule(OneViewBaseTest):
     def test_should_get_all_id_pools_ipv4_ranges(self):
-        obj = mock.Mock()
-        obj.data = ALL_SUBNETS
-        self.mock_ov_client.id_pools_ipv4_subnets.get_by_uri.return_value = obj
+        self.mock_ov_client.id_pools_ipv4_subnets.get_all.return_value = ALL_SUBNETS
         range_1 = DEFAULT_RANGE_TEMPLATE.copy()
         range_2 = DEFAULT_RANGE_TEMPLATE.copy()
         range_3 = DEFAULT_RANGE_TEMPLATE.copy()
