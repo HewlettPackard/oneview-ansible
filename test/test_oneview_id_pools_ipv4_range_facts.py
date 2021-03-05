@@ -105,7 +105,7 @@ class TestIdPoolsIpv4RangeFactsModule(OneViewBaseTest):
         range_3 = DEFAULT_RANGE_TEMPLATE.copy()
         range_4 = DEFAULT_RANGE_TEMPLATE.copy()
         ranges = [range_2, range_3, range_1, range_4]
-        self.resource.get_by_uri().return_value = range_1
+        self.resource.get_by_uri().data = range_1
         self.mock_ansible_module.params = PARAMS_GET_ALL
 
         IdPoolsIpv4RangeFactsModule().run()
