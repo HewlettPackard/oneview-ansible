@@ -115,7 +115,9 @@ class TestIdPoolsIpv4RangeFactsModule(OneViewBaseTest):
         )
 
     def test_should_get_all_id_pools_ipv4_ranges_from_subnet(self):
-        self.mock_ov_client.id_pools_ipv4_subnets.get.return_value = DEFAULT_SUBNET_TEMPLATE_2
+        obj = mock.Mock()
+        obj.data = DEFAULT_SUBNET_TEMPLATE_2
+        self.mock_ov_client.id_pools_ipv4_subnets.get.return_value = obj
         range_1 = DEFAULT_RANGE_TEMPLATE.copy()
         range_4 = DEFAULT_RANGE_TEMPLATE.copy()
         ranges = [range_1, range_4]
