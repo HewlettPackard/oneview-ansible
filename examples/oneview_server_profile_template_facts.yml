@@ -75,6 +75,7 @@
         config: "{{ config }}"
         uri: "{{server_profile_templates[0]['uri']}}"
       delegate_to: localhost
+      when: server_profile_templates|length != 0
 
     - name: Gather facts about a template and a profile with the configuration based on this template
       oneview_server_profile_template_facts:

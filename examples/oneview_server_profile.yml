@@ -63,7 +63,6 @@
           # User should set initialScopeUris in case of scoped user
           initialScopeUris:
             - "{{ scopes[0].uri }}"
-            - "{{ scopes[1].uri }}"
         params: # Supported only in API version >= 600
           force: True
       delegate_to: localhost

@@ -19,7 +19,7 @@
     config: "{{ playbook_dir }}/oneview_config.json"
     contents: "{{lookup('file', config)}}"
     logical_interconnect_name: "LE-LIG" # Set the name of a Logical interconnect to run the playbook
-    network_name: "test-ethernet" # Set the name of an existent Ethernet Network to update the internal networks
+    network_name: "TestNetwork_5" # Set the name of an existent Ethernet Network to update the internal networks
     variant: "Synergy"
 
   tasks:
@@ -213,7 +213,6 @@
           start: 0
           count: 3
           sort: 'name:descending'
-          query: bundleType eq 'SPP'
 
     - debug: var=firmware_drivers
 
