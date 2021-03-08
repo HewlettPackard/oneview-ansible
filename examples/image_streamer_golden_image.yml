@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@
 
     - set_fact:
         os_volume_name: "{{ os_volumes[0]['name']}}"
+      when: os_volumes == True
 
     - name: Gather facts about build plan
       image_streamer_build_plan_facts:
@@ -40,6 +41,7 @@
 
     - set_fact:
         build_plan_name: "{{ build_plans[0]['name']}}"
+      when: build_plans == True
 
     - name: Create a Golden Image from OS Volume
       image_streamer_golden_image:
@@ -52,6 +54,7 @@
           osVolumeName: '{{ os_volume_name }}'
           buildPlanName: '{{ build_plan_name }}'
       delegate_to: localhost
+      when: os_volume_name is defined and build_plan_name is defined
 
     - name: Download the Golden Image to the file path provided
       image_streamer_golden_image:
@@ -80,6 +83,7 @@
           name: '{{ golden_image_name_created }}'
           destination_file_path: '{{ archive_download_path }}'
       delegate_to: localhost
+      ignore_errors: true
 
     - name: Update the Golden Image description and name
       image_streamer_golden_image:
