@@ -1,7 +1,10 @@
 # Ansible Modules for HPE OneView Change Log
 
-## v6.0.0(unreleased)
+## v6.0.0
 This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0) and ImageStreamer REST API version 2010 (I3S v6.0).
+
+#### Major changes
+In this release, we have added support for most of the OneView settings resources.
 
 #### Bug fixes & Enhancements
 - [#633] (https://github.com/HewlettPackard/oneview-ansible/issues/633) Internal network in LogicalInterconnectGroup

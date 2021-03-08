@@ -228,7 +228,7 @@ To use a different API, you must set the API version together with your credenti
 
 OR using the Environment variable: 
 ```bash
-export ONEVIEWSDK_API_VERSION='2400'
+export ONEVIEWSDK_API_VERSION='2600'
 ```
 
 If this property is not specified, it will fall back to the default value.
