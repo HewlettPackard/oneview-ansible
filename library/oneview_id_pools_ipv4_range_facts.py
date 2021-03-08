@@ -146,16 +146,16 @@ class IdPoolsIpv4RangeFactsModule(OneViewModule):
         if self.module.params.get('uri'):
             id_pools_ipv4_ranges = self.resource_client.get_by_uri(self.module.params['uri']).data
         elif self.module.params.get('subnetUri'):
-            subnet = self.oneview_client.id_pools_ipv4_subnets.get(self.module.params.get('subnetUri'))
+            subnet = self.oneview_client.id_pools_ipv4_subnets.get_by_uri(self.module.params.get('subnetUri'))
             if self.module.params.get('name'):
-                for range_uri in subnet['rangeUris']:
+                for range_uri in subnet.data['rangeUris']:
                     maybe_resource = self.resource_client.get_by_uri(range_uri).data
                     if maybe_resource['name'] == self.module.params.get('name'):
                         id_pools_ipv4_ranges = maybe_resource
                         break
             else:
                 is_specific_resource = False
-                for range_uri in subnet['rangeUris']:
+                for range_uri in subnet.data['rangeUris']:
                     id_pools_ipv4_ranges.append(self.resource_client.get_by_uri(range_uri).data)
         else:
             is_specific_resource = False

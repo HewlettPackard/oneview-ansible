@@ -101,8 +101,8 @@ class IdPoolsIpv4RangeModule(OneViewModule):
             self.current_resource = self.resource_client.get_by_uri(self.data.get('uri'))
         # Do preliminary check before creating a new range
         elif self.data.get('subnetUri') and self.data.get('name'):
-            subnet = self.oneview_client.id_pools_ipv4_subnets.get(self.data.get('subnetUri'))
-            for range_uri in subnet['rangeUris']:
+            subnet = self.oneview_client.id_pools_ipv4_subnets.get_by_uri(self.data.get('subnetUri'))
+            for range_uri in subnet.data['rangeUris']:
                 maybe_resource = self.resource_client.get_by_uri(range_uri)
                 if maybe_resource.data['name'] == self.data['name']:
                     self.current_resource = maybe_resource
