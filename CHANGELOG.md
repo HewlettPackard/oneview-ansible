@@ -14,6 +14,18 @@ This release extends the planned support of the modules to OneView REST API vers
 - [#639] (https://github.com/HewlettPackard/oneview-ansible/issues/639) oneview ansible firmware driver delete module not working
 
 ### Modules supported in this release
+- image_streamer_artifact_bundle
+- image_streamer_artifact_bundle_facts
+- image_streamer_build_plan
+- image_streamer_build_plan_facts
+- image_streamer_deployment_group_facts
+- image_streamer_deployment_plan
+- image_streamer_deployment_plan_facts
+- image_streamer_golden_image
+- image_streamer_golden_image_facts
+- image_streamer_os_volume_facts
+- image_streamer_plan_script
+- image_streamer_plan_script_facts
 - oneview_alert_facts
 - oneview_appliance_configuration_timeconfig_facts
 - oneview_appliance_device_read_community
