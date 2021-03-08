@@ -32,7 +32,6 @@ RUN pip install -r test_requirements.txt
 ENV ANSIBLE_LIBRARY=/root/oneview-ansible/library
 ENV ANSIBLE_MODULE_UTILS=/root/oneview-ansible/library/module_utils/
 
-
 # Clean and remove not required packages
 RUN DEBIAN_FRONTEND=noninteractive \
     apt-get autoremove -y && \
