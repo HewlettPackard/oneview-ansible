@@ -196,6 +196,7 @@
           type: '{{ certificate_data.type }}'
           base64Data: '{{ certificate_data.base64Data }}'
       delegate_to: localhost
+      ignore_errors: true
 
     # This state is only available for C7000 enclosures
     - name: Set the supportDataCollectionState equals to 'PendingCollection' for the enclosure
@@ -296,6 +297,7 @@
           bayNumber: 1
       when: variant == 'Synergy'
       delegate_to: localhost
+      ignore_errors: true
       register: result
     - debug: var=result.msg
       when: variant == 'Synergy'
@@ -311,6 +313,7 @@
           bayNumber: 2
       when: variant == 'Synergy'
       delegate_to: localhost
+      ignore_errors: true
       register: result
     - debug: var=result.msg
       when: variant == 'Synergy'
@@ -326,6 +329,7 @@
           bayNumber: 1
       when: variant == 'Synergy'
       delegate_to: localhost
+      ignore_errors: true
       register: result
     - debug: var=result.msg
       when: variant == 'Synergy'
@@ -341,6 +345,7 @@
           bayNumber: 10
       when: variant == 'Synergy'
       delegate_to: localhost
+      ignore_errors: true
       register: result
     - debug: var=result.msg
       when: variant == 'Synergy'
@@ -356,6 +361,7 @@
           bayNumber: 11
       when: variant == 'Synergy'
       delegate_to: localhost
+      ignore_errors: true
       register: result
     - debug: var=result.msg
       when: variant == 'Synergy'
@@ -371,6 +377,7 @@
           bayNumber: 3
       when: variant == 'Synergy'
       delegate_to: localhost
+      ignore_errors: true
       register: result
     - debug: var=result.msg
       when: variant == 'Synergy'
@@ -386,6 +393,7 @@
           bayNumber: 2
       when: variant == 'Synergy'
       delegate_to: localhost
+      ignore_errors: true
       register: result
     - debug: var=result.msg
       when: variant == 'Synergy'
@@ -401,6 +409,7 @@
           bayNumber: 3
       when: variant == 'Synergy'
       delegate_to: localhost
+      ignore_errors: true
       register: result
     - debug: var=result.msg
       when: variant == 'Synergy'
@@ -416,6 +425,7 @@
           bayNumber: 6
       when: variant == 'Synergy'
       delegate_to: localhost
+      ignore_errors: true
       register: result
     - debug: var=result.msg
       when: variant == 'Synergy'

@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -125,17 +125,17 @@
       delegate_to: localhost
       register: hyp_cp
 
-#    - name: Delete the Hypervisor Cluster Profile
-#      oneview_hypervisor_cluster_profile:
-#        config: "{{ config }}"
-#        state: absent
-#        params:
-#          force: True
-#          soft_delete: False
-#        data: "{{ hyp_cp.ansible_facts.hypervisor_cluster_profile }}"
-#      delegate_to: localhost
-#      register: deleted
-#
+    - name: Delete the Hypervisor Cluster Profile
+      oneview_hypervisor_cluster_profile:
+        config: "{{ config }}"
+        state: absent
+        params:
+          force: True
+          soft_delete: False
+        data:
+          name: "HCP-renamed"
+      delegate_to: localhost
+
 #    - name: Delete the Hypervisor Cluster Profile with vswitch
 #      oneview_hypervisor_cluster_profile:
 #        config: "{{ config }}"
@@ -146,11 +146,11 @@
 #        data: "{{ hyp_cp_vswitch.ansible_facts.hypervisor_cluster_profile }}"
 #      delegate_to: localhost
 #      register: deleted
-#
-#    - name: Do nothing when Hypervisor Cluster Profile is absent
-#      oneview_hypervisor_cluster_profile:
-#        config: "{{ config }}"
-#        state: absent
-#        data: "{{ hyp_cp.ansible_facts.hypervisor_cluster_profile }}"
-#      delegate_to: localhost
-#      register: deleted
+
+    - name: Do nothing when Hypervisor Cluster Profile is absent
+      oneview_hypervisor_cluster_profile:
+        config: "{{ config }}"
+        state: absent
+        data:
+          name: "HCP-renamed"
+      delegate_to: localhost
