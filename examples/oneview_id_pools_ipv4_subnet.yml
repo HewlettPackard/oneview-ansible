@@ -18,7 +18,7 @@
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
     subnet_name: IPV4Subnet
-    networkId: '10.1.0.0'
+    network_id: '10.1.0.0'
   tasks:
     - name: Ensure the ID Pools IPV4 Subnet exists
       oneview_id_pools_ipv4_subnet:
@@ -27,9 +27,9 @@
         data:
           name: '{{ subnet_name }}'
           type: Subnet
-          networkId: 10.10.1.0
-          subnetmask: 255.255.255.0
-          gateway: 10.10.1.1
+          networkId: '{{ network_id }}'
+          subnetmask: 255.255.192.0
+          gateway: '10.1.0.1'
           domain: example.com
           dnsServers:
             - 10.10.10.215

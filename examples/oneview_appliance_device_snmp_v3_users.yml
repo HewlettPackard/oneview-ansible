@@ -57,3 +57,23 @@
         data:
             userName: "testUser"
       delegate_to: localhost
+
+    - name: Creating the SNMPv3 user for automation
+      oneview_appliance_device_snmp_v3_users:
+        config: "{{ config }}"
+        state: present
+        name: "user123456"
+        data:
+            type: "Users"
+            userName: "user123456"
+      delegate_to: localhost
+
+    - name: Creating another SNMPv3 user for automation 
+      oneview_appliance_device_snmp_v3_users:
+        config: "{{ config }}"
+        state: present
+        name: "test2"
+        data:
+            type: "Users"
+            userName: "test2"
+      delegate_to: localhost

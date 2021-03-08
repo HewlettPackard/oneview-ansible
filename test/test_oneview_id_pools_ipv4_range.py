@@ -17,6 +17,7 @@
 ###
 
 import pytest
+import mock
 
 from hpe_test_utils import OneViewBaseTest
 from oneview_module_loader import IdPoolsIpv4RangeModule
@@ -236,9 +237,11 @@ class TestIdPoolsIpv4RangeModule(OneViewBaseTest):
         )
 
     def test_should_delete_the_ipv4_range_when_it_exists(self):
-        self.mock_ov_client.id_pools_ipv4_subnets.get.return_value = DEFAULT_SUBNET_TEMPLATE
-        self.resource.get_by_uri().data = DEFAULT_RANGE_TEMPLATE
-        self.resource.delete.return_value = None
+        self.resource.get_by_uri.return_value = self.resource
+        self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        obj = mock.Mock()
+        obj.data = DEFAULT_RANGE_TEMPLATE
+        self.mock_ov_client.id_pools_ipv4_subnets.get_by_uri.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         IdPoolsIpv4RangeModule().run()
@@ -249,8 +252,9 @@ class TestIdPoolsIpv4RangeModule(OneViewBaseTest):
         )
 
     def test_should_not_delete_when_id_pools_ipv4_range_do_not_exist(self):
-        self.mock_ov_client.id_pools_ipv4_subnets.get.return_value = DEFAULT_SUBNET_TEMPLATE
-        self.resource.get.side_effect = [DEFAULT_NOT_RANGE_TEMPLATE, DEFAULT_NOT_RANGE_TEMPLATE]
+        self.resource.get_by_uri.return_value = DEFAULT_SUBNET_TEMPLATE
+        self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        self.resource.get_by_uri.side_effect = [DEFAULT_NOT_RANGE_TEMPLATE, DEFAULT_NOT_RANGE_TEMPLATE]
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
         IdPoolsIpv4RangeModule().run()

@@ -35,7 +35,8 @@ PRESENT_CONFIGURATION = [{
 @pytest.mark.resource(TestApplianceTimeAndLocaleConfigurationFactsModule='appliance_time_and_locale_configuration')
 class TestApplianceTimeAndLocaleConfigurationFactsModule(OneViewBaseTest):
     def test_should_get_appliance_time_and_locale_configuration(self):
-        self.resource.get_all.return_value = PRESENT_CONFIGURATION
+        self.resource.get_all.return_value = self.resource
+        self.resource.data = PRESENT_CONFIGURATION
         self.mock_ansible_module.params = PARAMS_GET
 
         ApplianceTimeAndLocaleConfigurationFactsModule().run()
