@@ -1,12 +1,6 @@
 # Ansible Modules for HPE OneView Change Log
+
 ## v6.0.0(unreleased)
-This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0)
-
-### Modules supported in this release
-- oneview_id_pools_ipv4_subnets
-- oneview_id_pools_ipv4_subnets_facts
-
-## v6.0.0 (unreleased)
 This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0) and ImageStreamer REST API version 2010 (I3S v6.0).
 
 #### Bug fixes & Enhancements
