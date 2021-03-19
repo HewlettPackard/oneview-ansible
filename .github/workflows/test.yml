@@ -50,12 +50,11 @@ jobs:
          echo "PYTHONPATH=$ANSIBLE_LIBRARY:$PYTHONPATH" >> $GITHUB_ENV
          touch examples/vars/config.yml
          ./build.sh
-         cat .coverage
+         ls -lta .
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.COVERALLS_TOKEN }}
           coveralls-endpoint: 'https://coveralls.io'
-          path-to-lcov: '.coverage'
           flag-name: 'Unit test'
