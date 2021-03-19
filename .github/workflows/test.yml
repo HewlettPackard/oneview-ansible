@@ -50,7 +50,7 @@ jobs:
          echo "PYTHONPATH=$ANSIBLE_LIBRARY:$PYTHONPATH" >> $GITHUB_ENV
          touch examples/vars/config.yml
          ./build.sh
-         ls -lta .
+         cat coverage.xml
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
@@ -58,3 +58,4 @@ jobs:
           github-token: ${{ secrets.COVERALLS_TOKEN }}
           coveralls-endpoint: 'https://coveralls.io'
           flag-name: 'Unit test'
+          path-to-lcov: 'coverage.xml'
