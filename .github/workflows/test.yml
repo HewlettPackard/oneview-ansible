@@ -49,8 +49,12 @@ jobs:
          echo "ANSIBLE_LIBRARY=$PWD/library" >> $GITHUB_ENV
          echo "PYTHONPATH=$ANSIBLE_LIBRARY:$PYTHONPATH" >> $GITHUB_ENV
          touch examples/vars/config.yml
-         ./build.sh 
-        
-    
- 
+         ./build.sh
 
+    - name: coveralls
+      uses: AndreMiras/coveralls-python-action@develop
+      with:
+        github-token: ${{ secrets.COVERALLS_TOKEN }}
+        flag-name: 'Unit Test'
+        base-path: './library'
+        debug: true
