@@ -130,7 +130,6 @@ if [ -z "$TRAVIS" ]; then
 else
   echo -e "\n${COLOR_START}Running Coveralls${COLOR_END}"
   coverage run --source=library/ -m pytest test/
-  coverage json
   coveralls
   exit_code_coveralls=$?
 fi

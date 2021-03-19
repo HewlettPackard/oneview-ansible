@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install future
+          pip install future pytest-cov
           if [ -f test_requirements.txt ]; then pip install -r test_requirements.txt; fi
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       
@@ -53,13 +53,6 @@ jobs:
 
       - name: print coverage output
         run: |
+          pytest --cov-report= --cov=library test/
           ls -la .
           ls -la ./library
-
-      - name: coveralls
-        uses: AndreMiras/coveralls-python-action@develop
-        with:
-          github-token: ${{ secrets.COVERALLS_TOKEN }}
-          flag-name: 'Unit Test'
-          base-path: './library'
-          debug: true
