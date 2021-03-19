@@ -137,7 +137,7 @@ fi
 
 echo -e "\n${COLOR_START}Running tests${COLOR_END}"
 #python -m pytest test/
-pytest --cov=library test/
+pytest --cov-report xml --cov=library/ test/
 exit_code_tests=$?
 
 echo -e "\n=== Summary =========================="
