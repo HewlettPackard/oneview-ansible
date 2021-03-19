@@ -51,6 +51,11 @@ jobs:
          touch examples/vars/config.yml
          ./build.sh
 
+      - name: print coverage output
+        run: |
+          ls -la .
+          ls -la ./library
+
       - name: coveralls
         uses: AndreMiras/coveralls-python-action@develop
         with:
