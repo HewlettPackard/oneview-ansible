@@ -44,7 +44,7 @@ options:
               C(validate_id_pool) will validates the list of ID's from IPv4 Subnet.
               C(generate) will generate random ID's list.
               C(checkrangeavailability) will verify the available range of ID's list.
-        choices: ['schema', 'get_pool_type', 'update_pool_type', 'allocate', 'collect', 
+        choices: ['schema', 'get_pool_type', 'update_pool_type', 'allocate', 'collect',
                   'validate', 'validate_id_pool', 'generate', 'check_range_availability']
     data:
         description:
@@ -147,6 +147,7 @@ id_pool:
 
 from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError
 
+
 class IDPoolModule(OneViewModule):
     MSG_UPDATED = 'Pool updated successfully.'
     MSG_ALLOCATED = 'Given set of IDs have been reserved.'
@@ -160,7 +161,7 @@ class IDPoolModule(OneViewModule):
         argument_spec = dict(
             state=dict(
                 required=True,
-                choices=['allocate', 'collect', 'validate', 'generate', 'validate_id_pool', 
+                choices=['allocate', 'collect', 'validate', 'generate', 'validate_id_pool',
                          'check_range_availability', 'get_pool_type', 'update_pool_type', 'schema']
             ),
             data=dict(required=True, type='dict'),
@@ -175,7 +176,7 @@ class IDPoolModule(OneViewModule):
         changed, msg, id_pool = False, '', {}
 
         poolType = self.data.pop('poolType', '')
-        idList = self.data.pop('idList', []) 
+        idList = self.data.pop('idList', [])
         count = self.data.pop('count', 0)
 
         if self.state == 'schema':
@@ -211,7 +212,7 @@ class IDPoolModule(OneViewModule):
         try:
             allocate = self.resource_client.allocate(count, poolType)
             return True, self.MSG_ALLOCATED, allocate
-        except:
+        except OneViewModuleValueError:
             raise OneViewModuleValueError(self.MSG_IDS_NOT_AVAILABLE)
 
     def __validate(self, idDict, poolType):
@@ -222,8 +223,10 @@ class IDPoolModule(OneViewModule):
         else:
             return False, self.MSG_IDS_NOT_AVAILABLE, validate
 
+
 def main():
     IDPoolModule().run()
+
 
 if __name__ == '__main__':
     main()
