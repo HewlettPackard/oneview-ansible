@@ -29,6 +29,15 @@ RENAMED_UPLINK_SET = 'Renamed Uplink Set'
 LOGICAL_INTERCONNECT = dict(uri="/rest/logical-interconnects/0de81de6-6652-4861-94f9-9c24b2fd0d66",
                             name='Name of the Logical Interconnect')
 
+ETHERNET = dict(uri="/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d77",
+                name='EthernetNetwork')
+
+FCNETWORK = dict(uri="/rest/fc-networks/0de94de6-6652-4861-94f9-9c24b2fd0d87",
+                 name='FcNetwork')
+
+FCOENETWORK = dict(uri="/rest/fcoe-networks/0de89de6-6652-4861-94f9-9c24b2fd0d99",
+                   name='FcoeNetwork')
+
 EXISTENT_UPLINK_SETS = [
     dict(name=DEFAULT_UPLINK_NAME,
          logicalInterconnectUri="/rest/logical-interconnects/c4ae6a56-a595-4b06-8c7a-405212df8b93",
@@ -69,6 +78,19 @@ PARAMS_FOR_PRESENT_WITH_LI_NAME = dict(
             '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
             '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'
         ]
+    )
+)
+
+PARAMS_FOR_PRESENT_WITH_NETWORK = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name=DEFAULT_UPLINK_NAME,
+        networkUris=[
+            'EthernetNetwork'
+        ],
+        fcNetworkUris = ['FcNetwork'],
+        fcoeNetworkUris = ['FcoeNetwork']
     )
 )
 
@@ -120,6 +142,38 @@ class TestUplinkSetModule(OneViewBaseTest):
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         UplinkSetModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=UplinkSetModule.MSG_CREATED,
+            ansible_facts=dict(uplink_set=UPLINK_SET_FOUND_BY_KEY)
+        )
+
+    def test_should_replace_network_name_by_uri(self):
+        self.resource.get_by_name.return_value = None
+        obj = mock.Mock()
+        obj.data = UPLINK_SET_FOUND_BY_KEY
+        self.resource.create.return_value = obj
+
+        obj = mock.Mock()
+        obj.data = ETHERNET
+        self.mock_ov_client.ethernet_networks.get_by_name.return_value = obj
+	obj.data = FCNETWORK
+        self.mock_ov_client.fc_networks.get_by_name.return_value = obj
+	obj.data = FCOENETWOEK
+        self.mock_ov_client.fcoe_networks.get_by_name.return_value = obj
+
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT_WITH_NETWORK)
+
+        UplinkSetModule().run()
+
+        self.mock_ov_client.ethernet_networks.get_by_name.assert_called_once_with(
+            'EthernetNetwork')
+        self.mock_ov_client.fc_networks.get_by_name.assert_called_once_with(
+            'FcNetwork')
+        self.mock_ov_client.fcoe_networks.get_by_name.assert_called_once_with(
+            'FcoeNetwork')
+        self.resource.create.assert_called_once_with(PARAMS_FOR_PRESENT['data'])
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
