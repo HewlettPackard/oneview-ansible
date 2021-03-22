@@ -33,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install future
+          pip install future pytest-cov pytest-xdist
           if [ -f test_requirements.txt ]; then pip install -r test_requirements.txt; fi
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       
@@ -49,8 +49,12 @@ jobs:
          echo "ANSIBLE_LIBRARY=$PWD/library" >> $GITHUB_ENV
          echo "PYTHONPATH=$ANSIBLE_LIBRARY:$PYTHONPATH" >> $GITHUB_ENV
          touch examples/vars/config.yml
-         ./build.sh 
-        
-    
- 
+         ./build.sh
 
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
+          name: codecov-umbrella
+          verbose: true
