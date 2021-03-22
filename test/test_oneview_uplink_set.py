@@ -89,8 +89,8 @@ PARAMS_FOR_PRESENT_WITH_NETWORK = dict(
         networkUris=[
             'EthernetNetwork'
         ],
-        fcNetworkUris = ['FcNetwork'],
-        fcoeNetworkUris = ['FcoeNetwork']
+        fcNetworkUris=['FcNetwork'],
+        fcoeNetworkUris=['FcoeNetwork']
     )
 )
 
@@ -158,9 +158,9 @@ class TestUplinkSetModule(OneViewBaseTest):
         obj = mock.Mock()
         obj.data = ETHERNET
         self.mock_ov_client.ethernet_networks.get_by_name.return_value = obj
-	obj.data = FCNETWORK
+        obj.data = FCNETWORK
         self.mock_ov_client.fc_networks.get_by_name.return_value = obj
-	obj.data = FCOENETWORK
+        obj.data = FCOENETWORK
         self.mock_ov_client.fcoe_networks.get_by_name.return_value = obj
 
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT_WITH_NETWORK)
