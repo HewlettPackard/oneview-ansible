@@ -50,12 +50,12 @@ jobs:
          echo "PYTHONPATH=$ANSIBLE_LIBRARY:$PYTHONPATH" >> $GITHUB_ENV
          touch examples/vars/config.yml
          ./build.sh
-         cat coverage.xml
 
-      - name: Coveralls
-        uses: coverallsapp/github-action@master
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
         with:
-          github-token: ${{ secrets.COVERALLS_TOKEN }}
-          coveralls-endpoint: 'https://coveralls.io'
-          flag-name: 'Unit test'
-          path-to-lcov: 'coverage.xml'
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          verbose: true
