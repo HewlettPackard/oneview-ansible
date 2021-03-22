@@ -121,18 +121,17 @@ else
 fi
 
 #Documentation is generated only in local builds
-#if [ -z "$TRAVIS" ]; then
-#  echo -e "\n${COLOR_START}Generating markdown documentation${COLOR_END}"
-#  build-doc/run-doc-generation.sh
-#  exit_code_doc_generation=$?
-#
+if [ -z "$TRAVIS" ]; then
+  echo -e "\n${COLOR_START}Generating markdown documentation${COLOR_END}"
+  build-doc/run-doc-generation.sh
+  exit_code_doc_generation=$?
 #Coveralls runs only when Travis is running the build
-#else
-#  echo -e "\n${COLOR_START}Running Coveralls${COLOR_END}"
-#  coverage run --source=library/ -m pytest test/
-#  coveralls
-#  exit_code_coveralls=$?
-#fi
+else
+  echo -e "\n${COLOR_START}Running Coveralls${COLOR_END}"
+  coverage run --source=library/ -m pytest test/
+  coveralls
+  exit_code_coveralls=$?
+fi
 
 
 echo -e "\n${COLOR_START}Running tests${COLOR_END}"
