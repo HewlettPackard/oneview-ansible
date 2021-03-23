@@ -46,8 +46,8 @@ EXISTENT_UPLINK_SETS = [
          status="OK",
          logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'],
          networkUris=[
-             'EthernetNetwork1',
-             'EthernetNetwork2'],
+            "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d77",
+            "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d89" ]
          uri="/rest/uplink-sets/test"),
     dict(name=DEFAULT_UPLINK_NAME,
          logicalInterconnectUri="/rest/logical-interconnects/c4ae6a56-a595-4b06-8c7a-405212df8b93",
@@ -61,11 +61,25 @@ PARAMS_FOR_PRESENT = dict(
     data=dict(
         name=DEFAULT_UPLINK_NAME,
         logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'],
-        networkUris=[ ETHERNET['uri'] ],
-        fcNetworkUris=[ FCNETWORK['uri'] ],
-        fcoeNetworkUris=[ FCOENETWORK['uri'] ] 
+        networkUris=[ 
+            "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d77",
+            "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d89" ]
     )
 )
+
+PARAMS_FOR_PRESENT_WITH_NETWORK_NAME = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name=DEFAULT_UPLINK_NAME,
+        networkUris=[
+            "EthernetNetwork1",
+            "EthernetNetwork2" ],
+        fcNetworkUris=[ "FcNetwork" ],
+        fcoeNetworkUris=[ "FcoeNetwork" ]
+    )
+)
+
 
 PARAMS_FOR_PRESENT_WITH_LI_NAME = dict(
     config='config.json',
@@ -86,7 +100,8 @@ PARAMS_FOR_PRESENT_WITH_NETWORK = dict(
     data=dict(
         name=DEFAULT_UPLINK_NAME,
         networkUris=[
-            'EthernetNetwork'
+            'EthernetNetwork1',
+            'EthernetNetwork2'
         ],
         fcNetworkUris=['FcNetwork'],
         fcoeNetworkUris=['FcoeNetwork']
@@ -172,7 +187,7 @@ class TestUplinkSetModule(OneViewBaseTest):
         self.mock_ov_client.fcoe_networks.get_by_name.assert_called_once_with(
             'FcoeNetwork')
 
-        self.resource.create.assert_called_once_with(PARAMS_FOR_PRESENT['data'])
+        self.resource.create.assert_called_once_with(PARAMS_FOR_PRESENT_WITH_NETWORK_NAME['data'])
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
