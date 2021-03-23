@@ -167,12 +167,6 @@ class TestUplinkSetModule(OneViewBaseTest):
 
         UplinkSetModule().run()
 
-        self.mock_ov_client.ethernet_networks.get_by_name.assert_called_once_with(
-            'EthernetNetwork')
-        self.mock_ov_client.fc_networks.get_by_name.assert_called_once_with(
-            'FcNetwork')
-        self.mock_ov_client.fcoe_networks.get_by_name.assert_called_once_with(
-            'FcoeNetwork')
         self.resource.create.assert_called_once_with(PARAMS_FOR_PRESENT['data'])
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
