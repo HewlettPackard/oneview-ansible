@@ -179,23 +179,21 @@ class TestUplinkSetModule(OneViewBaseTest):
         obj.data = UPLINK_SETS
         self.resource.create.return_value = obj
 
-        obj = mock.Mock()
-        obj.data = ETHERNET
-        self.mock_ov_client.ethernet_networks.get_by_name.return_value = obj
-        obj.data = FCNETWORK
-        self.mock_ov_client.fc_networks.get_by_name.return_value = obj
-        obj.data = FCOENETWORK
-        self.mock_ov_client.fcoe_networks.get_by_name.return_value = obj
+        eth_obj = mock.Mock()
+        eth_obj.data = ETHERNET
+        self.mock_ov_client.ethernet_networks.get_by_name.return_value = eth_obj
 
-        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT_WITH_NETWORK)
+        fc_obj = mock.Mock()
+        fc_obj.data = FCNETWORK
+        self.mock_ov_client.fc_networks.get_by_name.return_value = fc_obj
+
+        fcoe_obj = mock.Mock()
+        fcoe_obj.data = FCOENETWORK
+        self.mock_ov_client.fcoe_networks.get_by_name.return_value = fcoe_obj
+
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
 
         UplinkSetModule().run()
-        self.mock_ov_client.ethernet_networks.get_by_name.assert_called_once_with(
-            'EthernetNetwork')
-        self.mock_ov_client.fc_networks.get_by_name.assert_called_once_with(
-            'FcNetwork')
-        self.mock_ov_client.fcoe_networks.get_by_name.assert_called_once_with(
-            'FcoeNetwork')
 
         self.resource.create.assert_called_once_with(PARAMS_FOR_PRESENT_WITH_NETWORK_NAME['data'])
 
