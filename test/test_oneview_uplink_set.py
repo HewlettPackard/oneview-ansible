@@ -46,12 +46,22 @@ EXISTENT_UPLINK_SETS = [
          status="OK",
          logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'],
          networkUris=[
-            "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d77",
-            "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d89" ],
+            '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
+            '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'
+         ]
          uri="/rest/uplink-sets/test"),
     dict(name=DEFAULT_UPLINK_NAME,
          logicalInterconnectUri="/rest/logical-interconnects/c4ae6a56-a595-4b06-8c7a-405212df8b93",
          uri="/rest/uplink-sets/test")]
+
+UPLINK_SETS = dict(name=DEFAULT_UPLINK_NAME,
+         logicalInterconnectUri="/rest/logical-interconnects/c4ae6a56-a595-4b06-8c7a-405212df8b93",
+         networkUris=[
+            "EthernetNetwork1",
+            "EthernetNetwork2" ],
+         fcNetworkUris=[ "FcNetwork" ],
+         fcoeNetworkUris=[ "FcoeNetwork" ],
+         uri="/rest/uplink-sets/test")
 
 UPLINK_SET_FOUND_BY_KEY = EXISTENT_UPLINK_SETS[1]
 
@@ -61,9 +71,10 @@ PARAMS_FOR_PRESENT = dict(
     data=dict(
         name=DEFAULT_UPLINK_NAME,
         logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'],
-        networkUris=[ 
-            "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d77",
-            "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d89" ]
+        networkUris=[
+            '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
+            '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'
+        ]
     )
 )
 
@@ -79,7 +90,6 @@ PARAMS_FOR_PRESENT_WITH_NETWORK_NAME = dict(
         fcoeNetworkUris=[ "FcoeNetwork" ]
     )
 )
-
 
 PARAMS_FOR_PRESENT_WITH_LI_NAME = dict(
     config='config.json',
@@ -166,7 +176,7 @@ class TestUplinkSetModule(OneViewBaseTest):
     def test_should_replace_network_name_by_uri(self):
         self.resource.get_by_name.return_value = None
         obj = mock.Mock()
-        obj.data = UPLINK_SET_FOUND_BY_KEY
+        obj.data = UPLINK_SETS
         self.resource.create.return_value = obj
 
         obj = mock.Mock()
