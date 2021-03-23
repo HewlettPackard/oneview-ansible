@@ -48,6 +48,10 @@ EXISTENT_UPLINK_SETS = [
          networkUris=[
              '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
              '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'],
+         fcNetworkUris=[
+             '/rest/fc-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc809'],
+         fcoeNetworkUris=[
+             '/rest/fcoe-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc708'],
          uri="/rest/uplink-sets/test"),
     dict(name=DEFAULT_UPLINK_NAME,
          logicalInterconnectUri="/rest/logical-interconnects/c4ae6a56-a595-4b06-8c7a-405212df8b93",
@@ -55,16 +59,17 @@ EXISTENT_UPLINK_SETS = [
 
 UPLINK_SET_FOUND_BY_KEY = EXISTENT_UPLINK_SETS[1]
 
+UPLINK_SET_FOUND_BY_NAME = EXISTENT_UPLINK_SETS[2]
+
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
     data=dict(
         name=DEFAULT_UPLINK_NAME,
         logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'],
-        networkUris=[
-            '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
-            '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'
-        ],
+        networkUris=[ ETHERNET['uri'] ],
+        fcNetworkUris=[ FCNETWORK['uri'] ],
+        fcoeNetworkUris=[ FCOENETWORK['uri'] ] 
     )
 )
 
@@ -152,7 +157,7 @@ class TestUplinkSetModule(OneViewBaseTest):
     def test_should_replace_network_name_by_uri(self):
         self.resource.get_by_name.return_value = None
         obj = mock.Mock()
-        obj.data = UPLINK_SET_FOUND_BY_KEY
+        obj.data = UPLINK_SET_FOUND_BY_NAME
         self.resource.create.return_value = obj
 
         obj = mock.Mock()
