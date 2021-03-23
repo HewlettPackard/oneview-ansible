@@ -48,7 +48,7 @@ EXISTENT_UPLINK_SETS = [
          networkUris=[
             '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
             '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'
-         ]
+         ],
          uri="/rest/uplink-sets/test"),
     dict(name=DEFAULT_UPLINK_NAME,
          logicalInterconnectUri="/rest/logical-interconnects/c4ae6a56-a595-4b06-8c7a-405212df8b93",
