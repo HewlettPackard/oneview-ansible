@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -132,7 +132,7 @@ class UplinkSetModule(OneViewModule):
     def execute_module(self):
         self.__validate_key()
         self.__replace_logical_interconnect_name_by_uri()
-        self.__replace_network_name_by_uri(self.data)
+        self.__replace_network_name_by_uri()
 
         self.__set_current_resource(self.data['name'], self.data['logicalInterconnectUri'])
 
@@ -158,17 +158,17 @@ class UplinkSetModule(OneViewModule):
 
     def __get_ethernet_network_by_name(self, name):
 
-        result = self.oneview_client.ethernet_networks.get_by('name', name)
+        result = self.oneview_client.ethernet_networks.get_by_name(name)
         return result[0] if result else None
 
     def __get_fc_network_by_name(self, name):
 
-        result = self.oneview_client.fc_networks.get_by('name', name)
+        result = self.oneview_client.fc_networks.get_by_name(name)
         return result[0] if result else None
 
     def __get_fcoe_network_by_name(self, name):
 
-        result = self.oneview_client.fcoe_networks.get_by('name', name)
+        result = self.oneview_client.fcoe_networks.get_by_name(name)
         return result[0] if result else None
 
     def __get_network_uri(self, network_name_or_uri, net_type):
@@ -187,7 +187,8 @@ class UplinkSetModule(OneViewModule):
             else:
                 raise OneViewModuleResourceNotFound(self.MSG_NETWORK_NOT_FOUND + network_name_or_uri)
 
-    def __replace_network_name_by_uri(self, data):
+    def __replace_network_name_by_uri(self):
+        data = self.data
         if 'networkUris' in data and data['networkUris']:
             data['networkUris'] = [self.__get_network_uri(x, 'Ethernet') for x in data['networkUris']]
         elif 'fcNetworkUris' in data and data['fcNetworkUris']:
