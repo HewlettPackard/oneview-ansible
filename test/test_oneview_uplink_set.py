@@ -84,6 +84,7 @@ PARAMS_FOR_PRESENT_WITH_NETWORK_NAME = dict(
     state='present',
     data=dict(
         name=DEFAULT_UPLINK_NAME,
+        logicalInterconnectName=LOGICAL_INTERCONNECT['name'],
         networkUris=[
             "EthernetNetwork1",
             "EthernetNetwork2"],
@@ -110,6 +111,7 @@ PARAMS_FOR_PRESENT_WITH_NETWORK = dict(
     state='present',
     data=dict(
         name=DEFAULT_UPLINK_NAME,
+        logicalInterconnectName=LOGICAL_INTERCONNECT['name'],
         networkUris=[
             'EthernetNetwork1',
             'EthernetNetwork2'
