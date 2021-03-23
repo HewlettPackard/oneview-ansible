@@ -46,20 +46,14 @@ EXISTENT_UPLINK_SETS = [
          status="OK",
          logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'],
          networkUris=[
-             '/rest/ethernet-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc6a4',
-             '/rest/ethernet-networks/28ea7c1a-4930-4432-854b-30cf239226a2'],
-         fcNetworkUris=[
-             '/rest/fc-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc809'],
-         fcoeNetworkUris=[
-             '/rest/fcoe-networks/9e8472ad-5ad1-4cbd-aab1-566b67ffc708'],
+             'EthernetNetwork1',
+             'EthernetNetwork2'],
          uri="/rest/uplink-sets/test"),
     dict(name=DEFAULT_UPLINK_NAME,
          logicalInterconnectUri="/rest/logical-interconnects/c4ae6a56-a595-4b06-8c7a-405212df8b93",
          uri="/rest/uplink-sets/test")]
 
 UPLINK_SET_FOUND_BY_KEY = EXISTENT_UPLINK_SETS[1]
-
-UPLINK_SET_FOUND_BY_NAME = EXISTENT_UPLINK_SETS[2]
 
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
@@ -157,7 +151,7 @@ class TestUplinkSetModule(OneViewBaseTest):
     def test_should_replace_network_name_by_uri(self):
         self.resource.get_by_name.return_value = None
         obj = mock.Mock()
-        obj.data = UPLINK_SET_FOUND_BY_NAME
+        obj.data = UPLINK_SET_FOUND_BY_KEY
         self.resource.create.return_value = obj
 
         obj = mock.Mock()
