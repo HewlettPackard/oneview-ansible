@@ -58,7 +58,7 @@ UPLINK_SETS = dict(
     name=DEFAULT_UPLINK_NAME,
     logicalInterconnectUri="/rest/logical-interconnects/c4ae6a56-a595-4b06-8c7a-405212df8b93",
     networkUris=[
-        "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d77"]
+        "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d77"],
     fcNetworkUris=["/rest/fc-networks/0de94de6-6652-4861-94f9-9c24b2fd0d87"],
     fcoeNetworkUris=["/rest/fcoe-networks/0de89de6-6652-4861-94f9-9c24b2fd0d99"],
     uri="/rest/uplink-sets/test")
@@ -85,7 +85,7 @@ PARAMS_FOR_PRESENT_WITH_NETWORK_NAME = dict(
         name=DEFAULT_UPLINK_NAME,
         logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'],
         networkUris=[
-            "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d77"]
+            "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d77"],
         fcNetworkUris=["/rest/fc-networks/0de94de6-6652-4861-94f9-9c24b2fd0d87"],
         fcoeNetworkUris=["/rest/fcoe-networks/0de89de6-6652-4861-94f9-9c24b2fd0d99"]
     )
@@ -111,7 +111,7 @@ PARAMS_FOR_PRESENT_WITH_NETWORK = dict(
         name=DEFAULT_UPLINK_NAME,
         logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'],
         networkUris=[
-            "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d77"]
+            "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d77"],
         fcNetworkUris=["/rest/fc-networks/0de94de6-6652-4861-94f9-9c24b2fd0d87"],
         fcoeNetworkUris=["/rest/fcoe-networks/0de89de6-6652-4861-94f9-9c24b2fd0d99"]
     )
