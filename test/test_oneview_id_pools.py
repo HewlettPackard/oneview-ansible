@@ -242,3 +242,8 @@ class TestIDPoolsModule(OneViewBaseTest):
             msg=IDPoolsModule.MSG_UPDATED,
             ansible_facts=dict(id_pools=COLLECTOR_TEMPLATE)
         )
+
+
+if __name__ == '__main__':
+    pytest.main([__file__])
+
