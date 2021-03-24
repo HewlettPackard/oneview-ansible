@@ -17,7 +17,7 @@
 import pytest
 
 from hpe_test_utils import OneViewBaseTest
-from oneview_module_loader import IdPoolsModule
+from oneview_module_loader import IDPoolsModule
 
 FAKE_MSG_ERROR = 'Fake message error'
 
