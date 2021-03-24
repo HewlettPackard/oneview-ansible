@@ -58,10 +58,9 @@ UPLINK_SETS = dict(
     name=DEFAULT_UPLINK_NAME,
     logicalInterconnectUri="/rest/logical-interconnects/c4ae6a56-a595-4b06-8c7a-405212df8b93",
     networkUris=[
-        "EthernetNetwork1",
-        "EthernetNetwork2"],
-    fcNetworkUris=["FcNetwork"],
-    fcoeNetworkUris=["FcoeNetwork"],
+        "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d77"]
+    fcNetworkUris=["/rest/fc-networks/0de94de6-6652-4861-94f9-9c24b2fd0d87"],
+    fcoeNetworkUris=["/rest/fcoe-networks/0de89de6-6652-4861-94f9-9c24b2fd0d99"],
     uri="/rest/uplink-sets/test")
 
 UPLINK_SET_FOUND_BY_KEY = EXISTENT_UPLINK_SETS[1]
@@ -84,12 +83,11 @@ PARAMS_FOR_PRESENT_WITH_NETWORK_NAME = dict(
     state='present',
     data=dict(
         name=DEFAULT_UPLINK_NAME,
-        logicalInterconnectName=LOGICAL_INTERCONNECT['name'],
+        logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'],
         networkUris=[
-            "EthernetNetwork1",
-            "EthernetNetwork2"],
-        fcNetworkUris=["FcNetwork"],
-        fcoeNetworkUris=["FcoeNetwork"]
+            "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d77"]
+        fcNetworkUris=["/rest/fc-networks/0de94de6-6652-4861-94f9-9c24b2fd0d87"],
+        fcoeNetworkUris=["/rest/fcoe-networks/0de89de6-6652-4861-94f9-9c24b2fd0d99"]
     )
 )
 
@@ -111,13 +109,11 @@ PARAMS_FOR_PRESENT_WITH_NETWORK = dict(
     state='present',
     data=dict(
         name=DEFAULT_UPLINK_NAME,
-        logicalInterconnectName=LOGICAL_INTERCONNECT['name'],
+        logicalInterconnectUri=LOGICAL_INTERCONNECT['uri'],
         networkUris=[
-            'EthernetNetwork1',
-            'EthernetNetwork2'
-        ],
-        fcNetworkUris=['FcNetwork'],
-        fcoeNetworkUris=['FcoeNetwork']
+            "/rest/ethernet-networks/0de81de6-6652-4861-94f9-9104b2fd0d77"]
+        fcNetworkUris=["/rest/fc-networks/0de94de6-6652-4861-94f9-9c24b2fd0d87"],
+        fcoeNetworkUris=["/rest/fcoe-networks/0de89de6-6652-4861-94f9-9c24b2fd0d99"]
     )
 )
 
@@ -203,7 +199,7 @@ class TestUplinkSetModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=UplinkSetModule.MSG_CREATED,
-            ansible_facts=dict(uplink_set=UPLINK_SET_FOUND_BY_KEY)
+            ansible_facts=dict(uplink_set=UPLINK_SETS)
         )
 
     def test_should_replace_logical_interconnect_name_by_uri(self):
