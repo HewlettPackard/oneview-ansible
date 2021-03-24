@@ -3,4 +3,5 @@ coveralls
 flake8
 mock
 pytest
+pytest-cov
 six
