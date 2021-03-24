@@ -77,8 +77,8 @@ COLLECTOR_TEMPLATE = dict(host='127.0.0.1',
                           rangeUris=['10.1.0.1', '10.1.0.5'])
 
 
-@pytest.mark.resource(TestIdPoolsModule='id_pools')
-class TestIdPoolsModule(OneViewBaseTest):
+@pytest.mark.resource(TestIDPoolsModule='id_pools')
+class TestIDPoolsModule(OneViewBaseTest):
     """
     OneViewBaseTestCase provides the mocks used in this test case
     """
@@ -90,11 +90,11 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.mock_ansible_module.params = PARAMS_WITH_SCHEMA
 
-        IdPoolsModule().run()
+        IDPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=IdPoolsModule.MSG_ALREADY_PRESENT,
+            msg=IDPoolsModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(id_pools=ID_POOLS_SCHEMA)
         )
 
@@ -106,11 +106,11 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
-        IdPoolsModule().run()
+        IDPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=IdPoolsModule.MSG_UPDATED,
+            msg=IDPoolsModule.MSG_UPDATED,
             ansible_facts=dict(id_pools=GENERATE_TEMPLATE)
         )
 
@@ -121,11 +121,11 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
-        IdPoolsModule().run()
+        IDPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=IdPoolsModule.MSG_UPDATED,
+            msg=IDPoolsModule.MSG_UPDATED,
             ansible_facts=dict(id_pools=POOL_TYPE_TEMPLATE)
         )
 
@@ -137,11 +137,11 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
-        IdPoolsModule().run()
+        IDPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=IdPoolsModule.MSG_VALIDATED,
+            msg=IDPoolsModule.MSG_VALIDATED,
             ansible_facts=dict(id_pools=VALIDATE_TEMPLATE)
         )
 
@@ -153,11 +153,11 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
-        IdPoolsModule().run()
+        IDPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=IdPoolsModule.MSG_VALIDATED,
+            msg=IDPoolsModule.MSG_VALIDATED,
             ansible_facts=dict(id_pools=VALIDATE_TEMPLATE)
         )
 
@@ -169,11 +169,11 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.mock_ansible_module.params = PARAMS_FOR_UPDATE
 
-        IdPoolsModule().run()
+        IDPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=IdPoolsModule.MSG_UPDATED,
+            msg=IDPoolsModule.MSG_UPDATED,
             ansible_facts=dict(id_pools=self.resource.data)
         )
 
@@ -185,11 +185,11 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
-        IdPoolsModule().run()
+        IDPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=IdPoolsModule.MSG_UPDATED,
+            msg=IDPoolsModule.MSG_UPDATED,
             ansible_facts=dict(id_pools=VALIDATE_TEMPLATE)
         )
 
@@ -202,11 +202,11 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
-        IdPoolsModule().run()
+        IDPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=IdPoolsModule.MSG_ALLOCATED,
+            msg=IDPoolsModule.MSG_ALLOCATED,
             ansible_facts=dict(id_pools=ALLOCATE_TEMPLATE)
         )
 
@@ -219,11 +219,11 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
-        IdPoolsModule().run()
+        IDPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=IdPoolsModule.MSG_IDS_NOT_AVAILABLE
+            msg=IDPoolsModule.MSG_IDS_NOT_AVAILABLE
         )
 
     def test_should_collect_when_ids_allocated(self):
@@ -235,10 +235,10 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
-        IdPoolsModule().run()
+        IDPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=IdPoolsModule.MSG_UPDATED,
+            msg=IDPoolsModule.MSG_UPDATED,
             ansible_facts=dict(id_pools=COLLECTOR_TEMPLATE)
         )
