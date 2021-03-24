@@ -180,7 +180,6 @@ class UplinkSetModule(OneViewModule):
                 network = self.__get_ethernet_network_by_name(network_name_or_uri)
             elif net_type == 'FcNetwork':
                 network = self.__get_fc_network_by_name(network_name_or_uri)
-                raise OneViewModuleResourceNotFound('Hi'+network.data['uri'])
             elif net_type == 'FcoeNetwork':
                 network = self.__get_fcoe_network_by_name(network_name_or_uri)
             if network:
