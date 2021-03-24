@@ -148,7 +148,7 @@ id_pool:
 from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError
 
 
-class IDPoolsModule(OneViewModule):
+class IdPoolsModule(OneViewModule):
     MSG_UPDATED = 'Pool updated successfully.'
     MSG_ALLOCATED = 'Given set of IDs have been reserved.'
     MSG_VALIDATED = 'Pool IDs are valid'
@@ -167,7 +167,7 @@ class IDPoolsModule(OneViewModule):
             data=dict(required=True, type='dict'),
         )
 
-        super(IDPoolsModule, self).__init__(additional_arg_spec=argument_spec, validate_etag_support=True)
+        super(IdPoolsModule, self).__init__(additional_arg_spec=argument_spec, validate_etag_support=True)
 
         self.set_resource_object(self.oneview_client.id_pools)
 
@@ -225,7 +225,7 @@ class IDPoolsModule(OneViewModule):
 
 
 def main():
-    IDPoolsModule().run()
+    IdPoolsModule().run()
 
 
 if __name__ == '__main__':
