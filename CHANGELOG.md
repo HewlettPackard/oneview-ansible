@@ -1,5 +1,10 @@
 # Ansible Modules for HPE OneView Change Log
 
+## v6.1.0 (Unreleased)
+
+#### Major changes
+This release adds support to resource Label.
+
 ## v6.0.0
 This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0) and ImageStreamer REST API version 2010 (I3S v6.0).
 
