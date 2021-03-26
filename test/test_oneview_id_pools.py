@@ -208,6 +208,24 @@ class TestIdPoolsModule(OneViewBaseTest):
             ansible_facts=dict(id_pool=VALIDATE_TEMPLATE)
         )
 
+    def test_validate_should_fail_when_ids_not_valid(self):
+        self.resource.get.return_value = DEFAULT_ID_POOLS
+        self.resource.data['uri'] = DEFAULT_ID_POOLS['uri'] + "/validate?idList=VCGYOAA023&idList=VCGYOAA024"
+        
+        invalid_data = VALIDATE_TEMPLATE.copy()
+        invalid_data['idList'] = []
+        self.resource.validate.return_value = invalid_data
+
+        self.mock_ansible_module.params = PARAMS_WITH_VALIDATE
+
+        IdPoolsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=IdPoolsModule.MSG_IDS_NOT_AVAILABLE,
+            ansible_facts=dict(id_pool=invalid_data)
+        )
+
     def test_should_update_pool_type(self):
         self.resource.get.return_value = DEFAULT_ID_POOLS
         update_data = UPDATE_TEMPLATE.copy()
@@ -223,6 +241,21 @@ class TestIdPoolsModule(OneViewBaseTest):
             changed=True,
             msg=IdPoolsModule.MSG_UPDATED,
             ansible_facts=dict(id_pool=update_data)
+        )
+
+    def test_should_not_update_pool_type_when_no_changes(self):
+        self.resource.get.return_value = DEFAULT_ID_POOLS
+
+        self.resource.update_pool_type.return_value = UPDATE_TEMPLATE
+
+        self.mock_ansible_module.params = PARAMS_FOR_UPDATE
+
+        IdPoolsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=IdPoolsModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(id_pool=UPDATE_TEMPLATE)
         )
 
     def test_should_check_range_availability_with_defaults(self):
