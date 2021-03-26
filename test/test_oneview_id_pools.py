@@ -18,7 +18,7 @@ import mock
 import pytest
 
 from hpe_test_utils import OneViewBaseTest
-from oneview_module_loader import IdPoolsModule
+from oneview_module_loader import IdPoolsModule, OneViewModuleValueError
 
 FAKE_MSG_ERROR = 'Fake message error'
 
@@ -225,6 +225,21 @@ class TestIdPoolsModule(OneViewBaseTest):
             msg=IdPoolsModule.MSG_IDS_NOT_AVAILABLE,
             ansible_facts=dict(id_pool=invalid_data)
         )
+
+    def test_should_fail_when_ids_not_available_for_allocation(self):
+        self.resource.get.return_value = None
+        self.resource.data['uri'] = URI + "/allocator"
+
+        self.resource.allocate.return_value = None
+        self.resource.allocate.side_effect = OneViewModuleValueError(IdPoolsModule.MSG_IDS_NOT_AVAILABLE)
+
+        self.mock_ansible_module.params = PARAMS_WITH_ALLOCATE
+
+        IdPoolsModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            exception=mock.ANY,
+            msg=IdPoolsModule.MSG_IDS_NOT_AVAILABLE)
 
     def test_should_update_pool_type(self):
         self.resource.get.return_value = DEFAULT_ID_POOLS
