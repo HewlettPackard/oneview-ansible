@@ -56,85 +56,85 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = '''
-     - name: Get schema of the id pools
-      oneview_id_pools:
-        config: "{{ config }}"
-        state: schema
-        data:
-          description: 'ID pool schema'
-      delegate_to: localhost
+- name: Get schema of the id pools
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: schema
+    data:
+      description: 'ID pool schema'
+  delegate_to: localhost
 
-    - name: Generates a random range
-      oneview_id_pools:
-        config: "{{ config }}"
-        state: generate
-        data:
-          poolType: '{{ poolType }}'
-      delegate_to: localhost
+- name: Generates a random range
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: generate
+    data:
+      poolType: '{{ poolType }}'
+  delegate_to: localhost
 
-    - name: Get the ID Pools type
-      oneview_id_pools:
-        config: "{{ config }}"
-        state: get_pool_type
-        data:
-          poolType: '{{ poolType }}'
-      delegate_to: localhost
-    - debug: var=id_pool
+- name: Get the ID Pools type
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: get_pool_type
+    data:
+      poolType: '{{ poolType }}'
+  delegate_to: localhost
+- debug: var=id_pool
 
-    - name: Enables or disables the pool type
-      oneview_id_pools:
-        config: "{{ config }}"
-        state: update_pool_type
-        data:
-          poolType: '{{ poolType }}'
-          rangeUris: '{{ id_pool["rangeUris"] }}'
-          enabled: True
-      delegate_to: localhost
+- name: Enables or disables the pool type
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: update_pool_type
+    data:
+      poolType: '{{ poolType }}'
+      rangeUris: '{{ id_pool["rangeUris"] }}'
+      enabled: True
+  delegate_to: localhost
 
-    - name: Allocates one or more IDs from a pool
-      oneview_id_pools:
-        config: "{{ config }}"
-        state: allocate
-        data:
-          poolType: '{{ poolType }}'
-          count: 2
-      delegate_to: localhost
+- name: Allocates one or more IDs from a pool
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: allocate
+    data:
+      poolType: '{{ poolType }}'
+      count: 2
+  delegate_to: localhost
 
-    - name: Checks the range availability in the ID pool
-      oneview_id_pools:
-        config: "{{ config }}"
-        state: check_range_availability
-        data:
-          poolType: '{{ poolType }}'
-          idList: '{{ id_pool["idList"] }}'
-      delegate_to: localhost
+- name: Checks the range availability in the ID pool
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: check_range_availability
+    data:
+      poolType: '{{ poolType }}'
+      idList: '{{ id_pool["idList"] }}'
+  delegate_to: localhost
 
-    - name: Validates the list of ID's from IPv4 Subnet
-      oneview_id_pools:
-        config: "{{ config }}"
-        state: validate_id_pool
-        data:
-          poolType: 'ipv4'
-          idList: ['172.18.9.11']
-      delegate_to: localhost
+- name: Validates the list of ID's from IPv4 Subnet
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: validate_id_pool
+    data:
+      poolType: 'ipv4'
+      idList: ['172.18.9.11']
+  delegate_to: localhost
 
-    - name: Validates a set of IDs to reserve in the pool
-      oneview_id_pools:
-        config: "{{ config }}"
-        state: validate
-        data:
-          poolType: '{{ poolType }}'
-          idList: '{{ id_pool["idList"] }}'
-      delegate_to: localhost
+- name: Validates a set of IDs to reserve in the pool
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: validate
+    data:
+      poolType: '{{ poolType }}'
+      idList: '{{ id_pool["idList"] }}'
+  delegate_to: localhost
 
-    - name: Collects one or more IDs to be returned to a pool
-      oneview_id_pools:
-        config: "{{ config }}"
-        state: collect
-        data:
-          poolType: '{{ poolType }}'
-          rangeUris: '{{ id_pool["idList"] }}'
-      delegate_to: localhost
+- name: Collects one or more IDs to be returned to a pool
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: collect
+    data:
+      poolType: '{{ poolType }}'
+      rangeUris: '{{ id_pool["idList"] }}'
+  delegate_to: localhost
 '''
 
 RETURN = '''
@@ -151,9 +151,10 @@ from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError
 class IdPoolsModule(OneViewModule):
     MSG_UPDATED = 'Pool updated successfully.'
     MSG_ALLOCATED = 'Given set of IDs have been reserved.'
+    MSG_COLLECTED = 'Allocated IDs have been collected.'
     MSG_VALIDATED = 'Pool IDs are valid'
     MSG_ALREADY_PRESENT = 'Pool Updated already.'
-    MSG_IDS_NOT_AVAILABLE = 'This set of IDs already allocated'
+    MSG_IDS_NOT_AVAILABLE = 'Ids not available for allocation'
     RESOURCE_FACT_NAME = 'id_pools'
 
     def __init__(self):
@@ -182,21 +183,23 @@ class IdPoolsModule(OneViewModule):
         if self.state == 'schema':
             id_pool = self.resource_client.get_schema()
         elif self.state == 'get_pool_type':
-            id_pool = self.resource_client.get_pool_type(poolType).data
+            id_pool = self.resource_client.get_pool_type(poolType)
         elif self.state == 'update_pool_type':
             changed, msg, id_pool = self.__update_pool_type(poolType)
         elif self.state == 'allocate':
             changed, msg, id_pool = self.__allocate({'count': count}, poolType)
         elif self.state == 'collect':
             id_pool = self.resource_client.collect({'idList': idList}, poolType)
+            changed, msg = True, self.MSG_COLLECTED
         elif self.state == 'generate':
-            id_pool = self.resource_client.generate(poolType).data
+            id_pool = self.resource_client.generate(poolType)
         elif self.state == 'validate_id_pool':
-            id_pool = self.resource_client.validate_id_pool(poolType, idList).data
+            id_pool = self.resource_client.validate_id_pool(poolType, idList)
+            changed, msg = True, self.MSG_VALIDATED
         elif self.state == 'validate':
             changed, msg, id_pool = self.__validate({'idList': idList}, poolType)
         else:
-            id_pool = self.resource_client.get_check_range_availability(poolType, idList).data
+            id_pool = self.resource_client.get_check_range_availability(poolType, idList)
 
         return dict(changed=changed, msg=msg, ansible_facts=dict(id_pool=id_pool))
 
@@ -216,9 +219,9 @@ class IdPoolsModule(OneViewModule):
             raise OneViewModuleValueError(self.MSG_IDS_NOT_AVAILABLE)
 
     def __validate(self, idDict, poolType):
-        validate = eval(self.resource_client.validate(idDict, poolType))
+        validate = self.resource_client.validate(idDict, poolType)
 
-        if validate['idList'] and validate['valid']:
+        if validate['idList']:
             return True, self.MSG_VALIDATED, validate
         else:
             return False, self.MSG_IDS_NOT_AVAILABLE, validate

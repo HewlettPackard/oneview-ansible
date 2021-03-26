@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
+import mock
 import pytest
 
 from hpe_test_utils import OneViewBaseTest
@@ -32,7 +33,7 @@ ID_POOLS_SCHEMA = dict(type='Range',
 
 PARAMS_WITH_SCHEMA = dict(
     config='config.json',
-    state='present',
+    state='schema',
     data=dict(type='Range',
               name='No name')
 )
@@ -44,37 +45,83 @@ PARAMS_WITH_CHANGES = dict(
               idList=['10.1.0.1', '10.1.0.5'])
 )
 
+UPDATE_TEMPLATE = dict(uri='/rest/id-pools/ipv4',
+                       enabled=True)
+
 PARAMS_FOR_UPDATE = dict(
     config='config.json',
-    state='present',
+    state='update_pool_type',
     data=dict(uri=DEFAULT_ID_POOLS['uri'],
               enabled=True)
 )
 
 GENERATE_TEMPLATE = dict(idList=['10.1.0.1', '10.1.0.5'])
 
-POOL_TYPE_TEMPLATE = dict(host='127.0.0.1',
-                          uri='/rest/id-pools',
+PARAMS_WITH_GENERATE = dict(
+    config='config.json',
+    state='generate',
+    data=dict(uri=DEFAULT_ID_POOLS['uri'],
+              idList=['10.1.0.1', '10.1.0.5'])
+)
+
+POOL_TYPE_TEMPLATE = dict(uri='/rest/id-pools',
                           poolType='ipv4',
                           rangeUris=['10.1.0.1', '10.1.0.5'])
 
-VALIDATE_TEMPLATE = dict(poolType='ipv4',
-                         uri='/rest/id-pools',
-                         rangeUris=['10.1.0.1', '10.1.0.5'])
+PARAMS_WITH_POOL_TYPE = dict(
+    config='config.json',
+    state='get_pool_type',
+    data=dict(uri=DEFAULT_ID_POOLS['example_uri'],
+              poolType='ipv4',
+              rangeUris=['10.1.0.1', '10.1.0.5'])
+)
+
 
 VALIDATE_TEMPLATE = dict(poolType='ipv4',
                          uri='/rest/id-pools',
                          idList=['VCGYOAA023', 'VCGYOAA024'])
+
+PARAMS_WITH_VALIDATE_ID_POOL = dict(
+    config='config.json',
+    state='validate_id_pool',
+    data=dict(uri=DEFAULT_ID_POOLS['example_uri'],
+              poolType='ipv4',
+              idDict=dict(idList=['VCGYOAA023', 'VCGYOAA024']))
+)
+
+PARAMS_WITH_VALIDATE = dict(
+    config='config.json',
+    state='validate',
+    data=dict(uri=DEFAULT_ID_POOLS['example_uri'],
+              poolType='ipv4',
+              idList=['VCGYOAA023', 'VCGYOAA024'])
+)
 
 ALLOCATE_TEMPLATE = dict(host='127.0.0.1',
                          uri='/rest/id-pools',
                          poolType='ipv4',
                          count=2)
 
+PARAMS_WITH_ALLOCATE = dict(
+    config='config.json',
+    state='allocate',
+    data=dict(uri=DEFAULT_ID_POOLS['uri'],
+              poolType='ipv4',
+              count=2)
+)
+
 COLLECTOR_TEMPLATE = dict(host='127.0.0.1',
                           uri='/rest/id-pools',
                           poolType='ipv4',
                           rangeUris=['10.1.0.1', '10.1.0.5'])
+
+PARAMS_WITH_COLLECTOR = dict(
+    config='config.json',
+    state='collect',
+    data=dict(uri=DEFAULT_ID_POOLS['uri'],
+              poolType='ipv4',
+              rangeUris=['10.1.0.1', '10.1.0.5'])
+)
 
 
 @pytest.mark.resource(TestIdPoolsModule='id_pools')
@@ -93,9 +140,9 @@ class TestIdPoolsModule(OneViewBaseTest):
         IdPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=IdPoolsModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(id_pools=ID_POOLS_SCHEMA)
+            changed=False,
+            msg='',
+            ansible_facts=dict(id_pool=ID_POOLS_SCHEMA)
         )
 
     def test_should_generate_random_ids(self):
@@ -104,14 +151,14 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.resource.generate.return_value = GENERATE_TEMPLATE
 
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = PARAMS_WITH_GENERATE
 
         IdPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=IdPoolsModule.MSG_UPDATED,
-            ansible_facts=dict(id_pools=GENERATE_TEMPLATE)
+            changed=False,
+            msg='',
+            ansible_facts=dict(id_pool=GENERATE_TEMPLATE)
         )
 
     def test_should_get_pool_type(self):
@@ -119,14 +166,14 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.resource.get_pool_type.return_value = POOL_TYPE_TEMPLATE
 
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = PARAMS_WITH_POOL_TYPE
 
         IdPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=IdPoolsModule.MSG_UPDATED,
-            ansible_facts=dict(id_pools=POOL_TYPE_TEMPLATE)
+            changed=False,
+            msg='',
+            ansible_facts=dict(id_pool=POOL_TYPE_TEMPLATE)
         )
 
     def test_should_validate_id_pool(self):
@@ -135,14 +182,14 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.resource.validate_id_pool.return_value = VALIDATE_TEMPLATE
 
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = PARAMS_WITH_VALIDATE_ID_POOL
 
         IdPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=IdPoolsModule.MSG_VALIDATED,
-            ansible_facts=dict(id_pools=VALIDATE_TEMPLATE)
+            ansible_facts=dict(id_pool=VALIDATE_TEMPLATE)
         )
 
     def test_should_validate(self):
@@ -151,21 +198,22 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.resource.validate.return_value = VALIDATE_TEMPLATE
 
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = PARAMS_WITH_VALIDATE
 
         IdPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=IdPoolsModule.MSG_VALIDATED,
-            ansible_facts=dict(id_pools=VALIDATE_TEMPLATE)
+            ansible_facts=dict(id_pool=VALIDATE_TEMPLATE)
         )
 
     def test_should_update_pool_type(self):
         self.resource.get.return_value = DEFAULT_ID_POOLS
-        self.resource.data['enabled'] = True
+        update_data = UPDATE_TEMPLATE.copy()
+        update_data['enabled'] = False
 
-        self.resource.update_pool_type.return_value = self.resource.data
+        self.resource.update_pool_type.return_value = update_data
 
         self.mock_ansible_module.params = PARAMS_FOR_UPDATE
 
@@ -174,7 +222,7 @@ class TestIdPoolsModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=IdPoolsModule.MSG_UPDATED,
-            ansible_facts=dict(id_pools=self.resource.data)
+            ansible_facts=dict(id_pool=update_data)
         )
 
     def test_should_check_range_availability_with_defaults(self):
@@ -188,9 +236,9 @@ class TestIdPoolsModule(OneViewBaseTest):
         IdPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=IdPoolsModule.MSG_UPDATED,
-            ansible_facts=dict(id_pools=VALIDATE_TEMPLATE)
+            changed=False,
+            msg='',
+            ansible_facts=dict(id_pool=VALIDATE_TEMPLATE)
         )
 
     def test_should_allocate_ids_from_pool(self):
@@ -200,30 +248,14 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.resource.allocate.return_value = ALLOCATE_TEMPLATE
 
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = PARAMS_WITH_ALLOCATE
 
         IdPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=IdPoolsModule.MSG_ALLOCATED,
-            ansible_facts=dict(id_pools=ALLOCATE_TEMPLATE)
-        )
-
-    def test_should_fail_when_ids_not_available_for_allocation(self):
-        self.resource.get.return_value = []
-        self.resource.data['uri'] = URI + "/allocator"
-        self.resource.data['count'] = 2
-
-        self.resource.allocate.return_value = []
-
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
-
-        IdPoolsModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=IdPoolsModule.MSG_IDS_NOT_AVAILABLE
+            ansible_facts=dict(id_pool=ALLOCATE_TEMPLATE)
         )
 
     def test_should_collect_when_ids_allocated(self):
@@ -233,17 +265,16 @@ class TestIdPoolsModule(OneViewBaseTest):
 
         self.resource.collect.return_value = COLLECTOR_TEMPLATE
 
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = PARAMS_WITH_COLLECTOR
 
         IdPoolsModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
-            msg=IdPoolsModule.MSG_UPDATED,
-            ansible_facts=dict(id_pools=COLLECTOR_TEMPLATE)
+            msg=IdPoolsModule.MSG_COLLECTED,
+            ansible_facts=dict(id_pool=COLLECTOR_TEMPLATE)
         )
 
 
 if __name__ == '__main__':
     pytest.main([__file__])
-
