@@ -211,7 +211,7 @@ class TestIdPoolsModule(OneViewBaseTest):
     def test_validate_should_fail_when_ids_not_valid(self):
         self.resource.get.return_value = DEFAULT_ID_POOLS
         self.resource.data['uri'] = DEFAULT_ID_POOLS['uri'] + "/validate?idList=VCGYOAA023&idList=VCGYOAA024"
-        
+
         invalid_data = VALIDATE_TEMPLATE.copy()
         invalid_data['idList'] = []
         self.resource.validate.return_value = invalid_data
