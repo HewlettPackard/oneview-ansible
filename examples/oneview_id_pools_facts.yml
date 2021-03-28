@@ -17,35 +17,14 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    contents:
     poolType: 'vmac'
   tasks:
-    - name: Enables or disables the pool type
-      oneview_id_pools:
+    - name: Get schema of the id pools
+      oneview_id_pools_facts:
         config: "{{ config }}"
-        state: update_pool_type
+        state: schema
         data:
-          poolType: '{{ poolType }}'
-          enabled: True
-      delegate_to: localhost
-
-    - name: Allocates one or more IDs from a pool
-      oneview_id_pools:
-        config: "{{ config }}"
-        state: allocate
-        data:
-          poolType: '{{ poolType }}'
-          count: 2
-      delegate_to: localhost
-    - debug: var=id_pool
-
-    - name: Collects one or more IDs to be returned to a pool
-      oneview_id_pools:
-        config: "{{ config }}"
-        state: collect
-        data:
-          poolType: '{{ poolType }}'
-          idList: '{{ id_pool["idList"] }}'
+          description: 'ID pool schema'
       delegate_to: localhost
 
     - name: Generates a random range
@@ -55,14 +34,30 @@
         data:
           poolType: '{{ poolType }}'
       delegate_to: localhost
-    - debug: var=id_pool
 
-    - name: Validates a set of IDs to reserve in the pool
-      oneview_id_pools:
+    - name: Get the ID Pools type
+      oneview_id_pools_facts:
         config: "{{ config }}"
-        state: validate
+        state: get_pool_type
         data:
           poolType: '{{ poolType }}'
-          idList: ['{{ id_pool["startAddress"] }}', 
-                   '{{ id_pool["endAddress"] }}']
+      delegate_to: localhost
+    - debug: var=id_pool
+
+    - name: Checks the range availability in the ID pool
+      oneview_id_pools_facts:
+        config: "{{ config }}"
+        state: check_range_availability
+        data:
+          poolType: '{{ poolType }}'
+          idList: ["42:CE:78:8F:FF:FF", "42:CE:78:8F:FF:FF"]
+      delegate_to: localhost
+
+    - name: Validates the list of ID's from IPv4 Subnet
+      oneview_id_pools_facts:
+        config: "{{ config }}"
+        state: validate_id_pool
+        data:
+          poolType: 'ipv4'
+          idList: ['172.18.9.11']
       delegate_to: localhost

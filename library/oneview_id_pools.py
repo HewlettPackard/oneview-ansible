@@ -150,11 +150,11 @@ from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError
 
 class IdPoolsModule(OneViewModule):
     MSG_UPDATED = 'Pool updated successfully.'
-    MSG_ALLOCATED = 'Given set of IDs have been reserved.'
+    MSG_ALLOCATED = 'IDs have been reserved.'
     MSG_COLLECTED = 'Allocated IDs have been collected.'
     MSG_VALIDATED = 'Pool IDs are valid'
     MSG_ALREADY_PRESENT = 'Pool Updated already.'
-    MSG_IDS_NOT_AVAILABLE = 'Ids not available for allocation'
+    MSG_IDS_NOT_AVAILABLE = 'Ids not available'
     RESOURCE_FACT_NAME = 'id_pools'
 
     def __init__(self):
@@ -180,26 +180,14 @@ class IdPoolsModule(OneViewModule):
         idList = self.data.pop('idList', [])
         count = self.data.pop('count', 0)
 
-        if self.state == 'schema':
-            id_pool = self.resource_client.get_schema()
-        elif self.state == 'get_pool_type':
-            id_pool = self.resource_client.get_pool_type(poolType)
-        elif self.state == 'update_pool_type':
+        if self.state == 'update_pool_type':
             changed, msg, id_pool = self.__update_pool_type(poolType)
         elif self.state == 'allocate':
             changed, msg, id_pool = self.__allocate({'count': count}, poolType)
         elif self.state == 'collect':
-            id_pool = self.resource_client.collect({'idList': idList}, poolType)
-            changed, msg = True, self.MSG_COLLECTED
-        elif self.state == 'generate':
-            id_pool = self.resource_client.generate(poolType)
-        elif self.state == 'validate_id_pool':
-            id_pool = self.resource_client.validate_id_pool(poolType, idList)
-            changed, msg = True, self.MSG_VALIDATED
+            changed, msg, id_pool = self.__collect({'idList': idList}, poolType)
         elif self.state == 'validate':
             changed, msg, id_pool = self.__validate({'idList': idList}, poolType)
-        else:
-            id_pool = self.resource_client.get_check_range_availability(poolType, idList)
 
         return dict(changed=changed, msg=msg, ansible_facts=dict(id_pool=id_pool))
 
@@ -211,10 +199,19 @@ class IdPoolsModule(OneViewModule):
         else:
             return False, self.MSG_ALREADY_PRESENT, updated_pool
 
+    def __collect(self, idList, poolType):
+        collect = self.resource_client.collect(idList, poolType)
+
+        if collect['idList']:
+            return True, self.MSG_COLLECTED, collect
+        else:
+            return False, self.MSG_IDS_NOT_AVAILABLE, collect
+
     def __allocate(self, count, poolType):
         try:
             allocate = self.resource_client.allocate(count, poolType)
             return True, self.MSG_ALLOCATED, allocate
+
         except OneViewModuleValueError:
             raise OneViewModuleValueError(self.MSG_IDS_NOT_AVAILABLE)
 
