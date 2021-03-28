@@ -125,7 +125,6 @@ if [ -z "$TRAVIS" ]; then
   echo -e "\n${COLOR_START}Generating markdown documentation${COLOR_END}"
   build-doc/run-doc-generation.sh
   exit_code_doc_generation=$?
-
 #Coveralls runs only when Travis is running the build
 else
   echo -e "\n${COLOR_START}Running Coveralls${COLOR_END}"
@@ -136,9 +135,9 @@ fi
 
 
 echo -e "\n${COLOR_START}Running tests${COLOR_END}"
-python -m pytest test/
+#python -m pytest test/
+pytest --cov-report xml --cov=library/ test/
 exit_code_tests=$?
-
 
 echo -e "\n=== Summary =========================="
 print_summary "Modules validation" ${exit_code_module_validation}
