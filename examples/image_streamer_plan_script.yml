@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -59,4 +59,16 @@
         state: absent
         data:
             name: '{{ plan_script_name_changed }}'
+      delegate_to: localhost
+
+    - name: Create a Plan Script to support automation
+      image_streamer_plan_script:
+        config: "{{ config }}"
+        state: present
+        data:
+          description: "Description of this plan script"
+          name: '{{ plan_script_name }}'
+          hpProvided: False
+          planType: "deploy"
+          content: 'echo "test script"'
       delegate_to: localhost

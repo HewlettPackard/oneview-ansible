@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    subnet_name: Test ID Pools IPV4 Subnet
+    subnet_name: IPV4Subnet
+    network_id: '10.1.0.0'
   tasks:
     - name: Ensure the ID Pools IPV4 Subnet exists
       oneview_id_pools_ipv4_subnet:
@@ -26,9 +27,9 @@
         data:
           name: '{{ subnet_name }}'
           type: Subnet
-          networkId: 10.10.1.0
-          subnetmask: 255.255.255.0
-          gateway: 10.10.1.1
+          networkId: '{{ network_id }}'
+          subnetmask: 255.255.192.0
+          gateway: '10.1.0.1'
           domain: example.com
           dnsServers:
             - 10.10.10.215
@@ -39,7 +40,7 @@
         config: "{{ config }}"
         state: present
         data:
-          name: '{{ subnet_name }}'
+          networkId: '{{ network_id }}'
           type: Subnet
       delegate_to: localhost
 
@@ -48,8 +49,26 @@
         config: "{{ config }}"
         state: present
         data:
-          name: '{{ subnet_name }}'
+          networkId: '{{ network_id }}'
           domain: awesome.com
+      delegate_to: localhost
+
+    - name: Allocate the no of IPv4 ID's
+      oneview_id_pools_ipv4_subnet:
+        config: "{{ config }}"
+        state: allocate
+        data:
+          networkId: '{{ network_id }}'
+          count: 3
+      delegate_to: localhost
+
+    - name: Get the allocated ID's List
+      oneview_id_pools_ipv4_subnet:
+        config: "{{ config }}"
+        state: collect
+        data:
+          networkId: '{{ network_id }}'
+          idList: '{{ id_pools_ipv4_subnet["idList"] }}'
       delegate_to: localhost
 
     - name: Delete the ID Pools IPV4 Subnet
@@ -57,7 +76,7 @@
         config: "{{ config }}"
         state: absent
         data:
-          name: '{{ subnet_name }}'
+          networkId: '{{ network_id }}'
       delegate_to: localhost
 
     - name: Do nothing when ID Pools IPV4 Subnet is absent
@@ -65,5 +84,5 @@
         config: "{{ config }}"
         state: absent
         data:
-          name: '{{ subnet_name }}'
+          networkId: '{{ network_id }}'
       delegate_to: localhost

@@ -22,10 +22,10 @@ ANSIBLE_METADATA = {'status': ['stableinterface'],
 
 DOCUMENTATION = '''
 ---
-module: oneview_appliance_time_and_locale_configuration_facts
-short_description: Retrieve the facts about the OneView appliance time and locale configuration.
+module: oneview_appliance_ssh_access_facts
+short_description: Retrieve the facts about the OneView appliance SSH access configuration.
 description:
-    - Retrieve the facts about the OneView appliance time and locale configuration.
+    - Retrieve the facts about the OneView appliance SSH access configuration.
 version_added: "2.9"
 requirements:
     - "python >= 3.4.2"
@@ -38,16 +38,17 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = '''
-- name: Gather facts about the Appliance time and locale configuration
-  oneview_appliance_time_and_locale_configuration_facts:
-    config: "{{ config_file_path }}"
+- name: Gather facts about the Appliance SSH Access
+  oneview_appliance_ssh_access_facts:
+    config: "{{ config file path}}"
+  delegate_to: localhost
 
-- debug: var=appliance_time_and_locale_configuration
+- debug: var=appliance_ssh_access
 '''
 
 RETURN = '''
-appliance_time_and_locale_configuration:
-    description: Has all the OneView facts about the Appliance time and locale configuration.
+appliance_ssh_access:
+    description: Has all the OneView facts about the Appliance SSH access.
     returned: Always.
     type: dict
 '''
@@ -55,19 +56,20 @@ appliance_time_and_locale_configuration:
 from ansible.module_utils.oneview import OneViewModule
 
 
-class ApplianceTimeAndLocaleConfigurationFactsModule(OneViewModule):
+class ApplianceSshAccessFactsModule(OneViewModule):
     def __init__(self):
-        super(ApplianceTimeAndLocaleConfigurationFactsModule, self).__init__(additional_arg_spec=dict())
-        self.set_resource_object(self.oneview_client.appliance_time_and_locale_configuration)
+        super(ApplianceSshAccessFactsModule, self).__init__(additional_arg_spec=dict())
+        self.set_resource_object(self.oneview_client.appliance_ssh_access)
 
     def execute_module(self):
-        appliance_time_and_locale_configuration = self.resource_client.get_all()
+        appliance_ssh_access = self.resource_client.get_all()
+        appliance_ssh_access = appliance_ssh_access.data
         return dict(changed=False,
-                    ansible_facts=dict(appliance_time_and_locale_configuration=appliance_time_and_locale_configuration.data))
+                    ansible_facts=dict(appliance_ssh_access=appliance_ssh_access))
 
 
 def main():
-    ApplianceTimeAndLocaleConfigurationFactsModule().run()
+    ApplianceSshAccessFactsModule().run()
 
 
 if __name__ == '__main__':
