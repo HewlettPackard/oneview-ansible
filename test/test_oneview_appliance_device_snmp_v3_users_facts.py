@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@ PARAMS_GET_ALL = dict(
     config='config.json'
 )
 
-PARAMS_GET_BY_ID = dict(
+PARAMS_GET_BY_NAME = dict(
     config='config.json',
-    id='3953867c-5283-4059-a9ae-33487f901e85'
+    name='TestUser1'
 )
 
 PRESENT_CONFIGURATION = [{
@@ -67,9 +67,10 @@ class TestApplianceDeviceSnmpV3UsersFactsModule(OneViewBaseFactsTest):
             ansible_facts=dict(appliance_device_snmp_v3_users=(PRESENT_CONFIGURATION))
         )
 
-    def test_should_get_by_id_snmp_v3_users(self):
-        self.resource.get_by_id.return_value = PRESENT_CONFIGURATION
-        self.mock_ansible_module.params = PARAMS_GET_BY_ID
+    def test_should_get_by_name_snmp_v3_users(self):
+        self.resource.data = PRESENT_CONFIGURATION
+        self.resource.get_by_name.return_value = self.resource
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         ApplianceDeviceSnmpV3UsersFactsModule().run()
 

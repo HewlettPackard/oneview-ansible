@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -49,4 +49,16 @@
         state: absent
         data:
             name: '{{ deployment_plan_name_changed }}'
+      delegate_to: localhost
+
+    - name: Create a Deployment Plan for automation
+      image_streamer_deployment_plan:
+        config: "{{ config }}"
+        state: present
+        data:
+          description: "Description of this Deployment Plan"
+          name: '{{ deployment_plan_name }}'
+          hpProvided: 'false'
+          type: 'OEDeploymentPlanV5'
+          oeBuildPlanName: "Demo Build Plan"
       delegate_to: localhost

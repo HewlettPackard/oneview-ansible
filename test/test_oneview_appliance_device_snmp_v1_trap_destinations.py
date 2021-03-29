@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 # limitations under the License.
 ###
 
-import mock
 import pytest
 
 from hpe_test_utils import OneViewBaseTest
@@ -34,24 +33,13 @@ DEFAULT_SNMPv1_TRAP_TEMPLATE = dict(
 PARAMS_FOR_PRESENT = dict(
     config='config.json',
     state='present',
-    data=dict(destination=DEFAULT_SNMPv1_TRAP_TEMPLATE['destination'])
-)
-
-PARAMS_FOR_PRESENT_WITH_URI = dict(
-    config='config.json',
-    state='present',
-    data=dict(uri=DEFAULT_SNMPv1_TRAP_TEMPLATE['uri'])
-)
-
-PARAMS_FOR_INVALID = dict(
-    config='config.json',
-    state='present',
-    data=dict(communityString=DEFAULT_SNMPv1_TRAP_TEMPLATE['communityString'])
-)
+    name=DEFAULT_SNMPv1_TRAP_TEMPLATE['destination'],
+    data=dict(destination=DEFAULT_SNMPv1_TRAP_TEMPLATE['destination']))
 
 PARAMS_WITH_CHANGES = dict(
     config='config.json',
     state='present',
+    name=DEFAULT_SNMPv1_TRAP_TEMPLATE['destination'],
     data=dict(destination=DEFAULT_SNMPv1_TRAP_TEMPLATE['destination'],
               communityString='private')
 )
@@ -59,13 +47,7 @@ PARAMS_WITH_CHANGES = dict(
 PARAMS_FOR_ABSENT = dict(
     config='config.json',
     state='absent',
-    data=dict(destination=DEFAULT_SNMPv1_TRAP_TEMPLATE['destination'])
-)
-
-PARAMS_FOR_ABSENT_WITH_URI = dict(
-    config='config.json',
-    state='absent',
-    data=dict(uri=DEFAULT_SNMPv1_TRAP_TEMPLATE['uri'])
+    name=DEFAULT_SNMPv1_TRAP_TEMPLATE['destination']
 )
 
 
@@ -76,8 +58,10 @@ class TestApplianceDeviceSnmpV1TrapDestinationsModule(OneViewBaseTest):
         self.mock_ov_client.api_version = 600
 
     def test_should_create_new_snmp_v1_trap_destination(self):
-        self.resource.get_all.return_value = []
-        self.resource.create.return_value = DEFAULT_SNMPv1_TRAP_TEMPLATE
+        self.resource.get_by_name.return_value = None
+        self.resource.get_by_uri.return_value = None
+        self.resource.data = DEFAULT_SNMPv1_TRAP_TEMPLATE
+        self.resource.create.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -90,7 +74,9 @@ class TestApplianceDeviceSnmpV1TrapDestinationsModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_is_equals(self):
-        self.resource.get_by.return_value = [DEFAULT_SNMPv1_TRAP_TEMPLATE]
+        self.resource.data = DEFAULT_SNMPv1_TRAP_TEMPLATE
+        self.resource.get_by_name.return_value = self.resource
+        self.resource.get_by_uri.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_PRESENT
 
@@ -102,35 +88,12 @@ class TestApplianceDeviceSnmpV1TrapDestinationsModule(OneViewBaseTest):
             ansible_facts=dict(appliance_device_snmp_v1_trap_destinations=DEFAULT_SNMPv1_TRAP_TEMPLATE)
         )
 
-    def test_should_get_the_same_resource_by_uri(self):
-        self.resource.get_by.return_value = [DEFAULT_SNMPv1_TRAP_TEMPLATE]
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT_WITH_URI
-
-        ApplianceDeviceSnmpV1TrapDestinationsModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            msg=ApplianceDeviceSnmpV1TrapDestinationsModule.MSG_ALREADY_PRESENT,
-            ansible_facts=dict(appliance_device_snmp_v1_trap_destinations=(DEFAULT_SNMPv1_TRAP_TEMPLATE))
-        )
-
-    def test_should_fail_with_missing_required_attributes(self):
-        self.mock_ansible_module.params = PARAMS_FOR_INVALID
-
-        ApplianceDeviceSnmpV1TrapDestinationsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            exception=mock.ANY,
-            msg=ApplianceDeviceSnmpV1TrapDestinationsModule.MSG_VALUE_ERROR
-        )
-
     def test_update_when_data_has_modified_attributes(self):
+        self.resource.data = DEFAULT_SNMPv1_TRAP_TEMPLATE
         data_merged = DEFAULT_SNMPv1_TRAP_TEMPLATE.copy()
-        data_merged['communityString'] = 'private'
 
-        self.resource.get_by.return_value = [DEFAULT_SNMPv1_TRAP_TEMPLATE]
-        self.resource.update.return_value = data_merged
+        self.resource.get_by_name.return_value = self.resource
+        self.resource.update.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
@@ -143,7 +106,8 @@ class TestApplianceDeviceSnmpV1TrapDestinationsModule(OneViewBaseTest):
         )
 
     def test_should_remove_snmp_v1_trap_destination(self):
-        self.resource.get_by.return_value = [DEFAULT_SNMPv1_TRAP_TEMPLATE]
+        self.resource.data = DEFAULT_SNMPv1_TRAP_TEMPLATE
+        self.resource.get_by_name.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
@@ -154,20 +118,8 @@ class TestApplianceDeviceSnmpV1TrapDestinationsModule(OneViewBaseTest):
             msg=ApplianceDeviceSnmpV1TrapDestinationsModule.MSG_DELETED
         )
 
-    def test_should_remove_snmp_v1_trap_destination_by_uri(self):
-        self.resource.get_by.return_value = [DEFAULT_SNMPv1_TRAP_TEMPLATE]
-
-        self.mock_ansible_module.params = PARAMS_FOR_ABSENT_WITH_URI
-
-        ApplianceDeviceSnmpV1TrapDestinationsModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=ApplianceDeviceSnmpV1TrapDestinationsModule.MSG_DELETED
-        )
-
     def test_should_do_nothing_when_snmp_v1_trap_destination_not_exist(self):
-        self.resource.get_all.return_value = []
+        self.resource.get_by_name.return_value = None
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 

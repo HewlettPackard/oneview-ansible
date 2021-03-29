@@ -17,29 +17,10 @@
 - hosts: all
   vars:
     - config: "{{ playbook_dir }}/oneview_config.json"
-    - subnet_name: IPV4Subnet
   tasks:
-    - name: Gather facts about all ID Pools IPV4 Subnets
-      oneview_id_pools_ipv4_subnet_facts:
+    - name: Gather facts about the Appliance configuration Timeconfig
+      oneview_appliance_configuration_timeconfig_facts:
         config: "{{ config }}"
       delegate_to: localhost
 
-    - debug: var=id_pools_ipv4_subnets
-
-    - name: Gather paginated, and sorted facts about ID Pools IPV4 Subnets
-      oneview_id_pools_ipv4_subnet_facts:
-        config: "{{ config }}"
-        params:
-          start: 0
-          count: 3
-          sort: 'name:descending'
-
-    - debug: var=id_pools_ipv4_subnets
-
-    - name: Gather facts about ID Pools IPV4 Subnets by networkId
-      oneview_id_pools_ipv4_subnet_facts:
-        config: "{{ config }}"
-        networkId: '{{ id_pools_ipv4_subnets[0]["networkId"] }}'
-      delegate_to: localhost
-
-    - debug: var=id_pools_ipv4_subnets
+    - debug: var=appliance_configuration_timeconfig

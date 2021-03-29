@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,18 +17,25 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    subnet_name: Range Test IPv4 Subnet
-    range_name: Experts Range
+    subnet_name: 10.1.0.0
+    range_name: 10.1.0.0 Range 1
   tasks:
     - name: Get facts about the IPv4 Subnet
       oneview_id_pools_ipv4_subnet_facts:
         config: "{{ config }}"
-        name: '{{ subnet_name }}'
+        networkId: '{{ subnet_name }}'
       delegate_to: localhost
 
     - debug: var=id_pools_ipv4_subnets
 
     - set_fact: subnet_uri="{{ id_pools_ipv4_subnets[0]['uri'] }}"
+
+    - name: Get ID Pools IPv4 Range Schema 
+      oneview_id_pools_ipv4_range_facts:
+        config: "{{ config }}"
+        options:
+          - schema
+      delegate_to: localhost
 
     - name: Get facts about all the ranges
       oneview_id_pools_ipv4_range_facts:
@@ -55,12 +62,14 @@
     - debug: var=id_pools_ipv4_ranges
 
     - set_fact: range_uri='{{ id_pools_ipv4_ranges[0]['uri'] }}'
+      when: id_pools_ipv4_ranges == True
 
     - name: Get facts about the range '{{ range_uri }}'
       oneview_id_pools_ipv4_range_facts:
         config: "{{ config }}"
         uri: '{{ range_uri }}'
       delegate_to: localhost
+      when: range_uri is defined
 
     - debug: var=id_pools_ipv4_ranges
 
@@ -72,6 +81,7 @@
           - allocatedFragments
         uri: '{{ range_uri }}'
       delegate_to: localhost
+      when: range_uri is defined
 
     - debug: var=id_pools_ipv4_ranges
     - debug: var=id_pools_ipv4_ranges_free_fragments

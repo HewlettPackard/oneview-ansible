@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -29,7 +29,8 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 2.7.9"
-    - "hpeOneView >= 4.0.0"
+    - "hpeOneView >= 6.0.0"
+    - "ansible >= 2.9"
 author: "Thiago Miotto (@tmiotto)"
 options:
     state:
@@ -71,10 +72,10 @@ id_pools_ipv4_range:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleValueError
+from ansible.module_utils.oneview import OneViewModule
 
 
-class IdPoolsIpv4RangeModule(OneViewModuleBase):
+class IdPoolsIpv4RangeModule(OneViewModule):
     MSG_CREATED = 'ID pools IPV4 Range created successfully.'
     MSG_UPDATED = 'ID pools IPV4 Range updated successfully.'
     MSG_DELETED = 'ID pools IPV4 Range deleted successfully.'
@@ -91,43 +92,66 @@ class IdPoolsIpv4RangeModule(OneViewModuleBase):
 
         super(IdPoolsIpv4RangeModule, self).__init__(additional_arg_spec=additional_arg_spec,
                                                      validate_etag_support=True)
-
         self.resource_client = self.oneview_client.id_pools_ipv4_ranges
 
     def execute_module(self):
-        resource = None
+        self.current_resource = None
+        # If Range URI is provided then it sets the resource client
         if self.data.get('uri'):
-            resource = self.resource_client.get(self.data.get('uri'))
+            self.current_resource = self.resource_client.get_by_uri(self.data.get('uri'))
+        # Do preliminary check before creating a new range
         elif self.data.get('subnetUri') and self.data.get('name'):
-            subnet = self.oneview_client.id_pools_ipv4_subnets.get(self.data.get('subnetUri'))
-            for range_uri in subnet['rangeUris']:
-                maybe_resource = self.resource_client.get(range_uri)
-                if maybe_resource['name'] == self.data['name']:
-                    resource = maybe_resource
-                    break
-
-        self.data['type'] = self.data.get('type', 'Range')
+            subnet = self.oneview_client.id_pools_ipv4_subnets.get_by_uri(self.data.get('subnetUri'))
+            for range_uri in subnet.data['rangeUris']:
+                maybe_resource = self.resource_client.get_by_uri(range_uri)
+                if maybe_resource.data['name'] == self.data['name']:
+                    self.current_resource = maybe_resource
 
         if self.state == 'present':
-            return self.__present(resource)
+            return self._present()
         elif self.state == 'absent':
-            return self.resource_absent(resource)
+            return self.resource_absent()
 
-    def __present(self, resource):
-        if not resource:
-            response = self.resource_present(resource, 'id_pools_ipv4_range')
+    def _present(self):
+        # If no resource was found during get operation, it creates new one
+        if not self.current_resource:
+            response = self.resource_present("id_pools_ipv4_range")
         else:
-            # Enabled can be True, False or None. Using not found default 'X' for comparison purposes.
-            enabled = self.data.pop('enabled', 'X')
+            # setting current resource for _update_resource
+            # Enabled can be True, False or None. Using not found default to false for comparison purposes.
+            enabled = self.data.pop('enabled', 'not_given')
+            # sets update_collector/update_allocator if Given to True.
+            update_collector = self.data.pop('update_collector', False)
+            update_allocator = self.data.pop('update_allocator', False)
+            id_list = self.data.pop('idList', False)
+            count = self.data.pop('count', False)
+            # In case newName is given it sets it correctly
             if self.data.get('newName'):
                 self.data['name'] = self.data.pop('newName')
-            response = self.resource_present(resource, 'id_pools_ipv4_range')
-            if enabled != 'X' and enabled != resource.get('enabled'):
+            # It Performs the update operation
+            response = self.resource_present("id_pools_ipv4_range")
+            # Checks enabled status in latest data and performas accordingly
+            if enabled != 'not_given' and enabled != self.current_resource.data.get('enabled'):
                 response['msg'] = self.MSG_UPDATED
                 response['changed'] = True
                 response['ansible_facts']['id_pools_ipv4_range'] = \
-                    self.resource_client.enable(dict(enabled=enabled, type='Range'), resource['uri'])
+                    self.resource_client.enable(dict(enabled=enabled, type='Range'), self.current_resource.data['uri'])
                 self.data['enabled'] = enabled
+                return response
+            elif update_collector:
+                response['msg'] = self.MSG_UPDATED
+                response['changed'] = True
+                self.data['idList'] = id_list
+                response['ansible_facts']['id_pools_ipv4_range'] = \
+                    self.resource_client.update_collector(dict(idList=id_list), self.data.get('uri'))
+                return response
+            elif update_allocator:
+                self.data['idList'] = id_list
+                self.data['count'] = count
+                response['msg'] = self.MSG_UPDATED
+                response['changed'] = True
+                response['ansible_facts']['id_pools_ipv4_range'] = \
+                    self.resource_client.update_allocator(dict(idList=id_list, count=count), self.data.get('uri'))
         return response
 
 
