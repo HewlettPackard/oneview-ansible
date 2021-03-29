@@ -101,9 +101,11 @@ class TestIdPoolsFactsModule(OneViewBaseTest):
 
     def test_should_generate_random_ids(self):
         self.mock_ov_client.id_pools_facts.get.return_value = DEFAULT_ID_POOLS
+        self.resource.data = GENERATE_TEMPLATE
         self.resource.data['poolType'] = 'vmac'
 
-        self.resource.generate.return_value = GENERATE_TEMPLATE
+        self.mock_ansible_module.check_mode = False
+        self.resource.generate.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_WITH_GENERATE
 
@@ -116,9 +118,12 @@ class TestIdPoolsFactsModule(OneViewBaseTest):
 
     def test_should_get_pool_type(self):
         self.mock_ov_client.id_pools_facts.get.return_value = DEFAULT_ID_POOLS
+        self.resource.data = POOL_TYPE_TEMPLATE
         self.resource.data['poolType'] = 'vmac'
 
-        self.resource.get_pool_type.return_value = POOL_TYPE_TEMPLATE
+        self.mock_ansible_module.check_mode = False
+
+        self.resource.get_pool_type.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_WITH_POOL_TYPE
 
@@ -131,9 +136,10 @@ class TestIdPoolsFactsModule(OneViewBaseTest):
 
     def test_should_validate_id_pool(self):
         self.resource.get.return_value = DEFAULT_ID_POOLS
+        self.resource.data = VALIDATE_TEMPLATE
         self.resource.data['uri'] = DEFAULT_ID_POOLS['uri'] + "/validate?idList=VCGYOAA023&idList=VCGYOAA024"
 
-        self.resource.validate_id_pool.return_value = VALIDATE_TEMPLATE
+        self.resource.validate_id_pool.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_WITH_VALIDATE_ID_POOL
 
@@ -146,9 +152,11 @@ class TestIdPoolsFactsModule(OneViewBaseTest):
 
     def test_should_check_range_availability_with_defaults(self):
         self.resource.get.return_value = DEFAULT_ID_POOLS
+        self.resource.data = VALIDATE_TEMPLATE
+
         self.resource.data['uri'] = DEFAULT_ID_POOLS['uri'] + "/checkrangeavailability?idList=VCGYOAA023&idList=VCGYOAA024"
 
-        self.resource.get_check_range_availability.return_value = VALIDATE_TEMPLATE
+        self.resource.get_check_range_availability.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 

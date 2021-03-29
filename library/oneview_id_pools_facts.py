@@ -103,7 +103,7 @@ id_pool:
 
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleValueError
+from ansible.module_utils.oneview import OneViewModule
 
 
 class IdPoolsFactsModule(OneViewModule):
@@ -140,6 +140,7 @@ class IdPoolsFactsModule(OneViewModule):
 
         if type(id_pool) is not dict:
             id_pool = id_pool.data
+
         ansible_facts['id_pool'] = id_pool
 
         return dict(changed=False, ansible_facts=ansible_facts)
