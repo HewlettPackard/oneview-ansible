@@ -1,13 +1,120 @@
 # Ansible Modules for HPE OneView Change Log
-## v6.1.0
-This release extends the planned support of the modules to OneView REST API version 2800 (OneView v6.10).
 
+## v6.1.0(unreleased)
 #### Major changes
 In this release, we have added support for IDPools resources.
 
 ### Modules supported in this release
 - oneview_id_pools
 - oneview_id_pools_facts
+
+#### Bug fixes & Enhancements
+- [#634] (https://github.com/HewlettPackard/oneview-ansible/issues/634) Create Uplink Set with FC network - Cannot use name but URI
+
+## v6.0.0
+This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0) and ImageStreamer REST API version 2010 (I3S v6.0).
+
+#### Major changes
+In this release, we have added support for most of the OneView settings resources.
+
+#### Bug fixes & Enhancements
+- [#633] (https://github.com/HewlettPackard/oneview-ansible/issues/633) Internal network in LogicalInterconnectGroup
+- [#639] (https://github.com/HewlettPackard/oneview-ansible/issues/639) oneview ansible firmware driver delete module not working
+
+### Modules supported in this release
+- image_streamer_artifact_bundle
+- image_streamer_artifact_bundle_facts
+- image_streamer_build_plan
+- image_streamer_build_plan_facts
+- image_streamer_deployment_group_facts
+- image_streamer_deployment_plan
+- image_streamer_deployment_plan_facts
+- image_streamer_golden_image
+- image_streamer_golden_image_facts
+- image_streamer_os_volume_facts
+- image_streamer_plan_script
+- image_streamer_plan_script_facts
+- oneview_alert_facts
+- oneview_appliance_configuration_timeconfig_facts
+- oneview_appliance_device_read_community
+- oneview_appliance_device_read_community_facts
+- oneview_appliance_device_snmpv1_trap_destinations
+- oneview_appliance_device_snmpv1_trap_destinations_facts
+- oneview_appliance_device_snmpv3_trap_destinations
+- oneview_appliance_device_snmpv3_trap_destinations_facts
+- oneview_appliance_device_snmp_v3_users
+- oneview_appliance_device_snmp_v3_users_facts
+- oneview_appliance_ssh_access
+- oneview_appliance_ssh_access_facts
+- oneview_appliance_time_and_locale_configuration
+- oneview_appliance_time_and_locale_configuration_facts
+- oneview_certificates_server
+- oneview_certificates_server_facts
+- oneview_connection_template
+- oneview_connection_template_facts
+- oneview_enclosure
+- oneview_enclosure_facts
+- oneview_enclosure_group
+- oneview_enclosure_group_facts
+- oneview_ethernet_network
+- oneview_ethernet_network_facts
+- oneview_fc_network
+- oneview_fc_network_facts
+- oneview_fcoe_network
+- oneview_fcoe_network_facts
+- oneview_firmware_driver
+- oneview_firmware_driver_facts
+- oneview_hypervisor_cluster_profile
+- oneview_hypervisor_cluster_profile_facts
+- oneview_hypervisor_manager
+- oneview_hypervisor_manager_facts
+- oneview_id_pools_ipv4_range
+- oneview_id_pools_ipv4_range_facts
+- oneview_id_pools_ipv4_subnets
+- oneview_id_pools_ipv4_subnets_facts
+- oneview_interconnect
+- oneview_interconnect_facts
+- oneview_interconnect_link_topology_facts
+- oneview_interconnect_type_facts
+- oneview_internal_link_set_facts
+- oneview_logical_downlink_facts
+- oneview_logical_enclosures
+- oneview_logical_enclosures_facts
+- oneview_logical_interconnect
+- oneview_logical_interconnect_facts
+- oneview_logical_interconnect_group
+- oneview_logical_interconnect_group_facts
+- oneview_login_detail_facts
+- oneview_network_set
+- oneview_network_set_facts
+- oneview_os_deployment_plan_facts
+- oneview_scope
+- oneview_scope_facts
+- oneview_server_hardware
+- oneview_server_hardware_facts
+- oneview_server_hardware_type
+- oneview_server_hardware_type_facts
+- oneview_server_profile
+- oneview_server_profile_facts
+- oneview_server_profile_template
+- oneview_server_profile_template_facts
+- oneview_storage_pool
+- oneview_storage_pool_facts
+- oneview_storage_system
+- oneview_storage_system_facts
+- oneview_storage_volume
+- oneview_storage_volume_facts
+- oneview_storage_volume_attachment
+- oneview_storage_volume_attachment_facts
+- oneview_storage_volume_template
+- oneview_storage_volume_template_facts
+- oneview_switch_type_facts
+- oneview_task_facts
+- oneview_unmanaged_device
+- oneview_unmanaged_device_facts
+- oneview_uplink_set
+- oneview_uplink_set_facts
+- oneview_version_facts
 
 ## v6.0.0
 This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0) and ImageStreamer REST API version 2010 (I3S v6.0).
