@@ -29,21 +29,16 @@ description:
 version_added: "2.4"
 requirements:
     - "python >= 3.4.2"
-    - "hpeOneView >= 5.6.0"
+    - "hpeOneView >= 6.0.0"
 author: "Yuvarani Chidambaram(@yuvirani)"
 options:
     state:
         description:
             - Indicates the desired state for the ID Pools resource.
-              C(schema) will fetch the schema of the ID Pool
-              C(get_pool_type) will get ID pool
               C(update_pool_type_ will enable or disable the pool
               C(allocate) will allocate set of ID's from IPv4 Subnet.
               C(collect) will collect the allocated ID's.
               C(validate) will verify ids are valid or not.
-              C(validate_id_pool) will validates the list of ID's from IPv4 Subnet.
-              C(generate) will generate random ID's list.
-              C(checkrangeavailability) will verify the available range of ID's list.
         choices: ['schema', 'get_pool_type', 'update_pool_type', 'allocate', 'collect',
                   'validate', 'validate_id_pool', 'generate', 'check_range_availability']
     data:
@@ -56,31 +51,6 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = '''
-- name: Get schema of the id pools
-  oneview_id_pools:
-    config: "{{ config }}"
-    state: schema
-    data:
-      description: 'ID pool schema'
-  delegate_to: localhost
-
-- name: Generates a random range
-  oneview_id_pools:
-    config: "{{ config }}"
-    state: generate
-    data:
-      poolType: '{{ poolType }}'
-  delegate_to: localhost
-
-- name: Get the ID Pools type
-  oneview_id_pools:
-    config: "{{ config }}"
-    state: get_pool_type
-    data:
-      poolType: '{{ poolType }}'
-  delegate_to: localhost
-- debug: var=id_pool
-
 - name: Enables or disables the pool type
   oneview_id_pools:
     config: "{{ config }}"
@@ -98,24 +68,6 @@ EXAMPLES = '''
     data:
       poolType: '{{ poolType }}'
       count: 2
-  delegate_to: localhost
-
-- name: Checks the range availability in the ID pool
-  oneview_id_pools:
-    config: "{{ config }}"
-    state: check_range_availability
-    data:
-      poolType: '{{ poolType }}'
-      idList: '{{ id_pool["idList"] }}'
-  delegate_to: localhost
-
-- name: Validates the list of ID's from IPv4 Subnet
-  oneview_id_pools:
-    config: "{{ config }}"
-    state: validate_id_pool
-    data:
-      poolType: 'ipv4'
-      idList: ['172.18.9.11']
   delegate_to: localhost
 
 - name: Validates a set of IDs to reserve in the pool
@@ -162,8 +114,7 @@ class IdPoolsModule(OneViewModule):
         argument_spec = dict(
             state=dict(
                 required=True,
-                choices=['allocate', 'collect', 'validate', 'generate', 'validate_id_pool',
-                         'check_range_availability', 'get_pool_type', 'update_pool_type', 'schema']
+                choices=['allocate', 'collect', 'validate', 'update_pool_type']
             ),
             data=dict(required=True, type='dict'),
         )

@@ -50,7 +50,7 @@
         state: check_range_availability
         data:
           poolType: '{{ poolType }}'
-          idList: ["42:CE:78:8F:FF:FF", "42:CE:78:8F:FF:FF"]
+          idList: ["42:CE:78:00:00:00", "42:CE:78:8F:FF:FF"]
       delegate_to: localhost
 
     - name: Validates the list of ID's from IPv4 Subnet

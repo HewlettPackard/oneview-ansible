@@ -78,6 +78,14 @@ PARAMS_WITH_VALIDATE_ID_POOL = dict(
               idDict=dict(idList=['10.1.0.1', '10.1.0.5']))
 )
 
+PARAMS_WITH_RANGE_AVAILABILITY = dict(
+    config='config.json',
+    state='check_range_availability',
+    data=dict(uri=DEFAULT_ID_POOLS['uri'],
+              poolType='ipv4',
+              idDict=dict(idList=['10.1.0.1', '10.1.0.5']))
+)
+
 
 @pytest.mark.resource(TestIdPoolsFactsModule='id_pools')
 class TestIdPoolsFactsModule(OneViewBaseTest):
@@ -158,7 +166,7 @@ class TestIdPoolsFactsModule(OneViewBaseTest):
 
         self.resource.get_check_range_availability.return_value = self.resource
 
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
+        self.mock_ansible_module.params = PARAMS_WITH_RANGE_AVAILABILITY
 
         IdPoolsFactsModule().run()
 

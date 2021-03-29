@@ -29,7 +29,7 @@ description:
 version_added: "2.4"
 requirements:
     - "python >= 3.4.2"
-    - "hpeOneView >= 5.6.0"
+    - "hpeOneView >= 6.0.0"
 author: "Yuvarani Chidambaram(@yuvirani)"
 options:
     state:
@@ -122,7 +122,7 @@ class IdPoolsFactsModule(OneViewModule):
         self.set_resource_object(self.oneview_client.id_pools)
 
     def execute_module(self):
-        ansible_facts = {}
+        ansible_facts, id_pool = {}, {}
 
         poolType = self.data.pop('poolType', '')
         idList = self.data.pop('idList', [])
@@ -135,7 +135,7 @@ class IdPoolsFactsModule(OneViewModule):
             id_pool = (self.resource_client.generate(poolType))
         elif self.state == 'validate_id_pool':
             id_pool = self.resource_client.validate_id_pool(poolType, idList)
-        else:
+        elif self.state == 'check_range_availability':
             id_pool = self.resource_client.get_check_range_availability(poolType, idList)
 
         if type(id_pool) is not dict:
