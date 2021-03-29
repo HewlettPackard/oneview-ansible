@@ -141,7 +141,6 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
             ansible_facts=dict(id_pools_ipv4_subnet=DEFAULT_SUBNET_TEMPLATE)
         )
 
-
     def test_update_when_data_has_modified_attributes(self):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
         data_merged['domain'] = 'diffdomain.com'
