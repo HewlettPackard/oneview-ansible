@@ -48,6 +48,17 @@ PRESENT_SUBNETS = [DEFAULT_SUBNET.copy()]
 
 @pytest.mark.resource(TestIdPoolsIpv4SubnetFactsModule='id_pools_ipv4_subnets')
 class TestIdPoolsIpv4SubnetFactsModule(OneViewBaseFactsTest):
+    def test_should_get_subnet_by_name(self):
+        self.resource.data = PRESENT_SUBNETS
+        self.mock_ansible_module.params = PARAMS_GET_BY_NAME
+
+        IdPoolsIpv4SubnetFactsModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            ansible_facts=dict(id_pools_ipv4_subnets=PRESENT_SUBNETS)
+        )
+
     def test_should_get_all_id_pools_ipv4_subnets(self):
         self.resource.get_all.return_value = PRESENT_SUBNETS
         self.mock_ansible_module.params = PARAMS_GET_ALL

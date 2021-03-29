@@ -38,6 +38,12 @@ PARAMS_FOR_PRESENT = dict(
     data=dict(networkId=DEFAULT_SUBNET_TEMPLATE['networkId'])
 )
 
+PARAMS_FOR_PRESENT_WITH_URI = dict(
+    config='config.json',
+    state='present',
+    data=dict(uri=DEFAULT_SUBNET_TEMPLATE['uri'])
+)
+
 PARAMS_FOR_INVALID = dict(
     config='config.json',
     state='present',
@@ -120,6 +126,21 @@ class TestIdPoolsIpv4SubnetModule(OneViewBaseTest):
             msg=IdPoolsIpv4SubnetModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(id_pools_ipv4_subnet=DEFAULT_SUBNET_TEMPLATE)
         )
+
+    def test_should_get_the_same_resource_by_uri(self):
+        self.resource.data = DEFAULT_SUBNET_TEMPLATE
+        self.resource.get_by_uri.return_value = self.resource
+
+        self.mock_ansible_module.params = PARAMS_FOR_PRESENT_WITH_URI
+
+        IdPoolsIpv4SubnetModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            msg=IdPoolsIpv4SubnetModule.MSG_ALREADY_PRESENT,
+            ansible_facts=dict(id_pools_ipv4_subnet=DEFAULT_SUBNET_TEMPLATE)
+        )
+
 
     def test_update_when_data_has_modified_attributes(self):
         data_merged = DEFAULT_SUBNET_TEMPLATE.copy()
