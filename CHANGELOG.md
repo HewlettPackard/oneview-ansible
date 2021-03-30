@@ -1,5 +1,12 @@
 # Ansible Modules for HPE OneView Change Log
+
 ## v6.1.0(unreleased)
+#### Major changes
+In this release, we have added support for IDPools resources.
+
+### Modules supported in this release
+- oneview_id_pools
+- oneview_id_pools_facts
 
 #### Bug fixes & Enhancements
 - [#634] (https://github.com/HewlettPackard/oneview-ansible/issues/634) Create Uplink Set with FC network - Cannot use name but URI
