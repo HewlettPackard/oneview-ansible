@@ -121,8 +121,7 @@ class LabelModule(OneViewModule):
             return self._present()
         elif self.state == 'absent':
             self.current_resource = self.resource_client.get_by_resource(self.data.get('resourceUri'))
-            result = self.resource_absent()
-        return result
+            return self.resource_absent()
 
     def _present(self):
         if self.data.get('resourceUri'):
