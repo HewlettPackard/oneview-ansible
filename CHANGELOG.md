@@ -7,8 +7,8 @@ In this release, we have added support for IDPools and Labels resources.
 ### Modules supported in this release
 - oneview_id_pools
 - oneview_id_pools_facts
-- oneview_labels
-- oneview_labels_facts
+- oneview_label
+- oneview_label_facts
 
 #### Bug fixes & Enhancements
 - [#634] (https://github.com/HewlettPackard/oneview-ansible/issues/634) Create Uplink Set with FC network - Cannot use name but URI
