@@ -139,6 +139,7 @@ echo -e "\n${COLOR_START}Running tests${COLOR_END}"
 pytest --cov-report xml --cov=library/ test/
 exit_code_tests=$?
 
+
 echo -e "\n=== Summary =========================="
 print_summary "Modules validation" ${exit_code_module_validation}
 print_summary "Playbooks validation" ${exit_code_playbook_validation}

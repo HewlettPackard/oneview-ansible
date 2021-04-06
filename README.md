@@ -19,7 +19,7 @@ Each OneView resource operation is exposed through an Ansible module. Specific m
 
 ## What's New
 
-HPE OneView Ansible library extends support of the SDK to OneView REST API version 2600 (OneView v6.00) and ImageStreamer REST API version 2010 (I3S v6.00)
+HPE OneView Ansible library extends support of the SDK to OneView REST API version 2800 (OneView v6.10) and ImageStreamer REST API version 2010 (I3S v6.00)
 
 Please refer to [notes](https://github.com/HewlettPackard/oneview-ansible/blob/master/CHANGELOG.md) for more information on the changes , features supported and issues fixed in this version
 
@@ -63,12 +63,12 @@ The containerized version of the oneview-ansible modules is available in the [Do
 
 #### Download and store a local copy of  hpe-oneview-sdk-for-ansible and use it as a Docker image.
 ```bash
-$ docker pull hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v6.0.0-OV6.0
+$ docker pull hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v6.1.0-OV6.1
 ```
 
 #### Run docker command which in turn will create a sh session where SDK user can create files, issue commands and execute playbooks
 ```bash
-$ docker run -it hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v6.0.0-OV6.0 /bin/sh
+$ docker run -it hewlettpackardenterprise/hpe-oneview-sdk-for-ansible:v6.1.0-OV6.1 /bin/sh
 ```
 
 There is also a [how-to guide](https://github.com/HewlettPackard/oneview-ansible-samples/blob/master/oneview-ansible-in-container/oneview-ansible-in-container.md) with instructions on how to use the container without creating a sh session.
@@ -86,7 +86,7 @@ To use the Ansible OneView modules, connection properties for accessing the OneV
     "authLoginDomain": "",
     "password": "secret123"
   },
-  "api_version": 2600
+  "api_version": 2800
 }
 ```
 
@@ -119,7 +119,7 @@ export ONEVIEWSDK_USERNAME='Administrator'
 export ONEVIEWSDK_PASSWORD='secret123'
 
 # Optional
-export ONEVIEWSDK_API_VERSION='2600'
+export ONEVIEWSDK_API_VERSION='2800'
 export ONEVIEWSDK_AUTH_LOGIN_DOMAIN='authdomain'
 export ONEVIEWSDK_PROXY='<proxy_host>:<proxy_port>'
 ```
@@ -147,7 +147,7 @@ This option allows the parameters `hostname`, `username`, `password`, `api_versi
     hostname: 172.16.101.48
     username: administrator
     password: my_password
-    api_version: 2600
+    api_version: 2800
     state: present
     data:
       name: "{{ network_name }}"
@@ -174,7 +174,7 @@ Ansible Vault feature may be leveraged for storing the credential of the user in
 	    ```yaml
 	    # Required
 	    ip: 172.168.1.1
-	    api_version:2600
+	    api_version:2800
 	    username: Administrator
 	    password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
@@ -218,17 +218,17 @@ Note: Most of the examples provided in this repository uses OneView Credentials 
 
 ### Setting OneView API Version
 
-The Ansible modules for HPE OneView support the API endpoints for HPE OneView 4.00, 4.10, 4.20, 5.00, 5.20, 5.30, 5.40, 5.50, 5.60, 6.00 <br/>
+The Ansible modules for HPE OneView support the API endpoints for HPE OneView 4.00, 4.10, 4.20, 5.00, 5.20, 5.30, 5.40, 5.50, 5.60, 6.00, 6.10 <br/>
 The current `default` HPE OneView version will pick the OneView appliance version.
 
 To use a different API, you must set the API version together with your credentials, either using the JSON configuration:
 ```bash
-"api_version": 2600
+"api_version": 2800
 ```
 
 OR using the Environment variable: 
 ```bash
-export ONEVIEWSDK_API_VERSION='2600'
+export ONEVIEWSDK_API_VERSION='2800'
 ```
 
 If this property is not specified, it will fall back to the default value.
