@@ -30,7 +30,7 @@
       delegate_to: localhost
       register: label
 
-    - name: Update label of given reosurce for enclosure reosurces
+    - name: Update label of given resource for enclosure reosurces
       oneview_label:
         config: "{{ config }}"
         state: present
