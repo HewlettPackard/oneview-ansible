@@ -1,9 +1,17 @@
 # Ansible Modules for HPE OneView Change Log
 
-## v6.1.0 (Unreleased)
-
+## v6.1.0(unreleased)
 #### Major changes
-This release adds support to resource Label.
+In this release, we have added support for IDPools and Labels resources.
+
+### Modules supported in this release
+- oneview_id_pools
+- oneview_id_pools_facts
+- oneview_labels
+- oneview_labels_facts
+
+#### Bug fixes & Enhancements
+- [#634] (https://github.com/HewlettPackard/oneview-ansible/issues/634) Create Uplink Set with FC network - Cannot use name but URI
 
 ## v6.0.0
 This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0) and ImageStreamer REST API version 2010 (I3S v6.0).

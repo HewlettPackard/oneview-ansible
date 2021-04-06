@@ -5,7 +5,7 @@
 OV Version | 6.00 | 5.60 | 5.50 | 5.40 |
 | ------------- |:-------------:| -------------:| -------------:| -------------:|
 SDK Version/Tag | [v6.0.0](https://github.com/HewlettPackard/oneview-ansible/releases/tag/v6.0.0) | [v5.10.0](https://github.com/HewlettPackard/oneview-ansible/releases/tag/v5.10.0) | [v5.9.0](https://github.com/HewlettPackard/oneview-ansible/releases/tag/v5.9.0) | [v5.8.0](https://github.com/HewlettPackard/oneview-ansible/releases/tag/v5.8.0) |
-Build Status | [![Build status](https://github.com/HewlettPackard/oneview-ansible/actions/workflows/test.yml/badge.svg)](https://github.com/HewlettPackard/oneview-ansible/actions/runs/632120002)| [![Build status](https://api.travis-ci.com/HewlettPackard/oneview-ansible.svg)](https://travis-ci.com/github/HewlettPackard/oneview-ansible/builds/216616724)| [![Build status](https://api.travis-ci.com/HewlettPackard/oneview-ansible.svg)](https://travis-ci.org/github/HewlettPackard/oneview-ansible/builds)| [![Build status](https://api.travis-ci.com/HewlettPackard/oneview-ansible.svg)](https://travis-ci.org/github/HewlettPackard/oneview-ansible/builds)|
+Build Status | [![Build status](https://action-badges.now.sh/JasonEtco/action-badges)](https://github.com/HewlettPackard/oneview-ansible/actions/runs/632120002)| [![Build status](https://api.travis-ci.com/HewlettPackard/oneview-ansible.svg)](https://travis-ci.com/github/HewlettPackard/oneview-ansible/builds/216616724)| [![Build status](https://api.travis-ci.com/HewlettPackard/oneview-ansible.svg)](https://travis-ci.org/github/HewlettPackard/oneview-ansible/builds)| [![Build status](https://api.travis-ci.com/HewlettPackard/oneview-ansible.svg)](https://travis-ci.org/github/HewlettPackard/oneview-ansible/builds)|
 
 
 ## Introduction
