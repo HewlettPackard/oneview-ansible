@@ -5987,7 +5987,7 @@ Label Resource manages the labels assigned to a given resource.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| label   | Set all the labels for a resource. |  Always. |  dict |
+| label   | Has the labels for a resource. |  Always. |  dict |
 
 #### Notes
 
