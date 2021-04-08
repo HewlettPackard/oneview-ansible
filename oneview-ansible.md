@@ -59,6 +59,8 @@
   * [oneview_hypervisor_cluster_profile_facts - Retrieve the facts about one or more of the OneView Hypervisor Cluster Profiles.](#oneview_hypervisor_cluster_profile_facts)
   * [oneview_hypervisor_manager - Manage OneView Hypervisor Manager resources.](#oneview_hypervisor_manager)
   * [oneview_hypervisor_manager_facts - Retrieve the facts about one or more of the OneView Hypervisor Managers.](#oneview_hypervisor_manager_facts)
+  * [oneview_id_pools - Manage OneView ID pools resources.](#oneview_id_pools)
+  * [oneview_id_pools_facts - Retrieve the facts about OneView ID pools resources.](#oneview_id_pools_ipv4_facts)
   * [oneview_id_pools_ipv4_range - Manage OneView ID pools IPV4 Range resources.](#oneview_id_pools_ipv4_range)
   * [oneview_id_pools_ipv4_range_facts - Retrieve the facts about one or more of the OneView ID Pools IPV4 Ranges.](#oneview_id_pools_ipv4_range_facts)
   * [oneview_id_pools_ipv4_subnet - Manage OneView ID pools IPV4 Subnet resources.](#oneview_id_pools_ipv4_subnet)
@@ -68,6 +70,8 @@
   * [oneview_interconnect_link_topology_facts - Retrieve facts about the OneView Interconnect Link Topologies.](#oneview_interconnect_link_topology_facts)
   * [oneview_interconnect_type_facts - Retrieve facts about one or more of the OneView Interconnect Types.](#oneview_interconnect_type_facts)
   * [oneview_internal_link_set_facts - Retrieve facts about the OneView Internal Link Sets.](#oneview_internal_link_set_facts)
+  * [oneview_label - Manage Oneview Label Resources.](#oneview_label)
+  * [oneview_label_facts - Retrieve facts about Oneview Label Resources.](#oneview_label_facts)
   * [oneview_logical_downlinks_facts - Retrieve facts about one or more of the OneView Logical Downlinks.](#oneview_logical_downlinks_facts)
   * [oneview_logical_enclosure - Manage OneView Logical Enclosure resources.](#oneview_logical_enclosure)
   * [oneview_logical_enclosure_facts - Retrieve facts about one or more of the OneView Logical Enclosures.](#oneview_logical_enclosure_facts)
@@ -2511,6 +2515,8 @@ Manage OneView Certificates Server resources.
     state: absent
     data:
       alias_name: 'vcenter'
+
+```
 
 ---
 
@@ -5128,6 +5134,183 @@ Retrieve the facts about one or more of the OneView Hypervisor Managers.
 ---
 
 
+## oneview_id_pools
+Manage OneView ID Pools resources.
+
+#### Synopsis
+ Provides an interface to manage ID Pools resources. Can create, update, and delete.
+
+#### Requirements (on the host that executes the module)
+  * python >= 3.4.2
+  * hpeOneView >= 6.0.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with the ID Pool properties.  |
+| state  |   |  | <ul> <li>allocate</li>  <li>collect</li> </ul> |  Indicates the desired state for the resource. `allocate` will reserve set of Ids. `collect` will gather the allocated Ids.  |
+| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+
+## Example Playbook
+
+```yaml
+
+- name: Enables or disables the pool type
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: update_pool_type
+    data:
+      poolType: '{{ poolType }}'
+      enabled: True
+  delegate_to: localhost
+
+- name: Allocates one or more IDs from a pool
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: allocate
+    data:
+      poolType: '{{ poolType }}'
+      count: 2
+  delegate_to: localhost
+- debug: var=id_pool
+
+- name: Collects one or more IDs to be returned to a pool
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: collect
+    data:
+      poolType: '{{ poolType }}'
+      idList: '{{ id_pool["idList"] }}'
+  delegate_to: localhost
+
+- name: Generates a random range
+  oneview_id_pools_facts:
+    config: "{{ config }}"
+    state: generate
+    data:
+      poolType: '{{ poolType }}'
+  delegate_to: localhost
+- debug: var=id_pool
+
+- name: Validates a set of IDs to reserve in the pool
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: validate
+    data:
+      poolType: '{{ poolType }}'
+      idList: ['{{ id_pool["startAddress"] }}', 
+               '{{ id_pool["endAddress"] }}']
+  delegate_to: localhost
+
+```
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| id_pools | Has the facts about the managed OneView ID Pools |  On state 'collect'. Can be null. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_id_pools_facts
+Manage OneView ID Pools resources.
+
+#### Synopsis
+ Provides an interface to manage ID Pools resources. Can get schema, validate, and generate range.
+
+#### Requirements (on the host that executes the module)
+  * ppython >= 3.4.2
+  * hpeOneView >= 6.0.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with the ID Pool properties.  |
+| state  |   |  | <ul> <li>schema</li>  <li>validate</li> </ul> |  Indicates the desired state for the resource. `schema` will fetch Id Pool schema. `validate` will ensure Ids are validated or not.  |
+| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+
+## Example Playbook
+
+```yaml
+
+- name: Get schema of the id pools
+  oneview_id_pools_facts:
+    config: "{{ config }}"
+    state: schema
+    data:
+      description: 'ID pool schema'
+  delegate_to: localhost
+
+- name: Generates a random range
+  oneview_id_pools_facts:
+    config: "{{ config }}"
+    state: generate
+    data:
+      poolType: '{{ poolType }}'
+  delegate_to: localhost
+
+- name: Get the ID Pools type
+  oneview_id_pools_facts:
+    config: "{{ config }}"
+    state: get_pool_type
+    data:
+      poolType: '{{ poolType }}'
+  delegate_to: localhost
+- debug: var=id_pool
+
+- name: Checks the range availability in the ID pool
+  oneview_id_pools_facts:
+    config: "{{ config }}"
+    state: check_range_availability
+    data:
+      poolType: '{{ poolType }}'
+      idList: ["42:CE:78:00:00:00", "42:CE:78:8F:FF:FF"]
+  delegate_to: localhost
+
+- name: Validates the list of ID's from IPv4 Subnet
+  oneview_id_pools_facts:
+    config: "{{ config }}"
+    state: validate_id_pool
+    data:
+      poolType: 'ipv4'
+      idList: ['172.18.9.11']
+  delegate_to: localhost
+
+```
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| id_pools_facts | Has the facts about the managed OneView ID Pools |  On state 'generate'. Can be null. |  dict |
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
 ## oneview_id_pools_ipv4_range
 Manage OneView ID pools IPV4 Range resources.
 
@@ -5918,6 +6101,150 @@ Retrieve facts about the OneView Internal Link Sets.
 
 
 ---
+
+
+## oneview_label
+Manage the Oneview Label Resources.
+
+#### Synopsis
+Label Resource manages the labels assigned to a given resource.
+
+#### Requirements (on the host that executes the module)
+  * python >= 3.4.2
+  * hpeOneView >= 6.1.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| name  |   No  |  | |  Label name.  |
+| uri | No |  | | URI of Label.  |
+| resourceUri | No | | URI of Resource.   |
+
+
+#### Examples
+
+``` yaml
+
+- name: Create Labels for enclosure resource
+  oneview_label:
+    config: "{{ config }}"
+    state: present
+    data:
+      resourceUri: "/rest/enclosures/0000000000A66102"
+      labels:
+        - name: "Test label 1"
+        - name: "Test Label 2"
+  delegate_to: localhost
+  register: label
+
+- name: Update label of given resource for enclosure resource
+  oneview_label:
+    config: "{{ config }}"
+    state: present
+    data:
+      resourceUri: "/rest/enclosures/0000000000A66102"
+      labels:
+        - name: "Test label 1 Renamed"
+          uri: "/rest/labels/130"
+        - name: "Test label 2 Renamed"
+          uri: null 
+        - name: "Test label 3"
+          uri: null 
+  delegate_to: localhost
+
+- name: Delete Labels for enclosure resource
+  oneview_label:
+    config: "{{ config }}"
+    state: absent
+    data:
+      resourceUri: "/rest/enclosures/0000000000A66102"
+  delegate_to: localhost
+
+```
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| label   | Has the labels for a resource. |  Always. |  dict |
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+## oneview_label_facts
+Retrive facts about Oneview Label Resources.
+
+#### Synopsis
+Gets a list of the labels.
+
+#### Requirements (on the host that executes the module)
+  * python >= 3.4.2
+  * hpeOneView >= 6.1.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| name  |   No  |  | |  Label name.  |
+| resourceUri | No | | URI of Resource.   |
+
+
+#### Examples
+
+```yaml
+
+- name: Gather facts about all Labels 
+  oneview_label_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=labels
+
+- name: Gather paginated, filtered and sorted facts about Labels
+  oneview_label_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: ''
+- debug: var=labels
+
+- name: Gather facts about a Label by name
+  oneview_label_facts:
+    config: "{{ config }}"
+    name: "{{ labels[0]['name'] }}"
+  delegate_to: localhost
+
+- debug: var=labels
+ 
+- name: Gather facts about a Label by Resource
+  oneview_label_facts:
+    config: "{{ config }}"
+    resourceUri: "/rest/enclosures/0000000000A66102"
+  delegate_to: localhost 
+
+- debug: var=labels
+
+```
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| labels   | list of Labels. |  Always. but, can be null |  dict |
 
 
 ## oneview_logical_downlinks_facts
