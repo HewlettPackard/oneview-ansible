@@ -59,6 +59,8 @@
   * [oneview_hypervisor_cluster_profile_facts - Retrieve the facts about one or more of the OneView Hypervisor Cluster Profiles.](#oneview_hypervisor_cluster_profile_facts)
   * [oneview_hypervisor_manager - Manage OneView Hypervisor Manager resources.](#oneview_hypervisor_manager)
   * [oneview_hypervisor_manager_facts - Retrieve the facts about one or more of the OneView Hypervisor Managers.](#oneview_hypervisor_manager_facts)
+  * [oneview_id_pools - Manage OneView ID pools resources.](#oneview_id_pools)
+  * [oneview_id_pools_facts - Retrieve the facts about OneView ID pools resources.](#oneview_id_pools_ipv4_facts)
   * [oneview_id_pools_ipv4_range - Manage OneView ID pools IPV4 Range resources.](#oneview_id_pools_ipv4_range)
   * [oneview_id_pools_ipv4_range_facts - Retrieve the facts about one or more of the OneView ID Pools IPV4 Ranges.](#oneview_id_pools_ipv4_range_facts)
   * [oneview_id_pools_ipv4_subnet - Manage OneView ID pools IPV4 Subnet resources.](#oneview_id_pools_ipv4_subnet)
@@ -2513,6 +2515,8 @@ Manage OneView Certificates Server resources.
     state: absent
     data:
       alias_name: 'vcenter'
+
+```
 
 ---
 
@@ -5125,6 +5129,183 @@ Retrieve the facts about one or more of the OneView Hypervisor Managers.
 - Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 - The OneView API version used will directly affect returned and expected fields in resources. Information on setting the desired API version and can be found at: https://github.com/HewlettPackard/oneview-ansible#setting-your-oneview-version
+
+
+---
+
+
+## oneview_id_pools
+Manage OneView ID Pools resources.
+
+#### Synopsis
+ Provides an interface to manage ID Pools resources. Can create, update, and delete.
+
+#### Requirements (on the host that executes the module)
+  * python >= 3.4.2
+  * hpeOneView >= 6.0.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with the ID Pool properties.  |
+| state  |   |  | <ul> <li>allocate</li>  <li>collect</li> </ul> |  Indicates the desired state for the resource. `allocate` will reserve set of Ids. `collect` will gather the allocated Ids.  |
+| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+
+## Example Playbook
+
+```yaml
+
+- name: Enables or disables the pool type
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: update_pool_type
+    data:
+      poolType: '{{ poolType }}'
+      enabled: True
+  delegate_to: localhost
+
+- name: Allocates one or more IDs from a pool
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: allocate
+    data:
+      poolType: '{{ poolType }}'
+      count: 2
+  delegate_to: localhost
+- debug: var=id_pool
+
+- name: Collects one or more IDs to be returned to a pool
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: collect
+    data:
+      poolType: '{{ poolType }}'
+      idList: '{{ id_pool["idList"] }}'
+  delegate_to: localhost
+
+- name: Generates a random range
+  oneview_id_pools_facts:
+    config: "{{ config }}"
+    state: generate
+    data:
+      poolType: '{{ poolType }}'
+  delegate_to: localhost
+- debug: var=id_pool
+
+- name: Validates a set of IDs to reserve in the pool
+  oneview_id_pools:
+    config: "{{ config }}"
+    state: validate
+    data:
+      poolType: '{{ poolType }}'
+      idList: ['{{ id_pool["startAddress"] }}', 
+               '{{ id_pool["endAddress"] }}']
+  delegate_to: localhost
+
+```
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| id_pools | Has the facts about the managed OneView ID Pools |  On state 'collect'. Can be null. |  dict |
+
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+
+## oneview_id_pools_facts
+Manage OneView ID Pools resources.
+
+#### Synopsis
+ Provides an interface to manage ID Pools resources. Can get schema, validate, and generate range.
+
+#### Requirements (on the host that executes the module)
+  * ppython >= 3.4.2
+  * hpeOneView >= 6.0.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| data  |   Yes  |  | |  List with the ID Pool properties.  |
+| state  |   |  | <ul> <li>schema</li>  <li>validate</li> </ul> |  Indicates the desired state for the resource. `schema` will fetch Id Pool schema. `validate` will ensure Ids are validated or not.  |
+| validate_etag  |   |  True  | <ul> <li>true</li>  <li>false</li> </ul> |  When the ETag Validation is enabled, the request will be conditionally processed only if the current ETag for the resource matches the ETag provided in the data.  |
+
+## Example Playbook
+
+```yaml
+
+- name: Get schema of the id pools
+  oneview_id_pools_facts:
+    config: "{{ config }}"
+    state: schema
+    data:
+      description: 'ID pool schema'
+  delegate_to: localhost
+
+- name: Generates a random range
+  oneview_id_pools_facts:
+    config: "{{ config }}"
+    state: generate
+    data:
+      poolType: '{{ poolType }}'
+  delegate_to: localhost
+
+- name: Get the ID Pools type
+  oneview_id_pools_facts:
+    config: "{{ config }}"
+    state: get_pool_type
+    data:
+      poolType: '{{ poolType }}'
+  delegate_to: localhost
+- debug: var=id_pool
+
+- name: Checks the range availability in the ID pool
+  oneview_id_pools_facts:
+    config: "{{ config }}"
+    state: check_range_availability
+    data:
+      poolType: '{{ poolType }}'
+      idList: ["42:CE:78:00:00:00", "42:CE:78:8F:FF:FF"]
+  delegate_to: localhost
+
+- name: Validates the list of ID's from IPv4 Subnet
+  oneview_id_pools_facts:
+    config: "{{ config }}"
+    state: validate_id_pool
+    data:
+      poolType: 'ipv4'
+      idList: ['172.18.9.11']
+  delegate_to: localhost
+
+```
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| id_pools_facts | Has the facts about the managed OneView ID Pools |  On state 'generate'. Can be null. |  dict |
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
 
 
 ---
