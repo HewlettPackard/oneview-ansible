@@ -19,7 +19,7 @@ Each OneView resource operation is exposed through an Ansible module. Specific m
 
 ## What's New
 
-HPE OneView Ansible library extends support of the SDK to OneView REST API version 2800 (OneView v6.10) and ImageStreamer REST API version 2010 (I3S v6.00)
+HPE OneView Ansible library extends support of the SDK to OneView REST API version 2800 (OneView v6.10) and ImageStreamer REST API version 2020 (I3S v6.10)
 
 Please refer to [notes](https://github.com/HewlettPackard/oneview-ansible/blob/master/CHANGELOG.md) for more information on the changes , features supported and issues fixed in this version
 
