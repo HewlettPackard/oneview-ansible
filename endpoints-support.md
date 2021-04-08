@@ -278,7 +278,6 @@
 |<sub>/rest/logical-interconnects/{id}/telemetry-configurations/{tcId}</sub>              | PUT      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:   | :white_check_mark:  |
 |<sub>/rest/logical-interconnects/{id}</sub>                                              | PATCH    | :white_check_mark:   |  :heavy_minus_sign:  |  :heavy_minus_sign:  |  :heavy_minus_sign:  |  :heavy_minus_sign:  | :heavy_minus_sign:   |  :heavy_minus_sign:  | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:  |
 |     **Logical Switch Groups** |
-
 |<sub>/rest/logical-switch-groups</sub>                                                   | GET      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:  |
 |<sub>/rest/logical-switch-groups</sub>                                                   |POST      | :white_check_mark:   | :white_check_mark:   | :white_check_mark:  |
 |<sub>/rest/logical-switch-groups/{id}</sub>                                              |GET       | :white_check_mark:   | :white_check_mark:   | :white_check_mark:  |
