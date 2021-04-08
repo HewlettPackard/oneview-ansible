@@ -68,6 +68,8 @@
   * [oneview_interconnect_link_topology_facts - Retrieve facts about the OneView Interconnect Link Topologies.](#oneview_interconnect_link_topology_facts)
   * [oneview_interconnect_type_facts - Retrieve facts about one or more of the OneView Interconnect Types.](#oneview_interconnect_type_facts)
   * [oneview_internal_link_set_facts - Retrieve facts about the OneView Internal Link Sets.](#oneview_internal_link_set_facts)
+  * [oneview_label - Manage Oneview Label Resources.](#oneview_label)
+  * [oneview_label_facts - Retrieve facts about Oneview Label Resources.](#oneview_label_facts)
   * [oneview_logical_downlinks_facts - Retrieve facts about one or more of the OneView Logical Downlinks.](#oneview_logical_downlinks_facts)
   * [oneview_logical_enclosure - Manage OneView Logical Enclosure resources.](#oneview_logical_enclosure)
   * [oneview_logical_enclosure_facts - Retrieve facts about one or more of the OneView Logical Enclosures.](#oneview_logical_enclosure_facts)
@@ -5918,6 +5920,150 @@ Retrieve facts about the OneView Internal Link Sets.
 
 
 ---
+
+
+## oneview_label
+Manage the Oneview Label Resources.
+
+#### Synopsis
+Label Resource manages the labels assigned to a given resource.
+
+#### Requirements (on the host that executes the module)
+  * python >= 3.4.2
+  * hpeOneView >= 6.1.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| name  |   No  |  | |  Label name.  |
+| uri | No |  | | URI of Label.  |
+| resourceUri | No | | URI of Resource.   |
+
+
+#### Examples
+
+``` yaml
+
+- name: Create Labels for enclosure resource
+  oneview_label:
+    config: "{{ config }}"
+    state: present
+    data:
+      resourceUri: "/rest/enclosures/0000000000A66102"
+      labels:
+        - name: "Test label 1"
+        - name: "Test Label 2"
+  delegate_to: localhost
+  register: label
+
+- name: Update label of given resource for enclosure resource
+  oneview_label:
+    config: "{{ config }}"
+    state: present
+    data:
+      resourceUri: "/rest/enclosures/0000000000A66102"
+      labels:
+        - name: "Test label 1 Renamed"
+          uri: "/rest/labels/130"
+        - name: "Test label 2 Renamed"
+          uri: null 
+        - name: "Test label 3"
+          uri: null 
+  delegate_to: localhost
+
+- name: Delete Labels for enclosure resource
+  oneview_label:
+    config: "{{ config }}"
+    state: absent
+    data:
+      resourceUri: "/rest/enclosures/0000000000A66102"
+  delegate_to: localhost
+
+```
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| label   | Set all the labels for a resource. |  Always. |  dict |
+
+#### Notes
+
+- A sample configuration file for the config parameter can be found at: https://github.com/HewlettPackard/oneview-ansible/blob/master/examples/oneview_config-rename.json
+
+- Check how to use environment variables for configuration at: https://github.com/HewlettPackard/oneview-ansible#environment-variables
+
+- Additional Playbooks for the HPE OneView Ansible modules can be found at: https://github.com/HewlettPackard/oneview-ansible/tree/master/examples
+
+
+---
+
+## oneview_label_facts
+Retrive facts about Oneview Label Resources.
+
+#### Synopsis
+Gets a list of the labels.
+
+#### Requirements (on the host that executes the module)
+  * python >= 3.4.2
+  * hpeOneView >= 6.1.0
+
+#### Options
+
+| Parameter     | Required    | Default  | Choices    | Comments |
+| ------------- |-------------| ---------|----------- |--------- |
+| config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
+| params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
+| name  |   No  |  | |  Label name.  |
+| resourceUri | No | | URI of Resource.   |
+
+
+#### Examples
+
+```yaml
+
+- name: Gather facts about all Labels 
+  oneview_label_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+
+- debug: var=labels
+
+- name: Gather paginated, filtered and sorted facts about Labels
+  oneview_label_facts:
+    config: "{{ config }}"
+    params:
+      start: 0
+      count: 3
+      sort: 'name:descending'
+      filter: ''
+- debug: var=labels
+
+- name: Gather facts about a Label by name
+  oneview_label_facts:
+    config: "{{ config }}"
+    name: "{{ labels[0]['name'] }}"
+  delegate_to: localhost
+
+- debug: var=labels
+ 
+- name: Gather facts about a Label by Resource
+  oneview_label_facts:
+    config: "{{ config }}"
+    resourceUri: "/rest/enclosures/0000000000A66102"
+  delegate_to: localhost 
+
+- debug: var=labels
+
+```
+
+#### Return Values
+
+| Name          | Description  | Returned | Type       |
+| ------------- |-------------| ---------|----------- |
+| labels   | list of Labels. |  Always. but, can be null |  dict |
 
 
 ## oneview_logical_downlinks_facts
