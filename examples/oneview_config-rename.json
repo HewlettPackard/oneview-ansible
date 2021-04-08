@@ -5,7 +5,7 @@
     "password": "<password>"
   },
   "image_streamer_ip": "<i3s_ip>",
-  "api_version": 2600,
+  "api_version": 2800,
   "storage_domain": "TestDomain",
   "storage_system_name" : "ThreePAR-1",
   "storage_system_ip" : "<storage_system_ip>",
