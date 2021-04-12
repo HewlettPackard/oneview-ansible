@@ -348,8 +348,6 @@ class ServerProfileModule(OneViewModule):
             # removed the below fields as part of idempotency checks
             updated_data = deepcopy(merged_data)
             updated_data.pop('initialScopeUris', None)
-            if updated_data.get('firmware'):
-                updated_data['firmware'].pop('firmwareActivationType', None)
 
             if not compare(self.current_resource.data, updated_data):
                 self.__update_server_profile(merged_data)

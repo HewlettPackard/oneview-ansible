@@ -964,7 +964,7 @@ class ServerProfileMerger(object):
             if existing_conn_has_boot and SPKeys.BOOT in merged_connection:
                 current_connection = existing_connection_map[conn_id]
                 boot_settings_merged = deepcopy(current_connection[SPKeys.BOOT])
-                boot_settings_merged.update(merged_connection[SPKeys.BOOT])
+                boot_settings_merged = dict_merge(boot_settings_merged, merged_connection[SPKeys.BOOT])
                 merged_connection[SPKeys.BOOT] = boot_settings_merged
         return merged_data
 
@@ -1021,8 +1021,14 @@ class ServerProfileMerger(object):
                 existing_attributes = existing_os_deployment[SPKeys.ATTRIBUTES]
                 params_attributes = params_os_deployment[SPKeys.ATTRIBUTES]
 
-                if compare_list(existing_attributes, params_attributes):
-                    merged_os_deployment[SPKeys.ATTRIBUTES] = existing_attributes
+                merged_data[SPKeys.OS_DEPLOYMENT][SPKeys.ATTRIBUTES] = merge_list_by_key(
+                    existing_attributes,
+                    params_attributes,
+                    key='name',
+                )
+
+#                 if compare_list(existing_attributes, params_attributes):
+#                     merged_os_deployment[SPKeys.ATTRIBUTES] = existing_attributes
 
         return merged_data
 
