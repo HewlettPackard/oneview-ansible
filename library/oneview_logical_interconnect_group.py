@@ -141,7 +141,7 @@ logical_interconnect_group:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare, dict_merge, LIGMerger
 
 
 class LogicalInterconnectGroupModule(OneViewModule):
@@ -172,16 +172,52 @@ class LogicalInterconnectGroupModule(OneViewModule):
             return self.resource_absent()
 
     def __present(self):
+        changed = False
         scope_uris = self.data.pop('scopeUris', None)
 
         self.__replace_name_by_uris()
         self.__uplink_set_update()
-        result = self.resource_present(self.RESOURCE_FACT_NAME)
 
         if scope_uris is not None:
             result = self.resource_scopes_set(result, 'logical_interconnect_group', scope_uris)
+        
+        if self.current_resource:
+            changed, msg = self.__update()
+        else:
+            changed, msg = self.__create()
 
-        return result
+        return dict(
+            msg=msg,
+            changed=changed,
+            ansible_facts=dict(lig=self.current_resource.data)
+        )
+ 
+    def __create(self):
+        self.current_resource = self.resource_client.create(self.data)
+        return True, self.MSG_CREATED
+
+    def __update(self):
+        changed = False
+        existing_data = self.current_resource.data.copy()
+
+        if "newName" in self.data:
+            self.data["name"] = self.data.pop("newName")
+
+        if 'uplinkSets' in self.data:
+            updated_data, compare_changed = LIGMerger().merge_data(existing_data, self.data)
+        else:
+            updated_data = dict_merge(existing_data, self.data)
+            compare_changed = compare(self.current_resource.data, updated_data)
+
+        #raise OneViewModuleResourceNotFound(compare_changed)
+        if compare_changed:
+            msg = self.MSG_ALREADY_PRESENT
+        else:
+            self.current_resource.update(updated_data)
+            changed = True
+            msg = self.MSG_UPDATED
+
+        return changed, msg
 
     def __replace_name_by_uris(self):
         # replace internalNetworkNames with internalNetworkUris
