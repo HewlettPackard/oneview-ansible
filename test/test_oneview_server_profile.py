@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -90,6 +90,7 @@ PARAMS_FOR_UPDATE = dict(
         enclosureGroupUri=ENCLOSURE_GROUP_URI,
         uri=SERVER_PROFILE_URI,
         osDeploymentSettings=dict(osCustomAttributes=[{'name': 'test.ipv4', 'value': 'fakeip'},
+                                                      {'name': 'Password', 'value': 'test123'},
                                                       {'name': 'test.ipv4disable', 'value': False},
                                                       {'name': 'test.dhcp', 'value': True}])
     )
@@ -2053,6 +2054,7 @@ class TestServerProfileModule(OneViewBaseTest):
         profile_data = deepcopy(CREATED_BASIC_PROFILE)
         profile_data['osDeploymentSettings'] = dict(osDeploymentPlanUri='/rest/fake',
                                                     osCustomAttributes=[{'name': 'test.mac', 'value': 'fakemac'},
+                                                                        {'name': 'Password', 'value': 'test123'},
                                                                         {'name': 'test.ipv4', 'value': 'fakeip'},
                                                                         {'name': 'test.ipv4disable', 'value': 'false'},
                                                                         {'name': 'test.dhcp', 'value': 'true'}])
