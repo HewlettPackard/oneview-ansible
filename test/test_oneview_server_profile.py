@@ -2054,7 +2054,7 @@ class TestServerProfileModule(OneViewBaseTest):
         profile_data = deepcopy(CREATED_BASIC_PROFILE)
         profile_data['osDeploymentSettings'] = dict(osDeploymentPlanUri='/rest/fake',
                                                     osCustomAttributes=[{'name': 'test.mac', 'value': 'fakemac'},
-                                                                        {'name': 'Password', 'value': 'test123'},
+                                                                        {'name': 'Password', 'value': 'None'},
                                                                         {'name': 'test.ipv4', 'value': 'fakeip'},
                                                                         {'name': 'test.ipv4disable', 'value': 'false'},
                                                                         {'name': 'test.dhcp', 'value': 'true'}])
