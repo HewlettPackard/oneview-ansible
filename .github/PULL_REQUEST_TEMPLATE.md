@@ -9,3 +9,4 @@
   - [ ] All tests pass. (`$ ./build.sh`).
 - [ ] New functionality has been documented in the README if applicable.
   - [ ] New functionality has been thoroughly documented in the examples (please include helpful comments).
+- [ ] The PR changes have been added to ansible-collections.
