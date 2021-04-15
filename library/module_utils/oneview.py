@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -190,7 +190,6 @@ def compare(first_resource, second_resource):
     resource2 = second_resource
 
     debug_resources = "resource1 = {0}, resource2 = {1}".format(resource1, resource2)
-
     # The first resource is True / Not Null and the second resource is False / Null
     if resource1 and not resource2:
         logger.debug("resource1 and not resource2. " + debug_resources)
@@ -245,7 +244,6 @@ def compare_list(first_resource, second_resource):
     resource2 = second_resource
 
     debug_resources = "resource1 = {0}, resource2 = {1}".format(resource1, resource2)
-
     # The second list is null / empty  / False
     if not resource2:
         logger.debug("resource 2 is null. " + debug_resources)
@@ -257,7 +255,6 @@ def compare_list(first_resource, second_resource):
 
     resource1 = sorted(resource1, key=_str_sorted)
     resource2 = sorted(resource2, key=_str_sorted)
-
     for i, val in enumerate(resource1):
         if isinstance(val, collections.Mapping):
             # change comparison function to compare dictionaries
@@ -964,7 +961,7 @@ class ServerProfileMerger(object):
             if existing_conn_has_boot and SPKeys.BOOT in merged_connection:
                 current_connection = existing_connection_map[conn_id]
                 boot_settings_merged = deepcopy(current_connection[SPKeys.BOOT])
-                boot_settings_merged.update(merged_connection[SPKeys.BOOT])
+                boot_settings_merged = dict_merge(boot_settings_merged, merged_connection[SPKeys.BOOT])
                 merged_connection[SPKeys.BOOT] = boot_settings_merged
         return merged_data
 
@@ -1021,8 +1018,14 @@ class ServerProfileMerger(object):
                 existing_attributes = existing_os_deployment[SPKeys.ATTRIBUTES]
                 params_attributes = params_os_deployment[SPKeys.ATTRIBUTES]
 
-                if compare_list(existing_attributes, params_attributes):
-                    merged_os_deployment[SPKeys.ATTRIBUTES] = existing_attributes
+                merged_data[SPKeys.OS_DEPLOYMENT][SPKeys.ATTRIBUTES] = merge_list_by_key(
+                    existing_attributes,
+                    params_attributes,
+                    key='name',
+                )
+
+#                 if compare_list(existing_attributes, params_attributes):
+#                     merged_os_deployment[SPKeys.ATTRIBUTES] = existing_attributes
 
         return merged_data
 
