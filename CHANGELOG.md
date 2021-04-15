@@ -25,8 +25,6 @@ In this release, we have added support for IDPools, Tasks and Label resources.
 - image_streamer_plan_script_facts
 - oneview_alert_facts
 - oneview_appliance_configuration_timeconfig_facts
-- oneview_appliance_device_read_community
-- oneview_appliance_device_read_community_facts
 - oneview_appliance_device_snmpv1_trap_destinations
 - oneview_appliance_device_snmpv1_trap_destinations_facts
 - oneview_appliance_device_snmpv3_trap_destinations
