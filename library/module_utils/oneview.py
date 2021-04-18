@@ -874,31 +874,35 @@ class LIGMerger(object):
     def merge_data(self, existing_data, current_data):
         updated_data = dict_merge(existing_data, current_data)
         lig_compared = compare(existing_data, updated_data)
-
+        
         data, changed = self._merge_uplink_set(existing_data, current_data, 'uplinkSets')
         existing_data['uplinkSets'] = data
+
         if changed:
            return existing_data, changed
         else:
-           if lig_compared:
+           if not lig_compared:
               return existing_data, False
            else:
               return existing_data, True
             
     def _merge_uplink_set(self, exis_data, current_resource, uplinkSet):
-        changed = False
-        existing_data_has_value = uplinkSet in exis_data and exis_data[uplinkSet]
-        resource_has_value = uplinkSet in current_resource and current_resource[uplinkSet]
-
+        changed_list = []
+        existing_data_has_value = exis_data[uplinkSet] 
+        resource_has_value = current_resource[uplinkSet]
+        
         for index, resource in enumerate(existing_data_has_value):
             uplink_name = resource['name']
+            changed_list = []
             for res in resource_has_value:
-                if res['name'] == uplink_name and compare(res, resource):
-                   changed = False
-                else:
-                   changed = True
-                   existing_data_has_value[index] = res
-        
+                if res['name'] == uplink_name:
+                   if compare(res, resource):
+                      changed_list.append(False)
+                   else:
+                      changed_list.append(True)
+                      existing_data_has_value[index] = res
+        changed = all(changed_list)
+
         for curr_res in resource_has_value:
             curr_resource = [ res for res in existing_data_has_value if res['name'] == curr_res['name']]
             if not curr_resource:

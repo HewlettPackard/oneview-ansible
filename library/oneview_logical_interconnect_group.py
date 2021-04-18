@@ -152,6 +152,8 @@ class LogicalInterconnectGroupModule(OneViewModule):
     MSG_ALREADY_ABSENT = 'Logical Interconnect Group is already absent.'
     MSG_INTERCONNECT_TYPE_NOT_FOUND = 'Interconnect Type was not found.'
     MSG_ETHERNET_NETWORK_NOT_FOUND = 'Ethernet Network was not found.'
+    MSG_NETWORK_SET_NOT_FOUND = 'Network Set was not found.'
+    MSG_LIG_NOT_FOUND = 'LIG resource not found.'
 
     RESOURCE_FACT_NAME = 'logical_interconnect_group'
 
@@ -178,20 +180,22 @@ class LogicalInterconnectGroupModule(OneViewModule):
         self.__replace_name_by_uris()
         self.__uplink_set_update()
 
-        if scope_uris is not None:
-            result = self.resource_scopes_set(result, 'logical_interconnect_group', scope_uris)
-        
         if self.current_resource:
             changed, msg = self.__update()
         else:
             changed, msg = self.__create()
 
-        return dict(
+        result = dict(
             msg=msg,
             changed=changed,
-            ansible_facts=dict(lig=self.current_resource.data)
+            ansible_facts=dict(logical_interconnect_group=self.current_resource.data)
         )
- 
+        
+        if scope_uris is not None:
+            result = self.resource_scopes_set(result, 'logical_interconnect_group', scope_uris)
+
+        return result
+       
     def __create(self):
         self.current_resource = self.resource_client.create(self.data)
         return True, self.MSG_CREATED
@@ -203,20 +207,18 @@ class LogicalInterconnectGroupModule(OneViewModule):
         if "newName" in self.data:
             self.data["name"] = self.data.pop("newName")
 
-        if 'uplinkSets' in self.data:
+        if 'uplinkSets' in self.data and 'uplinkSets' in existing_data:
             updated_data, compare_changed = LIGMerger().merge_data(existing_data, self.data)
         else:
             updated_data = dict_merge(existing_data, self.data)
-            compare_changed = compare(self.current_resource.data, updated_data)
-
-        #raise OneViewModuleResourceNotFound(compare_changed)
-        if compare_changed:
+            compare_changed = self.__compare(self.current_resource.data, self.data)
+        
+        if not compare_changed:
             msg = self.MSG_ALREADY_PRESENT
         else:
             self.current_resource.update(updated_data)
             changed = True
             msg = self.MSG_UPDATED
-
         return changed, msg
 
     def __replace_name_by_uris(self):
@@ -237,6 +239,13 @@ class LogicalInterconnectGroupModule(OneViewModule):
                     if permitted_interconnect_type_name:
                         value['permittedInterconnectTypeUri'] = self.__get_interconnect_type_by_name(
                             permitted_interconnect_type_name).get('uri')
+
+    def __compare(self, exis_data, curr_data):
+        changed = False
+        for key in exis_data.keys():
+            if key in curr_data.keys() and exis_data[key] != curr_data[key]:
+               changed = True
+        return changed
 
     def __uplink_set_update(self):
         if 'uplinkSets' in self.data:
@@ -275,48 +284,47 @@ class LogicalInterconnectGroupModule(OneViewModule):
                 networkSetUris = [self.__get_network_set(x) for x in networkSetNames]
                 self.data['uplinkSets'][i]['networkSetUris'].extend(networkSetUris)
 
-    def __update_existing_uplink_set(self, allUplinkSets, newUplinkSet):
-        temp = True
-        for i, ups in enumerate(allUplinkSets):
+    def __update_existing_uplink_set(self, allUplinkSet, newUplinkSet):
+        self.isNewUplinkSet = True
+        for i, ups in enumerate(allUplinkSet):
             if ups['name'] == newUplinkSet['name']:
-                temp = False
+                self.isNewUplinkSet = False
                 if 'networkUris' in newUplinkSet:
-                    newUris = set(newUplinkSet['networkUris']) - set(ups['networkUris'])
-                    if newUris:
-                        ups['networkUris'].extend(newUris)
+                    ups['networkUris'] = newUplinkSet['networkUris']
                 if 'networkSetUris' in newUplinkSet:
-                    newUris = set(newUplinkSet['networkSetUris']) - set(ups['networkSetUris'])
-                    if newUris:
-                        ups['networkSetUris'].extend(newUris)
-                allUplinkSets[i] = ups
-        if temp:
-            allUplinkSets.append(newUplinkSet)
-        return allUplinkSets
+                    ups['networkSetUris'] = newUplinkSet['networkSetUris'] 
+                allUplinkSet[i] = ups
+        if self.isNewUplinkSet:
+            allUplinkSet.append(newUplinkSet)
+        return allUplinkSet
 
     def __get_all_uplink_sets(self):
         lig_uri = self.oneview_client.logical_interconnect_groups.get_by('name', self.data['name'])
         if lig_uri:
             return lig_uri[0]['uplinkSets']
-        return False
+        else:
+            raise OneViewModuleResourceNotFound(self.MSG_LIG_NOT_FOUND + self.data['name'])
 
     def __get_network_uri(self, name):
         network_name = self.oneview_client.ethernet_networks.get_by('name', name)
         if network_name:
             return network_name[0]['uri']
-        return False
+        else:
+           raise OneViewModuleResourceNotFound(self.MSG_ETHERNET_NETWORK_NOT_FOUND + name)
 
     def __get_network_set(self, name):
         network_set = self.oneview_client.network_sets.get_by('name', name)
         if network_set:
             return network_set[0]['uri']
-        return False
+        else:
+           raise OneViewModuleResourceNotFound(self.MSG_NETWORK_SET_NOT_FOUND + name)
 
     def __get_interconnect_type_by_name(self, name):
         i_type = self.oneview_client.interconnect_types.get_by('name', name)
         if i_type:
             return i_type[0]
         else:
-            raise OneViewModuleResourceNotFound(self.MSG_INTERCONNECT_TYPE_NOT_FOUND)
+            raise OneViewModuleResourceNotFound(self.MSG_INTERCONNECT_TYPE_NOT_FOUND + name)
 
 
 def main():
