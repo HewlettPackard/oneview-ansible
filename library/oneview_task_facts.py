@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -24,16 +24,16 @@ module: oneview_task_facts
 short_description: Retrieve facts about the OneView Tasks.
 description:
     - Retrieve facts about the OneView Tasks.
-version_added: "2.3"
+version_added: "2.4.0"
 requirements:
-    - "python >= 2.7.9"
-    - "hpeOneView >= 2.0.1"
-author: "Bruno Souza (@bsouza)"
+    - "python >= 3.6.9"
+    - "hpeOneView >= 6.1.0"
+author: "Yuvarani Chidambaram (@yuvirani)"
 options:
     params:
       description:
         - "List with parameters to help filter the tasks.
-          Params allowed: C(count), C(fields), C(filter), C(query), C(sort), C(start), and C(view)."
+          Params allowed: C(count), C(fields), C(filter), C(query), C(sort), C(start), C(childLimit), C(topCount) and C(view)."
       required: false
 
 extends_documentation_fragment:
@@ -63,6 +63,31 @@ EXAMPLES = '''
       filter: "associatedResource.resourceCategory='server-profile-templates'"
 
 - debug: var=tasks
+
+- name: Gather facts about aggregate tree of tasks with specified filter
+  oneview_task_facts:
+     config: "{{ config }}"
+     params:
+       childLimit: 40
+       topCount: 2
+       view: "aggregatedTree"
+       filter: "taskState='Completed'"
+
+- name: Gather facts about the last 5 tasks completed with warnings
+  oneview_task_facts:
+    config: "{{ config }}"
+    params:
+      count: 5
+      view: "tree"
+      filter: "taskState='Completed'"
+
+- name: Gather facts about the last 5 tasks completed with warnings
+  oneview_task_facts:
+    config: "{{ config }}"
+    params:
+      count: 5
+      view: "flat-tree"
+      filter: "taskState='Warning'"
 '''
 
 RETURN = '''
