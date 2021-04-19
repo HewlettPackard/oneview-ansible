@@ -32,7 +32,7 @@ author: "Yuvarani Chidambaram (@yuvirani)"
 options:
     state:
        required: True
-       choices: update - Set the task state to cancelling 
+       choices: update - Set the task state to cancelling
        type: dict
     data:
        required: True
@@ -42,7 +42,7 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = '''
-tasks: 
+tasks:
     - name: Gather facts about the tasks
       oneview_task_facts:
         config: "{{ config }}"
@@ -94,15 +94,15 @@ class TaskModule(OneViewModule):
         changed = False
 
         if self.state == 'update':
-           task_uri = self.data['task']['uri']
-           task = self.oneview_client.tasks.get_by_id(task_uri.split('/')[-1])
+            task_uri = self.data['task']['uri']
+            task = self.oneview_client.tasks.get_by_id(task_uri.split('/')[-1])
 
-           if task.data['isCancellable'] is False:
-              try:
-                 changed = True
-                 self.current_resource.patch(operation='replace', path='/isCancellable', value=True)
-              except OneViewModuleTaskError as task_error:
-                 raise task_error
+            if task.data['isCancellable'] is False:
+                try:
+                    changed = True
+                    self.current_resource.patch(operation='replace', path='/isCancellable', value=True)
+                except OneViewModuleTaskError as task_error:
+                    raise task_error
 
         if changed:
             msg = self.MSG_ALREADY_PRESENT
@@ -110,7 +110,7 @@ class TaskModule(OneViewModule):
             msg = self.MSG_TASK_UPDATED
 
         return dict(
-            changed=changed, 
+            changed=changed,
             msg=msg,
             ansible_facts=dict(tasks=self.current_resource.data))
 
