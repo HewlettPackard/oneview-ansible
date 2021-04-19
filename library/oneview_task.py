@@ -100,7 +100,7 @@ class TaskModule(OneViewModule):
            if task.data['isCancellable'] is False:
               try:
                  changed = True
-                 self.current_resource.patch('Replace', '/isCancellable', False)
+                 self.current_resource.patch(operation='replace', path='/isCancellable', value=True)
               except OneViewModuleTaskError as task_error:
                  raise task_error
 
