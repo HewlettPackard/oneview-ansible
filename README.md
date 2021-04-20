@@ -77,7 +77,7 @@ There is also a [how-to guide](https://github.com/HewlettPackard/oneview-ansible
 ## OneView Client Configuration
 
 ### Using a JSON Configuration File
-To use the Ansible OneView modules, connection properties for accessing the OneView appliance can be set in a JSON file. This file is used to define the settings, which will be used on the OneView appliance connection, like hostname, username, and password. Here's an example:
+To use the Ansible OneView modules, connection properties for accessing the OneView appliance can be set in a JSON file. This file is used to define the settings, which will be used on the OneView appliance connection, like hostname, authLoginDomain, username, and password. Here's an example:
 ```json
 {
   "ip": "172.25.105.12",
@@ -90,7 +90,8 @@ To use the Ansible OneView modules, connection properties for accessing the OneV
 }
 ```
 
-The api_version specifies the version of the REST API to be invoked. When api_version is not specified, it will take provided appliance API version as `api_version`.
+The `api_version` specifies the version of the REST API to be invoked. When `api_version` is not specified, it will take provided appliance API version as `api_version`.
+The `authLoginDomain` specifies the login domain directory of the appliance. When `authLoginDomain` is not specified, it will consider the appliance's default domain directory.
 
 If your environment requires a proxy, define the proxy properties in the JSON file using the following syntax:
 ```json
@@ -139,7 +140,7 @@ Once you have defined the environment variables, you can run the plays.
 ### Parameters in the playbook
 
 The third way to pass in your HPE OneView credentials to your tasks is through explicit specification on the task. 
-This option allows the parameters `hostname`, `username`, `password`, `api_version` and `image_streamer_hostname` to be passed directly inside your task.
+This option allows the parameters `hostname`, `auth_login_domain`,`username`, `password`, `api_version` and `image_streamer_hostname` to be passed directly inside your task.
 
 ```yaml
 - name: Create a Fibre Channel Network
@@ -147,6 +148,7 @@ This option allows the parameters `hostname`, `username`, `password`, `api_versi
     hostname: 172.16.101.48
     username: administrator
     password: my_password
+    auth_login_domain: ""
     api_version: 2800
     state: present
     data:
@@ -195,6 +197,7 @@ Ansible Vault feature may be leveraged for storing the credential of the user in
     hostname: "{{ ip }}"
     username: "{{ username }}"
     password: "{{ password }}"
+    auth_login_domain: "{{ domain_directory }}"
     api_version: "{{ api_version }}"
     state: present
     data:
