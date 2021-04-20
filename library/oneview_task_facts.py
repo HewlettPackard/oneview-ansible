@@ -73,7 +73,7 @@ EXAMPLES = '''
        view: "aggregatedTree"
        filter: "taskState='Completed'"
 
-- name: Gather facts about the last 5 tasks completed with warnings
+- name: Gather facts about the last 5 tasks with state 'Completed' 
   oneview_task_facts:
     config: "{{ config }}"
     params:
