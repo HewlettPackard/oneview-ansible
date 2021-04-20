@@ -91,6 +91,7 @@ To use the Ansible OneView modules, connection properties for accessing the OneV
 ```
 
 The `api_version` specifies the version of the REST API to be invoked. When `api_version` is not specified, it will take provided appliance API version as `api_version`.
+
 The `authLoginDomain` specifies the login domain directory of the appliance. When `authLoginDomain` is not specified, it will consider the appliance's default domain directory.
 
 If your environment requires a proxy, define the proxy properties in the JSON file using the following syntax:
