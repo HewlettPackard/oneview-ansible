@@ -59,8 +59,8 @@ jobs:
           name: codecov-umbrella
           verbose: true
 
-      - name : print environment variables
+      - name: print environment variables
         run: env
 
-      - name : print github environment variables
+      - name: print github environment variables
         run: echo $GITHUB_ENV
