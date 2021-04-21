@@ -3,7 +3,7 @@ on:
 - pull_request
 
 jobs:
-  sanity:
+  unit:
     name: Sanity (${{ matrix.ansible_version }}-${{ matrix.python_version }})
     strategy:
       matrix:
@@ -61,3 +61,6 @@ jobs:
 
       - name : print environment variables
         run: env
+
+      - name : print github environment variables
+        run: echo $GITHUB_ENV
