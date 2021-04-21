@@ -58,3 +58,6 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           verbose: true
+
+      - name : print environment variables
+        run:  echo $GITHUB_ENV
