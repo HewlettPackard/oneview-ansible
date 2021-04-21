@@ -60,4 +60,4 @@ jobs:
           verbose: true
 
       - name : print environment variables
-        run:  echo $GITHUB_ENV
+        run: env
