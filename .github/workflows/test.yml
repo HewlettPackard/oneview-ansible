@@ -3,7 +3,7 @@ on:
 - pull_request
 
 jobs:
-  sanity:
+  unit:
     name: Sanity (${{ matrix.ansible_version }}-${{ matrix.python_version }})
     strategy:
       matrix:
