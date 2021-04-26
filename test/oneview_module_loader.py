@@ -168,6 +168,7 @@ from oneview_storage_volume_template_facts import StorageVolumeTemplateFactsModu
 from oneview_switch import SwitchModule
 from oneview_switch_facts import SwitchFactsModule
 from oneview_switch_type_facts import SwitchTypeFactsModule
+from oneview_task import TaskModule
 from oneview_task_facts import TaskFactsModule
 from oneview_unmanaged_device import UnmanagedDeviceModule
 from oneview_unmanaged_device_facts import UnmanagedDeviceFactsModule

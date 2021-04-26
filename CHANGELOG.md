@@ -94,6 +94,7 @@ In this release, we have added support for IDPools, Tasks and Label resources.
 - oneview_storage_volume_attachment_facts
 - oneview_storage_volume_template
 - oneview_storage_volume_template_facts
+- oneview_task
 - oneview_task_facts
 - oneview_uplink_set
 - oneview_uplink_set_facts
