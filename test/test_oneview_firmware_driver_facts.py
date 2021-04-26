@@ -26,6 +26,7 @@ FIRMWARE_DRIVER_NAME = "Service Pack for ProLiant.iso"
 PARAMS_GET_BY_NAME = dict(
     config='config.json',
     name=FIRMWARE_DRIVER_NAME
+    version="SY-2021"
 )
 
 PARAMS_GET_BY_URI = dict(

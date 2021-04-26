@@ -90,7 +90,7 @@ EXAMPLES = '''
   oneview_firmware_driver_facts:
     config: "{{ config }}"
     name: "custom_firmware_bundle"
-    version: "SY 2021.02.01"
+    version: "SY-2021.02.01"
   delegate_to: localhost
 
 - debug: var=firmware_drivers
