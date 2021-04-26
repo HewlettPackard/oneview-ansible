@@ -86,6 +86,15 @@ EXAMPLES = '''
 
 - debug: var=firmware_drivers
 
+- name: Gather facts about a Firmware Driver by name and version
+  oneview_firmware_driver_facts:
+    config: "{{ config }}"
+    name: "custom_firmware_bundle"
+    version: "SY 2021.02.01"
+  delegate_to: localhost
+
+- debug: var=firmware_drivers
+
 - name: Gather facts about Firmware Driver with options
   oneview_firmware_driver_facts:
     config: "{{ config }}"
@@ -111,16 +120,22 @@ class FirmwareDriverFactsModule(OneViewModule):
 
         argument_spec = dict(
             name=dict(required=False, type='str'),
+            version=dict(required=False, type='str', default=None),
             uri=dict(required=False, type='str'),
             options=dict(required=False, type='list'),
             params=dict(required=False, type='dict')
         )
         super(FirmwareDriverFactsModule, self).__init__(additional_arg_spec=argument_spec)
-        self.set_resource_object(self.oneview_client.firmware_drivers)
+        self.resource_client = self.oneview_client.firmware_drivers
 
     def execute_module(self):
         ansible_facts = {}
         firmware_drivers = []
+
+        if self.module.params.get("name"):
+            self.current_resource = self.resource_client.get_by_name(self.module.params["name"], self.module.params["version"])
+        elif self.module.params.get("uri"):
+            self.current_resource = self.resource_client.get_by_uri(self.module.params["uri"])
 
         if self.current_resource:
             firmware_drivers = self.current_resource.data

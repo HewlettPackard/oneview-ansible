@@ -44,6 +44,15 @@
 
     - debug: var=firmware_drivers
 
+    - name: Gather facts about a Firmware Driver by name and version
+      oneview_firmware_driver_facts:
+        config: "{{ config }}"
+        name: "custom_firmware_bundle"
+        version: "SY 2021.02.01"
+      delegate_to: localhost
+
+    - debug: var=firmware_drivers
+
     - name: Gather facts about Firmware Driver with options
       oneview_firmware_driver_facts:
         config: "{{ config }}"
