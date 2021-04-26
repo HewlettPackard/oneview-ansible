@@ -4,7 +4,7 @@ on:
 
 jobs:
   unit:
-    name: Sanity (${{ matrix.ansible_version }}-${{ matrix.python_version }})
+    name: Unit test (${{ matrix.ansible_version }}-${{ matrix.python_version }})
     strategy:
       matrix:
         python_version: [2.7, 3.5]
