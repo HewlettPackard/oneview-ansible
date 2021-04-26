@@ -36,6 +36,11 @@ options:
       description:
         - Firmware driver name.
       required: false
+    version:
+      description:
+        - Firmware driver version.
+      required: false
+      default: None
     uri:
       description:
         - Firmware driver uri.
