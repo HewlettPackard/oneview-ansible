@@ -71,7 +71,7 @@ tasks:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleTaskError
+from ansible.module_utils.oneview import OneViewModule
 
 
 class TaskModule(OneViewModule):
