@@ -71,7 +71,7 @@ tasks:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleException
 
 
 class TaskModule(OneViewModule):
@@ -88,7 +88,15 @@ class TaskModule(OneViewModule):
         self.set_resource_object(self.oneview_client.tasks)
 
     def execute_module(self):
-        self.current_resource.patch(self.data['uri'])
+        if not self.current_resource:
+            return dict(failed=True,
+                        msg=self.MSG_RESOURCE_NOT_FOUND)
+
+        try:
+            self.current_resource.patch(self.data['uri'])
+        except OneViewModuleException as exception:
+            error_msg = '; '.join(str(e) for e in exception.args)
+            raise OneViewModuleException(error_msg)
 
         return dict(
             changed=True,

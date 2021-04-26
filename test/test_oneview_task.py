@@ -21,7 +21,7 @@ import mock
 import pytest
 
 from hpe_test_utils import OneViewBaseTest
-from oneview_module_loader import TaskModule
+from oneview_module_loader import TaskModule, OneViewModuleException
 
 ERROR_MSG = 'Fake message error'
 
@@ -63,6 +63,27 @@ class TestTaskModule(OneViewBaseTest):
             msg=TaskModule.MSG_TASK_UPDATED,
             ansible_facts=dict(tasks=self.resource.data)
         )
+
+    def test_should_fail_when_resource_not_found(self):
+        self.resource.get_by_name.return_value = None
+        self.mock_ansible_module.params = copy.deepcopy(PARAMS_FOR_PATCH)
+
+        TaskModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            failed=True,
+            changed=False,
+            msg=TaskModule.MSG_RESOURCE_NOT_FOUND
+        )
+
+    def test_should_return_error_when_expected_state_not_found(self):
+        self.resource.data = PARAMS_FOR_PATCH.copy()
+        self.resource.patch.side_effect = OneViewModuleException(ERROR_MSG)
+        self.mock_ansible_module.params = copy.deepcopy(PARAMS_FOR_PATCH)
+
+        TaskModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=ERROR_MSG)
 
 
 if __name__ == '__main__':
