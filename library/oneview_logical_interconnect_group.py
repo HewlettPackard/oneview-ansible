@@ -305,7 +305,8 @@ class LogicalInterconnectGroupModule(OneViewModule):
         if lig_uri:
             return lig_uri[0]['uplinkSets']
         else:
-            raise OneViewModuleResourceNotFound(self.MSG_LIG_NOT_FOUND)
+            return False
+            #raise OneViewModuleResourceNotFound(self.MSG_LIG_NOT_FOUND)
 
     def __get_network_uri(self, name):
         network_name = self.oneview_client.ethernet_networks.get_by('name', name)
