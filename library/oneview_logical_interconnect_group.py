@@ -249,6 +249,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
 
     def __uplink_set_update(self):
         if 'uplinkSets' in self.data:
+            # Update existing LIG with uplinkset properties
             if self.__get_all_uplink_sets():
                 allUplinkSets = self.__get_all_uplink_sets()
                 for uplinkSet in self.data['uplinkSets']:
@@ -267,6 +268,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
                     allUplinkSets = self.__update_existing_uplink_set(allUplinkSets, uplinkSet)
                 self.data['uplinkSets'] = allUplinkSets
             else:
+                # Create LIG with updated uplinkSet properties
                 self.__update_network_uri()
 
     def __update_network_uri(self):
