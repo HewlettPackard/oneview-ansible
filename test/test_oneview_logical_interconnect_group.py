@@ -362,19 +362,6 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
             ansible_facts=dict(logical_interconnect_group=self.resource.data)
         )
 
-    def test_should_fail_when_lig_name_not_found(self):
-        self.resource.get_by_name.return_value = None
-        self.resource.create.return_value = self.resource
-        self.resource.data = PARAMS_FOR_PRESENT
-        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = []
-
-        self.mock_ansible_module.params = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP)
-
-        LogicalInterconnectGroupModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            exception=mock.ANY, msg=LogicalInterconnectGroupModule.MSG_LIG_NOT_FOUND)
-
     def test_update_when_data_has_modified_uplinkset_attributes(self):
         self.resource.data = DEFAULT_LIG_TEMPLATE
         self.mock_ov_client.logical_interconnect_groups.get_by.return_value = UPLINK_SETS
