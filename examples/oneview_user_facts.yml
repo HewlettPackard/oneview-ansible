@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 ---
 - hosts: all
   vars:
-    - config: "{{ playbook_dir }}/oneview_config.json"
+    config: "{{ playbook_dir }}/oneview_config.json"
+    role: "Infrastructure administrator"
   tasks:
     - name: Gather facts about all Users
       oneview_user_facts:
@@ -39,7 +40,27 @@
     - name: Gather facts about a User by name
       oneview_user_facts:
         config: "{{ config }}"
-        name: "testUser"
+        userName: "testUser"
+        options: 
+            - FactsAboutUsername
+      delegate_to: localhost
+
+    - debug: var=users
+
+    - name: Gather facts about the users who have permissions that use a specified role
+      oneview_user_facts:
+        config: "{{ config }}"
+        role: "{{ role }}"
+      delegate_to: localhost
+
+    - debug: var=users
+
+    - name: Gather facts about lists of user's roles
+      oneview_user_facts:
+        config: "{{ config }}"
+        userName: "testUser"
+        options: 
+            - FactsAboutRoleAssociatedwithUsername
       delegate_to: localhost
 
     - debug: var=users
