@@ -293,7 +293,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_should_create_new_lig_with_uplinkset(self):
-        self.resource.get_by.return_value = None
+        self.resource.get_by_name.return_value = None
         self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
         self.resource.create.return_value = self.resource
 

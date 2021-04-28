@@ -301,7 +301,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
         return allUplinkSet
 
     def __get_all_uplink_sets(self):
-        lig_uri = self.oneview_client.logical_interconnect_groups.get_by('name', self.data['name'])
+        lig_uri = self.oneview_client.logical_interconnect_groups.get_by_name(self.data['name'])
         if lig_uri:
             return lig_uri[0]['uplinkSets']
         else:
