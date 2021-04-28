@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ description:
     - Provides an interface to manage Users. Can create, update, and delete.
 version_added: "2.3"
 requirements:
-    - "python >= 2.7.9"
-    - "hpeOneView >= 3.2.0"
+    - "python >= 3.4.2"
+    - "hpeOneView >= 5.4.0"
 author: "Felipe Bulsoni (@fgbulsoni)"
 options:
     state:
@@ -95,25 +95,34 @@ user:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase, OneViewModuleException, compare
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleException, compare
 from hpeOneView.exceptions import HPEOneViewException
 
 
-class UserModule(OneViewModuleBase):
+class UserModule(OneViewModule):
     MSG_CREATED = 'User created successfully.'
+    MSG_MULTIPLE_USER_CREATED = 'Created multiple users successfully.'
     MSG_UPDATED = 'User updated successfully.'
     MSG_DELETED = 'User deleted successfully.'
+    MSG_MULTIPLE_USER_DELETED = 'Specified users are deleted successfully'
     MSG_ALREADY_PRESENT = 'User is already present.'
     MSG_ALREADY_ABSENT = 'User is already absent.'
+    MSG_ADDED_ROLE = 'Added role to existing username successfully.'
+    MSG_UPDATED_ROLE = 'Updated role to existing username successfully.'
+    MSG_DELETED_ROLE = 'Removed role to existing username successfully.'
+    MSG_VALIDATED_USERNAME = 'Validated username successfully.'
+    MSG_VALIDATED_FULLNAME = 'Validated fullname successfully.'
     MSG_PASSWORD_UPDATED = "User password set successfully."
-    RESOURCE_FACT_NAME = 'user'
+    RESOURCE_FACT_NAME = 'users'
 
     def __init__(self):
 
         additional_arg_spec = dict(data=dict(required=True, type='dict'),
                                    state=dict(
                                        required=True,
-                                       choices=['present', 'absent', 'set_password']))
+                                       choices=['present', 'absent', 'add_multiple_users', 'add_role_to_username', 'update_role_to_username',
+                                                'validate_full_name', 'validate_user_name', 'delete_multiple_users', 'remove_role_from_username',
+                                                'set_password']))
 
         super(UserModule, self).__init__(additional_arg_spec=additional_arg_spec,
                                          validate_etag_support=True)
@@ -121,39 +130,60 @@ class UserModule(OneViewModuleBase):
         self.resource_client = self.oneview_client.users
 
     def execute_module(self):
-        # Allows usage of 'name' or 'userName' instead of enforcing 'userName'.
-        # 'name' takes precedence over 'userName' if used.
-        if self.data.get("name") is not None:
-            self.data["userName"] = self.data.pop("name")
-        try:
-            resource = self.resource_client.get_by('name', self.data['userName'])
-        except HPEOneViewException:
-            resource = None
-
         if self.state == 'present':
-            return self.__present(resource)
+            try:
+                self.current_resource = self.resource_client.get_by_userName(self.data['userName'])
+            except HPEOneViewException:
+                self.current_resource = None
+            return self.__present(self.current_resource)
         elif self.state == 'absent':
-            return self.resource_absent(resource)
+            try:
+                self.current_resource = self.resource_client.get_by_userName(self.data['userName'])
+            except HPEOneViewException:
+                self.current_resource = None
+            return self.resource_absent()
+        elif self.state == 'delete_multiple_users':
+            self.resource_client.delete_multiple_user(self.data['users_list'])
+            return dict(changed=True, msg=self.MSG_MULTIPLE_USER_DELETED, ansible_facts=dict(user=True))
+        elif self.state == 'add_multiple_users':
+            resource = self.resource_client.create_multiple_user(self.data['users_list']).data
+            return dict(changed=True, msg=self.MSG_MULTIPLE_USER_CREATED, ansible_facts=dict(user=resource))
+        elif self.state == 'add_role_to_username':
+            resource = self.resource_client.add_role_to_userName(self.data['userName'], self.data['role_list']).data
+            return dict(changed=True, msg=self.MSG_ADDED_ROLE, ansible_facts=dict(user=resource))
+        elif self.state == 'update_role_to_username':
+            resource = self.resource_client.update_role_to_userName(self.data['userName'], self.data['role_list'])
+            return dict(changed=True, msg=self.MSG_UPDATED_ROLE, ansible_facts=dict(user=resource))
+        elif self.state == 'remove_role_from_username':
+            resource = self.resource_client.remove_role_from_username(self.data['userName'], self.data['roleName'])
+            return dict(changed=True, msg=self.MSG_DELETED_ROLE, ansible_facts=dict(user=resource))
+        elif self.state == 'validate_user_name':
+            resource = self.resource_client.validate_user_name(self.data['userName']).data
+            return dict(changed=True, msg=self.MSG_VALIDATED_USERNAME, ansible_facts=dict(user=resource))
+        elif self.state == 'validate_full_name':
+            resource = self.resource_client.validate_full_name(self.data['fullName']).data
+            return dict(changed=True, msg=self.MSG_VALIDATED_FULLNAME, ansible_facts=dict(user=resource))
         elif self.state == 'set_password':
-            return self.__set_password(resource)
+            resource = self.resource_client.change_password(self.data)
+            return dict(changed=True, msg=self.MSG_PASSWORD_UPDATED, ansible_facts=dict(user=resource))
 
     def __present(self, resource):
 
         changed = False
         msg = ''
         if not resource:
-            resource = self.oneview_client.users.create(self.data)
+            resource = self.resource_client.create(self.data)
             msg = self.MSG_CREATED
             changed = True
         else:
-            merged_data = resource.copy()
+            merged_data = resource.data.copy()
             merged_data.update(self.data)
 
             # remove password, it cannot be used in comparison
             if 'password' in merged_data:
                 del merged_data['password']
 
-            if compare(resource, merged_data):
+            if compare(resource.data, merged_data):
                 msg = self.MSG_ALREADY_PRESENT
             else:
                 resource = self.resource_client.update(merged_data)
@@ -162,16 +192,7 @@ class UserModule(OneViewModuleBase):
 
         return dict(changed=changed,
                     msg=msg,
-                    ansible_facts=dict(user=resource))
-
-    def __set_password(self, resource):
-
-        if not resource:
-            raise OneViewModuleException('The specified user does not exist.')
-        if 'password' not in self.data:
-            raise OneViewModuleException('This state requires a password to be declared.')
-        resource = self.resource_client.update(self.data)
-        return dict(changed=True, msg=self.MSG_PASSWORD_UPDATED, ansible_facts=dict(user=resource))
+                    ansible_facts=dict(user=resource.data))
 
 
 def main():
