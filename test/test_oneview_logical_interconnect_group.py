@@ -364,7 +364,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
 
     def test_update_when_data_has_modified_uplinkset_attributes(self):
         self.resource.data = DEFAULT_LIG_TEMPLATE
-        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = UPLINK_SETS
+        self.resource.logical_interconnect_groups.get_by_name.return_value = UPLINK_SETS
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
