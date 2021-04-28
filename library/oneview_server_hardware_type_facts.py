@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -35,6 +35,11 @@ options:
     name:
       description:
         - Server Hardware Type name.
+      required: false
+
+    uri:
+      description:
+        - Server Hardware Type uri.
       required: false
 
 extends_documentation_fragment:
@@ -91,18 +96,16 @@ class ServerHardwareTypeFactsModule(OneViewModule):
     def __init__(self):
         argument_spec = dict(
             name=dict(required=False, type='str'),
+            uri=dict(required=False, type='str'),
             params=dict(required=False, type='dict')
         )
         super(ServerHardwareTypeFactsModule, self).__init__(additional_arg_spec=argument_spec)
-
-        self.resource_client = self.oneview_client.server_hardware_types
+        self.set_resource_object(self.oneview_client.server_hardware_types)
 
     def execute_module(self):
 
-        name = self.module.params.get('name')
-
-        if name:
-            server_hardware_types = self.resource_client.get_by('name', name)
+        if self.current_resource:
+            server_hardware_types = [self.current_resource.data]
         else:
             server_hardware_types = self.resource_client.get_all(**self.facts_params)
 
