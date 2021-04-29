@@ -107,7 +107,7 @@ class UserFactsModule(OneViewModule):
             options=dict(required=False, type='list')
         )
 
-        super().__init__(additional_arg_spec=argument_spec)
+        super(UserFactsModule, self).__init__(additional_arg_spec=argument_spec)
         self.set_resource_object(self.oneview_client.users)
 
     def execute_module(self):

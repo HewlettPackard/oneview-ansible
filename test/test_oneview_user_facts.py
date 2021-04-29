@@ -61,7 +61,7 @@ ROLE_USERS = [
 ]
 
 USER_ROLE = [{
-        "roleName": "Infrastructure adminstrator"
+    "roleName": "Infrastructure adminstrator"
 }]
 
 

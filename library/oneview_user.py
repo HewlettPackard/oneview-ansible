@@ -252,8 +252,8 @@ class UserModule(OneViewModule):
                                                 'validate_full_name', 'validate_user_name', 'delete_multiple_users', 'remove_role_from_username',
                                                 'set_password']))
 
-        super().__init__(additional_arg_spec=additional_arg_spec,
-                         validate_etag_support=True)
+        super(UserModule, self).__init__(additional_arg_spec=additional_arg_spec,
+                                              validate_etag_support=True)
 
         self.resource_client = self.oneview_client.users
 
