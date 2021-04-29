@@ -111,6 +111,12 @@ DEFAULT_ROLE = dict(
     uri='AAAA-BBBB-CCCCC'
 )
 
+PARAMS_MISSING_USERNAME = dict(
+    config='config.json',
+    state='add_role_to_username',
+    data=dict()
+)
+
 
 @pytest.mark.resource(TestUserModule='users')
 class TestUserModule(OneViewBaseTest):
@@ -384,6 +390,18 @@ class TestUserModule(OneViewBaseTest):
             changed=True,
             msg=UserModule.MSG_VALIDATED_USERNAME,
             ansible_facts=dict(user=True)
+        )
+
+    def test_missing_filed_username(self):
+
+        self.mock_ansible_module.params = PARAMS_MISSING_USERNAME
+
+        UserModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=False,
+            failed=True,
+            msg=UserModule.MSG_USERNAME_MISSING
         )
 
 
