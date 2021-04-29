@@ -107,7 +107,7 @@ class UserFactsModule(OneViewModule):
             options=dict(required=False, type='list')
         )
 
-        super(UserFactsModule, self).__init__(additional_arg_spec=argument_spec)
+        super().__init__(additional_arg_spec=argument_spec)
         self.set_resource_object(self.oneview_client.users)
 
     def execute_module(self):
@@ -124,8 +124,7 @@ class UserFactsModule(OneViewModule):
         if self.options.get('getUserRoles'):
             ansible_facts['user_roles'] = self.resource_client.get_role_associated_with_userName(self.module.params['userName'])
 
-
-        return dict(changed=False, ansible_facts=dict(users=ansible_facts))
+        return dict(changed=False, ansible_facts=ansible_facts)
 
 
 def main():
@@ -134,4 +133,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

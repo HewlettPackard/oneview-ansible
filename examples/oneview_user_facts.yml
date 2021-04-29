@@ -51,7 +51,7 @@
         role: "{{ role }}"
       delegate_to: localhost
 
-    - debug: var=users
+    - debug: var=role
 
     - name: Gather facts about lists of user's roles
       oneview_user_facts:
@@ -62,3 +62,4 @@
       delegate_to: localhost
 
     - debug: var=users
+    - debug: var=user_roles

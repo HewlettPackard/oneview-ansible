@@ -238,7 +238,7 @@ class UserModule(OneViewModule):
     MSG_USERNAME_MISSING = 'userName field is missing.'
     MSG_USERNAME_DOES_NOT_EXIT = 'userName doesn\'t exist.'
     MSG_ROLELIST_MISSING = 'role_list field is missing.'
-    MSG_PASSWORD_MISSING =  'either oldPassword or newPassword field is missing.'
+    MSG_PASSWORD_MISSING = 'either oldPassword or newPassword field is missing.'
     MSG_ROLENAME_MISSING = 'roleName field is missing.'
     MSG_USERLIST_MISSING = 'users_list field is missing.'
     MSG_FULLNAME_MISSING = 'fullName field is missing.'
@@ -253,7 +253,7 @@ class UserModule(OneViewModule):
                                                 'set_password']))
 
         super().__init__(additional_arg_spec=additional_arg_spec,
-                                         validate_etag_support=True)
+                         validate_etag_support=True)
 
         self.resource_client = self.oneview_client.users
 
