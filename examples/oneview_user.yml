@@ -20,6 +20,10 @@
     user_name: "testUser"
     email: "testUser@example.com"
   tasks:
+    - name: Gather facts about all Scopes
+      oneview_scope_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
     - name: Create a User
       oneview_user:
         config: "{{ config }}"
@@ -48,6 +52,16 @@
           userName: "{{ user_name }}"
           emailAddress: "{{ email }}"
           enabled: true
+          fullName: "testUser101"
+          mobilePhone: '555-2121'
+          officePhone: '555-1212'
+          permissions:
+            - roleName: "Read only"
+              scopeUri: "/rest/scopes/6cf6d4da-1b5e-4322-9dff-6ef545ad700f"
+            - roleName: "Infrastructure administrator"
+              scopeUri: "/rest/scopes/c7cab507-b49a-422d-9765-aff784112092"
+      delegate_to: localhost
+      register: user_1
       delegate_to: localhost
 
     - name: Update the User changing the attribute enabled to False

@@ -112,16 +112,22 @@ class UserFactsModule(OneViewModule):
 
     def execute_module(self):
 
-        if self.module.params['userName'] and self.options.get('FactsAboutUsername'):
-            users = self.resource_client.get_by_userName(self.module.params['userName']).data
-        if self.module.params['userName'] and self.options.get('FactsAboutRoleAssociatedwithUsername'):
-            users = self.resource_client.get_role_associated_with_userName(self.module.params['userName'])
-        elif self.module.params['role']:
-            users = self.resource_client.get_user_by_role(self.module.params['role'])
+        ansible_facts = {}
+        if self.module.params['userName']:
+            self.current_resource = self.resource_client.get_by_userName(self.module.params['userName'])
+            ansible_facts['users'] = self.current_resource.data
         else:
-            users = self.resource_client.get_all(**self.facts_params)
+            ansible_facts['users'] = self.resource_client.get_all(**self.facts_params)
 
-        return dict(changed=False, ansible_facts=dict(users=users))
+        if self.module.params['getUserRoles']:
+            ansible_facts['user_roles'] = self.resource_client.get_user_by_role(self.module.params['role'])
+
+        if self.current_resource and self.options:
+            if self.options.get('getUserRoles'):
+                ansible_facts['get_users'] = self.resource_client.get_role_associated_with_userName(self.module.params['userName'])
+
+
+        return dict(changed=False, ansible_facts=dict(users=ansible_facts))
 
 
 def main():

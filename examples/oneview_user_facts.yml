@@ -42,7 +42,7 @@
         config: "{{ config }}"
         userName: "testUser"
         options: 
-            - FactsAboutUsername
+            - getUsers
       delegate_to: localhost
 
     - debug: var=users
@@ -60,7 +60,7 @@
         config: "{{ config }}"
         userName: "testUser"
         options: 
-            - FactsAboutRoleAssociatedwithUsername
+            - getUserRoles
       delegate_to: localhost
 
     - debug: var=users
