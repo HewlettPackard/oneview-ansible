@@ -253,7 +253,7 @@ class UserModule(OneViewModule):
                                                 'set_password']))
 
         super(UserModule, self).__init__(additional_arg_spec=additional_arg_spec,
-                                              validate_etag_support=True)
+                                         validate_etag_support=True)
 
         self.resource_client = self.oneview_client.users
 
