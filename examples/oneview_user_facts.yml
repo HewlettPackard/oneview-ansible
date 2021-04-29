@@ -41,8 +41,6 @@
       oneview_user_facts:
         config: "{{ config }}"
         userName: "testUser"
-        options: 
-            - getUsers
       delegate_to: localhost
 
     - debug: var=users

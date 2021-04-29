@@ -90,7 +90,6 @@ EXAMPLES = '''
           scopeUri: "/rest/scopes/c7cab507-b49a-422d-9765-aff784112092"
   delegate_to: localhost
   register: user_1
-  delegate_to: localhost
 - name: Update the User changing the attribute enabled to False
   oneview_user:
     config: "{{ config }}"
@@ -241,6 +240,8 @@ class UserModule(OneViewModule):
     MSG_ROLELIST_MISSING = 'role_list field is missing.'
     MSG_PASSWORD_MISSING =  'either oldPassword or newPassword field is missing.'
     MSG_ROLENAME_MISSING = 'roleName field is missing.'
+    MSG_USERLIST_MISSING = 'users_list field is missing.'
+    MSG_FULLNAME_MISSING = 'fullName field is missing.'
 
     def __init__(self):
 
@@ -251,13 +252,13 @@ class UserModule(OneViewModule):
                                                 'validate_full_name', 'validate_user_name', 'delete_multiple_users', 'remove_role_from_username',
                                                 'set_password']))
 
-        super(UserModule, self).__init__(additional_arg_spec=additional_arg_spec,
+        super().__init__(additional_arg_spec=additional_arg_spec,
                                          validate_etag_support=True)
 
         self.resource_client = self.oneview_client.users
 
     def execute_module(self):
-        if self.data.get('userName'):
+        if self.data and self.data.get('userName'):
             self.current_resource = self.resource_client.get_by_userName(self.data['userName'])
             if self.state == 'present':
                 return self.__present(self.current_resource)
@@ -296,7 +297,7 @@ class UserModule(OneViewModule):
             else:
                 return dict(failed=True, msg=self.MSG_USERNAME_DOES_NOT_EXIT)
 
-        elif not self.data.get('userName') and (self.data.get('users_list') or self.data.get('fullName')):
+        elif self.data and not self.data.get('userName') and (self.data.get('users_list') or self.data.get('fullName')):
             if self.state == 'delete_multiple_users':
                 self.resource_client.delete_multiple_user(self.data['users_list'])
                 return dict(changed=True, msg=self.MSG_MULTIPLE_USER_DELETED, ansible_facts=dict(user=True))
@@ -309,6 +310,10 @@ class UserModule(OneViewModule):
                 resource = self.resource_client.validate_full_name(self.data['fullName']).data
                 return dict(changed=True, msg=self.MSG_VALIDATED_FULLNAME, ansible_facts=dict(user=resource))
 
+        elif not self.data and (self.state == 'add_multiple_users' or self.state == 'delete_multiple_users'):
+            return dict(failed=True, msg=self.MSG_USERLIST_MISSING)
+        elif not self.data and (self.state == 'validate_full_name'):
+            return dict(failed=True, msg=self.MSG_FULLNAME_MISSING)
         else:
             return dict(failed=True, msg=self.MSG_USERNAME_MISSING)
 

@@ -81,7 +81,7 @@ EXAMPLES = '''
     config: "{{ config }}"
     userName: "testUser"
     options:
-        - FactsAboutRoleAssociatedwithUsername
+        - getUserRoles
   delegate_to: localhost
 
 - debug: var=users
@@ -116,15 +116,13 @@ class UserFactsModule(OneViewModule):
         if self.module.params['userName']:
             self.current_resource = self.resource_client.get_by_userName(self.module.params['userName'])
             ansible_facts['users'] = self.current_resource.data
+        elif self.module.params['role']:
+            ansible_facts['role'] = self.resource_client.get_user_by_role(self.module.params['role'])
         else:
             ansible_facts['users'] = self.resource_client.get_all(**self.facts_params)
 
-        if self.module.params['getUserRoles']:
-            ansible_facts['user_roles'] = self.resource_client.get_user_by_role(self.module.params['role'])
-
-        if self.current_resource and self.options:
-            if self.options.get('getUserRoles'):
-                ansible_facts['get_users'] = self.resource_client.get_role_associated_with_userName(self.module.params['userName'])
+        if self.options.get('getUserRoles'):
+            ansible_facts['user_roles'] = self.resource_client.get_role_associated_with_userName(self.module.params['userName'])
 
 
         return dict(changed=False, ansible_facts=dict(users=ansible_facts))
@@ -136,3 +134,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
