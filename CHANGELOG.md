@@ -4,11 +4,13 @@
 This release extends the planned support of the modules to OneView REST API version 2800 (OneView v6.10) and ImageStreamer REST API version 2020 (I3S v6.10).
 
 #### Major changes
-In this release, we have added support for IDPools, Tasks and Label resources.
+In this release, we have added support for IDPools, Tasks, Label and User resources.
 
 #### Bug fixes & Enhancements
 - [#634] (https://github.com/HewlettPackard/oneview-ansible/issues/634) Create Uplink Set with FC network - Cannot use name but URI
 - [#663] (https://github.com/HewlettPackard/oneview-ansible/issues/663) Unable to update scope with resource_assignments_updated
+- [#679] (https://github.com/HewlettPackard/oneview-ansible/issues/679) An exception is returned after user permission assignment
+- [#686] (https://github.com/HewlettPackard/oneview-ansible/issues/686) Oneview_user_facts by name returns an exception
 
 ### Modules supported in this release
 - image_streamer_artifact_bundle
@@ -98,6 +100,8 @@ In this release, we have added support for IDPools, Tasks and Label resources.
 - oneview_task_facts
 - oneview_uplink_set
 - oneview_uplink_set_facts
+- oneview_user
+- oneview_user_facts
 - oneview_version_facts
 
 ## v6.0.0
