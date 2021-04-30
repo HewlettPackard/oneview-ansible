@@ -878,9 +878,6 @@ class LIGMerger(object):
         merged_data = dict_merge(current_data, data)
 
         if current_data.get('uplinkSets') and data.get('uplinkSets'):
-            current_uplinksets = current_data['uplinkSets']
-            existing_uplinksets = data['uplinkSets']
-
             # merged_data['uplinkSets'] = merge_list_by_key(current_uplinksets, existing_uplinksets, key="name")
             merged_data['uplinkSets'] = self._merge_uplink_set(current_data, data)
 

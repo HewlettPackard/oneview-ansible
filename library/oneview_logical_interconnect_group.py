@@ -229,7 +229,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
                     permitted_interconnect_type_name = value.pop('permittedInterconnectTypeName', None)
                     if permitted_interconnect_type_name:
                         value['permittedInterconnectTypeUri'] = self.__get_interconnect_type_by_name(
-                            permitted_interconnect_type_name).get('uri')
+                            permitted_interconnect_type_name)
 
     # replace internalNetworkNames with internalNetworkUris
     def __replace_internal_network_names_by_uris(self):
