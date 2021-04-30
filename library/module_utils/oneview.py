@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -145,6 +145,7 @@ def merge_list_by_key(original_list, updated_list, key, ignore_when_null=None, r
                 item[replace_key] = items_map[item_key][replace_key]
             merged_items[item_key] = items_map[item_key]
             merged_items[item_key].update(item)
+            # merged_items[item_key] = dict_merge(merged_items[item_key], item)
         else:
             merged_items[item_key] = item
 
@@ -872,45 +873,32 @@ class OneViewModuleBase(object):
 
 
 class LIGMerger(object):
-    def merge_data(self, existing_data, current_data):
-        updated_data = dict_merge(existing_data, current_data)
-        lig_compared = compare(existing_data, updated_data)
+    # merges uplinksets in current resource and existing resource
+    def merge_data(self, current_data, data):
+        merged_data = dict_merge(current_data, data)
 
-        data, changed = self._merge_uplink_set(existing_data, current_data, 'uplinkSets')
-        existing_data['uplinkSets'] = data
+        if current_data.get('uplinkSets') and data.get('uplinkSets'):
+            current_uplinksets = current_data['uplinkSets']
+            existing_uplinksets = data['uplinkSets']
 
-        if changed:
-            return existing_data, changed
-        else:
-            if not lig_compared:
-                return existing_data, False
-            else:
-                return existing_data, True
+            # merged_data['uplinkSets'] = merge_list_by_key(current_uplinksets, existing_uplinksets, key="name")
+            merged_data['uplinkSets'] = self._merge_uplink_set(current_data, data)
 
-    def _merge_uplink_set(self, exis_data, current_resource, uplinkSet):
-        changed_list = []
-        existing_data_has_value = exis_data[uplinkSet]
-        resource_has_value = current_resource[uplinkSet]
+        return merged_data
 
-        for index, resource in enumerate(existing_data_has_value):
-            uplink_name = resource['name']
-            changed_list = []
-            for res in resource_has_value:
-                if res['name'] == uplink_name:
-                    if compare(res, resource):
-                        changed_list.append(False)
-                    else:
-                        changed_list.append(True)
-                        existing_data_has_value[index] = res
-        changed = all(changed_list)
+    # updates the attributes of uplinkset in existing resource if they already exists
+    # Removes the uplinksets which are present in current resource but not in existing resource
+    def _merge_uplink_set(self, current_resource, data):
+        existing_uplinksets = data['uplinkSets']
+        current_uplinksets = current_resource['uplinkSets']
 
-        for curr_res in resource_has_value:
-            curr_resource = [res for res in existing_data_has_value if res['name'] == curr_res['name']]
-            if not curr_resource:
-                changed = True
-                existing_data_has_value.append(curr_res)
+        for index, existing_uplink in enumerate(existing_uplinksets):
+            for current_uplink in current_uplinksets:
+                if current_uplink['name'] == existing_uplink['name']:
+                    if not compare(current_uplink, existing_uplink):
+                        existing_uplinksets[index] = dict_merge(current_uplink, existing_uplink)
 
-        return existing_data_has_value, changed
+        return existing_uplinksets
 
 
 class SPKeys(object):
