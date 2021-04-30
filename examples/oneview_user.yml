@@ -39,9 +39,9 @@
           officePhone: '555-1212'
           permissions:
             - roleName: "Read only"
-              scopeUri: "/rest/scopes/6cf6d4da-1b5e-4322-9dff-6ef545ad700f"
+              scopeUri: "{{ scopes[0].uri }}"
             - roleName: "Infrastructure administrator"
-              scopeUri: "/rest/scopes/c7cab507-b49a-422d-9765-aff784112092"
+              scopeUri: "{{ scopes[0].uri }}"
       delegate_to: localhost
       register: user_1
 
@@ -58,9 +58,9 @@
           officePhone: '555-1212'
           permissions:
             - roleName: "Read only"
-              scopeUri: "/rest/scopes/6cf6d4da-1b5e-4322-9dff-6ef545ad700f"
+              scopeUri: "{{ scopes[0].uri }}"
             - roleName: "Infrastructure administrator"
-              scopeUri: "/rest/scopes/c7cab507-b49a-422d-9765-aff784112092"
+              scopeUri: "{{ scopes[0].uri }}"
       delegate_to: localhost
       register: user_1
       delegate_to: localhost
