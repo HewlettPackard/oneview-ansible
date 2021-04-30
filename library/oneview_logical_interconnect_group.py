@@ -208,6 +208,14 @@ class LogicalInterconnectGroupModule(OneViewModule):
         if "newName" in self.data:
             self.data["name"] = self.data.pop("newName")
 
+        # escaping logicalDownlinkUri from current_data while comparing
+        map_template = current_data.get('interconnectMapTemplate')
+        if map_template:
+            map_entry_templates = map_template.get('interconnectMapEntryTemplates')
+            if map_entry_templates:
+                for value in map_entry_templates:
+                    value.pop('logicalDownlinkUri')
+
         merged_data = LIGMerger().merge_data(current_data, self.data)
 
         if compare(current_data, merged_data):
