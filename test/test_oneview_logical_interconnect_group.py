@@ -366,9 +366,10 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_has_same_uplinkset_attributes(self):
-        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
-        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = UPLINK_SETS
-        self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_DIFFERENT_UPLINKSETS
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS['data']
+        self.resource.get_by_name.return_value = self.resource
+#        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = UPLINK_SETS
+        self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
 
         LogicalInterconnectGroupModule().run()
 
