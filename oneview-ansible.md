@@ -12680,7 +12680,7 @@ Retrieve the facts about one or more of the OneView Users.
 
 - name: Gather facts about all Users
   oneview_user_facts:
-    config: "{{ config_file_path }}"
+    config: "{{ config }}"
 
 - debug: var=users
 
@@ -12697,7 +12697,7 @@ Retrieve the facts about one or more of the OneView Users.
 
 - name: Gather facts about a User by name
   oneview_user_facts:
-    config: "{{ config_file_path }}"
+    config: "{{ config }}"
     name: "testUser"
 
 - debug: var=users
