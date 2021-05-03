@@ -273,24 +273,6 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
             ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS)
         )
 
-    def test_should_create_new_lig_with_fc_network_in_uplinkset(self):
-        self.resource.get_by_name.return_value = None
-        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
-        self.resource.create.return_value = self.resource
-
-        self.mock_ov_client.fc_networks.get_by.return_value = [dict(uri='/rest/fc-networks/7568956')]
-        self.mock_ov_client.network_sets.get_by.return_value = [dict(uri='/rest/network-sets/8985690')]
-
-        self.mock_ansible_module.params = PARAMS_FOR_CREATE
-
-        LogicalInterconnectGroupModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=LogicalInterconnectGroupModule.MSG_CREATED,
-            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS)
-        )
-
     def test_should_create_new_with_named_permitted_interconnect_type(self):
         self.resource.get_by_name.return_value = None
         self.resource.create.return_value = self.resource
