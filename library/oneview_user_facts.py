@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -28,14 +28,23 @@ description:
     - Retrieve the facts about one or more of the Users from OneView.
 version_added: "2.3"
 requirements:
-    - "python >= 2.7.9"
-    - "hpeOneView >= 3.2.0"
+    - "python >= 3.4.2"
+    - "hpeOneView >= 6.1.0"
 author:
     "Felipe Bulsoni (@fgbulsoni)"
 options:
-    name:
+    userName:
       description:
         - User name.
+      required: false
+    role:
+      description:
+        - Role name.
+      required: false
+    options:
+      description:
+        - "To gather the additonal facts about the roles associated with username.
+          Options allowed: C(getUserRoles) retrieves the list of roles associated with username."
       required: false
 
 extends_documentation_fragment:
@@ -46,7 +55,7 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Users
   oneview_user_facts:
-    config: "{{ config_file_path }}"
+    config: "{{ config }}"
 
 - debug: var=users
 
@@ -63,8 +72,26 @@ EXAMPLES = '''
 
 - name: Gather facts about a User by name
   oneview_user_facts:
-    config: "{{ config_file_path }}"
-    name: user name
+    config: "{{ config }}"
+    userName: "testUser"
+
+- debug: var=users
+
+- name: Gather facts about the users who have permissions that use a specified role
+  oneview_user_facts:
+    config: "{{ config }}"
+    role: "{{ role }}"
+  delegate_to: localhost
+
+- debug: var=role
+
+- name: Gather facts about lists of user's roles
+  oneview_user_facts:
+    config: "{{ config }}"
+    userName: "testUser"
+    options:
+        - getUserRoles
+  delegate_to: localhost
 
 - debug: var=users
 '''
@@ -76,27 +103,37 @@ users:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModuleBase
+from ansible.module_utils.oneview import OneViewModule
 
 
-class UserFactsModule(OneViewModuleBase):
+class UserFactsModule(OneViewModule):
     def __init__(self):
 
         argument_spec = dict(
-            name=dict(required=False, type='str'),
-            params=dict(required=False, type='dict')
+            userName=dict(required=False, type='str'),
+            params=dict(required=False, type='dict'),
+            role=dict(required=False, type='str'),
+            options=dict(required=False, type='list')
         )
 
         super(UserFactsModule, self).__init__(additional_arg_spec=argument_spec)
+        self.set_resource_object(self.oneview_client.users)
 
     def execute_module(self):
 
-        if self.module.params['name']:
-            users = self.oneview_client.users.get_by('name', self.module.params['name'])
+        ansible_facts = {}
+        if self.module.params['userName']:
+            self.current_resource = self.resource_client.get_by_userName(self.module.params['userName'])
+            ansible_facts['users'] = self.current_resource.data
+        elif self.module.params['role']:
+            ansible_facts['role'] = self.resource_client.get_user_by_role(self.module.params['role'])
         else:
-            users = self.oneview_client.users.get_all(**self.facts_params)
+            ansible_facts['users'] = self.resource_client.get_all(**self.facts_params)
 
-        return dict(changed=False, ansible_facts=dict(users=users))
+        if self.module.params['userName'] and self.options.get('getUserRoles'):
+            ansible_facts['user_roles'] = self.resource_client.get_role_associated_with_userName(self.module.params['userName'])
+
+        return dict(changed=False, ansible_facts=ansible_facts)
 
 
 def main():

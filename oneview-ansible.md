@@ -12458,8 +12458,8 @@ Manage OneView Users.
  Provides an interface to manage Users. Can create, update, and delete.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpeOneView >= 5.4.0
+  * python >= 3.4.2
+  * hpeOneView >= 6.1.0
 
 #### Options
 
@@ -12467,7 +12467,7 @@ Manage OneView Users.
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
 | data  |   Yes  |  | |  List with the User properties.  |
-| state  |   |  | <ul> <li>present</li>  <li>absent</li>  <li>set_password</li> </ul> |  Indicates the desired state for the User. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists. `set_password` will set a user password to the value specified. This operation is non-idempotent.  |
+| state  |   |  | <ul> <li>present</li>  <li>absent</li> <li>set_password</li> <li>add_role_to_username</li> <li>update_role_to_username</li> <li>remove_role_from_username</li> <li>add_multiple_users</li> <li>delete_multiple_users</li> <li>validate_user_name</li> <li>validate_full_name</li> </ul> |  Indicates the desired state for the User. `present` will ensure data properties are compliant with OneView. `absent` will remove the resource from OneView, if it exists. `set_password` will changes the default administrator's password during first-time appliance setup only. `add_role_to_username` will add a given set of roles to an existing user. `update_role_to_username` will replaces a user's roles with a specified set. `remove_role_from_username` will removes a set of roles that are unrestricted by scope from a user. `add_multiple_users` will adds multiple new local users to the appliance and one must have the user create permissions. `delete_multiple_users` will removes multiple users based on query criteria. `validate_username` will validates the existence of a user with the given user name in the appliance. `validate_fullname` will checks for the existence of a user with the specified full name in the appliance. |
 
 
 
@@ -12475,43 +12475,159 @@ Manage OneView Users.
 
 ```yaml
 
-- name: Ensure that the User is present using the default configuration
+- name: Gather facts about all Scopes
+  oneview_scope_facts:
+    config: "{{ config }}"
+  delegate_to: localhost
+
+- name: Create a User
   oneview_user:
-    config: "{{ config_file_path }}"
+    config: "{{ config }}"
     state: present
     data:
-      userName: testUser
-      password: pass1234
-      emailAddress: testUser@example.com
+      userName: "{{ user_name }}"
+      password: "myPass1234"
+      emailAddress: "{{ email }}"
       enabled: true
-      fullName: testUser101
-    delegate_to: localhost
+      fullName: "testUser101"
+      mobilePhone: '555-2121'
+      officePhone: '555-1212'
+      permissions:
+        - roleName: "Read only"
+          scopeUri: "/rest/scopes/6cf6d4da-1b5e-4322-9dff-6ef545ad700f"
+        - roleName: "Infrastructure administrator"
+          scopeUri: "/rest/scopes/c7cab507-b49a-422d-9765-aff784112092"
+  delegate_to: localhost
+  register: user_1
 
-- name: Ensure that the User is present with enabled 'false'
+- name: Do nothing with the User when no changes are provided
   oneview_user:
-    config: "{{ config_file_path }}"
+    config: "{{ config }}"
     state: present
     data:
-      userName: testUser
-      enabled: false
-    delegate_to: localhost
+      userName: "{{ user_name }}"
+      emailAddress: "{{ email }}"
+      enabled: true
+      fullName: "testUser101"
+      mobilePhone: '555-2121'
+      officePhone: '555-1212'
+      permissions:
+        - roleName: "Read only"
+          scopeUri: "/rest/scopes/6cf6d4da-1b5e-4322-9dff-6ef545ad700f"
+        - roleName: "Infrastructure administrator"
+          scopeUri: "/rest/scopes/c7cab507-b49a-422d-9765-aff784112092"
+  delegate_to: localhost
+  register: user_1
 
-- name: Ensure that the User is absent
+- name: Update the User changing the attribute enabled to False
   oneview_user:
-    config: "{{ config_file_path }}"
+    config: "{{ config }}"
+    state: present
+    data:
+      userName: "{{ user_name }}"
+      enabled: false
+  delegate_to: localhost
+
+- name: Adds multiple new local users to the appliance
+  oneview_user:
+    config: "{{ config }}"
+    state: add_multiple_users
+    data:
+      users_list:
+        - userName: "{{ user_name }}1"
+          password: "myPass1234"
+          emailAddress: "{{ email }}"
+          enabled: true
+          fullName: "testUser101"
+          mobilePhone: '555-2121'
+          officePhone: '555-1212'
+          permissions:
+            - roleName: "Read only"
+            - roleName: "Infrastructure administrator"
+        - userName: "{{ user_name }}2"
+          password: "myPass1234"
+          emailAddress: "{{ email }}"
+          enabled: true
+          fullName: "testUser101"
+          mobilePhone: '555-2121'
+          officePhone: '555-1212'
+          permissions:
+            - roleName: "Read only"
+            - roleName: "Infrastructure administrator"
+  delegate_to: localhost
+- debug: var=user
+
+- name: Validates the existence of a user with the given user name
+  oneview_user:
+    config: "{{ config }}"
+    state: validate_user_name
+    data:
+      userName: "testUser"
+  delegate_to: localhost
+- debug: var=user
+
+- name: Checks for the existence of a user with the specified full name
+  oneview_user:
+    config: "{{ config }}"
+    state: validate_full_name
+    data:
+      fullName: "testUser101"
+  delegate_to: localhost
+- debug: var=user
+
+- name: Add role to existing username
+  oneview_user:
+    config: "{{ config }}"
+    state: add_role_to_username
+    data:
+      userName: "testUser"
+      role_list:
+        - roleName: "Backup administrator"
+        - roleName: "Scope administrator"
+  delegate_to: localhost
+- debug: var=user
+
+- name: Update role to existing username
+  oneview_user:
+    config: "{{ config }}"
+    state: update_role_to_username
+    data:
+      userName: "testUser"
+      role_list:
+        - roleName: "Infrastructure administrator"
+        - roleName: "Read only"
+  delegate_to: localhost
+- debug: var=user
+
+- name: remove role from existing username
+  oneview_user:
+    config: "{{ config }}"
+    state: remove_role_from_username
+    data:
+      userName: "testUser"
+      roleName: "Read only"
+  delegate_to: localhost
+- debug: var=user
+
+- name: Delete single user
+  oneview_user:
+    config: "{{ config }}"
     state: absent
     data:
-      userName: testUser
-    delegate_to: localhost
+      userName: "testUser"
+  delegate_to: localhost
+- debug: var=user
 
-- name: Set the password of specified user
+- name: Delete multiple users
   oneview_user:
-    config: "{{ config_file_path }}"
-    state: set_password
+    config: "{{ config }}"
+    state: delete_multiple_users
     data:
-      userName: testUser
-      password: newPass1234
-    delegate_to: localhost
+      users_list:
+        - "testUser1"
+        - "testUser2"
+  delegate_to: localhost
+- debug: var=user
 
 ```
 
@@ -12521,7 +12637,7 @@ Manage OneView Users.
 
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
-| user   | Has the facts about the OneView Users. |  On state 'present'. Can be null. |  dict |
+| user   | Has the facts about the OneView Users. |  Always. |  dict |
 
 
 #### Notes
@@ -12543,15 +12659,17 @@ Retrieve the facts about one or more of the OneView Users.
  Retrieve the facts about one or more of the Users from OneView.
 
 #### Requirements (on the host that executes the module)
-  * python >= 2.7.9
-  * hpeOneView >= 5.4.0
+  * python >= 3.4.2
+  * hpeOneView >= 6.1.0
 
 #### Options
 
 | Parameter     | Required    | Default  | Choices    | Comments |
 | ------------- |-------------| ---------|----------- |--------- |
 | config  |   No  |  | |  Path to a .json configuration file containing the OneView client configuration. The configuration file is optional. If the file path is not provided, the configuration will be loaded from environment variables.  |
-| name  |   No  |  | |  User name.  |
+| userName  |   No  |  | |  User name.  |
+| role  |   No  |  | |  role name.  |
+| options | No  |  |  getUserRoles | Options to get role associated with username. 
 | params  |   No  |  | |  List of params to delimit, filter and sort the list of resources.  params allowed: `start`: The first item to return, using 0-based indexing. `count`: The number of resources to return. `filter`: A general filter/query string to narrow the list of items returned. `sort`: The sort order of the returned data set.  |
 
 
@@ -12562,7 +12680,7 @@ Retrieve the facts about one or more of the OneView Users.
 
 - name: Gather facts about all Users
   oneview_user_facts:
-    config: "{{ config_file_path }}"
+    config: "{{ config }}"
 
 - debug: var=users
 
@@ -12579,10 +12697,29 @@ Retrieve the facts about one or more of the OneView Users.
 
 - name: Gather facts about a User by name
   oneview_user_facts:
-    config: "{{ config_file_path }}"
-    name: user name
+    config: "{{ config }}"
+    name: "testUser"
 
 - debug: var=users
+
+- name: Gather facts about the users who have permissions that use a specified role
+  oneview_user_facts:
+    config: "{{ config }}"
+    role: "{{ role }}"
+  delegate_to: localhost
+
+- debug: var=role
+
+- name: Gather facts about lists of user's roles
+  oneview_user_facts:
+    config: "{{ config }}"
+    userName: "testUser"
+    options:
+        - getUserRoles
+  delegate_to: localhost
+
+- debug: var=users
+- debug: var=user_roles
 
 ```
 
@@ -12593,6 +12730,8 @@ Retrieve the facts about one or more of the OneView Users.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | users   | It has all the OneView facts about the Users. |  Always, but can be null. |  dict |
+| user_roles | It has all the role's associated with Users. | Always. | list |
+| role   | It has all the Users with specified role. | Always. but can be null. | list | 
 
 
 #### Notes

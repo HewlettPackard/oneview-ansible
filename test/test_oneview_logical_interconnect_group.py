@@ -376,8 +376,6 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
 
     def test_update_when_data_has_modified_uplinkset_attributes(self):
         self.resource.data = DEFAULT_LIG_TEMPLATE
-#        self.resource.logical_interconnect_groups.get_by_name.return_value = UPLINK_SETS
-
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
         LogicalInterconnectGroupModule().run()
@@ -391,7 +389,6 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
     def test_should_not_update_when_data_has_same_uplinkset_attributes(self):
         self.resource.data = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP['data'])
         self.resource.get_by_name.return_value = self.resource
-#        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = UPLINK_SETS
         self.mock_ansible_module.params = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP)
 
         LogicalInterconnectGroupModule().run()
@@ -453,7 +450,6 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         data_merged = DEFAULT_LIG_TEMPLATE.copy()
         data_merged['name'] = RENAMED_LIG
         params_to_rename = PARAMS_TO_RENAME.copy()
-
         self.resource.data = DEFAULT_LIG_TEMPLATE
 
         self.mock_ansible_module.params = params_to_rename
@@ -462,7 +458,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
 
         self.resource.update.assert_called_once_with(data_merged)
 
-    def test_create_with_newName_when_resource_not_exists(self):
+    def test_create_with_new_name_when_resource_not_exists(self):
         data_merged = DEFAULT_LIG_TEMPLATE.copy()
         data_merged['name'] = RENAMED_LIG
         params_to_rename = PARAMS_TO_RENAME.copy()
