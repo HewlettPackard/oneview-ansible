@@ -151,17 +151,6 @@ class TestApplianceDeviceSnmpV3TrapDestinationsModule(OneViewBaseTest):
             ansible_facts=dict(appliance_device_snmp_v3_trap_destinations=DEFAULT_PARAMS_WITH_USERNAME)
         )
 
-    def test_should_fail_when_snmpv3_username_not_found(self):
-        self.resource.get_by_name.return_value = None
-        self.mock_ov_client.appliance_device_snmp_v3_users.get_by.return_value = []
-
-        self.mock_ansible_module.params = PARAMS_FOR_PRESENT_USING_USERNAME
-
-        ApplianceDeviceSnmpV3TrapDestinationsModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(
-            exception=mock.ANY, msg=ApplianceDeviceSnmpV3TrapDestinationsModule.MSG_USER_NOT_FOUND)
-
     def test_update_when_data_has_modified_attributes_using_username(self):
         self.resource.data = DEFAULT_PARAMS_WITH_USERNAME
         data_merged = DEFAULT_PARAMS_WITH_USERNAME.copy()

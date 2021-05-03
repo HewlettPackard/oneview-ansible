@@ -12,6 +12,7 @@ In this release, we have added support for IDPools and Labels resources.
 
 #### Bug fixes & Enhancements
 - [#634] (https://github.com/HewlettPackard/oneview-ansible/issues/634) Create Uplink Set with FC network - Cannot use name but URI
+- [#669] (https://github.com/HewlettPackard/oneview-ansible/issues/669) Regression from OV5.7.0-ov5.3 to OV.5.10.0-ov5.6
 
 ## v6.0.0
 This release extends the planned support of the modules to OneView REST API version 2600 (OneView v6.0) and ImageStreamer REST API version 2010 (I3S v6.0).
