@@ -178,7 +178,6 @@ PARAMS_LIG_TEMPLATE_WITH_MAP = dict(
         interconnectMapTemplate=dict(
             interconnectMapEntryTemplates=[
                 {
-                    "logicalDownlinkUri": None,
                     "logicalLocation": {
                         "locationEntries": [
                             {
@@ -326,16 +325,6 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
             ansible_facts=dict(logical_interconnect_group=PARAMS_FOR_PRESENT.copy())
         )
 
-    def test_should_fail_when_permitted_interconnect_type_name_not_exists(self):
-        self.resource.get_by_name.return_value = None
-        self.mock_ov_client.interconnect_types.get_by.return_value = []
-
-        self.mock_ansible_module.params = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP)
-
-        LogicalInterconnectGroupModule().run()
-
-        self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=LogicalInterconnectGroupModule.MSG_INTERCONNECT_TYPE_NOT_FOUND)
-
     def test_should_not_update_when_data_is_equals(self):
         self.resource.data = DEFAULT_LIG_TEMPLATE
 
@@ -359,12 +348,12 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=LogicalInterconnectGroupModule.MSG_UPDATED,
-            ansible_facts=dict(logical_interconnect_group=self.resource.data)
+            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
         )
 
     def test_update_when_data_has_modified_uplinkset_attributes(self):
         self.resource.data = DEFAULT_LIG_TEMPLATE
-        self.resource.logical_interconnect_groups.get_by_name.return_value = UPLINK_SETS
+#        self.resource.logical_interconnect_groups.get_by_name.return_value = UPLINK_SETS
 
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
 
@@ -404,18 +393,19 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
 
     def test_should_fail_when_uplinkset_network_not_found(self):
         self.resource.get_by_name.return_value = None
-        self.mock_ov_client.ethernet_networks.get_by.return_value = []
+        self.mock_ov_client.ethernet_networks.get_by_name.return_value = None
+        self.mock_ov_client.fc_networks.get_by_name.return_value = None
 
         self.mock_ansible_module.params = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP)
 
         LogicalInterconnectGroupModule().run()
 
         self.mock_ansible_module.fail_json.assert_called_once_with(
-            exception=mock.ANY, msg=LogicalInterconnectGroupModule.MSG_ETHERNET_NETWORK_NOT_FOUND)
+            exception=mock.ANY, msg=LogicalInterconnectGroupModule.MSG_NETWORK_NOT_FOUND)
 
     def test_should_fail_when_uplinkset_network_set_not_found(self):
         self.resource.get_by_name.return_value = None
-        self.mock_ov_client.network_sets.get_by.return_value = []
+        self.mock_ov_client.network_sets.get_by_name.return_value = None
 
         self.mock_ansible_module.params = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP)
 
@@ -426,7 +416,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
 
     def test_should_fail_when_interconnect_type_not_found(self):
         self.resource.get_by_name.return_value = None
-        self.mock_ov_client.interconnect_types.get_by.return_value = []
+        self.mock_ov_client.interconnect_types.get_by_name.return_value = None
 
         self.mock_ansible_module.params = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP)
 
@@ -465,7 +455,8 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         self.resource.create.assert_called_once_with(PARAMS_TO_RENAME['data'])
 
     def test_should_remove_lig(self):
-        self.resource.data = DEFAULT_LIG_TEMPLATE
+#        self.resource.data = DEFAULT_LIG_TEMPLATE
+        self.resource.get_by_name.return_value = DEFAULT_LIG_TEMPLATE
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
