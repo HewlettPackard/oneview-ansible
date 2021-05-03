@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 3.4.2"
-    - "hpeOneView >= 5.4.0"
+    - "hpeOneView >= 6.1.0"
 author:
     "Felipe Bulsoni (@fgbulsoni)"
 options:
@@ -55,7 +55,7 @@ extends_documentation_fragment:
 EXAMPLES = '''
 - name: Gather facts about all Users
   oneview_user_facts:
-    config: "{{ config_file_path }}"
+    config: "{{ config }}"
 
 - debug: var=users
 
@@ -72,7 +72,7 @@ EXAMPLES = '''
 
 - name: Gather facts about a User by name
   oneview_user_facts:
-    config: "{{ config_file_path }}"
+    config: "{{ config }}"
     userName: "testUser"
 
 - debug: var=users
@@ -83,7 +83,7 @@ EXAMPLES = '''
     role: "{{ role }}"
   delegate_to: localhost
 
-- debug: var=users
+- debug: var=role
 
 - name: Gather facts about lists of user's roles
   oneview_user_facts:

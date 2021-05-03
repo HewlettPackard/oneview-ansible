@@ -12459,7 +12459,7 @@ Manage OneView Users.
 
 #### Requirements (on the host that executes the module)
   * python >= 3.4.2
-  * hpeOneView >= 5.4.0
+  * hpeOneView >= 6.1.0
 
 #### Options
 
@@ -12660,7 +12660,7 @@ Retrieve the facts about one or more of the OneView Users.
 
 #### Requirements (on the host that executes the module)
   * python >= 3.4.2
-  * hpeOneView >= 5.4.0
+  * hpeOneView >= 6.1.0
 
 #### Options
 
@@ -12708,7 +12708,7 @@ Retrieve the facts about one or more of the OneView Users.
     role: "{{ role }}"
   delegate_to: localhost
 
-- debug: var=users
+- debug: var=role
 
 - name: Gather facts about lists of user's roles
   oneview_user_facts:
@@ -12719,6 +12719,7 @@ Retrieve the facts about one or more of the OneView Users.
   delegate_to: localhost
 
 - debug: var=users
+- debug: var=user_roles
 
 ```
 
@@ -12729,6 +12730,8 @@ Retrieve the facts about one or more of the OneView Users.
 | Name          | Description  | Returned | Type       |
 | ------------- |-------------| ---------|----------- |
 | users   | It has all the OneView facts about the Users. |  Always, but can be null. |  dict |
+| user_roles | It has all the role's associated with Users. | Always. | list |
+| role   | It has all the Users with specified role. | Always. but can be null. | list | 
 
 
 #### Notes

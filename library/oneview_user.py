@@ -29,7 +29,7 @@ description:
 version_added: "2.3"
 requirements:
     - "python >= 3.4.2"
-    - "hpeOneView >= 5.4.0"
+    - "hpeOneView >= 6.1.0"
 author: "Felipe Bulsoni (@fgbulsoni)"
 options:
     state:
@@ -170,6 +170,7 @@ EXAMPLES = '''
       role_list:
         - roleName: "Infrastructure administrator"
         - roleName: "Read only"
+        - roleName: "Scope operator"
   delegate_to: localhost
 - debug: var=user
 - name: remove role from existing username
@@ -178,7 +179,9 @@ EXAMPLES = '''
     state: remove_role_from_username
     data:
       userName: "testUser"
-      roleName: "Read only"
+      roleName: 
+        - "Read only"
+        - "Scope operator"
   delegate_to: localhost
 - debug: var=user
 - name: Delete single user
@@ -199,23 +202,6 @@ EXAMPLES = '''
         - "testUser2"
   delegate_to: localhost
 - debug: var=user
-- name: Create a User for automation
-  oneview_user:
-    config: "{{ config }}"
-    state: present
-    data:
-      userName: "{{ user_name }}"
-      password: "myPass1234"
-      emailAddress: "{{ email }}"
-      enabled: true
-      fullName: "testUser101"
-      mobilePhone: '555-2121'
-      officePhone: '555-1212'
-      permissions:
-        - roleName: "Read only"
-        - roleName: "Infrastructure administrator"
-  delegate_to: localhost
-  register: user_1
 '''
 
 RETURN = '''
