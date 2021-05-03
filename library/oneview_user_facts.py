@@ -33,10 +33,19 @@ requirements:
 author:
     "Felipe Bulsoni (@fgbulsoni)"
 options:
-    name:
+    userName:
       description:
         - User name.
       required: false
+    role:
+      description:
+        - Role name.
+      required: false
+    options:
+      description:
+        - "To gather the additonal facts about the roles associated with username.
+          Options allowed: C(getUserRoles) retrieves the list of roles associated with username."
+      required: false    
 
 extends_documentation_fragment:
     - oneview
@@ -64,7 +73,7 @@ EXAMPLES = '''
 - name: Gather facts about a User by name
   oneview_user_facts:
     config: "{{ config_file_path }}"
-    name: "testUser"
+    userName: "testUser"
 
 - debug: var=users
 
@@ -121,7 +130,7 @@ class UserFactsModule(OneViewModule):
         else:
             ansible_facts['users'] = self.resource_client.get_all(**self.facts_params)
 
-        if self.options.get('getUserRoles'):
+        if self.module.params['userName'] and self.options.get('getUserRoles'):
             ansible_facts['user_roles'] = self.resource_client.get_role_associated_with_userName(self.module.params['userName'])
 
         return dict(changed=False, ansible_facts=ansible_facts)

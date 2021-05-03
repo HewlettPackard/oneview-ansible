@@ -147,6 +147,7 @@
           role_list:
             - roleName: "Infrastructure administrator"
             - roleName: "Read only"
+            - roleName: "Scope operator"
       delegate_to: localhost
 
     - debug: var=user
@@ -157,7 +158,9 @@
         state: remove_role_from_username
         data:
           userName: "testUser"
-          roleName: "Read only"
+          role_list: 
+            - "Read only"
+            - "Scope operator"
       delegate_to: localhost
 
     - debug: var=user

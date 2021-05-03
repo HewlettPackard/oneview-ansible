@@ -38,7 +38,15 @@ options:
               C(present) will ensure data properties are compliant with OneView.
               C(absent) will remove the resource from OneView, if it exists.
               C(set_password) will set a user password to the value specified. This operation is non-idempotent.
-        choices: ['present', 'absent', 'set_password']
+              C(add_role_to_username) will add a role to existing username.
+              C(update_role_to_username) will update a specified role to existing username.
+              C(remove_role_from_username) will remove a set of roles from existing username.
+              C(add_multiple_users) will add multiple users to the appliance.
+              C(delete_multiple_users) will delete multiple users from the appliance.
+              C(validate_full_name) will checks for the existence of a user with the specified full name in the appliance.
+              C(validate_user_name) will validates the existence of a user with the given user name in the appliance.
+        choices: ['present', 'absent', 'set_password', 'add_role_to_username', 'update_role_to_username', 'validate_user_name',
+                  'remove_role_from_username', 'add_multiple_users', 'delete_multiple_users', 'validate_full_name']
     data:
         description:
             - List with the User properties.
@@ -236,10 +244,9 @@ class UserModule(OneViewModule):
     MSG_PASSWORD_UPDATED = "User password set successfully."
     RESOURCE_FACT_NAME = 'users'
     MSG_USERNAME_MISSING = 'userName field is missing.'
-    MSG_USERNAME_DOES_NOT_EXIT = 'userName doesn\'t exist.'
+    MSG_USERNAME_DOES_NOT_EXIST = 'userName doesn\'t exist.'
     MSG_ROLELIST_MISSING = 'role_list field is missing.'
     MSG_PASSWORD_MISSING = 'either oldPassword or newPassword field is missing.'
-    MSG_ROLENAME_MISSING = 'roleName field is missing.'
     MSG_USERLIST_MISSING = 'users_list field is missing.'
     MSG_FULLNAME_MISSING = 'fullName field is missing.'
 
@@ -275,12 +282,9 @@ class UserModule(OneViewModule):
                         resource = self.resource_client.update_role_to_userName(self.data['userName'], self.data['role_list'])
                         return dict(changed=True, msg=self.MSG_UPDATED_ROLE, ansible_facts=dict(user=resource))
 
-                elif self.state == 'remove_role_from_username':
-                    if self.data.get('roleName'):
-                        resource = self.resource_client.remove_role_from_username(self.data['userName'], self.data['roleName'])
+                    elif self.state == 'remove_role_from_username':
+                        resource = self.resource_client.remove_role_from_username(self.data['userName'], self.data['role_list'])
                         return dict(changed=True, msg=self.MSG_DELETED_ROLE, ansible_facts=dict(user=resource))
-                    else:
-                        return dict(failed=True, msg=self.MSG_ROLENAME_MISSING)
 
                 elif self.state == 'validate_user_name':
                     resource = self.resource_client.validate_user_name(self.data['userName']).data

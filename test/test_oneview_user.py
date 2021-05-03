@@ -97,7 +97,7 @@ PARAMS_REMOVE_ROLE = dict(
     config='config.json',
     state='remove_role_from_username',
     data=dict(userName='testUser',
-              roleName='role1')
+              role_list=['role1'])
 )
 
 PARAMS_VALIDATE_USERNAME = dict(
@@ -360,21 +360,6 @@ class TestUserModule(OneViewBaseTest):
             changed=True,
             msg=UserModule.MSG_DELETED_ROLE,
             ansible_facts=dict(user=True)
-        )
-
-    def test_missing_field_rolename(self):
-
-        removed_data = deepcopy(PARAMS_REMOVE_ROLE)
-        removed_data['data'].pop('roleName')
-        self.resource.get_by_userName.return_value = self.resource
-        self.mock_ansible_module.params = removed_data
-
-        UserModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=False,
-            failed=True,
-            msg=UserModule.MSG_ROLENAME_MISSING
         )
 
     def test_validate_user_name(self):
