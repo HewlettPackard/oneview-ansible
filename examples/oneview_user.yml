@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -17,23 +17,31 @@
 - hosts: all
   vars:
     config: "{{ playbook_dir }}/oneview_config.json"
-    user_name: testUser
-    email: testUser@example.com
+    user_name: "testUser"
+    email: "testUser@example.com"
   tasks:
+    - name: Gather facts about all Scopes
+      oneview_scope_facts:
+        config: "{{ config }}"
+      delegate_to: localhost
+
     - name: Create a User
       oneview_user:
         config: "{{ config }}"
         state: present
         data:
           userName: "{{ user_name }}"
-          password: myPass1234
+          password: "myPass1234"
           emailAddress: "{{ email }}"
           enabled: true
-          fullName: testUser101
+          fullName: "testUser101"
           mobilePhone: '555-2121'
           officePhone: '555-1212'
-          roles:
-            - Read only
+          permissions:
+            - roleName: "Read only"
+              scopeUri: "{{ scopes[0].uri }}"
+            - roleName: "Infrastructure administrator"
+              scopeUri: "{{ scopes[0].uri }}"
       delegate_to: localhost
       register: user_1
 
@@ -45,7 +53,16 @@
           userName: "{{ user_name }}"
           emailAddress: "{{ email }}"
           enabled: true
+          fullName: "testUser101"
+          mobilePhone: '555-2121'
+          officePhone: '555-1212'
+          permissions:
+            - roleName: "Read only"
+              scopeUri: "{{ scopes[0].uri }}"
+            - roleName: "Infrastructure administrator"
+              scopeUri: "{{ scopes[0].uri }}"
       delegate_to: localhost
+      register: user_1
 
     - name: Update the User changing the attribute enabled to False
       oneview_user:
@@ -56,27 +73,144 @@
           enabled: false
       delegate_to: localhost
 
-    - name: Sets a new password for the user
+    - name: Adds multiple new local users to the appliance
       oneview_user:
         config: "{{ config }}"
-        state: set_password
+        state: add_multiple_users
+        data:
+          users_list:
+            - userName: "{{ user_name }}1"
+              password: "myPass1234"
+              emailAddress: "{{ email }}"
+              enabled: true
+              fullName: "testUser101"
+              mobilePhone: '555-2121'
+              officePhone: '555-1212'
+              permissions:
+                - roleName: "Read only"
+                - roleName: "Infrastructure administrator"
+            - userName: "{{ user_name }}2"
+              password: "myPass1234"
+              emailAddress: "{{ email }}"
+              enabled: true
+              fullName: "testUser101"
+              mobilePhone: '555-2121'
+              officePhone: '555-1212'
+              permissions:
+                - roleName: "Read only"
+                - roleName: "Infrastructure administrator"
+
+      delegate_to: localhost
+
+    - debug: var=user
+
+    - name: Validates the existence of a user with the given user name
+      oneview_user:
+        config: "{{ config }}"
+        state: validate_user_name
+        data:
+          userName: "testUser"
+      delegate_to: localhost
+
+    - debug: var=user
+
+    - name: Checks for the existence of a user with the specified full name 
+      oneview_user:
+        config: "{{ config }}"
+        state: validate_full_name
+        data:
+          fullName: "testUser101"
+      delegate_to: localhost
+
+    - debug: var=user
+
+    - name: Add role to existing username
+      oneview_user:
+        config: "{{ config }}"
+        state: add_role_to_username
+        data:
+          userName: "testUser"
+          role_list:
+            - roleName: "Backup administrator"
+            - roleName: "Scope administrator"
+      delegate_to: localhost
+
+    - debug: var=user
+
+    - name: Update role to existing username
+      oneview_user:
+        config: "{{ config }}"
+        state: update_role_to_username
+        data:
+          userName: "testUser"
+          role_list:
+            - roleName: "Infrastructure administrator"
+            - roleName: "Read only"
+            - roleName: "Scope operator"
+      delegate_to: localhost
+
+    - debug: var=user
+
+    - name: remove role from existing username
+      oneview_user:
+        config: "{{ config }}"
+        state: remove_role_from_username
+        data:
+          userName: "testUser"
+          role_list: 
+            - "Read only"
+            - "Scope operator"
+      delegate_to: localhost
+
+    - debug: var=user
+
+    - name: Delete single user
+      oneview_user:
+        config: "{{ config }}"
+        state: absent
+        data:
+          userName: "testUser"
+      delegate_to: localhost 
+
+    - debug: var=user
+
+
+    - name: Delete multiple users
+      oneview_user:
+        config: "{{ config }}"
+        state: delete_multiple_users
+        data:
+          users_list:
+            - "testUser1"
+            - "testUser2"
+      delegate_to: localhost
+
+    - debug: var=user
+
+    - name: Create a User for automation
+      oneview_user:
+        config: "{{ config }}"
+        state: present
         data:
           userName: "{{ user_name }}"
-          password: myNEWPass1234
+          password: "myPass1234"
+          emailAddress: "{{ email }}"
+          enabled: true
+          fullName: "testUser101"
+          mobilePhone: '555-2121'
+          officePhone: '555-1212'
+          permissions:
+            - roleName: "Read only"
+            - roleName: "Infrastructure administrator"
       delegate_to: localhost
+      register: user_1
 
-    - name: Delete the User
-      oneview_user:
-        config: "{{ config }}"
-        state: absent
-        data: "{{ user_1.ansible_facts.user }}"
-      delegate_to: localhost
-      register: deleted
-
-    - name: Do nothing when User is absent
-      oneview_user:
-        config: "{{ config }}"
-        state: absent
-        data: "{{ user_1.ansible_facts.user }}"
-      delegate_to: localhost
-      register: deleted
+#    - name: Sets a new password for the user
+#      oneview_user:
+#        config: "{{ config }}"
+#        state: set_password
+#        data:
+#          userName: "{{ user_name }}"
+#          newPassword: "myNEWPass1234"
+#          oldPassword: "myOLDPass1234"
+#      delegate_to: localhost
