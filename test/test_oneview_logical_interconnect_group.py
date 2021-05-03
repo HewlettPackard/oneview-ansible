@@ -72,6 +72,42 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
         )
     )
 )
+
+DEFAULT_LIG_TEMPLATE_WITH_FC_NETWORK_UPLINKSETS = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name=DEFAULT_LIG_NAME,
+        internalNetworkNames=["test1"],
+        uplinkSets=[dict(
+            logicalPortConfigInfos=[dict(
+                desiredSpeed="Auto",
+                logicalLocation=dict(
+                    locationEntries=[dict(
+                        relativeValue=1,
+                        type="Bay"
+                    ), dict(
+                        relativeValue=21,
+                        type="Port"
+                    ), dict(
+                        relativeValue=1,
+                        type="Enclosure"
+                    )
+                    ]
+                )
+            )
+            ],
+            name="EnetUplink1",
+            networkType="FibreChannel",
+            networkNames=["FC1"],
+            networkSetNames=["NetworkSet1"]
+        )],
+        enclosureType='C7000',
+        interconnectMapTemplate=dict(
+            interconnectMapEntryTemplates=[]
+        )
+    )
+)
 DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
     config='config.json',
     state='present',
@@ -168,6 +204,11 @@ PARAMS_FOR_CREATE = dict(
     config='config.json',
     state='present',
     data=DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS['data'].copy()
+)
+PARAMS_FOR_CREATE_FC = dict(
+    config='config.json',
+    state='present',
+    data=DEFAULT_LIG_TEMPLATE_WITH_FC_NETWORK_UPLINKSETS['data'].copy()
 )
 PARAMS_TO_RENAME = dict(
     config='config.json',
@@ -271,6 +312,24 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
             changed=True,
             msg=LogicalInterconnectGroupModule.MSG_CREATED,
             ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS)
+        )
+
+    def test_should_create_new_lig_with_fc_network_uplinkset(self):
+        self.resource.get_by_name.return_value = None
+        self.resource.data = deepcopy(DEFAULT_LIG_TEMPLATE_WITH_FC_NETWORK_UPLINKSETS['data'])
+        self.resource.create.return_value = self.resource
+
+        self.mock_ov_client.fc_networks.get_by.return_value = [dict(uri='/rest/fc-networks/7568956')]
+        self.mock_ov_client.network_sets.get_by.return_value = [dict(uri='/rest/network-sets/8985690')]
+
+        self.mock_ansible_module.params = PARAMS_FOR_CREATE_FC
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_CREATED,
+            ansible_facts=dict(logical_interconnect_group=self.resource.data)
         )
 
     def test_should_create_new_with_named_permitted_interconnect_type(self):
