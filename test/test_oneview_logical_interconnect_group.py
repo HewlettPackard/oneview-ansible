@@ -428,7 +428,6 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
     def test_rename_when_resource_exists(self):
         data_merged = DEFAULT_LIG_TEMPLATE.copy()
         data_merged['name'] = RENAMED_LIG
-        data_merged['internalNetworkUris'] = []
         params_to_rename = PARAMS_TO_RENAME.copy()
 
         self.resource.data = DEFAULT_LIG_TEMPLATE
@@ -455,8 +454,8 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         self.resource.create.assert_called_once_with(PARAMS_TO_RENAME['data'])
 
     def test_should_remove_lig(self):
-#        self.resource.data = DEFAULT_LIG_TEMPLATE
-        self.resource.get_by_name.return_value = DEFAULT_LIG_TEMPLATE
+        self.resource.data = DEFAULT_LIG_TEMPLATE
+        self.resource.get_by_name.return_value = self.resource
 
         self.mock_ansible_module.params = PARAMS_FOR_ABSENT
 
