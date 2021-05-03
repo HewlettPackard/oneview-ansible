@@ -1,6 +1,6 @@
 #!/usr/bin/python
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -348,8 +348,6 @@ class ServerProfileModule(OneViewModule):
             # removed the below fields as part of idempotency checks
             updated_data = deepcopy(merged_data)
             updated_data.pop('initialScopeUris', None)
-            if updated_data.get('firmware'):
-                updated_data['firmware'].pop('firmwareActivationType', None)
 
             if not compare(self.current_resource.data, updated_data):
                 self.__update_server_profile(merged_data)
@@ -362,6 +360,7 @@ class ServerProfileModule(OneViewModule):
 
     # Removes .mac entries from resource os_custom_attributes if no .mac passed into data params.
     # Swaps True values for 'true' string, and False values for 'false' string to avoid common user errors.
+    # Changes the value of 'Password' attribute to 'None' in merged_data
     def __validations_for_os_custom_attributes(self, merged_data, resource):
         if self.data.get('osDeploymentSettings') is None or resource.get('osDeploymentSettings') is None:
             return
@@ -395,6 +394,8 @@ class ServerProfileModule(OneViewModule):
                     attribute['value'] = 'true'
                 elif attribute['value'] is False:
                     attribute['value'] = 'false'
+                if attribute['name'] == 'Password':
+                    attribute['value'] = 'None'
 
     # Searches for a key or suffix of a key inside an array of hashes. The search looks for {'name': <key>} pairs
     # inside the array.

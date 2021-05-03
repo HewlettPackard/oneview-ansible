@@ -39,7 +39,16 @@
     - name: Gather facts about a Firmware Driver by name
       oneview_firmware_driver_facts:
         config: "{{ config }}"
-        name: "custom_firmware_bundle"
+        name: "Service Pack for Synergy"
+      delegate_to: localhost
+
+    - debug: var=firmware_drivers
+
+    - name: Gather facts about a Firmware Driver by name and version
+      oneview_firmware_driver_facts:
+        config: "{{ config }}"
+        name: "Service Pack for Synergy"
+        version: "SY-2021.02.01"
       delegate_to: localhost
 
     - debug: var=firmware_drivers

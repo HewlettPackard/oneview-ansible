@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2017) Hewlett Packard Enterprise Development LP
+# Copyright (2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -35,12 +35,33 @@
           filter: "associatedResource.resourceCategory='server-profile-templates'"
       delegate_to: localhost
 
+    - name: Gather facts about aggregate tree of tasks with specified filter
+      oneview_task_facts:
+        config: "{{ config }}"
+        params:
+          childLimit: 40
+          topCount: 2
+          view: "aggregatedTree"
+          filter: "taskState='Completed'"
+      delegate_to: localhost
+
+    - name: Gather facts about the last 5 tasks with state 'Completed'
+      oneview_task_facts:
+        config: "{{ config }}"
+        params:
+          count: 5
+          view: "tree"
+          filter: "taskState='Completed'"
+      delegate_to: localhost
+
     - name: Gather facts about the last 5 tasks completed with warnings
       oneview_task_facts:
         config: "{{ config }}"
         params:
           count: 5
+          view: "flat-tree"
           filter: "taskState='Warning'"
       delegate_to: localhost
+
 
     - debug: var=tasks
