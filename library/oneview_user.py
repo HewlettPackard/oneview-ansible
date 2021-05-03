@@ -179,7 +179,7 @@ EXAMPLES = '''
     state: remove_role_from_username
     data:
       userName: "testUser"
-      roleName: 
+      roleName:
         - "Read only"
         - "Scope operator"
   delegate_to: localhost
