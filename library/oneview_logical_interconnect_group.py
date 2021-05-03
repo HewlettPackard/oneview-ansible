@@ -222,7 +222,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
             map_entry_templates = map_template.get('interconnectMapEntryTemplates')
             if map_entry_templates:
                 for value in map_entry_templates:
-                    value.pop('logicalDownlinkUri')
+                    value.pop('logicalDownlinkUri', None)
 
         merged_data = LIGMerger().merge_data(current_data, self.data)
 
