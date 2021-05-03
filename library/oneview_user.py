@@ -299,7 +299,7 @@ class UserModule(OneViewModule):
                 else:
                     return dict(failed=True, msg=self.MSG_ROLELIST_MISSING)
             else:
-                return dict(failed=True, msg=self.MSG_USERNAME_DOES_NOT_EXIT)
+                return dict(failed=True, msg=self.MSG_USERNAME_DOES_NOT_EXIST)
 
         elif self.data and not self.data.get('userName') and (self.data.get('users_list') or self.data.get('fullName')):
             if self.state == 'delete_multiple_users':

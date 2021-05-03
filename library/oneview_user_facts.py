@@ -45,7 +45,7 @@ options:
       description:
         - "To gather the additonal facts about the roles associated with username.
           Options allowed: C(getUserRoles) retrieves the list of roles associated with username."
-      required: false    
+      required: false
 
 extends_documentation_fragment:
     - oneview

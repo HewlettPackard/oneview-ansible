@@ -236,7 +236,7 @@ class TestUserModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=False,
             failed=True,
-            msg=UserModule.MSG_USERNAME_DOES_NOT_EXIT)
+            msg=UserModule.MSG_USERNAME_DOES_NOT_EXIST)
 
     def test_delete_multiple_user(self):
 
