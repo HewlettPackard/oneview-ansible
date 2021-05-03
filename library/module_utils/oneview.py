@@ -145,6 +145,7 @@ def merge_list_by_key(original_list, updated_list, key, ignore_when_null=None, r
                 item[replace_key] = items_map[item_key][replace_key]
             merged_items[item_key] = items_map[item_key]
             merged_items[item_key].update(item)
+            # merged_items[item_key] = dict_merge(merged_items[item_key], item)
         else:
             merged_items[item_key] = item
 
@@ -866,6 +867,43 @@ class OneViewModuleBase(object):
             state['msg'] = self.MSG_UPDATED
 
         return state
+
+
+class LIGMerger(object):
+    # merges uplinksets in current resource and existing resource
+    def merge_data(self, current_data, data):
+        merged_data = dict_merge(current_data, data)
+
+        if current_data.get('uplinkSets') and data.get('uplinkSets'):
+            merged_data['uplinkSets'] = self._merge_uplink_set(current_data, data)
+
+        return merged_data
+
+    # updates the attributes of uplinkset in existing resource if they already exists
+    # appends the uplinksets which are present in current resource but not in existing resource
+    def _merge_uplink_set(self, current_resource, data):
+        existing_uplinksets = data['uplinkSets']
+        current_uplinksets = current_resource['uplinkSets']
+        current_uplinks_left = deepcopy(current_uplinksets)
+
+        for index, existing_uplink in enumerate(existing_uplinksets):
+            for current_uplink in current_uplinksets:
+                if current_uplink['name'] == existing_uplink['name']:
+                    current_uplinks_left.remove(current_uplink)  # removes the common uplinksets from current uplinksets
+
+                    if not compare(current_uplink, existing_uplink):
+                        existing_uplinksets[index] = dict_merge(current_uplink, existing_uplink)
+
+            # checks to ignore extra parameters in uplink set to achieve idempotency
+            if existing_uplink.get('logicalPortConfigInfos') and isinstance(existing_uplink['logicalPortConfigInfos'], list):
+                for port_config in existing_uplink['logicalPortConfigInfos']:
+                    if not port_config.get('desiredFecMode'):
+                        port_config['desiredFecMode'] = "Auto"
+
+        # appends the missing uplinks from current resource to existing resource based on name
+        existing_uplinksets += current_uplinks_left
+
+        return existing_uplinksets
 
 
 class SPKeys(object):

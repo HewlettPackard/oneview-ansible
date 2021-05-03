@@ -9,6 +9,7 @@ In this release, we have added support for IDPools, Tasks, Label and User resour
 #### Bug fixes & Enhancements
 - [#634] (https://github.com/HewlettPackard/oneview-ansible/issues/634) Create Uplink Set with FC network - Cannot use name but URI
 - [#663] (https://github.com/HewlettPackard/oneview-ansible/issues/663) Unable to update scope with resource_assignments_updated
+- [#669] (https://github.com/HewlettPackard/oneview-ansible/issues/669) Regression from OV5.7.0-ov5.3 to OV.5.10.0-ov5.6
 - [#679] (https://github.com/HewlettPackard/oneview-ansible/issues/679) An exception is returned after user permission assignment
 - [#686] (https://github.com/HewlettPackard/oneview-ansible/issues/686) Oneview_user_facts by name returns an exception
 

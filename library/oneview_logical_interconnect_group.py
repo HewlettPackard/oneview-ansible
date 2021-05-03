@@ -141,7 +141,8 @@ logical_interconnect_group:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, LIGMerger
+from deepdiff import DeepDiff
 
 
 class LogicalInterconnectGroupModule(OneViewModule):
@@ -151,7 +152,8 @@ class LogicalInterconnectGroupModule(OneViewModule):
     MSG_ALREADY_PRESENT = 'Logical Interconnect Group is already present.'
     MSG_ALREADY_ABSENT = 'Logical Interconnect Group is already absent.'
     MSG_INTERCONNECT_TYPE_NOT_FOUND = 'Interconnect Type was not found.'
-    MSG_ETHERNET_NETWORK_NOT_FOUND = 'Ethernet Network was not found.'
+    MSG_NETWORK_NOT_FOUND = 'Given Network was not found.'
+    MSG_NETWORK_SET_NOT_FOUND = 'Network Set was not found.'
 
     RESOURCE_FACT_NAME = 'logical_interconnect_group'
 
@@ -172,25 +174,69 @@ class LogicalInterconnectGroupModule(OneViewModule):
             return self.resource_absent()
 
     def __present(self):
+        changed = False
         scope_uris = self.data.pop('scopeUris', None)
 
         self.__replace_name_by_uris()
-        self.__uplink_set_update()
-        result = self.resource_present(self.RESOURCE_FACT_NAME)
+
+        if 'uplinkSets' in self.data:
+            self.__replace_uplinkset_network_uris()
+
+        if self.current_resource:
+            changed, msg = self.__update()
+        else:
+            changed, msg = self.__create()
+
+        result = dict(
+            msg=msg,
+            changed=changed,
+            ansible_facts=dict(logical_interconnect_group=self.current_resource.data)
+        )
 
         if scope_uris is not None:
             result = self.resource_scopes_set(result, 'logical_interconnect_group', scope_uris)
 
         return result
 
+    def __create(self):
+        self.current_resource = self.resource_client.create(self.data)
+        return True, self.MSG_CREATED
+
+    def __compare(self, old_resource, new_resource):
+        return_value = DeepDiff(old_resource, new_resource, ignore_order=True)
+        if return_value:
+            return False
+        else:
+            return True
+
+    def __update(self):
+        changed = False
+        current_data = self.current_resource.data.copy()
+
+        if "newName" in self.data:
+            self.data["name"] = self.data.pop("newName")
+
+        # escaping logicalDownlinkUri from current_data while comparing
+        map_template = current_data.get('interconnectMapTemplate')
+        if map_template:
+            map_entry_templates = map_template.get('interconnectMapEntryTemplates')
+            if map_entry_templates:
+                for value in map_entry_templates:
+                    value.pop('logicalDownlinkUri', None)
+
+        merged_data = LIGMerger().merge_data(current_data, self.data)
+
+        if self.__compare(current_data, merged_data):
+            msg = self.MSG_ALREADY_PRESENT
+        else:
+            self.current_resource.update(merged_data)
+            changed = True
+            msg = self.MSG_UPDATED
+        return changed, msg
+
     def __replace_name_by_uris(self):
-        # replace internalNetworkNames with internalNetworkUris
-        internalNetworkUris = self.data.get('internalNetworkUris', [])
-        internalNetworkNames = self.data.pop('internalNetworkNames', None)
-        if internalNetworkNames:
-            int_networkUris = [self.__get_network_uri(x) for x in internalNetworkNames]
-            internalNetworkUris.extend(int_networkUris)
-        self.data['internalNetworkUris'] = internalNetworkUris
+        if self.data.get('internalNetworkNames'):
+            self.__replace_internal_network_names_by_uris()
 
         map_template = self.data.get('interconnectMapTemplate')
         if map_template:
@@ -200,85 +246,57 @@ class LogicalInterconnectGroupModule(OneViewModule):
                     permitted_interconnect_type_name = value.pop('permittedInterconnectTypeName', None)
                     if permitted_interconnect_type_name:
                         value['permittedInterconnectTypeUri'] = self.__get_interconnect_type_by_name(
-                            permitted_interconnect_type_name).get('uri')
+                            permitted_interconnect_type_name)
 
-    def __uplink_set_update(self):
-        if 'uplinkSets' in self.data:
-            if self.__get_all_uplink_sets():
-                allUplinkSets = self.__get_all_uplink_sets()
-                for uplinkSet in self.data['uplinkSets']:
-                    networkNames = uplinkSet.pop('networkNames', None)
-                    networkSetNames = uplinkSet.pop('networkSetNames', None)
-                    if networkNames and not uplinkSet.get('networkUris'):
-                        uplinkSet['networkUris'] = []
-                    if networkNames:
-                        networkUris = [self.__get_network_uri(x) for x in networkNames]
-                        uplinkSet['networkUris'].extend(networkUris)
-                    if networkSetNames and not uplinkSet.get('networkSetUris'):
-                        uplinkSet['networkSetUris'] = []
-                    if networkSetNames:
-                        networkSetUris = [self.__get_network_set(x) for x in networkSetNames]
-                        uplinkSet['networkSetUris'].extend(networkSetUris)
-                    allUplinkSets = self.__update_existing_uplink_set(allUplinkSets, uplinkSet)
-                self.data['uplinkSets'] = allUplinkSets
-            else:
-                self.__update_network_uri()
+    # replace internalNetworkNames with internalNetworkUris
+    def __replace_internal_network_names_by_uris(self):
+        internalNetworkUris = self.data.get('internalNetworkUris', [])
+        internalNetworkNames = self.data.pop('internalNetworkNames', None)
+        if internalNetworkNames:
+            int_networkUris = [self.__get_network_uri(x, 'Ethernet') for x in internalNetworkNames]
+            internalNetworkUris.extend(int_networkUris)
+        self.data['internalNetworkUris'] = internalNetworkUris
 
-    def __update_network_uri(self):
-        for i in range(len(self.data['uplinkSets'])):
-            networkNames = self.data['uplinkSets'][i].pop('networkNames', None)
-            networkSetNames = self.data['uplinkSets'][i].pop('networkSetNames', None)
-            if networkNames and not self.data['uplinkSets'][i].get('networkUris'):
-                self.data['uplinkSets'][i]['networkUris'] = []
+    # retrieves and replaces network/network-set name with uri in LIG uplinksets
+    def __replace_uplinkset_network_uris(self):
+        for uplinkSet in self.data['uplinkSets']:
+            networkNames = uplinkSet.pop('networkNames', None)
+            networkSetNames = uplinkSet.pop('networkSetNames', None)
+            network_type = uplinkSet.get('networkType', '')
+
+            if networkNames and not uplinkSet.get('networkUris'):
+                uplinkSet['networkUris'] = []
             if networkNames:
-                networkUris = [self.__get_network_uri(x) for x in networkNames]
-                self.data['uplinkSets'][i]['networkUris'].extend(networkUris)
-            if networkSetNames and not self.data['uplinkSets'][i].get('networkSetUris'):
-                self.data['uplinkSets'][i]['networkSetUris'] = []
+                networkUris = [self.__get_network_uri(x, network_type) for x in networkNames]
+                uplinkSet['networkUris'].extend(networkUris)
+            if networkSetNames and not uplinkSet.get('networkSetUris'):
+                uplinkSet['networkSetUris'] = []
             if networkSetNames:
                 networkSetUris = [self.__get_network_set(x) for x in networkSetNames]
-                self.data['uplinkSets'][i]['networkSetUris'].extend(networkSetUris)
+                uplinkSet['networkSetUris'].extend(networkSetUris)
 
-    def __update_existing_uplink_set(self, allUplinkSets, newUplinkSet):
-        temp = True
-        for i, ups in enumerate(allUplinkSets):
-            if ups['name'] == newUplinkSet['name']:
-                temp = False
-                if 'networkUris' in newUplinkSet:
-                    newUris = set(newUplinkSet['networkUris']) - set(ups['networkUris'])
-                    if newUris:
-                        ups['networkUris'].extend(newUris)
-                if 'networkSetUris' in newUplinkSet:
-                    newUris = set(newUplinkSet['networkSetUris']) - set(ups['networkSetUris'])
-                    if newUris:
-                        ups['networkSetUris'].extend(newUris)
-                allUplinkSets[i] = ups
-        if temp:
-            allUplinkSets.append(newUplinkSet)
-        return allUplinkSets
+    def __get_network_uri(self, name, network_type):
+        if network_type == 'Ethernet':
+            network_name = self.oneview_client.ethernet_networks.get_by_name(name)
+        else:
+            network_name = self.oneview_client.fc_networks.get_by_name(name)
 
-    def __get_all_uplink_sets(self):
-        lig_uri = self.oneview_client.logical_interconnect_groups.get_by('name', self.data['name'])
-        if lig_uri:
-            return lig_uri[0]['uplinkSets']
-        return False
-
-    def __get_network_uri(self, name):
-        network_name = self.oneview_client.ethernet_networks.get_by('name', name)
         if network_name:
-            return network_name[0]['uri']
-        return False
+            return network_name.data['uri']
+        else:
+            raise OneViewModuleResourceNotFound(self.MSG_NETWORK_NOT_FOUND)
 
     def __get_network_set(self, name):
-        network_set = self.oneview_client.network_sets.get_by('name', name)
+        network_set = self.oneview_client.network_sets.get_by_name(name)
         if network_set:
-            return network_set[0]['uri']
-        return False
+            return network_set.data['uri']
+        else:
+            raise OneViewModuleResourceNotFound(self.MSG_NETWORK_SET_NOT_FOUND)
 
     def __get_interconnect_type_by_name(self, name):
-        i_type = self.oneview_client.interconnect_types.get_by('name', name)
+        i_type = self.oneview_client.interconnect_types.get_by_name(name)
         if i_type:
-            return i_type[0]
+            return i_type.data['uri']
         else:
             raise OneViewModuleResourceNotFound(self.MSG_INTERCONNECT_TYPE_NOT_FOUND)
 
