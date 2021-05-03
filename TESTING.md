@@ -7,7 +7,6 @@ The tests can be executed by executing the `build.sh` file that consolidates eve
 If needed it is possible to execute each individual testing or checking task by using its specific tools.
 
 ### PEP-8 compliance
-
 This code is mostly PEP-8 compliant, it follows the Ansible standard, so to validate it you may use the `flake8` tool with some restrictions:
 ```shell
 $ flake8 library test --max-line-length=160 --ignore=F401,E402,F403,F405

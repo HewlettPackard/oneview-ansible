@@ -3,8 +3,8 @@ on:
 - pull_request
 
 jobs:
-  sanity:
-    name: Sanity (${{ matrix.ansible_version }}-${{ matrix.python_version }})
+  unit:
+    name: Unit test (${{ matrix.ansible_version }}-${{ matrix.python_version }})
     strategy:
       matrix:
         python_version: [2.7, 3.5]
