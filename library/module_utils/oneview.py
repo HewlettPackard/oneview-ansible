@@ -893,7 +893,7 @@ class LIGMerger(object):
         for index, existing_uplink in enumerate(existing_uplinksets):
             for current_uplink in current_uplinksets:
                 if current_uplink['name'] == existing_uplink['name']:
-                    current_uplinks_left.remove(current_uplink) # removes the common uplinksets from current uplinksets
+                    current_uplinks_left.remove(current_uplink)  # removes the common uplinksets from current uplinksets
 
                     if not compare(current_uplink, existing_uplink):
                         existing_uplinksets[index] = dict_merge(current_uplink, existing_uplink)

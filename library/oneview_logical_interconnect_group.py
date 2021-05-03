@@ -208,7 +208,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
             return False
         else:
             return True
-    
+
     def __update(self):
         changed = False
         current_data = self.current_resource.data.copy()
