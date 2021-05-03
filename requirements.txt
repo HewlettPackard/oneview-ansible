@@ -1,4 +1,4 @@
 ansible
 hpICsp
 hpeOneView==6.0.0
-deepdiff
+deepdiff==5.5.0

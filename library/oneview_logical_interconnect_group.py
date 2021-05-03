@@ -235,7 +235,8 @@ class LogicalInterconnectGroupModule(OneViewModule):
         return changed, msg
 
     def __replace_name_by_uris(self):
-        self.__replace_internal_network_names_by_uris()
+        if self.data.get('internalNetworkNames'):
+            self.__replace_internal_network_names_by_uris()
 
         map_template = self.data.get('interconnectMapTemplate')
         if map_template:
