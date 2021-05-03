@@ -108,42 +108,6 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
     )
 )
 
-DEFAULT_LIG_TEMPLATE_WITH_DIFFERENT_UPLINKSETS = dict(
-    config='config.json',
-    state='present',
-    data=dict(
-        name=DEFAULT_LIG_NAME,
-        internalNetworkNames=["test1"],
-        uplinkSets=[dict(
-            logicalPortConfigInfos=[dict(
-                desiredSpeed="Auto",
-                logicalLocation=dict(
-                    locationEntries=[dict(
-                        relativeValue=1,
-                        type="Bay"
-                    ), dict(
-                        relativeValue=21,
-                        type="Port"
-                    ), dict(
-                        relativeValue=1,
-                        type="Enclosure"
-                    )
-                    ]
-                )
-            )
-            ],
-            name="EnetUplink1",
-            networkType="Ethernet",
-            networkNames=["TestNetwork_2"],
-            networkSetNames=["test_2"]
-        )
-        ],
-        enclosureType='C7000',
-        interconnectMapTemplate=dict(
-            interconnectMapEntryTemplates=[]
-        )
-    )
-)
 PARAMS_LIG_TEMPLATE_WITH_MAP = dict(
     config='config.json',
     state='present',
@@ -366,10 +330,10 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_has_same_uplinkset_attributes(self):
-        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS['data']
+        self.resource.data = PARAMS_LIG_TEMPLATE_WITH_MAP['data']
         self.resource.get_by_name.return_value = self.resource
 #        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = UPLINK_SETS
-        self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
+        self.mock_ansible_module.params = PARAMS_LIG_TEMPLATE_WITH_MAP
 
         LogicalInterconnectGroupModule().run()
 
