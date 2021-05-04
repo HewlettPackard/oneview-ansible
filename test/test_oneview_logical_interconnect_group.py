@@ -175,7 +175,7 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_NAME = dict(
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
-            interconnectMapEntryTemplates=["test"]
+            interconnectMapEntryTemplates=[{"permitted": "test"}]
         )
     )
 )
@@ -211,7 +211,7 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_URI = dict(
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
-            interconnectMapEntryTemplates=["test"]
+            interconnectMapEntryTemplates=[{"permitted": "test"}]
         )
     )
 )
