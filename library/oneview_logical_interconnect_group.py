@@ -321,6 +321,8 @@ class LogicalInterconnectGroupModule(OneViewModule):
 
                         if not flag:
                             return False
+                elif len(data[key]) or len(resource[key]):
+                    return False
 
         return True
 
