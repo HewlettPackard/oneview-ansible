@@ -144,6 +144,42 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
     )
 )
 
+DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_NAME = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name=DEFAULT_LIG_NAME,
+        internalNetworkNames=["test1"],
+        uplinkSets=[dict(
+            logicalPortConfigInfos=[dict(
+                desiredSpeed="Auto",
+                logicalLocation=dict(
+                    locationEntries=[dict(
+                        relativeValue=1,
+                        type="Bay"
+                    ), dict(
+                        relativeValue=21,
+                        type="Port"
+                    ), dict(
+                        relativeValue=1,
+                        type="Enclosure"
+                    )
+                    ]
+                )
+            )
+            ],
+            name="NewUplinkSet",
+            networkType="Roce",
+            networkNames=["TestNetwork_1"],
+            networkSetNames=["test_1"]
+        )],
+        enclosureType='C7000',
+        interconnectMapTemplate=dict(
+            interconnectMapEntryTemplates=[]
+        )
+    )
+)
+
 DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_URI = dict(
     config='config.json',
     state='present',
@@ -634,6 +670,20 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
             msg=LogicalInterconnectGroupModule.MSG_ALREADY_PRESENT
         )
 
+    def test_should_update_when_uplink_set_are_not_equal(self):
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_URI
+        self.resource.get_by_name.return_value = self.resource
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_NAME
+        self.resource.update.return_value = self.resource
+        self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_NAME
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
+            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_NAME)
+        )
 
 if __name__ == '__main__':
     pytest.main([__file__])
