@@ -303,9 +303,9 @@ class LogicalInterconnectGroupModule(OneViewModule):
     def __compare_2(self, resource, data):
         for key, value in data.items():
             if isinstance(data[key], str) or isinstance(data[key], int):
-                if not key in resource or data[key] != resource[key]:
+                if not (key in resource) or data[key] != resource[key]:
                     return False
-            
+
             if isinstance(data[key], dict) and isinstance(resource[key], dict):
                 if not self.__compare_2(resource[key], data[key]):
                     return False
@@ -314,16 +314,17 @@ class LogicalInterconnectGroupModule(OneViewModule):
                 for i in range(0, len(data[key])):
                     flag = 0
                     for j in range(0, len(resource[key])):
-                        if (isinstance(data[key][i], str) and isinstance(resource[key][j], str)) or (isinstance(data[key][i], int) and isinstance(resource[key][j], int)):
+                        if (isinstance(data[key][i], str) and isinstance(resource[key][j], str))\
+                                or (isinstance(data[key][i], int) and isinstance(resource[key][j], int)):
                             if data[key][i] == resource[key][j]:
                                 flag = 1
                                 break
-                        
+
                         if (isinstance(data[key][i], dict) and isinstance(resource[key][j], dict)):
                             if self.__compare_2(resource[key][j], data[key][i]):
                                 flag = 1
                                 break
-                    
+
                     if not flag:
                         return False
 
