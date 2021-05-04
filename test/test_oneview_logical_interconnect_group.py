@@ -487,7 +487,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_new_uplinkset(self):
-        self.resource.data = UPLINK_SETS
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
         self.resource.get_by_name.return_value = self.resource
         self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS
         self.resource.update.return_value = self.resource
