@@ -144,6 +144,42 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
     )
 )
 
+DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_URI = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name=DEFAULT_LIG_NAME,
+        internalNetworkUris=["test1"],
+        uplinkSets=[dict(
+            logicalPortConfigInfos=[dict(
+                desiredSpeed="Auto",
+                logicalLocation=dict(
+                    locationEntries=[dict(
+                        relativeValue=1,
+                        type="Bay"
+                    ), dict(
+                        relativeValue=21,
+                        type="Port"
+                    ), dict(
+                        relativeValue=1,
+                        type="Enclosure"
+                    )
+                    ]
+                )
+            )
+            ],
+            name="NewUplinkSet",
+            networkType="Ethernet",
+            networkUris=["TestNetwork_1"],
+            networkSetUris=["test_1"]
+        )],
+        enclosureType='C7000',
+        interconnectMapTemplate=dict(
+            interconnectMapEntryTemplates=[]
+        )
+    )
+)
+
 PARAMS_LIG_TEMPLATE_WITH_MAP = dict(
     config='config.json',
     state='present',
@@ -451,16 +487,18 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_new_uplinkset(self):
-        self.resource.data = DEFAULT_LIG_TEMPLATE
-        self.mock_ov_client.logical_interconnect_groups.get_by.return_value = UPLINK_SETS
-        self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS
+        self.resource.data = UPLINK_SETS
+        self.resource.get_by_name.return_value = self.resource
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS
+        self.resource.update.return_value = self.resource
+        self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_URI
 
         LogicalInterconnectGroupModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=LogicalInterconnectGroupModule.MSG_UPDATED,
-            ansible_facts=dict(logical_interconnect_group=self.resource.data)
+            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS)
         )
 
     def test_should_fail_when_uplinkset_network_not_found(self):
