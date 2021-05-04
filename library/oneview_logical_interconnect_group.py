@@ -303,7 +303,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
     def __compare_2(self, resource, data):
         for key, value in data.items():
             if isinstance(data[key], str) or isinstance(data[key], int):
-                if not (key in resource) or data[key] != resource[key]:
+                if not (key in resource) or (data[key] != resource[key]):
                     return False
 
             if isinstance(data[key], dict) and isinstance(resource[key], dict):
