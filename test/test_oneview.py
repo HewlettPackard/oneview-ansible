@@ -1760,7 +1760,7 @@ class TestOneViewModuleBase():
             "name": "name",
             "value": [{'name': 'value1'},
                       {'name': 'value2'},
-                      {'name': 3}]
+                      {'name': 'value3'}]
         }
 
         dict2 = {
