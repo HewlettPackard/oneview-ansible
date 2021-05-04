@@ -151,6 +151,7 @@ def merge_list_by_key(original_list, updated_list, key, ignore_when_null=None, r
 
     return list(merged_items.values())
 
+
 def _sort_by_keys(resource1, resource2):
     keys = ['name', 'enclosureIndex']
 
@@ -160,6 +161,7 @@ def _sort_by_keys(resource1, resource2):
                 resource1 = sorted(resource1, key=lambda k: k[key])
                 resource2 = sorted(resource2, key=lambda k: k[key])
     return resource1, resource2
+
 
 def _str_sorted(obj):
     if isinstance(obj, collections.Mapping):
@@ -182,6 +184,7 @@ def _standardize_value(value):
         value = int(value)
 
     return str(value)
+
 
 def compare(first_resource, second_resource):
     """
@@ -245,6 +248,7 @@ def compare(first_resource, second_resource):
 
     return True
 
+
 def compare_list(first_resource, second_resource):
     """
     Recursively compares lists contents equivalence, ignoring types and element orders.
@@ -273,7 +277,6 @@ def compare_list(first_resource, second_resource):
     # sort resources by specific keys
     resource1, resource2 = _sort_by_keys(resource1, resource2)
 
-
     for i, val in enumerate(resource1):
         if isinstance(val, collections.Mapping):
             # change comparison function to compare dictionaries
@@ -292,6 +295,7 @@ def compare_list(first_resource, second_resource):
     # no differences found
     return True
 
+
 def sort_by_uplink_set_location(resource1, resource2):
     """
     Compares lists contents equivalence, sorting element orders.
@@ -308,9 +312,9 @@ def sort_by_uplink_set_location(resource1, resource2):
         # Append all types together ['Bay_3', 'Enclosure_1', 'Port_75']
         each_location = []
         for local_entry in location_entries:
-             # Combine the values for comparison, 'Bay_3' if type='Bay' and relative value=3 
-             value = local_entry.get('type', '') + "_" + str(local_entry.get('relativeValue', ''))
-             each_location.append(value)
+            # Combine the values for comparison, 'Bay_3' if type='Bay' and relative value=3 
+            value = local_entry.get('type', '') + "_" + str(local_entry.get('relativeValue', ''))
+            each_location.append(value)
 
         # Check second elements and add each entry in all_entries list
         all_entries = []
@@ -330,6 +334,7 @@ def sort_by_uplink_set_location(resource1, resource2):
             return False
 
     return True
+
 
 class OneViewModuleException(Exception):
     """
