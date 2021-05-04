@@ -68,7 +68,7 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
-            interconnectMapEntryTemplates=[]
+            interconnectMapEntryTemplates=[{"permitted": "test"}]
         )
     )
 )
@@ -113,7 +113,7 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
     state='present',
     data=dict(
         name=DEFAULT_LIG_NAME,
-        internalNetworkNames=["test1"],
+        internalNetworkUris=["test1"],
         uplinkSets=[dict(
             logicalPortConfigInfos=[dict(
                 desiredSpeed="Auto",
@@ -134,12 +134,48 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
             ],
             name="NewUplinkSet",
             networkType="Ethernet",
-            networkNames=["TestNetwork_1"],
-            networkSetNames=["test_1"]
+            networkUris=["TestNetwork_1"],
+            networkSetUris=["test_1"]
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
-            interconnectMapEntryTemplates=[]
+            interconnectMapEntryTemplates=[{"permitted": "test"}]
+        )
+    )
+)
+
+DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_NAME = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name=DEFAULT_LIG_NAME,
+        internalNetworkUris=["test1"],
+        uplinkSets=[dict(
+            logicalPortConfigInfos=[dict(
+                desiredSpeed="Auto",
+                logicalLocation=dict(
+                    locationEntries=[dict(
+                        relativeValue=1,
+                        type="Bay"
+                    ), dict(
+                        relativeValue=21,
+                        type="Port"
+                    ), dict(
+                        relativeValue=1,
+                        type="Enclosure"
+                    )
+                    ]
+                )
+            )
+            ],
+            name="NewUplinkSet",
+            networkType="Roce",
+            networkUris=["TestNetwork_1"],
+            networkSetUris=["test_1"]
+        )],
+        enclosureType='C7000',
+        interconnectMapTemplate=dict(
+            interconnectMapEntryTemplates=[{"permitted": "test"}]
         )
     )
 )
@@ -175,7 +211,7 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_URI = dict(
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
-            interconnectMapEntryTemplates=[]
+            interconnectMapEntryTemplates=[{"permitted": "test"}]
         )
     )
 )
