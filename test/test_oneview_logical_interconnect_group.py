@@ -149,7 +149,7 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_NAME = dict(
     state='present',
     data=dict(
         name=DEFAULT_LIG_NAME,
-        internalNetworkNames=["test1"],
+        internalNetworkUris=["test1"],
         uplinkSets=[dict(
             logicalPortConfigInfos=[dict(
                 desiredSpeed="Auto",
@@ -170,8 +170,8 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_NAME = dict(
             ],
             name="NewUplinkSet",
             networkType="Roce",
-            networkNames=["TestNetwork_1"],
-            networkSetNames=["test_1"]
+            networkUris=["TestNetwork_1"],
+            networkSetUris=["test_1"]
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
@@ -684,6 +684,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
             msg=LogicalInterconnectGroupModule.MSG_UPDATED,
             ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_NAME)
         )
+
 
 if __name__ == '__main__':
     pytest.main([__file__])
