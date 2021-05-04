@@ -308,11 +308,11 @@ def sort_by_uplink_set_location(resource1, resource2):
     # Check first list elements
     for config_dict in resource1:
         location_entries = config_dict["logicalLocation"]["locationEntries"]
-        
+
         # Append all types together ['Bay_3', 'Enclosure_1', 'Port_75']
         each_location = []
         for local_entry in location_entries:
-            # Combine the values for comparison, 'Bay_3' if type='Bay' and relative value=3 
+            # Combine the values for comparison, 'Bay_3' if type='Bay' and relative value=3
             value = local_entry.get('type', '') + "_" + str(local_entry.get('relativeValue', ''))
             each_location.append(value)
 

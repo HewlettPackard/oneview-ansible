@@ -388,7 +388,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
 
     def test_should_not_update_when_data_has_same_uplinkset_attributes(self):
         self.resource.data = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP['data'])
-        self.resource.get_by_name.return_value = self.resource
+
         self.mock_ansible_module.params = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP)
 
         LogicalInterconnectGroupModule().run()
