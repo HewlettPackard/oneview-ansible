@@ -151,6 +151,15 @@ def merge_list_by_key(original_list, updated_list, key, ignore_when_null=None, r
 
     return list(merged_items.values())
 
+def _sort_by_keys(resource1, resource2):
+    keys = ['name', 'enclosureIndex']
+
+    if isinstance(resource1, list) and isinstance(resource1[0], dict):
+        for key in keys:
+            if key in resource1[0]:
+                resource1 = sorted(resource1, key=lambda k: k[key])
+                resource2 = sorted(resource2, key=lambda k: k[key])
+    return resource1, resource2
 
 def _str_sorted(obj):
     if isinstance(obj, collections.Mapping):
@@ -173,7 +182,6 @@ def _standardize_value(value):
         value = int(value)
 
     return str(value)
-
 
 def compare(first_resource, second_resource):
     """
@@ -198,6 +206,13 @@ def compare(first_resource, second_resource):
 
     # Checks all keys in first dict against the second dict
     for key in resource1:
+        # compare uplinkset property logicalPortConfigInfos
+        if key == 'logicalPortConfigInfos':
+            if sort_by_uplink_set_location(resource1[key], resource2[key]):
+                continue
+            else:
+                logger.debug(OneViewModuleBase.MSG_DIFF_AT_KEY.format(key) + debug_resources)
+                return False
         if key not in resource2:
             if resource1[key] is not None:
                 # Inexistent key is equivalent to exist with value None
@@ -230,7 +245,6 @@ def compare(first_resource, second_resource):
 
     return True
 
-
 def compare_list(first_resource, second_resource):
     """
     Recursively compares lists contents equivalence, ignoring types and element orders.
@@ -243,7 +257,6 @@ def compare_list(first_resource, second_resource):
 
     resource1 = first_resource
     resource2 = second_resource
-
     debug_resources = "resource1 = {0}, resource2 = {1}".format(resource1, resource2)
     # The second list is null / empty  / False
     if not resource2:
@@ -256,6 +269,11 @@ def compare_list(first_resource, second_resource):
 
     resource1 = sorted(resource1, key=_str_sorted)
     resource2 = sorted(resource2, key=_str_sorted)
+
+    # sort resources by specific keys
+    resource1, resource2 = _sort_by_keys(resource1, resource2)
+
+
     for i, val in enumerate(resource1):
         if isinstance(val, collections.Mapping):
             # change comparison function to compare dictionaries
@@ -274,6 +292,44 @@ def compare_list(first_resource, second_resource):
     # no differences found
     return True
 
+def sort_by_uplink_set_location(resource1, resource2):
+    """
+    Compares lists contents equivalence, sorting element orders.
+    Inner dict elements(Bay, Enclosure, Port) are concatenated to compare unique values in the obj.
+    :arg list resource1: first list of dicts
+    :arg list resource2: second list of dicts
+    :return: True when equal; False when different.
+    """
+
+    # Check first list elements
+    for config_dict in resource1:
+        location_entries = config_dict["logicalLocation"]["locationEntries"]
+        
+        # Append all types together ['Bay_3', 'Enclosure_1', 'Port_75']
+        each_location = []
+        for local_entry in location_entries:
+             # Combine the values for comparison, 'Bay_3' if type='Bay' and relative value=3 
+             value = local_entry.get('type', '') + "_" + str(local_entry.get('relativeValue', ''))
+             each_location.append(value)
+
+        # Check second elements and add each entry in all_entries list
+        all_entries = []
+        for config_dict_res2 in resource2:
+            location_entries_res2 = config_dict_res2["logicalLocation"]["locationEntries"]
+
+            each_location_res2 = []
+            for local_entry_res2 in location_entries_res2:
+                value_res2 = local_entry_res2.get('type', '') + "_" + str(local_entry_res2.get('relativeValue', ''))
+                each_location_res2.append(value_res2)
+
+            if each_location_res2 not in all_entries:
+                all_entries.append(sorted(each_location_res2))
+
+        # Check first list element is present in second list
+        if not sorted(each_location) in all_entries:
+            return False
+
+    return True
 
 class OneViewModuleException(Exception):
     """
@@ -875,6 +931,7 @@ class LIGMerger(object):
         merged_data = dict_merge(current_data, data)
 
         if current_data.get('uplinkSets') and data.get('uplinkSets'):
+            # merged_data['uplinkSets'] = merge_list_by_key(current_uplinksets, existing_uplinksets, key="name")
             merged_data['uplinkSets'] = self._merge_uplink_set(current_data, data)
 
         return merged_data
