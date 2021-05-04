@@ -43,7 +43,22 @@ DEFAULT_DICT_NOT_EQUAL = dict(
     state='present',
     data=dict(
         name=DEFAULT_LIG_NAME,
-        enclosureType='Synergy'
+        enclosureType='C7000',
+        fake_dict=dict(
+            test="dummy"
+        )
+    )
+)
+
+DEFAULT_DICT_NOT_EQUAL_CHECK = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name=DEFAULT_LIG_NAME,
+        enclosureType='C7000',
+        fake_dict=dict(
+            test="fail"
+        )
     )
 )
 
@@ -512,7 +527,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_should_fail_in_dict_compare(self):
-        self.resource.data = DEFAULT_LIG_TEMPLATE
+        self.resource.data = DEFAULT_DICT_NOT_EQUAL_CHECK['data']
         self.resource.get_by_name.return_value = self.resource
         self.resource.update.return_value = self.resource
         self.resource.data = DEFAULT_DICT_NOT_EQUAL['data']
