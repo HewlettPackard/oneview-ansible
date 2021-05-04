@@ -202,13 +202,6 @@ class LogicalInterconnectGroupModule(OneViewModule):
         self.current_resource = self.resource_client.create(self.data)
         return True, self.MSG_CREATED
 
-    def __compare(self, old_resource, new_resource):
-        return_value = DeepDiff(old_resource, new_resource, ignore_order=True)
-        if return_value:
-            return False
-        else:
-            return True
-
     def __update(self):
         changed = False
         current_data = self.current_resource.data.copy()
