@@ -113,7 +113,7 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
     state='present',
     data=dict(
         name=DEFAULT_LIG_NAME,
-        internalNetworkNames=["test1"],
+        internalNetworkUris=["test1"],
         uplinkSets=[dict(
             logicalPortConfigInfos=[dict(
                 desiredSpeed="Auto",
@@ -134,8 +134,8 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
             ],
             name="NewUplinkSet",
             networkType="Ethernet",
-            networkNames=["TestNetwork_1"],
-            networkSetNames=["test_1"]
+            networkUris=["TestNetwork_1"],
+            networkSetUris=["test_1"]
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
@@ -175,7 +175,7 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_NAME = dict(
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
-            interconnectMapEntryTemplates=[]
+            interconnectMapEntryTemplates=["test"]
         )
     )
 )
@@ -211,7 +211,7 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_URI = dict(
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
-            interconnectMapEntryTemplates=[]
+            interconnectMapEntryTemplates=["test"]
         )
     )
 )
