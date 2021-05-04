@@ -296,8 +296,9 @@ class LogicalInterconnectGroupModule(OneViewModule):
     def __compare_2(self, resource, data):
         for key, value in data.items():
             if key in resource.keys():
-                if isinstance(data[key], str) or isinstance(data[key], int):
-                    if not (key in resource) or (data[key] != resource[key]):
+                if (isinstance(data[key], str) and isinstance(resource[key], str))\
+                        or (isinstance(data[key], int) and isinstance(resource[key], int)):
+                    if data[key] != resource[key]:
                         return False
 
                 if isinstance(data[key], dict) and isinstance(resource[key], dict):
