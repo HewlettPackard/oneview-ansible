@@ -670,21 +670,6 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
             msg=LogicalInterconnectGroupModule.MSG_ALREADY_PRESENT
         )
 
-    def test_should_update_when_uplink_set_are_not_equal(self):
-        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_URI
-        self.resource.get_by_name.return_value = self.resource
-        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_NAME
-        self.resource.update.return_value = self.resource
-        self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_NAME
-
-        LogicalInterconnectGroupModule().run()
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
-            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_NAME)
-        )
-
 
 if __name__ == '__main__':
     pytest.main([__file__])
