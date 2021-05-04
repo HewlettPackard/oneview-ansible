@@ -37,6 +37,16 @@ DEFAULT_LIG_TEMPLATE = dict(
         interconnectMapEntryTemplates=[]
     )
 )
+
+DEFAULT_DICT_NOT_EQUAL = dict(
+    config='config.json',
+    state='present',
+    data=dict(
+        name=DEFAULT_LIG_NAME,
+        enclosureType='Synergy'
+    )
+)
+
 DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
     config='config.json',
     state='present',
@@ -487,9 +497,9 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_new_uplinkset(self):
-        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS['data']
         self.resource.get_by_name.return_value = self.resource
-        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS
+        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS['data']
         self.resource.update.return_value = self.resource
         self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_URI
 
@@ -498,7 +508,22 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=LogicalInterconnectGroupModule.MSG_UPDATED,
-            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS)
+            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS['data'])
+        )
+
+    def test_should_fail_in_dict_compare(self):
+        self.resource.data = DEFAULT_LIG_TEMPLATE
+        self.resource.get_by_name.return_value = self.resource
+        self.resource.data = DEFAULT_DICT_NOT_EQUAL['data']
+        self.resource.update.return_value = self.resource
+        self.mock_ansible_module.params = DEFAULT_DICT_NOT_EQUAL
+
+        LogicalInterconnectGroupModule().run()
+
+        self.mock_ansible_module.fail_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
+            ansible_facts=dict(logical_interconnect_group=DEFAULT_DICT_NOT_EQUAL['data'])
         )
 
     def test_should_fail_when_uplinkset_network_not_found(self):
