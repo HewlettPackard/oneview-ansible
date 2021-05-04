@@ -445,8 +445,8 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         LogicalInterconnectGroupModule().run()
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
+            changed=False,
+            msg=LogicalInterconnectGroupModule.MSG_ALREADY_PRESENT,
             ansible_facts=dict(logical_interconnect_group=self.resource.data)
         )
 
