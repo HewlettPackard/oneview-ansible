@@ -501,7 +501,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         self.resource.get_by_name.return_value = self.resource
         self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS['data']
         self.resource.update.return_value = self.resource
-        self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS_URI
+        self.mock_ansible_module.params = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS
 
         LogicalInterconnectGroupModule().run()
 
