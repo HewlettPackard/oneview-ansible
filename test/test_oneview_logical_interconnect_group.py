@@ -497,7 +497,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_update_when_data_has_new_uplinkset(self):
-        self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS['data']
+        self.resource.data = DEFAULT_LIG_TEMPLATE
         self.resource.get_by_name.return_value = self.resource
         self.resource.data = DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS['data']
         self.resource.update.return_value = self.resource
@@ -514,8 +514,8 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
     def test_should_fail_in_dict_compare(self):
         self.resource.data = DEFAULT_LIG_TEMPLATE
         self.resource.get_by_name.return_value = self.resource
-        self.resource.data = DEFAULT_DICT_NOT_EQUAL['data']
         self.resource.update.return_value = self.resource
+        self.resource.data = DEFAULT_DICT_NOT_EQUAL['data']
         self.mock_ansible_module.params = DEFAULT_DICT_NOT_EQUAL
 
         LogicalInterconnectGroupModule().run()
