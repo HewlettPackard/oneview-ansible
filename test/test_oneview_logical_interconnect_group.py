@@ -52,7 +52,7 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
     state='present',
     data=dict(
         name=DEFAULT_LIG_NAME,
-        internalNetworkNames=["test1"],
+        internalNetworkUris=["test1"],
         uplinkSets=[dict(
             logicalPortConfigInfos=[dict(
                 desiredSpeed="Auto",
@@ -73,8 +73,8 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
             ],
             name="EnetUplink1",
             networkType="Ethernet",
-            networkNames=["Ethernet1"],
-            networkSetNames=["NetworkSet1"]
+            networkUris=["Ethernet1"],
+            networkSetUris=["NetworkSet1"]
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
@@ -520,7 +520,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
 
         LogicalInterconnectGroupModule().run()
 
-        self.mock_ansible_module.fail_json.assert_called_once_with(
+        self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
             msg=LogicalInterconnectGroupModule.MSG_UPDATED,
             ansible_facts=dict(logical_interconnect_group=DEFAULT_DICT_NOT_EQUAL['data'])

@@ -304,7 +304,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
                     return False
 
             if isinstance(data[key], list) and isinstance(resource[key], list):
-                if len(data[key]) and len(resource[key]):          
+                if len(data[key]) and len(resource[key]):
                     for i in range(0, len(data[key])):
                         flag = 0
                         for j in range(0, len(resource[key])):
