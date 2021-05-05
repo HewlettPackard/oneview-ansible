@@ -37,6 +37,8 @@ from module_utils.oneview import (OneViewModuleBase,
                                   SPKeys,
                                   ServerProfileMerger,
                                   ServerProfileReplaceNamesByUris,
+                                  sort_by_uplink_set_location,
+                                  _sort_by_keys,
                                   _str_sorted,
                                   merge_list_by_key,
                                   transform_list_to_dict,
@@ -1863,6 +1865,14 @@ class TestOneViewModuleBase():
         expected_list = [dict(id=1, value1="123", value2="345", value3="678")]
 
         assert merged_list == expected_list
+    
+    def test_sort_by_keys(self):
+        resource_list = [dict(networkType="Ethernet", name="name-2"),
+                         dict(networkType="Ethernet", name="name-1")]
+        result1, result2 = _sort_by_keys(resource_list, resource_list)
+        expected_list = [dict(networkType="Ethernet", name="name-1"),
+                         dict(networkType="Ethernet", name="name-2")]
+        assert result1 == expected_list
 
 
 class TestServerProfileReplaceNamesByUris():

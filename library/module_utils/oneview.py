@@ -266,7 +266,7 @@ def compare_list(first_resource, second_resource):
 
     resource1 = sorted(resource1, key=_str_sorted)
     resource2 = sorted(resource2, key=_str_sorted)
-
+    resource1, resource1 = _sort_by_keys(resource1, resource2)
     for i, val in enumerate(resource1):
         if isinstance(val, collections.Mapping):
             # change comparison function to compare dictionaries
