@@ -1264,6 +1264,9 @@ class TestOneViewModuleBase():
     def test_resource_compare_lig_equals(self):
         assert compare_lig(self.DICT_ORIGINAL, self.DICT_EQUAL_ORIGINAL)
 
+    def test_resource_compare_lig_resource_empty(self):
+        assert not compare_lig(self.DICT_EQUAL_ORIGINAL, {})
+
     def test_resource_compare_lig_missing_entry_in_first(self):
         dict1 = self.DICT_ORIGINAL.copy()
         del dict1['state']
@@ -1287,6 +1290,32 @@ class TestOneViewModuleBase():
 
     def test_resource_compare_lig_equals_with_empty_eq_none_different(self):
         assert not compare_lig(self.DICT_EMPTY_NONE3, self.DICT_EMPTY_NONE1)
+
+    def test_resource_compare_lig_with_double_level_list(self):
+        dict1 = {list: [
+            [1, 2, 3],
+            [4, 5, 6]
+        ]}
+
+        dict2 = {list: [
+            [1, 2, 3],
+            [4, 5, "6"]
+        ]}
+
+        assert compare_lig(dict1, dict2)
+
+    def test_resource_compare_lig_with_double_level_list_different(self):
+        dict1 = {list: [
+            [1, 2, 3],
+            [4, 5, 6]
+        ]}
+
+        dict2 = {list: [
+            [1, 2, 3],
+            [4, 5, "7"]
+        ]}
+
+        assert not compare_lig(dict1, dict2)
 
     def test_resource_compare_with_double_level_list(self):
         dict1 = {list: [
