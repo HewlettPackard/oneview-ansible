@@ -218,7 +218,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
 
         merged_data = LIGMerger().merge_data(current_data, self.data)
 
-        current_data_copy = current_data.copy()
+        current_data_copy = deepcopy(current_data)
         merged_data_copy = deepcopy(merged_data)
         current_data_localid = current_data_copy.pop('logicalPortConfigInfos', None)
         merged_data_localid = merged_data_copy.pop('logicalPortConfigInfos', None)
