@@ -241,6 +241,7 @@ def compare_lig(first_resource, second_resource):
 
     return True
 
+
 def compare(first_resource, second_resource):
     """
     Recursively compares dictionary contents equivalence, ignoring types and elements order.
@@ -296,6 +297,7 @@ def compare(first_resource, second_resource):
 
     return True
 
+
 def compare_list(first_resource, second_resource):
     """
     Recursively compares lists contents equivalence, ignoring types and element orders.
@@ -338,6 +340,7 @@ def compare_list(first_resource, second_resource):
 
     # no differences found
     return True
+
 
 def compare_list_lig(first_resource, second_resource):
     """

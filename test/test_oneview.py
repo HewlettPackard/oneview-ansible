@@ -1865,7 +1865,7 @@ class TestOneViewModuleBase():
         expected_list = [dict(id=1, value1="123", value2="345", value3="678")]
 
         assert merged_list == expected_list
-    
+
     def test_sort_by_keys(self):
         resource_list = [dict(networkType="Ethernet", name="name-2"),
                          dict(networkType="Ethernet", name="name-1")]
