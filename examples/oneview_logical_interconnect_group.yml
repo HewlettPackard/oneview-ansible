@@ -103,7 +103,7 @@
               networkType: 'Ethernet'
               ethernetNetworkType: 'Untagged'
               networkNames:
-                - 'mgmt'
+                - 'mgmt_nw'
               logicalPortConfigInfos:
                - desiredSpeed: 'Auto'
                  logicalLocation:

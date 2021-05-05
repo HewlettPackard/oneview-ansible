@@ -141,8 +141,7 @@ logical_interconnect_group:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare, dict_merge, LIGMerger
-from deepdiff import DeepDiff
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare_lig, dict_merge, LIGMerger
 
 
 class LogicalInterconnectGroupModule(OneViewModule):
@@ -219,7 +218,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
 
         merged_data = LIGMerger().merge_data(current_data, self.data)
 
-        if compare(current_data, merged_data):
+        if compare_lig(current_data, merged_data):
             msg = self.MSG_ALREADY_PRESENT
         else:
             self.current_resource.update(merged_data)

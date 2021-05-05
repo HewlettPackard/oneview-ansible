@@ -186,7 +186,7 @@ def _standardize_value(value):
     return str(value)
 
 
-def compare(first_resource, second_resource):
+def compare_lig(first_resource, second_resource):
     """
     Recursively compares dictionary contents equivalence, ignoring types and elements order.
     Particularities of the comparison:
@@ -226,6 +226,61 @@ def compare(first_resource, second_resource):
             continue
         elif isinstance(resource1[key], collections.Mapping):
             # recursive call
+            if not compare_lig(resource1[key], resource2[key]):
+                logger.debug(OneViewModuleBase.MSG_DIFF_AT_KEY.format(key) + debug_resources)
+                return False
+        elif isinstance(resource1[key], list):
+            # change comparison function to compare_list
+            if not compare_list_lig(resource1[key], resource2[key]):
+                logger.debug(OneViewModuleBase.MSG_DIFF_AT_KEY.format(key) + debug_resources)
+                return False
+        elif _standardize_value(resource1[key]) != _standardize_value(resource2[key]):
+            logger.debug(OneViewModuleBase.MSG_DIFF_AT_KEY.format(key) + debug_resources)
+            return False
+
+    # Checks all keys in the second dict, looking for missing elements
+    for key in resource2.keys():
+        if key not in resource1:
+            if resource2[key] is not None:
+                # Inexistent key is equivalent to exist with value None
+                logger.debug(OneViewModuleBase.MSG_DIFF_AT_KEY.format(key) + debug_resources)
+                return False
+
+    return True
+
+def compare(first_resource, second_resource):
+    """
+    Recursively compares dictionary contents equivalence, ignoring types and elements order.
+    Particularities of the comparison:
+        - Inexistent key = None
+        - These values are considered equal: None, empty, False
+        - Lists are compared value by value after a sort, if they have same size.
+        - Each element is converted to str before the comparison.
+    :arg dict first_resource: first dictionary
+    :arg dict second_resource: second dictionary
+    :return: bool: True when equal, False when different.
+    """
+    resource1 = first_resource
+    resource2 = second_resource
+
+    debug_resources = "resource1 = {0}, resource2 = {1}".format(resource1, resource2)
+    # The first resource is True / Not Null and the second resource is False / Null
+    if resource1 and not resource2:
+        logger.debug("resource1 and not resource2. " + debug_resources)
+        return False
+
+    # Checks all keys in first dict against the second dict
+    for key in resource1:
+        if key not in resource2:
+            if resource1[key] is not None:
+                # Inexistent key is equivalent to exist with value None
+                logger.debug(OneViewModuleBase.MSG_DIFF_AT_KEY.format(key) + debug_resources)
+                return False
+        # If both values are null, empty or False it will be considered equal.
+        elif not resource1[key] and not resource2[key]:
+            continue
+        elif isinstance(resource1[key], collections.Mapping):
+            # recursive call
             if not compare(resource1[key], resource2[key]):
                 logger.debug(OneViewModuleBase.MSG_DIFF_AT_KEY.format(key) + debug_resources)
                 return False
@@ -248,8 +303,50 @@ def compare(first_resource, second_resource):
 
     return True
 
-
 def compare_list(first_resource, second_resource):
+    """
+    Recursively compares lists contents equivalence, ignoring types and element orders.
+    Lists with same size are compared value by value after a sort,
+    each element is converted to str before the comparison.
+    :arg list first_resource: first list
+    :arg list second_resource: second list
+    :return: True when equal; False when different.
+    """
+
+    resource1 = first_resource
+    resource2 = second_resource
+    debug_resources = "resource1 = {0}, resource2 = {1}".format(resource1, resource2)
+    # The second list is null / empty  / False
+    if not resource2:
+        logger.debug("resource 2 is null. " + debug_resources)
+        return False
+
+    if len(resource1) != len(resource2):
+        logger.debug("resources have different length. " + debug_resources)
+        return False
+
+    resource1 = sorted(resource1, key=_str_sorted)
+    resource2 = sorted(resource2, key=_str_sorted)
+
+    for i, val in enumerate(resource1):
+        if isinstance(val, collections.Mapping):
+            # change comparison function to compare dictionaries
+            if not compare(val, resource2[i]):
+                logger.debug("resources are different. " + debug_resources)
+                return False
+        elif isinstance(val, list):
+            # recursive call
+            if not compare_list(val, resource2[i]):
+                logger.debug("lists are different. " + debug_resources)
+                return False
+        elif _standardize_value(val) != _standardize_value(resource2[i]):
+            logger.debug("values are different. " + debug_resources)
+            return False
+
+    # no differences found
+    return True
+
+def compare_list_lig(first_resource, second_resource):
     """
     Recursively compares lists contents equivalence, ignoring types and element orders.
     Lists with same size are compared value by value after a sort,
@@ -280,12 +377,12 @@ def compare_list(first_resource, second_resource):
     for i, val in enumerate(resource1):
         if isinstance(val, collections.Mapping):
             # change comparison function to compare dictionaries
-            if not compare(val, resource2[i]):
+            if not compare_lig(val, resource2[i]):
                 logger.debug("resources are different. " + debug_resources)
                 return False
         elif isinstance(val, list):
             # recursive call
-            if not compare_list(val, resource2[i]):
+            if not compare_list_lig(val, resource2[i]):
                 logger.debug("lists are different. " + debug_resources)
                 return False
         elif _standardize_value(val) != _standardize_value(resource2[i]):
@@ -953,7 +1050,7 @@ class LIGMerger(object):
                 if current_uplink['name'] == existing_uplink['name']:
                     current_uplinks_left.remove(current_uplink)  # removes the common uplinksets from current uplinksets
 
-                    if not compare(current_uplink, existing_uplink):
+                    if not compare_lig(current_uplink, existing_uplink):
                         existing_uplinksets[index] = dict_merge(current_uplink, existing_uplink)
 
             # checks to ignore extra parameters in uplink set to achieve idempotency
