@@ -943,15 +943,17 @@ class LIGMerger(object):
                 if current_uplink['name'] == existing_uplink['name']:
                     current_uplinks_left.remove(current_uplink)  # removes the common uplinksets from current uplinksets
 
-                    current_uplink_localid = current_uplink.pop('logicalPortConfigInfos', None)
-                    existing_uplink_localid = existing_uplink.pop('logicalPortConfigInfos', None)
+                    current_uplink_copy = deepcopy(current_uplink)
+                    existing_uplink_copy = deepcopy(existing_uplink)
+                    current_uplink_localid = current_uplink_copy.pop('logicalPortConfigInfos', None)
+                    existing_uplink_localid = existing_uplink_copy.pop('logicalPortConfigInfos', None)
                     if existing_uplink_localid and current_uplink_localid:
                         result = sort_by_uplink_set_location(current_uplink_localid, existing_uplink_localid)
                     elif existing_uplink_localid or current_uplink_localid:
                         result = False
                     else:
                         result = True
-                    if not compare(current_uplink, existing_uplink) or not result:
+                    if not compare(current_uplink_copy, existing_uplink_copy) or not result:
                         existing_uplinksets[index] = dict_merge(current_uplink, existing_uplink)
 
             # checks to ignore extra parameters in uplink set to achieve idempotency
