@@ -43,6 +43,7 @@ from module_utils.oneview import (OneViewModuleBase,
                                   merge_list_by_key,
                                   transform_list_to_dict,
                                   compare,
+                                  compare_lig,
                                   get_logger)
 
 MSG_GENERIC_ERROR = 'Generic error message'
@@ -1276,7 +1277,7 @@ class TestOneViewModuleBase():
         assert not compare_lig(self.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3)
 
     def test_resource_compare_lig_different_on_level3(self):
-        assert not compare_lig(self_.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3)
+        assert not compare_lig(self.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3)
 
     def test_resource_compare_lig_equals_with_empty_eq_none(self):
         assert compare_lig(self.DICT_EMPTY_NONE1, self.DICT_EMPTY_NONE2)
