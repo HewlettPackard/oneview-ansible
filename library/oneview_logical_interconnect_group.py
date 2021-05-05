@@ -141,7 +141,7 @@ logical_interconnect_group:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare_lig, dict_merge, LIGMerger
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare, dict_merge, LIGMerger, sort_by_uplink_set_location
 
 
 class LogicalInterconnectGroupModule(OneViewModule):
@@ -218,7 +218,14 @@ class LogicalInterconnectGroupModule(OneViewModule):
 
         merged_data = LIGMerger().merge_data(current_data, self.data)
 
-        if compare_lig(current_data, merged_data):
+        current_data_localid = current_data.pop('logicalPortConfigInfos', None)
+        merged_data_localid = merged_data.pop('logicalPortConfigInfos', None)
+        result = True
+        if current_data_localid and merged_data_localid:
+            result = sort_by_uplink_set_location(current_data_localid, merged_data_localid)
+        elif current_data_localid or merged_data_localid:
+            result = False        
+        if compare(current_data, merged_data) and result:
             msg = self.MSG_ALREADY_PRESENT
         else:
             self.current_resource.update(merged_data)
