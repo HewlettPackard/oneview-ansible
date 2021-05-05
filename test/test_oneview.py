@@ -1236,14 +1236,14 @@ class TestOneViewModuleBase():
 
     DICT_UPLINK_SET1 = {
         "name": "UplinkSet",
-        "uplinkSets": 
+        "uplinkSets":
             [
                 {
-                    "logicalPortConfigInfos": 
+                    "logicalPortConfigInfos":
                         [
                             {
                                 "desiredSpeed": "Auto",
-                                "logicalLocation": 
+                                "logicalLocation":
                                     {
                                         "locationEntries": [
                                             {
@@ -1268,14 +1268,14 @@ class TestOneViewModuleBase():
 
     DICT_UPLINK_SET2 = {
         "name": "UplinkSet",
-        "uplinkSets": 
+        "uplinkSets":
             [
                 {
-                    "logicalPortConfigInfos": 
+                    "logicalPortConfigInfos":
                         [
                             {
                                 "desiredSpeed": "Auto",
-                                "logicalLocation": 
+                                "logicalLocation":
                                     {
                                         "locationEntries": [
                                             {
