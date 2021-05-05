@@ -83,7 +83,6 @@ EXAMPLES = '''
       scopeUris:
         - '/rest/scopes/00SC123456'
         - '/rest/scopes/01SC123456'
-
 - name: Ensure that the Logical Interconnect Group is present with uplinkSets
   oneview_logical_interconnect_group:
     hostname: 172.16.101.48
@@ -111,7 +110,6 @@ EXAMPLES = '''
                       type: "Port"
                     - relativeValue: 1
                       type: "Enclosure"
-
 - name: Ensure that the Logical Interconnect Group is present with name 'Test'
   oneview_logical_interconnect_group:
     hostname: 172.16.101.48
@@ -122,7 +120,6 @@ EXAMPLES = '''
     data:
       name: 'New Logical Interconnect Group'
       newName: 'Test'
-
 - name: Ensure that the Logical Interconnect Group is absent
   oneview_logical_interconnect_group:
     hostname: 172.16.101.48
@@ -141,8 +138,8 @@ logical_interconnect_group:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare, dict_merge, LIGMerger, sort_by_uplink_set_location
-from copy import deepcopy
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare_lig, dict_merge, LIGMerger
+
 
 class LogicalInterconnectGroupModule(OneViewModule):
     MSG_CREATED = 'Logical Interconnect Group created successfully.'
@@ -218,16 +215,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
 
         merged_data = LIGMerger().merge_data(current_data, self.data)
 
-        current_data_copy = deepcopy(current_data)
-        merged_data_copy = deepcopy(merged_data)
-        current_data_localid = current_data_copy.pop('logicalPortConfigInfos', None)
-        merged_data_localid = merged_data_copy.pop('logicalPortConfigInfos', None)
-        result = True
-        if current_data_localid and merged_data_localid:
-            result = sort_by_uplink_set_location(current_data_localid, merged_data_localid)
-        elif current_data_localid or merged_data_localid:
-            result = False
-        if compare(current_data_copy, merged_data_copy) and result:
+        if compare_lig(current_data, merged_data):
             msg = self.MSG_ALREADY_PRESENT
         else:
             self.current_resource.update(merged_data)

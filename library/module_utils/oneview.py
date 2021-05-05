@@ -74,7 +74,6 @@ def get_logger(mod_name):
 def transform_list_to_dict(list_):
     """
     Transforms a list into a dictionary, putting values as keys.
-
     :arg list list_: List of values
     :return: dict: dictionary built
     """
@@ -112,13 +111,9 @@ def dict_merge(original_resource_dict, data_dict):
 def merge_list_by_key(original_list, updated_list, key, ignore_when_null=None, replace_key=None, replace_value=None):
     """
     Merge two lists by the key. It basically:
-
     1. Adds the items that are present on updated_list and are absent on original_list.
-
     2. Removes items that are absent on updated_list and are present on original_list.
-
     3. For all items that are in both lists, overwrites the values from the original item by the updated item.
-
     :arg list original_list: original list.
     :arg list updated_list: list with changes.
     :arg str key: unique identifier.
@@ -173,9 +168,7 @@ def _str_sorted(obj):
 def _standardize_value(value):
     """
     Convert value to string to enhance the comparison.
-
     :arg value: Any object type.
-
     :return: str: Converted value.
     """
     if isinstance(value, float) and value.is_integer():
@@ -185,6 +178,68 @@ def _standardize_value(value):
 
     return str(value)
 
+
+def compare_lig(first_resource, second_resource):
+    """
+    Recursively compares dictionary contents equivalence, ignoring types and elements order.
+    Particularities of the comparison:
+        - Inexistent key = None
+        - These values are considered equal: None, empty, False
+        - Lists are compared value by value after a sort, if they have same size.
+        - Each element is converted to str before the comparison.
+    :arg dict first_resource: first dictionary
+    :arg dict second_resource: second dictionary
+    :return: bool: True when equal, False when different.
+    """
+    resource1 = first_resource
+    resource2 = second_resource
+
+    debug_resources = "resource1 = {0}, resource2 = {1}".format(resource1, resource2)
+    # The first resource is True / Not Null and the second resource is False / Null
+    if resource1 and not resource2:
+        logger.debug("resource1 and not resource2. " + debug_resources)
+        return False
+
+    # Checks all keys in first dict against the second dict
+    for key in resource1:
+        # compare uplinkset property logicalPortConfigInfos
+        if key == 'logicalPortConfigInfos':
+            if sort_by_uplink_set_location(resource1[key], resource2[key]):
+                continue
+            else:
+                logger.debug(OneViewModuleBase.MSG_DIFF_AT_KEY.format(key) + debug_resources)
+                return False
+        if key not in resource2:
+            if resource1[key] is not None:
+                # Inexistent key is equivalent to exist with value None
+                logger.debug(OneViewModuleBase.MSG_DIFF_AT_KEY.format(key) + debug_resources)
+                return False
+        # If both values are null, empty or False it will be considered equal.
+        elif not resource1[key] and not resource2[key]:
+            continue
+        elif isinstance(resource1[key], collections.Mapping):
+            # recursive call
+            if not compare_lig(resource1[key], resource2[key]):
+                logger.debug(OneViewModuleBase.MSG_DIFF_AT_KEY.format(key) + debug_resources)
+                return False
+        elif isinstance(resource1[key], list):
+            # change comparison function to compare_list
+            if not compare_list_lig(resource1[key], resource2[key]):
+                logger.debug(OneViewModuleBase.MSG_DIFF_AT_KEY.format(key) + debug_resources)
+                return False
+        elif _standardize_value(resource1[key]) != _standardize_value(resource2[key]):
+            logger.debug(OneViewModuleBase.MSG_DIFF_AT_KEY.format(key) + debug_resources)
+            return False
+
+    # Checks all keys in the second dict, looking for missing elements
+    for key in resource2.keys():
+        if key not in resource1:
+            if resource2[key] is not None:
+                # Inexistent key is equivalent to exist with value None
+                logger.debug(OneViewModuleBase.MSG_DIFF_AT_KEY.format(key) + debug_resources)
+                return False
+
+    return True
 
 def compare(first_resource, second_resource):
     """
@@ -241,7 +296,6 @@ def compare(first_resource, second_resource):
 
     return True
 
-
 def compare_list(first_resource, second_resource):
     """
     Recursively compares lists contents equivalence, ignoring types and element orders.
@@ -266,7 +320,7 @@ def compare_list(first_resource, second_resource):
 
     resource1 = sorted(resource1, key=_str_sorted)
     resource2 = sorted(resource2, key=_str_sorted)
-    resource1, resource1 = _sort_by_keys(resource1, resource2)
+
     for i, val in enumerate(resource1):
         if isinstance(val, collections.Mapping):
             # change comparison function to compare dictionaries
@@ -276,6 +330,52 @@ def compare_list(first_resource, second_resource):
         elif isinstance(val, list):
             # recursive call
             if not compare_list(val, resource2[i]):
+                logger.debug("lists are different. " + debug_resources)
+                return False
+        elif _standardize_value(val) != _standardize_value(resource2[i]):
+            logger.debug("values are different. " + debug_resources)
+            return False
+
+    # no differences found
+    return True
+
+def compare_list_lig(first_resource, second_resource):
+    """
+    Recursively compares lists contents equivalence, ignoring types and element orders.
+    Lists with same size are compared value by value after a sort,
+    each element is converted to str before the comparison.
+    :arg list first_resource: first list
+    :arg list second_resource: second list
+    :return: True when equal; False when different.
+    """
+
+    resource1 = first_resource
+    resource2 = second_resource
+    debug_resources = "resource1 = {0}, resource2 = {1}".format(resource1, resource2)
+    # The second list is null / empty  / False
+    if not resource2:
+        logger.debug("resource 2 is null. " + debug_resources)
+        return False
+
+    if len(resource1) != len(resource2):
+        logger.debug("resources have different length. " + debug_resources)
+        return False
+
+    resource1 = sorted(resource1, key=_str_sorted)
+    resource2 = sorted(resource2, key=_str_sorted)
+
+    # sort resources by specific keys
+    resource1, resource2 = _sort_by_keys(resource1, resource2)
+
+    for i, val in enumerate(resource1):
+        if isinstance(val, collections.Mapping):
+            # change comparison function to compare dictionaries
+            if not compare_lig(val, resource2[i]):
+                logger.debug("resources are different. " + debug_resources)
+                return False
+        elif isinstance(val, list):
+            # recursive call
+            if not compare_list_lig(val, resource2[i]):
                 logger.debug("lists are different. " + debug_resources)
                 return False
         elif _standardize_value(val) != _standardize_value(resource2[i]):
@@ -329,7 +429,6 @@ def sort_by_uplink_set_location(resource1, resource2):
 class OneViewModuleException(Exception):
     """
     OneView base Exception.
-
     Attributes:
        msg (str): Exception message.
        oneview_response (dict): OneView rest response.
@@ -356,7 +455,6 @@ class OneViewModuleException(Exception):
 class OneViewModuleTaskError(OneViewModuleException):
     """
     OneView Task Error Exception.
-
     Attributes:
        msg (str): Exception message.
        error_code (str): A code which uniquely identifies the specific error.
@@ -371,7 +469,6 @@ class OneViewModuleValueError(OneViewModuleException):
     """
     OneView Value Error.
     The exception is raised when the data contains an inappropriate value.
-
     Attributes:
        msg (str): Exception message.
     """
@@ -382,7 +479,6 @@ class OneViewModuleResourceNotFound(OneViewModuleException):
     """
     OneView Resource Not Found Exception.
     The exception is raised when an associated resource was not found.
-
     Attributes:
        msg (str): Exception message.
     """
@@ -415,7 +511,6 @@ class OneViewModule(object):
     def __init__(self, additional_arg_spec=None, validate_etag_support=False):
         """
         OneViewModuleBase constructor.
-
         :arg dict additional_arg_spec: Additional argument spec definition.
         :arg bool validate_etag_support: Enables support to eTag validation.
         """
@@ -495,9 +590,7 @@ class OneViewModule(object):
     def execute_module(self):
         """
         Abstract method, must be implemented by the inheritor.
-
         This method is called from the run method. It should contain the module logic
-
         :return: dict: It must return a dictionary with the attributes for the module result,
             such as ansible_facts, msg and changed.
         """
@@ -506,11 +599,8 @@ class OneViewModule(object):
     def run(self):
         """
         Common implementation of the OneView run modules.
-
         It calls the inheritor 'execute_module' function and sends the return to the Ansible.
-
         It handles any OneViewModuleException in order to signal a failure to Ansible, with a descriptive error message.
-
         """
         try:
             if self.validate_etag_support:
@@ -534,9 +624,7 @@ class OneViewModule(object):
     def resource_absent(self, method='delete'):
         """
         Generic implementation of the absent state for the OneView resources.
-
         It checks if the resource needs to be removed.
-
         :arg str method: Function of the OneView client that will be called for resource deletion.
             Usually delete or remove.
         :return: A dictionary with the expected arguments for the AnsibleModule.exit_json
@@ -551,9 +639,7 @@ class OneViewModule(object):
     def get_by_name(self, name):
         """
         Generic get by name implementation.
-
         :arg str name: Resource name to search for.
-
         :return: The resource found or None.
         """
         result = self.resource_client.get_by('name', name)
@@ -562,9 +648,7 @@ class OneViewModule(object):
     def resource_present(self, fact_name, create_method='create'):
         """
         Generic implementation of the present state for the OneView resources.
-
         It checks if the resource needs to be created or updated.
-
         :arg str fact_name: Name of the fact returned to the Ansible.
         :arg str create_method: Function of the OneView client that will be called for resource creation.
             Usually create or add.
@@ -633,9 +717,7 @@ class OneViewModule(object):
         """
         The following implementation will work for resource_present under check mode.
         Generic implementation of the present state to be run under check mode for the OneView resources.
-
         It checks if the resource needs to be created or updated.
-
         :arg str fact_name: Name of the fact returned to the Ansible.
         Usually checks if the resource will becreate or add.
         :return: A dictionary with the expected arguments for the AnsibleModule.exit_json
@@ -736,7 +818,6 @@ class OneViewModuleBase(object):
     def __init__(self, additional_arg_spec=None, validate_etag_support=False):
         """
         OneViewModuleBase constructor.
-
         :arg dict additional_arg_spec: Additional argument spec definition.
         :arg bool validate_etag_support: Enables support to eTag validation.
         """
@@ -792,9 +873,7 @@ class OneViewModuleBase(object):
     def execute_module(self):
         """
         Abstract method, must be implemented by the inheritor.
-
         This method is called from the run method. It should contain the module logic
-
         :return: dict: It must return a dictionary with the attributes for the module result,
             such as ansible_facts, msg and changed.
         """
@@ -803,11 +882,8 @@ class OneViewModuleBase(object):
     def run(self):
         """
         Common implementation of the OneView run modules.
-
         It calls the inheritor 'execute_module' function and sends the return to the Ansible.
-
         It handles any OneViewModuleException in order to signal a failure to Ansible, with a descriptive error message.
-
         """
         try:
             if self.validate_etag_support:
@@ -831,9 +907,7 @@ class OneViewModuleBase(object):
     def resource_absent(self, resource, method='delete'):
         """
         Generic implementation of the absent state for the OneView resources.
-
         It checks if the resource needs to be removed.
-
         :arg dict resource: Resource to delete.
         :arg str method: Function of the OneView client that will be called for resource deletion.
             Usually delete or remove.
@@ -849,9 +923,7 @@ class OneViewModuleBase(object):
     def get_by_name(self, name):
         """
         Generic get by name implementation.
-
         :arg str name: Resource name to search for.
-
         :return: The resource found or None.
         """
         result = self.resource_client.get_by('name', name)
@@ -860,9 +932,7 @@ class OneViewModuleBase(object):
     def resource_present(self, resource, fact_name, create_method='create'):
         """
         Generic implementation of the present state for the OneView resources.
-
         It checks if the resource needs to be created or updated.
-
         :arg dict resource: Resource to create or update.
         :arg str fact_name: Name of the fact returned to the Ansible.
         :arg str create_method: Function of the OneView client that will be called for resource creation.
@@ -943,17 +1013,7 @@ class LIGMerger(object):
                 if current_uplink['name'] == existing_uplink['name']:
                     current_uplinks_left.remove(current_uplink)  # removes the common uplinksets from current uplinksets
 
-                    current_uplink_copy = deepcopy(current_uplink)
-                    existing_uplink_copy = deepcopy(existing_uplink)
-                    current_uplink_localid = current_uplink_copy.pop('logicalPortConfigInfos', None)
-                    existing_uplink_localid = existing_uplink_copy.pop('logicalPortConfigInfos', None)
-                    if existing_uplink_localid and current_uplink_localid:
-                        result = sort_by_uplink_set_location(current_uplink_localid, existing_uplink_localid)
-                    elif existing_uplink_localid or current_uplink_localid:
-                        result = False
-                    else:
-                        result = True
-                    if not compare(current_uplink_copy, existing_uplink_copy) or not result:
+                    if not compare_lig(current_uplink, existing_uplink):
                         existing_uplinksets[index] = dict_merge(current_uplink, existing_uplink)
 
             # checks to ignore extra parameters in uplink set to achieve idempotency
