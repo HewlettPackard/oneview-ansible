@@ -1238,7 +1238,7 @@ class TestOneViewModuleBase():
         "name": "LIG",
         "uplinkSets":
             [
-                {  
+                {
                     "name": "UplinkSet1",
                     "logicalPortConfigInfos":
                         [
@@ -1264,15 +1264,14 @@ class TestOneViewModuleBase():
                             }
                         ]
                 }
-          ]
+            ]
     }
 
     DICT_UPLINK_SET2 = {
         "name": "LIG",
         "uplinkSets":
             [
-                
-               {   
+               {
                     "name": "UplinkSet1",
                     "logicalPortConfigInfos":
                         [
