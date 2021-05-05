@@ -1235,66 +1235,68 @@ class TestOneViewModuleBase():
     }
 
     DICT_UPLINK_SET1 = {
-            "name": "UplinkSet",
-            "uplinkSets": [
+        "name": "UplinkSet",
+        "uplinkSets": 
+            [
                 {
-                "logicalPortConfigInfos": [
-                    {
-                        "desiredSpeed": "Auto",
-                        "logicalLocation": 
+                    "logicalPortConfigInfos": 
+                        [
                             {
-                                "locationEntries": [
+                                "desiredSpeed": "Auto",
+                                "logicalLocation": 
                                     {
-                                        "relativeValue": 1,
-                                        "type": "Bay"
-                                    },
-                                    {
-                                        "relativeValue": 21,
-                                        "type": "Port"
-                                    },
-                                    {
-                                        "relativeValue": 1,
-                                        "type": "Enclosure"
+                                        "locationEntries": [
+                                            {
+                                                "relativeValue": 1,
+                                                "type": "Bay"
+                                            },
+                                            {
+                                                "relativeValue": 21,
+                                                "type": "Port"
+                                            },
+                                            {
+                                                "relativeValue": 1,
+                                                "type": "Enclosure"
+                                            }
+                                        ]
                                     }
-                                ]
-
                             }
-                    }
-                ]
-            }
-      ]
+                        ]
+                }
+            ]
     }
 
     DICT_UPLINK_SET2 = {
-            "name": "UplinkSet",
-            "uplinkSets": [
+        "name": "UplinkSet",
+        "uplinkSets": 
+            [
                 {
-                "logicalPortConfigInfos": [
-                    {
-                        "desiredSpeed": "Auto",
-                        "logicalLocation":
+                    "logicalPortConfigInfos": 
+                        [
                             {
-                                "locationEntries": [
+                                "desiredSpeed": "Auto",
+                                "logicalLocation": 
                                     {
-                                        "relativeValue": 1,
-                                        "type": "Bay"
-                                    },
-                                    {
-                                        "relativeValue": 56,
-                                        "type": "Port"
-                                    },
-                                    {
-                                        "relativeValue": 1,
-                                        "type": "Enclosure"
+                                        "locationEntries": [
+                                            {
+                                                "relativeValue": 1,
+                                                "type": "Bay"
+                                            },
+                                            {
+                                                "relativeValue": 56,
+                                                "type": "Port"
+                                            },
+                                            {
+                                                "relativeValue": 1,
+                                                "type": "Enclosure"
+                                            }
+                                        ]
                                     }
-                                ]
-
                             }
-                    } ]
-            }
-        ]
+                        ]
+                }
+            ]
     }
-
 
     def test_resource_compare_equals(self):
         assert compare(self.DICT_ORIGINAL, self.DICT_EQUAL_ORIGINAL)
