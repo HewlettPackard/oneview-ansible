@@ -1260,6 +1260,33 @@ class TestOneViewModuleBase():
     def test_resource_compare_equals_with_empty_eq_none_different(self):
         assert not compare(self.DICT_EMPTY_NONE3, self.DICT_EMPTY_NONE1)
 
+    def test_resource_compare_lig_equals(self):
+        assert compare_lig(self.DICT_ORIGINAL, self.DICT_EQUAL_ORIGINAL)
+
+    def test_resource_compare_lig_missing_entry_in_first(self):
+        dict1 = self.DICT_ORIGINAL.copy()
+        del dict1['state']
+
+        assert not compare_lig(dict1, self.DICT_EQUAL_ORIGINAL)
+
+    def test_resource_compare_lig_missing_entry_in_second(self):
+        dict2 = self.DICT_EQUAL_ORIGINAL.copy()
+        del dict2['state']
+
+        assert not compare_lig(self.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3)
+
+    def test_resource_compare_lig_different_on_level3(self):
+        assert not compare_lig(self_.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3)
+
+    def test_resource_compare_lig_equals_with_empty_eq_none(self):
+        assert compare_lig(self.DICT_EMPTY_NONE1, self.DICT_EMPTY_NONE2)
+
+    def test_resource_compare_lig_equals_with_empty_eq_none_inverse(self):
+        assert compare_lig(self.DICT_EMPTY_NONE2, self.DICT_EMPTY_NONE1)
+
+    def test_resource_compare_lig_equals_with_empty_eq_none_different(self):
+        assert not compare_lig(self.DICT_EMPTY_NONE3, self.DICT_EMPTY_NONE1)
+
     def test_resource_compare_with_double_level_list(self):
         dict1 = {list: [
             [1, 2, 3],
