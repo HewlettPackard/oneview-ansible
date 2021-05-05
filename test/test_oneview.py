@@ -1385,6 +1385,18 @@ class TestOneViewModuleBase():
 
         assert not compare_lig(dict1, dict2)
 
+    def test_compare_lig_empty_list_and_none(self):
+        dict1 = {
+            "name": "name",
+            "values": [1, 2, 3]
+        }
+
+        dict2 = {
+            "name": "name",
+            "values": None
+        }
+        assert not compare_lig(dict1, dict2)
+
     def test_resource_compare_with_double_level_list(self):
         dict1 = {list: [
             [1, 2, 3],
