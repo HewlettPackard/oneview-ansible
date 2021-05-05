@@ -1235,7 +1235,7 @@ class TestOneViewModuleBase():
     }
 
     DICT_UPLINK_SET1 = {
-        "name": "UplinkSet",
+        "name": "LIG",
         "uplinkSets":
             [
                 {
@@ -1267,7 +1267,7 @@ class TestOneViewModuleBase():
     }
 
     DICT_UPLINK_SET2 = {
-        "name": "UplinkSet",
+        "name": "LIG",
         "uplinkSets":
             [
                 {
@@ -1336,6 +1336,9 @@ class TestOneViewModuleBase():
 
     def test_resource_compare_lig_uplink_sets_ports_different(self):
         assert not compare_lig(self.DICT_UPLINK_SET1, self.DICT_UPLINK_SET2)
+
+    def test_resource_compare_lig_uplink_sets(self):
+        assert not compare_lig(self.DICT_UPLINK_SET1['uplinkSets'][0], self.DICT_UPLINK_SET2['uplinkSets'][0])
 
     def test_resource_compare_lig_missing_entry_in_first(self):
         dict1 = self.DICT_ORIGINAL.copy()
