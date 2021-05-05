@@ -1234,6 +1234,68 @@ class TestOneViewModuleBase():
             ]
     }
 
+    DICT_UPLINK_SET1 = {
+            "name": "UplinkSet",
+            "uplinkSets": [
+                {
+                "logicalPortConfigInfos": [
+                    {
+                        "desiredSpeed": "Auto",
+                        "logicalLocation": 
+                            {
+                                "locationEntries": [
+                                    {
+                                        "relativeValue": 1,
+                                        "type": "Bay"
+                                    },
+                                    {
+                                        "relativeValue": 21,
+                                        "type": "Port"
+                                    },
+                                    {
+                                        "relativeValue": 1,
+                                        "type": "Enclosure"
+                                    }
+                                ]
+
+                            }
+                    }
+                ]
+            }
+      ]
+    }
+
+    DICT_UPLINK_SET2 = {
+            "name": "UplinkSet",
+            "uplinkSets": [
+                {
+                "logicalPortConfigInfos": [
+                    {
+                        "desiredSpeed": "Auto",
+                        "logicalLocation":
+                            {
+                                "locationEntries": [
+                                    {
+                                        "relativeValue": 1,
+                                        "type": "Bay"
+                                    },
+                                    {
+                                        "relativeValue": 56,
+                                        "type": "Port"
+                                    },
+                                    {
+                                        "relativeValue": 1,
+                                        "type": "Enclosure"
+                                    }
+                                ]
+
+                            }
+                    } ]
+            }
+        ]
+    }
+
+
     def test_resource_compare_equals(self):
         assert compare(self.DICT_ORIGINAL, self.DICT_EQUAL_ORIGINAL)
 
@@ -1266,6 +1328,12 @@ class TestOneViewModuleBase():
 
     def test_resource_compare_lig_resource_empty(self):
         assert not compare_lig(self.DICT_EQUAL_ORIGINAL, {})
+
+    def test_resource_compare_lig_uplink_sets_ports_same(self):
+        assert compare_lig(self.DICT_UPLINK_SET1, self.DICT_UPLINK_SET1)
+
+    def test_resource_compare_lig_uplink_sets_ports_different(self):
+        assert not compare_lig(self.DICT_UPLINK_SET1, self.DICT_UPLINK_SET2)
 
     def test_resource_compare_lig_missing_entry_in_first(self):
         dict1 = self.DICT_ORIGINAL.copy()
