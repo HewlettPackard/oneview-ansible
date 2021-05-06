@@ -43,6 +43,7 @@ from module_utils.oneview import (OneViewModuleBase,
                                   merge_list_by_key,
                                   transform_list_to_dict,
                                   compare,
+                                  compare_lig,
                                   get_logger)
 
 MSG_GENERIC_ERROR = 'Generic error message'
