@@ -75,7 +75,7 @@
         config: "{{ config }}"
         state: absent
         data:
-            name : '{{ server_hardware_hostname }}'
+            name: '{{ contents.server_hardware_hostname }}'
       delegate_to: localhost
       when: variant == 'C7000'
 
@@ -85,6 +85,6 @@
         config: "{{ config }}"
         state: absent
         data:
-            name: '{{ server_hardware_type_name_renamed }}'
+            name: '{{ server_hardware_types[0]['name'] }}'
       delegate_to: localhost
       when: variant == 'C7000'
