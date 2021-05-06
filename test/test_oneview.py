@@ -37,10 +37,14 @@ from module_utils.oneview import (OneViewModuleBase,
                                   SPKeys,
                                   ServerProfileMerger,
                                   ServerProfileReplaceNamesByUris,
+                                  LIGMerger,
+                                  sort_by_uplink_set_location,
+                                  _sort_by_keys,
                                   _str_sorted,
                                   merge_list_by_key,
                                   transform_list_to_dict,
                                   compare,
+                                  compare_lig,
                                   get_logger)
 
 MSG_GENERIC_ERROR = 'Generic error message'
@@ -1231,6 +1235,72 @@ class TestOneViewModuleBase():
             ]
     }
 
+    DICT_UPLINK_SET1 = {
+        "name": "LIG",
+        "uplinkSets":
+            [
+                {
+                    "name": "UplinkSet1",
+                    "logicalPortConfigInfos":
+                        [
+                            {
+                                "desiredSpeed": "Auto",
+                                "logicalLocation":
+                                    {
+                                        "locationEntries": [
+                                            {
+                                                "relativeValue": 1,
+                                                "type": "Bay"
+                                            },
+                                            {
+                                                "relativeValue": 21,
+                                                "type": "Port"
+                                            },
+                                            {
+                                                "relativeValue": 1,
+                                                "type": "Enclosure"
+                                            }
+                                        ]
+                                    }
+                            }
+                        ]
+                }
+            ]
+    }
+
+    DICT_UPLINK_SET2 = {
+        "name": "LIG",
+        "uplinkSets":
+            [
+                {
+                    "name": "UplinkSet1",
+                    "logicalPortConfigInfos":
+                        [
+                            {
+                                "desiredSpeed": "Auto",
+                                "logicalLocation":
+                                    {
+                                        "locationEntries": [
+                                            {
+                                                "relativeValue": 1,
+                                                "type": "Bay"
+                                            },
+                                            {
+                                                "relativeValue": 56,
+                                                "type": "Port"
+                                            },
+                                            {
+                                                "relativeValue": 1,
+                                                "type": "Enclosure"
+                                            }
+                                        ]
+                                    }
+                            }
+                        ]
+                }
+            ]
+    }
+
     def test_resource_compare_equals(self):
         assert compare(self.DICT_ORIGINAL, self.DICT_EQUAL_ORIGINAL)
 
@@ -1257,6 +1327,89 @@ class TestOneViewModuleBase():
 
     def test_resource_compare_equals_with_empty_eq_none_different(self):
         assert not compare(self.DICT_EMPTY_NONE3, self.DICT_EMPTY_NONE1)
+
+    def test_resource_compare_lig_equals(self):
+        assert compare_lig(self.DICT_ORIGINAL, self.DICT_EQUAL_ORIGINAL)
+
+    def test_resource_compare_lig_resource_empty(self):
+        assert not compare_lig(self.DICT_EQUAL_ORIGINAL, {})
+
+    def test_resource_compare_lig_uplink_sets_ports_same(self):
+        assert compare_lig(self.DICT_UPLINK_SET1, self.DICT_UPLINK_SET1)
+
+    def test_resource_compare_lig_uplink_sets_ports_different(self):
+        assert not compare_lig(self.DICT_UPLINK_SET1, self.DICT_UPLINK_SET2)
+
+    def test_resource_compare_lig_uplink_sets(self):
+        assert not compare_lig(self.DICT_UPLINK_SET1['uplinkSets'][0], self.DICT_UPLINK_SET2['uplinkSets'][0])
+
+    def test_resource_compare_lig_missing_entry_in_first(self):
+        dict1 = self.DICT_ORIGINAL.copy()
+        del dict1['state']
+
+        assert not compare_lig(dict1, self.DICT_EQUAL_ORIGINAL)
+
+    def test_resource_compare_lig_missing_entry_in_second(self):
+        dict2 = self.DICT_EQUAL_ORIGINAL.copy()
+        del dict2['state']
+
+        assert not compare_lig(self.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3)
+
+    def test_resource_compare_lig_different_on_level3(self):
+        assert not compare_lig(self.DICT_ORIGINAL, self.DICT_DIF_ORIGINAL_LV3)
+
+    def test_resource_compare_lig_equals_with_empty_eq_none(self):
+        assert compare_lig(self.DICT_EMPTY_NONE1, self.DICT_EMPTY_NONE2)
+
+    def test_resource_compare_lig_equals_with_empty_eq_none_inverse(self):
+        assert compare_lig(self.DICT_EMPTY_NONE2, self.DICT_EMPTY_NONE1)
+
+    def test_resource_compare_lig_equals_with_empty_eq_none_different(self):
+        assert not compare_lig(self.DICT_EMPTY_NONE3, self.DICT_EMPTY_NONE1)
+
+    def test_resource_compare_lig_with_double_level_list(self):
+        dict1 = {list: [
+            [1, 2, 3],
+            [4, 5, 6]
+        ]}
+
+        dict2 = {list: [
+            [1, 2, 3],
+            [4, 5, "6"]
+        ]}
+
+        assert compare_lig(dict1, dict2)
+
+    def test_resource_compare_lig_with_double_level_list_different(self):
+        dict1 = {list: [
+            [1, 2, 3],
+            [4, 5, 6]
+        ]}
+
+        dict2 = {list: [
+            [1, 2, 3],
+            [4, 5, "7"]
+        ]}
+
+        assert not compare_lig(dict1, dict2)
+
+    def test_compare_lig_empty_list_and_none(self):
+        dict1 = {
+            "name": "name",
+            "values": [1, 2, 3]
+        }
+
+        dict2 = {
+            "name": "name",
+            "values": None
+        }
+        assert not compare_lig(dict1, dict2)
+
+    def test_merge_when_having_diff_uplink_set_attributes(self):
+        merged_data = LIGMerger().merge_data(self.DICT_UPLINK_SET1, self.DICT_UPLINK_SET2)
+
+        expected_connections = self.DICT_UPLINK_SET2['uplinkSets']
+        assert merged_data['uplinkSets'] == expected_connections
 
     def test_resource_compare_with_double_level_list(self):
         dict1 = {list: [
@@ -1760,12 +1913,12 @@ class TestOneViewModuleBase():
             "name": "name",
             "value": [{'name': 'value1'},
                       {'name': 'value2'},
-                      {'name': 3}]
+                      {'name': 'value3'}]
         }
 
         dict2 = {
             "name": "name",
-            "value": [{'count': 3},
+            "value": [{'count': 3, 'name': 'value0'},
                       {'name': 'value1'},
                       {'name': 'value2'}]
         }
@@ -1863,6 +2016,14 @@ class TestOneViewModuleBase():
         expected_list = [dict(id=1, value1="123", value2="345", value3="678")]
 
         assert merged_list == expected_list
+
+    def test_sort_by_keys(self):
+        resource_list = [dict(networkType="Ethernet", name="name-2"),
+                         dict(networkType="Ethernet", name="name-1")]
+        result1, result2 = _sort_by_keys(resource_list, resource_list)
+        expected_list = [dict(networkType="Ethernet", name="name-1"),
+                         dict(networkType="Ethernet", name="name-2")]
+        assert result1 == expected_list
 
 
 class TestServerProfileReplaceNamesByUris():

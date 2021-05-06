@@ -83,7 +83,6 @@ EXAMPLES = '''
       scopeUris:
         - '/rest/scopes/00SC123456'
         - '/rest/scopes/01SC123456'
-
 - name: Ensure that the Logical Interconnect Group is present with uplinkSets
   oneview_logical_interconnect_group:
     hostname: 172.16.101.48
@@ -111,7 +110,6 @@ EXAMPLES = '''
                       type: "Port"
                     - relativeValue: 1
                       type: "Enclosure"
-
 - name: Ensure that the Logical Interconnect Group is present with name 'Test'
   oneview_logical_interconnect_group:
     hostname: 172.16.101.48
@@ -122,7 +120,6 @@ EXAMPLES = '''
     data:
       name: 'New Logical Interconnect Group'
       newName: 'Test'
-
 - name: Ensure that the Logical Interconnect Group is absent
   oneview_logical_interconnect_group:
     hostname: 172.16.101.48
@@ -141,8 +138,7 @@ logical_interconnect_group:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, LIGMerger
-from deepdiff import DeepDiff
+from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare_lig, dict_merge, LIGMerger
 
 
 class LogicalInterconnectGroupModule(OneViewModule):
@@ -202,13 +198,6 @@ class LogicalInterconnectGroupModule(OneViewModule):
         self.current_resource = self.resource_client.create(self.data)
         return True, self.MSG_CREATED
 
-    def __compare(self, old_resource, new_resource):
-        return_value = DeepDiff(old_resource, new_resource, ignore_order=True)
-        if return_value:
-            return False
-        else:
-            return True
-
     def __update(self):
         changed = False
         current_data = self.current_resource.data.copy()
@@ -226,7 +215,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
 
         merged_data = LIGMerger().merge_data(current_data, self.data)
 
-        if self.__compare(current_data, merged_data):
+        if compare_lig(current_data, merged_data):
             msg = self.MSG_ALREADY_PRESENT
         else:
             self.current_resource.update(merged_data)

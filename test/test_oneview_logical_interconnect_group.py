@@ -34,9 +34,12 @@ DEFAULT_LIG_TEMPLATE = dict(
     uplinkSets=[],
     enclosureType='C7000',
     interconnectMapTemplate=dict(
-        interconnectMapEntryTemplates=[]
+        interconnectMapEntryTemplates=[dict(
+            logicalDownlinkUri=None
+        )]
     )
 )
+
 DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
     config='config.json',
     state='present',
@@ -68,10 +71,13 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
-            interconnectMapEntryTemplates=[]
+            interconnectMapEntryTemplates=[dict(
+                logicalDownlinkUri=None
+            )]
         )
     )
 )
+
 
 DEFAULT_LIG_TEMPLATE_WITH_FC_NETWORK_UPLINKSETS = dict(
     config='config.json',
@@ -104,10 +110,13 @@ DEFAULT_LIG_TEMPLATE_WITH_FC_NETWORK_UPLINKSETS = dict(
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
-            interconnectMapEntryTemplates=[]
+            interconnectMapEntryTemplates=[dict(
+                logicalDownlinkUri=None
+            )]
         )
     )
 )
+
 DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
     config='config.json',
     state='present',
@@ -139,7 +148,9 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
-            interconnectMapEntryTemplates=[]
+            interconnectMapEntryTemplates=[dict(
+                logicalDownlinkUri=None
+            )]
         )
     )
 )
@@ -170,7 +181,7 @@ PARAMS_LIG_TEMPLATE_WITH_MAP = dict(
             ],
             name="EnetUplink1",
             networkType="Ethernet",
-            networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"],
+            networkNames=["TestEthernet2"],
             networkSetNames=["NetworkSet1"]
         )
         ],
@@ -178,6 +189,7 @@ PARAMS_LIG_TEMPLATE_WITH_MAP = dict(
         interconnectMapTemplate=dict(
             interconnectMapEntryTemplates=[
                 {
+                    "logicalDownlinkUri": None,
                     "logicalLocation": {
                         "locationEntries": [
                             {
@@ -387,7 +399,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
         )
 
     def test_should_not_update_when_data_has_same_uplinkset_attributes(self):
-        self.resource.data = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP['data'])
+        self.resource.data = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP)
         self.resource.get_by_name.return_value = self.resource
         self.mock_ansible_module.params = deepcopy(PARAMS_LIG_TEMPLATE_WITH_MAP)
 
