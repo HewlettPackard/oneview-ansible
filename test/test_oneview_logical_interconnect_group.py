@@ -171,7 +171,7 @@ PARAMS_LIG_TEMPLATE_WITH_MAP = dict(
             ],
             name="EnetUplink1",
             networkType="Ethernet",
-            networkUris=["/rest/ethernet-networks/5c3aefcb-0dd5-4fcc-b652-c9e734797fbd"],
+            networkNames=["TestEthernet2"],
             networkSetNames=["NetworkSet1"]
         )
         ],
