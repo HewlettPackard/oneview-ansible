@@ -179,7 +179,6 @@ PARAMS_LIG_TEMPLATE_WITH_MAP = dict(
         interconnectMapTemplate=dict(
             interconnectMapEntryTemplates=[
                 {
-                    "logicalDownlinkUri": None,
                     "logicalLocation": {
                         "locationEntries": [
                             {
