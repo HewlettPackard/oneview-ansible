@@ -34,9 +34,12 @@ DEFAULT_LIG_TEMPLATE = dict(
     uplinkSets=[],
     enclosureType='C7000',
     interconnectMapTemplate=dict(
-        interconnectMapEntryTemplates=[]
+        interconnectMapEntryTemplates=[dict(
+            logicalDownlinkUri=None
+        )]
     )
 )
+
 DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
     config='config.json',
     state='present',
@@ -68,7 +71,9 @@ DEFAULT_LIG_TEMPLATE_WITH_UPLINKSETS = dict(
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
-            interconnectMapEntryTemplates=[]
+            interconnectMapEntryTemplates=[dict(
+                logicalDownlinkUri=None
+            )]
         )
     )
 )
@@ -105,10 +110,13 @@ DEFAULT_LIG_TEMPLATE_WITH_FC_NETWORK_UPLINKSETS = dict(
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
-            interconnectMapEntryTemplates=[]
+            interconnectMapEntryTemplates=[dict(
+                logicalDownlinkUri=None
+            )]
         )
     )
 )
+
 DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
     config='config.json',
     state='present',
@@ -140,7 +148,9 @@ DEFAULT_LIG_TEMPLATE_WITH_NEW_UPLINKSETS = dict(
         )],
         enclosureType='C7000',
         interconnectMapTemplate=dict(
-            interconnectMapEntryTemplates=[]
+            interconnectMapEntryTemplates=[dict(
+                logicalDownlinkUri=None
+            )]
         )
     )
 )
