@@ -37,6 +37,7 @@ from module_utils.oneview import (OneViewModuleBase,
                                   SPKeys,
                                   ServerProfileMerger,
                                   ServerProfileReplaceNamesByUris,
+                                  LIGMerger,
                                   sort_by_uplink_set_location,
                                   _sort_by_keys,
                                   _str_sorted,
@@ -1403,6 +1404,12 @@ class TestOneViewModuleBase():
             "values": None
         }
         assert not compare_lig(dict1, dict2)
+
+    def test_merge_when_having_diff_uplink_set_attributes(self):
+        merged_data = LIGMerger().merge_data(self.DICT_UPLINK_SET1, self.DICT_UPLINK_SET2)
+
+        expected_connections = self.DICT_UPLINK_SET2['uplinkSets']
+        assert merged_data['uplinkSets'] == expected_connections
 
     def test_resource_compare_with_double_level_list(self):
         dict1 = {list: [
