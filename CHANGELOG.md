@@ -1,6 +1,6 @@
 # Ansible Modules for HPE OneView Change Log
 
-## v6.1.0(unreleased)
+## v6.1.0
 This release extends the planned support of the modules to OneView REST API version 2800 (OneView v6.10) and ImageStreamer REST API version 2020 (I3S v6.10).
 
 #### Major changes
