@@ -329,7 +329,6 @@
               networkType: 'Ethernet'
               networkNames:
                 - 'TestNetwork_5'
-                  #                - '/rest/ethernet-networks/5cca6ddc-49b1-4c7c-9022-eadb2630d42b'
               logicalPortConfigInfos:
                 - desiredSpeed: 'Auto'
                   logicalLocation:
