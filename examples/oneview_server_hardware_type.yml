@@ -1,5 +1,5 @@
 ###
-# Copyright (2016-2020) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -28,12 +28,12 @@
         config: "{{ config }}"
         state: present
         data:
-             hostname : '{{ contents.server_hardware_hostname }}'
-             username : '{{ contents.server_hardware_username }}'
-             password : '{{ contents.server_hardware_password }}'
-             force : false
-             licensingIntent: "OneView"
-             configurationState: "Managed"
+            hostname : '{{ contents.server_hardware_hostname }}'
+            username : '{{ contents.server_hardware_username }}'
+            password : '{{ contents.server_hardware_password }}'
+            force : false
+            licensingIntent: "OneView"
+            configurationState: "Managed"
       delegate_to: localhost
       when: variant == 'C7000'
 
@@ -42,14 +42,13 @@
          config: "{{ config }}"
       delegate_to: localhost
 
-
     - name: Update the Server Hardware Type description
       oneview_server_hardware_type:
         config: "{{ config }}"
         state: present
         data:
-          name: "{{ server_hardware_types[0]['name'] }}"
-          description: "New Description"
+            name: "{{ server_hardware_types[0]['name'] }}"
+            description: "New Description"
       delegate_to: localhost
 
     - name: Rename the Server Hardware Type
@@ -66,23 +65,26 @@
         config: "{{ config }}"
         state: present
         data:
-          name: '{{ server_hardware_type_name_renamed }}'
-          newName: "{{ server_hardware_types[0]['name'] }}"
+            name: '{{ server_hardware_type_name_renamed }}'
+            newName: "{{ server_hardware_types[0]['name'] }}"
       delegate_to: localhost
 
+    # This is only supported on appliances which support rack mounted servers.
+    - name: Remove the Server Hardware to be able to delete the Server Hardware Type (Prerequisite)
+      oneview_server_hardware:
+        config: "{{ config }}"
+        state: absent
+        data:
+            name: '{{ contents.server_hardware_hostname }}'
+      delegate_to: localhost
+      when: variant == 'C7000'
 
-#    - name: Remove the Server Hardware to be able to delete the Server Hardware Type (Prerequisite)
-#      oneview_server_hardware:
-#        config: "{{ config }}"
-#        state: absent
-#        data:
-#            name : '{{ server_hardware_hostname }}'
-#      delegate_to: localhost
-#
-#    - name: Delete the Server Hardware Type
-#      oneview_server_hardware_type:
-#        config: "{{ config }}"
-#        state: absent
-#        data:
-#            name: '{{ server_hardware_type_name_renamed }}'
-#      delegate_to: localhost
+    # This is only supported on appliances which support rack mounted servers.
+    - name: Delete the Server Hardware Type
+      oneview_server_hardware_type:
+        config: "{{ config }}"
+        state: absent
+        data:
+            name: "{{ server_hardware_types[0]['name'] }}"
+      delegate_to: localhost
+      when: variant == 'C7000'

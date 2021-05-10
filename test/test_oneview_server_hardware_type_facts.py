@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 ###
-# Copyright (2016-2019) Hewlett Packard Enterprise Development LP
+# Copyright (2016-2021) Hewlett Packard Enterprise Development LP
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # You may not use this file except in compliance with the License.
@@ -47,7 +47,8 @@ class TestServerHardwareTypeFactsModule(OneViewBaseFactsTest):
         )
 
     def test_should_get_server_hardware_type_by_name(self):
-        self.resource.get_by.return_value = [{"name": "Server Hardware Type Name"}]
+        self.resource.data = {"name": "Server Hardware Type Name"}
+        self.resource.get_by_name.return_value = self.resource
         self.mock_ansible_module.params = PARAMS_GET_BY_NAME
 
         ServerHardwareTypeFactsModule().run()
