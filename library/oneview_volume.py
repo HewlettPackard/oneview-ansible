@@ -221,6 +221,7 @@ class VolumeModule(OneViewModule):
     MSG_NO_OPTIONS_PROVIDED = 'No options provided.'
     MSG_NEW_NAME_INVALID = 'Rename failed: the new name provided is being used by another Volume.'
     MSG_NO_CHANGES_PROVIDED = 'No changes have been provided for the update.'
+    MSG_TEMPLATE_NOT_FOUND = "Informed Volume Template '{}' not found"
 
     def __init__(self):
         argument_spec = dict(
@@ -267,6 +268,23 @@ class VolumeModule(OneViewModule):
                 return self.__delete_snapshot()
 
     def __present(self):
+        # get volume template uri from name
+        template_name = self.data.pop('templateName','')
+        if template_name:
+            self.volume_template = self.oneview_client.storage_volume_templates.get_by_name(template_name)
+            if not self.volume_template:
+                raise OneViewModuleValueError(self.MSG_TEMPLATE_NOT_FOUND.format(template_name))
+            self.data['templateUri'] = self.volume_template.data['uri']
+        elif self.data.get('templateUri'):
+            self.volume_template = self.oneview_client.storage_volume_templates.get_by_uri(self.data['templateUri'])
+
+        vt_properties = ['size', 'storagePool', 'provisioningType', 'isShareable', 'isCompressed', 'isDeduplicated']
+        # extract template data and insert to volume data properties
+        if self.data.get('properties') and self.volume_template.data.get('properties'):
+            for vt_property in vt_properties:
+                if not self.data['properties'].get(vt_property) and self.volume_template.data['properties'].get(vt_property):
+                    self.data['properties'][vt_property] = self.volume_template.data['properties'][vt_property]['default']
+
         if 'snapshotUri' in self.data:
             return self.__create_from_snapshot()
         elif not self.current_resource:
