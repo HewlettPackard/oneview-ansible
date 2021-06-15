@@ -455,7 +455,6 @@ class ServerProfileModule(OneViewModule):
 
                 # Build the data to create a new server profile based on a template if informed
                 server_profile = self.__build_new_profile_data(server_hardware_uri)
-
                 self.module.log(msg="Request Server Profile creation")
                 return self.resource_client.create(server_profile, **self.params)
 
@@ -534,8 +533,10 @@ class ServerProfileModule(OneViewModule):
             user_name = self.oneview_client._OneViewClient__connection._cred['userName']
             scope_user = self.oneview_client.users.get_by_userName(user_name)
             if scope_user:
-                scope_uri = scope_user.data["permissions"][0]["scopeUri"]
-
+                permissions = scope_user.data["permissions"]
+                scope_uris = set([each_role.get("scopeUri") for each_role in permissions])
+                scope_uri = '%20OR%20'.join(list(scope_uris))
+                self.data['initialScopeUris'] = list(scope_uris)
         if self.server_template:
             enclosure_group = self.server_template.data.get('enclosureGroupUri', '')
             server_hardware_type = self.server_template.data.get('serverHardwareTypeUri', '')
