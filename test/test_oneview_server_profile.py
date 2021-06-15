@@ -45,7 +45,7 @@ TASK_ERROR = OneViewModuleTaskError(msg=FAKE_MSG_ERROR, error_code='AssignProfil
 BASIC_PROFILE = dict(
     name=SERVER_PROFILE_NAME,
     serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI,
-    scopeUris=SCOPE_URI,
+    initialScopeUris=[SCOPE_URI],
     enclosureGroupUri=ENCLOSURE_GROUP_URI,
     description=DESCRIPTION,
     uri=SERVER_PROFILE_URI
@@ -688,7 +688,6 @@ class TestServerProfileModule(OneViewBaseTest):
 
         create_params = deepcopy(PARAMS_FOR_PRESENT['data'])
         create_params['serverHardwareUri'] = FAKE_SERVER_HARDWARE['uri']
-        create_params['scopeUris'] = SCOPE_USER['permissions'][0]['scopeUri']
 
         ServerProfileModule().run()
 
