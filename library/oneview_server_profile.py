@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
@@ -525,8 +524,17 @@ class ServerProfileModule(OneViewModule):
                         volume.pop(SPKeys.LUN, None)
 
     def __get_available_server_hardware_uri(self):
-        scope_uris = self.data.get('initialScopeUris', [])
-        scope_uri = '%20OR%20'.join(scope_uris)
+
+        # Retrive scopeUri from oneview for scoped user if initialScopeUris is null
+        scope_uri = ''
+        if self.data.get('initialScopeUris'):
+            scope_uris = self.data.get('initialScopeUris', [])
+            scope_uri = '%20OR%20'.join(scope_uris)
+        else:
+            user_name = self.oneview_client._OneViewClient__connection._cred['userName']
+            scope_user = self.oneview_client.users.get_by_userName(user_name)
+            if scope_user:
+                scope_uri = scope_user.data["permissions"][0]["scopeUri"]
 
         if self.server_template:
             enclosure_group = self.server_template.data.get('enclosureGroupUri', '')

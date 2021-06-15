@@ -12,6 +12,7 @@ In this release, we have added support for IDPools, Tasks, Label and User resour
 - [#669] (https://github.com/HewlettPackard/oneview-ansible/issues/669) Regression from OV5.7.0-ov5.3 to OV.5.10.0-ov5.6
 - [#679] (https://github.com/HewlettPackard/oneview-ansible/issues/679) An exception is returned after user permission assignment
 - [#686] (https://github.com/HewlettPackard/oneview-ansible/issues/686) Oneview_user_facts by name returns an exception
+- [#699] (https://github.com/HewlettPackard/oneview-ansible/issues/699) Auto-assign hardware with scoped user not assigned
 
 ### Modules supported in this release
 - image_streamer_artifact_bundle

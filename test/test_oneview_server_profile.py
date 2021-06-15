@@ -33,6 +33,7 @@ DESCRIPTION = "test description"
 SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
 SERVER_HARDWARE_TEMPLATE_URI = "/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B"
 ENCLOSURE_GROUP_URI = "/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89"
+SCOPE_URI = "/rest/scopes/be5e9e88-c858-4935-ba58-017d6"
 TEMPLATE_URI = '/rest/server-profile-templates/9a156b04-fce8-40b0-b0cd-92ced1311dda'
 FAKE_SERVER_HARDWARE = {'uri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'}
 
@@ -44,6 +45,7 @@ TASK_ERROR = OneViewModuleTaskError(msg=FAKE_MSG_ERROR, error_code='AssignProfil
 BASIC_PROFILE = dict(
     name=SERVER_PROFILE_NAME,
     serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI,
+    scopeUris=SCOPE_URI,
     enclosureGroupUri=ENCLOSURE_GROUP_URI,
     description=DESCRIPTION,
     uri=SERVER_PROFILE_URI
@@ -62,6 +64,14 @@ PARAMS_FOR_PRESENT = dict(
     auto_assign_server_hardware=True,
     state='present',
     data=BASIC_PROFILE
+)
+
+SCOPE_USER = dict(
+    name="ScopeTest",
+    permissions=[dict(
+        role="Server Profile Administrator",
+        scopeUri="/rest/scopes/be5e9e88-c858-4935-ba58-017d6"
+    )]
 )
 
 BASIC_SCOPE_PROFILE = dict(
@@ -668,16 +678,22 @@ class TestServerProfileModule(OneViewBaseTest):
         obj = mock.Mock()
         obj.data = FAKE_SERVER_HARDWARE
         self.mock_ov_client.server_hardware.get_by_uri.return_value = obj
+
+        obj = mock.Mock()
+        obj.data = SCOPE_USER
+        self.mock_ov_client.users.get_by_userName.return_value = obj
+
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         self.mock_ov_client.api_version = 1200
 
         create_params = deepcopy(PARAMS_FOR_PRESENT['data'])
         create_params['serverHardwareUri'] = FAKE_SERVER_HARDWARE['uri']
+        create_params['scopeUris'] = SCOPE_USER['permissions'][0]['scopeUri']
 
         ServerProfileModule().run()
 
         self.resource.get_available_servers.assert_called_once_with(
-            serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI, enclosureGroupUri=ENCLOSURE_GROUP_URI)
+            serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI, enclosureGroupUri=ENCLOSURE_GROUP_URI, scopeUris=SCOPE_URI)
         self.resource.create.assert_called_once_with(create_params)
 
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=FAKE_MSG_ERROR)
