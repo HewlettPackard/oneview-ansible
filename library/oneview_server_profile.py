@@ -421,7 +421,7 @@ class ServerProfileModule(OneViewModule):
         # the update, and in case of failure mentioning powering off the SH, a Power off on
         # the SH is attempted, followed by the update operation again and a Power On.
         try:
-            self.current_resource.update(profile_with_updates)
+            self.current_resource.update(profile_with_updates, **self.params)
         except OneViewModuleException as exception:
             error_msg = '; '.join(str(e) for e in exception.args)
             power_on_msg = 'Some server profile attributes cannot be changed while the server hardware is powered on.'
@@ -434,7 +434,7 @@ class ServerProfileModule(OneViewModule):
                 self.__set_server_hardware_power_state(profile_with_updates['serverHardwareUri'], 'Off')
 
                 self.module.log("Retrying update operation after server power off")
-                self.current_resource.update(profile_with_updates)
+                self.current_resource.update(profile_with_updates, **self.params)
 
                 self.module.log("Powering on the server hardware after update")
                 self.__set_server_hardware_power_state(self.current_resource.data['serverHardwareUri'], 'On')
@@ -583,7 +583,7 @@ class ServerProfileModule(OneViewModule):
             self.__set_server_hardware_power_state(self.current_resource.data['serverHardwareUri'],
                                                    'Off')
 
-        self.current_resource.delete()
+        self.current_resource.delete(**self.params)
         return True, self.MSG_DELETED
 
     def __make_compliant(self):
