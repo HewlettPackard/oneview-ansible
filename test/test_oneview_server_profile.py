@@ -45,8 +45,8 @@ TASK_ERROR = OneViewModuleTaskError(msg=FAKE_MSG_ERROR, error_code='AssignProfil
 BASIC_PROFILE = dict(
     name=SERVER_PROFILE_NAME,
     serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI,
-    initialScopeUris=[SCOPE_URI],
     enclosureGroupUri=ENCLOSURE_GROUP_URI,
+    initialScopeUris=[SCOPE_URI],
     description=DESCRIPTION,
     uri=SERVER_PROFILE_URI
 )
@@ -394,6 +394,36 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.api_version = 1600
         profile_data = deepcopy(BASIC_SCOPE_PROFILE)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
+
+        self.resource.get_by_name.return_value = None
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
+        self.resource.get_available_targets.return_value = AVAILABLE_TARGETS
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT_WITH_SCOPE)
+
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
+
+        ServerProfileModule().run()
+
+        self.resource.create.assert_called_once_with(profile_data)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerProfileModule.MSG_CREATED,
+            ansible_facts=mock_facts
+        )
+
+    def test_should_create_with_selected_hardware_when_scopeuri_not_exists_for_scoped_user(self):
+        self.mock_ov_client.api_version = 1600
+        profile_data = deepcopy(BASIC_PROFILE)
+        profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
+
+        obj = mock.Mock()
+        obj.data = SCOPE_USER
+        self.mock_ov_client.users.get_by_userName.return_value = obj
+        profile_data['initialScopeUris'] = '/rest/scopes/12ab33bb-391f-491a-adfb-02b0dc625b3e%20OR%20/rest/scopes/3006eb67-a58f-4f5c-b173-e46309b2b87d'
 
         self.resource.get_by_name.return_value = None
         self.resource.data = CREATED_BASIC_PROFILE
