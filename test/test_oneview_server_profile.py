@@ -334,6 +334,7 @@ class TestServerProfileModule(OneViewBaseTest):
         profile_data = deepcopy(BASIC_PROFILE)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
+        self.mock_ov_client.users.get_by_userName.return_value = None
         self.resource.get_by_name.return_value = None
         self.resource.data = CREATED_BASIC_PROFILE
         self.resource.create.return_value = self.resource
@@ -384,6 +385,7 @@ class TestServerProfileModule(OneViewBaseTest):
         profile_data = deepcopy(BASIC_PROFILE)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
+        self.mock_ov_client.users.get_by_userName.return_value = None
         self.resource.get_by_name.return_value = None
         self.resource.data = CREATED_BASIC_PROFILE
         self.resource.create.return_value = self.resource
