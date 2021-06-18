@@ -33,6 +33,7 @@ DESCRIPTION = "test description"
 SERVER_PROFILE_URI = "/rest/server-profiles/94B55683-173F-4B36-8FA6-EC250BA2328B"
 SERVER_HARDWARE_TEMPLATE_URI = "/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B"
 ENCLOSURE_GROUP_URI = "/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89"
+SCOPE_URI = "/rest/scopes/be5e9e88-c858-4935-ba58-017d6"
 TEMPLATE_URI = '/rest/server-profile-templates/9a156b04-fce8-40b0-b0cd-92ced1311dda'
 FAKE_SERVER_HARDWARE = {'uri': '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'}
 
@@ -45,6 +46,7 @@ BASIC_PROFILE = dict(
     name=SERVER_PROFILE_NAME,
     serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI,
     enclosureGroupUri=ENCLOSURE_GROUP_URI,
+    initialScopeUris=[SCOPE_URI],
     description=DESCRIPTION,
     uri=SERVER_PROFILE_URI
 )
@@ -64,6 +66,14 @@ PARAMS_FOR_PRESENT = dict(
     data=BASIC_PROFILE
 )
 
+SCOPE_USER = dict(
+    name="ScopeTest",
+    permissions=[dict(
+        role="Server Profile Administrator",
+        scopeUri="/rest/scopes/be5e9e88-c858-4935-ba58-017d6"
+    )]
+)
+
 BASIC_SCOPE_PROFILE = dict(
     name=SERVER_PROFILE_NAME,
     uri=SERVER_PROFILE_URI,
@@ -73,11 +83,26 @@ BASIC_SCOPE_PROFILE = dict(
     initialScopeUris='/rest/scopes/12ab33bb-391f-491a-adfb-02b0dc625b3e%20OR%20/rest/scopes/3006eb67-a58f-4f5c-b173-e46309b2b87d'
 )
 
+BASIC_SCOPE_PROFILE_WITHOUT_URI = dict(
+    name=SERVER_PROFILE_NAME,
+    uri=SERVER_PROFILE_URI,
+    description=DESCRIPTION,
+    enclosureGroupUri="/rest/enclosure-groups/ad5e9e88-b858-4935-ba58-017d60a17c89",
+    serverHardwareTypeUri="/rest/server-hardware-types/94B55683-173F-4B36-8FA6-EC250BA2328B",
+)
+
 PARAMS_FOR_PRESENT_WITH_SCOPE = dict(
     config='config.json',
     auto_assign_server_hardware=True,
     state='present',
     data=BASIC_SCOPE_PROFILE
+)
+
+PARAMS_FOR_PRESENT_WITHOUT_SCOPE = dict(
+    config='config.json',
+    auto_assign_server_hardware=True,
+    state='present',
+    data=BASIC_SCOPE_PROFILE_WITHOUT_URI
 )
 
 PARAMS_FOR_UPDATE = dict(
@@ -306,16 +331,17 @@ class TestServerProfileModule(OneViewBaseTest):
             changed=True, msg=ServerProfileModule.MSG_REMEDIATED_COMPLIANCE, ansible_facts=mock_facts)
 
     def test_should_create_with_automatically_selected_hardware_when_not_exists(self):
-        profile_data = deepcopy(BASIC_PROFILE)
+        profile_data = deepcopy(BASIC_SCOPE_PROFILE_WITHOUT_URI)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
+        self.mock_ov_client.users.get_by_userName.return_value = None
         self.resource.get_by_name.return_value = None
         self.resource.data = CREATED_BASIC_PROFILE
         self.resource.create.return_value = self.resource
         self.resource.get_available_servers.return_value = AVAILABLE_SERVERS
         self.mock_ov_client.server_hardware.data = {}
         self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
-        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT_WITHOUT_SCOPE)
         self.mock_ov_client.api_version = 1200
 
         mock_facts = gather_facts(self.mock_ov_client, created=True)
@@ -356,16 +382,17 @@ class TestServerProfileModule(OneViewBaseTest):
         )
 
     def test_should_create_with_automatically_selected_hardware_when_not_exists_with_apiversion_1600(self):
-        profile_data = deepcopy(BASIC_PROFILE)
+        profile_data = deepcopy(BASIC_SCOPE_PROFILE_WITHOUT_URI)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
+        self.mock_ov_client.users.get_by_userName.return_value = None
         self.resource.get_by_name.return_value = None
         self.resource.data = CREATED_BASIC_PROFILE
         self.resource.create.return_value = self.resource
         self.resource.get_available_targets.return_value = AVAILABLE_TARGETS
         self.mock_ov_client.server_hardware.data = {}
         self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
-        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT_WITHOUT_SCOPE)
         self.mock_ov_client.api_version = 1600
 
         mock_facts = gather_facts(self.mock_ov_client, created=True)
@@ -392,6 +419,36 @@ class TestServerProfileModule(OneViewBaseTest):
         self.mock_ov_client.server_hardware.data = {}
         self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT_WITH_SCOPE)
+
+        mock_facts = gather_facts(self.mock_ov_client, created=True)
+
+        ServerProfileModule().run()
+
+        self.resource.create.assert_called_once_with(profile_data)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=ServerProfileModule.MSG_CREATED,
+            ansible_facts=mock_facts
+        )
+
+    def test_should_create_with_selected_hardware_when_scopeuri_not_exists_for_scoped_user(self):
+        self.mock_ov_client.api_version = 1600
+        profile_data = deepcopy(BASIC_SCOPE_PROFILE_WITHOUT_URI)
+        profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
+
+        obj = mock.Mock()
+        obj.data = SCOPE_USER
+        self.mock_ov_client.users.get_by_userName.return_value = obj
+        profile_data['initialScopeUris'] = ['/rest/scopes/be5e9e88-c858-4935-ba58-017d6']
+
+        self.resource.get_by_name.return_value = None
+        self.resource.data = CREATED_BASIC_PROFILE
+        self.resource.create.return_value = self.resource
+        self.resource.get_available_targets.return_value = AVAILABLE_TARGETS
+        self.mock_ov_client.server_hardware.data = {}
+        self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT_WITHOUT_SCOPE)
 
         mock_facts = gather_facts(self.mock_ov_client, created=True)
 
@@ -668,6 +725,11 @@ class TestServerProfileModule(OneViewBaseTest):
         obj = mock.Mock()
         obj.data = FAKE_SERVER_HARDWARE
         self.mock_ov_client.server_hardware.get_by_uri.return_value = obj
+
+        obj = mock.Mock()
+        obj.data = SCOPE_USER
+        self.mock_ov_client.users.get_by_userName.return_value = obj
+
         self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
         self.mock_ov_client.api_version = 1200
 
@@ -677,7 +739,7 @@ class TestServerProfileModule(OneViewBaseTest):
         ServerProfileModule().run()
 
         self.resource.get_available_servers.assert_called_once_with(
-            serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI, enclosureGroupUri=ENCLOSURE_GROUP_URI)
+            serverHardwareTypeUri=SERVER_HARDWARE_TEMPLATE_URI, enclosureGroupUri=ENCLOSURE_GROUP_URI, scopeUris=SCOPE_URI)
         self.resource.create.assert_called_once_with(create_params)
 
         self.mock_ansible_module.fail_json.assert_called_once_with(exception=mock.ANY, msg=FAKE_MSG_ERROR)

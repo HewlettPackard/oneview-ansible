@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###
-
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
@@ -456,7 +455,6 @@ class ServerProfileModule(OneViewModule):
 
                 # Build the data to create a new server profile based on a template if informed
                 server_profile = self.__build_new_profile_data(server_hardware_uri)
-
                 self.module.log(msg="Request Server Profile creation")
                 return self.resource_client.create(server_profile, **self.params)
 
@@ -525,9 +523,20 @@ class ServerProfileModule(OneViewModule):
                         volume.pop(SPKeys.LUN, None)
 
     def __get_available_server_hardware_uri(self):
-        scope_uris = self.data.get('initialScopeUris', [])
-        scope_uri = '%20OR%20'.join(scope_uris)
 
+        # Retrive scopeUri from oneview for scoped user if initialScopeUris is null
+        scope_uri = ''
+        if self.data.get('initialScopeUris'):
+            scope_uris = self.data.get('initialScopeUris', [])
+            scope_uri = '%20OR%20'.join(scope_uris)
+        else:
+            user_name = self.oneview_client._OneViewClient__connection._cred['userName']
+            scope_user = self.oneview_client.users.get_by_userName(user_name)
+            if scope_user and user_name != 'Administrator':
+                permissions = scope_user.data["permissions"]
+                scope_uris = set([each_role.get("scopeUri") for each_role in permissions])
+                scope_uri = '%20OR%20'.join(list(scope_uris))
+                self.data['initialScopeUris'] = list(scope_uris)
         if self.server_template:
             enclosure_group = self.server_template.data.get('enclosureGroupUri', '')
             server_hardware_type = self.server_template.data.get('serverHardwareTypeUri', '')

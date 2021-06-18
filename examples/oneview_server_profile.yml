@@ -61,6 +61,7 @@
           name: "{{ inventory_hostname }}"
           description: "{{ server_profile_description }}"
           # User should set initialScopeUris in case of scoped user
+          # Otherwise collects scopeUris from OV when user doesn't provide 
           initialScopeUris:
             - "{{ scopes[0].uri }}"
         params: # Supported only in API version >= 600
