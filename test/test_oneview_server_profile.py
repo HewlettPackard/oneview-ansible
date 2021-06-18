@@ -331,7 +331,7 @@ class TestServerProfileModule(OneViewBaseTest):
             changed=True, msg=ServerProfileModule.MSG_REMEDIATED_COMPLIANCE, ansible_facts=mock_facts)
 
     def test_should_create_with_automatically_selected_hardware_when_not_exists(self):
-        profile_data = deepcopy(BASIC_PROFILE)
+        profile_data = deepcopy(BASIC_SCOPE_PROFILE_WITHOUT_URI)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
         self.mock_ov_client.users.get_by_userName.return_value = None
@@ -341,7 +341,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.get_available_servers.return_value = AVAILABLE_SERVERS
         self.mock_ov_client.server_hardware.data = {}
         self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
-        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT_WITHOUT_SCOPE)
         self.mock_ov_client.api_version = 1200
 
         mock_facts = gather_facts(self.mock_ov_client, created=True)
@@ -382,7 +382,7 @@ class TestServerProfileModule(OneViewBaseTest):
         )
 
     def test_should_create_with_automatically_selected_hardware_when_not_exists_with_apiversion_1600(self):
-        profile_data = deepcopy(BASIC_PROFILE)
+        profile_data = deepcopy(BASIC_SCOPE_PROFILE_WITHOUT_URI)
         profile_data['serverHardwareUri'] = '/rest/server-hardware/31393736-3831-4753-567h-30335837524E'
 
         self.mock_ov_client.users.get_by_userName.return_value = None
@@ -392,7 +392,7 @@ class TestServerProfileModule(OneViewBaseTest):
         self.resource.get_available_targets.return_value = AVAILABLE_TARGETS
         self.mock_ov_client.server_hardware.data = {}
         self.mock_ov_client.server_hardware.get_by_uri.return_value = self.mock_ov_client.server_hardware
-        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT)
+        self.mock_ansible_module.params = deepcopy(PARAMS_FOR_PRESENT_WITHOUT_SCOPE)
         self.mock_ov_client.api_version = 1600
 
         mock_facts = gather_facts(self.mock_ov_client, created=True)
