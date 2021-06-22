@@ -386,36 +386,6 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
             ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
         )
 
-    def test_should_retry_update_when_there_is_etag_error(self):
-        self.resource.data = DEFAULT_LIG_TEMPLATE
-        etag_error = 'The resource has changed since it was last retrieved'
-        self.resource.update.side_effect = [Exception(etag_error), DEFAULT_LIG_TEMPLATE]
-
-        self.mock_ansible_module.params = PARAMS_WITH_CHANGES
-
-        LogicalInterconnectGroupModule().run()
-
-        self.resource.update.assert_called_with(DEFAULT_LIG_TEMPLATE)
-
-        self.mock_ansible_module.exit_json.assert_called_once_with(
-            changed=True,
-            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
-            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
-        )
-
-    # def test_should_fail_when_there_is_other_error(self):
-    #     self.resource.data = DEFAULT_LIG_TEMPLATE
-    #     etag_error = 'test'
-    #     self.resource.update.side_effect = Exception(etag_error)
-    #
-    #     self.mock_ansible_module.params = PARAMS_WITH_CHANGES
-    #
-    #     LogicalInterconnectGroupModule().run()
-    #
-    #     self.mock_ansible_module.fail_json.assert_called_once_with(
-    #         exception=mock.ANY,
-    #         msg=etag_error)
-
     def test_update_when_data_has_modified_uplinkset_attributes(self):
         self.resource.data = DEFAULT_LIG_TEMPLATE
         self.mock_ansible_module.params = PARAMS_WITH_CHANGES
