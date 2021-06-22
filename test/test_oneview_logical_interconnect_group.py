@@ -395,8 +395,13 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
 
         LogicalInterconnectGroupModule().run()
 
-        assert self.resource.update.mock_calls == [
-            mock.call(DEFAULT_LIG_TEMPLATE), mock.call(DEFAULT_LIG_TEMPLATE)]
+        self.resource.update.assert_called_once_with(DEFAULT_LIG_TEMPLATE)
+
+        self.mock_ansible_module.exit_json.assert_called_once_with(
+            changed=True,
+            msg=LogicalInterconnectGroupModule.MSG_UPDATED,
+            ansible_facts=dict(logical_interconnect_group=DEFAULT_LIG_TEMPLATE)
+        )
 
     # def test_should_fail_when_there_is_other_error(self):
     #     self.resource.data = DEFAULT_LIG_TEMPLATE
