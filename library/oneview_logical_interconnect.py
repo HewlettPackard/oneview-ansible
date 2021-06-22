@@ -415,8 +415,8 @@ class LogicalInterconnectModule(OneViewModule):
             li = self.current_resource.update_compliance()
             return True, self.MSG_CONSISTENT, dict(logical_interconnect=li)
         except Exception as e:
-            error_msg = '; '.join(str(arg) for arg in e.args)
-            if 'there is an active operation on the logical interconnect' in error_msg:
+            attrib_val = getattr(e, 'oneview_response', None)
+            if attrib_val and attrib_val.get('errorCode') == 'CRM_ONGOING_OPERATION_ON_LOGICAL_INTERCONNECT':
                 time.sleep(60)
                 main()
             else:

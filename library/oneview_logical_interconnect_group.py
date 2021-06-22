@@ -223,8 +223,7 @@ class LogicalInterconnectGroupModule(OneViewModule):
             try:
                 self.current_resource.update(merged_data)
             except Exception as e:
-                error_msg = '; '.join(str(arg) for arg in e.args)
-                if 'The resource has changed since it was last retrieved' in error_msg:
+                if e.error_code == 'CRM_ETAG_CHECK_FAILED':
                     main()
                 else:
                     raise e
