@@ -1,21 +1,21 @@
-#codecov:
-#  notify:
-#    require_ci_to_pass: yes
-#
-#coverage:
-#  precision: 2
-#  round: down
-#  range: "70...100"
-#
-#  status:
-#    project:
-#      default:
-#        threshold: 1
-#        target: 90% #overall project/ repo coverage
-#    # Disable patch since it is noisy and not correct
-#    patch:
-#      default:
-#        enabled: no
-#        if_not_found: success
+codecov:
+  notify:
+    require_ci_to_pass: yes
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+
+  status:
+    project:
+      default:
+        threshold: 1
+        target: 97% #overall project/ repo coverage
+    # Disable patch since it is noisy and not correct
+    patch:
+      default:
+        enabled: no
+        if_not_found: success
 
 comment: false
