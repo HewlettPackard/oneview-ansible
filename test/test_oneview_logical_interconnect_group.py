@@ -395,7 +395,7 @@ class TestLogicalInterconnectGroupModule(OneViewBaseTest):
 
         LogicalInterconnectGroupModule().run()
 
-        self.resource.update.assert_called_once_with(DEFAULT_LIG_TEMPLATE)
+        self.resource.update.assert_called_with(DEFAULT_LIG_TEMPLATE)
 
         self.mock_ansible_module.exit_json.assert_called_once_with(
             changed=True,
