@@ -138,7 +138,8 @@ logical_interconnect_group:
     type: dict
 '''
 
-from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, compare_lig, dict_merge, LIGMerger
+from ansible.module_utils.oneview import (OneViewModule, OneViewModuleResourceNotFound,
+                                          compare_lig, dict_merge, LIGMerger)
 
 
 class LogicalInterconnectGroupModule(OneViewModule):
@@ -218,7 +219,14 @@ class LogicalInterconnectGroupModule(OneViewModule):
         if compare_lig(current_data, merged_data):
             msg = self.MSG_ALREADY_PRESENT
         else:
-            self.current_resource.update(merged_data)
+            # This block will handle the exception caused by concurrent update calls made on same resource
+            try:
+                self.current_resource.update(merged_data)
+            except Exception as e:
+                if e.error_code == 'CRM_ETAG_CHECK_FAILED':
+                    main()
+                else:
+                    raise e
             changed = True
             msg = self.MSG_UPDATED
         return changed, msg

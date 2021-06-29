@@ -323,6 +323,7 @@ li_inconsistency_report:
     type: dict
 '''
 
+import time
 from ansible.module_utils.oneview import OneViewModule, OneViewModuleResourceNotFound, OneViewModuleValueError, compare
 
 
@@ -409,8 +410,17 @@ class LogicalInterconnectModule(OneViewModule):
         return result
 
     def __compliance(self):
-        li = self.current_resource.update_compliance()
-        return True, self.MSG_CONSISTENT, dict(logical_interconnect=li)
+        # This block will handle the exception caused by parallel operations made on same resource
+        try:
+            li = self.current_resource.update_compliance()
+            return True, self.MSG_CONSISTENT, dict(logical_interconnect=li)
+        except Exception as e:
+            attrib_val = getattr(e, 'oneview_response', None)
+            if attrib_val and attrib_val.get('errorCode') == 'CRM_ONGOING_OPERATION_ON_LOGICAL_INTERCONNECT':
+                time.sleep(60)
+                main()
+            else:
+                raise e
 
     def __update_ethernet_settings(self):
         self.__validate_options('ethernetSettings', self.data)
