@@ -70,6 +70,7 @@
         data:
           name: "{{ server_profile_template_name }}"
       delegate_to: localhost
+      when: currentVersion >= '1800'
 
     - name: Delete the Server Profile Template
       oneview_server_profile_template:
