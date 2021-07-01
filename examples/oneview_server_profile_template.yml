@@ -63,6 +63,14 @@
           force: True # Supprted only for API version >= 600
       delegate_to: localhost
 
+    - name: Refresh template state
+      oneview_server_profile_template:
+        config: "{{ config }}"
+        state: refresh_state
+        data:
+          name: "{{ server_profile_template_name }}"
+      delegate_to: localhost
+
     - name: Delete the Server Profile Template
       oneview_server_profile_template:
         config: "{{ config }}"
