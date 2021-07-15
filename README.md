@@ -34,7 +34,7 @@ To run the Ansible modules provided in this project, we need the below :
  
 	Ansible <= 2.9
 	Python >= 3.4.2
-	HPE OneView Python SDK
+	hpeOneView==6.1.0
  
 ## Installation
 
