@@ -1,5 +1,10 @@
 # HPE OneView SDK for Ansible
 
+## 📢 This project is no longer being maintained.  Please use the newer [Ansible Collection](https://github.com/HewlettPackard/oneview-ansible-collection) project.
+
+
+
+
 ## Build Status 
 
 OV Version | 6.10 | 6.00 | 5.60 | 5.50 | 5.40 |
